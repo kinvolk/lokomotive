@@ -22,3 +22,17 @@ check-go-format:
 ## Formats any go file that differs from gofmt's style
 format-go-code:
 	@gofmt -s -l -w ${GOFORMAT_FILES}
+
+.PHONY: getbindata
+getbindata:
+	go get -u github.com/twitter/go-bindata/...
+
+.PHONY: bindata-ingressnginx
+bindata-ingressnginx:
+	go-bindata -pkg ingressnginx -o pkg/component/ingressnginx/bindata.go manifests/nginx-ingress manifests/nginx-ingress/rbac
+
+.PHONY: bindata
+bindata: bindata-ingressnginx
+
+.PHONY: all
+all: getbindata bindata build test
