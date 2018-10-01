@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kinvolk/lokoctl/pkg/component"
+	"github.com/kinvolk/lokoctl/pkg/component/ingressnginx"
 )
 
 var components = make(map[string]component.Interface)
@@ -38,4 +39,7 @@ func Get(name string) (component.Interface, error) {
 
 func init() {
 	// register your components here
+
+	ig := ingressnginx.New()
+	Register(ig)
 }
