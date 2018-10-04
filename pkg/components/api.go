@@ -5,6 +5,7 @@ import (
 
 	"github.com/kinvolk/lokoctl/pkg/component"
 	"github.com/kinvolk/lokoctl/pkg/component/ingressnginx"
+	"github.com/kinvolk/lokoctl/pkg/component/networkpolicy"
 )
 
 var components = make(map[string]component.Interface)
@@ -42,4 +43,7 @@ func init() {
 
 	ig := ingressnginx.New()
 	Register(ig)
+
+	dnp := networkpolicy.New()
+	Register(dnp)
 }
