@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 )
 
 var componentCmd = &cobra.Command{
@@ -38,7 +39,12 @@ func runInstall(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("%q", err)
 	}
 
-	if err = c.Install(); err != nil {
+	client, err := k8sutil.NewClientset(kubeconfig)
+	if err != nil {
+		contextLogger.Fatalf("Error in setting up Kubernetes client: %q", err)
+	}
+
+	if err = c.Install(client); err != nil {
 		contextLogger.Fatalf("Installation of component %q failed: %q", c.Name(), err)
 	}
 
