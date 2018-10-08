@@ -19,14 +19,20 @@ var installCmd = &cobra.Command{
 	Run:   runInstall,
 }
 
+var (
+	namespace string
+)
+
 func init() {
 	rootCmd.AddCommand(componentCmd)
 	componentCmd.AddCommand(installCmd)
+	installCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "namespace where the component will be installed")
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
 		"command": "lokoctl components install",
+		"namespace": namespace,
 		"args":    args,
 	})
 
@@ -44,7 +50,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in setting up Kubernetes client: %q", err)
 	}
 
-	if err = c.Install(client); err != nil {
+	if err = c.Install(client, namespace); err != nil {
 		contextLogger.Fatalf("Installation of component %q failed: %q", c.Name(), err)
 	}
 
