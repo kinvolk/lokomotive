@@ -31,9 +31,9 @@ func init() {
 
 func runInstall(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
-		"command": "lokoctl components install",
+		"command":   "lokoctl components install",
 		"namespace": namespace,
-		"args":    args,
+		"args":      args,
 	})
 
 	if len(args) == 0 {
