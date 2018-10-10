@@ -182,10 +182,11 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
-	"manifests": &bintree{nil, map[string]*bintree{
-		"default-network-policies": &bintree{nil, map[string]*bintree{
-			"deny-metadata-access.yaml": &bintree{manifestsDefaultNetworkPoliciesDenyMetadataAccessYaml, map[string]*bintree{}},
+	"manifests": {nil, map[string]*bintree{
+		"default-network-policies": {nil, map[string]*bintree{
+			"deny-metadata-access.yaml": {manifestsDefaultNetworkPoliciesDenyMetadataAccessYaml, map[string]*bintree{}},
 		}},
 	}},
 }}
@@ -236,4 +237,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
