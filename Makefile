@@ -31,8 +31,12 @@ getbindata:
 bindata-ingressnginx:
 	go-bindata -pkg ingressnginx -o pkg/component/ingressnginx/bindata.go manifests/nginx-ingress manifests/nginx-ingress/rbac
 
+.PHONY: bindata-networkpolicy
+bindata-networkpolicy:
+	go-bindata -pkg networkpolicy -o pkg/component/networkpolicy/bindata.go manifests/default-network-policies/deny-metadata-access.yaml
+
 .PHONY: bindata
-bindata: bindata-ingressnginx
+bindata: bindata-ingressnginx bindata-networkpolicy
 
 .PHONY: all
 all: getbindata bindata build test
