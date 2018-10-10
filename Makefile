@@ -10,13 +10,7 @@ GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v vendor)
 .PHONY: check-go-format
 ## Exits with an error if there are files whose formatting differs from gofmt's
 check-go-format:
-	@gofmt -s -l ${GOFORMAT_FILES} 2>&1 \
-		| tee /tmp/gofmt-errors \
-		| read \
-	&& echo "ERROR: These files differ from gofmt's style (run 'make format-go-code' to fix this):" \
-	&& cat /tmp/gofmt-errors \
-	&& exit 1 \
-	|| true
+	@./scripts/go-lint ${GOFORMAT_FILES}
 
 .PHONY: format-go-code
 ## Formats any go file that differs from gofmt's style
