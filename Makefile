@@ -36,7 +36,8 @@ bindata-networkpolicy:
 	go-bindata -pkg networkpolicy -o pkg/component/networkpolicy/bindata.go manifests/default-network-policies/deny-metadata-access.yaml
 
 .PHONY: bindata
-bindata: bindata-ingressnginx bindata-networkpolicy
+# make sure that `format-go-code` target is always the last one to run
+bindata: | bindata-ingressnginx bindata-networkpolicy format-go-code
 
 .PHONY: all
 all: getbindata bindata build test
