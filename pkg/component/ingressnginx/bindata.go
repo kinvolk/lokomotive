@@ -316,17 +316,17 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"manifests": &bintree{nil, map[string]*bintree{
-		"nginx-ingress": &bintree{nil, map[string]*bintree{
-			"0-namespace.yaml": &bintree{manifestsNginxIngress0NamespaceYaml, map[string]*bintree{}},
-			"deployment.yaml":  &bintree{manifestsNginxIngressDeploymentYaml, map[string]*bintree{}},
-			"rbac": &bintree{nil, map[string]*bintree{
-				"cluster-role-binding.yaml": &bintree{manifestsNginxIngressRbacClusterRoleBindingYaml, map[string]*bintree{}},
-				"cluster-role.yaml":         &bintree{manifestsNginxIngressRbacClusterRoleYaml, map[string]*bintree{}},
-				"role-binding.yaml":         &bintree{manifestsNginxIngressRbacRoleBindingYaml, map[string]*bintree{}},
-				"role.yaml":                 &bintree{manifestsNginxIngressRbacRoleYaml, map[string]*bintree{}},
+	"manifests": {nil, map[string]*bintree{
+		"nginx-ingress": {nil, map[string]*bintree{
+			"0-namespace.yaml": {manifestsNginxIngress0NamespaceYaml, map[string]*bintree{}},
+			"deployment.yaml":  {manifestsNginxIngressDeploymentYaml, map[string]*bintree{}},
+			"rbac": {nil, map[string]*bintree{
+				"cluster-role-binding.yaml": {manifestsNginxIngressRbacClusterRoleBindingYaml, map[string]*bintree{}},
+				"cluster-role.yaml":         {manifestsNginxIngressRbacClusterRoleYaml, map[string]*bintree{}},
+				"role-binding.yaml":         {manifestsNginxIngressRbacRoleBindingYaml, map[string]*bintree{}},
+				"role.yaml":                 {manifestsNginxIngressRbacRoleYaml, map[string]*bintree{}},
 			}},
-			"service.yaml": &bintree{manifestsNginxIngressServiceYaml, map[string]*bintree{}},
+			"service.yaml": {manifestsNginxIngressServiceYaml, map[string]*bintree{}},
 		}},
 	}},
 }}

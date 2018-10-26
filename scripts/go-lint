@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -euo pipefail
+
+GOFILES=$*
+# shellcheck disable=SC2086
+UNFORMATTED_GO_FILES=$(gofmt -s -l ${GOFILES} 2>&1)
+
+if [[ -n "${UNFORMATTED_GO_FILES}" ]]; then
+  echo "ERROR: These files differ from gofmt's style (run 'make format-go-code' to fix this):"
+  echo "${UNFORMATTED_GO_FILES}"
+  exit 1
+fi
