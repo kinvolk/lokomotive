@@ -14,9 +14,10 @@ var componentCmd = &cobra.Command{
 }
 
 var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Install a component",
-	Run:   runInstall,
+	Use:               "install",
+	Short:             "Install a component",
+	Run:               runInstall,
+	PersistentPreRunE: isKubeconfigSet,
 }
 
 var (
@@ -25,7 +26,10 @@ var (
 
 func init() {
 	rootCmd.AddCommand(componentCmd)
+
 	componentCmd.AddCommand(installCmd)
+	componentCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to kubeconfig file (required)")
+
 	installCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "namespace where the component will be installed")
 }
 
