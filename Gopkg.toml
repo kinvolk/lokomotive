@@ -37,3 +37,7 @@
   go-tests = true
   non-go = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/hpcloud/tail"
+  revision = "a1dbeea552b7c8df4b542c66073e393de198a800"
