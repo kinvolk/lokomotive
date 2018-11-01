@@ -14,6 +14,6 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalf("Error in executing lokoctl: %q", err)
+		log.Fatalf("Error in executing lokoctl: %v", err)
 	}
 }
