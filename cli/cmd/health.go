@@ -13,13 +13,15 @@ import (
 )
 
 var healthCmd = &cobra.Command{
-	Use:   "health",
-	Short: "Get the health of a Lokomotive cluster",
-	Run:   runHealth,
+	Use:               "health",
+	Short:             "Get the health of a Lokomotive cluster",
+	Run:               runHealth,
+	PersistentPreRunE: isKubeconfigSet,
 }
 
 func init() {
 	rootCmd.AddCommand(healthCmd)
+	healthCmd.Flags().StringVar(&kubeconfig, "kubeconfig", "", "Path to kubeconfig file (required)")
 }
 
 func runHealth(cmd *cobra.Command, args []string) {
