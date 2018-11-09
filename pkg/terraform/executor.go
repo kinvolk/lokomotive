@@ -15,10 +15,10 @@ import (
 	"runtime"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kardianos/osext"
 	"github.com/shirou/gopsutil/process"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
