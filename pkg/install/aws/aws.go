@@ -69,14 +69,9 @@ func extractAWSConfig(path string) error {
 }
 
 func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplData, err := ioutil.ReadFile("templates/aws")
-	if err != nil {
-		return err
-	}
-
 	tmplName := "cluster.tf"
 	t := template.New(tmplName)
-	t, err = t.Parse(string(tmplData))
+	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse template")
 	}
