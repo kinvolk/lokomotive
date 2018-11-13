@@ -1,3 +1,6 @@
+package aws
+
+var terraformConfigTmpl = `
 module "aws-{{.ClusterName}}" {
   source = "{{.Source}}"
 
@@ -49,3 +52,4 @@ provider "tls" {
   version = "~> 1.0"
   alias   = "default"
 }
+`
