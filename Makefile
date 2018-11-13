@@ -21,9 +21,9 @@ format-go-code:
 getbindata:
 	go get -u github.com/twitter/go-bindata/...
 
-.PHONY: bindata-aws
-bindata-aws:
-	./scripts/bindata-aws
+.PHONY: bindata-installer
+bindata-installer:
+	./scripts/bindata-installer
 
 .PHONY: bindata-components
 bindata-components:
@@ -31,7 +31,7 @@ bindata-components:
 
 .PHONY: bindata
 # make sure that `format-go-code` target is always the last one to run
-bindata: | bindata-aws bindata-components format-go-code
+bindata: | bindata-installer bindata-components format-go-code
 
 .PHONY: all
 all: getbindata bindata build test
