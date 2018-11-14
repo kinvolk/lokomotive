@@ -21,21 +21,17 @@ format-go-code:
 getbindata:
 	go get -u github.com/twitter/go-bindata/...
 
-.PHONY: bindata-ingressnginx
-bindata-ingressnginx:
-	go-bindata -pkg ingressnginx -o pkg/component/ingressnginx/bindata.go manifests/nginx-ingress manifests/nginx-ingress/rbac
-
-.PHONY: bindata-networkpolicy
-bindata-networkpolicy:
-	go-bindata -pkg networkpolicy -o pkg/component/networkpolicy/bindata.go manifests/default-network-policies/deny-metadata-access.yaml
-
 .PHONY: bindata-aws
 bindata-aws:
 	./scripts/bindata-aws
 
+.PHONY: bindata-components
+bindata-components:
+	./scripts/bindata-components
+
 .PHONY: bindata
 # make sure that `format-go-code` target is always the last one to run
-bindata: | bindata-ingressnginx bindata-networkpolicy bindata-aws format-go-code
+bindata: | bindata-aws bindata-components format-go-code
 
 .PHONY: all
 all: getbindata bindata build test

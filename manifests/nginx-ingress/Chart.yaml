@@ -1,0 +1,10 @@
+apiVersion: v1
+description: Nginx based ingress operator
+engine: gotpl
+maintainers:
+- name: Suraj Deshmukh
+  email: suraj@kinvolk.io
+name: nginx-ingress
+sources:
+- https://github.com/kinvolk/lokoctl
+version: 0.1.0
