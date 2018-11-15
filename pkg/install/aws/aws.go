@@ -1,15 +1,12 @@
 package aws
 
 import (
-	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 
-	"github.com/hpcloud/tail"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/tar"
@@ -47,7 +44,7 @@ func Install(cfg *config) error {
 	}
 
 	// TODO: skip if the dir already exists
-	if err := extractAWSConfig(cfg.AssetDir); err != nil {
+	if err := tar.UntarFromAsset(Asset, "lokomotive-kubernetes-aws.tar.gz", cfg.AssetDir); err != nil {
 		return errors.Wrapf(err, "failed to extract AWS config at: %s", cfg.AssetDir)
 	}
 
@@ -55,17 +52,7 @@ func Install(cfg *config) error {
 		return err
 	}
 
-	return installUsingTerraform(terraformPath)
-}
-
-func extractAWSConfig(path string) error {
-	tarFile, err := Asset("lokomotive-kubernetes.tar.gz")
-	if err != nil {
-		return err
-	}
-
-	tarFileReader := bytes.NewReader(tarFile)
-	return tar.Untar(tarFileReader, path)
+	return terraform.InitAndApply(terraformPath)
 }
 
 func createTerraformConfigFile(cfg *config, terraformPath string) error {
@@ -111,42 +98,4 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
-}
-
-func installUsingTerraform(exPath string) error {
-	ex, err := terraform.NewExecutor(exPath)
-	if err != nil {
-		return errors.Wrap(err, "failed to create terraform executor")
-	}
-
-	if err := executeTerraform(ex, "init", "-no-color"); err != nil {
-		return err
-	}
-
-	if err := executeTerraform(ex, "apply", "-auto-approve", "-no-color"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func executeTerraform(ex *terraform.Executor, args ...string) error {
-	pid, done, err := ex.Execute(args...)
-	if err != nil {
-		return errors.Wrapf(err, "failed to run 'terraform %s'", strings.Join(args, " "))
-	}
-
-	pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
-	t, err := tail.TailFile(pathToFile, tail.Config{Follow: true})
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		for line := range t.Lines {
-			fmt.Println(line.Text)
-		}
-	}()
-
-	<-done
-	return t.Stop()
 }
