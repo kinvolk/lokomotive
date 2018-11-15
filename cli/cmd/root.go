@@ -3,9 +3,8 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
-
-var kubeconfig string
 
 var rootCmd = &cobra.Command{
 	Use:   "lokoctl",
@@ -16,4 +15,12 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("Error in executing lokoctl: %v", err)
 	}
+}
+
+func init() {
+	cobra.OnInitialize(cobraInit)
+}
+
+func cobraInit() {
+	viper.AutomaticEnv()
 }

@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
@@ -16,12 +17,12 @@ var healthCmd = &cobra.Command{
 	Use:               "health",
 	Short:             "Get the health of a Lokomotive cluster",
 	Run:               runHealth,
-	PersistentPreRunE: isKubeconfigSet,
+	PersistentPreRunE: doesKubeconfigExist,
 }
 
 func init() {
 	rootCmd.AddCommand(healthCmd)
-	healthCmd.Flags().StringVar(&kubeconfig, "kubeconfig", "", "Path to kubeconfig file (required)")
+	addKubeConfigFlag(healthCmd)
 }
 
 func runHealth(cmd *cobra.Command, args []string) {
@@ -30,7 +31,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	client, err := k8sutil.NewClientset(kubeconfig)
+	client, err := k8sutil.NewClientset(viper.GetString("kubeconfig"))
 	if err != nil {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}
