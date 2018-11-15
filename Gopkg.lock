@@ -148,6 +148,14 @@
   version = "v1.7.0"
 
 [[projects]]
+  digest = "1:1b91ae0dc69a41d4c2ed23ea5cffb721ea63f5037ca4b81e6d6771fbb8f45129"
+  name = "github.com/fsnotify/fsnotify"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  version = "v1.4.7"
+
+[[projects]]
   digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
   name = "github.com/ghodss/yaml"
   packages = ["."]
@@ -336,12 +344,13 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:39f543569bf189e228c84a294c50aca8ea56c82b3d9df5c9b788249907d7049a"
+  digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
     "hcl/ast",
     "hcl/parser",
+    "hcl/printer",
     "hcl/scanner",
     "hcl/strconv",
     "hcl/token",
@@ -479,6 +488,14 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:d244f8666a838fe6ad70ec8fe77f50ebc29fdc3331a2729ba5886bef8435d10d"
+  name = "github.com/magiconair/properties"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c2353362d570a7bfa228149c62842019201cfb71"
+  version = "v1.8.0"
+
+[[projects]]
   digest = "1:08c231ec84231a7e23d67e4b58f975e1423695a32467a362ee55a803f9de8061"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
@@ -575,6 +592,14 @@
   version = "1.0.1"
 
 [[projects]]
+  digest = "1:51ea800cff51752ff68e12e04106f5887b4daec6f9356721238c28019f0b42db"
+  name = "github.com/pelletier/go-toml"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
+  version = "v1.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:3bf17a6e6eaa6ad24152148a631d18662f7212e21637c2699bff3369b7f00fa2"
   name = "github.com/petar/GoLLRB"
@@ -643,6 +668,25 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:330e9062b308ac597e28485699c02223bd052437a6eed32a173c9227dcb9d95a"
+  name = "github.com/spf13/afero"
+  packages = [
+    ".",
+    "mem",
+  ]
+  pruneopts = "NUT"
+  revision = "d40851caa0d747393da1ffb28f7f9d8b4eeffebd"
+  version = "v1.1.2"
+
+[[projects]]
+  digest = "1:c5e6b121ef3d2043505edaf4c80e5a008cec2513dc8804795eb0479d1555bcf7"
+  name = "github.com/spf13/cast"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:343d44e06621142ab09ae0c76c1799104cdfddd3ffb445d78b1adf8dc3ffaf3d"
   name = "github.com/spf13/cobra"
   packages = ["."]
@@ -651,12 +695,28 @@
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:f29f83301ed096daed24a90f4af591b7560cb14b9cc3e1827abbf04db7269ab5"
+  name = "github.com/spf13/jwalterweatherman"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "4a4406e478ca629068e7768fc33f3f044173c0a6"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:9d8420bbf131d1618bde6530af37c3799340d3762cc47210c1d9532a4c3a2779"
   name = "github.com/spf13/pflag"
   packages = ["."]
   pruneopts = "NUT"
   revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
   version = "v1.0.3"
+
+[[projects]]
+  digest = "1:9caed8c7c05e8927f5bc6eec5698119b2b63a7cf304effc6c9b818bc864a10d3"
+  name = "github.com/spf13/viper"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2c12c60302a5a0e62ee102ca9bc996277c2f64f5"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:5f252b001e9573efb54ffae53b96bb5bfa4963afec4f35d607121ebb4a4dff81"
@@ -1005,6 +1065,7 @@
     "github.com/shirou/gopsutil/process",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
+    "github.com/spf13/viper",
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
