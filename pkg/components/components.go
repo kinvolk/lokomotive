@@ -11,16 +11,14 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
 	k8serrs "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/proto/hapi/chart"
 	"k8s.io/helm/pkg/renderutil"
 
-	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/tar"
 )
 
@@ -159,17 +157,16 @@ func orderedInstall(kubeconfig string, files map[string]string) error {
 			continue
 		}
 
-		k8sobj, err := k8sutil.GetKubernetesObjectFromTmpl(
-			[]byte(fileContent), nil)
+		objKind, err := findKind(fileContent)
 		if err != nil {
 			return errors.Wrap(
-				err, "failed to generate Kubernetes object from template")
+				err, "failed to parse Kubernetes object kind from template")
 		}
 
-		switch k8sobj.(type) {
-		case *v1.Namespace:
+		switch objKind {
+		case "Namespace":
 			namespaces[filename] = fileContent
-		case *apiextensions.CustomResourceDefinition:
+		case "CustomResourceDefinition":
 			crds[filename] = fileContent
 		default:
 			others[filename] = fileContent
@@ -197,6 +194,17 @@ func orderedInstall(kubeconfig string, files map[string]string) error {
 		return k8serrs.NewAggregate(errs)
 	}
 	return nil
+}
+
+// findKind parses a Kubernetes manifest and returns its 'kind'
+func findKind(manifest string) (string, error) {
+	k := struct {
+		Kind string `json:"kind"`
+	}{}
+	if err := yaml.Unmarshal([]byte(manifest), &k); err != nil {
+		return "", err
+	}
+	return k.Kind, nil
 }
 
 // execKubectlApply takes kubernetes manifest as data and kubectl command line
