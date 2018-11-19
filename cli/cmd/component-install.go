@@ -25,7 +25,7 @@ func init() {
 
 func runInstall(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
-		"command":   "lokoctl components install",
+		"command":   "lokoctl component install",
 		"namespace": namespace,
 		"args":      args,
 	})
@@ -36,7 +36,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 
 	c, err := components.Get(args[0])
 	if err != nil {
-		contextLogger.Fatalf("No such component %q: %q. Must be one of: %q", args[0], err, components.List())
+		contextLogger.Fatalf("No such component %q: %q. See 'lokoctl component list' for available components", args[0], err)
 	}
 
 	installOpts := &components.InstallOptions{
