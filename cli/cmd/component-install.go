@@ -15,19 +15,18 @@ var installCmd = &cobra.Command{
 }
 
 var (
-	namespace string
+	answers string
 )
 
 func init() {
 	componentCmd.AddCommand(installCmd)
-	installCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "namespace where the component will be installed")
+	installCmd.Flags().StringVarP(&answers, "answers", "a", "", "Provide answers file to customize component behavior")
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
-		"command":   "lokoctl component install",
-		"namespace": namespace,
-		"args":      args,
+		"command": "lokoctl component install",
+		"args":    args,
 	})
 
 	if len(args) == 0 {
@@ -40,7 +39,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 	}
 
 	installOpts := &components.InstallOptions{
-		Namespace: namespace,
+		AnswersFile: answers,
 	}
 
 	if err = c.Install(kubeconfig, installOpts); err != nil {

@@ -108,7 +108,7 @@ func Get(name string) (*component, error) {
 
 // InstallOptions is a way of passing the data from cmd line to code here.
 type InstallOptions struct {
-	Namespace string
+	AnswersFile string
 }
 
 func init() {
