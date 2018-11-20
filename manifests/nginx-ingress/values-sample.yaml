@@ -1,0 +1,2 @@
+# Namespace in which this nginx-ingress be deployed
+namespace: ingress
