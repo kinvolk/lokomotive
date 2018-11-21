@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +15,6 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalf("Error in executing lokoctl: %v", err)
+		os.Exit(1)
 	}
 }
