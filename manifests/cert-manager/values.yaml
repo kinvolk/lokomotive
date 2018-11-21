@@ -1,0 +1,3 @@
+# Namespace in which this cert-manager be deployed
+namespace: cert-manager
+email: ""
