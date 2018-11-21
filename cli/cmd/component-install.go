@@ -3,6 +3,7 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
 	// This registers the answers object with its corresponding component object
@@ -16,7 +17,7 @@ var installCmd = &cobra.Command{
 	Use:               "install",
 	Short:             "Install a component",
 	Run:               runInstall,
-	PersistentPreRunE: isKubeconfigSet,
+	PersistentPreRunE: doesKubeconfigExist,
 }
 
 var (
@@ -47,7 +48,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 		AnswersFile: answers,
 	}
 
-	if err = c.Install(kubeconfig, installOpts); err != nil {
+	if err = c.Install(viper.GetString("kubeconfig"), installOpts); err != nil {
 		contextLogger.Fatalf("Installation of component %q failed: %q", c.Name, err)
 	}
 }

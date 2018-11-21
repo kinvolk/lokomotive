@@ -11,5 +11,5 @@ var componentCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(componentCmd)
-	componentCmd.PersistentFlags().StringVar(&kubeconfig, "kubeconfig", "", "Path to kubeconfig file (required)")
+	addKubeConfigFlag(componentCmd)
 }

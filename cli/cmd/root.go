@@ -4,9 +4,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
-
-var kubeconfig string
 
 var rootCmd = &cobra.Command{
 	Use:   "lokoctl",
@@ -17,4 +16,12 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
+}
+
+func init() {
+	cobra.OnInitialize(cobraInit)
+}
+
+func cobraInit() {
+	viper.AutomaticEnv()
 }
