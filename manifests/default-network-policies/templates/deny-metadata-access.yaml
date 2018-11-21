@@ -2,7 +2,11 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: deny-egress-to-aws-metadata
-  namespace: {{.Release.Namespace}}
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- else}}
+  namespace: default
+  {{- end }}
 spec:
   podSelector: {}
   policyTypes:

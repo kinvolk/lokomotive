@@ -8,5 +8,9 @@ roleRef:
   name: ingress
 subjects:
   - kind: ServiceAccount
+    {{- if .Values.namespace }}
+    namespace: {{ .Values.namespace }}
+    {{- else}}
     namespace: ingress
+    {{- end }}
     name: default

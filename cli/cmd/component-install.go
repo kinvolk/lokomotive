@@ -5,6 +5,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	// This registers the answers object with its corresponding component object
+	// in `components` list, every time a new component is added an import needs
+	// to be done here
+	_ "github.com/kinvolk/lokoctl/pkg/components/network-policies"
+	_ "github.com/kinvolk/lokoctl/pkg/components/nginx-ingress"
 )
 
 var installCmd = &cobra.Command{
@@ -15,19 +20,18 @@ var installCmd = &cobra.Command{
 }
 
 var (
-	namespace string
+	answers string
 )
 
 func init() {
 	componentCmd.AddCommand(installCmd)
-	installCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "namespace where the component will be installed")
+	installCmd.Flags().StringVarP(&answers, "answers", "a", "", "Provide answers file to customize component behavior")
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
-		"command":   "lokoctl component install",
-		"namespace": namespace,
-		"args":      args,
+		"command": "lokoctl component install",
+		"args":    args,
 	})
 
 	if len(args) == 0 {
@@ -40,7 +44,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 	}
 
 	installOpts := &components.InstallOptions{
-		Namespace: namespace,
+		AnswersFile: answers,
 	}
 
 	if err = c.Install(kubeconfig, installOpts); err != nil {

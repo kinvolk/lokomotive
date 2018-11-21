@@ -2,7 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: default-backend
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- else}}
   namespace: ingress
+  {{- end }}
 spec:
   replicas: 1
   selector:
