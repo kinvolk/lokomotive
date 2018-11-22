@@ -18,7 +18,7 @@ var installCmd = &cobra.Command{
 	Use:               "install",
 	Short:             "Install a component",
 	Run:               runInstall,
-	PersistentPreRunE: doesKubeconfigExist,
+	PersistentPreRunE: validateComponentCmdArgs,
 }
 
 var (
@@ -27,7 +27,7 @@ var (
 
 func init() {
 	componentCmd.AddCommand(installCmd)
-	installCmd.Flags().StringVarP(&answers, "answers", "a", "", "Provide answers file to customize component behavior")
+	componentAnswersFlag(installCmd)
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
@@ -36,20 +36,16 @@ func runInstall(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	if len(args) == 0 {
-		contextLogger.Fatalf("Component name missing from command. Must be one of: %q", components.List())
-	}
-
 	c, err := components.Get(args[0])
 	if err != nil {
-		contextLogger.Fatalf("No such component %q: %q. See 'lokoctl component list' for available components", args[0], err)
+		contextLogger.Fatal(err)
 	}
 
 	installOpts := &components.InstallOptions{
 		AnswersFile: answers,
 	}
 
-	if err = c.Install(viper.GetString("kubeconfig"), installOpts); err != nil {
+	if err := c.Install(viper.GetString("kubeconfig"), installOpts); err != nil {
 		contextLogger.Fatalf("Installation of component %q failed: %q", c.Name, err)
 	}
 }
