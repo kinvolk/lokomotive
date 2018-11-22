@@ -8,6 +8,7 @@ package tar
 
 import (
 	"archive/tar"
+	"bytes"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -95,4 +96,19 @@ func validRelPath(p string) bool {
 		return false
 	}
 	return true
+}
+
+type asset func(string) ([]byte, error)
+
+// UntarFromAsset takes an "asset function" (`func(string) ([]byte, error)`
+// as defined in go-bindata), an asset name and a target path, reads
+// the gzip-compressed tar file through the function and writes it into targetDir.
+func UntarFromAsset(a asset, assetName, targetPath string) error {
+	tarFile, err := a(assetName)
+	if err != nil {
+		return err
+	}
+
+	tarFileReader := bytes.NewReader(tarFile)
+	return Untar(tarFileReader, targetPath)
 }
