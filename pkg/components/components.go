@@ -59,7 +59,9 @@ func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) erro
 	// we probably have to make the release options configurable from the
 	// answers file in the future.
 	renderOpts := renderutil.Options{
-		ReleaseOptions: chartutil.ReleaseOptions{},
+		ReleaseOptions: chartutil.ReleaseOptions{
+			IsInstall: true,
+		},
 	}
 
 	if opts.AnswersFile != "" {
