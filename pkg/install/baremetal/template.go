@@ -24,9 +24,9 @@ module "bare-metal-{{.ClusterName}}" {
   asset_dir          = "{{.AssetDir}}"
 
   # machines
-  controller_names   = ["{{.ControllerName}}"]
-  controller_macs    = ["{{.ControllerMac}}"]
-  controller_domains = ["{{.ControllerDomain}}"]
+  controller_names   = {{.ControllerNames}}
+  controller_macs    = {{.ControllerMacs}}
+  controller_domains = {{.ControllerDomains}}
   worker_names       = {{.WorkerNames}}
   worker_macs        = {{.WorkerMacs}}
   worker_domains     = {{.WorkerDomains}}
