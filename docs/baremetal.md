@@ -38,9 +38,9 @@ e.g
     --matchbox-client-key=/path/to/client.key \
     --matchbox-endpoint=matchbox.example.com:8081 \
     --matchbox-http-endpoint=http://matchbox.example.com:8080 \
-    --controller-domain=node1.example.com \
-    --controller-mac=52:54:00:a1:9c:ae \
-    --controller-name=node1 \
+    --controller-domains=node1.example.com \
+    --controller-macs=52:54:00:a1:9c:ae \
+    --controller-names=node1 \
     --worker-domains=node2.example.com,node3.example.com \
     --worker-names=node2,node3 \
     --worker-macs=52:54:00:b2:2f:86,52:54:00:c3:61:77
