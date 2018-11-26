@@ -9,6 +9,7 @@ import (
 	// This registers the answers object with its corresponding component object
 	// in `components` list, every time a new component is added an import needs
 	// to be done here
+	_ "github.com/kinvolk/lokoctl/pkg/components/cert-manager"
 	_ "github.com/kinvolk/lokoctl/pkg/components/network-policies"
 	_ "github.com/kinvolk/lokoctl/pkg/components/nginx-ingress"
 )

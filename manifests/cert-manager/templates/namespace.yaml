@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- else}}
+  namespace: cert-manager
+  {{- end}}
+  {{- if .Values.namespace }}
+  name: {{ .Values.namespace }}
+  {{- else}}
+  name: cert-manager
+  {{- end }}
+  labels:
+    certmanager.k8s.io/disable-validation: "true"
