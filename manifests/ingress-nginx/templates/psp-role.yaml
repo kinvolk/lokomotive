@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: psp-nginx-ingress-controller
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- else}}
+  namespace: ingress
+  {{- end }}
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  resourceNames: ['nginx-ingress-controller']
+  verbs: ['use']
