@@ -16,9 +16,9 @@ type config struct {
 	AssetDir               string
 	CachedInstall          string
 	ClusterName            string
-	ControllerDomain       string
-	ControllerMac          string
-	ControllerName         string
+	ControllerDomains      []string
+	ControllerMacs         []string
+	ControllerNames        []string
 	K8sDomainName          string
 	MatchboxCAPath         string
 	MatchboxClientCertPath string
@@ -76,26 +76,41 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 	workerDomains, err := json.Marshal(cfg.WorkerDomains)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to parse %q", cfg.WorkerDomains)
+		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
 	}
 
 	workerMacs, err := json.Marshal(cfg.WorkerMacs)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to parse %q", cfg.WorkerMacs)
+		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerMacs)
 	}
 
 	workerNames, err := json.Marshal(cfg.WorkerNames)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to parse %q", cfg.WorkerNames)
+		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerNames)
+	}
+
+	controllerDomains, err := json.Marshal(cfg.ControllerDomains)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerDomains)
+	}
+
+	controllerMacs, err := json.Marshal(cfg.ControllerMacs)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerMacs)
+	}
+
+	controllerNames, err := json.Marshal(cfg.ControllerNames)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
 	}
 
 	terraformCfg := struct {
 		AssetDir             string
 		CachedInstall        string
 		ClusterName          string
-		ControllerDomain     string
-		ControllerMac        string
-		ControllerName       string
+		ControllerDomains    string
+		ControllerMacs       string
+		ControllerNames      string
 		K8sDomainName        string
 		MatchboxClientCert   string
 		MatchboxClientKey    string
@@ -113,9 +128,9 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		AssetDir:             cfg.AssetDir,
 		CachedInstall:        cfg.CachedInstall,
 		ClusterName:          cfg.ClusterName,
-		ControllerDomain:     cfg.ControllerDomain,
-		ControllerMac:        cfg.ControllerMac,
-		ControllerName:       cfg.ControllerName,
+		ControllerDomains:    string(controllerDomains),
+		ControllerMacs:       string(controllerMacs),
+		ControllerNames:      string(controllerNames),
 		K8sDomainName:        cfg.K8sDomainName,
 		MatchboxCA:           cfg.MatchboxCAPath,
 		MatchboxClientCert:   cfg.MatchboxClientCertPath,

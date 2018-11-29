@@ -29,13 +29,13 @@ func init() {
 	baremetalCmd.Flags().StringVar(&baremetalCfg.ClusterName, "cluster-name", "", "Name of the cluster to be created")
 	baremetalCmd.MarkFlagRequired("cluster-name")
 
-	baremetalCmd.Flags().StringVar(&baremetalCfg.ControllerDomain, "controller-domain", "", "FQDN of controller domain")
+	baremetalCmd.Flags().StringSliceVar(&baremetalCfg.ControllerDomains, "controller-domains", []string{}, "Ordered list of controller FQDNs seperated by comma")
 	baremetalCmd.MarkFlagRequired("controller-domain")
 
-	baremetalCmd.Flags().StringVar(&baremetalCfg.ControllerMac, "controller-mac", "", "Identifying mac address of controller")
+	baremetalCmd.Flags().StringSliceVar(&baremetalCfg.ControllerMacs, "controller-macs", []string{}, "Ordered list of controller identifying MAC addresses seperated by comma")
 	baremetalCmd.MarkFlagRequired("controller-mac")
 
-	baremetalCmd.Flags().StringVar(&baremetalCfg.ControllerName, "controller-name", "", "Short name of controller")
+	baremetalCmd.Flags().StringSliceVar(&baremetalCfg.ControllerNames, "controller-names", []string{}, "Ordered list of controller short names separated by comma")
 	baremetalCmd.MarkFlagRequired("controller-name")
 
 	baremetalCmd.Flags().StringVar(&baremetalCfg.K8sDomainName, "k8s-domain-name", "", "FQDN resolving to the controller(s) nodes. Workers and kubectl will communicate with this endpoint")
