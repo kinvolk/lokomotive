@@ -1,4 +1,4 @@
-# nginx-ingress
+# ingress-nginx
 
 This will help you install the nginx ingress controller.
 

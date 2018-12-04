@@ -4,7 +4,7 @@ engine: gotpl
 maintainers:
 - name: Suraj Deshmukh
   email: suraj@kinvolk.io
-name: nginx-ingress
+name: ingress-nginx
 sources:
 - https://github.com/kinvolk/lokoctl
 version: 0.1.0

@@ -8,7 +8,7 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/components/utils"
 )
 
-const name = "nginx-ingress"
+const name = "ingress-nginx"
 
 func init() {
 	components.Register(name, &Answers{})
