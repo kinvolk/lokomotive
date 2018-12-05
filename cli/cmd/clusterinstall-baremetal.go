@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
@@ -87,4 +88,9 @@ func runBaremetal(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", baremetalCfg.AssetDir)
+
+	kubeconfigPath := path.Join(baremetalCfg.AssetDir, "auth", "kubeconfig")
+	if err := verifyInstall(kubeconfigPath); err != nil {
+		ctxLogger.Fatalf("Error verifying cluster install on baremetal: %v", err)
+	}
 }
