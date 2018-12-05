@@ -18,4 +18,4 @@ subjects:
     {{- else}}
     namespace: ingress
     {{- end }}
-    name: default
+    name: ingress

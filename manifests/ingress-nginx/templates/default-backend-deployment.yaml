@@ -43,4 +43,5 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 30
             timeoutSeconds: 5
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 60

@@ -78,4 +78,5 @@ spec:
               - ALL
             runAsUser: 33 # www-data
       restartPolicy: Always
+      serviceAccountName: ingress
       terminationGracePeriodSeconds: 60

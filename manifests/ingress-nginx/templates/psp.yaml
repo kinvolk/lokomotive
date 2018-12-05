@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: nginx-ingress-controller
+spec:
+  allowedCapabilities:
+  - NET_BIND_SERVICE
+  privileged: false
+  allowPrivilegeEscalation: true
+  # Allow core volume types.
+  volumes:
+  - configMap
+  - secret
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: MustRunAs
+    ranges:
+    - min: 33
+      max: 33
+  supplementalGroups:
+    rule: MustRunAs
+    ranges:
+    # Forbid adding the root group.
+    - min: 1
+      max: 65535
+  fsGroup:
+    rule: MustRunAs
+    ranges:
+    # Forbid adding the root group.
+    - min: 1
+      max: 65535
+  readOnlyRootFilesystem: false
+  seLinux:
+    rule: RunAsAny
+  hostPorts:
+  - min: 80
+    max: 80
+  - min: 443
+    max: 443
+  - min: 10254
+    max: 10254
