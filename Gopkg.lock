@@ -925,14 +925,6 @@
   revision = "6560175f5b2dbcfe19dd4998f86dcb89a8f82627"
 
 [[projects]]
-  branch = "master"
-  digest = "1:0cc8ba1591166b443d97cf67dbd3919c18f98c331239e720ba2c7bb475429e72"
-  name = "k8s.io/apiextensions-apiserver"
-  packages = ["pkg/apis/apiextensions"]
-  pruneopts = "NUT"
-  revision = "1d09762a4cd6cc21e71c9c97ece981b7d474fd5c"
-
-[[projects]]
   digest = "1:13a711fa4a9db8c05c1217196f149dc3cbf01ccc2050bf1608ba5ab9e5d7afd3"
   name = "k8s.io/apimachinery"
   packages = [
@@ -1058,6 +1050,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/ghodss/yaml",
     "github.com/hashicorp/terraform/terraform",
     "github.com/hpcloud/tail",
     "github.com/kardianos/osext",
@@ -1067,7 +1060,6 @@
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
     "k8s.io/api/core/v1",
-    "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/util/errors",
