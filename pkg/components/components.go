@@ -3,17 +3,16 @@ package components
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"regexp"
-	"strings"
+	"time"
 
-	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
-	k8serrs "k8s.io/apimachinery/pkg/util/errors"
+
+	"k8s.io/client-go/tools/clientcmd"
+
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/proto/hapi/chart"
 	"k8s.io/helm/pkg/renderutil"
@@ -83,7 +82,15 @@ func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) erro
 		return errors.Wrap(err, "failed to render chart")
 	}
 
-	return orderedInstall(kubeconfig, renderedFiles)
+	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
+		&clientcmd.ConfigOverrides{},
+	)
+	err = createAssets(config, renderedFiles, 1*time.Minute)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // loadHelmChart extracts the chart that is stored in binary as tar into a
@@ -136,124 +143,4 @@ func Register(name string, obj ComponentChanger) {
 // InstallOptions is a way of passing the data from cmd line to code here.
 type InstallOptions struct {
 	AnswersFile string
-}
-
-// orderedInstall takes kubernetes config as map of [filenames: filecontents]
-// and then feeds it to Kubernetes in following order:
-// 1. Namespaces
-// 2. CRDs
-// 3. Rest of the Kubernetes config types
-// TODO: @surajssd, currently the code execs and calls the kubectl binary
-// directly to install those manifests to the kubernetes cluster, change it to
-// use the libraries from client-go.
-func orderedInstall(kubeconfig string, files map[string]string) error {
-	namespaces := make(map[string]string)
-	crds := make(map[string]string)
-	others := make(map[string]string)
-
-	// segregate the configs according to their types
-	for filename, fileContent := range files {
-		// We are only interested in Kubernetes manifests here that typically
-		// have a yaml, yml or json suffix. Ignore all other files.
-		if !(strings.HasSuffix(filename, "yaml") ||
-			strings.HasSuffix(filename, "yml") ||
-			strings.HasSuffix(filename, "json")) {
-			continue
-		}
-
-		// The helm charts that are rendered may be empty according to the
-		// conditionals in the templates and values provided.
-		//
-		// Find all ocurrences of tabs and newlines and remove them
-		// used for removing all the blank lines from the file.
-		fileContent = findTabsAndNewlines.ReplaceAllString(fileContent, "")
-		if len(fileContent) == 0 {
-			continue
-		}
-
-		objKind, err := findKind(fileContent)
-		if err != nil {
-			return errors.Wrap(
-				err, "failed to parse Kubernetes object kind from template")
-		}
-
-		switch objKind {
-		case "Namespace":
-			namespaces[filename] = fileContent
-		case "CustomResourceDefinition":
-			crds[filename] = fileContent
-		default:
-			others[filename] = fileContent
-		}
-	}
-
-	kubeconfigArg := fmt.Sprintf("--kubeconfig=%s", kubeconfig)
-	args := []string{kubeconfigArg, "apply", "-f", "-"}
-	var errs []error
-
-	installer := func(files map[string]string) {
-		for _, fileContent := range files {
-			if err := execKubectlApply(fileContent, args); err != nil {
-				errs = append(errs, err)
-			}
-		}
-	}
-
-	// First install namespaces followed by crds and then anything else.
-	installer(namespaces)
-	installer(crds)
-	installer(others)
-
-	if len(errs) > 0 {
-		return k8serrs.NewAggregate(errs)
-	}
-	return nil
-}
-
-// findKind parses a Kubernetes manifest and returns its 'kind'
-func findKind(manifest string) (string, error) {
-	k := struct {
-		Kind string `json:"kind"`
-	}{}
-	if err := yaml.Unmarshal([]byte(manifest), &k); err != nil {
-		return "", err
-	}
-	return k.Kind, nil
-}
-
-// execKubectlApply takes kubernetes manifest as data and kubectl command line
-// args to apply configuration to the cluster.
-func execKubectlApply(data string, args []string) error {
-	if _, err := exec.LookPath("kubectl"); err != nil {
-		return errors.Wrap(err, "kubectl not found in PATH")
-	}
-
-	cmd := exec.Command("kubectl", args...)
-
-	// Read from STDIN.
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return errors.Wrap(err, "can't get STDIN pipe for kubectl")
-	}
-
-	// Write to STDIN.
-	go func() {
-		defer stdin.Close()
-		if _, err := io.WriteString(stdin, data); err != nil {
-			fmt.Printf("can't write to STDIN pipe for kubectl %v\n", err)
-		}
-	}()
-
-	// Execute the actual command, out will have the kubectl output errored or
-	// passed. The err just stores what exit code the process failed with.
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		// Display the error to the user that was returned by kubectl.
-		fmt.Printf("%s", string(out))
-		return errors.Wrap(err, "failed to execute command")
-	}
-
-	// Display the output to the user that was returned by kubectl.
-	fmt.Printf("%s", string(out))
-	return nil
 }
