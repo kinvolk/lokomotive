@@ -1,6 +1,8 @@
 .PHONY: build
 build:
-	go build -o lokoctl github.com/kinvolk/lokoctl/cli
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-extldflags '-static'" \
+		-o lokoctl \
+		github.com/kinvolk/lokoctl/cli
 
 .PHONY: test
 test: check-go-format
