@@ -1,6 +1,20 @@
+TAG := `git describe --tags --always`
+VERSION :=
+
+## Adds a '-dirty' suffix to version string if there are uncommitted changes
+changes := $(shell git status --porcelain)
+ifeq ($(changes),)
+	VERSION := $(TAG)
+else
+	VERSION := $(TAG)-dirty
+endif
+
+LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags '-static'"
+
 .PHONY: build
 build:
-	CGO_ENABLED=0 GOOS=linux go build -ldflags "-extldflags '-static'" \
+	CGO_ENABLED=0 GOOS=linux go build \
+		-ldflags $(LDFLAGS) \
 		-o lokoctl \
 		github.com/kinvolk/lokoctl/cli
 
