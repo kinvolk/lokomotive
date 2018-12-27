@@ -49,13 +49,9 @@ getbindata:
 bindata-installer:
 	./scripts/bindata-installer
 
-.PHONY: bindata-components
-bindata-components:
-	./scripts/bindata-components
-
 .PHONY: bindata
 # make sure that `format-go-code` target is always the last one to run
-bindata: | bindata-installer bindata-components format-go-code
+bindata: | bindata-installer format-go-code
 
 .PHONY: all
 all: getbindata bindata build test
