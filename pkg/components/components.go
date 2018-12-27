@@ -1,24 +1,21 @@
 package components
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/packd"
+	packr "github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
-
 	"k8s.io/client-go/tools/clientcmd"
-
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/proto/hapi/chart"
 	"k8s.io/helm/pkg/renderutil"
-
-	"github.com/kinvolk/lokoctl/pkg/tar"
 )
 
 // findTabsAndNewlines checks if the line starts with tab and newline or just newline.
@@ -146,25 +143,40 @@ func cleanConfigs(files map[string]string) map[string]string {
 // temporary directory and reads it into memory using helm libraries and returns
 // the helm chart object
 func (cmpChart *component) loadHelmChart() (*chart.Chart, error) {
-	tarFile, err := Asset("manifests/" + cmpChart.archiveName)
+	b := packr.New("components", "../../manifests/")
+
+	tmpPrefix, err := ioutil.TempDir("", "lokoctl")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "creating temporary dir")
+	}
+	defer os.RemoveAll(tmpPrefix)
+
+	walk := func(fileName string, file packd.File) error {
+		// extract the file info for permissions
+		fileInfo, err := file.FileInfo()
+		if err != nil {
+			return errors.Wrap(err, "extracting file info")
+		}
+
+		fileName = filepath.Join(tmpPrefix, fileName)
+
+		// make sure that the directory is created before creating file
+		if err := os.MkdirAll(filepath.Dir(fileName), 0755); err != nil {
+			return errors.Wrap(err, "creating dir")
+		}
+
+		// write the content into file
+		if err := ioutil.WriteFile(fileName, []byte(file.String()), fileInfo.Mode()); err != nil {
+			return errors.Wrap(err, "writing file")
+		}
+		return nil
 	}
 
-	dir, err := ioutil.TempDir("", "lokoctl")
-	if err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(dir)
-
-	tarFileReader := bytes.NewReader(tarFile)
-	if err := tar.Untar(tarFileReader, dir); err != nil {
-		return nil, errors.Wrapf(err,
-			"failed to extract archive %s at %s", cmpChart.archiveName, dir)
+	if err := b.WalkPrefix(cmpChart.Name, walk); err != nil {
+		return nil, errors.Wrap(err, "walking the dir")
 	}
 
-	chartPath := path.Join(dir, "manifests", cmpChart.Name)
-
+	chartPath := filepath.Join(tmpPrefix, cmpChart.Name)
 	return chartutil.Load(chartPath)
 }
 

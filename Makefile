@@ -18,6 +18,14 @@ build:
 		-o lokoctl \
 		github.com/kinvolk/lokoctl/cli
 
+.PHONY: packr2
+packr2:
+	cd cli && packr2
+
+.PHONY: build-fat
+build-fat: packr2 build
+	cd cli && packr2 clean
+
 .PHONY: test
 test: check-go-format
 
