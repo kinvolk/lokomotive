@@ -55,3 +55,7 @@ bindata: | bindata-installer format-go-code
 
 .PHONY: all
 all: getbindata bindata build test
+
+.PHONY: install-packr2
+install-packr2:
+	go get -u github.com/gobuffalo/packr/v2/packr2
