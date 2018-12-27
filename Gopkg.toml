@@ -50,3 +50,7 @@
   name = "k8s.io/helm"
   # this revision is at par with k8s 1.11
   revision = "37a731db798de00bf94837e207a8a418c76b6557"
+
+[[constraint]]
+  name = "github.com/gobuffalo/packr"
+  revision = "3f85f9a48a0cee94453b23bd828680c014d13642"
