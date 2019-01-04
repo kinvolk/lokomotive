@@ -58,7 +58,7 @@ func createAssets(config clientcmd.ClientConfig, manifestFiles map[string]string
 
 	upFn := func() (bool, error) {
 		if err := apiTest(config); err != nil {
-			fmt.Printf("Unable to determine api-server readiness: %v", err)
+			fmt.Printf("Unable to determine api-server readiness: %v\n", err)
 			return false, nil
 		}
 		return true, nil
