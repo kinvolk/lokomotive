@@ -11,5 +11,4 @@ var componentCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(componentCmd)
-	addKubeConfigFlag(componentCmd)
 }
