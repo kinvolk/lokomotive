@@ -17,13 +17,3 @@ func doesKubeconfigExist(*cobra.Command, []string) error {
 	}
 	return err
 }
-
-// any `lokoctl <subcommand>` that needs kubeconfig flag should use this utility
-// function to add this flag.
-func addKubeConfigFlag(cmd *cobra.Command) {
-	cmd.PersistentFlags().String(
-		"kubeconfig",
-		os.ExpandEnv("$HOME/.kube/config"),
-		"Path to kubeconfig file (required)")
-	viper.BindPFlag("kubeconfig", cmd.PersistentFlags().Lookup("kubeconfig"))
-}
