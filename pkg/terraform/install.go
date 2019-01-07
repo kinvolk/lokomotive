@@ -39,9 +39,9 @@ func InitAndApply(exPath string) error {
 		return errors.Wrap(err, "failed to create terraform executor")
 	}
 
-	if err := executeTerraform(ex, "init", "-no-color"); err != nil {
+	if err := executeTerraform(ex, "init"); err != nil {
 		return err
 	}
 
-	return executeTerraform(ex, "apply", "-auto-approve", "-no-color")
+	return executeTerraform(ex, "apply", "-auto-approve")
 }
