@@ -28,7 +28,16 @@ func executeTerraform(ex *Executor, args ...string) error {
 	}()
 
 	<-done
-	return t.Stop()
+
+	if err := t.Stop(); err != nil {
+		return err
+	}
+
+	if _, err := ex.Status(pid); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // InitAndApply create a new terraform executor for the given path,
