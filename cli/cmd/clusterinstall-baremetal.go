@@ -91,6 +91,6 @@ func runBaremetal(cmd *cobra.Command, args []string) {
 
 	kubeconfigPath := path.Join(baremetalCfg.AssetDir, "auth", "kubeconfig")
 	if err := verifyInstall(kubeconfigPath); err != nil {
-		ctxLogger.Fatalf("Error verifying cluster install on baremetal: %v", err)
+		ctxLogger.Fatalf("Verify cluster installation on baremetal: %v", err)
 	}
 }
