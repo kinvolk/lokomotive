@@ -182,9 +182,9 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"manifests/cert-manager.tar.gz": manifestsCertManagerTarGz,
+	"manifests/cert-manager.tar.gz":             manifestsCertManagerTarGz,
 	"manifests/default-network-policies.tar.gz": manifestsDefaultNetworkPoliciesTarGz,
-	"manifests/ingress-nginx.tar.gz": manifestsIngressNginxTarGz,
+	"manifests/ingress-nginx.tar.gz":            manifestsIngressNginxTarGz,
 }
 
 // AssetDir returns the file names below a certain
@@ -226,11 +226,12 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
-	"manifests": &bintree{nil, map[string]*bintree{
-		"cert-manager.tar.gz": &bintree{manifestsCertManagerTarGz, map[string]*bintree{}},
-		"default-network-policies.tar.gz": &bintree{manifestsDefaultNetworkPoliciesTarGz, map[string]*bintree{}},
-		"ingress-nginx.tar.gz": &bintree{manifestsIngressNginxTarGz, map[string]*bintree{}},
+	"manifests": {nil, map[string]*bintree{
+		"cert-manager.tar.gz":             {manifestsCertManagerTarGz, map[string]*bintree{}},
+		"default-network-policies.tar.gz": {manifestsDefaultNetworkPoliciesTarGz, map[string]*bintree{}},
+		"ingress-nginx.tar.gz":            {manifestsIngressNginxTarGz, map[string]*bintree{}},
 	}},
 }}
 
@@ -280,4 +281,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
