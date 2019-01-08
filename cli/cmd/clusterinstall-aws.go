@@ -59,6 +59,6 @@ func runAWS(cmd *cobra.Command, args []string) {
 
 	kubeconfigPath := path.Join(awsCfg.AssetDir, "auth", "kubeconfig")
 	if err := verifyInstall(kubeconfigPath); err != nil {
-		ctxLogger.Fatalf("Error verifying cluster install on baremetal: %v", err)
+		ctxLogger.Fatalf("Verify cluster installation on aws: %v", err)
 	}
 }
