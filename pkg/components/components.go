@@ -109,7 +109,37 @@ func (cmpChart *component) processChart(ansFile string) (map[string]string, erro
 		ch.Values = &chart.Config{Raw: values}
 	}
 
-	return renderutil.Render(ch, ch.Values, renderOpts)
+	renderedFiles, err := renderutil.Render(ch, ch.Values, renderOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to render chart")
+	}
+	return cleanConfigs(renderedFiles), nil
+}
+
+func cleanConfigs(files map[string]string) map[string]string {
+	ret := make(map[string]string)
+
+	for filename, fileContent := range files {
+		// We are only interested in Kubernetes manifests here that typically
+		// have a yaml, yml or json suffix. Ignore all other files.
+		if !(strings.HasSuffix(filename, "yaml") ||
+			strings.HasSuffix(filename, "yml") ||
+			strings.HasSuffix(filename, "json")) {
+			continue
+		}
+
+		// The helm charts that are rendered may be empty according to the
+		// conditionals in the templates and values provided.
+		//
+		// Find all ocurrences of tabs and newlines and remove them
+		// used for removing all the blank lines from the file.
+		fileContent = findTabsAndNewlines.ReplaceAllString(fileContent, "")
+		if len(fileContent) == 0 {
+			continue
+		}
+		ret[filename] = fileContent
+	}
+	return ret
 }
 
 // loadHelmChart extracts the chart that is stored in binary as tar into a
