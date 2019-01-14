@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -46,9 +47,40 @@ func (cmpChart *component) String() string {
 // Install extracts the helm chart from binary, renders it as Kubernetes configs
 // and then installs it one by one
 func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) error {
-	ch, err := cmpChart.loadHelmChart()
+	renderedFiles, err := cmpChart.processChart(opts.AnswersFile)
 	if err != nil {
 		return err
+	}
+
+	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
+		&clientcmd.ConfigOverrides{},
+	)
+	return createAssets(config, renderedFiles, 1*time.Minute)
+}
+
+func (cmpChart *component) RenderManifests(opts *InstallOptions) error {
+	renderedFiles, err := cmpChart.processChart(opts.AnswersFile)
+	if err != nil {
+		return err
+	}
+	for _, v := range renderedFiles {
+		v = strings.TrimSpace(v)
+		// Some helm chart templates can have multiple configs starting with
+		// yaml delimiter '---' so if the file already has one then don't put
+		// our own delimiter.
+		if !strings.HasPrefix(v, "---") {
+			fmt.Println("---")
+		}
+		fmt.Println(v)
+	}
+	return nil
+}
+
+func (cmpChart *component) processChart(ansFile string) (map[string]string, error) {
+	ch, err := cmpChart.loadHelmChart()
+	if err != nil {
+		return nil, err
 	}
 
 	// renderutil expects to get 'ReleaseOptions' for rendering. We don't need
@@ -63,34 +95,21 @@ func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) erro
 		},
 	}
 
-	if opts.AnswersFile != "" {
+	if ansFile != "" {
 		// read answers file
-		data, err := ioutil.ReadFile(opts.AnswersFile)
+		data, err := ioutil.ReadFile(ansFile)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		values, err := cmpChart.Answers.GetValues(data)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		ch.Values = &chart.Config{Raw: values}
 	}
 
-	renderedFiles, err := renderutil.Render(ch, ch.Values, renderOpts)
-	if err != nil {
-		return errors.Wrap(err, "failed to render chart")
-	}
-
-	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
-		&clientcmd.ConfigOverrides{},
-	)
-	err = createAssets(config, renderedFiles, 1*time.Minute)
-	if err != nil {
-		return err
-	}
-	return nil
+	return renderutil.Render(ch, ch.Values, renderOpts)
 }
 
 // loadHelmChart extracts the chart that is stored in binary as tar into a
