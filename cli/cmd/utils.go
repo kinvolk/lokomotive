@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/util/tools"
 )
 
 // doesKubeconfigExist checks if the kubeconfig provided by user exists
@@ -43,4 +44,8 @@ func validateComponentCmdArgs(cmd *cobra.Command, args []string) error {
 
 func componentAnswersFlag(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&answers, "answers", "a", "", "Provide answers file to customize component behavior")
+}
+
+func clusterInstallChecks(*cobra.Command, []string) error {
+	return tools.InstallerBinaries()
 }

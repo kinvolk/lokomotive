@@ -15,9 +15,10 @@ import (
 var awsCfg = aws.NewConfig()
 
 var awsCmd = &cobra.Command{
-	Use:   "aws",
-	Short: "Install Lokomotive cluster on AWS provider",
-	Run:   runAWS,
+	Use:               "aws",
+	Short:             "Install Lokomotive cluster on AWS provider",
+	Run:               runAWS,
+	PersistentPreRunE: clusterInstallChecks,
 }
 
 func init() {

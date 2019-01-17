@@ -15,9 +15,10 @@ import (
 var baremetalCfg = baremetal.NewConfig()
 
 var baremetalCmd = &cobra.Command{
-	Use:   "baremetal",
-	Short: "Install Lokomotive cluster in a bare-metal environment",
-	Run:   runBaremetal,
+	Use:               "baremetal",
+	Short:             "Install Lokomotive cluster in a bare-metal environment",
+	Run:               runBaremetal,
+	PersistentPreRunE: clusterInstallChecks,
 }
 
 func init() {
