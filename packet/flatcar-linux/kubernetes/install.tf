@@ -1,6 +1,6 @@
 provider "packet" {}
 
-resource "packet_device" "controller_nodes" {
+resource "packet_device" "controllers" {
   count            = "${var.controller_count}"
   hostname         = "controller-${count.index}"
   plan             = "${var.controller_type}"
