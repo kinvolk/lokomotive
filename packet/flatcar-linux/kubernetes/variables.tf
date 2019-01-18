@@ -1,4 +1,6 @@
-variable "project_id" {}
+variable "project_id" {
+  description = "Packet project ID (e.g. 405efe9c-cce9-4c71-87c1-949c290b27dc)"
+}
 
 # instances
 variable "controller_count" {
