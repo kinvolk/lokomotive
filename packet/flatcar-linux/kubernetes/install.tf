@@ -34,7 +34,7 @@ resource "aws_route53_record" "apiservers" {
 
 resource "packet_device" "controllers" {
   count            = "${var.controller_count}"
-  hostname         = "controller-${count.index}"
+  hostname         = "${var.cluster_name}-controller-${count.index}"
   plan             = "${var.controller_type}"
   facility         = "${var.cluster_region}"
   operating_system = "custom_ipxe"
@@ -61,7 +61,7 @@ data "template_file" "controller-configs" {
 
 resource "packet_device" "worker_nodes" {
   count            = "${var.worker_count}"
-  hostname         = "worker-${count.index}"
+  hostname         = "${var.cluster_name}-worker-${count.index}"
   plan             = "${var.worker_type}"
   facility         = "${var.cluster_region}"
   operating_system = "custom_ipxe"
