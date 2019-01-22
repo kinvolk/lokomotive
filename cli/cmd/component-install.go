@@ -22,12 +22,14 @@ var installCmd = &cobra.Command{
 }
 
 var (
-	answers string
+	answers   string
+	namespace string
 )
 
 func init() {
 	componentCmd.AddCommand(installCmd)
 	componentAnswersFlag(installCmd)
+	componentNamespaceFlag(installCmd)
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
@@ -43,6 +45,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 
 	installOpts := &components.InstallOptions{
 		AnswersFile: answers,
+		Namespace:   namespace,
 	}
 
 	if err := c.Install(viper.GetString("kubeconfig"), installOpts); err != nil {
