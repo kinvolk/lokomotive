@@ -11,9 +11,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-
 	"k8s.io/client-go/tools/clientcmd"
-
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/proto/hapi/chart"
 	"k8s.io/helm/pkg/renderutil"
@@ -47,7 +45,7 @@ func (cmpChart *component) String() string {
 // Install extracts the helm chart from binary, renders it as Kubernetes configs
 // and then installs it one by one
 func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) error {
-	renderedFiles, err := cmpChart.processChart(opts.AnswersFile)
+	renderedFiles, err := cmpChart.processChart(opts.AnswersFile, opts.Namespace)
 	if err != nil {
 		return err
 	}
@@ -60,7 +58,7 @@ func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) erro
 }
 
 func (cmpChart *component) RenderManifests(opts *InstallOptions) error {
-	renderedFiles, err := cmpChart.processChart(opts.AnswersFile)
+	renderedFiles, err := cmpChart.processChart(opts.AnswersFile, opts.Namespace)
 	if err != nil {
 		return err
 	}
@@ -77,7 +75,7 @@ func (cmpChart *component) RenderManifests(opts *InstallOptions) error {
 	return nil
 }
 
-func (cmpChart *component) processChart(ansFile string) (map[string]string, error) {
+func (cmpChart *component) processChart(ansFile, namespace string) (map[string]string, error) {
 	ch, err := cmpChart.loadHelmChart()
 	if err != nil {
 		return nil, err
@@ -91,7 +89,9 @@ func (cmpChart *component) processChart(ansFile string) (map[string]string, erro
 	// answers file in the future.
 	renderOpts := renderutil.Options{
 		ReleaseOptions: chartutil.ReleaseOptions{
+			Name:      cmpChart.Name,
 			IsInstall: true,
+			Namespace: namespace,
 		},
 	}
 
@@ -192,4 +192,5 @@ func Register(name string, obj ComponentChanger) {
 // InstallOptions is a way of passing the data from cmd line to code here.
 type InstallOptions struct {
 	AnswersFile string
+	Namespace   string
 }

@@ -17,6 +17,7 @@ var componentRenderCmd = &cobra.Command{
 func init() {
 	componentCmd.AddCommand(componentRenderCmd)
 	componentAnswersFlag(componentRenderCmd)
+	componentNamespaceFlag(componentRenderCmd)
 }
 
 func runComponentRender(cmd *cobra.Command, args []string) {
@@ -32,6 +33,7 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 
 	installOpts := &components.InstallOptions{
 		AnswersFile: answers,
+		Namespace:   namespace,
 	}
 
 	if err := c.RenderManifests(installOpts); err != nil {
