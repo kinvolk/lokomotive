@@ -54,8 +54,29 @@ data "template_file" "controller-configs" {
   count    = "${var.controller_count}"
   template = "${file("${path.module}/cl/controller.yaml.tmpl")}"
 
-  vars = {
-    ssh_keys = "${jsonencode("${var.ssh_keys}")}"
+  vars {
+    # Cannot use cyclic dependencies on controllers or their DNS records
+    etcd_name   = "etcd${count.index}"
+    etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
+
+    # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
+    etcd_initial_cluster = "${join(",", data.template_file.etcds.*.rendered)}"
+
+    kubeconfig            = "${indent(10, module.bootkube.kubeconfig)}"
+    ssh_keys              = "${jsonencode("${var.ssh_keys}")}"
+    k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
+    cluster_domain_suffix = "${var.cluster_domain_suffix}"
+  }
+}
+
+data "template_file" "etcds" {
+  count    = "${var.controller_count}"
+  template = "etcd$${index}=https://$${cluster_name}-etcd$${index}.$${dns_zone}:2380"
+
+  vars {
+    index        = "${count.index}"
+    cluster_name = "${var.cluster_name}"
+    dns_zone     = "${var.dns_zone}"
   }
 }
 
@@ -69,7 +90,7 @@ resource "packet_device" "worker_nodes" {
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
   always_pxe       = "false"
-  user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  user_data        = "${element(data.ct_config.worker-ignitions.*.rendered, count.index)}"
 }
 
 data "ct_config" "worker-ignitions" {
@@ -81,7 +102,10 @@ data "template_file" "worker-configs" {
   count    = "${var.worker_count}"
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
-  vars = {
+  vars {
+    kubeconfig            = "${indent(10, module.bootkube.kubeconfig)}"
     ssh_keys = "${jsonencode("${var.ssh_keys}")}"
+    k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
+    cluster_domain_suffix = "${var.cluster_domain_suffix}"
   }
 }
