@@ -1,9 +1,3 @@
-provider "packet" {}
-
-provider "aws" {
-  region = "${var.aws_region}"
-}
-
 # Discrete DNS records for each controller's private IPv4 for etcd usage
 resource "aws_route53_record" "etcds" {
   count = "${var.controller_count}"

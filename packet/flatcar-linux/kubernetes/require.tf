@@ -4,6 +4,10 @@ terraform {
   required_version = ">= 0.11.0"
 }
 
+provider "ct" {
+  version = "0.3.0"
+}
+
 provider "local" {
   version = "~> 1.0"
 }
@@ -18,4 +22,12 @@ provider "template" {
 
 provider "tls" {
   version = "~> 1.0"
+}
+
+provider "packet" {
+  version = "~> 1.2"
+}
+
+provider "aws" {
+  version = "~> 1.57"
 }
