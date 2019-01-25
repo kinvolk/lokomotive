@@ -50,7 +50,6 @@ variable "ipxe_script_url" {
 
 variable "facility" {
   type        = "string"
-  default     = "ams1"
   description = "Packet facility to deploy the cluster in"
 }
 
