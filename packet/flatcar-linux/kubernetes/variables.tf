@@ -1,3 +1,5 @@
+# DNS records
+
 variable "cluster_name" {
   type        = "string"
   description = "Unique cluster name (prepended to dns_zone)"
@@ -17,7 +19,8 @@ variable "project_id" {
   description = "Packet project ID (e.g. 405efe9c-cce9-4c71-87c1-949c290b27dc)"
 }
 
-# instances
+# Nodes
+
 variable "controller_count" {
   type        = "string"
   default     = "1"
@@ -53,7 +56,8 @@ variable "facility" {
   description = "Packet facility to deploy the cluster in"
 }
 
-# configuration
+# Configuration
+
 variable "ssh_keys" {
   type        = "list"
   description = "SSH public keys for user 'core'"
@@ -97,8 +101,6 @@ EOD
   type    = "string"
   default = "10.3.0.0/16"
 }
-
-# optional
 
 variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
