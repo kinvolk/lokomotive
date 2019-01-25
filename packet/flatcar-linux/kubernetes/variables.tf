@@ -48,10 +48,10 @@ variable "ipxe_script_url" {
   description = "Location to load the pxe boot script from"
 }
 
-variable "cluster_region" {
+variable "facility" {
   type        = "string"
   default     = "ams1"
-  description = "Location of the packet datacenter"
+  description = "Packet facility to deploy the cluster in"
 }
 
 # configuration
