@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# TODO: We want to avoid cloning the entire repo. We want to avoid this.
+# TODO: We want to avoid cloning the entire repo.
 # Related: https://github.com/kinvolk/lokoctl/issues/34
 git clone -q git@github.com:kinvolk/lokomotive-kubernetes.git
 pushd lokomotive-kubernetes 1>/dev/null
