@@ -1,7 +1,7 @@
 output "kubeconfig-admin" {
-  value = "${module.bootkube.user-kubeconfig}"
+  value = "${module.bootkube.kubeconfig-admin}"
 }
 
 output "kubeconfig" {
-  value = "${module.bootkube.kubeconfig}"
+  value = "${module.bootkube.kubeconfig-kubelet}"
 }
