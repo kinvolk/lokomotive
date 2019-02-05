@@ -1,7 +1,6 @@
 package packet
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -83,50 +82,20 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/packet/flatcar-linux/kubernetes")
 
-	sshPubKey, err := cfg.readSSHPubKey()
+	// TODO - add support for multiple keys?
+	keyContents, err := cfg.readSSHPubKey()
 	if err != nil {
 		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
 	}
 
-	// Terraform module expects a list of SSH keys - wrap the single key we have in a list.
-	// TODO - add support for multiple keys?
-	sshKeys, err := json.Marshal([]string{sshPubKey})
-	if err != nil {
-		return errors.Wrap(err, "constructing SSH key list")
-	}
-
 	terraformCfg := struct {
-		AssetDir        string
-		AuthToken       string
-		AWSRegion       string
-		ClusterName     string
-		ControllerCount int
-		ControllerType  string
-		CredsPath       string
-		DNSZone         string
-		DNSZoneID       string
-		Facility        string
-		ProjectID       string
-		Source          string
-		SSHKeys         string
-		WorkerCount     int
-		WorkerType      string
+		Config       config
+		Source       string
+		SSHPublicKey string
 	}{
-		AssetDir:        cfg.AssetDir,
-		AuthToken:       cfg.AuthToken,
-		AWSRegion:       cfg.AWSRegion,
-		ClusterName:     cfg.ClusterName,
-		ControllerCount: cfg.ControllerCount,
-		ControllerType:  cfg.ControllerType,
-		CredsPath:       cfg.CredsPath,
-		DNSZone:         cfg.DNSZone,
-		DNSZoneID:       cfg.DNSZoneID,
-		Facility:        cfg.Facility,
-		ProjectID:       cfg.ProjectID,
-		Source:          source,
-		SSHKeys:         string(sshKeys),
-		WorkerCount:     cfg.WorkerCount,
-		WorkerType:      cfg.WorkerType,
+		Config:       *cfg,
+		Source:       source,
+		SSHPublicKey: keyContents,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

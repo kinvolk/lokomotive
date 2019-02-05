@@ -1,7 +1,7 @@
 package packet
 
 var terraformConfigTmpl = `
-module "packet-{{.ClusterName}}" {
+module "packet-{{.Config.ClusterName}}" {
   source = "{{.Source}}"
 
   providers = {
@@ -13,28 +13,28 @@ module "packet-{{.ClusterName}}" {
     packet   = "packet.default"
   }
 
-  dns_zone    = "{{.DNSZone}}"
-  dns_zone_id = "{{.DNSZoneID}}"
+  dns_zone    = "{{.Config.DNSZone}}"
+  dns_zone_id = "{{.Config.DNSZoneID}}"
 
-  ssh_keys  = {{.SSHKeys}}
-  asset_dir = "{{.AssetDir}}"
+  ssh_keys  = ["{{.SSHPublicKey}}"]
+  asset_dir = "{{.Config.AssetDir}}"
 
-  cluster_name = "{{.ClusterName}}"
-  project_id   = "{{.ProjectID}}"
-  facility     = "{{.Facility}}"
+  cluster_name = "{{.Config.ClusterName}}"
+  project_id   = "{{.Config.ProjectID}}"
+  facility     = "{{.Config.Facility}}"
 
-  controller_count = "{{.ControllerCount}}"
-  controller_type  = "{{.ControllerType}}"
-  worker_count     = "{{.WorkerCount}}"
-  worker_type      = "{{.WorkerType}}"
+  controller_count = "{{.Config.ControllerCount}}"
+  controller_type  = "{{.Config.ControllerType}}"
+  worker_count     = "{{.Config.WorkerCount}}"
+  worker_type      = "{{.Config.WorkerType}}"
 }
 
 provider "aws" {
   version = "~> 1.57.0"
   alias   = "default"
 
-  region                  = "{{.AWSRegion}}"
-  shared_credentials_file = "{{.AWSCredsPath}}"
+  region                  = "{{.Config.AWSRegion}}"
+  shared_credentials_file = "{{.Config.AWSCredsPath}}"
 }
 
 provider "ct" {
@@ -65,6 +65,6 @@ provider "packet" {
   version = "~> 1.2"
   alias = "default"
 
-  auth_token = "{{.AuthToken}}"
+  auth_token = "{{.Config.AuthToken}}"
 }
 `
