@@ -64,6 +64,13 @@ func runPacket(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
+	// Set Packet auth token.
+	token := os.Getenv("PACKET_AUTH_TOKEN")
+	if token == "" {
+		ctxLogger.Fatal("PACKET_AUTH_TOKEN environment variable must be set")
+	}
+	packetCfg.AuthToken = token
+
 	if packetCfg.AssetDir == "" {
 		clusterIden := fmt.Sprintf("%s-%s", packetCfg.ClusterName, packetCfg.DNSZone)
 		packetCfg.AssetDir = filepath.Join(os.ExpandEnv("$HOME"), ".lokoctl", clusterIden)

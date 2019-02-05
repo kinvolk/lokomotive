@@ -64,5 +64,7 @@ provider "tls" {
 provider "packet" {
   version = "~> 1.2"
   alias = "default"
+
+  auth_token = "{{.AuthToken}}"
 }
 `

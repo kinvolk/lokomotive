@@ -15,7 +15,9 @@ import (
 )
 
 type config struct {
-	AssetDir        string
+	AssetDir string
+	// TODO AuthToken gets written to disk when Terraform files are generated. We should consider
+	// reading this value directly from the environment.
 	AuthToken       string
 	AWSCredsPath    string
 	AWSRegion       string
@@ -95,6 +97,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 	terraformCfg := struct {
 		AssetDir        string
+		AuthToken       string
 		AWSRegion       string
 		ClusterName     string
 		ControllerCount int
@@ -110,6 +113,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerType      string
 	}{
 		AssetDir:        cfg.AssetDir,
+		AuthToken:       cfg.AuthToken,
 		AWSRegion:       cfg.AWSRegion,
 		ClusterName:     cfg.ClusterName,
 		ControllerCount: cfg.ControllerCount,
