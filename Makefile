@@ -18,6 +18,14 @@ build:
 		-o lokoctl \
 		github.com/kinvolk/lokoctl/cli
 
+.PHONY: packr2
+packr2:
+	cd cli && packr2
+
+.PHONY: build-fat
+build-fat: packr2 build
+	cd cli && packr2 clean
+
 .PHONY: test
 test: check-go-format
 
@@ -41,13 +49,13 @@ getbindata:
 bindata-installer:
 	./scripts/bindata-installer
 
-.PHONY: bindata-components
-bindata-components:
-	./scripts/bindata-components
-
 .PHONY: bindata
 # make sure that `format-go-code` target is always the last one to run
-bindata: | bindata-installer bindata-components format-go-code
+bindata: | bindata-installer format-go-code
 
 .PHONY: all
 all: getbindata bindata build test
+
+.PHONY: install-packr2
+install-packr2:
+	go get -u github.com/gobuffalo/packr/v2/packr2
