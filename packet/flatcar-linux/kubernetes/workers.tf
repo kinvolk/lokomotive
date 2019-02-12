@@ -36,6 +36,7 @@ resource "packet_bgp_session" "bgp" {
 
 data "ct_config" "worker-ignitions" {
   content = "${data.template_file.worker-configs.rendered}"
+  platform = "packet"
 }
 
 data "template_file" "worker-configs" {

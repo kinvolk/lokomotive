@@ -1,10 +1,11 @@
 module "bootkube" {
-  source = "git::https://github.com/kinvolk/terraform-render-bootkube?ref=e369831758e871a4c133c4a6ae9d4b2cd8865053"
+  source = "github.com/kinvolk/terraform-render-bootkube?ref=f90f555c735458dd0a956b0a6dec1468e9f83da4"
 
   cluster_name = "${var.cluster_name}"
 
   # Cannot use cyclic dependencies on controllers or their DNS records
-  api_servers                     = ["${format("%s.%s", var.cluster_name, var.dns_zone)}"]
+  api_servers                     = ["${format("%s-private.%s", var.cluster_name, var.dns_zone)}"]
+  api_servers_external            = ["${format("%s.%s", var.cluster_name, var.dns_zone)}"]
   etcd_servers                    = "${aws_route53_record.etcds.*.name}"
   asset_dir                       = "${var.asset_dir}"
   networking                      = "${var.networking}"
