@@ -78,6 +78,12 @@ systemd:
         ExecStop=/etc/kubernetes/delete-node
         [Install]
         WantedBy=multi-user.target
+    - name: "iptables-restore.service"
+      enabled: true
+      enable: true
+    - name: "ip6tables-restore.service"
+      enabled: true
+      enable: true
 storage:
   files:
     - path: /etc/kubernetes/kubeconfig
@@ -114,6 +120,38 @@ storage:
             --net=host \
             --dns=host \
             --exec=/kubectl -- --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)
+    - path: /var/lib/iptables/rules-save
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          *filter
+          :INPUT DROP [0:0]
+          :FORWARD ACCEPT [0:0]
+          :OUTPUT ACCEPT [0:0]
+          -A INPUT -i lo -j ACCEPT
+          -A INPUT -p tcp --dport 22 -j ACCEPT
+          -A INPUT -p tcp --dport 179 -j ACCEPT
+          -A INPUT -p tcp --dport 2379 -j ACCEPT
+          -A INPUT -p tcp --dport 2380 -j ACCEPT
+          -A INPUT -p tcp --dport 2381 -j ACCEPT
+          -A INPUT -p tcp --dport 10250 -j ACCEPT
+          -A INPUT -p tcp --dport 10256 -j ACCEPT
+          -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          COMMIT
+    - path: /var/lib/ip6tables/rules-save
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          *filter
+          :INPUT DROP [0:0]
+          :FORWARD DROP [0:0]
+          :OUTPUT ACCEPT [0:0]
+          -A INPUT -i lo -j ACCEPT
+          -A INPUT -p tcp --dport 22 -j ACCEPT
+          -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          COMMIT
 passwd:
   users:
   - name: core
