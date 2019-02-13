@@ -13,9 +13,9 @@ func ParamID(s string) string {
 // ParamID returns the string as parameter with _id added
 //	user = user_id
 //	UserID = user_id
-//	admin/widgets = admin_widgets_id
+//	admin/widgets = admin_widget_id
 func (i Ident) ParamID() Ident {
-	s := i.Underscore().String()
+	s := i.Singularize().Underscore().String()
 	s = strings.ToLower(s)
 	if strings.HasSuffix(s, "_id") {
 		return New(s)
