@@ -1,4 +1,4 @@
-package components
+package k8sutil
 
 import (
 	"reflect"

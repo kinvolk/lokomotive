@@ -1,4 +1,4 @@
-package components
+package k8sutil
 
 import (
 	"bufio"
@@ -41,7 +41,7 @@ const (
 // 3. Rest of the Kubernetes config types
 // It also takes a k8s ClientConfig and a timeout duration determining wait time for API server
 // It retuns an error if any.
-func createAssets(config clientcmd.ClientConfig, manifestFiles map[string]string, timeout time.Duration) error {
+func CreateAssets(config clientcmd.ClientConfig, manifestFiles map[string]string, timeout time.Duration) error {
 	c, err := config.ClientConfig()
 	if err != nil {
 		return err
