@@ -1,33 +1,24 @@
 package cmd
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
-	// This registers the answers object with its corresponding component object
-	// in `components` list, every time a new component is added an import needs
-	// to be done here
-	_ "github.com/kinvolk/lokoctl/pkg/components/ingress-nginx"
+	"github.com/kinvolk/lokoctl/pkg/config"
 )
 
 var installCmd = &cobra.Command{
-	Use:               "install",
-	Short:             "Install a component",
-	Run:               runInstall,
-	PersistentPreRunE: validateComponentCmdArgs,
+	Use:   "install",
+	Short: "Install a component",
+	Run:   runInstall,
 }
-
-var (
-	answers   string
-	namespace string
-)
 
 func init() {
 	componentCmd.AddCommand(installCmd)
-	componentAnswersFlag(installCmd)
-	componentNamespaceFlag(installCmd)
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
@@ -36,17 +27,33 @@ func runInstall(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	c, err := components.Get(args[0])
-	if err != nil {
+	lokoConfig, diags := config.LoadConfig("")
+	if len(diags) > 0 {
+		contextLogger.Fatal(diags)
+	}
+
+	if err := installComponents(lokoConfig, viper.GetString("kubeconfig"), args[0]); err != nil {
 		contextLogger.Fatal(err)
 	}
+}
 
-	installOpts := &components.InstallOptions{
-		AnswersFile: answers,
-		Namespace:   namespace,
-	}
+func installComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
+	for _, componentName := range componentNames {
+		component, err := components.Get(componentName)
+		if err != nil {
+			return err
+		}
 
-	if err := c.Install(viper.GetString("kubeconfig"), installOpts); err != nil {
-		contextLogger.Fatalf("Installation of component %q failed: %q", c.Name, err)
+		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
+
+		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
+			fmt.Printf("%v\n", diags)
+			return diags
+		}
+
+		if err := component.Install(kubeconfig); err != nil {
+			return err
+		}
 	}
+	return nil
 }

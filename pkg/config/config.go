@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl2/gohcl"
@@ -36,11 +37,6 @@ type Config struct {
 	EvalContext *hcl.EvalContext
 }
 
-type ClusterConfig struct {
-	ControllerCount int `hcl:"controller_count,attr"`
-	WorkerCount     int `hcl:"worker_count,attr"`
-}
-
 func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 	// TODO(schu): support both a target directory with
 	// multiple configuration files and a single file
@@ -69,9 +65,23 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 
 	configBody := hcl.MergeFiles(hclFiles)
 
-	userVals, diags := LoadValuesFile("lokocfg.vars")
-	if len(diags) > 0 {
-		return nil, diags
+	lokocfgVarsPath := "lokocfg.vars"
+	exists, err := pathExists(lokocfgVarsPath)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("could not stat %q: %v", lokocfgVarsPath, err),
+			},
+		}
+	}
+	var userVals map[string]cty.Value
+	var diags hcl.Diagnostics
+	if exists {
+		userVals, diags = LoadValuesFile(lokocfgVarsPath)
+		if len(diags) > 0 {
+			return nil, diags
+		}
 	}
 
 	var rootConfig RootConfig
@@ -89,7 +99,11 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 		if len(v.Default) == 0 {
 			continue
 		}
-		defaultVal, diags := v.Default["default"].Expr.Value(nil)
+		defaultValue, hasDefaultValue := v.Default["default"]
+		if !hasDefaultValue {
+			continue
+		}
+		defaultVal, diags := defaultValue.Expr.Value(nil)
 		if len(diags) > 0 {
 			return nil, diags
 		}
@@ -106,6 +120,17 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 		RootConfig:  &rootConfig,
 		EvalContext: &evalContext,
 	}, nil
+}
+
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
 
 // LoadValuesFile reads the file at the given path and parses it as a
@@ -140,12 +165,6 @@ func LoadValuesFile(path string) (map[string]cty.Value, hcl.Diagnostics) {
 	}
 
 	return vars, diags
-}
-
-func (c *Config) LoadClusterConfig() (*ClusterConfig, hcl.Diagnostics) {
-	var clusterConfig ClusterConfig
-	diags := gohcl.DecodeBody(c.RootConfig.Cluster.Config, c.EvalContext, &clusterConfig)
-	return &clusterConfig, diags
 }
 
 // LoadComponentConfigBody returns nil if no component with the given

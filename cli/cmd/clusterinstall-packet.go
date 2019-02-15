@@ -2,13 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path"
-	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/kinvolk/lokoctl/pkg/config"
 	"github.com/kinvolk/lokoctl/pkg/install/packet"
 )
 
@@ -23,39 +22,6 @@ var packetCmd = &cobra.Command{
 
 func init() {
 	clusterInstallCmd.AddCommand(packetCmd)
-
-	packetCmd.Flags().StringVar(&packetCfg.AssetDir, "assets", "", "Path to directory where generated Kubernetes configs will be stored")
-
-	packetCmd.Flags().StringVar(&packetCfg.AWSRegion, "aws-region", "", "AWS region to use for Route53")
-	packetCmd.MarkFlagRequired("aws-region")
-
-	packetCmd.Flags().StringVar(&packetCfg.ClusterName, "cluster-name", "", "Name of the cluster to be created")
-	packetCmd.MarkFlagRequired("cluster-name")
-
-	packetCmd.Flags().IntVar(&packetCfg.ControllerCount, "controller-count", 1, "Number of controller nodes")
-
-	packetCmd.Flags().StringVar(&packetCfg.ControllerType, "controller-type", "baremetal_0", "Packet server type for controllers")
-
-	packetCmd.Flags().StringVar(&packetCfg.AWSCredsPath, "aws-creds", "", "Path to AWS credentials file")
-	packetCmd.MarkFlagRequired("creds")
-
-	packetCmd.Flags().StringVar(&packetCfg.DNSZone, "dns-zone", "", "DNS Zone for the cluster to be created")
-	packetCmd.MarkFlagRequired("dns-zone")
-
-	packetCmd.Flags().StringVar(&packetCfg.DNSZoneID, "dns-zone-id", "", "DNS Zone ID of the cluster to be created")
-	packetCmd.MarkFlagRequired("dns-zone-id")
-
-	packetCmd.Flags().StringVar(&packetCfg.Facility, "facility", "", "Packet facility to deploy the cluster in (e.g. ams1)")
-	packetCmd.MarkFlagRequired("facility")
-
-	packetCmd.Flags().StringVar(&packetCfg.ProjectID, "project-id", "", "Packet project ID (e.g. 405efe9c-cce9-4c71-87c1-949c290b27dc)")
-	packetCmd.MarkFlagRequired("project-id")
-
-	packetCmd.Flags().StringVar(&packetCfg.SSHPubKey, "ssh-public-key", os.ExpandEnv("$HOME/.ssh/id_rsa.pub"), "Path to ssh public key")
-
-	packetCmd.Flags().IntVar(&packetCfg.WorkerCount, "worker-count", 2, "Number of worker nodes")
-
-	packetCmd.Flags().StringVar(&packetCfg.WorkerType, "worker-type", "baremetal_0", "Packet server type for workers")
 }
 
 func runPacket(cmd *cobra.Command, args []string) {
@@ -64,16 +30,22 @@ func runPacket(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	// Set Packet auth token.
-	token := os.Getenv("PACKET_AUTH_TOKEN")
-	if token == "" {
-		ctxLogger.Fatal("PACKET_AUTH_TOKEN environment variable must be set")
+	lokoConfig, diags := config.LoadConfig("")
+	if len(diags) > 0 {
+		ctxLogger.Fatal(diags)
 	}
-	packetCfg.AuthToken = token
 
-	if packetCfg.AssetDir == "" {
-		clusterIden := fmt.Sprintf("%s-%s", packetCfg.ClusterName, packetCfg.DNSZone)
-		packetCfg.AssetDir = filepath.Join(os.ExpandEnv("$HOME"), ".lokoctl", clusterIden)
+	if lokoConfig.RootConfig.Cluster == nil {
+		ctxLogger.Fatal("No cluster configured")
+	}
+
+	clusterConfigBody := &lokoConfig.RootConfig.Cluster.Config
+	if diags := packetCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
+		ctxLogger.Fatal(diags)
+	}
+
+	if packetCfg.AuthToken == "" {
+		ctxLogger.Fatal("no Packet API token given")
 	}
 
 	if err := packet.Install(packetCfg); err != nil {
@@ -85,5 +57,14 @@ func runPacket(cmd *cobra.Command, args []string) {
 	kubeconfigPath := path.Join(packetCfg.AssetDir, "auth", "kubeconfig")
 	if err := verifyInstall(kubeconfigPath); err != nil {
 		ctxLogger.Fatalf("Verify cluster installation on Packet: %v", err)
+	}
+
+	var componentsToInstall []string
+	for _, component := range lokoConfig.RootConfig.Components {
+		componentsToInstall = append(componentsToInstall, component.Name)
+	}
+
+	if len(componentsToInstall) > 0 {
+		installComponents(lokoConfig, kubeconfigPath, componentsToInstall...)
 	}
 }

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hashicorp/hcl2/gohcl"
+	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/tar"
@@ -14,12 +16,19 @@ import (
 )
 
 type config struct {
-	AssetDir    string
-	ClusterName string
-	DNSZone     string
-	DNSZoneID   string
-	SSHPubKey   string
-	CredsPath   string
+	AssetDir    string `hcl:"asset_dir"`
+	ClusterName string `hcl:"cluster_name"`
+	DNSZone     string `hcl:"dns_zone"`
+	DNSZoneID   string `hcl:"dns_zone_id"`
+	SSHPubKey   string `hcl:"ssh_pubkey"`
+	CredsPath   string `hcl:"creds_path"`
+}
+
+func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
+	if configBody == nil {
+		return hcl.Diagnostics{}
+	}
+	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
 func NewConfig() *config {
