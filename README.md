@@ -10,8 +10,6 @@ lokoctl is a command line interface for Lokomotive, Kinvolk's open-source Kubern
 ### Components
 Lokomotive Components are add-ons to the core Kubernetes installation that add extra functionality.
 
-* [Cert Manager](/manifests/cert-manager/README.md)
-* [Network Policy](/manifests/default-network-policies/README.md)
 * [Ingress Nginx](/manifests/ingress-nginx/README.md)
 
 If you want to add a new component that does not already exist or modify one, you can find instructions [here](/manifests/README.md).
