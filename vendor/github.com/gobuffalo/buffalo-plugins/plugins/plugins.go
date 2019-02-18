@@ -65,6 +65,11 @@ var _list List
 func Available() (List, error) {
 	var err error
 	oncer.Do("plugins.Available", func() {
+		defer func() {
+			if err := saveCache(); err != nil {
+				logrus.Error(err)
+			}
+		}()
 
 		app := meta.New(".")
 
@@ -137,7 +142,25 @@ func askBin(ctx context.Context, path string) Commands {
 	defer func() {
 		logrus.Debugf("askBin %s=%.4f s", path, time.Since(start).Seconds())
 	}()
+
 	commands := Commands{}
+	defer func() {
+		addToCache(path, cachedPlugin{
+			Commands: commands,
+		})
+	}()
+	if cp, ok := findInCache(path); ok {
+		s := sum(path)
+		if s == cp.CheckSum {
+			logrus.Debugf("cache hit: %s", path)
+			commands = cp.Commands
+			return commands
+		}
+	}
+	logrus.Debugf("cache miss: %s", path)
+	if strings.HasPrefix(filepath.Base(path), "buffalo-no-sqlite") {
+		return commands
+	}
 
 	cmd := exec.CommandContext(ctx, path, "available")
 	bb := &bytes.Buffer{}

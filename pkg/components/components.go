@@ -37,14 +37,14 @@ func newComponent(name string, obj ComponentChanger) *component {
 	}
 }
 
-func (cmpChart *component) String() string {
-	return cmpChart.Name
+func (c *component) String() string {
+	return c.Name
 }
 
 // Install extracts the helm chart from binary, renders it as Kubernetes configs
 // and then installs it one by one
-func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) error {
-	renderedFiles, err := cmpChart.processChart(opts.AnswersFile, opts.Namespace)
+func (c *component) Install(kubeconfig string, opts *InstallOptions) error {
+	renderedFiles, err := c.processChart(opts.AnswersFile, opts.Namespace)
 	if err != nil {
 		return err
 	}
@@ -56,8 +56,8 @@ func (cmpChart *component) Install(kubeconfig string, opts *InstallOptions) erro
 	return createAssets(config, renderedFiles, 1*time.Minute)
 }
 
-func (cmpChart *component) RenderManifests(opts *InstallOptions) error {
-	renderedFiles, err := cmpChart.processChart(opts.AnswersFile, opts.Namespace)
+func (c *component) RenderManifests(opts *InstallOptions) error {
+	renderedFiles, err := c.processChart(opts.AnswersFile, opts.Namespace)
 	if err != nil {
 		return err
 	}
@@ -74,8 +74,8 @@ func (cmpChart *component) RenderManifests(opts *InstallOptions) error {
 	return nil
 }
 
-func (cmpChart *component) processChart(ansFile, namespace string) (map[string]string, error) {
-	ch, err := cmpChart.loadHelmChart()
+func (c *component) processChart(ansFile, namespace string) (map[string]string, error) {
+	ch, err := c.loadHelmChart()
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (cmpChart *component) processChart(ansFile, namespace string) (map[string]s
 	// answers file in the future.
 	renderOpts := renderutil.Options{
 		ReleaseOptions: chartutil.ReleaseOptions{
-			Name:      cmpChart.Name,
+			Name:      c.Name,
 			IsInstall: true,
 			Namespace: namespace,
 		},
@@ -101,7 +101,7 @@ func (cmpChart *component) processChart(ansFile, namespace string) (map[string]s
 			return nil, err
 		}
 
-		values, err := cmpChart.Answers.GetValues(data)
+		values, err := c.Answers.GetValues(data)
 		if err != nil {
 			return nil, err
 		}
@@ -144,7 +144,7 @@ func cleanConfigs(files map[string]string) map[string]string {
 // loadHelmChart extracts the chart that is stored in binary as tar into a
 // temporary directory and reads it into memory using helm libraries and returns
 // the helm chart object
-func (cmpChart *component) loadHelmChart() (*chart.Chart, error) {
+func (c *component) loadHelmChart() (*chart.Chart, error) {
 	b := packr.New("components", "../../manifests/")
 
 	tmpPrefix, err := ioutil.TempDir("", "lokoctl")
@@ -174,11 +174,11 @@ func (cmpChart *component) loadHelmChart() (*chart.Chart, error) {
 		return nil
 	}
 
-	if err := b.WalkPrefix(cmpChart.Name, walk); err != nil {
+	if err := b.WalkPrefix(c.Name, walk); err != nil {
 		return nil, errors.Wrap(err, "walking the dir")
 	}
 
-	chartPath := filepath.Join(tmpPrefix, cmpChart.Name)
+	chartPath := filepath.Join(tmpPrefix, c.Name)
 	return chartutil.Load(chartPath)
 }
 
