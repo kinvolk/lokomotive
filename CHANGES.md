@@ -4,9 +4,42 @@ Notable changes between versions.
 
 ## Latest
 
+* Update etcd from v3.3.11 to [v3.3.12](https://github.com/etcd-io/etcd/releases/tag/v3.3.12)
+* Update Calico from v3.5.0 to v3.5.1
+
+#### Bare-Metal
+
+* Recommend updating [terraform-provider-matchbox](https://github.com/coreos/terraform-provider-matchbox) plugin from v0.2.2 to [v0.2.3](https://github.com/coreos/terraform-provider-matchbox/releases/tag/v0.2.3) ([#402](https://github.com/poseidon/typhoon/pull/402))
+
+#### Google Cloud
+
+* Set the minimum CPU platform to Intel Haswell ([#405](https://github.com/poseidon/typhoon/pull/405))
+  * Haswell or better is available in every zone (no price change)
+  * A few zones still default to Sandy/Ivy Bridge (shifts in April 2019)
+
+#### Addons
+
+* Improve Prometheus rules and alerts ([#404](https://github.com/poseidon/typhoon/pull/404))
+  * Drop extraneous metrics ([#397](https://github.com/poseidon/typhoon/pull/397))
+  * Add `pod` name label to metrics discovered via service endpoints
+  * Rename `kubernetes_namespace` label to `namespace`
+* Improve Grafana and dashboards ([#403](https://github.com/poseidon/typhoon/pull/403), [#404](https://github.com/poseidon/typhoon/pull/404))
+  * Upgrade Grafana from v5.4.3 to 6.0.0-beta2
+  * Enable Grafana [Explore](http://docs.grafana.org/guides/whats-new-in-v6-0/#explore) UI as a Viewer (inspect/edit without saving)
+* Raise nginx-ingress liveness/readiness timeout to 5 seconds
+* Remove nginx-ingess default-backend ([#401](https://github.com/poseidon/typhoon/pull/401))
+  * nginx-ingress now responds with its own 404 page by default
+
+## v1.13.3
+
+* Kubernetes [v1.13.3](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.13.md#v1133)
 * Update etcd from v3.3.10 to [v3.3.11](https://github.com/etcd-io/etcd/blob/master/CHANGELOG-3.3.md#v3311-2019-1-11)
 * Update CoreDNS from v1.3.0 to [v1.3.1](https://coredns.io/2019/01/13/coredns-1.3.1-release/)
+  * Switch from the `proxy` plugin to the faster `forward` plugin for upsteam resolvers
 * Update Calico from v3.4.0 to [v3.5.0](https://docs.projectcalico.org/v3.5/releases/)
+* Update flannel from v0.10.0 to [v0.11.0](https://github.com/coreos/flannel/releases/tag/v0.11.0)
+* Reduce pod eviction timeout for deleting pods on unready nodes to 1 minute
+  * Respond more quickly to node preemption (previously 5 minutes)
 * Fix automatic worker deletion on shutdown for cloud platforms
   * Lowering Kubelet privileges in [#372](https://github.com/poseidon/typhoon/pull/372) dropped a needed node deletion authorization. Scale-in due to manual terraform apply (any cloud), AWS spot termination, or Azure low priority deletion left old nodes registered, requiring manual deletion (`kubectl delete node name`)
 
@@ -22,7 +55,7 @@ Notable changes between versions.
 #### Addons
 
 * Update nginx-ingress from v0.21.0 to v0.22.0
-* Update Prometheus from v2.6.0 to v2.6.1
+* Update Prometheus from v2.6.0 to v2.7.1
 * Update kube-state-metrics from v1.4.0 to v1.5.0
   * Fix ClusterRole to collect and export PodDisruptionBudget metrics ([#383](https://github.com/poseidon/typhoon/pull/383))
 * Update node-exporter from v0.15.2 to v0.17.0
