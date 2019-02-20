@@ -31,7 +31,7 @@ spec:
           image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.22.0
           args:
             - /nginx-ingress-controller
-            - --ingress-class=public
+            - --ingress-class=nginx
           # use downward API
           env:
             - name: POD_NAME
