@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- else}}
+  namespace: cert-manager
+  {{- end}}
+  {{- if .Values.namespace }}
+  name: {{ .Values.namespace }}
+  {{- else}}
+  name: cert-manager
+  {{- end }}
+  labels:
+    # https://docs.cert-manager.io/en/latest/getting-started/webhook.html#disabling-validation-on-the-cert-manager-namespace
+    certmanager.k8s.io/disable-validation: "true"
