@@ -3,7 +3,7 @@
 !!! danger
     Typhoon for Azure is alpha. For production, use AWS, Google Cloud, or bare-metal. As Azure matures, check [errata](https://github.com/poseidon/typhoon/wiki/Errata) for known shortcomings.
 
-In this tutorial, we'll create a Kubernetes v1.13.2 cluster on Azure with Container Linux.
+In this tutorial, we'll create a Kubernetes v1.13.3 cluster on Azure with Container Linux.
 
 We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create a resource group, virtual network, subnets, security groups, controller availability set, worker scale set, load balancer, and TLS assets.
 
@@ -87,7 +87,7 @@ Define a Kubernetes cluster using the module `azure/container-linux/kubernetes`.
 
 ```tf
 module "azure-ramius" {
-  source = "git::https://github.com/poseidon/typhoon//azure/container-linux/kubernetes?ref=v1.13.2"
+  source = "git::https://github.com/poseidon/typhoon//azure/container-linux/kubernetes?ref=v1.13.3"
 
   providers = {
     azurerm  = "azurerm.default"
@@ -161,9 +161,9 @@ In 4-8 minutes, the Kubernetes cluster will be ready.
 $ export KUBECONFIG=/home/user/.secrets/clusters/ramius/auth/kubeconfig
 $ kubectl get nodes
 NAME                  STATUS  ROLES              AGE  VERSION
-ramius-controller-0   Ready   controller,master  24m  v1.13.2
-ramius-worker-000001  Ready   node               25m  v1.13.2
-ramius-worker-000002  Ready   node               24m  v1.13.2
+ramius-controller-0   Ready   controller,master  24m  v1.13.3
+ramius-worker-000001  Ready   node               25m  v1.13.3
+ramius-worker-000002  Ready   node               24m  v1.13.3
 ```
 
 List the pods.
@@ -249,7 +249,7 @@ Reference the DNS zone with `"${azurerm_dns_zone.clusters.name}"` and its resour
 | controller_type | Machine type for controllers | "Standard_DS1_v2" | See below |
 | worker_type | Machine type for workers | "Standard_F1" | See below |
 | os_image | Channel for a Container Linux derivative | coreos-stable | coreos-stable, coreos-beta, coreos-alpha |
-| disk_size | Size of the disk GB | "40" | "100" |
+| disk_size | Size of the disk in GB | "40" | "100" |
 | worker_priority | Set priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time | Regular | Low |
 | controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](/advanced/customization/#usage) |
 | worker_clc_snippets | Worker Container Linux Config snippets | [] | [example](/advanced/customization/#usage) |
