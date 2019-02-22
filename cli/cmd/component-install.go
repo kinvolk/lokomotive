@@ -32,7 +32,16 @@ func runInstall(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal(diags)
 	}
 
-	if err := installComponents(lokoConfig, viper.GetString("kubeconfig"), args[0]); err != nil {
+	var componentsToInstall []string
+	if len(args) > 0 {
+		componentsToInstall = append(componentsToInstall, args...)
+	} else {
+		for _, component := range lokoConfig.RootConfig.Components {
+			componentsToInstall = append(componentsToInstall, component.Name)
+		}
+	}
+
+	if err := installComponents(lokoConfig, viper.GetString("kubeconfig"), componentsToInstall...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
