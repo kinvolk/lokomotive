@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/hashicorp/hcl2/gohcl"
+	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/tar"
@@ -13,28 +15,42 @@ import (
 )
 
 type config struct {
-	AssetDir               string
-	CachedInstall          string
-	ClusterName            string
-	ControllerDomains      []string
-	ControllerMacs         []string
-	ControllerNames        []string
-	K8sDomainName          string
-	MatchboxCAPath         string
-	MatchboxClientCertPath string
-	MatchboxClientKeyPath  string
-	MatchboxEndpoint       string
-	MatchboxHTTPEndpoint   string
-	OSChannel              string
-	OSVersion              string
-	SSHPubKeyPath          string
-	WorkerNames            []string
-	WorkerMacs             []string
-	WorkerDomains          []string
+	AssetDir               string   `hcl:"asset_dir"`
+	CachedInstall          *string  `hcl:"cached_install"`
+	ClusterName            string   `hcl:"cluster_name"`
+	ControllerDomains      []string `hcl:"controller_domains"`
+	ControllerMacs         []string `hcl:"controller_macs"`
+	ControllerNames        []string `hcl:"controller_names"`
+	K8sDomainName          string   `hcl:"k8s_domain_name"`
+	MatchboxCAPath         string   `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath string   `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath  string   `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint       string   `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint   string   `hcl:"matchbox_http_endpoint"`
+	OSChannel              *string  `hcl:"os_channel"`
+	OSVersion              *string  `hcl:"os_version"`
+	SSHPubKey              string   `hcl:"ssh_pubkey"`
+	WorkerNames            []string `hcl:"worker_names"`
+	WorkerMacs             []string `hcl:"worker_macs"`
+	WorkerDomains          []string `hcl:"worker_domains"`
+}
+
+func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
+	if configBody == nil {
+		return hcl.Diagnostics{}
+	}
+	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
 func NewConfig() *config {
-	return &config{}
+	defaultCachedInstall := "false"
+	defaultOSChannel := "flatcar-stable"
+	defaultOSVersion := "current"
+	return &config{
+		CachedInstall: &defaultCachedInstall,
+		OSChannel:     &defaultOSChannel,
+		OSVersion:     &defaultOSVersion,
+	}
 }
 
 func Install(cfg *config) error {
@@ -126,7 +142,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerDomains        string
 	}{
 		AssetDir:             cfg.AssetDir,
-		CachedInstall:        cfg.CachedInstall,
+		CachedInstall:        *cfg.CachedInstall,
 		ClusterName:          cfg.ClusterName,
 		ControllerDomains:    string(controllerDomains),
 		ControllerMacs:       string(controllerMacs),
@@ -137,10 +153,10 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxClientKey:    cfg.MatchboxClientKeyPath,
 		MatchboxEndpoint:     cfg.MatchboxEndpoint,
 		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
-		OSChannel:            cfg.OSChannel,
-		OSVersion:            cfg.OSVersion,
+		OSChannel:            *cfg.OSChannel,
+		OSVersion:            *cfg.OSVersion,
 		Source:               source,
-		SSHAuthorizedKey:     cfg.SSHPubKeyPath,
+		SSHAuthorizedKey:     cfg.SSHPubKey,
 		WorkerNames:          string(workerNames),
 		WorkerMacs:           string(workerMacs),
 		WorkerDomains:        string(workerDomains),

@@ -11,14 +11,14 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/config"
 )
 
-var installCmd = &cobra.Command{
+var componentInstallCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install a component",
 	Run:   runInstall,
 }
 
 func init() {
-	componentCmd.AddCommand(installCmd)
+	componentCmd.AddCommand(componentInstallCmd)
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
