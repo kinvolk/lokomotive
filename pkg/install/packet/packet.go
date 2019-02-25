@@ -32,6 +32,7 @@ type config struct {
 	SSHPubKey       string  `hcl:"ssh_pubkey"`
 	WorkerCount     int     `hcl:"worker_count"`
 	WorkerType      *string `hcl:"worker_type"`
+	IPXEScriptURL   *string `hcl:"ipxe_script_url"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -43,9 +44,11 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	nodeType := "baremetal_0"
+	iPXEScriptURL := "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/master/packet.ipxe"
 	return &config{
 		ControllerType: &nodeType,
 		WorkerType:     &nodeType,
+		IPXEScriptURL:  &iPXEScriptURL,
 	}
 }
 
