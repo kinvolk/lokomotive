@@ -30,7 +30,7 @@ resource "packet_device" "controllers" {
   count            = "${var.controller_count}"
   hostname         = "${var.cluster_name}-controller-${count.index}"
   plan             = "${var.controller_type}"
-  facility         = "${var.facility}"
+  facilities       = ["${var.facility}"]
   operating_system = "custom_ipxe"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"

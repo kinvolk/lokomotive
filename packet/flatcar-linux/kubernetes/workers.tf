@@ -2,7 +2,7 @@ resource "packet_device" "worker_nodes" {
   count            = "${var.worker_count}"
   hostname         = "${var.cluster_name}-worker-${count.index}"
   plan             = "${var.worker_type}"
-  facility         = "${var.facility}"
+  facilities       = ["${var.facility}"]
   operating_system = "custom_ipxe"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
