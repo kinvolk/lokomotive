@@ -23,18 +23,22 @@ func init() {
 }
 
 type component struct {
-	Namespace *string `hcl:"namespace,attr"`
+	Namespace   *string `hcl:"namespace,attr"`
+	ServiceType *string `hcl:"service_type,attr"`
 }
 
 func newComponent() *component {
 	defaultNamespace := ""
+	defaultServiceType := "ClusterIP"
 	return &component{
-		Namespace: &defaultNamespace,
+		Namespace:   &defaultNamespace,
+		ServiceType: &defaultServiceType,
 	}
 }
 
 const chartValuesTmpl = `
 namespace: {{.Namespace}}
+serviceType: {{.ServiceType}}
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {

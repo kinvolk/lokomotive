@@ -11,7 +11,11 @@ metadata:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '10254'
 spec:
+  {{- if .Values.serviceType }}
+  type: {{ .Values.serviceType }}
+  {{- else}}
   type: ClusterIP
+  {{- end }}
   selector:
     name: nginx-ingress-controller
     phase: prod
