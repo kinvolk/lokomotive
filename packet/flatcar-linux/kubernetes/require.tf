@@ -25,7 +25,7 @@ provider "tls" {
 }
 
 provider "packet" {
-  version = "~> 1.2"
+  version = "~> 1.4"
 }
 
 provider "aws" {

@@ -2,13 +2,19 @@ resource "packet_device" "worker_nodes" {
   count            = "${var.worker_count}"
   hostname         = "${var.cluster_name}-worker-${count.index}"
   plan             = "${var.worker_type}"
-  facility         = "${var.facility}"
+  facilities       = ["${var.facility}"]
   operating_system = "custom_ipxe"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
   always_pxe       = "false"
   user_data        = "${element(data.ct_config.worker-ignitions.*.rendered, count.index)}"
+}
+
+resource "packet_bgp_session" "bgp" {
+  count = "${var.worker_count}"
+  device_id = "${element(packet_device.worker_nodes.*.id, count.index)}"
+  address_family = "ipv4"
 }
 
 data "ct_config" "worker-ignitions" {
