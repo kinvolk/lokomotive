@@ -1,4 +1,4 @@
-package gotools
+package gogen
 
 import (
 	"go/ast"

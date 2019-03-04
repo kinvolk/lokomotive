@@ -1,4 +1,4 @@
-package gotools
+package gogen
 
 import (
 	"strings"
@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//Append allows to append source into a go file
+// Append allows to append source into a go file
 func Append(gf genny.File, expressions ...string) (genny.File, error) {
 	pf, err := ParseFile(gf)
 	if err != nil {

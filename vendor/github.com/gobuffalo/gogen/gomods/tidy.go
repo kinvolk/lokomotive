@@ -8,6 +8,7 @@ import (
 
 func Tidy(path string, verbose bool) (*genny.Generator, error) {
 	g := genny.New()
+	g.StepName = "go:mod:tidy:" + path
 	g.RunFn(func(r *genny.Runner) error {
 		if !On() {
 			return nil

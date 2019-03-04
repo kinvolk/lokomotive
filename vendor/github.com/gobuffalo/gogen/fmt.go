@@ -1,14 +1,14 @@
-package gotools
+package gogen
 
 import (
 	"bytes"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/genny/movinglater/gotools/goimports"
+	"github.com/gobuffalo/gogen/goimports"
 	"github.com/pkg/errors"
 )
 
-func GoFmt(root string) (*genny.Generator, error) {
+func Fmt(root string) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(func(r *genny.Runner) error {
 		i, err := goimports.New(root)

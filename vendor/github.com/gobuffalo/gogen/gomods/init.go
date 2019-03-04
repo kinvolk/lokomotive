@@ -48,6 +48,7 @@ func Init(name string, path string) (*genny.Generator, error) {
 	name = strings.TrimPrefix(name, "/")
 
 	g := genny.New()
+	g.StepName = "go:mod:init:" + name
 	g.RunFn(func(r *genny.Runner) error {
 		if !On() {
 			return nil
