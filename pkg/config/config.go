@@ -8,7 +8,9 @@ import (
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclparse"
+	"github.com/mitchellh/go-homedir"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 )
 
 type variable struct {
@@ -114,12 +116,30 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 		Variables: map[string]cty.Value{
 			"var": cty.ObjectVal(variables),
 		},
+		Functions: map[string]function.Function{
+			"pathexpand": evalFuncPathExpand(),
+		},
 	}
 
 	return &Config{
 		RootConfig:  &rootConfig,
 		EvalContext: &evalContext,
 	}, nil
+}
+
+func evalFuncPathExpand() function.Function {
+	return function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name: "path",
+				Type: cty.String,
+			}},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			expandedPath, err := homedir.Expand(args[0].AsString())
+			return cty.StringVal(expandedPath), err
+		},
+	})
 }
 
 func pathExists(path string) (bool, error) {
