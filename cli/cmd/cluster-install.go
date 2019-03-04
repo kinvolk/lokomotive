@@ -19,12 +19,12 @@ import (
 
 var clusterCmd = &cobra.Command{
 	Use:   "cluster",
-	Short: "Install a Lokomotive cluster and components",
+	Short: "Install Lokomotive cluster and components",
 }
 
 var clusterInstallCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install a Lokomotive cluster with components",
+	Short: "Install Lokomotive cluster with components",
 	Run:   runClusterInstall,
 }
 
