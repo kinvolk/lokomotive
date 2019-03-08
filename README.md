@@ -18,6 +18,7 @@ extra functionality.
 A list of all available components can be get with `lokoctl component list`. Documentation for components can be found in [docs/components](docs/components/).
 
 * [MetalLB](docs/components/metallb.md)
+* [Contour](docs/components/contour.md)
 
 ## Installation
 
