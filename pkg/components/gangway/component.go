@@ -3,15 +3,13 @@ package dex
 import (
 	"bytes"
 	"text/template"
-	"time"
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/k8sutil"
+	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const name = "gangway"
@@ -249,15 +247,5 @@ func (c *component) RenderManifests() (map[string]string, error) {
 }
 
 func (c *component) Install(kubeconfig string) error {
-	renderedFiles, err := c.RenderManifests()
-	if err != nil {
-		return err
-	}
-
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
-		&clientcmd.ConfigOverrides{},
-	)
-
-	return k8sutil.CreateAssets(clientConfig, renderedFiles, 1*time.Minute)
+	return util.Install(c, kubeconfig)
 }
