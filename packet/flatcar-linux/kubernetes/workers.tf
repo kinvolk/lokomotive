@@ -8,16 +8,14 @@ resource "packet_device" "worker_nodes" {
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
   always_pxe       = "false"
-  user_data        = "${element(data.ct_config.worker-ignitions.*.rendered, count.index)}"
+  user_data        = "${element(data.ct_config.worker-ignitions.rendered, count.index)}"
 }
 
 data "ct_config" "worker-ignitions" {
-  count   = "${var.worker_count}"
-  content = "${element(data.template_file.worker-configs.*.rendered, count.index)}"
+  content = "${data.template_file.worker-configs.rendered}"
 }
 
 data "template_file" "worker-configs" {
-  count    = "${var.worker_count}"
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
   vars {
