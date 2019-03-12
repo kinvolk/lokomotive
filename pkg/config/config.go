@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl2/gohcl"
@@ -11,6 +10,8 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+
+	"github.com/kinvolk/lokoctl/pkg/util"
 )
 
 type variable struct {
@@ -68,7 +69,7 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 	configBody := hcl.MergeFiles(hclFiles)
 
 	lokocfgVarsPath := "lokocfg.vars"
-	exists, err := pathExists(lokocfgVarsPath)
+	exists, err := util.PathExists(lokocfgVarsPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
@@ -140,17 +141,6 @@ func evalFuncPathExpand() function.Function {
 			return cty.StringVal(expandedPath), err
 		},
 	})
-}
-
-func pathExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
 }
 
 // LoadValuesFile reads the file at the given path and parses it as a
