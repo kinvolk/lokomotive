@@ -8,7 +8,24 @@ resource "packet_device" "worker_nodes" {
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
   always_pxe       = "false"
-  user_data        = "${element(data.ct_config.worker-ignitions.rendered, count.index)}"
+  user_data        = "${data.ct_config.worker-install-ignitions.rendered}"
+}
+
+# These configs are used for the fist boot, to run flatcar-install
+data "ct_config" "worker-install-ignitions" {
+  content = "${data.template_file.worker-install.rendered}"
+}
+
+data "template_file" "worker-install" {
+  template = "${file("${path.module}/cl/install.yaml.tmpl")}"
+
+  vars {
+    os_channel           = "${var.os_channel}"
+    install_disk         = "${var.install_disk}"
+    flatcar_linux_oem    = "packet"
+    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
+    postinstall_ignition = "${data.ct_config.worker-ignitions.rendered}"
+  }
 }
 
 data "ct_config" "worker-ignitions" {
