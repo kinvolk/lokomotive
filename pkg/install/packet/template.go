@@ -27,6 +27,8 @@ module "packet-{{.Config.ClusterName}}" {
   controller_type  = "{{.Config.ControllerType}}"
   worker_count     = "{{.Config.WorkerCount}}"
   worker_type      = "{{.Config.WorkerType}}"
+
+  ipxe_script_url = "{{.Config.IPXEScriptURL}}"
 }
 
 provider "aws" {

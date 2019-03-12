@@ -1,7 +1,12 @@
-# Bare metal installation
-This guide walks through a bare metal installation of Lokomotive utilizing PXE-based tools.
+# Lokomotive bare-metal installation guide
+
+This guide walks through a bare metal installation of Lokomotive utilizing PXE.
+
+Note that the guide is tailored for a matchbox setup and not generally
+useful for PXE environments.
 
 ## Requirements
+
 A minimum of two machines are required to run Lokomotive.
 
 * Machines with 2GB RAM, 30GB disk, PXE-enabled NIC, IPMI
@@ -10,52 +15,69 @@ A minimum of two machines are required to run Lokomotive.
 * Matchbox credentials `client.crt`, `client.key`, `ca.crt`
 * Terraform v0.11.x, [terraform-provider-matchbox](https://github.com/coreos/terraform-provider-matchbox), and [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) installed locally
 
+Note that the machines should only be powered on *after* starting the
+installation, see below.
+
 ### Machines
+
 * Mac addresses collected from each machine.
 
     For machines with multiple PXE-enabled NICs, pick one of the MAC addresses. MAC addresses will be used to match machines to profiles during network boot.
 
 * DNS A (or AAAA) record for each node's default interface.
 
-
     Cluster nodes will be configured to refer to the control plane and themselves by these fully qualified names and they will be used in generated TLS certificates.
 
 * SSH access to all machines
 
-## Lokomotive installer
-Get [Lokoctl](https://github.com/kinvolk/lokoctl) and build with `make` in the project root.
+## Installing the cluster
 
-Run `./lokoctl install baremetal` with the required flags added appropriately.
-e.g 
+Create a `my-cluster.lokocfg` file to define your cluster and, optionally,
+components that should be installed. Example:
+
 ```
-./lokoctl install baremetal \
-    --assets=/path/to/assets/directory \
-    --cluster-name=mercury \
-    --cached-install=true \
-    --k8s-domain-name=node1.example.com \
-    --matchbox-ca=/path/to/ca.crt \
-    --matchbox-client-cert=/path/to/client.crt \
-    --matchbox-client-key=/path/to/client.key \
-    --matchbox-endpoint=matchbox.example.com:8081 \
-    --matchbox-http-endpoint=http://matchbox.example.com:8080 \
-    --controller-domains=node1.example.com \
-    --controller-macs=52:54:00:a1:9c:ae \
-    --controller-names=node1 \
-    --worker-domains=node2.example.com,node3.example.com \
-    --worker-names=node2,node3 \
-    --worker-macs=52:54:00:b2:2f:86,52:54:00:c3:61:77
+cluster "bare-metal" {
+  asset_dir = "${pathexpand("~/.lokoctl/mercury")}"
+  ssh_pubkey = "${pathexpand("~/.ssh/id_rsa.pub")}"
+  cached_install = "true"
+  matchbox_ca_path = "${pathexpand("~/matchbox-certs/ca.crt")}"
+  matchbox_client_cert_path = "${pathexpand("~/matchbox-certs/client.crt")}"
+  matchbox_client_key_path = "${pathexpand("~/matchbox-certs/client.key")}"
+  matchbox_endpoint = "matchbox.example.com:8081"
+  matchbox_http_endpoint = "http://matchbox.example.com:8080"
+  cluster_name = "mercury"
+  k8s_domain_name = "node1.example.com"
+  controller_domains = [
+    "node1.example.com",
+  ]
+  controller_macs = [
+    "52:54:00:a1:9c:ae",
+  ]
+  controller_names = [
+    "node1",
+  ]
+  worker_domains = [
+    "node2.example.com",
+    "node3.example.com",
+  ]
+  worker_macs = [
+    "52:54:00:b2:2f:86",
+    "52:54:00:c3:61:77",
+  ]
+  worker_names = [
+    "node2",
+    "node3",
+  ]
+}
+
+component "ingress-nginx" {
+}
 ```
-More commands/flags can be gotten using the help flag `-h`.
 
-Terraform will generate bootkube assets to `assets` and create Matchbox profiles (e.g. controller, worker) and matching rules via the Matchbox API.
+To apply the configuration, run
 
-```bash
-...
-module.bare-metal-mercury.null_resource.copy-kubeconfig.0: Provisioning with 'file'...
-module.bare-metal-mercury.null_resource.copy-etcd-secrets.0: Provisioning with 'file'...
-module.bare-metal-mercury.null_resource.copy-kubeconfig.0: Still creating... (10s elapsed)
-module.bare-metal-mercury.null_resource.copy-etcd-secrets.0: Still creating... (10s elapsed)
-...
+```
+lokoctl cluster install
 ```
 
 Apply will then loop until it can successfully copy credentials to each machine and start the one-time Kubernetes bootstrap service.
@@ -63,6 +85,7 @@ Apply will then loop until it can successfully copy credentials to each machine 
 **Proceed to Power on the PXE machines while this loops.**
 
 ### Bootstrap
+
 Wait for the bootkube-start step to finish bootstrapping the Kubernetes control plane. This may take 5-15 minutes depending on your network.
 
 ```
@@ -102,7 +125,7 @@ bootkube[5]: Tearing down temporary bootstrap control plane...
 Install kubectl on your system. Use the generated `kubeconfig` credentials to access the Kubernetes cluster and list nodes.
 
 ```
-$ export KUBECONFIG=~/.lokoctl/clusterName/auth/kubeconfig
+$ export KUBECONFIG="<asset_dir>/auth/kubeconfig"
 $ kubectl get nodes
 NAME                STATUS  ROLES              AGE  VERSION
 node1.example.com   Ready   controller,master  10m  v1.12.2
@@ -132,8 +155,9 @@ kube-system   pod-checkpointer-wf65d                     1/1       Running   0  
 kube-system   pod-checkpointer-wf65d-node1.example.com   1/1       Running   0          11m
 ```
 
-## Clean up
-In the `/path/to/assets/directory/terraform`, 
+## Destroying the cluster
+
 ```bash
+cd <asset_dir>/terraform/
 terraform destroy
 ```

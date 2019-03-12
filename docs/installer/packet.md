@@ -1,4 +1,4 @@
-# Packet Installation
+# Lokomotive Packet installation guide
 
 This guide walks through a Lokomotive installation on [Packet](https://packet.net).
 
@@ -13,34 +13,46 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 
 ## Install a Cluster
 
-Get [lokoctl](https://github.com/kinvolk/lokoctl) and build it by running `make` in the project's
-root.
-
-Set the `PACKET_AUTH_TOKEN` environment variable with the Packet API token:
+Create a `my-cluster.lokocfg` file to define your cluster and, optionally,
+components that should be installed. Example:
 
 ```
-export PACKET_AUTH_TOKEN=xxxxxxxx
+variable "packet_token" {
+	type = "string"
+}
+
+cluster "packet" {
+	asset_dir = "/tmp/lokoctl-assets"
+	auth_token = "${var.packet_token}"
+	aws_creds_path = "${pathexpand("~/.aws/credentials")}"
+	aws_region = "eu-central-1"
+	cluster_name = "test"
+	controller_count = 1
+	dns_zone = "k8s.example.com"
+	dns_zone_id = "XXX"
+	facility = "ams1"
+	project_id = "aaa-bbb-ccc-ddd"
+	ssh_pubkey = "${pathexpand("~/.ssh/id_rsa.pub")}"
+	worker_count = 1
+}
+
+component "ingress-nginx" {
+}
 ```
 
-Run `./lokoctl install packet` with the required flags specified:
+Create a `lokocfg.vars` file and define all needed variables. Example:
 
 ```
-./lokoctl install packet \
-    --assets /tmp/lokoctl-assets \
-    --aws-region eu-central-1 \
-    --cluster-name my-cluster \
-    --aws-creds ~/.aws/credentials \
-    --dns-zone myclusters.example.com \
-    --dns-zone-id Z3PAABBCFAKEC0 \
-    --facility ams1 \
-    --project-id 4cff83ac-de23-432a-b01b-b2950dabc76e \
-    --ssh-public-key ~/.ssh/my-cluster.pub \
-    --worker-count 1
+packet_token = "XXX"
 ```
 
-Use `-h` for information regarding additional flags.
+To apply the configuration, run
 
-Terraform will generate Bootkube assets to the directory specified with `--assets`. Terraform will
+```
+lokoctl cluster install
+```
+
+Terraform will generate Bootkube assets to the directory specified with `asset_dir`. Terraform will
 then create the machines on Packet and loop until it can successfully copy credentials to each
 machine and start the one-time Kubernetes bootstrap service.
 
@@ -145,9 +157,9 @@ kube-system   pod-checkpointer-wf65d                     1/1       Running   0  
 kube-system   pod-checkpointer-wf65d-node1.example.com   1/1       Running   0          11m
 ```
 
-## Clean up
-Run `terraform destroy` inside the `terraform` directory in the assets directory:
-```
-cd /tmp/lokoctl-assets/terraform
+## Destroying the cluster
+
+```bash
+cd <asset_dir>/terraform/
 terraform destroy
 ```

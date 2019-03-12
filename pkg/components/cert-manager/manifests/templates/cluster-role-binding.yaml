@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager
+  labels:
+    app: cert-manager
+    release: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager
+subjects:
+  - name: cert-manager
+    {{- if .Values.namespace }}
+    namespace: {{ .Values.namespace }}
+    {{- else}}
+    namespace: cert-manager
+    {{- end}}
+    kind: ServiceAccount

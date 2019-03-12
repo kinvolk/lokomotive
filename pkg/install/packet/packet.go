@@ -7,6 +7,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hashicorp/hcl2/gohcl"
+	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/tar"
@@ -14,26 +16,40 @@ import (
 )
 
 type config struct {
-	AssetDir string
+	AssetDir string `hcl:"asset_dir"`
 	// TODO AuthToken gets written to disk when Terraform files are generated. We should consider
 	// reading this value directly from the environment.
-	AuthToken       string
-	AWSCredsPath    string
-	AWSRegion       string
-	ClusterName     string
-	ControllerCount int
-	ControllerType  string
-	DNSZone         string
-	DNSZoneID       string
-	Facility        string
-	ProjectID       string
-	SSHPubKey       string
-	WorkerCount     int
-	WorkerType      string
+	AuthToken       string  `hcl:"auth_token"`
+	AWSCredsPath    string  `hcl:"aws_creds_path"`
+	AWSRegion       string  `hcl:"aws_region"`
+	ClusterName     string  `hcl:"cluster_name"`
+	ControllerCount int     `hcl:"controller_count"`
+	ControllerType  *string `hcl:"controller_type"`
+	DNSZone         string  `hcl:"dns_zone"`
+	DNSZoneID       string  `hcl:"dns_zone_id"`
+	Facility        string  `hcl:"facility"`
+	ProjectID       string  `hcl:"project_id"`
+	SSHPubKey       string  `hcl:"ssh_pubkey"`
+	WorkerCount     int     `hcl:"worker_count"`
+	WorkerType      *string `hcl:"worker_type"`
+	IPXEScriptURL   *string `hcl:"ipxe_script_url"`
+}
+
+func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
+	if configBody == nil {
+		return hcl.Diagnostics{}
+	}
+	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
 func NewConfig() *config {
-	return &config{}
+	nodeType := "baremetal_0"
+	iPXEScriptURL := "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/master/packet.ipxe"
+	return &config{
+		ControllerType: &nodeType,
+		WorkerType:     &nodeType,
+		IPXEScriptURL:  &iPXEScriptURL,
+	}
 }
 
 func (cfg *config) readSSHPubKey() (string, error) {

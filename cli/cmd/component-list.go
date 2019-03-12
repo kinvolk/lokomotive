@@ -28,8 +28,8 @@ func runList(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Unknown argument provided for list")
 	}
 
-	fmt.Println("List of available components:")
-	for _, component := range components.List() {
-		fmt.Println("\t", component)
+	fmt.Println("Available components:")
+	for _, name := range components.ListNames() {
+		fmt.Println("\t", name)
 	}
 }

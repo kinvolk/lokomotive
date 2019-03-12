@@ -1,23 +1,23 @@
 package cmd
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/config"
 )
 
 var componentRenderCmd = &cobra.Command{
-	Use:               "render-manifest",
-	Short:             "Render a component manifests",
-	Run:               runComponentRender,
-	PersistentPreRunE: validateComponentCmdArgs,
+	Use:   "render-manifest",
+	Short: "Render and print manifests for a component",
+	Run:   runComponentRender,
 }
 
 func init() {
 	componentCmd.AddCommand(componentRenderCmd)
-	componentAnswersFlag(componentRenderCmd)
-	componentNamespaceFlag(componentRenderCmd)
 }
 
 func runComponentRender(cmd *cobra.Command, args []string) {
@@ -26,17 +26,29 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	c, err := components.Get(args[0])
+	componentName := args[0]
+	component, err := components.Get(componentName)
 	if err != nil {
 		contextLogger.Fatal(err)
 	}
 
-	installOpts := &components.InstallOptions{
-		AnswersFile: answers,
-		Namespace:   namespace,
+	lokoConfig, diags := config.LoadConfig("")
+	if len(diags) > 0 {
+		contextLogger.Fatal(diags)
 	}
 
-	if err := c.RenderManifests(installOpts); err != nil {
+	componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
+
+	if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
+		contextLogger.Fatal(diags)
+	}
+
+	manifests, err := component.RenderManifests()
+	if err != nil {
 		contextLogger.Fatal(err)
+	}
+
+	for filename, manifest := range manifests {
+		fmt.Printf("---\n# %s\n%s", filename, manifest)
 	}
 }
