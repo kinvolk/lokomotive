@@ -14,11 +14,7 @@ popd 1>/dev/null
 export TZ=UTC
 readonly TAR_OPTS="--sort=name --owner=root:0 --group=root:0 --mtime=2019-01-01"
 
-tar ${TAR_OPTS} -cf - lokomotive-kubernetes/aws/container-linux/kubernetes | gzip -n > lokomotive-kubernetes-aws.tar.gz
 tar ${TAR_OPTS} -cf - lokomotive-kubernetes/bare-metal/container-linux/kubernetes | gzip -n > lokomotive-kubernetes-baremetal.tar.gz
-tar ${TAR_OPTS} -cf - lokomotive-kubernetes/packet/flatcar-linux/kubernetes | gzip -n > lokomotive-kubernetes-packet.tar.gz
 
-go-bindata -nometadata -pkg aws -o pkg/install/aws/bindata.go lokomotive-kubernetes-aws.tar.gz
 go-bindata -nometadata -pkg baremetal -o pkg/install/baremetal/bindata.go lokomotive-kubernetes-baremetal.tar.gz
-go-bindata -nometadata -pkg packet -o pkg/install/packet/bindata.go lokomotive-kubernetes-packet.tar.gz
 rm -rf lokomotive-kubernetes-*.tar.gz lokomotive-kubernetes

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/tar"
+	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
@@ -45,26 +45,24 @@ func (cfg *config) readSSHPubKey() (string, error) {
 }
 
 func Install(cfg *config) error {
-	terraformPath := filepath.Join(cfg.AssetDir, "terraform")
-
-	// Create assets directory tree.
-	if err := os.MkdirAll(terraformPath, 0755); err != nil {
-		return errors.Wrapf(err, "failed to create assets directory tree at: %s", terraformPath)
-	}
-
-	// TODO: skip if the dir already exists
-	if err := tar.UntarFromAsset(Asset, "lokomotive-kubernetes-aws.tar.gz", cfg.AssetDir); err != nil {
-		return errors.Wrapf(err, "failed to extract AWS config at: %s", cfg.AssetDir)
-	}
-
-	if err := createTerraformConfigFile(cfg, terraformPath); err != nil {
+	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
+	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
 	}
 
-	return terraform.InitAndApply(terraformPath)
+	terraformRootDir := filepath.Join(cfg.AssetDir, "terraform")
+	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
+		return err
+	}
+
+	if err := createTerraformConfigFile(cfg, terraformRootDir); err != nil {
+		return err
+	}
+
+	return terraform.InitAndApply(terraformRootDir)
 }
 
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
+func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	tmplName := "cluster.tf"
 	t := template.New(tmplName)
 	t, err := t.Parse(terraformConfigTmpl)
@@ -72,7 +70,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrap(err, "failed to parse template")
 	}
 
-	path := filepath.Join(terraformPath, tmplName)
+	path := filepath.Join(terraformRootDir, tmplName)
 	f, err := os.Create(path)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create file %q", path)
