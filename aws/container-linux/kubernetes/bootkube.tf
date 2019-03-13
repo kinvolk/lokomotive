@@ -1,6 +1,6 @@
 # Self-hosted Kubernetes assets (kubeconfig, manifests)
 module "bootkube" {
-  source = "git::ssh://git@github.com/kinvolk/terraform-render-bootkube.git?ref=4d315afd41dea46fdae90bb629dfc027a6eaa2ad"
+  source = "git::ssh://git@github.com/kinvolk/terraform-render-bootkube.git?ref=e369831758e871a4c133c4a6ae9d4b2cd8865053"
 
   cluster_name          = "${var.cluster_name}"
   api_servers           = ["${format("%s.%s", var.cluster_name, var.dns_zone)}"]
