@@ -36,7 +36,25 @@ resource "packet_device" "controllers" {
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
   always_pxe       = "false"
-  user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  user_data        = "${element(data.ct_config.controller-install-ignitions.*.rendered, count.index)}"
+}
+
+data "ct_config" "controller-install-ignitions" {
+  count   = "${var.controller_count}"
+  content = "${element(data.template_file.controller-install.*.rendered, count.index)}"
+}
+
+data "template_file" "controller-install" {
+  count    = "${var.controller_count}"
+  template = "${file("${path.module}/cl/install.yaml.tmpl")}"
+
+  vars {
+    os_channel           = "${var.os_channel}"
+    install_disk         = "${var.install_disk}"
+    flatcar_linux_oem    = "packet"
+    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
+    postinstall_ignition = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  }
 }
 
 data "ct_config" "controller-ignitions" {
