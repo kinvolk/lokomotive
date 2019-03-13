@@ -15,7 +15,9 @@ add-ons (Lokomotive Components) usable from any Kubernetes cluster.
 Lokomotive Components are add-ons to the core Kubernetes installation that add
 extra functionality.
 
-A list of all available components can be get with `lokoctl component list`.
+A list of all available components can be get with `lokoctl component list`. Documentation for components can be found in [docs/components](docs/components/).
+
+* [MetalLB](docs/components/metallb.md)
 
 ## Installation
 
