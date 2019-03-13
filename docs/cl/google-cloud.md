@@ -1,6 +1,6 @@
 # Google Cloud
 
-In this tutorial, we'll create a Kubernetes v1.13.3 cluster on Google Compute Engine with Container Linux.
+In this tutorial, we'll create a Kubernetes v1.13.4 cluster on Google Compute Engine with Container Linux.
 
 We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create a network, firewall rules, health checks, controller instances, worker managed instance group, load balancers, and TLS assets.
 
@@ -18,7 +18,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.7
+Terraform v0.11.12
 ```
 
 Add the [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -39,7 +39,7 @@ cd infra/clusters
 
 Login to your Google Console [API Manager](https://console.cloud.google.com/apis/dashboard) and select a project, or [signup](https://cloud.google.com/free/) if you don't have an account.
 
-Select "Credentials" and create a service account key. Choose the "Compute Engine Admin" role and save the JSON private key to a file that can be referenced in configs.
+Select "Credentials" and create a service account key. Choose the "Compute Engine Admin" and "DNS Administrator" roles and save the JSON private key to a file that can be referenced in configs.
 
 ```sh
 mv ~/Downloads/project-id-43048204.json ~/.config/google-cloud/terraform.json
@@ -49,7 +49,7 @@ Configure the Google Cloud provider to use your service account key, project-id,
 
 ```tf
 provider "google" {
-  version = "1.6"
+  version = "~> 2.1.0"
   alias   = "default"
 
   credentials = "${file("~/.config/google-cloud/terraform.json")}"
@@ -93,7 +93,7 @@ Define a Kubernetes cluster using the module `google-cloud/container-linux/kuber
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes?ref=v1.13.3"
+  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes?ref=v1.13.4"
   
   providers = {
     google   = "google.default"
@@ -168,9 +168,9 @@ In 4-8 minutes, the Kubernetes cluster will be ready.
 $ export KUBECONFIG=/home/user/.secrets/clusters/yavin/auth/kubeconfig
 $ kubectl get nodes
 NAME                                       ROLES              STATUS  AGE  VERSION
-yavin-controller-0.c.example-com.internal  controller,master  Ready   6m   v1.13.3
-yavin-worker-jrbf.c.example-com.internal   node               Ready   5m   v1.13.3
-yavin-worker-mzdm.c.example-com.internal   node               Ready   5m   v1.13.3
+yavin-controller-0.c.example-com.internal  controller,master  Ready   6m   v1.13.4
+yavin-worker-jrbf.c.example-com.internal   node               Ready   5m   v1.13.4
+yavin-worker-mzdm.c.example-com.internal   node               Ready   5m   v1.13.4
 ```
 
 List the pods.

@@ -1,6 +1,6 @@
 # AWS
 
-In this tutorial, we'll create a Kubernetes v1.13.3 cluster on AWS with Container Linux.
+In this tutorial, we'll create a Kubernetes v1.13.4 cluster on AWS with Container Linux.
 
 We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create a VPC, gateway, subnets, security groups, controller instances, worker auto-scaling group, network load balancer, and TLS assets.
 
@@ -18,7 +18,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.11
+Terraform v0.11.12
 ```
 
 Add the [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -49,7 +49,7 @@ Configure the AWS provider to use your access key credentials in a `providers.tf
 
 ```tf
 provider "aws" {
-  version = "~> 1.13.0"
+  version = "~> 2.1.0"
   alias   = "default"
 
   region                  = "eu-central-1"
@@ -92,7 +92,7 @@ Define a Kubernetes cluster using the module `aws/container-linux/kubernetes`.
 
 ```tf
 module "aws-tempest" {
-  source = "git::https://github.com/poseidon/typhoon//aws/container-linux/kubernetes?ref=v1.13.3"
+  source = "git::https://github.com/poseidon/typhoon//aws/container-linux/kubernetes?ref=v1.13.4"
 
   providers = {
     aws = "aws.default"
@@ -165,9 +165,9 @@ In 4-8 minutes, the Kubernetes cluster will be ready.
 $ export KUBECONFIG=/home/user/.secrets/clusters/tempest/auth/kubeconfig
 $ kubectl get nodes
 NAME           STATUS  ROLES              AGE  VERSION
-ip-10-0-3-155  Ready   controller,master  10m  v1.13.3
-ip-10-0-26-65  Ready   node               10m  v1.13.3
-ip-10-0-41-21  Ready   node               10m  v1.13.3
+ip-10-0-3-155  Ready   controller,master  10m  v1.13.4
+ip-10-0-26-65  Ready   node               10m  v1.13.4
+ip-10-0-41-21  Ready   node               10m  v1.13.4
 ```
 
 List the pods.

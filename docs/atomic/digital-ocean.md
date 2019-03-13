@@ -3,7 +3,7 @@
 !!! danger
     Typhoon for Fedora Atomic is alpha. Expect rough edges and changes.
 
-In this tutorial, we'll create a Kubernetes v1.13.3 cluster on DigitalOcean with Fedora Atomic.
+In this tutorial, we'll create a Kubernetes v1.13.4 cluster on DigitalOcean with Fedora Atomic.
 
 We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create controller droplets, worker droplets, DNS records, tags, and TLS assets. Instances are provisioned on first boot with cloud-init.
 
@@ -21,7 +21,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.7
+Terraform v0.11.12
 ```
 
 Read [concepts](/architecture/concepts/) to learn about Terraform, modules, and organizing resources. Change to your infrastructure repository (e.g. `infra`).
@@ -45,7 +45,7 @@ Configure the DigitalOcean provider to use your token in a `providers.tf` file.
 
 ```tf
 provider "digitalocean" {
-  version = "1.0.0"
+  version = "~> 1.1.0"
   token = "${chomp(file("~/.config/digital-ocean/token"))}"
   alias = "default"
 }
@@ -77,7 +77,7 @@ Define a Kubernetes cluster using the module `digital-ocean/fedora-atomic/kubern
 
 ```tf
 module "digital-ocean-nemo" {
-  source = "git::https://github.com/poseidon/typhoon//digital-ocean/fedora-atomic/kubernetes?ref=v1.13.3"
+  source = "git::https://github.com/poseidon/typhoon//digital-ocean/fedora-atomic/kubernetes?ref=v1.13.4"
   
   providers = {
     digitalocean = "digitalocean.default"
@@ -152,9 +152,9 @@ In 3-6 minutes, the Kubernetes cluster will be ready.
 $ export KUBECONFIG=/home/user/.secrets/clusters/nemo/auth/kubeconfig
 $ kubectl get nodes
 NAME               STATUS  ROLES              AGE  VERSION
-nemo-controller-0  Ready   controller,master  10m  v1.13.3
-nemo-worker-0      Ready   node               10m  v1.13.3
-nemo-worker-1      Ready   node               10m  v1.13.3
+nemo-controller-0  Ready   controller,master  10m  v1.13.4
+nemo-worker-0      Ready   node               10m  v1.13.4
+nemo-worker-1      Ready   node               10m  v1.13.4
 ```
 
 List the pods.
