@@ -50,20 +50,8 @@ check-go-format:
 format-go-code:
 	@gofmt -s -l -w ${GOFORMAT_FILES}
 
-.PHONY: getbindata
-getbindata:
-	go get -u github.com/twitter/go-bindata/...
-
-.PHONY: bindata-installer
-bindata-installer:
-	./scripts/bindata-installer
-
-.PHONY: bindata
-# make sure that `format-go-code` target is always the last one to run
-bindata: | bindata-installer format-go-code
-
 .PHONY: all
-all: getbindata bindata build test
+all: build test
 
 .PHONY: install-packr2
 install-packr2:
