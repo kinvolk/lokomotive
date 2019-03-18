@@ -6,7 +6,7 @@ set -euo pipefail
 # Related: https://github.com/kinvolk/lokoctl/issues/34
 git clone -q git@github.com:kinvolk/lokomotive-kubernetes.git
 pushd lokomotive-kubernetes 1>/dev/null
-git checkout -q 0793130172e4fc663af939d81d6544065223ec87
+git checkout -q 87096e749626a742a656fa39ba1c38231b00241e
 popd 1>/dev/null
 tar zcf lokomotive-kubernetes-aws.tar.gz lokomotive-kubernetes/aws/container-linux/kubernetes
 tar zcf lokomotive-kubernetes-baremetal.tar.gz lokomotive-kubernetes/bare-metal/container-linux/kubernetes
