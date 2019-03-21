@@ -1,6 +1,7 @@
 package packet
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -19,20 +20,22 @@ type config struct {
 	AssetDir string `hcl:"asset_dir"`
 	// TODO AuthToken gets written to disk when Terraform files are generated. We should consider
 	// reading this value directly from the environment.
-	AuthToken       string  `hcl:"auth_token"`
-	AWSCredsPath    string  `hcl:"aws_creds_path"`
-	AWSRegion       string  `hcl:"aws_region"`
-	ClusterName     string  `hcl:"cluster_name"`
-	ControllerCount int     `hcl:"controller_count"`
-	ControllerType  *string `hcl:"controller_type"`
-	DNSZone         string  `hcl:"dns_zone"`
-	DNSZoneID       string  `hcl:"dns_zone_id"`
-	Facility        string  `hcl:"facility"`
-	ProjectID       string  `hcl:"project_id"`
-	SSHPubKey       string  `hcl:"ssh_pubkey"`
-	WorkerCount     int     `hcl:"worker_count"`
-	WorkerType      *string `hcl:"worker_type"`
-	IPXEScriptURL   *string `hcl:"ipxe_script_url"`
+	AuthToken       string   `hcl:"auth_token"`
+	AWSCredsPath    string   `hcl:"aws_creds_path"`
+	AWSRegion       string   `hcl:"aws_region"`
+	ClusterName     string   `hcl:"cluster_name"`
+	ControllerCount int      `hcl:"controller_count"`
+	ControllerType  *string  `hcl:"controller_type"`
+	DNSZone         string   `hcl:"dns_zone"`
+	DNSZoneID       string   `hcl:"dns_zone_id"`
+	Facility        string   `hcl:"facility"`
+	ProjectID       string   `hcl:"project_id"`
+	SSHPubKey       string   `hcl:"ssh_pubkey"`
+	WorkerCount     int      `hcl:"worker_count"`
+	WorkerType      *string  `hcl:"worker_type"`
+	IPXEScriptURL   *string  `hcl:"ipxe_script_url"`
+	ManagementCIDRs []string `hcl:"management_cidrs"`
+	NodePrivateCIDR string   `hcl:"node_private_cidr"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -104,14 +107,21 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
 	}
 
+	managementCIDRs, err := json.Marshal(cfg.ManagementCIDRs)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal management CIDRs")
+	}
+
 	terraformCfg := struct {
-		Config       config
-		Source       string
-		SSHPublicKey string
+		Config          config
+		Source          string
+		SSHPublicKey    string
+		ManagementCIDRs string
 	}{
-		Config:       *cfg,
-		Source:       source,
-		SSHPublicKey: keyContents,
+		Config:          *cfg,
+		Source:          source,
+		SSHPublicKey:    keyContents,
+		ManagementCIDRs: string(managementCIDRs),
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
