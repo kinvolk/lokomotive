@@ -32,7 +32,9 @@ cluster "packet" {
 	dns_zone_id = "XXX"
 	facility = "ams1"
 	project_id = "aaa-bbb-ccc-ddd"
-	ssh_pubkey = "${pathexpand("~/.ssh/id_rsa.pub")}"
+	ssh_pubkeys = [
+		"ssh-rsa AAAA...",
+	]
 	worker_count = 1
 	management_cidrs = ["123.45.67.89/32"]
 	node_private_cidr = "XX.XX.XX.0/24"
