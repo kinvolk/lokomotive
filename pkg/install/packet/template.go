@@ -29,6 +29,8 @@ module "packet-{{.Config.ClusterName}}" {
   worker_type      = "{{.Config.WorkerType}}"
 
   ipxe_script_url = "{{.Config.IPXEScriptURL}}"
+  management_cidrs = {{.ManagementCIDRs}}
+  node_private_cidr = "{{.Config.NodePrivateCIDR}}"
 }
 
 provider "aws" {

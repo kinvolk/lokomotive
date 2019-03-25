@@ -34,11 +34,21 @@ cluster "packet" {
 	project_id = "aaa-bbb-ccc-ddd"
 	ssh_pubkey = "${pathexpand("~/.ssh/id_rsa.pub")}"
 	worker_count = 1
+	management_cidrs = ["123.45.67.89/32"]
+	node_private_cidr = "XX.XX.XX.0/24"
 }
 
 component "ingress-nginx" {
 }
 ```
+
+Quick note:
+
+`management_cidrs` is the list of IPv4 CIDRs authorised to access or manage the cluster.
+
+For `node_private_cidr`, If you do not know the actual private IP address CIDR that will be assigned to the nodes, you can use the project blocks on https://app.packet.net/projects/<PROJECT_ID>/network as a guide.
+
+Next,
 
 Create a `lokocfg.vars` file and define all needed variables. Example:
 
