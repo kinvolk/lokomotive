@@ -125,3 +125,13 @@ variable "enable_reporting" {
   description = "Enable usage or analytics reporting to upstreams (Calico)"
   default     = "false"
 }
+
+variable "management_cidrs" {
+  description = "List of IPv4 CIDRs authorized to access or manage the cluster"
+  type = "list"
+}
+
+variable "node_private_cidr" {
+  description = "Private IPv4 CIDR of the nodes used to allow inter-node traffic"
+  type = "string"
+}

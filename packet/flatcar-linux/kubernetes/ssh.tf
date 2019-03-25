@@ -81,10 +81,46 @@ resource "null_resource" "bootkube-start" {
     destination = "$HOME/assets"
   }
 
+   provisioner "file" {
+    content = "${data.template_file.host_protection_policy.rendered}"
+    destination = "$HOME/assets/manifests-networking/calico-policy.yaml"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "sudo mv $HOME/assets /opt/bootkube",
       "sudo systemctl start bootkube",
     ]
+  }
+}
+
+
+data "template_file" "controller_host_endpoints" {
+  count    = "${var.controller_count}"
+  template = "${file("${path.module}/calico/controller_host_endpoints.yaml.tmpl")}"
+
+
+  vars {
+    node_name = "${element(packet_device.controllers.*.hostname, count.index)}"
+  }
+}
+
+data "template_file" "worker_host_endpoints" {
+  count    = "${var.worker_count}"
+  template = "${file("${path.module}/calico/worker_host_endpoints.yaml.tmpl")}"
+
+  vars {
+    node_name   = "${element(packet_device.worker_nodes.*.hostname, count.index)}"
+  }
+}
+
+data "template_file" "host_protection_policy" {
+  template = "${file("${path.module}/calico/calico-policy.yaml.tmpl")}"
+  vars = {
+    controller_host_endpoints = "${join("\n", data.template_file.controller_host_endpoints.*.rendered)}"
+    worker_host_endpoints = "${join("\n", data.template_file.worker_host_endpoints.*.rendered)}"
+    management_cidrs = "${jsonencode("${var.management_cidrs}")}"
+    cluster_internal_cidrs = "${jsonencode(concat(list("${var.node_private_cidr}", "${var.pod_cidr}", "${var.service_cidr}"), "${packet_device.controllers.*.access_public_ipv4}", "${packet_device.worker_nodes.*.access_public_ipv4}"))}"
+    etcd_server_cidrs = "${jsonencode("${packet_device.controllers.*.access_private_ipv4}")}"
   }
 }
