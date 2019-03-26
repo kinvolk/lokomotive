@@ -51,6 +51,14 @@ variable "worker_type" {
   description = "Packet instance type for workers"
 }
 
+# TODO: migrate to `templatefile` when Terraform `0.12` is out and use `{% for ~}`
+# to avoid specifying `--node-labels` again when the var is empty.
+variable "worker_labels" {
+  type        = "string"
+  default     = ""
+  description = "Custom labels to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'"
+}
+
 variable "ipxe_script_url" {
   type        = "string"
   default     = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/4fe69534f69013b9681d8da7e61853407e4c1c59/packet.ipxe"

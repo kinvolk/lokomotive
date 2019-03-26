@@ -47,5 +47,6 @@ data "template_file" "worker-configs" {
     ssh_keys              = "${jsonencode("${var.ssh_keys}")}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
+    worker_labels         = "${var.worker_labels}"
   }
 }
