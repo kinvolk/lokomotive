@@ -29,8 +29,8 @@ data "template_file" "worker-install" {
 }
 
 resource "packet_bgp_session" "bgp" {
-  count = "${var.worker_count}"
-  device_id = "${element(packet_device.worker_nodes.*.id, count.index)}"
+  count          = "${var.worker_count}"
+  device_id      = "${element(packet_device.worker_nodes.*.id, count.index)}"
   address_family = "ipv4"
 }
 
