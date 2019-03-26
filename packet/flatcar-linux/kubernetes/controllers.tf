@@ -21,10 +21,21 @@ resource "aws_route53_record" "apiservers" {
   type = "A"
   ttl  = "300"
 
-  # TODO - figure out a way to access the API servers when they don't have a public IPv4
   # TODO - verify that a multi-controller setup actually works
   records = ["${packet_device.controllers.*.access_public_ipv4}"]
 }
+
+resource "aws_route53_record" "apiservers_private" {
+  zone_id = "${var.dns_zone_id}"
+
+  name = "${format("%s-private.%s.", var.cluster_name, var.dns_zone)}"
+  type = "A"
+  ttl  = "300"
+
+  # TODO - verify that a multi-controller setup actually works
+  records = ["${packet_device.controllers.*.access_private_ipv4}"]
+}
+
 
 resource "packet_device" "controllers" {
   count            = "${var.controller_count}"
@@ -58,8 +69,9 @@ data "template_file" "controller-install" {
 }
 
 data "ct_config" "controller-ignitions" {
-  count   = "${var.controller_count}"
-  content = "${element(data.template_file.controller-configs.*.rendered, count.index)}"
+  count    = "${var.controller_count}"
+  platform = "packet"
+  content  = "${element(data.template_file.controller-configs.*.rendered, count.index)}"
 }
 
 data "template_file" "controller-configs" {

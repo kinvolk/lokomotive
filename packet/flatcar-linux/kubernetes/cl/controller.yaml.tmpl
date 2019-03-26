@@ -43,12 +43,26 @@ systemd:
         [Install]
         RequiredBy=kubelet.service
         RequiredBy=etcd-member.service
+    - name: coreos-metadata.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=CoreOS Metadata Agent
+        [Service]
+        Type=oneshot
+        Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
+        ExecStart=/usr/bin/coreos-metadata $${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/coreos
+        [Install]
+        RequiredBy=metadata.target
     - name: kubelet.service
       enable: true
       contents: |
         [Unit]
         Description=Kubelet via Hyperkube
+        Requires=coreos-metadata.service
+        After=coreos-metadata.service
         [Service]
+        EnvironmentFile=/run/metadata/coreos
         EnvironmentFile=/etc/kubernetes/kubelet.env
         Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
           --volume=resolv,kind=host,source=/etc/resolv.conf \
@@ -73,6 +87,7 @@ systemd:
         ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
         ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
+          --node-ip=$${COREOS_PACKET_IPV4_PRIVATE_0} \
           --anonymous-auth=false \
           --authentication-token-webhook \
           --authorization-mode=Webhook \
