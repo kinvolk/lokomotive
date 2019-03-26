@@ -53,7 +53,12 @@ variable "worker_type" {
 
 variable "ipxe_script_url" {
   type        = "string"
-  default     = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/4fe69534f69013b9681d8da7e61853407e4c1c59/packet.ipxe"
+  # Workaround. iPXE-booting Flatcar on Packet over HTTPS is failing due to a bug in iPXE.
+  # This patch is supposed to fix this: http://git.ipxe.org/ipxe.git/commitdiff/b6ffe28a2
+  # TODO Switch back to an iPXE script which installs Flatcar over HTTPS after iPXE on Packet is
+  # updated to a version which contains the patch. Alterntaively, if Flatcar is introduced as an
+  # official OS option on Packet, we could remove iPXE boot altogether.
+  default     = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
   description = "Location to load the pxe boot script from"
 }
 
