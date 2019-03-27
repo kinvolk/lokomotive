@@ -242,6 +242,8 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/lithium" |
 | project_id | Packet project ID | "4cff83ac-de23-432a-b01b-b2950dabc76e" |
 | facility | Packet facility (data center) in which to deploy the cluster | "ams1" |
+| management_cidrs | List of IPv4 CIDRs authorized to access or manage the cluster | ["1.2.3.4/32"] |
+| node_private_cidr | Private IPv4 CIDR of the nodes used to allow inter-node traffic | "10.80.123.128/25" |
 
 #### DNS Zone
 
