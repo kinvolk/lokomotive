@@ -116,12 +116,6 @@ EOD
   default = "10.3.0.0/16"
 }
 
-variable "install_disk" {
-  type        = "string"
-  default     = "/dev/sda"
-  description = "Disk device to which the install profiles should install Container Linux (e.g. /dev/sda)"
-}
-
 variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = "string"

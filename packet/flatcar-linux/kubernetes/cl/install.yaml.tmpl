@@ -24,6 +24,24 @@ systemd:
             ListenStream=2222
 storage:
   files:
+    - path: /opt/select-install-disk
+      filesystem: root
+      mode: 0500
+      contents:
+        inline: |
+          #!/bin/bash -e
+
+          # This script prints the path to the block device which represents the smallest disk
+          # attached to the system. The output can be passed to the flatcar-install script.
+          # The main reason for including this here is because physical disks on Packet are mapped
+          # to Linux devices in a random order, which, for example, makes /dev/sda
+          # non-deterministic, which makes the OS install to a random disk.
+
+          # A comma-separated list of major device numbers. Modify to control which devices are
+          # considered for installation.
+          major_numbers="8,259"
+
+          lsblk -lnpd -I $${major_numbers} | sort -h -k 4,4 | head -1 | awk '{print $1}'
     - path: /opt/postinstall-ignition.json
       filesystem: root
       mode: 0500
@@ -37,8 +55,8 @@ storage:
         inline: |
           #!/bin/bash -ex
           flatcar-install \
-            -d ${install_disk} \
-            -C ${os_channel} \
+            -d "$(/opt/select-install-disk)" \
+            -C "${os_channel}" \
             -o "${flatcar_linux_oem}" \
             -i /opt/postinstall-ignition.json
           udevadm settle

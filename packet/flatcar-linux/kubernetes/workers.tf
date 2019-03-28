@@ -21,7 +21,6 @@ data "template_file" "worker-install" {
 
   vars {
     os_channel           = "${var.os_channel}"
-    install_disk         = "${var.install_disk}"
     flatcar_linux_oem    = "packet"
     ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
     postinstall_ignition = "${data.ct_config.worker-ignitions.rendered}"
