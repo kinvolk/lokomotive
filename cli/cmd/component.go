@@ -9,6 +9,7 @@ import (
 	_ "github.com/kinvolk/lokoctl/pkg/components/gangway"
 	_ "github.com/kinvolk/lokoctl/pkg/components/httpbin"
 	_ "github.com/kinvolk/lokoctl/pkg/components/ingress-nginx"
+	_ "github.com/kinvolk/lokoctl/pkg/components/metallb"
 )
 
 var componentCmd = &cobra.Command{
