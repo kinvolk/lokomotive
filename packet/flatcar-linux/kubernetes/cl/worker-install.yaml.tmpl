@@ -1,0 +1,96 @@
+---
+systemd:
+  units:
+    - name: installer.service
+      enable: true
+      contents: |
+        [Unit]
+        Requires=network-online.target
+        After=network-online.target
+        [Service]
+        Type=simple
+        ExecStart=/opt/installer
+        [Install]
+        WantedBy=multi-user.target
+    # Avoid using the standard SSH port so terraform apply cannot SSH until
+    # post-install. But admins may SSH to debug disk install problems.
+    # After install, sshd will use port 22 and users/terraform can connect.
+    - name: sshd.socket
+      dropins:
+        - name: 10-sshd-port.conf
+          contents: |
+            [Socket]
+            ListenStream=
+            ListenStream=2222
+storage:
+  files:
+    - path: /opt/postinstall-ignition.json
+      filesystem: root
+      mode: 0500
+      contents:
+        inline: |
+          ${postinstall_ignition}
+    - path: /opt/installer
+      filesystem: root
+      mode: 0500
+      contents:
+        inline: |
+          #!/bin/bash -ex
+
+          # A comma-separated list of major device numbers. Modify to control which device types
+          # are considered for OS installation and data RAID.
+          # https://www.kernel.org/doc/Documentation/admin-guide/devices.txt
+          major_numbers="8,259"
+
+          # This function returns the path to the block device which represents the smallest disk
+          # attached to the system. The output can be passed to the flatcar-install script.
+          function select_install_disk() {
+            local major_numbers="$1"
+
+            local disk=$(lsblk -lnpd -I "$${major_numbers}" \
+              | sort -h -k 4,4 \
+              | head -1 \
+              | awk '{print $1}'
+            )
+
+            echo "$${disk}"
+          }
+
+          function create_data_raid() {
+            # Ignore the disk on which Linux is installed when selecting disks for RAID.
+            local osdisk="$1"
+            local major_numbers="$2"
+
+            # Select disks for RAID.
+            local disks=$(lsblk -lnpd -I "$${major_numbers}" \
+              | sort -h -k 4,4 \
+              | grep -vE "^$${osdisk} " \
+              | awk '{x=$1 " " x;} END{print x}'
+            )
+            local count=$(echo "$disks" | wc -w)
+
+            # Exit if we have less than 2 RAID-eligible disks.
+            [ $count -lt 2 ] && return 0
+
+            # Create, format and mount array.
+            mdadm --create --verbose /dev/md/node-local-storage --level=0 --raid-devices="$${count}" $${disks}
+            cat /proc/mdstat
+            mkfs.ext4 /dev/md/node-local-storage
+          }
+
+          os_disk="$(select_install_disk $${major_numbers})"
+
+          # Create a RAID 0 from extra disks to be used for persistent container storage.
+          create_data_raid "$${os_disk}" "$${major_numbers}"
+
+          flatcar-install \
+            -d "$${os_disk}" \
+            -C "${os_channel}" \
+            -o "${flatcar_linux_oem}" \
+            -i /opt/postinstall-ignition.json
+          udevadm settle
+          systemctl reboot
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys: ${ssh_keys}

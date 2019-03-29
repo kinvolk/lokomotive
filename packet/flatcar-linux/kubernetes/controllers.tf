@@ -57,7 +57,7 @@ data "ct_config" "controller-install-ignitions" {
 
 data "template_file" "controller-install" {
   count    = "${var.controller_count}"
-  template = "${file("${path.module}/cl/install.yaml.tmpl")}"
+  template = "${file("${path.module}/cl/controller-install.yaml.tmpl")}"
 
   vars {
     os_channel           = "${var.os_channel}"

@@ -17,7 +17,7 @@ data "ct_config" "worker-install-ignitions" {
 }
 
 data "template_file" "worker-install" {
-  template = "${file("${path.module}/cl/install.yaml.tmpl")}"
+  template = "${file("${path.module}/cl/worker-install.yaml.tmpl")}"
 
   vars {
     os_channel           = "${var.os_channel}"

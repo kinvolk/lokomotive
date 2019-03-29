@@ -1,6 +1,18 @@
 ---
 systemd:
   units:
+    - name: persist-data-raid.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Persist data RAID if exists
+        ConditionPathExists=!/etc/mdadm.conf
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/opt/persist-data-raid
+        [Install]
+        WantedBy=multi-user.target
     - name: docker.service
       enable: true
     - name: locksmithd.service
@@ -104,6 +116,26 @@ systemd:
       enable: true
 storage:
   files:
+    - path: /opt/persist-data-raid
+      filesystem: root
+      mode: 0700
+      contents:
+        inline: |
+          #!/bin/bash -xe
+
+          function persist_data_raid() {
+            local raid_config=$(mdadm --detail --scan)
+            echo "$${raid_config}" | tee -a /etc/mdadm.conf
+            # Don't mount if no RAID is configured.
+            [ -z "$${raid_config}" ] && return 0
+
+            # Make mount persistent across reboots.
+            local devname=$(awk '{print $2}' /etc/mdadm.conf)
+            mount "$${devname}" /mnt/
+            echo "$${devname} /mnt ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
+          }
+
+          persist_data_raid
     - path: /etc/kubernetes/kubeconfig
       filesystem: root
       mode: 0644
