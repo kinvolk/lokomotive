@@ -58,6 +58,10 @@ data:
 
     # The JWT claim to use as the email claim
     emailClaim: "email"
+
+    # Where to load the custom Lokomotive HTML templates from.
+    # Requires the initContainer below to download the theme.
+    customHTMLTemplatesDir: "/theme"
 `
 
 const deploymentManifest = `apiVersion: apps/v1beta1
@@ -79,9 +83,20 @@ spec:
         app: gangway
         revision: "1"
     spec:
+      initContainers:
+      - name: download-theme
+        image: schu/alpine-git
+        command:
+         - git
+         - clone
+         - "https://github.com/kinvolk/gangway-theme.git"
+         - /theme
+        volumeMounts:
+        - name: theme
+          mountPath: /theme/
       containers:
         - name: gangway
-          image: schu/gangway:master
+          image: gcr.io/heptio-images/gangway:v3.0.0
           imagePullPolicy: Always
           command: ["gangway", "-config", "/gangway/gangway.yaml"]
           env:
@@ -104,6 +119,8 @@ spec:
           volumeMounts:
             - name: gangway
               mountPath: /gangway/
+            - name: theme
+              mountPath: /theme/
           livenessProbe:
             httpGet:
               path: /
@@ -123,6 +140,8 @@ spec:
         - name: gangway
           configMap:
             name: gangway
+        - name: theme
+          emptyDir: {}
 `
 
 const serviceManifest = `
