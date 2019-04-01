@@ -1,4 +1,5 @@
-# Customize failsafe rules
+# Customize inbound failsafe rules
+# https://docs.projectcalico.org/v3.5/getting-started/bare-metal/policy/failsafe
 apiVersion: crd.projectcalico.org/v1
 kind: GlobalNetworkPolicy
 metadata:
@@ -9,30 +10,35 @@ spec:
   selector: has(host-endpoint)
   order: 0
   ingress:
+  # SSH access
   - action: Allow
     protocol: TCP
     source:
       nets: ${management_cidrs}
     destination:
       ports: [22]
+  # DHCP access
   - action: Allow
-    protocol: ICMP
+    protocol: UDP
     source:
-      nets: ${management_cidrs}
----
-apiVersion: crd.projectcalico.org/v1
-kind: GlobalNetworkPolicy
-metadata:
-  name: failsafe-egress
-spec:
-  selector: has(host-endpoint)
-  order: 0
-  egress:
+      nets: ${node_public_ips}
+    destination:
+      ports: [68]
+  # BGP and etcd access
   - action: Allow
     protocol: TCP
+    source:
+      nets: ${node_public_ips}
     destination:
-      nets: ${etcd_server_cidrs}
-      ports: [2379, 2380, 2381]
+      ports:
+      # BGP access (Calico networking)
+      - 179
+      # etcd access
+      - 2379
+      - 2380
+      # etcd self-hosted service access
+      - 6666
+      - 6667
 ---
 # Allow traffic from IP addresses that are known to be cluster-internal including pods and services
 apiVersion: crd.projectcalico.org/v1
@@ -112,7 +118,7 @@ spec:
       ports: [80, 443]
   selector: nodetype == 'worker'
 ---
-# Disable default failsafe rules
+# Disable default failsafe inbound rules
 apiVersion: crd.projectcalico.org/v1
 kind: FelixConfiguration
 metadata:
