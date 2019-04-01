@@ -4,8 +4,28 @@ Notable changes between versions.
 
 ## Latest
 
+* Update Calico from v3.6.0 to v3.6.1
+
+#### Google Cloud
+
+* Remove Haswell minimum CPU platform requirement ([#439](https://github.com/poseidon/typhoon/pull/439))
+  * Google Cloud API implements `min_cpu_platform` to mean "use exactly this CPU". Revert [#405](https://github.com/poseidon/typhoon/pull/405) added in v1.13.4.
+  * Fix error creating clusters in new regions without Haswell (e.g. europe-west2) ([#438](https://github.com/poseidon/typhoon/issues/438))
+
+#### Addons
+
+* Update Prometheus from v2.8.0 to v2.8.1
+
+## v1.13.5
+
+* Kubernetes [v1.13.5](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.13.md#v1135)
 * Resolve in-addr.arpa reverse DNS lookups (PTR) for pod IPv4 addresses ([#415](https://github.com/poseidon/typhoon/pull/415))
   * Reverse DNS lookups for service IPv4 addresses unchanged
+* Upgrade Calico from v3.5.2 to [v3.6.0](https://docs.projectcalico.org/v3.6/release-notes/) ([#430](https://github.com/poseidon/typhoon/pull/430))
+  * Change pod IPAM from `host-local` to `calico-ipam`. `pod_cidr` is still divided into `/24` subnets per node, but managed as `ippools` and `ipamblocks`
+* Suggest updating [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) from v0.3.0 to [v0.3.1](https://github.com/coreos/terraform-provider-ct/releases/tag/v0.3.1) ([#434](https://github.com/poseidon/typhoon/pull/434))
+* Announce: Fedora Atomic modules will be not be updated beyond Kubernetes v1.13.x ([#437](https://github.com/poseidon/typhoon/pull/437))
+  * Thank you Project Atomic team and users, please see the deprecation [notice](https://typhoon.psdn.io/announce/#march-27-2019)
 
 #### AWS
 
@@ -15,13 +35,27 @@ Notable changes between versions.
 
 * Change the default iPXE kernel and initrd download protocol from HTTP to HTTPS ([#420](https://github.com/poseidon/typhoon/pull/420))
   * Require an iPXE-enabled network boot environment with support for TLS downloads. PXE clients must chainload to iPXE firmware compiled with `DOWNLOAD_PROTO_HTTPS` [enabled](https://ipxe.org/crypto). (**action required**)
-  * Affects Container Linux and Flatcar Linux install profiles that pull from public images (default). No affect when `cached_install=true` or Fedora Atomic, since those download from Matchbox
+  * Only affects Container Linux and Flatcar Linux install profiles that pull public images (default)
   * Add `download_protocol` variable. Recognizing boot firmware TLS support is difficult in some environments, set the protocol to "http" for the old behavior (discouraged)
+
+#### DigitalOcean
+
+* Fix kubelet hostname-override to set node metadata InternalIP correctly ([#424](https://github.com/poseidon/typhoon/issues/424))
+  * Uniquely, DigitalOcean does not resolve hostnames to instance private IPs. Kubelet auto-detect mechanisms require the internal IP be set directly.
+  * Regressed in v1.12.3 ([#337](https://github.com/poseidon/typhoon/pull/337)) which aimed to provide friendly hostname-based node names on DigitalOcean
 
 #### Addons
 
-* Update Prometheus from v2.7.1 to v2.7.2
-* Update Grafana from v6.0.0 to v6.0.1
+* Update Prometheus from v2.7.1 to [v2.8.0](https://github.com/prometheus/prometheus/releases/tag/v2.8.0)
+  * Refresh rules based on upstreams ([#426](https://github.com/poseidon/typhoon/pull/426))
+  * Define NetworkPolicy to allow only traffic from the Grafana addon
+* Update Grafana from v6.0.0 to v6.0.2
+  * Add liveness and readiness probes
+  * Refresh dashboards and organize to stay below ConfigMap size limit ([#426](https://github.com/poseidon/typhoon/pull/426))
+* Remove heapster manifests from addons ([#427](https://github.com/poseidon/typhoon/pull/427))
+  * Heapster addon powers `kubectl top` (in early Kubernetes, running the addon was expected). Today, there are better monitoring options.
+  * `kubectl top` reliance on a non-core extension means its not in-scope for minimal Kubernetes
+  * Look to prior releases if you still wish to apply heapster
 
 ## v1.13.4
 

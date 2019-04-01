@@ -20,7 +20,7 @@ spec:
       serviceAccountName: prometheus
       containers:
         - name: prometheus
-          image: quay.io/prometheus/prometheus:v2.7.2
+          image: quay.io/prometheus/prometheus:v2.8.1
           args:
             - --web.listen-address=0.0.0.0:9090
             - --config.file=/etc/prometheus/prometheus.yaml
@@ -28,6 +28,10 @@ spec:
           ports:
             - name: web
               containerPort: 9090
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus
@@ -35,15 +39,15 @@ spec:
               mountPath: /etc/prometheus/rules
             - name: data
               mountPath: /var/lib/prometheus
-          readinessProbe:
-            httpGet:
-              path: /-/ready
-              port: 9090
-            initialDelaySeconds: 10
-            timeoutSeconds: 10
           livenessProbe:
             httpGet:
               path: /-/healthy
+              port: 9090
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /-/ready
               port: 9090
             initialDelaySeconds: 10
             timeoutSeconds: 10
