@@ -1,6 +1,6 @@
 # Digital Ocean
 
-In this tutorial, we'll create a Kubernetes v1.13.4 cluster on DigitalOcean with Container Linux.
+In this tutorial, we'll create a Kubernetes v1.13.5 cluster on DigitalOcean with Container Linux.
 
 We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create controller droplets, worker droplets, DNS records, tags, and TLS assets.
 
@@ -24,9 +24,9 @@ Terraform v0.11.12
 Add the [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
 
 ```sh
-wget https://github.com/coreos/terraform-provider-ct/releases/download/v0.3.0/terraform-provider-ct-v0.3.0-linux-amd64.tar.gz
-tar xzf terraform-provider-ct-v0.3.0-linux-amd64.tar.gz
-mv terraform-provider-ct-v0.3.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.3.0
+wget https://github.com/coreos/terraform-provider-ct/releases/download/v0.3.1/terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
+tar xzf terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
+mv terraform-provider-ct-v0.3.1-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.3.1
 ```
 
 Read [concepts](/architecture/concepts/) to learn about Terraform, modules, and organizing resources. Change to your infrastructure repository (e.g. `infra`).
@@ -56,7 +56,7 @@ provider "digitalocean" {
 }
 
 provider "ct" {
-  version = "0.3.0"
+  version = "0.3.1"
 }
 
 provider "local" {
@@ -86,7 +86,7 @@ Define a Kubernetes cluster using the module `digital-ocean/container-linux/kube
 
 ```tf
 module "digital-ocean-nemo" {
-  source = "git::https://github.com/poseidon/typhoon//digital-ocean/container-linux/kubernetes?ref=v1.13.4"
+  source = "git::https://github.com/poseidon/typhoon//digital-ocean/container-linux/kubernetes?ref=v1.13.5"
   
   providers = {
     digitalocean = "digitalocean.default"
@@ -160,9 +160,9 @@ In 3-6 minutes, the Kubernetes cluster will be ready.
 $ export KUBECONFIG=/home/user/.secrets/clusters/nemo/auth/kubeconfig
 $ kubectl get nodes
 NAME               STATUS  ROLES              AGE  VERSION
-nemo-controller-0  Ready   controller,master  10m  v1.13.4
-nemo-worker-0      Ready   node               10m  v1.13.4
-nemo-worker-1      Ready   node               10m  v1.13.4
+10.132.110.130     Ready   controller,master  10m  v1.13.5
+10.132.115.81      Ready   node               10m  v1.13.5
+10.132.124.107     Ready   node               10m  v1.13.5
 ```
 
 List the pods.
@@ -183,7 +183,7 @@ kube-system   kube-proxy-k35rc                           1/1       Running   0  
 kube-system   kube-scheduler-3895335239-2bc4c            1/1       Running   0          11m
 kube-system   kube-scheduler-3895335239-b7q47            1/1       Running   1          11m
 kube-system   pod-checkpointer-pr1lq                     1/1       Running   0          11m
-kube-system   pod-checkpointer-pr1lq-nemo-controller-0   1/1       Running   0          10m
+kube-system   pod-checkpointer-pr1lq-10.132.115.81       1/1       Running   0          10m
 ```
 
 ## Going Further
