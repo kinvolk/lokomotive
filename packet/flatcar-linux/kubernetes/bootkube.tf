@@ -10,7 +10,9 @@ module "bootkube" {
   asset_dir                       = "${var.asset_dir}"
   networking                      = "${var.networking}"
   network_mtu                     = "${var.network_mtu}"
-  network_ip_autodetection_method = "${var.network_ip_autodetection_method}"
+  # Select private Packet NIC by using the can-reach Calico autodetection option with the first
+  # host in our private CIDR.
+  network_ip_autodetection_method = "can-reach=${cidrhost(var.node_private_cidr, 1)}"
   pod_cidr                        = "${var.pod_cidr}"
   service_cidr                    = "${var.service_cidr}"
   cluster_domain_suffix           = "${var.cluster_domain_suffix}"
