@@ -13,5 +13,15 @@ cd lokoctl
 
 ```bash
 cd $GOPATH/src/github.com/kinvolk/lokoctl
-make build
+make
 ```
+
+To build a "dev" version of lokoctl, use
+
+```
+make update-lk-submodule
+make build-slim
+```
+
+The resulting binary won't include the Lokomotive Kubernetes assets and
+requires the lokomotive-kubernetes code in the submodule directory.
