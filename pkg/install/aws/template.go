@@ -19,8 +19,11 @@ module "aws-{{.Config.ClusterName}}" {
   ssh_authorized_key = "{{.SSHAuthorizedKey}}"
   asset_dir          = "{{.Config.AssetDir}}"
 
-  worker_count = 2
-  worker_type  = "t3.small"
+  controller_count = "{{.Config.ControllerCount}}"
+  controller_type  = "{{.Config.ControllerType}}"
+
+  worker_count = "{{.Config.WorkerCount}}"
+  worker_type  = "{{.Config.WorkerType}}"
 
   os_image = "{{.Config.OSImage}}"
 }

@@ -16,13 +16,17 @@ import (
 )
 
 type config struct {
-	AssetDir    string `hcl:"asset_dir"`
-	ClusterName string `hcl:"cluster_name"`
-	OSImage     string `hcl:"os_image,optional"`
-	DNSZone     string `hcl:"dns_zone"`
-	DNSZoneID   string `hcl:"dns_zone_id"`
-	SSHPubKey   string `hcl:"ssh_pubkey"`
-	CredsPath   string `hcl:"creds_path"`
+	AssetDir        string `hcl:"asset_dir"`
+	ClusterName     string `hcl:"cluster_name"`
+	OSImage         string `hcl:"os_image,optional"`
+	DNSZone         string `hcl:"dns_zone"`
+	DNSZoneID       string `hcl:"dns_zone_id"`
+	SSHPubKey       string `hcl:"ssh_pubkey"`
+	CredsPath       string `hcl:"creds_path"`
+	ControllerCount int    `hcl:"controller_count,optional"`
+	ControllerType  string `hcl:"controller_type,optional"`
+	WorkerCount     int    `hcl:"worker_count,optional"`
+	WorkerType      string `hcl:"worker_type,optional"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -34,7 +38,11 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		OSImage: "flatcar-stable",
+		OSImage:         "flatcar-stable",
+		ControllerCount: 1,
+		ControllerType:  "t3.small",
+		WorkerCount:     2,
+		WorkerType:      "t3.small",
 	}
 }
 
