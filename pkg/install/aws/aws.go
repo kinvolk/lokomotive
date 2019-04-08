@@ -87,23 +87,13 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 
 	terraformCfg := struct {
-		AssetDir         string
+		Config           config
 		Source           string
-		ClusterName      string
-		OSImage          string
-		DNSZone          string
-		DNSZoneID        string
 		SSHAuthorizedKey string
-		CredsPath        string
 	}{
-		AssetDir:         cfg.AssetDir,
+		Config:           *cfg,
 		Source:           source,
-		ClusterName:      cfg.ClusterName,
-		OSImage:          cfg.OSImage,
-		DNSZone:          cfg.DNSZone,
-		DNSZoneID:        cfg.DNSZoneID,
 		SSHAuthorizedKey: ssh_authorized_key,
-		CredsPath:        cfg.CredsPath,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
