@@ -18,7 +18,8 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8002"
-        prometheus.io/path: "/stats"
+        # XXX: Modified manually to scrape envoy metrics on prometheus format
+        prometheus.io/path: "/stats/prometheus"
         prometheus.io/format: "prometheus"
     spec:
       containers:
