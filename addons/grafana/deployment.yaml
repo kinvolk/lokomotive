@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: grafana/grafana:6.0.2
+          image: grafana/grafana:6.1.3
           env:
             - name: GF_PATHS_CONFIG
               value: "/etc/grafana/custom.ini"
@@ -58,6 +58,8 @@ spec:
               mountPath: /etc/grafana/dashboards/etcd
             - name: dashboards-k8s
               mountPath: /etc/grafana/dashboards/k8s
+            - name: dashboards-k8s-resources
+              mountPath: /etc/grafana/dashboards/k8s-resources
       volumes:
         - name: config
           configMap:
@@ -74,4 +76,7 @@ spec:
         - name: dashboards-k8s
           configMap:
             name: grafana-dashboards-k8s
+        - name: dashboards-k8s-resources
+          configMap:
+            name: grafana-dashboards-k8s-resources
 
