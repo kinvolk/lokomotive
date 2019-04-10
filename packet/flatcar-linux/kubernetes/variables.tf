@@ -41,28 +41,23 @@ variable "controller_count" {
 
 variable "worker_count" {
   type        = "string"
-  default     = "1"
   description = "Number of workers"
+}
+
+variable "worker_nodes_hostnames" {
+  type        = "list"
+  description = "List of hostname of packet_device resources"
+}
+
+variable "worker_nodes_public_ipv4s" {
+  type        = "list"
+  description = "List of public IPv4 of packet_device resources"
 }
 
 variable "controller_type" {
   type        = "string"
   default     = "baremetal_0"
   description = "Packet instance type for controllers"
-}
-
-variable "worker_type" {
-  type        = "string"
-  default     = "baremetal_0"
-  description = "Packet instance type for workers"
-}
-
-# TODO: migrate to `templatefile` when Terraform `0.12` is out and use `{% for ~}`
-# to avoid specifying `--node-labels` again when the var is empty.
-variable "worker_labels" {
-  type        = "string"
-  default     = ""
-  description = "Custom labels to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'"
 }
 
 variable "ipxe_script_url" {
@@ -153,11 +148,6 @@ variable "node_private_cidr" {
 
 variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
-  type        = "string"
-  default     = "false"
-}
-variable "setup_raid" {
-  description = "Attempt to create a RAID 0 from extra disks to be used for persistent container storage. Valid values: 'true', 'false'"
   type        = "string"
   default     = "false"
 }
