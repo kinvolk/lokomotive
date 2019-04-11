@@ -11,6 +11,12 @@ metadata:
   # for information about enabling the PROXY protocol on the ELB to recover
   # the original remote IP address.
   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+
+  # Scrape metrics for the contour container
+  # The envoy container is scraped by annotations on the pod spec
+  # XXX: Note this was added manually, do NOT delete it
+  prometheus.io/port: "8000"
+  prometheus.io/scrape: "true"
 spec:
  # XXX: Note this was added manually, do NOT delete it
  externalTrafficPolicy: Local
