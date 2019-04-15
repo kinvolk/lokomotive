@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl2/gohcl"
@@ -119,6 +120,7 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 		},
 		Functions: map[string]function.Function{
 			"pathexpand": evalFuncPathExpand(),
+			"file":       evalFuncFile(),
 		},
 	}
 
@@ -139,6 +141,22 @@ func evalFuncPathExpand() function.Function {
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			expandedPath, err := homedir.Expand(args[0].AsString())
 			return cty.StringVal(expandedPath), err
+		},
+	})
+}
+
+func evalFuncFile() function.Function {
+	return function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name: "path",
+				Type: cty.String,
+			}},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			filePath := args[0].AsString()
+			content, err := ioutil.ReadFile(filePath)
+			return cty.StringVal(string(content)), err
 		},
 	})
 }
