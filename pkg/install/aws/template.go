@@ -26,6 +26,9 @@ module "aws-{{.Config.ClusterName}}" {
   worker_type  = "{{.Config.WorkerType}}"
 
   os_image = "{{.Config.OSImage}}"
+
+  controller_clc_snippets = {{.ControllerCLCSnippets}}
+  worker_clc_snippets     = {{.WorkerCLCSnippets}}
 }
 
 provider "aws" {

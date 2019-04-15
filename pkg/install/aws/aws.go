@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -16,17 +17,19 @@ import (
 )
 
 type config struct {
-	AssetDir        string `hcl:"asset_dir"`
-	ClusterName     string `hcl:"cluster_name"`
-	OSImage         string `hcl:"os_image,optional"`
-	DNSZone         string `hcl:"dns_zone"`
-	DNSZoneID       string `hcl:"dns_zone_id"`
-	SSHPubKey       string `hcl:"ssh_pubkey"`
-	CredsPath       string `hcl:"creds_path"`
-	ControllerCount int    `hcl:"controller_count,optional"`
-	ControllerType  string `hcl:"controller_type,optional"`
-	WorkerCount     int    `hcl:"worker_count,optional"`
-	WorkerType      string `hcl:"worker_type,optional"`
+	AssetDir              string   `hcl:"asset_dir"`
+	ClusterName           string   `hcl:"cluster_name"`
+	OSImage               string   `hcl:"os_image,optional"`
+	DNSZone               string   `hcl:"dns_zone"`
+	DNSZoneID             string   `hcl:"dns_zone_id"`
+	SSHPubKey             string   `hcl:"ssh_pubkey"`
+	CredsPath             string   `hcl:"creds_path"`
+	ControllerCount       int      `hcl:"controller_count,optional"`
+	ControllerType        string   `hcl:"controller_type,optional"`
+	WorkerCount           int      `hcl:"worker_count,optional"`
+	WorkerType            string   `hcl:"worker_type,optional"`
+	ControllerCLCSnippets []string `hcl:"controller_clc_snippets,optional"`
+	WorkerCLCSnippets     []string `hcl:"worker_clc_snippets,optional"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -43,6 +46,11 @@ func NewConfig() *config {
 		ControllerType:  "t3.small",
 		WorkerCount:     2,
 		WorkerType:      "t3.small",
+		// Initialize the string slices to make sure they are
+		// rendered as `[]` when no snippets are given and not
+		// `null`, as the latter would lead to a terraform error
+		ControllerCLCSnippets: make([]string, 0),
+		WorkerCLCSnippets:     make([]string, 0),
 	}
 }
 
@@ -94,14 +102,28 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
 	}
 
+	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal CLC snippets")
+	}
+
+	workerCLCSnippetsBytes, err := json.Marshal(cfg.WorkerCLCSnippets)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal CLC snippets")
+	}
+
 	terraformCfg := struct {
-		Config           config
-		Source           string
-		SSHAuthorizedKey string
+		Config                config
+		Source                string
+		SSHAuthorizedKey      string
+		ControllerCLCSnippets string
+		WorkerCLCSnippets     string
 	}{
-		Config:           *cfg,
-		Source:           source,
-		SSHAuthorizedKey: ssh_authorized_key,
+		Config:                *cfg,
+		Source:                source,
+		SSHAuthorizedKey:      ssh_authorized_key,
+		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
+		WorkerCLCSnippets:     string(workerCLCSnippetsBytes),
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
