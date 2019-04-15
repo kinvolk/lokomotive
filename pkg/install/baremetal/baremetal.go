@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/tar"
+	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
@@ -54,23 +54,21 @@ func NewConfig() *config {
 }
 
 func Install(cfg *config) error {
-	terraformPath := filepath.Join(cfg.AssetDir, "terraform")
-
-	// Create assets directory tree.
-	if err := os.MkdirAll(terraformPath, 0755); err != nil {
-		return errors.Wrapf(err, "failed to create assets directory tree at: %s", terraformPath)
-	}
-
-	// TODO: skip if the dir already exists
-	if err := tar.UntarFromAsset(Asset, "lokomotive-kubernetes-baremetal.tar.gz", cfg.AssetDir); err != nil {
-		return errors.Wrapf(err, "failed to extract bare-metal config at: %s", cfg.AssetDir)
-	}
-
-	if err := createTerraformConfigFile(cfg, terraformPath); err != nil {
+	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
+	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
 	}
 
-	return terraform.InitAndApply(terraformPath)
+	terraformRootDir := filepath.Join(cfg.AssetDir, "terraform")
+	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
+		return err
+	}
+
+	if err := createTerraformConfigFile(cfg, terraformRootDir); err != nil {
+		return err
+	}
+
+	return terraform.InitAndApply(terraformRootDir)
 }
 
 func createTerraformConfigFile(cfg *config, terraformPath string) error {

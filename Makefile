@@ -12,19 +12,28 @@ endif
 LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags '-static'"
 
 .PHONY: build
-build:
+build: update-lk-submodule packr2 build-slim packr2-clean
+
+.PHONY: update-lk-submodule
+update-lk-submodule:
+	git submodule update --init
+
+.PHONY: packr2
+packr2:
+	cd pkg/components && packr2
+	cd pkg/install && packr2
+
+.PHONY: packr2-clean
+packr2-clean:
+	cd pkg/components && packr2 clean
+	cd pkg/install && packr2 clean
+
+.PHONY: build-slim
+build-slim:
 	CGO_ENABLED=0 GOOS=linux go build \
 		-ldflags $(LDFLAGS) \
 		-o lokoctl \
 		github.com/kinvolk/lokoctl/cli
-
-.PHONY: packr2
-packr2:
-	cd cli && packr2
-
-.PHONY: build-fat
-build-fat: packr2 build
-	cd cli && packr2 clean
 
 .PHONY: test
 test: check-go-format
@@ -41,20 +50,8 @@ check-go-format:
 format-go-code:
 	@gofmt -s -l -w ${GOFORMAT_FILES}
 
-.PHONY: getbindata
-getbindata:
-	go get -u github.com/twitter/go-bindata/...
-
-.PHONY: bindata-installer
-bindata-installer:
-	./scripts/bindata-installer
-
-.PHONY: bindata
-# make sure that `format-go-code` target is always the last one to run
-bindata: | bindata-installer format-go-code
-
 .PHONY: all
-all: getbindata bindata build test
+all: build test
 
 .PHONY: install-packr2
 install-packr2:
