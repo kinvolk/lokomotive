@@ -25,3 +25,15 @@ make build-slim
 
 The resulting binary won't include the Lokomotive Kubernetes assets and
 requires the lokomotive-kubernetes code in the submodule directory.
+
+## Update the lokomotive-kubernetes to current master
+
+To update the local git submodule `lokomotive-kubernetes` dir to the latest master run following commands:
+
+```bash
+cd $GOPATH/src/github.com/kinvolk/lokoctl/lokomotive-kubernetes/
+git pull --ff-only origin master
+cd ..
+```
+
+Now commit those changes and send a PR.
