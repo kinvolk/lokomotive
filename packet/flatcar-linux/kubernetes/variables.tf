@@ -60,13 +60,15 @@ variable "worker_labels" {
 }
 
 variable "ipxe_script_url" {
-  type        = "string"
+  type = "string"
+
   # Workaround. iPXE-booting Flatcar on Packet over HTTPS is failing due to a bug in iPXE.
   # This patch is supposed to fix this: http://git.ipxe.org/ipxe.git/commitdiff/b6ffe28a2
   # TODO Switch back to an iPXE script which installs Flatcar over HTTPS after iPXE on Packet is
   # updated to a version which contains the patch. Alterntaively, if Flatcar is introduced as an
   # official OS option on Packet, we could remove iPXE boot altogether.
-  default     = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
+  default = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
+
   description = "Location to load the pxe boot script from"
 }
 
@@ -141,4 +143,10 @@ variable "management_cidrs" {
 variable "node_private_cidr" {
   description = "Private IPv4 CIDR of the nodes used to allow inter-node traffic"
   type        = "string"
+}
+
+variable "enable_aggregation" {
+  description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
+  type        = "string"
+  default     = "false"
 }
