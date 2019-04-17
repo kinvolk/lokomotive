@@ -81,7 +81,12 @@ storage:
           os_disk="$(select_install_disk $${major_numbers})"
 
           # Create a RAID 0 from extra disks to be used for persistent container storage.
-          create_data_raid "$${os_disk}" "$${major_numbers}"
+          # This will only be run if setup_raid variable is set to true.
+          setup_raid=${setup_raid}
+
+          if [ "$${setup_raid}" = true ]; then
+            create_data_raid "$${os_disk}" "$${major_numbers}"
+          fi
 
           flatcar-install \
             -d "$${os_disk}" \
