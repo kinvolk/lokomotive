@@ -2,10 +2,8 @@ package packet
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 
 	"github.com/hashicorp/hcl2/gohcl"
@@ -30,7 +28,7 @@ type config struct {
 	DNSZoneID       string   `hcl:"dns_zone_id"`
 	Facility        string   `hcl:"facility"`
 	ProjectID       string   `hcl:"project_id"`
-	SSHPubKey       string   `hcl:"ssh_pubkey"`
+	SSHPubKeys      []string `hcl:"ssh_pubkeys"`
 	WorkerCount     int      `hcl:"worker_count"`
 	WorkerType      *string  `hcl:"worker_type"`
 	IPXEScriptURL   *string  `hcl:"ipxe_script_url"`
@@ -53,15 +51,6 @@ func NewConfig() *config {
 		WorkerType:     &nodeType,
 		IPXEScriptURL:  &iPXEScriptURL,
 	}
-}
-
-func (cfg *config) readSSHPubKey() (string, error) {
-	dat, err := ioutil.ReadFile(cfg.SSHPubKey)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(string(dat)), nil
 }
 
 func Install(cfg *config) error {
@@ -99,10 +88,9 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/packet/flatcar-linux/kubernetes")
 
-	// TODO - add support for multiple keys?
-	keyContents, err := cfg.readSSHPubKey()
+	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
+		return errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
 	managementCIDRs, err := json.Marshal(cfg.ManagementCIDRs)
@@ -113,12 +101,12 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	terraformCfg := struct {
 		Config          config
 		Source          string
-		SSHPublicKey    string
+		SSHPublicKeys   string
 		ManagementCIDRs string
 	}{
 		Config:          *cfg,
 		Source:          source,
-		SSHPublicKey:    keyContents,
+		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
 	}
 

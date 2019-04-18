@@ -16,7 +16,7 @@ module "packet-{{.Config.ClusterName}}" {
   dns_zone    = "{{.Config.DNSZone}}"
   dns_zone_id = "{{.Config.DNSZoneID}}"
 
-  ssh_keys  = ["{{.SSHPublicKey}}"]
+  ssh_keys  = {{.SSHPublicKeys}}
   asset_dir = "{{.Config.AssetDir}}"
 
   cluster_name = "{{.Config.ClusterName}}"
