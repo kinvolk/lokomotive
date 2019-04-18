@@ -23,15 +23,15 @@ type config struct {
 	AWSRegion       string   `hcl:"aws_region"`
 	ClusterName     string   `hcl:"cluster_name"`
 	ControllerCount int      `hcl:"controller_count"`
-	ControllerType  *string  `hcl:"controller_type"`
+	ControllerType  string   `hcl:"controller_type,optional"`
 	DNSZone         string   `hcl:"dns_zone"`
 	DNSZoneID       string   `hcl:"dns_zone_id"`
 	Facility        string   `hcl:"facility"`
 	ProjectID       string   `hcl:"project_id"`
 	SSHPubKeys      []string `hcl:"ssh_pubkeys"`
 	WorkerCount     int      `hcl:"worker_count"`
-	WorkerType      *string  `hcl:"worker_type"`
-	IPXEScriptURL   *string  `hcl:"ipxe_script_url"`
+	WorkerType      string   `hcl:"worker_type,optional"`
+	IPXEScriptURL   string   `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs []string `hcl:"management_cidrs"`
 	NodePrivateCIDR string   `hcl:"node_private_cidr"`
 }
@@ -47,9 +47,9 @@ func NewConfig() *config {
 	nodeType := "baremetal_0"
 	iPXEScriptURL := "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/master/packet.ipxe"
 	return &config{
-		ControllerType: &nodeType,
-		WorkerType:     &nodeType,
-		IPXEScriptURL:  &iPXEScriptURL,
+		ControllerType: nodeType,
+		WorkerType:     nodeType,
+		IPXEScriptURL:  iPXEScriptURL,
 	}
 }
 

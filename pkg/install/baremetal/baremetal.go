@@ -16,7 +16,7 @@ import (
 
 type config struct {
 	AssetDir               string   `hcl:"asset_dir"`
-	CachedInstall          *string  `hcl:"cached_install"`
+	CachedInstall          string   `hcl:"cached_install,optional"`
 	ClusterName            string   `hcl:"cluster_name"`
 	ControllerDomains      []string `hcl:"controller_domains"`
 	ControllerMacs         []string `hcl:"controller_macs"`
@@ -27,8 +27,8 @@ type config struct {
 	MatchboxClientKeyPath  string   `hcl:"matchbox_client_key_path"`
 	MatchboxEndpoint       string   `hcl:"matchbox_endpoint"`
 	MatchboxHTTPEndpoint   string   `hcl:"matchbox_http_endpoint"`
-	OSChannel              *string  `hcl:"os_channel"`
-	OSVersion              *string  `hcl:"os_version"`
+	OSChannel              string   `hcl:"os_channel,optional"`
+	OSVersion              string   `hcl:"os_version,optional"`
 	SSHPubKey              string   `hcl:"ssh_pubkey"`
 	WorkerNames            []string `hcl:"worker_names"`
 	WorkerMacs             []string `hcl:"worker_macs"`
@@ -43,13 +43,10 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 }
 
 func NewConfig() *config {
-	defaultCachedInstall := "false"
-	defaultOSChannel := "flatcar-stable"
-	defaultOSVersion := "current"
 	return &config{
-		CachedInstall: &defaultCachedInstall,
-		OSChannel:     &defaultOSChannel,
-		OSVersion:     &defaultOSVersion,
+		CachedInstall: "false",
+		OSChannel:     "flatcar-stable",
+		OSVersion:     "current",
 	}
 }
 
@@ -140,7 +137,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerDomains        string
 	}{
 		AssetDir:             cfg.AssetDir,
-		CachedInstall:        *cfg.CachedInstall,
+		CachedInstall:        cfg.CachedInstall,
 		ClusterName:          cfg.ClusterName,
 		ControllerDomains:    string(controllerDomains),
 		ControllerMacs:       string(controllerMacs),
@@ -151,8 +148,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxClientKey:    cfg.MatchboxClientKeyPath,
 		MatchboxEndpoint:     cfg.MatchboxEndpoint,
 		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
-		OSChannel:            *cfg.OSChannel,
-		OSVersion:            *cfg.OSVersion,
+		OSChannel:            cfg.OSChannel,
+		OSVersion:            cfg.OSVersion,
 		Source:               source,
 		SSHAuthorizedKey:     cfg.SSHPubKey,
 		WorkerNames:          string(workerNames),
