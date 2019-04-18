@@ -22,7 +22,7 @@ module "aws-{{.ClusterName}}" {
   worker_count = 2
   worker_type  = "t3.small"
 
-  os_image = "flatcar-stable"
+  os_image = "{{.OSImage}}"
 }
 
 provider "aws" {
