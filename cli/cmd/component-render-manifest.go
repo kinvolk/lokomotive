@@ -65,7 +65,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 
 		fmt.Printf("# manifests for component %s\n", componentName)
 		for filename, manifest := range manifests {
-			fmt.Printf("---\n# %s\n%s", filename, manifest)
+			fmt.Printf("\n---\n# %s\n%s", filename, manifest)
 		}
 	}
 	return nil
