@@ -322,12 +322,12 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parse manifest: %v", err)
 		}
-		manifests = append(manifests, m)
+		manifests = append(manifests, m...)
 	}
 }
 
 // parseJSONManifest parses a single JSON Kubernetes resource.
-func parseJSONManifest(data []byte) (manifest, error) {
+func parseJSONManifest(data []byte) ([]manifest, error) {
 	var m struct {
 		APIVersion string `json:"apiVersion"`
 		Kind       string `json:"kind"`
@@ -337,15 +337,45 @@ func parseJSONManifest(data []byte) (manifest, error) {
 		} `json:"metadata"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
-		return manifest{}, errors.Wrapf(err, "failed to parse manifest")
+		return nil, errors.Wrapf(err, "failed to parse manifest")
 	}
-	return manifest{
-		kind:       m.Kind,
-		apiVersion: m.APIVersion,
-		namespace:  m.Metadata.Namespace,
-		name:       m.Metadata.Name,
-		raw:        data,
-	}, nil
+
+	// We continue if the object we received was a *List kind. Otherwise if a
+	// single object is received we just return from here.
+	if !strings.HasSuffix(m.Kind, "List") {
+		return []manifest{{
+			kind:       m.Kind,
+			apiVersion: m.APIVersion,
+			namespace:  m.Metadata.Namespace,
+			name:       m.Metadata.Name,
+			raw:        data,
+		}}, nil
+	}
+
+	// We parse the list of items and extract one object at a time
+	var mList struct {
+		APIVersion string `json:"apiVersion"`
+		Kind       string `json:"kind"`
+		Metadata   struct {
+			Name      string `json:"name"`
+			Namespace string `json:"namespace"`
+		} `json:"metadata"`
+		Items []json.RawMessage `json:"items"`
+	}
+	if err := json.Unmarshal(data, &mList); err != nil {
+		return nil, errors.Wrapf(err, "failed to parse manifest list")
+	}
+	var manifests []manifest
+	for _, item := range mList.Items {
+		// make a recursive call, since this is a single object it will be
+		// parsed and returned to us
+		mn, err := parseJSONManifest(item)
+		if err != nil {
+			return nil, err
+		}
+		manifests = append(manifests, mn...)
+	}
+	return manifests, nil
 }
 
 func newResourceMapper(d discovery.DiscoveryInterface) *resourceMapper {

@@ -92,6 +92,60 @@ metadata:
 			raw:  twoResources,
 			want: twoResourcesManifest,
 		},
+		{
+			name: "List of resources",
+			raw: map[string]string{
+				"prometheus-operator/templates/prometheus/rolebinding-specificNamespace.yaml": `
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBindingList
+items:
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    name: prometheus-operator-prometheus
+    labels:
+      app: prometheus-operator-prometheus
+    namespace: "kube-system"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: prometheus-operator-prometheus
+  subjects:
+  - kind: ServiceAccount
+    name: prometheus-operator-prometheus
+    namespace: default
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    name: prometheus-operator-prometheus
+    labels:
+      app: prometheus-operator-prometheus
+    namespace: "default"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: prometheus-operator-prometheus
+  subjects:
+  - kind: ServiceAccount
+    name: prometheus-operator-prometheus
+    namespace: default
+`,
+			},
+			want: []manifest{
+				{
+					kind:       "RoleBinding",
+					apiVersion: "rbac.authorization.k8s.io/v1",
+					namespace:  "kube-system",
+					name:       "prometheus-operator-prometheus",
+				},
+				{
+					kind:       "RoleBinding",
+					apiVersion: "rbac.authorization.k8s.io/v1",
+					namespace:  "default",
+					name:       "prometheus-operator-prometheus",
+				},
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
