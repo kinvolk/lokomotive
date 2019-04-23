@@ -16,13 +16,13 @@ import (
 )
 
 type config struct {
-	AssetDir    string  `hcl:"asset_dir"`
-	ClusterName string  `hcl:"cluster_name"`
-	OSImage     *string `hcl:"os_image"`
-	DNSZone     string  `hcl:"dns_zone"`
-	DNSZoneID   string  `hcl:"dns_zone_id"`
-	SSHPubKey   string  `hcl:"ssh_pubkey"`
-	CredsPath   string  `hcl:"creds_path"`
+	AssetDir    string `hcl:"asset_dir"`
+	ClusterName string `hcl:"cluster_name"`
+	OSImage     string `hcl:"os_image,optional"`
+	DNSZone     string `hcl:"dns_zone"`
+	DNSZoneID   string `hcl:"dns_zone_id"`
+	SSHPubKey   string `hcl:"ssh_pubkey"`
+	CredsPath   string `hcl:"creds_path"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -33,9 +33,8 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 }
 
 func NewConfig() *config {
-	osimage := "flatcar-stable"
 	return &config{
-		OSImage: &osimage,
+		OSImage: "flatcar-stable",
 	}
 }
 
@@ -100,7 +99,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		AssetDir:         cfg.AssetDir,
 		Source:           source,
 		ClusterName:      cfg.ClusterName,
-		OSImage:          *cfg.OSImage,
+		OSImage:          cfg.OSImage,
 		DNSZone:          cfg.DNSZone,
 		DNSZoneID:        cfg.DNSZoneID,
 		SSHAuthorizedKey: ssh_authorized_key,
