@@ -24,6 +24,7 @@ data "template_file" "worker-install" {
     flatcar_linux_oem    = "packet"
     ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
     postinstall_ignition = "${data.ct_config.worker-ignitions.rendered}"
+    setup_raid           = "${var.setup_raid}"
   }
 }
 
