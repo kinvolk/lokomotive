@@ -51,6 +51,11 @@ rules:
   verbs: ["*" ]
 - nonResourceURLs: ["/metrics"]
   verbs: ["get"]
+# Note: For our PSP
+- apiGroups: ["policy"]
+  resourceNames: ["privileged"]
+  resources: ["podsecuritypolicies"]
+  verbs: ["use"]
 ---
 # Bind the Service Account with the Role Privileges.
 # TODO: Check if default account also needs to be there
