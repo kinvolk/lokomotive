@@ -1,7 +1,7 @@
 package aws
 
 var terraformConfigTmpl = `
-module "aws-{{.ClusterName}}" {
+module "aws-{{.Config.ClusterName}}" {
   source = "{{.Source}}"
 
   providers = {
@@ -12,17 +12,20 @@ module "aws-{{.ClusterName}}" {
     tls      = "tls.default"
   }
 
-  cluster_name = "{{.ClusterName}}"
-  dns_zone     = "{{.DNSZone}}"
-  dns_zone_id  = "{{.DNSZoneID}}"
+  cluster_name = "{{.Config.ClusterName}}"
+  dns_zone     = "{{.Config.DNSZone}}"
+  dns_zone_id  = "{{.Config.DNSZoneID}}"
 
   ssh_authorized_key = "{{.SSHAuthorizedKey}}"
-  asset_dir          = "{{.AssetDir}}"
+  asset_dir          = "{{.Config.AssetDir}}"
 
-  worker_count = 2
-  worker_type  = "t3.small"
+  controller_count = "{{.Config.ControllerCount}}"
+  controller_type  = "{{.Config.ControllerType}}"
 
-  os_image = "{{.OSImage}}"
+  worker_count = "{{.Config.WorkerCount}}"
+  worker_type  = "{{.Config.WorkerType}}"
+
+  os_image = "{{.Config.OSImage}}"
 }
 
 provider "aws" {
@@ -30,7 +33,7 @@ provider "aws" {
   alias   = "default"
 
   region                  = "eu-central-1"
-  shared_credentials_file = "{{.CredsPath}}"
+  shared_credentials_file = "{{.Config.CredsPath}}"
 }
 
 provider "local" {

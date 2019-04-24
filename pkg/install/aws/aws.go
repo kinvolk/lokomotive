@@ -16,13 +16,17 @@ import (
 )
 
 type config struct {
-	AssetDir    string `hcl:"asset_dir"`
-	ClusterName string `hcl:"cluster_name"`
-	OSImage     string `hcl:"os_image,optional"`
-	DNSZone     string `hcl:"dns_zone"`
-	DNSZoneID   string `hcl:"dns_zone_id"`
-	SSHPubKey   string `hcl:"ssh_pubkey"`
-	CredsPath   string `hcl:"creds_path"`
+	AssetDir        string `hcl:"asset_dir"`
+	ClusterName     string `hcl:"cluster_name"`
+	OSImage         string `hcl:"os_image,optional"`
+	DNSZone         string `hcl:"dns_zone"`
+	DNSZoneID       string `hcl:"dns_zone_id"`
+	SSHPubKey       string `hcl:"ssh_pubkey"`
+	CredsPath       string `hcl:"creds_path"`
+	ControllerCount int    `hcl:"controller_count,optional"`
+	ControllerType  string `hcl:"controller_type,optional"`
+	WorkerCount     int    `hcl:"worker_count,optional"`
+	WorkerType      string `hcl:"worker_type,optional"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -34,7 +38,11 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		OSImage: "flatcar-stable",
+		OSImage:         "flatcar-stable",
+		ControllerCount: 1,
+		ControllerType:  "t3.small",
+		WorkerCount:     2,
+		WorkerType:      "t3.small",
 	}
 }
 
@@ -87,23 +95,13 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 
 	terraformCfg := struct {
-		AssetDir         string
+		Config           config
 		Source           string
-		ClusterName      string
-		OSImage          string
-		DNSZone          string
-		DNSZoneID        string
 		SSHAuthorizedKey string
-		CredsPath        string
 	}{
-		AssetDir:         cfg.AssetDir,
+		Config:           *cfg,
 		Source:           source,
-		ClusterName:      cfg.ClusterName,
-		OSImage:          cfg.OSImage,
-		DNSZone:          cfg.DNSZone,
-		DNSZoneID:        cfg.DNSZoneID,
 		SSHAuthorizedKey: ssh_authorized_key,
-		CredsPath:        cfg.CredsPath,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
