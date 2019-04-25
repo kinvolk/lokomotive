@@ -91,6 +91,7 @@ storage:
           flatcar-install \
             -d "$${os_disk}" \
             -C "${os_channel}" \
+            -V "${os_version}" \
             -o "${flatcar_linux_oem}" \
             -i /opt/postinstall-ignition.json
           udevadm settle
