@@ -10,6 +10,8 @@ import (
 	_ "github.com/kinvolk/lokoctl/pkg/components/httpbin"
 	_ "github.com/kinvolk/lokoctl/pkg/components/ingress-nginx"
 	_ "github.com/kinvolk/lokoctl/pkg/components/metallb"
+	_ "github.com/kinvolk/lokoctl/pkg/components/openebs-default-storage-class"
+	_ "github.com/kinvolk/lokoctl/pkg/components/openebs-operator"
 )
 
 var componentCmd = &cobra.Command{
