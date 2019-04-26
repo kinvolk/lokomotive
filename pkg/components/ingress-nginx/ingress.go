@@ -19,29 +19,41 @@ func init() {
 }
 
 type component struct {
-	Namespace   *string `hcl:"namespace,attr"`
-	ServiceType *string `hcl:"service_type,attr"`
+	Namespace   string `hcl:"namespace,optional"`
+	ServiceType string `hcl:"service_type,optional"`
+	InstallMode string `hcl:"install_mode,optional"`
 }
 
 func newComponent() *component {
-	defaultNamespace := ""
-	defaultServiceType := "ClusterIP"
 	return &component{
-		Namespace:   &defaultNamespace,
-		ServiceType: &defaultServiceType,
+		Namespace:   "",
+		ServiceType: "ClusterIP",
+		InstallMode: "deployment",
 	}
 }
 
 const chartValuesTmpl = `
 namespace: {{.Namespace}}
 serviceType: {{.ServiceType}}
+installMode: {{.InstallMode}}
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
+	if err := gohcl.DecodeBody(*configBody, evalContext, c); err != nil {
+		return err
+	}
+	if c.InstallMode != "deployment" && c.InstallMode != "daemonset" {
+		err := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "install_mode must be either 'deployment' or 'daemonset'",
+			Detail:   "Make sure to set install_mode to either 'deployment' or 'daemonset' in lowercase",
+		}
+		return hcl.Diagnostics{err}
+	}
+	return nil
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
@@ -54,7 +66,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	releaseOptions := &chartutil.ReleaseOptions{
 		Name:      name,
-		Namespace: *c.Namespace,
+		Namespace: c.Namespace,
 		IsInstall: true,
 	}
 
