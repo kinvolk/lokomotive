@@ -19,16 +19,18 @@ func init() {
 }
 
 type component struct {
-	Namespace   string `hcl:"namespace,optional"`
-	ServiceType string `hcl:"service_type,optional"`
-	InstallMode string `hcl:"install_mode,optional"`
+	Namespace             string `hcl:"namespace,optional"`
+	ServiceType           string `hcl:"service_type,optional"`
+	InstallMode           string `hcl:"install_mode,optional"`
+	ExternalTrafficPolicy string `hcl:"external_traffic_policy,optional"`
 }
 
 func newComponent() *component {
 	return &component{
-		Namespace:   "",
-		ServiceType: "ClusterIP",
-		InstallMode: "deployment",
+		Namespace:             "",
+		ServiceType:           "ClusterIP",
+		InstallMode:           "deployment",
+		ExternalTrafficPolicy: "cluster",
 	}
 }
 
@@ -36,6 +38,7 @@ const chartValuesTmpl = `
 namespace: {{.Namespace}}
 serviceType: {{.ServiceType}}
 installMode: {{.InstallMode}}
+externalTrafficPolicy: {{.ExternalTrafficPolicy}}
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -50,6 +53,14 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 			Severity: hcl.DiagError,
 			Summary:  "install_mode must be either 'deployment' or 'daemonset'",
 			Detail:   "Make sure to set install_mode to either 'deployment' or 'daemonset' in lowercase",
+		}
+		return hcl.Diagnostics{err}
+	}
+	if c.ExternalTrafficPolicy != "cluster" && c.ExternalTrafficPolicy != "local" {
+		err := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "external_traffic_policy must be either 'cluster' or 'local'",
+			Detail:   "Make sure to set external_traffic_policy to either 'cluster' or 'local' in lowercase",
 		}
 		return hcl.Diagnostics{err}
 	}
