@@ -34,6 +34,8 @@ type config struct {
 	IPXEScriptURL   string   `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs []string `hcl:"management_cidrs"`
 	NodePrivateCIDR string   `hcl:"node_private_cidr"`
+	OSChannel       string   `hcl:"os_channel,optional"`
+	OSVersion       string   `hcl:"os_version,optional"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -50,6 +52,8 @@ func NewConfig() *config {
 		ControllerType: nodeType,
 		WorkerType:     nodeType,
 		IPXEScriptURL:  iPXEScriptURL,
+		OSChannel:      "stable",
+		OSVersion:      "current",
 	}
 }
 

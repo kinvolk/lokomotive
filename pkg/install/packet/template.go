@@ -31,6 +31,9 @@ module "packet-{{.Config.ClusterName}}" {
   ipxe_script_url = "{{.Config.IPXEScriptURL}}"
   management_cidrs = {{.ManagementCIDRs}}
   node_private_cidr = "{{.Config.NodePrivateCIDR}}"
+
+  os_channel = "{{.Config.OSChannel}}"
+  os_version = "{{.Config.OSVersion}}"
 }
 
 provider "aws" {
