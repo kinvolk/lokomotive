@@ -60,7 +60,21 @@ spec:
         name: contour
         command: ["contour"]
         args: ["serve", "--incluster"]
-      - image: docker.io/envoyproxy/envoy:v1.9.1
+
+      # XXX: Use envoy 1.10 because it exports more metrics in prometheus format
+      #
+      # Envoy, in PR https://github.com/envoyproxy/envoy/pull/5601, added
+      # support for histograms in prometheus format and the first release to
+      # include it is 1.10. This simplifies scraping data from prometheus and
+      # several important metrics, like latency metrics, are exported. This is a
+      # huge advantage from a monitoring POV.
+      #
+      # Although contour is released with envoy 1.9.1, it is safe to upgrade to
+      # envoy 1.10. Also, we removed a deprecated param that contour was
+      # using with envoy 1.9 and is completely removed in envoy 1.10. The patch
+      # was merged in contour upstream too:
+      # https://github.com/heptio/contour/commit/b8e8e65e312ffeb4f41dab1af7b89a250c35026f
+      - image: docker.io/envoyproxy/envoy-alpine:v1.10.0
         name: envoy
         ports:
         - containerPort: 8080
