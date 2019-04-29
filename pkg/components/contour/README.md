@@ -9,8 +9,11 @@ The service on both directories was manually modified to:
  * Add prometheus scrape config [1]
  * Use externalTrafficPolicy: Local
 
-And the pod spec to use `/stats/prometheus` instead of `/stats/` for
-`prometheus.io/path` annotation. [1]
+The pod spec was modified to:
+ * Use `/stats/prometheus` instead of `/stats/` for `prometheus.io/path`
+   annotation. [1]
+ * Use a custom contour docker image to fix a OOM issue on envoy (see comment in
+   the yaml for more details).
 
 You should make sure to **NOT** delete them by mistake (e.g. when updating contour
 version).

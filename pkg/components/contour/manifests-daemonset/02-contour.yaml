@@ -23,7 +23,39 @@ spec:
         prometheus.io/format: "prometheus"
     spec:
       containers:
-      - image: gcr.io/heptio-images/contour:v0.11.0
+      # XXX: We use a custom docker image to fix envoy consuming loads of RAM
+      # when running under high traffic.
+      #
+      # The image is based on contour 0.12-dirty (i.e. before v0.12 was
+      # released) and it just contains this simple patch:
+      # https://github.com/johananl/contour/commit/bece50124c5398ead56e24e4bb3dcd3a2ff51035
+      #
+      # The issue is that connections stay open until the client closes them (if
+      # he does it at all). Under high traffic load, this ends with tons of open
+      # connections and LOT of RAM usage. In fact, in the scenarios we've
+      # observed, the RAM usage as well as the opened connections were constantly
+      # inreasing until envoy run out of RAM and crashes.
+      #
+      # This behaviour of not closing open connections is the default behaviour
+      # of the envoy http connection manager and there is is a parameter on
+      # envoy to tune when an idle connection will be closed (idle_timeout):
+      #
+      # https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/filter/network/http_connection_manager/v2/http_connection_manager.proto.html?highlight=idle_timeout
+      #
+      # When setting this parameter on envoy, connections are closed and the RAM
+      # usage problem is solved immediately.
+      #
+      # However, as contour does not expose a way to tune this envoy parameter,
+      # the patch just mentioned hardcodes the idle_timeout param with a value
+      # of 60s.
+      #
+      # tl;dr: With this patch, the mem problem is solved immediately and
+      # mem remains at constant usage even under heavy traffic load.
+      #
+      # We already talked to upstream and the proper fix will be discussed on a
+      # github issue.
+      #
+      - image: quay.io/kinvolk/contour:idle_timeout
         imagePullPolicy: Always
         name: contour
         command: ["contour"]
@@ -55,7 +87,8 @@ spec:
             exec:
               command: ["wget", "-qO-", "http://localhost:9001/healthcheck/fail"] 
       initContainers:
-      - image: gcr.io/heptio-images/contour:v0.11.0
+      # XXX: See comment above for the reason for the custom docker image
+      - image: quay.io/kinvolk/contour:idle_timeout
         imagePullPolicy: Always
         name: envoy-initconfig
         command: ["contour"]
