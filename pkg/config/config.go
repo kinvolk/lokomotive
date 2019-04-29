@@ -41,17 +41,32 @@ type Config struct {
 	EvalContext *hcl.EvalContext
 }
 
-func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
-	// TODO(schu): support both a target directory with
-	// multiple configuration files and a single file
+func loadLokocfgPaths(configPath string) ([]string, error) {
+	isDir, err := util.PathIsDir(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to stat config path %q: %v", configPath, err)
+	}
+	var lokocfgPaths []string
+	if isDir {
+		globPattern := filepath.Join(configPath, "*.lokocfg")
+		configFiles, err := filepath.Glob(globPattern)
+		if err != nil {
+			return nil, fmt.Errorf("bad filepath glob pattern %q: %v", globPattern, err)
+		}
+		lokocfgPaths = append(lokocfgPaths, configFiles...)
+	} else {
+		lokocfgPaths = append(lokocfgPaths, configPath)
+	}
+	return lokocfgPaths, nil
+}
 
-	globPattern := configDir + "./*.lokocfg"
-	configFiles, err := filepath.Glob(globPattern)
+func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) {
+	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
 				Severity: hcl.DiagError,
-				Summary:  fmt.Sprintf("bad filepath glob pattern %q: %v", globPattern, err),
+				Summary:  err.Error(),
 			},
 		}
 	}
@@ -59,7 +74,7 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 	hclParser := hclparse.NewParser()
 
 	var hclFiles []*hcl.File
-	for _, f := range configFiles {
+	for _, f := range lokocfgPaths {
 		hclFile, diags := hclParser.ParseHCLFile(f)
 		if len(diags) > 0 {
 			return nil, diags
@@ -69,7 +84,6 @@ func LoadConfig(configDir string) (*Config, hcl.Diagnostics) {
 
 	configBody := hcl.MergeFiles(hclFiles)
 
-	lokocfgVarsPath := "lokocfg.vars"
 	exists, err := util.PathExists(lokocfgVarsPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{

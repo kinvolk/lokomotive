@@ -27,7 +27,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoConfig, diags := config.LoadConfig("")
+	lokoConfig, diags := config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 	if len(diags) > 0 {
 		contextLogger.Fatal(diags)
 	}
