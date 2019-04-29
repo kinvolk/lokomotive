@@ -99,7 +99,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["wget", "-qO-", "http://localhost:9001/healthcheck/fail"] 
+              command: ["wget", "-qO-", "--post-data=''", "http://localhost:9001/healthcheck/fail"]
       initContainers:
       # XXX: See comment above for the reason for the custom docker image
       - image: quay.io/kinvolk/contour:idle_timeout
