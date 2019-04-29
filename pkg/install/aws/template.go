@@ -35,7 +35,7 @@ provider "aws" {
   version = "~> 1.13.0"
   alias   = "default"
 
-  region                  = "eu-central-1"
+  region                  = "{{.Config.Region}}"
   shared_credentials_file = "{{.Config.CredsPath}}"
 }
 

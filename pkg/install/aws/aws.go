@@ -30,6 +30,7 @@ type config struct {
 	WorkerType            string   `hcl:"worker_type,optional"`
 	ControllerCLCSnippets []string `hcl:"controller_clc_snippets,optional"`
 	WorkerCLCSnippets     []string `hcl:"worker_clc_snippets,optional"`
+	Region                string   `hcl:"region,optional"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -46,6 +47,7 @@ func NewConfig() *config {
 		ControllerType:  "t3.small",
 		WorkerCount:     2,
 		WorkerType:      "t3.small",
+		Region:          "eu-central-1",
 		// Initialize the string slices to make sure they are
 		// rendered as `[]` when no snippets are given and not
 		// `null`, as the latter would lead to a terraform error
