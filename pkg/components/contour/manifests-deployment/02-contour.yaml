@@ -58,7 +58,7 @@ spec:
         imagePullPolicy: Always
         name: contour
         command: ["contour"]
-        args: ["serve", "--incluster"]
+        args: ["serve", "--incluster", "--envoy-http-access-log", "/dev/null", "--envoy-https-access-log", "/dev/null"]
 
       # XXX: Use envoy 1.10 because it exports more metrics in prometheus format
       #
