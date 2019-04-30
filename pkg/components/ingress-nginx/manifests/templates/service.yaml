@@ -16,6 +16,11 @@ spec:
   {{- else}}
   type: ClusterIP
   {{- end }}
+  {{- if eq .Values.externalTrafficPolicy "local" }}
+  externalTrafficPolicy: Local
+  {{- else}}
+  externalTrafficPolicy: Cluster
+  {{- end }}
   selector:
     name: nginx-ingress-controller
     phase: prod

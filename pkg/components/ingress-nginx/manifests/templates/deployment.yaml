@@ -1,5 +1,9 @@
 apiVersion: apps/v1
+{{- if eq .Values.installMode "daemonset" }}
+kind: DaemonSet
+{{- else}}
 kind: Deployment
+{{- end }}
 metadata:
   name: nginx-ingress-controller
   {{- if .Values.namespace }}
@@ -8,10 +12,15 @@ metadata:
   namespace: ingress
   {{- end }}
 spec:
+  {{- if eq .Values.installMode "daemonset" }}
+  updateStrategy:
+    type: RollingUpdate
+  {{- else}}
   replicas: 2
   strategy:
     rollingUpdate:
       maxUnavailable: 1
+  {{- end }}
   selector:
     matchLabels:
       name: nginx-ingress-controller
