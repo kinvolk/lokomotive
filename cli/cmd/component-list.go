@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"sort"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -29,7 +30,9 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println("Available components:")
-	for _, name := range components.ListNames() {
+	comps := components.ListNames()
+	sort.Strings(comps)
+	for _, name := range comps {
 		fmt.Println("\t", name)
 	}
 }
