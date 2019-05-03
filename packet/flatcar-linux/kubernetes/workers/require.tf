@@ -5,7 +5,7 @@ terraform {
 }
 
 provider "ct" {
-  version = "0.3.0"
+  version = "~> 3.0"
 }
 
 provider "local" {
