@@ -14,7 +14,7 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 * Packet account and [API key](https://support.packet.com/kb/articles/api-integrations)
 * AWS Account and IAM credentials
 * AWS Route53 DNS Zone (registered Domain Name or delegated subdomain)
-* Terraform v0.11.x and [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) installed locally
+* Terraform v0.11.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
 
@@ -25,12 +25,12 @@ $ terraform version
 Terraform v0.11.11
 ```
 
-Add the [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
+Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
 
 ```sh
-wget https://github.com/coreos/terraform-provider-ct/releases/download/v0.3.0/terraform-provider-ct-v0.3.0-linux-amd64.tar.gz
-tar xzf terraform-provider-ct-v0.3.0-linux-amd64.tar.gz
-mv terraform-provider-ct-v0.3.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.3.0
+wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.3.1/terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
+tar xzf terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
+mv terraform-provider-ct-v0.3.1-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.3.1
 ```
 
 Read [concepts](/architecture/concepts/) to learn about Terraform, modules, and organizing resources. Change to your infrastructure repository (e.g. `infra`).
@@ -70,7 +70,7 @@ provider "aws" {
 }
 
 provider "ct" {
-  version = "0.3.0"
+  version = "0.3.1"
 }
 
 provider "local" {
