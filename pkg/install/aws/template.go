@@ -29,6 +29,8 @@ module "aws-{{.Config.ClusterName}}" {
 
   controller_clc_snippets = {{.ControllerCLCSnippets}}
   worker_clc_snippets     = {{.WorkerCLCSnippets}}
+
+  enable_aggregation = "{{.Config.EnableAggregation}}"
 }
 
 provider "aws" {

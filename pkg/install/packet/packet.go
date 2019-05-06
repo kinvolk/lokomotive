@@ -26,20 +26,21 @@ type config struct {
 	AssetDir string `hcl:"asset_dir"`
 	// TODO AuthToken gets written to disk when Terraform files are generated. We should consider
 	// reading this value directly from the environment.
-	AuthToken       string   `hcl:"auth_token"`
-	AWSCredsPath    string   `hcl:"aws_creds_path"`
-	AWSRegion       string   `hcl:"aws_region"`
-	ClusterName     string   `hcl:"cluster_name"`
-	ControllerCount int      `hcl:"controller_count"`
-	ControllerType  string   `hcl:"controller_type,optional"`
-	DNSZone         string   `hcl:"dns_zone"`
-	DNSZoneID       string   `hcl:"dns_zone_id"`
-	Facility        string   `hcl:"facility"`
-	ProjectID       string   `hcl:"project_id"`
-	SSHPubKeys      []string `hcl:"ssh_pubkeys"`
-	IPXEScriptURL   string   `hcl:"ipxe_script_url,optional"`
-	ManagementCIDRs []string `hcl:"management_cidrs"`
-	NodePrivateCIDR string   `hcl:"node_private_cidr"`
+	AuthToken         string   `hcl:"auth_token"`
+	AWSCredsPath      string   `hcl:"aws_creds_path"`
+	AWSRegion         string   `hcl:"aws_region"`
+	ClusterName       string   `hcl:"cluster_name"`
+	ControllerCount   int      `hcl:"controller_count"`
+	ControllerType    string   `hcl:"controller_type,optional"`
+	DNSZone           string   `hcl:"dns_zone"`
+	DNSZoneID         string   `hcl:"dns_zone_id"`
+	Facility          string   `hcl:"facility"`
+	ProjectID         string   `hcl:"project_id"`
+	SSHPubKeys        []string `hcl:"ssh_pubkeys"`
+	IPXEScriptURL     string   `hcl:"ipxe_script_url,optional"`
+	ManagementCIDRs   []string `hcl:"management_cidrs"`
+	NodePrivateCIDR   string   `hcl:"node_private_cidr"`
+	EnableAggregation string   `hcl:"enable_aggregation,optional"`
 
 	WorkerPools []workerPool `hcl:"worker_pool,block"`
 }
