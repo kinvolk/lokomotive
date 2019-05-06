@@ -39,6 +39,10 @@ provider "aws" {
   shared_credentials_file = "{{.Config.CredsPath}}"
 }
 
+provider "ct" {
+  version = "~> 0.3"
+}
+
 provider "local" {
   version = "~> 1.0"
   alias   = "default"
