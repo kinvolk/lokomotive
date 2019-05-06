@@ -1,3 +1,6 @@
+package openebsoperator
+
+var operatorInstallerTmpl = `
 # Adapted from https://openebs.github.io/charts/openebs-operator-0.8.2.yaml
 
 # This manifest deploys the OpenEBS control plane components, with associated CRs & RBAC rules
@@ -88,6 +91,10 @@ spec:
         name: maya-apiserver
         openebs.io/component-name: maya-apiserver
     spec:
+      {{- if and .NDMSelectorLabel .NDMSelectorValue}}
+      nodeSelector:
+        {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      {{- end }}
       serviceAccountName: openebs-maya-operator
       containers:
       - name: maya-apiserver
@@ -198,6 +205,10 @@ spec:
         name: openebs-provisioner
         openebs.io/component-name: openebs-provisioner
     spec:
+      {{- if and .NDMSelectorLabel .NDMSelectorValue}}
+      nodeSelector:
+        {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      {{- end }}
       serviceAccountName: openebs-maya-operator
       containers:
       - name: openebs-provisioner
@@ -251,6 +262,10 @@ spec:
         name: openebs-snapshot-operator
         openebs.io/component-name: openebs-snapshot-operator
     spec:
+      {{- if and .NDMSelectorLabel .NDMSelectorValue}}
+      nodeSelector:
+        {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      {{- end }}
       serviceAccountName: openebs-maya-operator
       containers:
         - name: snapshot-controller
@@ -357,6 +372,10 @@ spec:
       # kubectl label node <node-name> "openebs.io/nodegroup"="storage-node"
       #nodeSelector:
       #  "openebs.io/nodegroup": "storage-node"
+      {{- if and .NDMSelectorLabel .NDMSelectorValue}}
+      nodeSelector:
+        {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      {{- end }}
       serviceAccountName: openebs-maya-operator
       hostNetwork: true
       containers:
@@ -415,3 +434,4 @@ spec:
       - name: sparsepath
         hostPath:
           path: /var/openebs/sparse
+`

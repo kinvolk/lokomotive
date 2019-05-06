@@ -18,6 +18,24 @@ According to the [docs](https://docs.openebs.io/docs/next/cstor.html), cStor is 
 
 **NOTE:** OpenEBS requires available disks, i.e. disks that aren't mounted by anything. This means that by default, OpenEBS will not work on machines with just a single physical disk, e.g. Packet's t1.small.x86 (because the disk will be used for the operating system).
 
+### Setup nodeSelectors for Node Disk Manager (NDM)
+**This is an optional step**
+
+If you want to consider only some nodes in Kubernetes cluster to be used for OpenEBS storage (for hosting cStor Storage Pool instances), then do the following to use nodeSelector field of NDM PodSpec and dedicate those nodes to NDM.
+
+First, label the required nodes with an appropriate label. In the following example command, the required nodes for storage nodes are labelled as `node=openebs`.
+```
+kubectl label nodes <node-name> node=openebs
+```
+
+Then, add the following to `.lokocfg` file, modifying the values as appropriate.
+```
+component "openebs-operator" {
+	ndm_selector_label = "node"
+	ndm_selector_value = "openebs"
+}
+```
+
 ### Installation
 ```bash
  ✗ ./lokoctl component install openebs-operator                           
@@ -51,7 +69,10 @@ openebs-ndm-jwxwf                           1/1     Running   0          57s
 openebs-ndm-l2v9s                           1/1     Running   0          57s
 openebs-provisioner-57554c764-dvffn         1/1     Running   0          58s
 openebs-snapshot-operator-96464fd9d-pscdk   2/2     Running   0          58s
+```
+If you initially setup nodeSelectors for Node Disk Manager(NDM), you should see that pods are only scheduled on labelled nodes with ` kubectl get pods -n openebs -o wide`.
 
+```
 ✗ kubectl get storageclass
 NAME                        PROVISIONER                                                AGE
 openebs-cstor-sparse        openebs.io/provisioner-iscsi                               2m58s
