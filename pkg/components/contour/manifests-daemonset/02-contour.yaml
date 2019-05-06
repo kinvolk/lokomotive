@@ -23,57 +23,14 @@ spec:
         prometheus.io/format: "prometheus"
     spec:
       containers:
-      # XXX: We use a custom docker image to fix envoy consuming loads of RAM
-      # when running under high traffic.
-      #
-      # The image is based on contour 0.12-dirty (i.e. before v0.12 was
-      # released) and it just contains this simple patch:
-      # https://github.com/johananl/contour/commit/bece50124c5398ead56e24e4bb3dcd3a2ff51035
-      #
-      # The issue is that connections stay open until the client closes them (if
-      # he does it at all). Under high traffic load, this ends with tons of open
-      # connections and LOT of RAM usage. In fact, in the scenarios we've
-      # observed, the RAM usage as well as the opened connections were constantly
-      # inreasing until envoy run out of RAM and crashes.
-      #
-      # This behaviour of not closing open connections is the default behaviour
-      # of the envoy http connection manager and there is is a parameter on
-      # envoy to tune when an idle connection will be closed (idle_timeout):
-      #
-      # https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/filter/network/http_connection_manager/v2/http_connection_manager.proto.html?highlight=idle_timeout
-      #
-      # When setting this parameter on envoy, connections are closed and the RAM
-      # usage problem is solved immediately.
-      #
-      # However, as contour does not expose a way to tune this envoy parameter,
-      # the patch just mentioned hardcodes the idle_timeout param with a value
-      # of 60s.
-      #
-      # tl;dr: With this patch, the mem problem is solved immediately and
-      # mem remains at constant usage even under heavy traffic load.
-      #
-      # We already talked to upstream and the proper fix will be discussed on a
-      # github issue.
-      #
+      # XXX: See the README for the reason to use a custom docker image
       - image: quay.io/kinvolk/contour:idle_timeout
         imagePullPolicy: Always
         name: contour
         command: ["contour"]
         args: ["serve", "--incluster", "--envoy-http-access-log", "/dev/null", "--envoy-https-access-log", "/dev/null"]
 
-      # XXX: Use envoy 1.10 because it exports more metrics in prometheus format
-      #
-      # Envoy, in PR https://github.com/envoyproxy/envoy/pull/5601, added
-      # support for histograms in prometheus format and the first release to
-      # include it is 1.10. This simplifies scraping data from prometheus and
-      # several important metrics, like latency metrics, are exported. This is a
-      # huge advantage from a monitoring POV.
-      #
-      # Although contour is released with envoy 1.9.1, it is safe to upgrade to
-      # envoy 1.10. Also, we removed a deprecated param that contour was
-      # using with envoy 1.9 and is completely removed in envoy 1.10. The patch
-      # was merged in contour upstream too:
-      # https://github.com/heptio/contour/commit/b8e8e65e312ffeb4f41dab1af7b89a250c35026f
+      # XXX: See the README for the reason to use envoy 1.10
       - image: docker.io/envoyproxy/envoy-alpine:v1.10.0
         name: envoy
         ports:
@@ -101,7 +58,7 @@ spec:
             exec:
               command: ["wget", "-qO-", "--post-data=''", "http://localhost:9001/healthcheck/fail"]
       initContainers:
-      # XXX: See comment above for the reason for the custom docker image
+      # XXX: See the README for the reason to use a custom docker image
       - image: quay.io/kinvolk/contour:idle_timeout
         imagePullPolicy: Always
         name: envoy-initconfig
