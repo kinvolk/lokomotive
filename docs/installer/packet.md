@@ -35,9 +35,23 @@ cluster "packet" {
 	ssh_pubkeys = [
 		"ssh-rsa AAAA...",
 	]
-	worker_count = 1
 	management_cidrs = ["123.45.67.89/32"]
 	node_private_cidr = "XX.XX.XX.0/24"
+
+	# Define one or more worker pools
+	worker_pool "pool-1" {
+	  # Define the number of worker nodes (required)
+	  count = 1
+
+	  # Define an instance type (optional)
+	  # type = "t1.small.x86"
+
+	  #  Define a Flatcar Linux channel (optional; 'stable', 'beta' or 'alpha')
+	  # os_channel = "stable"
+
+	  # Define a Flatcar Linux version (optional)
+	  # os_version = "current"
+	}
 }
 
 component "ingress-nginx" {

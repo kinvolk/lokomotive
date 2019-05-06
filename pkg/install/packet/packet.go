@@ -14,6 +14,14 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
+type workerPool struct {
+	Name      string `hcl:"pool_name,label"`
+	Count     int    `hcl:"count"`
+	OSChannel string `hcl:"os_channel,optional"`
+	OSVersion string `hcl:"os_version,optional"`
+	NodeType  string `hcl:"node_type,optional"`
+}
+
 type config struct {
 	AssetDir string `hcl:"asset_dir"`
 	// TODO AuthToken gets written to disk when Terraform files are generated. We should consider
@@ -29,32 +37,33 @@ type config struct {
 	Facility        string   `hcl:"facility"`
 	ProjectID       string   `hcl:"project_id"`
 	SSHPubKeys      []string `hcl:"ssh_pubkeys"`
-	WorkerCount     int      `hcl:"worker_count"`
-	WorkerType      string   `hcl:"worker_type,optional"`
 	IPXEScriptURL   string   `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs []string `hcl:"management_cidrs"`
 	NodePrivateCIDR string   `hcl:"node_private_cidr"`
-	OSChannel       string   `hcl:"os_channel,optional"`
-	OSVersion       string   `hcl:"os_version,optional"`
+
+	WorkerPools []workerPool `hcl:"worker_pool,block"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
+	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
+		return diags
+	}
+	if len(c.WorkerPools) == 0 {
+		err := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "At least one worker pool must be defined",
+			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+		}
+		return hcl.Diagnostics{err}
+	}
+	return nil
 }
 
 func NewConfig() *config {
-	nodeType := "baremetal_0"
-	iPXEScriptURL := "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/master/packet.ipxe"
-	return &config{
-		ControllerType: nodeType,
-		WorkerType:     nodeType,
-		IPXEScriptURL:  iPXEScriptURL,
-		OSChannel:      "stable",
-		OSVersion:      "current",
-	}
+	return &config{}
 }
 
 func Install(cfg *config) error {
@@ -102,16 +111,23 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
 
+	var workerCount int
+	for _, pool := range cfg.WorkerPools {
+		workerCount += pool.Count
+	}
+
 	terraformCfg := struct {
 		Config          config
 		Source          string
 		SSHPublicKeys   string
 		ManagementCIDRs string
+		WorkerCount     int
 	}{
 		Config:          *cfg,
 		Source:          source,
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
+		WorkerCount:     workerCount,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
