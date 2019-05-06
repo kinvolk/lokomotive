@@ -68,8 +68,8 @@ func NewConfig() *config {
 }
 
 func Install(cfg *config) error {
-	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
-	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
+	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/packet")
+	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir, "packet"); err != nil {
 		return err
 	}
 

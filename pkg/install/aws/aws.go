@@ -67,8 +67,8 @@ func (cfg *config) readSSHPubKey() (string, error) {
 }
 
 func Install(cfg *config) error {
-	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
-	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
+	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/aws")
+	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir, "aws"); err != nil {
 		return err
 	}
 
