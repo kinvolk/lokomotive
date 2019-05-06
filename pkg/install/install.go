@@ -70,7 +70,8 @@ func PrepareLokomotiveTerraformModuleAt(path string) error {
 		}
 		return nil
 	}
-	if err := box.WalkPrefix("", walk); err != nil {
+
+	if err := box.Walk(walk); err != nil {
 		return errors.Wrap(err, "failed to walk box")
 	}
 	return nil
