@@ -27,6 +27,7 @@ Clone this repository and build the lokoctl binary:
 ```bash
 git clone https://github.com/kinvolk/lokoctl $GOPATH/src/github.com/kinvolk/lokoctl
 cd $_
+make install-packr2
 make
 ```
 
