@@ -39,6 +39,10 @@ provider "matchbox" {
   ca          = "${file("{{.MatchboxCA}}")}"
 }
 
+provider "ct" {
+  version = "~> 0.3"
+}
+
 provider "local" {
   version = "~> 1.0"
   alias   = "default"
