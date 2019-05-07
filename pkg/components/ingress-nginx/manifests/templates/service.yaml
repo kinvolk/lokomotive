@@ -16,10 +16,12 @@ spec:
   {{- else}}
   type: ClusterIP
   {{- end }}
+  {{- if eq .Values.serviceType "LoadBalancer" }}
   {{- if eq .Values.externalTrafficPolicy "local" }}
   externalTrafficPolicy: Local
   {{- else}}
   externalTrafficPolicy: Cluster
+  {{- end }}
   {{- end }}
   selector:
     name: nginx-ingress-controller
