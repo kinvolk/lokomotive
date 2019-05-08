@@ -3,13 +3,25 @@
 Notable changes between versions.
 
 ## Latest
+ 
+* Update etcd from v3.3.12 to [v3.3.13](https://github.com/etcd-io/etcd/releases/tag/v3.3.13)
+* Upgrade Calico from v3.6.1 to [v3.7.0](https://docs.projectcalico.org/v3.7/release-notes/)
+
+#### Addons
+
+* Update Prometheus from v2.8.1 to v2.9.2
+  * Update kube-state-metrics from v1.5.0 to v1.6.0
+* Update Grafana from v6.1.3 to v6.1.6
+* Reduce nginx-ingress Role RBAC permissions ([#458](https://github.com/poseidon/typhoon/pull/458))
+
+## v1.14.1
 
 * Kubernetes [v1.14.1](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.14.md#v1141)
 
 #### Addons
 
-* Update kube-state-metrics from v1.5.0 to v1.6.0-rc.0 ([#449](https://github.com/poseidon/typhoon/pull/449))
 * Update Grafana from v6.1.1 to v6.1.3
+* Update nginx-ingress from v0.23.0 to v0.24.1
 
 ## v1.14.0
 
@@ -60,7 +72,7 @@ Notable changes between versions.
   * Reverse DNS lookups for service IPv4 addresses unchanged
 * Upgrade Calico from v3.5.2 to [v3.6.0](https://docs.projectcalico.org/v3.6/release-notes/) ([#430](https://github.com/poseidon/typhoon/pull/430))
   * Change pod IPAM from `host-local` to `calico-ipam`. `pod_cidr` is still divided into `/24` subnets per node, but managed as `ippools` and `ipamblocks`
-* Suggest updating [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) from v0.3.0 to [v0.3.1](https://github.com/coreos/terraform-provider-ct/releases/tag/v0.3.1) ([#434](https://github.com/poseidon/typhoon/pull/434))
+* Suggest updating [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) from v0.3.0 to [v0.3.1](https://github.com/poseidon/terraform-provider-ct/releases/tag/v0.3.1) ([#434](https://github.com/poseidon/typhoon/pull/434))
 * Announce: Fedora Atomic modules will be not be updated beyond Kubernetes v1.13.x ([#437](https://github.com/poseidon/typhoon/pull/437))
   * Thank you Project Atomic team and users, please see the deprecation [notice](https://typhoon.psdn.io/announce/#march-27-2019)
 
@@ -105,7 +117,7 @@ Notable changes between versions.
 
 #### Bare-Metal
 
-* Recommend updating [terraform-provider-matchbox](https://github.com/coreos/terraform-provider-matchbox) plugin from v0.2.2 to [v0.2.3](https://github.com/coreos/terraform-provider-matchbox/releases/tag/v0.2.3) ([#402](https://github.com/poseidon/typhoon/pull/402))
+* Recommend updating [terraform-provider-matchbox](https://github.com/poseidon/terraform-provider-matchbox) plugin from v0.2.2 to [v0.2.3](https://github.com/poseidon/terraform-provider-matchbox/releases/tag/v0.2.3) ([#402](https://github.com/poseidon/typhoon/pull/402))
 * Improve docs on using Ubiquiti EdgeOS with bare-metal clusters ([#413](https://github.com/poseidon/typhoon/pull/413))
 
 #### Google Cloud
@@ -617,15 +629,15 @@ Notable changes between versions.
 
 #### AWS
 
-* [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/coreos/terraform-provider-ct/releases/tag/v0.2.1) (action required!)
+* [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/poseidon/terraform-provider-ct/releases/tag/v0.2.1) (action required!)
 
 #### Digital Ocean
 
-* [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/coreos/terraform-provider-ct/releases/tag/v0.2.1) (action required!)
+* [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/poseidon/terraform-provider-ct/releases/tag/v0.2.1) (action required!)
 
 #### Google Cloud
 
-* [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/coreos/terraform-provider-ct/releases/tag/v0.2.1) (action required!)
+* [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/poseidon/terraform-provider-ct/releases/tag/v0.2.1) (action required!)
 * Relax `os_image` to optional. Default to "coreos-stable".
 
 #### Addons
@@ -645,7 +657,7 @@ Notable changes between versions.
 * Upgrade etcd from v3.2.15 to v3.3.2
 * Update Calico from v3.0.2 to v3.0.3
 * Use kubernetes-incubator/bootkube v0.11.0
-* [Recommend](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/coreos/terraform-provider-ct/releases/tag/v0.2.1) (action recommended)
+* [Recommend](https://typhoon.psdn.io/topics/maintenance/#terraform-provider-ct-v021) updating `terraform-provider-ct` plugin from v0.2.0 to [v0.2.1](https://github.com/poseidon/terraform-provider-ct/releases/tag/v0.2.1) (action recommended)
 
 #### AWS
 
