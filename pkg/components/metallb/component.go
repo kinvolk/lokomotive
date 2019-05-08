@@ -1,7 +1,12 @@
 package metallb
 
 import (
+	"bytes"
+	"html/template"
+
+	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
@@ -170,6 +175,12 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "7472"
     spec:
+      {{- if .ControllerNodeSelectors }}
+      nodeSelector:
+        {{- range $key, $value := .ControllerNodeSelectors }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+      {{- end }}
       serviceAccountName: controller
       terminationGracePeriodSeconds: 0
       securityContext:
@@ -221,6 +232,12 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "7472"
     spec:
+      {{- if .SpeakerNodeSelectors }}
+      nodeSelector:
+        {{- range $key, $value := .SpeakerNodeSelectors }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+      {{- end }}
       serviceAccountName: speaker
       terminationGracePeriodSeconds: 0
       hostNetwork: true
@@ -300,6 +317,8 @@ func init() {
 }
 
 type component struct {
+	ControllerNodeSelectors map[string]string `hcl:"controller_node_selectors,optional"`
+	SpeakerNodeSelectors    map[string]string `hcl:"speaker_node_selectors,optional"`
 }
 
 func newComponent() *component {
@@ -307,10 +326,31 @@ func newComponent() *component {
 }
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	return hcl.Diagnostics{}
+	if configBody == nil {
+		return hcl.Diagnostics{}
+	}
+	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
+	tmpl, err := template.New("controller").Parse(deploymentController)
+	if err != nil {
+		return nil, errors.Wrap(err, "parse template failed")
+	}
+	var controllerBuf bytes.Buffer
+	if err := tmpl.Execute(&controllerBuf, c); err != nil {
+		return nil, errors.Wrap(err, "execute template failed")
+	}
+
+	tmpl, err = template.New("speaker").Parse(daemonsetSpeaker)
+	if err != nil {
+		return nil, errors.Wrap(err, "parse template failed")
+	}
+	var speakerBuf bytes.Buffer
+	if err := tmpl.Execute(&speakerBuf, c); err != nil {
+		return nil, errors.Wrap(err, "execute template failed")
+	}
+
 	return map[string]string{
 		"namespace.yaml":                                    namespace,
 		"service-account-controller.yaml":                   serviceAccountController,
@@ -321,8 +361,8 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"clusterrolebinding-metallb-system-controller.yaml": clusterRoleBindingMetallbSystemController,
 		"clusterrolebinding-metallb-system-speaker.yaml":    clusterRoleBindingMetallbSystemSpeaker,
 		"rolebinding-config-watcher.yaml":                   roleBindingConfigWatcher,
-		"deployment-controller.yaml":                        deploymentController,
-		"daemonset-speaker.yaml":                            daemonsetSpeaker,
+		"deployment-controller.yaml":                        controllerBuf.String(),
+		"daemonset-speaker.yaml":                            speakerBuf.String(),
 		"psp-metallb-speaker.yaml":                          pspMetallbSpeaker,
 	}, nil
 }

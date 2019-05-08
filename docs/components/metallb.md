@@ -100,5 +100,35 @@ data:
       - 147.75.40.46/32
 ```
 
+### Node Selection
+
+Optionally, it is possible to run MetalLB selectively on a group of nodes. A common use case for
+this is a cluster where a dedicated worker group serves ingress traffic.
+
+The following can be included in the `*.lokocfg` file to force MetalLB to run on nodes with
+specific labels:
+
+```
+component "metallb" {
+  controller_node_selectors = {
+    "kubernetes.io/hostname" = "worker3"
+  }
+
+  speaker_node_selectors = {
+    "ingress_node" = "true"
+    "node-role.kubernetes.io/node" = ""
+  }
+}
+```
+
+The above sets a k8s
+[nodeSelector](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
+for MetalLB *controller* pods and MetalLB *speaker* pods, respectively.
+
+>NOTE: Label *keys* containing special characters should be quoted. Label values must be quoted. It
+>is safer to always quote both the keys and the values.
+
+>NOTE: Empty label values should be specified using `""`.
+
 More information on MetalLB configuration can be found in the official
 [docs](https://metallb.universe.tf/configuration/)..
