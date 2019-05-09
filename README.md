@@ -40,4 +40,4 @@ in [docs/installer](docs/installer).
 
 ## Contributing
 
-Please read the [contribution guidelines](/docs/dev.md).
+Please read the [contribution guidelines](./docs/CONTRIBUTING.md).
