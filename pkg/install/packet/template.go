@@ -24,17 +24,58 @@ module "packet-{{.Config.ClusterName}}" {
   facility     = "{{.Config.Facility}}"
 
   controller_count = "{{.Config.ControllerCount}}"
-  controller_type  = "{{.Config.ControllerType}}"
-  worker_count     = "{{.Config.WorkerCount}}"
-  worker_type      = "{{.Config.WorkerType}}"
+  {{- if .Config.ControllerType }}
+  controller_type  = "{{ .Config.ControllerType }}"
+  {{- end }}
 
-  ipxe_script_url = "{{.Config.IPXEScriptURL}}"
+  worker_count              = "{{ .WorkerCount }}"
+  worker_nodes_hostnames    = "${concat({{- range $index, $pool := .Config.WorkerPools }}{{- if $index }}, {{- end }}"${module.worker-pool-{{- $index }}.worker_nodes_hostname}"{{- end }})}"
+  worker_nodes_public_ipv4s = "${concat({{- range $index, $pool := .Config.WorkerPools }}{{- if $index }}, {{- end }}"${module.worker-pool-{{- $index }}.worker_nodes_public_ipv4}"{{- end }})}"
+
+  {{- if .Config.IPXEScriptURL }}
+  ipxe_script_url = "{{ .Config.IPXEScriptURL }}"
+  {{ end }}
   management_cidrs = {{.ManagementCIDRs}}
   node_private_cidr = "{{.Config.NodePrivateCIDR}}"
-
-  os_channel = "{{.Config.OSChannel}}"
-  os_version = "{{.Config.OSVersion}}"
 }
+
+{{ range $index, $pool := .Config.WorkerPools }}
+module "worker-pool-{{ $index }}" {
+  source = "{{$.Source}}/workers"
+
+  providers = {
+    local    = "local.default"
+    template = "template.default"
+    tls      = "tls.default"
+    packet   = "packet.default"
+  }
+
+  ssh_keys  = {{$.SSHPublicKeys}}
+
+  cluster_name = "{{$.Config.ClusterName}}"
+  project_id   = "{{$.Config.ProjectID}}"
+  facility     = "{{$.Config.Facility}}"
+
+  pool_name = "{{ $pool.Name }}"
+  count     = "{{ $pool.Count }}"
+  {{- if $pool.NodeType }}
+  type      = "{{ $pool.NodeType }}"
+  {{- end }}
+
+  {{- if $.Config.IPXEScriptURL }}
+  ipxe_script_url = "{{ $.Config.IPXEScriptURL }}"
+  {{- end }}
+
+  {{- if $pool.OSChannel }}
+  os_channel = "{{ $pool.OSChannel }}"
+  {{- end }}
+  {{- if $pool.OSVersion }}
+  os_version = "{{ $pool.OSVersion }}"
+  {{- end }}
+
+  kubeconfig = "${module.packet-{{ $.Config.ClusterName }}.kubeconfig}"
+}
+{{ end }}
 
 provider "aws" {
   version = "~> 1.57.0"
