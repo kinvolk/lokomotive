@@ -27,6 +27,11 @@ func init() {
 		os.ExpandEnv("$HOME/.kube/config"),
 		"Path to kubeconfig file")
 	viper.BindPFlag("kubeconfig", rootCmd.PersistentFlags().Lookup("kubeconfig"))
+
+	rootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
+	viper.BindPFlag("lokocfg", rootCmd.PersistentFlags().Lookup("lokocfg"))
+	rootCmd.PersistentFlags().String("lokocfg-vars", "./lokocfg.vars", "Path to lokocfg.vars file")
+	viper.BindPFlag("lokocfg-vars", rootCmd.PersistentFlags().Lookup("lokocfg-vars"))
 }
 
 func cobraInit() {
