@@ -1,6 +1,6 @@
 # Worker Pools
 
-Typhoon AWS, Azure, and Google Cloud allow additional groups of workers to be defined and joined to a cluster. For example, add worker pools of instances with different types, disk sizes, Container Linux channels, or preemptibility modes.
+Lokomotive AWS, Azure, and Google Cloud allow additional groups of workers to be defined and joined to a cluster. For example, add worker pools of instances with different types, disk sizes, Container Linux channels, or preemptibility modes.
 
 Internal Terraform Modules:
 
@@ -16,7 +16,7 @@ Create a cluster following the AWS [tutorial](../cl/aws.md#cluster). Define a wo
 
 ```tf
 module "tempest-worker-pool" {
-  source = "git::https://github.com/poseidon/typhoon//aws/container-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/container-linux/kubernetes/workers?ref=v1.14.1"
   
   providers = {
     aws = "aws.default"
@@ -49,7 +49,7 @@ Verify an auto-scaling group of workers joins the cluster within a few minutes.
 
 ### Variables
 
-The AWS internal `workers` module supports a number of [variables](https://github.com/poseidon/typhoon/blob/master/aws/container-linux/kubernetes/workers/variables.tf).
+The AWS internal `workers` module supports a number of [variables](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/container-linux/kubernetes/workers/variables.tf).
 
 #### Required
 
@@ -82,7 +82,7 @@ Create a cluster following the Azure [tutorial](../cl/azure.md#cluster). Define 
 
 ```tf
 module "ramius-worker-pool" {
-  source = "git::https://github.com/poseidon/typhoon//azure/container-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/container-linux/kubernetes/workers?ref=v1.14.1"
   
   providers = {
     azurerm = "azurerm.default"
@@ -117,7 +117,7 @@ Verify a scale set of workers joins the cluster within a few minutes.
 
 ### Variables
 
-The Azure internal `workers` module supports a number of [variables](https://github.com/poseidon/typhoon/blob/master/azure/container-linux/kubernetes/workers/variables.tf).
+The Azure internal `workers` module supports a number of [variables](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/container-linux/kubernetes/workers/variables.tf).
 
 #### Required
 
@@ -152,7 +152,7 @@ Create a cluster following the Google Cloud [tutorial](../cl/google-cloud.md#clu
 
 ```tf
 module "yavin-worker-pool" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes/workers?ref=v1.14.1"
 
   providers = {
     google = "google.default"
@@ -196,7 +196,7 @@ yavin-16x-worker-mzdm.c.example-com.internal     Ready    3m     v1.14.1
 
 ### Variables
 
-The Google Cloud internal `workers` module supports a number of [variables](https://github.com/poseidon/typhoon/blob/master/google-cloud/container-linux/kubernetes/workers/variables.tf).
+The Google Cloud internal `workers` module supports a number of [variables](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/google-cloud/container-linux/kubernetes/workers/variables.tf).
 
 #### Required
 

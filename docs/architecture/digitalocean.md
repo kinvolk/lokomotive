@@ -2,7 +2,7 @@
 
 ## IPv6
 
-Status of IPv6 on Typhoon DigitalOcean clusters.
+Status of IPv6 on Lokomotive DigitalOcean clusters.
 
 | IPv6 Feature            | Supported |
 |-------------------------|-----------|

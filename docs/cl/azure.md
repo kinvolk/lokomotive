@@ -1,11 +1,11 @@
 # Azure
 
 !!! danger
-    Typhoon for Azure is alpha. For production, use AWS, Google Cloud, or bare-metal. As Azure matures, check [errata](https://github.com/poseidon/typhoon/wiki/Errata) for known shortcomings.
+    Lokomotive for Azure is alpha. For production, use AWS, Google Cloud, or bare-metal. As Azure matures, check [errata](https://github.com/poseidon/typhoon/wiki/Errata) for known shortcomings.
 
 In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Azure with Container Linux.
 
-We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create a resource group, virtual network, subnets, security groups, controller availability set, worker scale set, load balancer, and TLS assets.
+We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a resource group, virtual network, subnets, security groups, controller availability set, worker scale set, load balancer, and TLS assets.
 
 Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service. Workers run just a `kubelet` service. A one-time [bootkube](https://github.com/kubernetes-incubator/bootkube) bootstrap schedules the `apiserver`, `scheduler`, `controller-manager`, and `coredns` on controllers and schedules `kube-proxy` and `flannel` on every node. A generated `kubeconfig` provides `kubectl` access to the cluster.
 
@@ -87,7 +87,7 @@ Define a Kubernetes cluster using the module `azure/container-linux/kubernetes`.
 
 ```tf
 module "azure-ramius" {
-  source = "git::https://github.com/poseidon/typhoon//azure/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/container-linux/kubernetes?ref=v1.14.1"
 
   providers = {
     azurerm  = "azurerm.default"
@@ -113,7 +113,7 @@ module "azure-ramius" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/poseidon/typhoon/blob/master/azure/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/container-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -197,7 +197,7 @@ Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/poseidon/typhoon/blob/master/azure/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/container-linux/kubernetes/variables.tf) source.
 
 ### Required
 

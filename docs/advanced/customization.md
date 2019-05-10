@@ -1,14 +1,14 @@
 # Customization
 
-Typhoon provides Kubernetes clusters with defaults recommended for production. Terraform variables expose supported customization options. Advanced options are available for customizing the architecture or hosts as well.
+Lokomotive provides Kubernetes clusters with defaults recommended for production. Terraform variables expose supported customization options. Advanced options are available for customizing the architecture or hosts as well.
 
 ## Variables
 
-Typhoon modules accept Terraform input variables for customizing clusters in meritorious ways (e.g. `worker_count`, etc). Variables are carefully considered to provide essentials, while limiting complexity and test matrix burden. See each platform's tutorial for options.
+Lokomotive modules accept Terraform input variables for customizing clusters in meritorious ways (e.g. `worker_count`, etc). Variables are carefully considered to provide essentials, while limiting complexity and test matrix burden. See each platform's tutorial for options.
 
 ## Addons
 
-Clusters are kept to a minimal Kubernetes control plane by offering components like Nginx Ingress Controller, Prometheus, Grafana, and Heapster as optional post-install [addons](https://github.com/poseidon/typhoon/tree/master/addons). Customize addons by modifying a copy of our addon manifests.
+Clusters are kept to a minimal Kubernetes control plane by offering components like Nginx Ingress Controller, Prometheus, Grafana, and Heapster as optional post-install [addons](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/addons). Customize addons by modifying a copy of our addon manifests.
 
 ## Hosts
 
@@ -17,9 +17,9 @@ Clusters are kept to a minimal Kubernetes control plane by offering components l
 !!! danger
     Container Linux Configs provide powerful host customization abilities. You are responsible for the additional configs defined for hosts.
 
-Container Linux Configs (CLCs) declare how a Container Linux instance's disk should be provisioned on first boot from disk. CLCs define disk partitions, filesystems, files, systemd units, dropins, networkd configs, mount units, raid arrays, and users. Typhoon creates controller and worker instances with base Container Linux Configs to create a minimal, secure Kubernetes cluster on each platform.
+Container Linux Configs (CLCs) declare how a Container Linux instance's disk should be provisioned on first boot from disk. CLCs define disk partitions, filesystems, files, systemd units, dropins, networkd configs, mount units, raid arrays, and users. Lokomotive creates controller and worker instances with base Container Linux Configs to create a minimal, secure Kubernetes cluster on each platform.
 
-Typhoon AWS, Azure, bare-metal, DigitalOcean, and Google Cloud support CLC *snippets* - valid Container Linux Configs that are validated and additively merged into the Typhoon base config during `terraform plan`. This allows advanced host customizations and experimentation.
+Lokomotive AWS, Azure, bare-metal, DigitalOcean, and Google Cloud support CLC *snippets* - valid Container Linux Configs that are validated and additively merged into the Lokomotive base config during `terraform plan`. This allows advanced host customizations and experimentation.
 
 #### Examples
 
@@ -144,11 +144,11 @@ Cloud-Init and kickstart (bare-metal only) declare how a Fedora Atomic instance 
 
 ## Architecture
 
-Typhoon chooses variables to expose with purpose. If you must customize clusters in ways that aren't supported by input variables, fork Typhoon and maintain a repository with customizations. Reference the repository by changing the username.
+Lokomotive chooses variables to expose with purpose. If you must customize clusters in ways that aren't supported by input variables, fork Lokomotive and maintain a repository with customizations. Reference the repository by changing the username.
 
 ```
 module "digital-ocean-nemo" {
-  source = "git::https://github.com/USERNAME/typhoon//digital-ocean/container-linux/kubernetes?ref=myspecialcase"
+  source = "git::https://github.com/USERNAME/lokomotive-kubernetes//digital-ocean/container-linux/kubernetes?ref=myspecialcase"
   ...
 }
 ```

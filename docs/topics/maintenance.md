@@ -9,25 +9,25 @@
 
 ## Versioning
 
-Typhoon provides tagged releases to allow clusters to be versioned using ordinary Terraform configs.
+Lokomotive provides tagged releases to allow clusters to be versioned using ordinary Terraform configs.
 
 ```
 module "google-cloud-yavin" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes?ref=v1.8.6"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes?ref=v1.8.6"
   ...
 }
 
 module "bare-metal-mercury" {
-  source = "git::https://github.com/poseidon/typhoon//bare-metal/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/container-linux/kubernetes?ref=v1.14.1"
   ...
 }
 ```
 
-Master is updated regularly, so it is recommended to [pin](https://www.terraform.io/docs/modules/sources.html) modules to a [release tag](https://github.com/poseidon/typhoon/releases) or [commit](https://github.com/poseidon/typhoon/commits/master) hash. Pinning ensures `terraform get --update` only fetches the desired version.
+Master is updated regularly, so it is recommended to [pin](https://www.terraform.io/docs/modules/sources.html) modules to a [release tag](https://github.com/kinvolk/lokomotive-kubernetes/releases) or [commit](https://github.com/kinvolk/lokomotive-kubernetes/commits/master) hash. Pinning ensures `terraform get --update` only fetches the desired version.
 
 ## Upgrades
 
-Typhoon recommends upgrading clusters using a blue-green replacement strategy and migrating workloads.
+Lokomotive recommends upgrading clusters using a blue-green replacement strategy and migrating workloads.
 
 1. Launch new (candidate) clusters from tagged releases
 2. Apply workloads from existing cluster(s)
@@ -41,11 +41,11 @@ Blue-green replacement provides some subtler benefits as well:
 
 * Encourages investment in tooling for traffic migration and failovers. When a cluster incident arises, shifting applications to a healthy cluster will be second nature.
 * Discourages reliance on in-place opaque state. Retain confidence in your ability to create infrastructure from scratch.
-* Allows Typhoon to make architecture changes between releases and eases the burden on Typhoon maintainers. By contrast, distros promising in-place upgrades get stuck with their mistakes or require complex and error-prone migrations.
+* Allows Lokomotive to make architecture changes between releases and eases the burden on Lokomotive maintainers. By contrast, distros promising in-place upgrades get stuck with their mistakes or require complex and error-prone migrations.
 
 ### Bare-Metal
 
-Typhoon bare-metal clusters are provisioned by a PXE-enabled network boot environment and a [Matchbox](https://github.com/poseidon/matchbox) service. To upgrade, re-provision machines into a new cluster.
+Lokomotive bare-metal clusters are provisioned by a PXE-enabled network boot environment and a [Matchbox](https://github.com/poseidon/matchbox) service. To upgrade, re-provision machines into a new cluster.
 
 Failover application workloads to another cluster (varies).
 
@@ -66,7 +66,7 @@ Delete or comment the Terraform config for the cluster.
 
 ```
 - module "bare-metal-mercury" {
--   source = "git::https://github.com/poseidon/typhoon//bare-metal/container-linux/kubernetes"
+-   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/container-linux/kubernetes"
 -   ...
 -}
 ```
@@ -94,7 +94,7 @@ Once you're confident in the new cluster, delete the Terraform config for the ol
 
 ```
 - module "google-cloud-yavin" {
--   source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes"
+-   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes"
 -   ...
 -}
 ```
@@ -110,7 +110,7 @@ Apply complete! Resources: 0 added, 0 changed, 55 destroyed.
 
 #### In-place Edits
 
-Typhoon uses a self-hosted Kubernetes control plane which allows certain manifest upgrades to be performed in-place. Components like `apiserver`, `controller-manager`, `scheduler`, `flannel`/`calico`, `coredns`, and `kube-proxy` are run on Kubernetes itself and can be edited via `kubectl`. If you're interested, see the bootkube [upgrade docs](https://github.com/kubernetes-incubator/bootkube/blob/master/Documentation/upgrading.md).
+Lokomotive uses a self-hosted Kubernetes control plane which allows certain manifest upgrades to be performed in-place. Components like `apiserver`, `controller-manager`, `scheduler`, `flannel`/`calico`, `coredns`, and `kube-proxy` are run on Kubernetes itself and can be edited via `kubectl`. If you're interested, see the bootkube [upgrade docs](https://github.com/kubernetes-incubator/bootkube/blob/master/Documentation/upgrading.md).
 
 In certain scenarios, in-place edits can be useful for quickly rolling out security patches (e.g. bumping `coredns`) or prioritizing speed over the safety of a proper cluster re-provision and transition.
 
@@ -118,14 +118,14 @@ In certain scenarios, in-place edits can be useful for quickly rolling out secur
     Rarely, we may test certain security in-place edits and mention them as an option in release notes.
 
 !!! warning
-    Typhoon does not support or document in-place edits as an upgrade strategy. They involve inherent risks and we choose not to make recommendations or guarentees about the safety of different in-place upgrades. Its explicitly a non-goal.
+    Lokomotive does not support or document in-place edits as an upgrade strategy. They involve inherent risks and we choose not to make recommendations or guarentees about the safety of different in-place upgrades. Its explicitly a non-goal.
 
 #### Node Replacement
 
-Typhoon supports multi-controller clusters, so it is possible to upgrade a cluster by deleting and replacing nodes one by one.
+Lokomotive supports multi-controller clusters, so it is possible to upgrade a cluster by deleting and replacing nodes one by one.
 
 !!! warning
-    Typhoon does not support or document node replacement as an upgrade strategy. It limits Typhoon's ability to make infrastructure and architectural changes between tagged releases. 
+    Lokomotive does not support or document node replacement as an upgrade strategy. It limits Lokomotive's ability to make infrastructure and architectural changes between tagged releases.
 
 ### Terraform Plugins Directory
 
@@ -195,7 +195,7 @@ $ terraform plan
 
 ### Upgrade terraform-provider-ct
 
-The [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin parses, validates, and converts Container Linux Configs into Ignition user-data for provisioning instances. Previously, updating the plugin re-provisioned controller nodes and was destructive to clusters. With Typhoon v1.12.2+, the plugin can be updated in-place and on apply, only workers will be replaced.
+The [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin parses, validates, and converts Container Linux Configs into Ignition user-data for provisioning instances. Previously, updating the plugin re-provisioned controller nodes and was destructive to clusters. With Lokomotive v1.12.2+, the plugin can be updated in-place and on apply, only workers will be replaced.
 
 First, [migrate](#terraform-plugins-directory) to the Terraform 3rd-party plugin directory to allow 3rd-party plugins to be defined and versioned independently (rather than globally).
 
@@ -220,7 +220,7 @@ $ tree ~/.terraform.d/
 ```
 
 
-Update the version of the `ct` plugin in each Terraform working directory. Typhoon clusters managed in the working directory **must** be v1.12.2 or higher.
+Update the version of the `ct` plugin in each Terraform working directory. Lokomotive clusters managed in the working directory **must** be v1.12.2 or higher.
 
 ```
 # providers.tf

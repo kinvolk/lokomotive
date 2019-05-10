@@ -2,7 +2,7 @@
 
 In this tutorial, we'll create a Kubernetes v1.14.1 cluster on AWS with Container Linux.
 
-We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create a VPC, gateway, subnets, security groups, controller instances, worker auto-scaling group, network load balancer, and TLS assets.
+We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a VPC, gateway, subnets, security groups, controller instances, worker auto-scaling group, network load balancer, and TLS assets.
 
 Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service. Workers run just a `kubelet` service. A one-time [bootkube](https://github.com/kubernetes-incubator/bootkube) bootstrap schedules the `apiserver`, `scheduler`, `controller-manager`, and `coredns` on controllers and schedules `kube-proxy` and `calico` (or `flannel`) on every node. A generated `kubeconfig` provides `kubectl` access to the cluster.
 
@@ -92,7 +92,7 @@ Define a Kubernetes cluster using the module `aws/container-linux/kubernetes`.
 
 ```tf
 module "aws-tempest" {
-  source = "git::https://github.com/poseidon/typhoon//aws/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/container-linux/kubernetes?ref=v1.14.1"
 
   providers = {
     aws = "aws.default"
@@ -117,7 +117,7 @@ module "aws-tempest" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/poseidon/typhoon/blob/master/aws/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/container-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -201,7 +201,7 @@ Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/poseidon/typhoon/blob/master/aws/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/container-linux/kubernetes/variables.tf) source.
 
 ### Required
 

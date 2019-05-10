@@ -2,7 +2,7 @@
 
 ## IPv6
 
-Status of IPv6 on Typhoon Azure clusters.
+Status of IPv6 on Lokomotive Azure clusters.
 
 | IPv6 Feature            | Supported |
 |-------------------------|-----------|

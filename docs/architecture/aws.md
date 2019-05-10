@@ -2,7 +2,7 @@
 
 ## IPv6
 
-Status of IPv6 on Typhoon AWS clusters.
+Status of IPv6 on Lokomotive AWS clusters.
 
 | IPv6 Feature            | Supported |
 |-------------------------|-----------|

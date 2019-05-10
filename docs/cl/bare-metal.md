@@ -2,7 +2,7 @@
 
 In this tutorial, we'll network boot and provision a Kubernetes v1.14.1 cluster on bare-metal with Container Linux.
 
-First, we'll deploy a [Matchbox](https://github.com/poseidon/matchbox) service and setup a network boot environment. Then, we'll declare a Kubernetes cluster using the Typhoon Terraform module and power on machines. On PXE boot, machines will install Container Linux to disk, reboot into the disk install, and provision themselves as Kubernetes controllers or workers via Ignition.
+First, we'll deploy a [Matchbox](https://github.com/poseidon/matchbox) service and setup a network boot environment. Then, we'll declare a Kubernetes cluster using the Lokomotive Terraform module and power on machines. On PXE boot, machines will install Container Linux to disk, reboot into the disk install, and provision themselves as Kubernetes controllers or workers via Ignition.
 
 Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service. Workers run just a `kubelet` service. A one-time [bootkube](https://github.com/kubernetes-incubator/bootkube) bootstrap schedules the `apiserver`, `scheduler`, `controller-manager`, and `coredns` on controllers and schedules `kube-proxy` and `calico` (or `flannel`) on every node. A generated `kubeconfig` provides `kubectl` access to the cluster.
 
@@ -54,7 +54,7 @@ Install Matchbox on a Kubernetes cluster or dedicated server.
 * Installing on a [server](https://coreos.com/matchbox/docs/latest/deployment.html#download)
 
 !!! tip
-    Deploy Matchbox as service that can be accessed by all of your bare-metal machines globally. This provides a single endpoint to use Terraform to manage bare-metal clusters at different sites. Typhoon will never include secrets in provisioning user-data so you may even deploy matchbox publicly.
+    Deploy Matchbox as service that can be accessed by all of your bare-metal machines globally. This provides a single endpoint to use Terraform to manage bare-metal clusters at different sites. Lokomotive will never include secrets in provisioning user-data so you may even deploy matchbox publicly.
 
 Matchbox provides a TLS client-authenticated API that clients, like Terraform, can use to manage machine matching and profiles. Think of it like a cloud provider API, but for creating bare-metal instances.
 
@@ -180,7 +180,7 @@ Define a Kubernetes cluster using the module `bare-metal/container-linux/kuberne
 
 ```tf
 module "bare-metal-mercury" {
-  source = "git::https://github.com/poseidon/typhoon//bare-metal/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/container-linux/kubernetes?ref=v1.14.1"
   
   providers = {
     local = "local.default"
@@ -222,7 +222,7 @@ module "bare-metal-mercury" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/poseidon/typhoon/blob/master/bare-metal/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/bare-metal/container-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -355,7 +355,7 @@ Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/poseidon/typhoon/blob/master/bare-metal/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/bare-metal/container-linux/kubernetes/variables.tf) source.
 
 ### Required
 

@@ -1,6 +1,6 @@
 # Hardware
 
-Typhoon ensures certain networking hardware integrates well with bare-metal Kubernetes.
+Lokomotive ensures certain networking hardware integrates well with bare-metal Kubernetes.
 
 ## Ubiquiti
 
