@@ -37,6 +37,8 @@ module "packet-{{.Config.ClusterName}}" {
   {{ end }}
   management_cidrs = {{.ManagementCIDRs}}
   node_private_cidr = "{{.Config.NodePrivateCIDR}}"
+
+  enable_aggregation = "{{.Config.EnableAggregation}}"
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
@@ -74,8 +76,6 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   kubeconfig = "${module.packet-{{ $.Config.ClusterName }}.kubeconfig}"
-
-  enable_aggregation = "{{.Config.EnableAggregation}}"
 }
 {{ end }}
 
