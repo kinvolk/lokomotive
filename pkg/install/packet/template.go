@@ -74,6 +74,8 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   kubeconfig = "${module.packet-{{ $.Config.ClusterName }}.kubeconfig}"
+
+  enable_aggregation = "{{.Config.EnableAggregation}}"
 }
 {{ end }}
 

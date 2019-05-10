@@ -31,6 +31,7 @@ type config struct {
 	ControllerCLCSnippets []string `hcl:"controller_clc_snippets,optional"`
 	WorkerCLCSnippets     []string `hcl:"worker_clc_snippets,optional"`
 	Region                string   `hcl:"region,optional"`
+	EnableAggregation     string   `hcl:"enable_aggregation,optional"`
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
