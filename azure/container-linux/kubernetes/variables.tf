@@ -20,6 +20,16 @@ variable "dns_zone_group" {
   description = "Resource group where the Azure DNS Zone resides (e.g. global)"
 }
 
+variable "custom_image_resource_group_name" {
+  type        = "string"
+  description = "The name of the Resource Group in which the Custom Image exists."
+}
+
+variable "custom_image_name" {
+  type        = "string"
+  description = "The name of the Custom Image to provision this Virtual Machine from."
+}
+
 # instances
 
 variable "controller_count" {
