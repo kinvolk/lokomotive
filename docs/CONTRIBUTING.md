@@ -48,7 +48,7 @@ codebase should be kept as separate commits.
 ### Commit Format
 
 ```
-<title>: <description of changes>
+<area>: <description of changes>
 
 Detailed information about the commit message goes here
 ```
