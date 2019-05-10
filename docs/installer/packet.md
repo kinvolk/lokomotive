@@ -44,7 +44,7 @@ cluster "packet" {
 	  count = 1
 
 	  # Define an instance type (optional)
-	  # type = "t1.small.x86"
+	  # node_type = "t1.small.x86"
 
 	  #  Define a Flatcar Linux channel (optional; 'stable', 'beta' or 'alpha')
 	  # os_channel = "stable"
