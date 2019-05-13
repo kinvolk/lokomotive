@@ -93,7 +93,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	kubeconfigPath := path.Join(assetDir, "auth", "kubeconfig")
 	if err := verifyInstall(kubeconfigPath); err != nil {
-		ctxLogger.Fatalf("Verify cluster installation on Packet: %v", err)
+		ctxLogger.Fatalf("Verify cluster installation: %v", err)
 	}
 
 	var componentsToInstall []string
