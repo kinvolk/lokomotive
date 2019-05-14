@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -57,7 +58,10 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("error installing cluster: %v", err)
 	}
 
-	assetDir := p.GetAssetDir()
+	assetDir, err := homedir.Expand(p.GetAssetDir())
+	if err != nil {
+		ctxLogger.Fatalf("error expanding path: %v", err)
+	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
