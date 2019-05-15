@@ -49,11 +49,6 @@ variable "worker_nodes_hostnames" {
   description = "List of hostname of packet_device resources"
 }
 
-variable "worker_nodes_public_ipv4s" {
-  type        = "list"
-  description = "List of public IPv4 of packet_device resources"
-}
-
 variable "controller_type" {
   type        = "string"
   default     = "baremetal_0"

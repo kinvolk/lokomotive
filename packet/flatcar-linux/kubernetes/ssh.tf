@@ -121,6 +121,5 @@ data "template_file" "host_protection_policy" {
     management_cidrs          = "${jsonencode("${var.management_cidrs}")}"
     cluster_internal_cidrs    = "${jsonencode(list("${var.node_private_cidr}", "${var.pod_cidr}", "${var.service_cidr}"))}"
     etcd_server_cidrs         = "${jsonencode("${packet_device.controllers.*.access_private_ipv4}")}"
-    node_public_ips           = "${jsonencode(concat("${packet_device.controllers.*.access_public_ipv4}", "${var.worker_nodes_public_ipv4s}"))}"
   }
 }

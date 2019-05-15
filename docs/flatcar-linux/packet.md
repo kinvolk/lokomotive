@@ -141,7 +141,6 @@ module "controller" {
   # This must be the total of all worker pools
   worker_count              = 2
   worker_nodes_hostnames    = "${concat("${module.worker-pool-1.worker_nodes_hostname}", "${module.worker-pool-2.worker_nodes_hostname}")}"
-  worker_nodes_public_ipv4s = "${concat("${module.worker-pool-backend.worker_nodes_public_ipv4}", "${module.worker-pool-storage.worker_nodes_public_ipv4}")}"
 
   # optional
   controller_count = 1
@@ -264,7 +263,6 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | facility | Packet Region in which the instance(s) should be deployed | https://www.packet.com/developers/api/#facilities. Eg: "ams1" |
 | worker_count | Total number of workers across all worker pools | 2 |
 | worker_nodes_hostnames | List of hostnames of all worker nodes | ["foo-pool1-worker-0", "foo-pool1-worker-1"]
-| worker_nodes_public_ipv4s | List of public IPv4 addresses of all worker ndoes | ["10.128.32.56", "10.128.32.57"] |
 | management_cidrs | List of CIDRs to allow SSH access to the nodes | ["153.79.80.1/16", "59.60.10.1/32"] |
 | node_private_cidr | Private CIDR obtained from Packet for the project and facility | 10.128.16.32/25 |
 
