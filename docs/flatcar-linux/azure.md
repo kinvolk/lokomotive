@@ -21,7 +21,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.12
+Terraform v0.11.13
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -190,10 +190,7 @@ kube-system   pod-checkpointer-cnqdg-ramius-controller-0  1/1    Running   0    
 
 ## Going Further
 
-Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
-
-!!! note
-    On Container Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
+Learn about [maintenance](/topics/maintenance/).
 
 ## Variables
 
