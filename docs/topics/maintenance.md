@@ -74,11 +74,11 @@ Delete or comment the Terraform config for the cluster.
 Apply to delete old provisioning configs from Matchbox.
 
 ```
-$ terraform apply  
+$ terraform apply
 Apply complete! Resources: 0 added, 0 changed, 55 destroyed.
 ```
 
-Re-provision a new cluster by following the bare-metal [tutorial](../cl/bare-metal.md#cluster).
+Re-provision a new cluster by following the bare-metal [tutorial](../flatcar/bare-metal.md#cluster).
 
 ### Cloud
 
@@ -102,7 +102,7 @@ Once you're confident in the new cluster, delete the Terraform config for the ol
 Apply to delete the cluster.
 
 ```
-$ terraform apply  
+$ terraform apply
 Apply complete! Resources: 0 added, 0 changed, 55 destroyed.
 ```
 
@@ -119,13 +119,6 @@ In certain scenarios, in-place edits can be useful for quickly rolling out secur
 
 !!! warning
     Lokomotive does not support or document in-place edits as an upgrade strategy. They involve inherent risks and we choose not to make recommendations or guarentees about the safety of different in-place upgrades. Its explicitly a non-goal.
-
-#### Node Replacement
-
-Lokomotive supports multi-controller clusters, so it is possible to upgrade a cluster by deleting and replacing nodes one by one.
-
-!!! warning
-    Lokomotive does not support or document node replacement as an upgrade strategy. It limits Lokomotive's ability to make infrastructure and architectural changes between tagged releases.
 
 ### Terraform Plugins Directory
 
@@ -195,7 +188,7 @@ $ terraform plan
 
 ### Upgrade terraform-provider-ct
 
-The [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin parses, validates, and converts Container Linux Configs into Ignition user-data for provisioning instances. Previously, updating the plugin re-provisioned controller nodes and was destructive to clusters. With Lokomotive v1.12.2+, the plugin can be updated in-place and on apply, only workers will be replaced.
+The [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin parses, validates, and converts Container Linux Configs into Ignition user-data for provisioning instances. The plugin can be updated in-place and on apply, only workers will be replaced.
 
 First, [migrate](#terraform-plugins-directory) to the Terraform 3rd-party plugin directory to allow 3rd-party plugins to be defined and versioned independently (rather than globally).
 
@@ -220,7 +213,7 @@ $ tree ~/.terraform.d/
 ```
 
 
-Update the version of the `ct` plugin in each Terraform working directory. Lokomotive clusters managed in the working directory **must** be v1.12.2 or higher.
+Update the version of the `ct` plugin in each Terraform working directory.
 
 ```
 # providers.tf
@@ -250,24 +243,3 @@ Azure edits the worker scale set in-place instantly. Manually terminate workers 
 #### Bare-Metal
 
 No action is needed. Bare-Metal machines do not re-PXE unless explicitly made to do so.
-
-#### DigitalOcean
-
-DigitalOcean destroys existing worker nodes and DNS records, then creates new workers and DNS records. DigitalOcean lacks a "managed group" notion. For worker droplets to join the cluster, you **must** taint the secret copying step to indicate it must be repeated to add the kubeconfig to new workers.
-
-```
-# old workers destroyed, new workers created
-terraform apply
-
-# add kubeconfig to new workers
-terraform state list | grep null_resource
-terraform taint -module digital-ocean-nemo null_resource.copy-worker-secrets.N
-terraform apply
-```
-
-Expect downtime.
-
-#### Google Cloud
-
-Google Cloud creates a new worker template and edits the worker instance group instantly. Manually terminate workers and replacement workers will use the user-data.
-

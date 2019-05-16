@@ -1,6 +1,6 @@
 # Security
 
-Typhoon aims to be minimal and secure. We're running it ourselves after all.
+Lokomotive aims to be minimal and secure. We're running it ourselves after all.
 
 ## Overview
 
@@ -16,8 +16,11 @@ Typhoon aims to be minimal and secure. We're running it ourselves after all.
 
 **Hosts**
 
-* Container Linux auto-updates are enabled
+* Flatcar Linux auto-updates are enabled
 * Hosts limit logins to SSH key-based auth (user "core")
+
+!!! note
+    On Flatcar Linux clusters, install the [CLUO](https://typhoon.psdn.io/addons/cluo/) addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
 
 **Platform**
 
@@ -34,7 +37,7 @@ Typhoon aims to be minimal and secure. We're running it ourselves after all.
 
 ## Precautions
 
-Typhoon limits exposure to many security threats, but it is not a silver bullet. As usual,
+Lokomotive limits exposure to many security threats, but it is not a silver bullet. As usual,
 
 * Do not run untrusted images or accept manifests from strangers
 * Do not give untrusted users a shell behind your firewall
@@ -42,11 +45,11 @@ Typhoon limits exposure to many security threats, but it is not a silver bullet.
 
 ## OpenPGP Signing
 
-Typhoon uses upstream container images and binaries. We do not distribute artifacts of our own, except where required for system container images ([etcd](https://quay.io/repository/poseidon/etcd), [kubelet](https://quay.io/repository/poseidon/kubelet), [bootkube](https://quay.io/repository/poseidon/bootkube)) for Fedora Atomic only.
+Lokomotive uses upstream container images and binaries.
 
-If you find artifacts claiming to be from Typhoon, please send a note.
+If you find artifacts claiming to be from Lokomotive, please send a note.
 
 ## Disclosures
 
-If you find security issues, please email dghubble at gmail. If the issue lies in upstream Kubernetes, please inform upstream Kubernetes as well.
+If you find security issues, please email [security@kinvolk.io](mailto:security@kinvolk.io). If the issue lies in upstream Kubernetes, please inform upstream Kubernetes as well.
 
