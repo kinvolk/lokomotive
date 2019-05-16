@@ -1,18 +1,17 @@
 # Worker Pools
 
-Lokomotive AWS, Azure, and Google Cloud allow additional groups of workers to be defined and joined to a cluster. For example, add worker pools of instances with different types, disk sizes, Container Linux channels, or preemptibility modes.
+Lokomotive on AWS, Azure, Google Cloud and Packet allows additional groups of workers to be defined and joined to a cluster. For example, add worker pools of instances with different types, disk sizes, Container Linux channels, or preemptibility modes.
 
 Internal Terraform Modules:
 
 * `aws/container-linux/kubernetes/workers`
-* `aws/fedora-atomic/kubernetes/workers`
 * `azure/container-linux/kubernetes/workers`
 * `google-cloud/container-linux/kubernetes/workers`
-* `google-cloud/fedora-atomic/kubernetes/workers`
+* `packet/flatcar-linux/kubernetes/workers`
 
 ## AWS
 
-Create a cluster following the AWS [tutorial](../cl/aws.md#cluster). Define a worker pool using the AWS internal `workers` module.
+Create a cluster following the AWS [tutorial](../flatcar/aws.md#cluster). Define a worker pool using the AWS internal `workers` module.
 
 ```tf
 module "tempest-worker-pool" {
@@ -35,7 +34,7 @@ module "tempest-worker-pool" {
   # optional
   count         = 2
   instance_type = "m5.large"
-  os_image      = "coreos-beta"
+  os_image      = "flatcar-beta"
 }
 ```
 
@@ -68,7 +67,7 @@ The AWS internal `workers` module supports a number of [variables](https://githu
 |:-----|:------------|:--------|:--------|
 | count | Number of instances | 1 | 3 |
 | instance_type | EC2 instance type | "t3.small" | "t3.medium" |
-| os_image | AMI channel for a Container Linux derivative | coreos-stable | coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha |
+| os_image | AMI channel for a Flatcar Linux derivative | flatcar-stable, flatcar-beta, flatcar-alpha, flatcar-edge |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | spot_price | Spot price in USD for workers. Leave as default empty string for regular on-demand instances | "" | "0.10" |
 | service_cidr | Must match `service_cidr` of cluster | "10.3.0.0/16" | "10.3.0.0/24" |
@@ -78,7 +77,7 @@ Check the list of valid [instance types](https://aws.amazon.com/ec2/instance-typ
 
 ## Azure
 
-Create a cluster following the Azure [tutorial](../cl/azure.md#cluster). Define a worker pool using the Azure internal `workers` module.
+Create a cluster following the Azure [tutorial](../flatcar/azure.md#cluster). Define a worker pool using the Azure internal `workers` module.
 
 ```tf
 module "ramius-worker-pool" {
@@ -138,7 +137,7 @@ The Azure internal `workers` module supports a number of [variables](https://git
 |:-----|:------------|:--------|:--------|
 | count | Number of instances | 1 | 3 |
 | vm_type | Machine type for instances | "Standard_F1" | See below |
-| os_image | Channel for a Container Linux derivative | coreos-stable | coreos-stable, coreos-beta, coreos-alpha |
+| os_image | Channel for a Flatcar Linux derivative | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
 | priority | Set priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time | Regular | Low |
 | clc_snippets | Container Linux Config snippets | [] | [example](/advanced/customization/#usage) |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
@@ -148,7 +147,7 @@ Check the list of valid [machine types](https://azure.microsoft.com/en-us/pricin
 
 ## Google Cloud
 
-Create a cluster following the Google Cloud [tutorial](../cl/google-cloud.md#cluster). Define a worker pool using the Google Cloud internal `workers` module.
+Create a cluster following the Google Cloud [tutorial](../flatcar/google-cloud.md#cluster). Define a worker pool using the Google Cloud internal `workers` module.
 
 ```tf
 module "yavin-worker-pool" {
@@ -171,7 +170,7 @@ module "yavin-worker-pool" {
   # optional
   count        = 2
   machine_type = "n1-standard-16"
-  os_image     = "coreos-beta"
+  os_image     = "flatcar-beta"
   preemptible  = true
 }
 ```
@@ -217,7 +216,7 @@ Check the list of regions [docs](https://cloud.google.com/compute/docs/regions-z
 |:-----|:------------|:--------|:--------|
 | count | Number of instances | 1 | 3 |
 | machine_type | Compute instance machine type | "n1-standard-1" | See below |
-| os_image | Container Linux image for compute instances | "coreos-stable" | "coreos-alpha", "coreos-beta" |
+| os_image | Flatcar Linux image for compute instances | "flatcar-stable" | "flatcar-stable", "flatcar-beta", "flatcar-alpha" |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | preemptible | If true, Compute Engine will terminate instances randomly within 24 hours | false | true |
 | service_cidr | Must match `service_cidr` of cluster | "10.3.0.0/16" | "10.3.0.0/24" |
@@ -225,3 +224,6 @@ Check the list of regions [docs](https://cloud.google.com/compute/docs/regions-z
 
 Check the list of valid [machine types](https://cloud.google.com/compute/docs/machine-types).
 
+## Packet
+
+To create a cluster on Packet, you must define at least one worker pool as the terraform module for controllers does not provision any worker nodes. See the tutorial on [Packet](../flatcar/packet/) for details.
