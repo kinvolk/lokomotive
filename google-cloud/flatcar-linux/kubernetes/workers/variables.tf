@@ -36,8 +36,8 @@ variable "machine_type" {
 
 variable "os_image" {
   type        = "string"
-  default     = "coreos-stable"
-  description = "Container Linux image for compute instanges (e.g. gcloud compute images list)"
+  default     = "flatcar-stable"
+  description = "Flatcar Linux image for compute instanges (e.g. gcloud compute images list)"
 }
 
 variable "disk_size" {
