@@ -1,47 +1,36 @@
-# Typhoon <img align="right" src="https://storage.googleapis.com/poseidon/typhoon-logo.png">
+# Lokomotive
 
-Typhoon is a minimal and free Kubernetes distribution.
+Lokomotive is a minimal and free Kubernetes distribution.
 
 * Minimal, stable base Kubernetes distribution
 * Declarative infrastructure and configuration
 * [Free](#social-contract) (freedom and cost) and privacy-respecting
 * Practical for labs, datacenters, and clouds
 
-Typhoon distributes upstream Kubernetes, architectural conventions, and cluster addons, much like a GNU/Linux distribution provides the Linux kernel and userspace components.
+Lokomotive distributes upstream Kubernetes.
 
-## Features <a href="https://www.cncf.io/certification/software-conformance/"><img align="right" src="https://storage.googleapis.com/poseidon/certified-kubernetes.png"></a>
+## Features
 
 * Kubernetes v1.14.1 (upstream, via [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
 * Single or multi-master, [Calico](https://www.projectcalico.org/) or [flannel](https://github.com/coreos/flannel) networking
 * On-cluster etcd with TLS, [RBAC](https://kubernetes.io/docs/admin/authorization/rbac/)-enabled, [network policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
-* Advanced features like [worker pools](advanced/worker-pools/), [preemptible](cl/google-cloud/#preemption) workers, and [snippets](advanced/customization/#container-linux) customization
-* Ready for Ingress, Prometheus, Grafana, CSI, or other [addons](addons/overview/)
+* Advanced features like [worker pools](advanced/worker-pools/) and [snippets](advanced/customization/#container-linux) customization
 
 ## Modules
 
-Typhoon provides a Terraform Module for each supported operating system and platform. Container Linux is a mature and reliable choice. Also, Kinvolk's Flatcar Linux fork is selectable on AWS and bare-metal.
+Lokomotive provides a Terraform Module for each supported operating system and platform. Flatcar Linux is a mature and reliable choice.
 
 | Platform      | Operating System | Terraform Module | Status |
 |---------------|------------------|------------------|--------|
-| AWS           | Container Linux  | [aws/container-linux/kubernetes](cl/aws.md) | stable |
-| Azure         | Container Linux  | [azure/container-linux/kubernetes](cl/azure.md) | alpha |
-| Bare-Metal    | Container Linux  | [bare-metal/container-linux/kubernetes](cl/bare-metal.md) | stable |
-| Digital Ocean | Container Linux  | [digital-ocean/container-linux/kubernetes](cl/digital-ocean.md) | beta |
-| Google Cloud  | Container Linux  | [google-cloud/container-linux/kubernetes](cl/google-cloud.md) | stable |
-
-Fedora Atomic support is alpha and will evolve as Fedora Atomic is replaced by Fedora CoreOS.
-
-| Platform      | Operating System | Terraform Module | Status |
-|---------------|------------------|------------------|--------|
-| AWS           | Fedora Atomic    | [aws/fedora-atomic/kubernetes](atomic/aws.md) | deprecated |
-| Bare-Metal    | Fedora Atomic    | [bare-metal/fedora-atomic/kubernetes](atomic/bare-metal.md) | deprecated |
-| Digital Ocean | Fedora Atomic    | [digital-ocean/fedora-atomic/kubernetes](atomic/digital-ocean.md) | deprecated |
-| Google Cloud  | Fedora Atomic    | [google-cloud/fedora-atomic/kubernetes](atomic/google-cloud.md) | deprecated |
+| AWS           | Flatcar Linux | [aws/container-linux/kubernetes](flatcar/aws.md) | stable |
+| Azure         | Flatcar Linux | [azure/container-linux/kubernetes](flatcar/azure.md) | alpha |
+| Bare-Metal    | Flatcar Linux | [bare-metal/container-linux/kubernetes](flatcar/bare-metal.md) | stable |
+| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](flatcar/packet.md) | stable |
 
 ## Documentation
 
 * Architecture [concepts](architecture/concepts.md) and [operating-systems](architecture/operating-systems.md)
-* Tutorials for [AWS](cl/aws.md), [Azure](cl/azure.md), [Bare-Metal](cl/bare-metal.md), [Digital Ocean](cl/digital-ocean.md), and [Google-Cloud](cl/google-cloud.md)
+* Tutorials for [AWS](flatcar/aws.md), [Azure](flatcar/azure.md), [Bare-Metal](flatcar/bare-metal.md) and [Packet](flatcar/packet.md)
 
 ## Example
 
@@ -119,21 +108,14 @@ kube-system   pod-checkpointer-l6lrt-controller-0       1/1    Running   0      
 
 ## Help
 
-Ask questions on the IRC #typhoon channel on [freenode.net](http://freenode.net/).
+Ask questions on the IRC #lokomotive-k8s channel on [freenode.net](http://freenode.net/).
 
 ## Motivation
 
-Typhoon powers the author's cloud and colocation clusters. The project has evolved through operational experience and Kubernetes changes. Typhoon is shared under a free license to allow others to use the work freely and contribute to its upkeep.
+Lokomotive powers the author's cloud and colocation clusters. The project has evolved through operational experience and Kubernetes changes. Lokomotive is shared under a free license to allow others to use the work freely and contribute to its upkeep.
 
-Typhoon addresses real world needs, which you may share. It is honest about limitations or areas that aren't mature yet. It avoids buzzword bingo and hype. It does not aim to be the one-solution-fits-all distro. An ecosystem of Kubernetes distributions is healthy.
+Lokomotive addresses real world needs, which you may share. It is honest about limitations or areas that aren't mature yet. It avoids buzzword bingo and hype. It does not aim to be the one-solution-fits-all distro. An ecosystem of Kubernetes distributions is healthy.
 
 ## Social Contract
 
-Typhoon is not a product, trial, or free-tier. It is not run by a company, does not offer support or services, and does not accept or make any money. It is not associated with any operating system or platform vendor.
-
-Typhoon clusters will contain only [free](https://www.debian.org/intro/free) components. Cluster components will not collect data on users without their permission.
-
-## Donations
-
-Typhoon does not accept money donations. Instead, we encourage you to donate to one of [these organizations](https://github.com/poseidon/typhoon/wiki/Donations) to show your appreciation.
-
+Lokomotive clusters will contain only [free](https://www.debian.org/intro/free) components. Cluster components will not collect data on users without their permission.
