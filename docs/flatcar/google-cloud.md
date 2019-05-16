@@ -1,8 +1,8 @@
 # Google Cloud
 
-In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Google Compute Engine with Container Linux.
+In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Google Compute Engine with Flatcar Linux.
 
-We'll declare a Kubernetes cluster using the Typhoon Terraform module. Then apply the changes to create a network, firewall rules, health checks, controller instances, worker managed instance group, load balancers, and TLS assets.
+We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a network, firewall rules, health checks, controller instances, worker managed instance group, load balancers, and TLS assets.
 
 Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service. Workers run just a `kubelet` service. A one-time [bootkube](https://github.com/kubernetes-incubator/bootkube) bootstrap schedules the `apiserver`, `scheduler`, `controller-manager`, and `coredns` on controllers and schedules `kube-proxy` and `calico` (or `flannel`) on every node. A generated `kubeconfig` provides `kubectl` access to the cluster.
 
@@ -89,11 +89,11 @@ Additional configuration options are described in the `google` provider [docs](h
 
 ## Cluster
 
-Define a Kubernetes cluster using the module `google-cloud/container-linux/kubernetes`.
+Define a Kubernetes cluster using the module `google-cloud/flatcar-linux/kubernetes`.
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=v1.14.1"
   
   providers = {
     google   = "google.default"
@@ -118,7 +118,7 @@ module "google-cloud-yavin" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/poseidon/typhoon/blob/master/google-cloud/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/google-cloud/flatcar-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -199,11 +199,11 @@ kube-system   pod-checkpointer-l6lrt                    1/1    Running   0      
 Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
 
 !!! note
-    On Container Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
+    On Flatcar Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
 
 ## Variables
 
-Check the [variables.tf](https://github.com/poseidon/typhoon/blob/master/google-cloud/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/google-cloud/flatcar-linux/kubernetes/variables.tf) source.
 
 ### Required
 
@@ -216,7 +216,7 @@ Check the [variables.tf](https://github.com/poseidon/typhoon/blob/master/google-
 | ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/yavin" |
 
-Check the list of valid [regions](https://cloud.google.com/compute/docs/regions-zones/regions-zones) and list Container Linux [images](https://cloud.google.com/compute/docs/images) with `gcloud compute images list | grep coreos`.
+Check the list of valid [regions](https://cloud.google.com/compute/docs/regions-zones/regions-zones) and list Flatcar Linux [images](https://cloud.google.com/compute/docs/images) with `gcloud compute images list | grep flatcar`.
 
 #### DNS Zone
 
@@ -243,11 +243,11 @@ resource "google_dns_managed_zone" "zone-for-clusters" {
 | worker_count | Number of workers | 1 | 3 |
 | controller_type | Machine type for controllers | "n1-standard-1" | See below |
 | worker_type | Machine type for workers | "n1-standard-1" | See below |
-| os_image | Container Linux image for compute instances | "coreos-stable" | "coreos-stable-1632-3-0-v20180215" |
+| os_image | Flatcar Linux image for compute instances | "flatcar-stable" | "flatcar-stable-1632-3-0-v20180215" |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | worker_preemptible | If enabled, Compute Engine will terminate workers randomly within 24 hours | false | true |
-| controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](/advanced/customization/) |
-| worker_clc_snippets | Worker Container Linux Config snippets | [] | [example](/advanced/customization/) |
+| controller_clc_snippets | Controller Flatcar Linux Config snippets | [] | [example](/advanced/customization/) |
+| worker_clc_snippets | Worker Flatcar Linux Config snippets | [] | [example](/advanced/customization/) |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
