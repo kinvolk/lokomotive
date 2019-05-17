@@ -15,15 +15,15 @@ Lokomotive provides a Terraform Module for each supported operating system and p
 
 | Platform      | Operating System | Terraform Module | Status |
 |---------------|------------------|------------------|--------|
-| AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](flatcar/aws.md) | stable |
-| Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](flatcar/azure.md) | alpha |
-| Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](flatcar/bare-metal.md) | stable |
-| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](flatcar/packet.md) | stable |
+| AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](docs/flatcar-linux/aws.md) | stable |
+| Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](docs/flatcar-linux/azure.md) | alpha |
+| Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](docs/flatcar-linux/bare-metal.md) | stable |
+| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](docs/flatcar-linux/packet.md) | stable |
 
 ## Documentation
 
-* Architecture [concepts](architecture/concepts.md) and [operating-systems](architecture/operating-systems.md)
-* Tutorials for [AWS](flatcar/aws.md), [Azure](flatcar/azure.md), [Bare-Metal](flatcar/bare-metal.md) and [Packet](flatcar/packet.md)
+* Architecture [concepts](docs/architecture/concepts.md) and [operating-systems](docs/architecture/operating-systems.md)
+* Tutorials for [AWS](docs/flatcar-linux/aws.md), [Azure](docs/flatcar-linux/azure.md), [Bare-Metal](docs/flatcar-linux/bare-metal.md) and [Packet](docs/flatcar-linux/packet.md)
 
 ## Usage
 
