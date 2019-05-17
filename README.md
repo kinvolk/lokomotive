@@ -1,4 +1,4 @@
-# Lokomotive
+# Lokomotive <img align="right" width=384 src="docs/images/lokomotive-logo.svg">
 
 Lokomotive is an open source Kubernetes distribution by [Kinvolk](https://kinvolk.io/).
 
