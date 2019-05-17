@@ -4,6 +4,11 @@ locals {
   channel = "${element(split("-", var.os_image), 1)}"
 }
 
+data "azurerm_image" "custom_workers" {
+  name                = "${var.custom_image_name}"
+  resource_group_name = "${var.custom_image_resource_group_name}"
+}
+
 # Workers scale set
 resource "azurerm_virtual_machine_scale_set" "workers" {
   resource_group_name = "${var.resource_group_name}"
@@ -20,10 +25,7 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
 
   # boot
   storage_profile_image_reference {
-    publisher = "CoreOS"
-    offer     = "CoreOS"
-    sku       = "${local.channel}"
-    version   = "latest"
+    id = "${data.azurerm_image.custom_workers.id}"
   }
 
   # storage

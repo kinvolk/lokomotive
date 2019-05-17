@@ -30,6 +30,16 @@ variable "backend_address_pool_id" {
   description = "Must be set to the `worker_backend_address_pool_id` output by cluster"
 }
 
+variable "custom_image_resource_group_name" {
+  type        = "string"
+  description = "The name of the Resource Group in which the Custom Image exists."
+}
+
+variable "custom_image_name" {
+  type        = "string"
+  description = "The name of the Custom Image to provision this Virtual Machine from."
+}
+
 # instances
 
 variable "count" {
