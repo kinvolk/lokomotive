@@ -18,7 +18,7 @@ Lokomotive provides a Terraform Module for each supported operating system and p
 | AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](docs/flatcar-linux/aws.md) | stable |
 | Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](docs/flatcar-linux/azure.md) | alpha |
 | Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](docs/flatcar-linux/bare-metal.md) | stable |
-| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](docs/flatcar-linux/packet.md) | stable |
+| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](docs/flatcar-linux/packet.md) | beta |
 
 ## Documentation
 
