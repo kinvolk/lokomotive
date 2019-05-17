@@ -32,7 +32,7 @@ Lokomotive provides a Terraform Module for each supported operating system and p
 * Architecture [concepts](architecture/concepts.md) and [operating-systems](architecture/operating-systems.md)
 * Tutorials for [AWS](flatcar/aws.md), [Azure](flatcar/azure.md), [Bare-Metal](flatcar/bare-metal.md) and [Packet](flatcar/packet.md)
 
-## Example
+## Usage
 
 Define a Kubernetes cluster by using the Terraform module for your chosen platform and operating system. Here's a minimal example.
 
@@ -75,7 +75,7 @@ Apply complete! Resources: 64 added, 0 changed, 0 destroyed.
 
 In 4-8 minutes (varies by platform), the cluster will be ready. This Google Cloud example creates a `yavin.example.com` DNS record to resolve to a network load balancer across controller nodes.
 
-```
+```sh
 $ export KUBECONFIG=/home/user/.secrets/clusters/yavin/auth/kubeconfig
 $ kubectl get nodes
 NAME                                       ROLES              STATUS  AGE  VERSION
@@ -93,7 +93,6 @@ kube-system   calico-node-1cs8z                         2/2    Running   0      
 kube-system   calico-node-d1l5b                         2/2    Running   0         6m
 kube-system   calico-node-sp9ps                         2/2    Running   0         6m
 kube-system   coredns-1187388186-dkh3o                  1/1    Running   0         6m
-kube-system   coredns-1187388186-zj5dl                  1/1    Running   0         6m
 kube-system   kube-apiserver-zppls                      1/1    Running   0         6m
 kube-system   kube-controller-manager-3271970485-gh9kt  1/1    Running   0         6m
 kube-system   kube-controller-manager-3271970485-h90v8  1/1    Running   1         6m
