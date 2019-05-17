@@ -39,7 +39,7 @@ Define a Kubernetes cluster by using the Terraform module for your chosen platfo
 ```tf
 module "google-cloud-yavin" {
   source = "git::https://github.com/kinvolk/lokomotive//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
-  
+
   providers = {
     google   = "google.default"
     local    = "local.default"
@@ -57,7 +57,7 @@ module "google-cloud-yavin" {
   # configuration
   ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
   asset_dir          = "/home/user/.secrets/clusters/yavin"
-  
+
   # optional
   worker_count = 2
 }
