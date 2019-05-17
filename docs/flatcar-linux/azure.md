@@ -1,9 +1,9 @@
 # Azure
 
 !!! danger
-    Lokomotive for Azure is alpha. For production, use AWS, Google Cloud, or bare-metal. As Azure matures, check [errata](https://github.com/poseidon/typhoon/wiki/Errata) for known shortcomings.
+    Lokomotive for Azure is alpha. For production, use AWS or bare-metal. As Azure matures, check [errata](https://github.com/poseidon/typhoon/wiki/Errata) for known shortcomings.
 
-In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Azure with Container Linux.
+In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Azure with Flatcar Linux.
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a resource group, virtual network, subnets, security groups, controller availability set, worker scale set, load balancer, and TLS assets.
 
@@ -21,7 +21,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.13
+Terraform v0.11.12
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -55,7 +55,7 @@ provider "azurerm" {
 }
 
 provider "ct" {
-  version = "0.3.1"
+  version = "~> 0.3"
 }
 
 provider "local" {
@@ -87,7 +87,7 @@ Define a Kubernetes cluster using the module `azure/container-linux/kubernetes`.
 
 ```tf
 module "azure-ramius" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/container-linux/kubernetes"
 
   providers = {
     azurerm  = "azurerm.default"
@@ -190,7 +190,10 @@ kube-system   pod-checkpointer-cnqdg-ramius-controller-0  1/1    Running   0    
 
 ## Going Further
 
-Learn about [maintenance](/topics/maintenance/).
+Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
+
+!!! note
+    On Flatcar Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
 
 ## Variables
 
@@ -245,7 +248,7 @@ Reference the DNS zone with `"${azurerm_dns_zone.clusters.name}"` and its resour
 | worker_count | Number of workers | 1 | 3 |
 | controller_type | Machine type for controllers | "Standard_DS1_v2" | See below |
 | worker_type | Machine type for workers | "Standard_F1" | See below |
-| os_image | Channel for a Container Linux derivative | coreos-stable | coreos-stable, coreos-beta, coreos-alpha |
+| os_image | Channel for a Flatcar Linux | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
 | disk_size | Size of the disk in GB | "40" | "100" |
 | worker_priority | Set priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time | Regular | Low |
 | controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](/advanced/customization/#usage) |
