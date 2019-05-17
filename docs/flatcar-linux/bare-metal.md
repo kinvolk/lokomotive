@@ -176,11 +176,11 @@ provider "tls" {
 
 ## Cluster
 
-Define a Kubernetes cluster using the module `bare-metal/container-linux/kubernetes`.
+Define a Kubernetes cluster using the module `bare-metal/flatcar-linux/kubernetes`.
 
 ```tf
 module "bare-metal-mercury" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=v1.14.1"
   
   providers = {
     local = "local.default"
@@ -222,7 +222,7 @@ module "bare-metal-mercury" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/bare-metal/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/bare-metal/flatcar-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -352,7 +352,7 @@ Learn about [maintenance](/topics/maintenance/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/bare-metal/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/bare-metal/flatcar-linux/kubernetes/variables.tf) source.
 
 ### Required
 

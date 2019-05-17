@@ -14,7 +14,7 @@ Lokomotive distributes upstream Kubernetes.
 * Kubernetes v1.14.1 (upstream, via [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
 * Single or multi-master, [Calico](https://www.projectcalico.org/) or [flannel](https://github.com/coreos/flannel) networking
 * On-cluster etcd with TLS, [RBAC](https://kubernetes.io/docs/admin/authorization/rbac/)-enabled, [network policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
-* Advanced features like [worker pools](advanced/worker-pools/) and [snippets](advanced/customization/#container-linux) customization
+* Advanced features like [worker pools](advanced/worker-pools/) and [snippets](advanced/customization/#flatcar-linux) customization
 
 ## Modules
 
@@ -22,9 +22,9 @@ Lokomotive provides a Terraform Module for each supported operating system and p
 
 | Platform      | Operating System | Terraform Module | Status |
 |---------------|------------------|------------------|--------|
-| AWS           | Flatcar Linux | [aws/container-linux/kubernetes](flatcar/aws.md) | stable |
-| Azure         | Flatcar Linux | [azure/container-linux/kubernetes](flatcar/azure.md) | alpha |
-| Bare-Metal    | Flatcar Linux | [bare-metal/container-linux/kubernetes](flatcar/bare-metal.md) | stable |
+| AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](flatcar/aws.md) | stable |
+| Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](flatcar/azure.md) | alpha |
+| Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](flatcar/bare-metal.md) | stable |
 | Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](flatcar/packet.md) | stable |
 
 ## Documentation
@@ -38,7 +38,7 @@ Define a Kubernetes cluster by using the Terraform module for your chosen platfo
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/poseidon/typhoon//google-cloud/flatcar-linux/kubernetes?ref=v1.14.1"
   
   providers = {
     google   = "google.default"

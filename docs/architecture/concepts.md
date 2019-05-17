@@ -48,7 +48,7 @@ Clusters are declared in Terraform by referencing the module.
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes"
   cluster_name = "yavin"
   ...
 }
@@ -60,7 +60,7 @@ Modules are updated regularly, set the version to a [release tag](https://github
 
 ```tf
 ...
-source = "git:https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes?ref=hash"
+source = "git:https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=hash"
 ```
 
 Module versioning ensures `terraform get --update` only fetches the desired version, so plan and apply don't change cluster resources, unless the version is altered.

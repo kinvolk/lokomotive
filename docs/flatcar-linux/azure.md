@@ -83,11 +83,11 @@ Additional configuration options are described in the `azurerm` provider [docs](
 
 ## Cluster
 
-Define a Kubernetes cluster using the module `azure/container-linux/kubernetes`.
+Define a Kubernetes cluster using the module `azure/flatcar-linux/kubernetes`.
 
 ```tf
 module "azure-ramius" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/container-linux/kubernetes"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/flatcar-linux/kubernetes"
 
   providers = {
     azurerm  = "azurerm.default"
@@ -113,7 +113,7 @@ module "azure-ramius" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/flatcar-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -197,7 +197,7 @@ Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/azure/flatcar-linux/kubernetes/variables.tf) source.
 
 ### Required
 

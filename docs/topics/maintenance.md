@@ -13,12 +13,12 @@ Lokomotive provides tagged releases to allow clusters to be versioned using ordi
 
 ```
 module "google-cloud-yavin" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes?ref=v1.8.6"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=v1.8.6"
   ...
 }
 
 module "bare-metal-mercury" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=v1.14.1"
   ...
 }
 ```
@@ -66,7 +66,7 @@ Delete or comment the Terraform config for the cluster.
 
 ```
 - module "bare-metal-mercury" {
--   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/container-linux/kubernetes"
+-   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes"
 -   ...
 -}
 ```
@@ -94,7 +94,7 @@ Once you're confident in the new cluster, delete the Terraform config for the ol
 
 ```
 - module "google-cloud-yavin" {
--   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/container-linux/kubernetes"
+-   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes"
 -   ...
 -}
 ```

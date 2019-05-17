@@ -88,11 +88,11 @@ Additional configuration options are described in the `aws` provider [docs](http
 
 ## Cluster
 
-Define a Kubernetes cluster using the module [aws/container-linux/kubernetes](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/aws/container-linux/kubernetes).
+Define a Kubernetes cluster using the module [aws/flatcar-linux/kubernetes](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/aws/flatcar-linux/kubernetes).
 
 ```tf
 module "aws-tempest" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes?ref=v1.14.1"
 
   providers = {
     aws = "aws.default"
@@ -117,7 +117,7 @@ module "aws-tempest" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/flatcar-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -198,7 +198,7 @@ Learn about [maintenance](/topics/maintenance/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/aws/flatcar-linux/kubernetes/variables.tf) source.
 
 ### Required
 

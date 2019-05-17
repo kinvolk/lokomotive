@@ -82,11 +82,11 @@ provider "tls" {
 
 ## Cluster
 
-Define a Kubernetes cluster using the module `digital-ocean/container-linux/kubernetes`.
+Define a Kubernetes cluster using the module `digital-ocean/flatcar-linux/kubernetes`.
 
 ```tf
 module "digital-ocean-nemo" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//digital-ocean/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//digital-ocean/flatcar-linux/kubernetes?ref=v1.14.1"
   
   providers = {
     digitalocean = "digitalocean.default"
@@ -111,7 +111,7 @@ module "digital-ocean-nemo" {
 }
 ```
 
-Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/digital-ocean/container-linux/kubernetes/variables.tf) source.
+Reference the [variables docs](#variables) or the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/digital-ocean/flatcar-linux/kubernetes/variables.tf) source.
 
 ## ssh-agent
 
@@ -195,7 +195,7 @@ Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
 
 ## Variables
 
-Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/digital-ocean/container-linux/kubernetes/variables.tf) source.
+Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/digital-ocean/flatcar-linux/kubernetes/variables.tf) source.
 
 ### Required
 
