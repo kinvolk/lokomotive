@@ -1,25 +1,21 @@
 # Customization
 
-Typhoon provides Kubernetes clusters with defaults recommended for production. Terraform variables expose supported customization options. Advanced options are available for customizing the architecture or hosts as well.
+Lokomotive provides Kubernetes clusters with defaults recommended for production. Terraform variables expose supported customization options. Advanced options are available for customizing the architecture or hosts as well.
 
 ## Variables
 
-Typhoon modules accept Terraform input variables for customizing clusters in meritorious ways (e.g. `worker_count`, etc). Variables are carefully considered to provide essentials, while limiting complexity and test matrix burden. See each platform's tutorial for options.
-
-## Addons
-
-Clusters are kept to a minimal Kubernetes control plane by offering components like Nginx Ingress Controller, Prometheus, Grafana, and Heapster as optional post-install [addons](https://github.com/poseidon/typhoon/tree/master/addons). Customize addons by modifying a copy of our addon manifests.
+Lokomotive modules accept Terraform input variables for customizing clusters in meritorious ways (e.g. `worker_count`, etc). Variables are carefully considered to provide essentials, while limiting complexity and test matrix burden. See each platform's tutorial for options.
 
 ## Hosts
 
-### Container Linux
+### Flatcar Linux
 
 !!! danger
     Container Linux Configs provide powerful host customization abilities. You are responsible for the additional configs defined for hosts.
 
-Container Linux Configs (CLCs) declare how a Container Linux instance's disk should be provisioned on first boot from disk. CLCs define disk partitions, filesystems, files, systemd units, dropins, networkd configs, mount units, raid arrays, and users. Typhoon creates controller and worker instances with base Container Linux Configs to create a minimal, secure Kubernetes cluster on each platform.
+Container Linux Configs (CLCs) declare how a Flatcar Linux instance's disk should be provisioned on first boot from disk. CLCs define disk partitions, filesystems, files, systemd units, dropins, networkd configs, mount units, raid arrays, and users. Lokomotive creates controller and worker instances with base Container Linux Configs to create a minimal, secure Kubernetes cluster on each platform.
 
-Typhoon AWS, Azure, bare-metal, DigitalOcean, and Google Cloud support CLC *snippets* - valid Container Linux Configs that are validated and additively merged into the Typhoon base config during `terraform plan`. This allows advanced host customizations and experimentation.
+Lokomotive AWS, Azure, and bare-metal support CLC *snippets* - valid Container Linux Configs that are validated and additively merged into the Lokomotive base config during `terraform plan`. This allows advanced host customizations and experimentation.
 
 #### Examples
 
@@ -69,10 +65,10 @@ View the Container Linux Config [format](https://coreos.com/os/docs/1576.4.0/con
 
 Write Container Linux Configs *snippets* as files in the repository where you keep Terraform configs for clusters (perhaps in a `clc` or `snippets` subdirectory). You may organize snippets in multiple files as desired, provided they are each valid.
 
-[AWS](/cl/aws/#cluster), [Azure](/cl/azure/#cluster), [DigitalOcean](/cl/digital-ocean/#cluster), and [Google Cloud](/cl/google-cloud/#cluster) clusters allow populating a list of `controller_clc_snippets` or `worker_clc_snippets`.
+[AWS](/flatcar/aws/#cluster) and [Azure](/flatcar/azure/#cluster) clusters allow populating a list of `controller_clc_snippets` or `worker_clc_snippets`.
 
 ```
-module "digital-ocean-nemo" {
+module "aws-nemo" {
   ...
 
   controller_count        = 1
@@ -89,7 +85,7 @@ module "digital-ocean-nemo" {
 }
 ```
 
-[Bare-Metal](/cl/bare-metal/#cluster) clusters allow different Container Linux snippets to be used for each node (since hardware may be heterogeneous). Populate the optional `clc_snippets` map variable with any controller or worker name keys and lists of snippets.
+[Bare-Metal](/flatcar/bare-metal/#cluster) clusters allow different Container Linux snippets to be used for each node (since hardware may be heterogeneous). Populate the optional `clc_snippets` map variable with any controller or worker name keys and lists of snippets.
 
 ```
 module "bare-metal-mercury" {
@@ -137,21 +133,6 @@ Container Linux Configs (and the CoreOS Ignition system) create immutable infras
 
 !!! danger
     Destroying and recreating controller instances is destructive! etcd runs on controller instances and stores data there. Do not modify controller snippets. See [blue/green](/topics/maintenance/#upgrades) clusters.
-
-### Fedora Atomic
-
-Cloud-Init and kickstart (bare-metal only) declare how a Fedora Atomic instance should be provisioned. Customizing these declarations in ways beyond the provided Terraform variables is unsupported.
-
-## Architecture
-
-Typhoon chooses variables to expose with purpose. If you must customize clusters in ways that aren't supported by input variables, fork Typhoon and maintain a repository with customizations. Reference the repository by changing the username.
-
-```
-module "digital-ocean-nemo" {
-  source = "git::https://github.com/USERNAME/typhoon//digital-ocean/container-linux/kubernetes?ref=myspecialcase"
-  ...
-}
-```
 
 To customize lower-level Kubernetes control plane bootstrapping, see the [poseidon/terraform-render-bootkube](https://github.com/poseidon/terraform-render-bootkube) Terraform module.
 

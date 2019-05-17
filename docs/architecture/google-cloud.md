@@ -2,7 +2,7 @@
 
 ## IPv6
 
-Status of IPv6 on Typhoon Google Cloud clusters.
+Status of IPv6 on Lokomotive Google Cloud clusters.
 
 | IPv6 Feature            | Supported |
 |-------------------------|-----------|
