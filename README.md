@@ -30,22 +30,21 @@ Lokomotive provides a Terraform Module for each supported operating system and p
 Define a Kubernetes cluster by using the Terraform module for your chosen platform and operating system. Here's a minimal example.
 
 ```tf
-module "google-cloud-yavin" {
-  source = "git::https://github.com/kinvolk/lokomotive//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
+module "aws-tempest" {
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes?ref=master"
 
   providers = {
-    google   = "google.default"
-    local    = "local.default"
-    null     = "null.default"
+    aws = "aws.default"
+    local = "local.default"
+    null = "null.default"
     template = "template.default"
-    tls      = "tls.default"
+    tls = "tls.default"
   }
 
-  # Google Cloud
-  cluster_name  = "yavin"
-  region        = "us-central1"
-  dns_zone      = "example.com"
-  dns_zone_name = "example-zone"
+  # AWS
+  cluster_name = "yavin"
+  dns_zone     = "example.com"
+  dns_zone_id  = "Z3PAABBCFAKEC0"
 
   # configuration
   ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
@@ -53,6 +52,7 @@ module "google-cloud-yavin" {
 
   # optional
   worker_count = 2
+  worker_type  = "t3.small"
 }
 ```
 
@@ -66,7 +66,7 @@ $ terraform apply
 Apply complete! Resources: 64 added, 0 changed, 0 destroyed.
 ```
 
-In 4-8 minutes (varies by platform), the cluster will be ready. This Google Cloud example creates a `yavin.example.com` DNS record to resolve to a network load balancer across controller nodes.
+In 4-8 minutes (varies by platform), the cluster will be ready. This AWS example creates a `yavin.example.com` DNS record to resolve to a network load balancer backed by controller instances.
 
 ```sh
 $ export KUBECONFIG=/home/user/.secrets/clusters/yavin/auth/kubeconfig
