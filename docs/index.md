@@ -38,7 +38,7 @@ Define a Kubernetes cluster by using the Terraform module for your chosen platfo
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/flatcar-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive//google-cloud/flatcar-linux/kubernetes?ref=v1.14.1"
   
   providers = {
     google   = "google.default"
