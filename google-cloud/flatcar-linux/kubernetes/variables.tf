@@ -48,8 +48,8 @@ variable "worker_type" {
 
 variable "os_image" {
   type        = "string"
-  default     = "coreos-stable"
-  description = "Container Linux image for compute instances (e.g. coreos-stable)"
+  default     = "flatcar-stable"
+  description = "Flatcar Linux image for compute instances (e.g. flatcar-stable)"
 }
 
 variable "disk_size" {
