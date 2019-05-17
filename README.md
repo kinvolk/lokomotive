@@ -108,13 +108,3 @@ kube-system   pod-checkpointer-l6lrt-controller-0       1/1    Running   0      
 ## Help
 
 Ask questions on the IRC #lokomotive-k8s channel on [freenode.net](http://freenode.net/).
-
-## Motivation
-
-Lokomotive powers the author's cloud and colocation clusters. The project has evolved through operational experience and Kubernetes changes. Lokomotive is shared under a free license to allow others to use the work freely and contribute to its upkeep.
-
-Lokomotive addresses real world needs, which you may share. It is honest about limitations or areas that aren't mature yet. It avoids buzzword bingo and hype. It does not aim to be the one-solution-fits-all distro. An ecosystem of Kubernetes distributions is healthy.
-
-## Social Contract
-
-Lokomotive clusters will contain only [free](https://www.debian.org/intro/free) components. Cluster components will not collect data on users without their permission.
