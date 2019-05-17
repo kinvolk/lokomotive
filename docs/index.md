@@ -1,6 +1,6 @@
 # Lokomotive
 
-Lokomotive is an open source Kubernetes distribution by Kinvolk.
+Lokomotive is an open source Kubernetes distribution by [Kinvolk](https://kinvolk.io/).
 
 * Minimal, stable base Kubernetes distribution
 * Declarative infrastructure and configuration
