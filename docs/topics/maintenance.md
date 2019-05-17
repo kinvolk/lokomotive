@@ -13,12 +13,12 @@ Lokomotive provides tagged releases to allow clusters to be versioned using ordi
 
 ```
 module "google-cloud-yavin" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=v1.8.6"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
   ...
 }
 
 module "bare-metal-mercury" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=<hash>"
   ...
 }
 ```

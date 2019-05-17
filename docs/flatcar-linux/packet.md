@@ -110,7 +110,7 @@ Define a Kubernetes cluster using the controller module [packet/flatcar-linux/ku
 
 ```tf
 module "controller" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
     aws      = "aws.default"
@@ -158,7 +158,7 @@ module "controller" {
 }
 
 module "worker-pool-helium" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes/workers?ref=<hash>"
 
   providers = {
     local    = "local.default"

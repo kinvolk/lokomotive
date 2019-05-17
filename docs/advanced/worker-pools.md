@@ -15,7 +15,7 @@ Create a cluster following the AWS [tutorial](../flatcar/aws.md#cluster). Define
 
 ```tf
 module "tempest-worker-pool" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes/workers?ref=<hash>"
   
   providers = {
     aws = "aws.default"
@@ -81,7 +81,7 @@ Create a cluster following the Azure [tutorial](../flatcar/azure.md#cluster). De
 
 ```tf
 module "ramius-worker-pool" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/flatcar-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/flatcar-linux/kubernetes/workers?ref=<hash>"
   
   providers = {
     azurerm = "azurerm.default"
@@ -151,7 +151,7 @@ Create a cluster following the Google Cloud [tutorial](../flatcar/google-cloud.m
 
 ```tf
 module "yavin-worker-pool" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes/workers?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes/workers?ref=<hash>"
 
   providers = {
     google = "google.default"

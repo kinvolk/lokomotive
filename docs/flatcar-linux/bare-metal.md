@@ -180,7 +180,7 @@ Define a Kubernetes cluster using the module `bare-metal/flatcar-linux/kubernete
 
 ```tf
 module "bare-metal-mercury" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=<hash>"
   
   providers = {
     local = "local.default"

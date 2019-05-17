@@ -93,7 +93,7 @@ Define a Kubernetes cluster using the module `google-cloud/flatcar-linux/kuberne
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
     google   = "google.default"

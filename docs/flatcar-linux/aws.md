@@ -92,7 +92,7 @@ Define a Kubernetes cluster using the module [aws/flatcar-linux/kubernetes](http
 
 ```tf
 module "aws-tempest" {
-  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
     aws = "aws.default"
