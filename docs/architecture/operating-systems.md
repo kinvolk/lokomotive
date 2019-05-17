@@ -1,6 +1,6 @@
 # Operating Systems
 
-Lokomotive supports [Flatcar Linux](https://www.flatcar-linux.org/). Flatcar is a friendly fork of CoreOS Container Linux and was chosen because:
+Lokomotive supports [Flatcar Linux](https://www.flatcar-linux.org/). Flatcar Linux is a friendly fork of CoreOS Container Linux and was chosen because:
 
 * Minimalism and focus on clustered operation
 * Automated and atomic operating system upgrades
