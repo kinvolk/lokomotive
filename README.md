@@ -1,13 +1,6 @@
 # Lokomotive <img align="right" width=384 src="docs/images/lokomotive-logo.svg">
 
-Lokomotive is an open source Kubernetes distribution by [Kinvolk](https://kinvolk.io/).
-
-* Minimal, stable base Kubernetes distribution
-* Declarative infrastructure and configuration
-* [Free](#social-contract) (freedom and cost) and privacy-respecting
-* Practical for labs, datacenters, and clouds
-
-Lokomotive distributes upstream Kubernetes.
+Lokomotive is an open source project by [Kinvolk](https://kinvolk.io/) which distributes pure upstream Kubernetes.
 
 ## Features
 
