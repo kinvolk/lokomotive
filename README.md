@@ -1,56 +1,44 @@
-# Typhoon [![IRC](https://img.shields.io/badge/freenode-%23typhoon-0099ef.svg)]() <img align="right" src="https://storage.googleapis.com/poseidon/typhoon-logo.png">
+# Lokomotive
 
-Typhoon is a minimal and free Kubernetes distribution.
+Lokomotive is an open source Kubernetes distribution by Kinvolk.
 
 * Minimal, stable base Kubernetes distribution
 * Declarative infrastructure and configuration
 * [Free](#social-contract) (freedom and cost) and privacy-respecting
 * Practical for labs, datacenters, and clouds
 
-Typhoon distributes upstream Kubernetes, architectural conventions, and cluster addons, much like a GNU/Linux distribution provides the Linux kernel and userspace components.
+Lokomotive distributes upstream Kubernetes.
 
-## Features <a href="https://www.cncf.io/certification/software-conformance/"><img align="right" src="https://storage.googleapis.com/poseidon/certified-kubernetes.png"></a>
+## Features
 
 * Kubernetes v1.14.1 (upstream, via [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
 * Single or multi-master, [Calico](https://www.projectcalico.org/) or [flannel](https://github.com/coreos/flannel) networking
 * On-cluster etcd with TLS, [RBAC](https://kubernetes.io/docs/admin/authorization/rbac/)-enabled, [network policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
-* Advanced features like [worker pools](https://typhoon.psdn.io/advanced/worker-pools/), [preemptible](https://typhoon.psdn.io/cl/google-cloud/#preemption) workers, and [snippets](https://typhoon.psdn.io/advanced/customization/#container-linux) customization
-* Ready for Ingress, Prometheus, Grafana, CSI, or other [addons](https://typhoon.psdn.io/addons/overview/)
+* Advanced features like [worker pools](advanced/worker-pools/) and [snippets](advanced/customization/#flatcar-linux) customization
 
 ## Modules
 
-Typhoon provides a Terraform Module for each supported operating system and platform. Container Linux is a mature and reliable choice. Also, Kinvolk's Flatcar Linux fork is selectable on AWS and bare-metal.
+Lokomotive provides a Terraform Module for each supported operating system and platform. Flatcar Linux is a mature and reliable choice.
 
 | Platform      | Operating System | Terraform Module | Status |
 |---------------|------------------|------------------|--------|
-| AWS           | Container Linux  | [aws/container-linux/kubernetes](aws/container-linux/kubernetes) | stable |
-| Azure         | Container Linux  | [azure/container-linux/kubernetes](cl/azure.md) | alpha |
-| Bare-Metal    | Container Linux  | [bare-metal/container-linux/kubernetes](bare-metal/container-linux/kubernetes) | stable |
-| Digital Ocean | Container Linux  | [digital-ocean/container-linux/kubernetes](digital-ocean/container-linux/kubernetes) | beta |
-| Google Cloud  | Container Linux  | [google-cloud/container-linux/kubernetes](google-cloud/container-linux/kubernetes) | stable |
-
-Fedora Atomic support is alpha and will evolve as Fedora Atomic is replaced by Fedora CoreOS.
-
-| Platform      | Operating System | Terraform Module | Status |
-|---------------|------------------|------------------|--------|
-| AWS           | Fedora Atomic    | [aws/fedora-atomic/kubernetes](aws/fedora-atomic/kubernetes) | deprecated |
-| Bare-Metal    | Fedora Atomic    | [bare-metal/fedora-atomic/kubernetes](bare-metal/fedora-atomic/kubernetes) | deprecated |
-| Digital Ocean | Fedora Atomic    | [digital-ocean/fedora-atomic/kubernetes](digital-ocean/fedora-atomic/kubernetes) | deprecated |
-| Google Cloud  | Fedora Atomic    | [google-cloud/fedora-atomic/kubernetes](google-cloud/fedora-atomic/kubernetes) | deprecated |
+| AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](flatcar/aws.md) | stable |
+| Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](flatcar/azure.md) | alpha |
+| Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](flatcar/bare-metal.md) | stable |
+| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](flatcar/packet.md) | stable |
 
 ## Documentation
 
-* [Docs](https://typhoon.psdn.io)
-* Architecture [concepts](https://typhoon.psdn.io/architecture/concepts/) and [operating systems](https://typhoon.psdn.io/architecture/operating-systems/)
-* Tutorials for [AWS](docs/cl/aws.md), [Azure](docs/cl/azure.md), [Bare-Metal](docs/cl/bare-metal.md), [Digital Ocean](docs/cl/digital-ocean.md), and [Google-Cloud](docs/cl/google-cloud.md)
+* Architecture [concepts](architecture/concepts.md) and [operating-systems](architecture/operating-systems.md)
+* Tutorials for [AWS](flatcar/aws.md), [Azure](flatcar/azure.md), [Bare-Metal](flatcar/bare-metal.md) and [Packet](flatcar/packet.md)
 
-## Usage
+## Example
 
-Define a Kubernetes cluster by using the Terraform module for your chosen platform and operating system. Here's a minimal example:
+Define a Kubernetes cluster by using the Terraform module for your chosen platform and operating system. Here's a minimal example.
 
 ```tf
 module "google-cloud-yavin" {
-  source = "git::https://github.com/poseidon/typhoon//google-cloud/container-linux/kubernetes?ref=v1.14.1"
+  source = "git::https://github.com/kinvolk/lokomotive//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
   
   providers = {
     google   = "google.default"
@@ -87,7 +75,7 @@ Apply complete! Resources: 64 added, 0 changed, 0 destroyed.
 
 In 4-8 minutes (varies by platform), the cluster will be ready. This Google Cloud example creates a `yavin.example.com` DNS record to resolve to a network load balancer across controller nodes.
 
-```sh
+```
 $ export KUBECONFIG=/home/user/.secrets/clusters/yavin/auth/kubeconfig
 $ kubectl get nodes
 NAME                                       ROLES              STATUS  AGE  VERSION
@@ -104,8 +92,8 @@ NAMESPACE     NAME                                      READY  STATUS    RESTART
 kube-system   calico-node-1cs8z                         2/2    Running   0         6m
 kube-system   calico-node-d1l5b                         2/2    Running   0         6m
 kube-system   calico-node-sp9ps                         2/2    Running   0         6m
-kube-system   coredns-1187388186-zj5dl                  1/1    Running   0         6m
 kube-system   coredns-1187388186-dkh3o                  1/1    Running   0         6m
+kube-system   coredns-1187388186-zj5dl                  1/1    Running   0         6m
 kube-system   kube-apiserver-zppls                      1/1    Running   0         6m
 kube-system   kube-controller-manager-3271970485-gh9kt  1/1    Running   0         6m
 kube-system   kube-controller-manager-3271970485-h90v8  1/1    Running   1         6m
@@ -118,30 +106,16 @@ kube-system   pod-checkpointer-l6lrt                    1/1    Running   0      
 kube-system   pod-checkpointer-l6lrt-controller-0       1/1    Running   0         6m
 ```
 
-## Non-Goals
-
-Typhoon is strict about minimalism, maturity, and scope. These are not in scope:
-
-* In-place Kubernetes Upgrades
-* Adding every possible option
-* Openstack or Mesos platforms
-
 ## Help
 
-Ask questions on the IRC #typhoon channel on [freenode.net](http://freenode.net/).
+Ask questions on the IRC #lokomotive-k8s channel on [freenode.net](http://freenode.net/).
 
 ## Motivation
 
-Typhoon powers the author's cloud and colocation clusters. The project has evolved through operational experience and Kubernetes changes. Typhoon is shared under a free license to allow others to use the work freely and contribute to its upkeep.
+Lokomotive powers the author's cloud and colocation clusters. The project has evolved through operational experience and Kubernetes changes. Lokomotive is shared under a free license to allow others to use the work freely and contribute to its upkeep.
 
-Typhoon addresses real world needs, which you may share. It is honest about limitations or areas that aren't mature yet. It avoids buzzword bingo and hype. It does not aim to be the one-solution-fits-all distro. An ecosystem of Kubernetes distributions is healthy.
+Lokomotive addresses real world needs, which you may share. It is honest about limitations or areas that aren't mature yet. It avoids buzzword bingo and hype. It does not aim to be the one-solution-fits-all distro. An ecosystem of Kubernetes distributions is healthy.
 
 ## Social Contract
 
-Typhoon is not a product, trial, or free-tier. It is not run by a company, does not offer support or services, and does not accept or make any money. It is not associated with any operating system or platform vendor.
-
-Typhoon clusters will contain only [free](https://www.debian.org/intro/free) components. Cluster components will not collect data on users without their permission.
-
-## Donations
-
-Typhoon does not accept money donations. Instead, we encourage you to donate to one of [these organizations](https://github.com/poseidon/typhoon/wiki/Donations) to show your appreciation.
+Lokomotive clusters will contain only [free](https://www.debian.org/intro/free) components. Cluster components will not collect data on users without their permission.
