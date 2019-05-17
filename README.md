@@ -98,6 +98,16 @@ kube-system   pod-checkpointer-l6lrt                    1/1    Running   0      
 kube-system   pod-checkpointer-l6lrt-controller-0       1/1    Running   0         6m
 ```
 
+## Try Flatcar Edge
+
+[Flatcar Edge](https://kinvolk.io/blog/2019/05/introducing-the-flatcar-linux-edge-channel/) is a [Flatcar Linux](https://www.flatcar-linux.org/) channel that includes experimental bleeding-edge features.
+
+To try it just add the following configuration option to the example above.
+
+```
+os_image = "flatcar-edge"
+```
+
 ## Help
 
 Ask questions on the IRC #lokomotive-k8s channel on [freenode.net](http://freenode.net/).
