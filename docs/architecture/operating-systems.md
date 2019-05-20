@@ -31,7 +31,7 @@ Lokomotive supports [Flatcar Linux](https://www.flatcar-linux.org/). Flatcar Lin
 | on-host etcd      | rkt-fly   |
 | on-host kubelet   | rkt-fly   |
 | CNI plugins       | calico or flannel |
-| coordinated drain & OS update | [CLUO](https://github.com/coreos/flatcar-linux-update-operator) addon |
+| coordinated drain & OS update | [CLUO](https://github.com/coreos/container-linux-update-operator) addon |
 
 ## Directory Locations
 
