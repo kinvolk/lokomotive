@@ -24,6 +24,15 @@ make build-slim
 The resulting binary won't include the Lokomotive Kubernetes assets and
 requires the lokomotive-kubernetes code in the submodule directory.
 
+
+## Build with docker
+
+Alternatively, you can use Docker environment to build the binary.
+
+```bash
+docker build .
+```
+
 ## Update the lokomotive-kubernetes to current master
 
 To update the local git submodule `lokomotive-kubernetes` dir to the latest master run following commands:
