@@ -192,7 +192,7 @@ module "bare-metal-mercury" {
   # bare-metal
   cluster_name            = "mercury"
   matchbox_http_endpoint  = "http://matchbox.example.com"
-  os_channel              = "coreos-stable"
+  os_channel              = "flatcar-stable"
   os_version              = "1632.3.0"
 
   # configuration
@@ -360,8 +360,8 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 |:-----|:------------|:--------|
 | cluster_name | Unique cluster name | mercury |
 | matchbox_http_endpoint | Matchbox HTTP read-only endpoint | http://matchbox.example.com:port |
-| os_channel | Channel for a Flatcar Linux derivative | coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha |
-| os_version | Version for a Flatcar Linux derivative to PXE and install | 1632.3.0 |
+| os_channel | Channel for Flatcar Linux | flatcar-stable, flatcar-beta, flatcar-alpha |
+| os_version | Version of Flatcar Linux to PXE and install | 1632.3.0 |
 | k8s_domain_name | FQDN resolving to the controller(s) nodes. Workers and kubectl will communicate with this endpoint | "myk8s.example.com" |
 | ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3Nz..." |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/mercury" |
