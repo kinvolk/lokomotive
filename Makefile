@@ -34,8 +34,7 @@ build-slim:
 	# so we rely on defaults.
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build \
 		-ldflags $(LDFLAGS) \
-		-o lokoctl \
-		github.com/kinvolk/lokoctl/cli
+		github.com/kinvolk/lokoctl
 
 .PHONY: test
 test: check-go-format
