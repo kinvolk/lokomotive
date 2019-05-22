@@ -34,6 +34,7 @@ build-slim:
 	# so we rely on defaults.
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build \
 		-ldflags $(LDFLAGS) \
+		-buildmode=exe \
 		github.com/kinvolk/lokoctl
 
 .PHONY: test
