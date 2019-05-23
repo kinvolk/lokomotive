@@ -52,5 +52,6 @@ data "template_file" "configs" {
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
     worker_labels         = "${var.labels}"
+    taints                = "${var.taints}"
   }
 }
