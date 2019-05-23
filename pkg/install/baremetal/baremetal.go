@@ -83,7 +83,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	defer f.Close()
 
-	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/bare-metal/container-linux/kubernetes")
+	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/bare-metal/flatcar-linux/kubernetes")
 
 	workerDomains, err := json.Marshal(cfg.WorkerDomains)
 	if err != nil {

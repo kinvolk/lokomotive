@@ -99,7 +99,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 	defer f.Close()
 
-	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/aws/container-linux/kubernetes")
+	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/aws/flatcar-linux/kubernetes")
 	ssh_authorized_key, err := cfg.readSSHPubKey()
 	if err != nil {
 		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
