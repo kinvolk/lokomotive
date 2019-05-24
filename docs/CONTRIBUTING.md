@@ -3,8 +3,6 @@
 ## Setup developer environment
 
 ```bash
-mkdir -p $GOPATH/src/github.com/kinvolk
-cd $GOPATH/src/github.com/kinvolk
 git clone git@github.com:kinvolk/lokoctl.git
 cd lokoctl
 make install-packr2
@@ -13,7 +11,6 @@ make install-packr2
 ## Build the code
 
 ```bash
-cd $GOPATH/src/github.com/kinvolk/lokoctl
 make
 ```
 
@@ -27,12 +24,21 @@ make build-slim
 The resulting binary won't include the Lokomotive Kubernetes assets and
 requires the lokomotive-kubernetes code in the submodule directory.
 
+
+## Build with docker
+
+Alternatively, you can use Docker environment to build the binary.
+
+```bash
+docker build .
+```
+
 ## Update the lokomotive-kubernetes to current master
 
 To update the local git submodule `lokomotive-kubernetes` dir to the latest master run following commands:
 
 ```bash
-cd $GOPATH/src/github.com/kinvolk/lokoctl/lokomotive-kubernetes/
+cd lokomotive-kubernetes
 git pull --ff-only origin master
 cd ..
 ```

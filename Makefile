@@ -30,10 +30,11 @@ packr2-clean:
 
 .PHONY: build-slim
 build-slim:
-	CGO_ENABLED=0 GOOS=linux go build \
+	# Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
+	# so we rely on defaults.
+	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build \
 		-ldflags $(LDFLAGS) \
-		-o lokoctl \
-		github.com/kinvolk/lokoctl/cli
+		github.com/kinvolk/lokoctl
 
 .PHONY: test
 test: check-go-format
@@ -55,4 +56,6 @@ all: build test
 
 .PHONY: install-packr2
 install-packr2:
-	go get -u github.com/gobuffalo/packr/v2/packr2
+	# Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
+	# so we rely on defaults.
+	GO111MODULE=on go get -u github.com/gobuffalo/packr/v2/packr2
