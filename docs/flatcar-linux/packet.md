@@ -328,3 +328,4 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | false | true |
+| reservation_ids | Specify Packet hardware_reservation_id for instances, see: https://support.packet.com/kb/articles/reserved-hardware. A map where the key format is 'worker-${index}' and the associated value is the reservation id string. Nodes not present in the map will use no reservation id. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
