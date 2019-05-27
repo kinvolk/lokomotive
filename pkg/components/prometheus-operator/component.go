@@ -32,11 +32,6 @@ type component struct {
 }
 
 func newComponent() *component {
-	defaultEtcdEndpoints := []string{}
-	defaultPrometheusMetricsRetention := "10d"
-	defaultPrometheusExternalURL := ""
-	defaultAlertManagerRetention := "120h"
-	defaultAlertManagerExternalURL := ""
 	defaultAlertManagerConfig := `
   config:
     global:
@@ -57,11 +52,8 @@ func newComponent() *component {
 `
 
 	return &component{
-		EtcdEndpoints:              defaultEtcdEndpoints,
-		PrometheusMetricsRetention: defaultPrometheusMetricsRetention,
-		PrometheusExternalURL:      defaultPrometheusExternalURL,
-		AlertManagerRetention:      defaultAlertManagerRetention,
-		AlertManagerExternalURL:    defaultAlertManagerExternalURL,
+		PrometheusMetricsRetention: "10d",
+		AlertManagerRetention:      "120h",
 		AlertManagerConfig:         defaultAlertManagerConfig,
 	}
 }
