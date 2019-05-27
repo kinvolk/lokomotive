@@ -221,7 +221,12 @@ alertmanager:
     ## Define which Nodes the Pods are scheduled on.
     ## ref: https://kubernetes.io/docs/user-guide/node-selection/
     ##
-    nodeSelector: {}
+    {{ if .AlertManagerNodeSelector }}
+    nodeSelector:
+      {{ range $key, $value := .AlertManagerNodeSelector }}
+      {{ $key }}: {{ $value }}
+      {{ end }}
+    {{ end }}
 
     ## Define resources requests and limits for single Pods.
     ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -714,7 +719,12 @@ prometheusOperator:
   ## Define which Nodes the Pods are scheduled on.
   ## ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  {{ if .PrometheusOperatorNodeSelector }}
+  nodeSelector:
+    {{ range $key, $value := .PrometheusOperatorNodeSelector }}
+    {{ $key }}: {{ $value }}
+    {{ end }}
+  {{ end }}
 
   ## Tolerations for use with node taints
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
@@ -922,7 +932,12 @@ prometheus:
     ## Define which Nodes the Pods are scheduled on.
     ## ref: https://kubernetes.io/docs/user-guide/node-selection/
     ##
-    nodeSelector: {}
+    {{ if .PrometheusNodeSelector }}
+    nodeSelector:
+      {{ range $key, $value := .PrometheusNodeSelector }}
+      {{ $key }}: {{ $value }}
+      {{ end }}
+    {{ end }}
 
     ## Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
     ## The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
