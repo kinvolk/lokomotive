@@ -36,6 +36,12 @@ variable "labels" {
   description = "Custom labels to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'"
 }
 
+variable "taints" {
+  type        = "string"
+  default     = ""
+  description = "Comma separated list of taints. eg. 'clusterType=staging:NoSchedule,nodeType=storage:NoSchedule'"
+}
+
 variable "ipxe_script_url" {
   type = "string"
 

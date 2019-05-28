@@ -92,6 +92,7 @@ systemd:
           --node-labels=${worker_labels} \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
+          --register-with-taints=${taints} \
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins
         ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
         Restart=always
