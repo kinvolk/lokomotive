@@ -55,6 +55,17 @@ format-go-code:
 .PHONY: all
 all: build test
 
+.PHONY: install
+install: update-lk-submodule update-assets install-slim
+
+.PHONY: install-slim
+# Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
+# so we rely on defaults.
+install-slim:
+	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install \
+		-ldflags $(LDFLAGS) \
+		-buildmode=exe
+
 .PHONY: install-packr2
 install-packr2:
 	echo "This target has been removed. This is here only to satisfy CI and will be removed later."
