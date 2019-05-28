@@ -23,20 +23,19 @@ type component struct {
 	GrafanaAdminPassword string   `hcl:"grafana_admin_password,attr"`
 	EtcdEndpoints        []string `hcl:"etcd_endpoints,optional"`
 
-	PrometheusMetricsRetention string `hcl:"prometheus_metrics_retention,optional"`
-	PrometheusExternalURL      string `hcl:"prometheus_external_url,optional"`
+	PrometheusOperatorNodeSelector map[string]string `hcl:"prometheus_operator_node_selector,optional"`
 
-	AlertManagerRetention   string `hcl:"alertmanager_retention,optional"`
-	AlertManagerExternalURL string `hcl:"alertmanager_external_url,optional"`
-	AlertManagerConfig      string `hcl:"alertmanager_config,optional"`
+	PrometheusMetricsRetention string            `hcl:"prometheus_metrics_retention,optional"`
+	PrometheusExternalURL      string            `hcl:"prometheus_external_url,optional"`
+	PrometheusNodeSelector     map[string]string `hcl:"prometheus_node_selector,optional"`
+
+	AlertManagerRetention    string            `hcl:"alertmanager_retention,optional"`
+	AlertManagerExternalURL  string            `hcl:"alertmanager_external_url,optional"`
+	AlertManagerConfig       string            `hcl:"alertmanager_config,optional"`
+	AlertManagerNodeSelector map[string]string `hcl:"alertmanager_node_selector,optional"`
 }
 
 func newComponent() *component {
-	defaultEtcdEndpoints := []string{}
-	defaultPrometheusMetricsRetention := "10d"
-	defaultPrometheusExternalURL := ""
-	defaultAlertManagerRetention := "120h"
-	defaultAlertManagerExternalURL := ""
 	defaultAlertManagerConfig := `
   config:
     global:
@@ -57,11 +56,8 @@ func newComponent() *component {
 `
 
 	return &component{
-		EtcdEndpoints:              defaultEtcdEndpoints,
-		PrometheusMetricsRetention: defaultPrometheusMetricsRetention,
-		PrometheusExternalURL:      defaultPrometheusExternalURL,
-		AlertManagerRetention:      defaultAlertManagerRetention,
-		AlertManagerExternalURL:    defaultAlertManagerExternalURL,
+		PrometheusMetricsRetention: "10d",
+		AlertManagerRetention:      "120h",
 		AlertManagerConfig:         defaultAlertManagerConfig,
 	}
 }
