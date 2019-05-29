@@ -105,7 +105,13 @@ variable "setup_raid" {
 }
 
 variable "reservation_ids" {
-  description = "Specify Packet hardware_reservation_id for instances. A map where the key format is 'worker-${index}' and the associated value is the reservation id string. Nodes not present in the map will use no reservation id. Example: reservation_ids = { worker-0 = '<reservation_id>' }"
+  description = "Specify Packet hardware_reservation_id for instances. A map where the key format is 'worker-${index}' and the associated value is the reservation id string. Nodes not present in the map will use the value of reservation_ids_default var. Example: reservation_ids = { worker-0 = '<reservation_id>' }"
   type        = "map"
   default     = {}
+}
+
+variable "reservation_ids_default" {
+  description = "Possible values: '' and 'next-available'. Value used for nodes not listed in the reservation_ids map. Note that using the empty string means using no hardware reservation and 'next-available' will choose any reservation that matches the instance type and facility this pool is running."
+  type        = "string"
+  default     = ""
 }
