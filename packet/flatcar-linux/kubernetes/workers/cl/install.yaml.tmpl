@@ -5,10 +5,14 @@ systemd:
       enable: true
       contents: |
         [Unit]
+        StartLimitBurst=5
+        StartLimitIntervalSec=3600s
         Requires=network-online.target
         After=network-online.target
         [Service]
         Type=simple
+        Restart=always
+        RestartSec=60
         ExecStart=/opt/installer
         [Install]
         WantedBy=multi-user.target
