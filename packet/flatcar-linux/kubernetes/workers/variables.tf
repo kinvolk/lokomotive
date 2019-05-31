@@ -105,7 +105,7 @@ variable "setup_raid" {
 }
 
 variable "reservation_ids" {
-  description = "Specify Packet hardware_reservation_id for instances. A map where the key format is 'worker-${index}' and the associated value is the reservation id string. Nodes not present in the map will use the value of reservation_ids_default var. Example: reservation_ids = { worker-0 = '<reservation_id>' }"
+  description = "Specify Packet hardware_reservation_id for instances. A map where the key format is 'worker-${index}' and the associated value is the reservation ID string. Nodes not present in the map will use the value of reservation_ids_default var. Example: reservation_ids = { worker-0 = '<reservation_id>' }"
   type        = "map"
   default     = {}
 }
