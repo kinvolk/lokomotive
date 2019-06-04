@@ -180,7 +180,7 @@ module "worker-pool-helium" {
   count = 2
   type  = "t1.small.x86"
 
-  ipxe_scrpt_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxeE"
+  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
 
   kubeconfig = "${module.controller.kubeconfig}"
 
