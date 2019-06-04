@@ -55,11 +55,11 @@ nav:
     - 'Bare-Metal': 'architecture/bare-metal.md'
     - 'Google Cloud': 'architecture/google-cloud.md'
   - 'Flatcar Linux':
-    - 'AWS': 'cl/aws.md'
-    - 'Azure': 'cl/azure.md'
-    - 'Bare-Metal': 'cl/bare-metal.md'
-    - 'Google Cloud': 'cl/google-cloud.md'
-    - 'Packet': 'flatcar/packet.md'
+    - 'AWS': 'flatcar-linux/aws.md'
+    - 'Azure': 'flatcar-linux/azure.md'
+    - 'Bare-Metal': 'flatcar-linux/bare-metal.md'
+    - 'Google Cloud': 'flatcar-linux/google-cloud.md'
+    - 'Packet': 'flatcar-linux/packet.md'
   - 'Topics':
     - 'Maintenance': 'topics/maintenance.md'
     - 'Hardware': 'topics/hardware.md'
