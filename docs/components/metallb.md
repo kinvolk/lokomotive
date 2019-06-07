@@ -132,3 +132,33 @@ for MetalLB *controller* pods and MetalLB *speaker* pods, respectively.
 
 More information on MetalLB configuration can be found in the official
 [docs](https://metallb.universe.tf/configuration/)..
+
+### Pod Tolerations
+You can specify one or more tolerations for both speaker and controller pods as part of the component configuration in the `*.lokocfg` file.
+Example:
+
+```
+component "metallb" {
+  speaker_toleration {
+    key = "speaker_key1"
+    operator = "Equal"
+    value = "value1"
+  }
+  speaker_toleration {
+    key = "speaker_key2"
+    operator = "Equal"
+    value = "value2"
+  }
+
+  controller_toleration {
+    key = "controller_key1"
+    operator = "Equal"
+    value = "value1"
+  }
+  controller_toleration {
+    key = "controller_key2"
+    operator = "Equal"
+    value = "value2"
+  }
+}
+```
