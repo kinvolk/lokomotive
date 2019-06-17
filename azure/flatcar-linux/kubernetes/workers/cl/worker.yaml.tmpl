@@ -5,6 +5,9 @@ systemd:
       enable: true
     - name: locksmithd.service
       mask: true
+    - name: iscsid.service
+      enable: true
+      enabled: true
     - name: wait-for-dns.service
       enable: true
       contents: |
@@ -37,6 +40,8 @@ systemd:
           --mount volume=opt-cni-bin,target=/opt/cni/bin \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log \
+          --volume iscsiadm,kind=host,source=/usr/sbin/iscsiadm \
+          --mount volume=iscsiadm,target=/usr/sbin/iscsiadm \
           --insecure-options=image"
         ExecStartPre=/bin/mkdir -p /opt/cni/bin
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
