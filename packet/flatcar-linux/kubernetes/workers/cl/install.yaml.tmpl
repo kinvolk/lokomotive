@@ -73,11 +73,17 @@ storage:
             )
             local count=$(echo "$disks" | wc -w)
 
-            # Exit if we have less than 2 RAID-eligible disks.
-            [ $count -lt 2 ] && return 0
+            # Exit if we don't have any disks to create an array
+            [ $count -lt 1 ] && return 0
 
             # Create, format and mount array.
-            mdadm --create --verbose /dev/md/node-local-storage --level=0 --raid-devices="$${count}" $${disks}
+            local extra_opts=""
+            if [ $count -lt 2 ]; then
+              # Force array creation even with one disk
+              extra_opts="--force"
+            fi
+
+            mdadm --create $$extra_opts --verbose /dev/md/node-local-storage --level=0 --raid-devices="$${count}" $${disks}
             cat /proc/mdstat
             mkfs.ext4 /dev/md/node-local-storage
           }
