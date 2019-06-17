@@ -59,4 +59,4 @@ all: build test
 install-packr2:
 	# Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
 	# so we rely on defaults.
-	GO111MODULE=on go get -u github.com/gobuffalo/packr/v2/packr2
+	GO111MODULE=on go get github.com/gobuffalo/packr/v2/packr2
