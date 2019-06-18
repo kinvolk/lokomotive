@@ -60,9 +60,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	var box *packr.Box
 
 	if c.InstallMode == "deployment" {
-		box = packr.New("contour-deployment", "./manifests-deployment/")
+		box = packr.New("contour-deployment", "../../../assets/components/contour/manifests-deployment/")
 	} else if c.InstallMode == "daemonset" {
-		box = packr.New("contour-daemonset", "./manifests-daemonset/")
+		box = packr.New("contour-daemonset", "../../../assets/components/contour/manifests-daemonset/")
 	} else {
 		// This should not be possible, it was validated during load
 		panic("This is a bug: install_mode was a valid value and it is not a valid value now.")
