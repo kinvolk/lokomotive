@@ -83,7 +83,7 @@ storage:
               extra_opts="--force"
             fi
 
-            mdadm --create /dev/md/node-local-storage $$extra_opts --verbose --level=0 --raid-devices="$${count}" $${disks}
+            mdadm --create /dev/md/node-local-storage --homehost=any $$extra_opts --verbose --name=node-local-storage --level=0 --raid-devices="$${count}" $${disks}
             cat /proc/mdstat
             mkfs.ext4 /dev/md/node-local-storage
           }
