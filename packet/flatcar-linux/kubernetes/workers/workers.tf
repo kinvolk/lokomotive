@@ -3,7 +3,7 @@ resource "packet_device" "nodes" {
   hostname         = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
   plan             = "${var.type}"
   facilities       = ["${var.facility}"]
-  operating_system = "flatcar_stable"
+  operating_system = "flatcar_${var.os_channel}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
   user_data        = "${data.ct_config.ignitions.rendered}"

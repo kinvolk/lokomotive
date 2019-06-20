@@ -42,7 +42,7 @@ resource "packet_device" "controllers" {
   hostname         = "${var.cluster_name}-controller-${count.index}"
   plan             = "${var.controller_type}"
   facilities       = ["${var.facility}"]
-  operating_system = "flatcar_stable"
+  operating_system = "flatcar_${var.os_channel}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
   user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"

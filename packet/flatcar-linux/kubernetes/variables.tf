@@ -24,13 +24,7 @@ variable "project_id" {
 variable "os_channel" {
   type        = "string"
   default     = "stable"
-  description = "Flatcar Linux channel to install from (stable, beta, alpha)"
-}
-
-variable "os_version" {
-  type        = "string"
-  default     = "current"
-  description = "Flatcar Linux version to install (for example '2079.3.1' - see https://www.flatcar-linux.org/releases/)"
+  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
 }
 
 variable "controller_count" {
