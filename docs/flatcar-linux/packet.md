@@ -146,8 +146,6 @@ module "controller" {
   controller_count = 1
   controller_type  = "t1.small.x86"
 
-  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
-
   management_cidrs = [
     "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
   ]
@@ -178,8 +176,6 @@ module "worker-pool-helium" {
 
   count = 2
   type  = "t1.small.x86"
-
-  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
 
   kubeconfig = "${module.controller.kubeconfig}"
 
@@ -304,7 +300,6 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | controller_type | Type of nodes to provision | "baermetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | os_channel | AMI channel for a Flatcar Linux | stable | stable, beta, alpha |
 | os_version | Version of a Flatcar Linux release | current | 2079.3.1 |
-| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | network_mtu | CNI interface MTU (calico only) | 1480 | 8981 |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
@@ -320,7 +315,6 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | count | Number of worker nodes | 1 | 3 |
 | type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | labels | Comma separated labels to be added to the worker nodes | "" | "node.supernova.io/role=backend" |
-| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe | https://scripts.foobar.com/ipxe-flatcar.ipxe |
 | os_channel | AMI channel for a Flatcar Linux | stable | stable, beta, alpha |
 | os_version | Version of a Flatcar Linux release | current | 2079.3.1 |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |

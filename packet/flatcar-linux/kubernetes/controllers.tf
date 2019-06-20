@@ -42,30 +42,10 @@ resource "packet_device" "controllers" {
   hostname         = "${var.cluster_name}-controller-${count.index}"
   plan             = "${var.controller_type}"
   facilities       = ["${var.facility}"]
-  operating_system = "custom_ipxe"
+  operating_system = "flatcar_stable"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
-  ipxe_script_url  = "${var.ipxe_script_url}"
-  always_pxe       = "false"
-  user_data        = "${element(data.ct_config.controller-install-ignitions.*.rendered, count.index)}"
-}
-
-data "ct_config" "controller-install-ignitions" {
-  count   = "${var.controller_count}"
-  content = "${element(data.template_file.controller-install.*.rendered, count.index)}"
-}
-
-data "template_file" "controller-install" {
-  count    = "${var.controller_count}"
-  template = "${file("${path.module}/cl/controller-install.yaml.tmpl")}"
-
-  vars {
-    os_channel           = "${var.os_channel}"
-    os_version           = "${var.os_version}"
-    flatcar_linux_oem    = "packet"
-    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
-    postinstall_ignition = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
-  }
+  user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
 }
 
 data "ct_config" "controller-ignitions" {
