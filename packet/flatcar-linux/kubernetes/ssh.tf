@@ -96,7 +96,7 @@ resource "null_resource" "bootkube-start" {
 
 data "template_file" "controller_host_endpoints" {
   count    = "${var.controller_count}"
-  template = "${file("${path.module}/calico/controller_host_endpoints.yaml.tmpl")}"
+  template = "${file("${path.module}/calico/controller-host-endpoint.yaml.tmpl")}"
 
   vars {
     node_name = "${element(packet_device.controllers.*.hostname, count.index)}"
@@ -105,7 +105,7 @@ data "template_file" "controller_host_endpoints" {
 
 data "template_file" "worker_host_endpoints" {
   count    = "${var.worker_count}"
-  template = "${file("${path.module}/calico/worker_host_endpoints.yaml.tmpl")}"
+  template = "${file("${path.module}/calico/worker-host-endpoint.yaml.tmpl")}"
 
   vars {
     node_name = "${element("${var.worker_nodes_hostnames}", count.index)}"
@@ -113,7 +113,7 @@ data "template_file" "worker_host_endpoints" {
 }
 
 data "template_file" "host_protection_policy" {
-  template = "${file("${path.module}/calico/calico-policy.yaml.tmpl")}"
+  template = "${file("${path.module}/calico/host-protection.yaml.tmpl")}"
 
   vars = {
     controller_host_endpoints = "${join("\n", data.template_file.controller_host_endpoints.*.rendered)}"
@@ -121,6 +121,5 @@ data "template_file" "host_protection_policy" {
     management_cidrs          = "${jsonencode("${var.management_cidrs}")}"
     cluster_internal_cidrs    = "${jsonencode(list("${var.node_private_cidr}", "${var.pod_cidr}", "${var.service_cidr}"))}"
     etcd_server_cidrs         = "${jsonencode("${packet_device.controllers.*.access_private_ipv4}")}"
-    node_public_ips           = "${jsonencode(concat("${packet_device.controllers.*.access_public_ipv4}", "${var.worker_nodes_public_ipv4s}"))}"
   }
 }
