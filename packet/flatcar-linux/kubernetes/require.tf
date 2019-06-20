@@ -29,5 +29,5 @@ provider "packet" {
 }
 
 provider "aws" {
-  version = "~> 1.57"
+  version = ">= 1.13, < 3.0"
 }
