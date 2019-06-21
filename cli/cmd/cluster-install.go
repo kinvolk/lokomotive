@@ -80,8 +80,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	}
 }
 
-func verifyInstall(kubeConfigPath string) error {
-	client, err := k8sutil.NewClientset(kubeConfigPath)
+func verifyInstall(kubeconfigPath string) error {
+	client, err := k8sutil.NewClientset(kubeconfigPath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up clientset")
 	}
