@@ -38,7 +38,7 @@ func PrepareTerraformRootDir(path string) error {
 // The terraform sources are loaded from a packr2 box: depending on how
 // the binary was built, that means loaded from the binary (`make build`)
 // or from disk (`make build-slim`).
-func PrepareLokomotiveTerraformModuleAt(path string, provider string) error {
+func PrepareLokomotiveTerraformModuleAt(path string) error {
 	pathExists, err := util.PathExists(path)
 	if err != nil {
 		return errors.Wrapf(err, "failed to stat path %q: %v", path, err)
@@ -46,8 +46,7 @@ func PrepareLokomotiveTerraformModuleAt(path string, provider string) error {
 	if pathExists {
 		return fmt.Errorf("directory at %q exists already - aborting", path)
 	}
-	// String formatting needs to be done inline, otherwise packr complains
-	box := packr.New(fmt.Sprintf("lokomotive-kubernetes/%s", provider), fmt.Sprintf("../../lokomotive-kubernetes/%s", provider))
+	box := packr.New("lokomotive-kubernetes", "../../lokomotive-kubernetes")
 	walk := func(fileName string, file packd.File) error {
 		fileInfo, err := file.FileInfo()
 		if err != nil {
