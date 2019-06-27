@@ -101,6 +101,7 @@ systemd:
           --network-plugin=cni \
           --node-labels=node-role.kubernetes.io/master \
           --node-labels=node-role.kubernetes.io/controller="true" \
+          --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
           --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
