@@ -18,20 +18,23 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8002"
-        # XXX: Modified manually to scrape envoy metrics on prometheus format
         prometheus.io/path: "/stats/prometheus"
-        prometheus.io/format: "prometheus"
     spec:
       containers:
-      # XXX: See the README for the reason to use a custom docker image
-      - image: quay.io/kinvolk/contour:idle_timeout
+      - image: gcr.io/heptio-images/contour:v0.13.0
         imagePullPolicy: Always
         name: contour
         command: ["contour"]
-        args: ["serve", "--incluster", "--envoy-http-access-log", "/dev/null", "--envoy-https-access-log", "/dev/null"]
-
-      # XXX: See the README for the reason to use envoy 1.10
-      - image: docker.io/envoyproxy/envoy-alpine:v1.10.0
+        args: ["serve", "--incluster", "--envoy-service-http-port", "8080", "--envoy-service-https-port", "8443"]
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+      - image: docker.io/envoyproxy/envoy:v1.10.0
         name: envoy
         ports:
         - containerPort: 8080
@@ -58,8 +61,7 @@ spec:
             exec:
               command: ["wget", "-qO-", "--post-data=''", "http://localhost:9001/healthcheck/fail"]
       initContainers:
-      # XXX: See the README for the reason to use a custom docker image
-      - image: quay.io/kinvolk/contour:idle_timeout
+      - image: gcr.io/heptio-images/contour:v0.13.0
         imagePullPolicy: Always
         name: envoy-initconfig
         command: ["contour"]
@@ -67,6 +69,11 @@ spec:
         volumeMounts:
         - name: contour-config
           mountPath: /config
+        env:
+        - name: CONTOUR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
       volumes:
       - name: contour-config
         emptyDir: {}
