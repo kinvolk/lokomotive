@@ -30,7 +30,6 @@ module "packet-{{.Config.ClusterName}}" {
 
   worker_count              = "{{ .WorkerCount }}"
   worker_nodes_hostnames    = "${concat({{- range $index, $pool := .Config.WorkerPools }}{{- if $index }}, {{- end }}"${module.worker-pool-{{- $index }}.worker_nodes_hostname}"{{- end }})}"
-  worker_nodes_public_ipv4s = "${concat({{- range $index, $pool := .Config.WorkerPools }}{{- if $index }}, {{- end }}"${module.worker-pool-{{- $index }}.worker_nodes_public_ipv4}"{{- end }})}"
 
   {{- if .Config.IPXEScriptURL }}
   ipxe_script_url = "{{ .Config.IPXEScriptURL }}"
