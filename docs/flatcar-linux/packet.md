@@ -109,6 +109,12 @@ Additional configuration options are describe in the `packet` provider [docs](ht
 Define a Kubernetes cluster using the controller module [packet/flatcar-linux/kubernetes](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/packet/flatcar-linux/kubernetes) and the worker module [packet/flatcar-linux/kubernetes/workers](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/packet/flatcar-linux/kubernetes/workers).
 
 ```tf
+locals {
+  project_id   = "93fake81..."
+  cluster_name = "supernova"
+  facility     = "ams1"
+}
+
 module "controller" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes?ref=<hash>"
 
@@ -134,9 +140,9 @@ module "controller" {
   asset_dir = "/home/user/.secrets/clusters/packet"
 
   # Packet
-  cluster_name = "supernova"
-  project_id   = "93fake81..."
-  facility     = "ams1"
+  cluster_name = local.cluster_name
+  project_id   = local.project_id
+  facility     = local.facility
 
   # optional
   controller_count = 1
@@ -168,9 +174,9 @@ module "worker-pool-helium" {
     "ssh-rsa AAAAB3Nz...",
   ]
 
-  cluster_name = "supernova"
-  project_id   = "93fake81..."
-  facility     = "ams1"
+  cluster_name = local.cluster_name
+  project_id   = local.project_id
+  facility     = local.facility
   pool_name    = "helium"
 
   worker_count = 2
