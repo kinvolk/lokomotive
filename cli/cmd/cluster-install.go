@@ -61,7 +61,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
-	kubeconfigPath := path.Join(assetDir, "auth", "kubeconfig")
+	kubeconfigPath := path.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
 	if err := verifyInstall(kubeconfigPath); err != nil {
 		ctxLogger.Fatalf("Verify cluster installation: %v", err)
 	}

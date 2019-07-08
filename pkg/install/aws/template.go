@@ -17,7 +17,7 @@ module "aws-{{.Config.ClusterName}}" {
   dns_zone_id  = "{{.Config.DNSZoneID}}"
 
   ssh_authorized_key = "{{.SSHAuthorizedKey}}"
-  asset_dir          = "{{.Config.AssetDir}}"
+  asset_dir          = "../cluster-assets"
 
   controller_count = "{{.Config.ControllerCount}}"
   controller_type  = "{{.Config.ControllerType}}"
