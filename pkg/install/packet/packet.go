@@ -116,8 +116,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	defer f.Close()
 
-	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/packet/flatcar-linux/kubernetes")
-
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal SSH public keys")
@@ -135,13 +133,11 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 	terraformCfg := struct {
 		Config          config
-		Source          string
 		SSHPublicKeys   string
 		ManagementCIDRs string
 		WorkerCount     int
 	}{
 		Config:          *cfg,
-		Source:          source,
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
 		WorkerCount:     workerCount,

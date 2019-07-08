@@ -94,8 +94,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	defer f.Close()
 
-	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/bare-metal/flatcar-linux/kubernetes")
-
 	workerDomains, err := json.Marshal(cfg.WorkerDomains)
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
@@ -127,7 +125,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 
 	terraformCfg := struct {
-		AssetDir             string
 		CachedInstall        string
 		ClusterName          string
 		ControllerDomains    string
@@ -141,13 +138,11 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxHTTPEndpoint string
 		OSChannel            string
 		OSVersion            string
-		Source               string
 		SSHAuthorizedKey     string
 		WorkerNames          string
 		WorkerMacs           string
 		WorkerDomains        string
 	}{
-		AssetDir:             cfg.AssetDir,
 		CachedInstall:        cfg.CachedInstall,
 		ClusterName:          cfg.ClusterName,
 		ControllerDomains:    string(controllerDomains),
@@ -161,7 +156,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
 		OSChannel:            cfg.OSChannel,
 		OSVersion:            cfg.OSVersion,
-		Source:               source,
 		SSHAuthorizedKey:     cfg.SSHPubKey,
 		WorkerNames:          string(workerNames),
 		WorkerMacs:           string(workerMacs),

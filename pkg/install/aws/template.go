@@ -2,7 +2,7 @@ package aws
 
 var terraformConfigTmpl = `
 module "aws-{{.Config.ClusterName}}" {
-  source = "{{.Source}}"
+  source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes"
 
   providers = {
     aws      = "aws.default"

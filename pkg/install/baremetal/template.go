@@ -2,7 +2,7 @@ package baremetal
 
 var terraformConfigTmpl = `
 module "bare-metal-{{.ClusterName}}" {
-  source = "{{.Source}}"
+  source = "../lokomotive-kubernetes/bare-metal/flatcar-linux/kubernetes"
 
   providers = {
     local    = "local.default"
