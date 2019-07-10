@@ -74,6 +74,9 @@ component "ingress-nginx" {
 }
 ```
 
+Note that the asset directory should be kept for the lifetime of the cluster.
+The path cannot be relative at the moment.
+
 To apply the configuration, run
 
 ```

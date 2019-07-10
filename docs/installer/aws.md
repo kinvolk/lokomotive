@@ -57,6 +57,8 @@ component "ingress-nginx" {
 }
 ```
 
+The maximal length for a cluster name is 18 characters.
+
 Create a `lokocfg.vars` file and define all needed variables. Example:
 
 ```
@@ -64,6 +66,9 @@ asset_dir = "~/lokoctl-assets"
 aws_creds = "~/.aws/credentials"
 ssh_pubkey = "~/.ssh/id_rsa.pub"
 ```
+
+Note that the asset directory should be kept for the lifetime of the cluster.
+The path cannot be relative at the moment.
 
 To apply the configuration, run
 
