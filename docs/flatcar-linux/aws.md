@@ -204,11 +204,11 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 
 | Name | Description | Example |
 |:-----|:------------|:--------|
-| cluster_name | Unique cluster name (prepended to dns_zone) | "tempest" |
+| cluster_name | Unique cluster name (prepended to dns_zone), maximal length 18 characters | "tempest" |
 | dns_zone | AWS Route53 DNS zone | "aws.example.com" |
 | dns_zone_id | AWS Route53 DNS zone id | "Z3PAABBCFAKEC0" |
 | ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
-| asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/tempest" |
+| asset_dir | Path to a directory where generated assets should be placed (contains secrets, used to destroy the cluster), cannot be a relative path | "/home/user/.secrets/clusters/tempest" |
 
 #### DNS Zone
 
