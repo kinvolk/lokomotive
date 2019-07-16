@@ -11,6 +11,8 @@ endif
 
 LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags '-static'"
 
+.NOTPARALLEL:
+
 .PHONY: build
 build: update-lk-submodule packr2 build-slim packr2-clean
 
