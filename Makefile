@@ -22,13 +22,11 @@ update-lk-submodule:
 
 .PHONY: packr2
 packr2:
-	cd pkg/components && packr2
-	cd pkg/install && packr2
+	cd pkg/assets && packr2
 
 .PHONY: packr2-clean
 packr2-clean:
-	cd pkg/components && packr2 clean
-	cd pkg/install && packr2 clean
+	cd pkg/assets && packr2 clean
 
 .PHONY: build-slim
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed, so

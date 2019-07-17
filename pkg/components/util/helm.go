@@ -8,26 +8,26 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gobuffalo/packd"
-	packr "github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/proto/hapi/chart"
 	"k8s.io/helm/pkg/renderutil"
+
+	"github.com/kinvolk/lokoctl/pkg/assets"
 )
 
-// LoadChartFromBox takes in a packr Box and returns a Helm Chart object or an error.
-func LoadChartFromBox(box *packr.Box) (*chart.Chart, error) {
+// LoadChartFromAssets takes in an asset location and returns a Helm
+// Chart object or an error.
+func LoadChartFromAssets(location string) (*chart.Chart, error) {
 	tmpDir, err := ioutil.TempDir("", "lokoctl-chart-")
 	if err != nil {
 		return nil, errors.Wrap(err, "creating temporary dir")
 	}
 	defer os.RemoveAll(tmpDir)
 
-	walk := func(fileName string, file packd.File) error {
-		fileInfo, err := file.FileInfo()
+	walk := func(fileName string, fileInfo os.FileInfo, file io.ReadSeeker, err error) error {
 		if err != nil {
-			return errors.Wrap(err, "extracting file info")
+			return errors.Wrapf(err, "error during walking at %q", fileName)
 		}
 
 		fileName = filepath.Join(tmpDir, fileName)
@@ -50,8 +50,8 @@ func LoadChartFromBox(box *packr.Box) (*chart.Chart, error) {
 		return nil
 	}
 
-	if err := box.WalkPrefix("", walk); err != nil {
-		return nil, errors.Wrap(err, "walking box")
+	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
+		return nil, errors.Wrap(err, "walking assets")
 	}
 
 	return chartutil.Load(tmpDir)

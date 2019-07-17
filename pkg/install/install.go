@@ -6,10 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gobuffalo/packd"
-	packr "github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokoctl/pkg/assets"
 	"github.com/kinvolk/lokoctl/pkg/util"
 )
 
@@ -46,11 +45,9 @@ func PrepareLokomotiveTerraformModuleAt(path string) error {
 	if pathExists {
 		return fmt.Errorf("directory at %q exists already - aborting", path)
 	}
-	box := packr.New("lokomotive-kubernetes", "../../assets/lokomotive-kubernetes")
-	walk := func(fileName string, file packd.File) error {
-		fileInfo, err := file.FileInfo()
+	walk := func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
 		if err != nil {
-			return errors.Wrap(err, "failed to extract file info")
+			return errors.Wrapf(err, "error during walking at %q", fileName)
 		}
 
 		fileName = filepath.Join(path, fileName)
@@ -65,14 +62,14 @@ func PrepareLokomotiveTerraformModuleAt(path string) error {
 		}
 		defer targetFile.Close()
 
-		if _, err := io.Copy(targetFile, file); err != nil {
+		if _, err := io.Copy(targetFile, r); err != nil {
 			return errors.Wrap(err, "failed to write file")
 		}
 		return nil
 	}
 
-	if err := box.Walk(walk); err != nil {
-		return errors.Wrap(err, "failed to walk box")
+	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
+		return errors.Wrap(err, "failed to walk assets")
 	}
 	return nil
 }

@@ -1,12 +1,16 @@
 package openebsoperator
 
 import (
-	"path"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/packr/v2/file"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokoctl/pkg/assets"
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
@@ -25,16 +29,28 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
-	box := packr.New(name, "../../../assets/components/openebs-default-storage-class/manifests/")
+	walk := func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
+		if err != nil {
+			return errors.Wrapf(err, "error during walking at %q", fileName)
+		}
 
-	box.Walk(func(f string, content file.File) error {
-		if path.Ext(f) != ".yaml" {
+		if filepath.Ext(fileName) != ".yaml" {
 			return nil
 		}
 
-		ret[f] = content.String()
+		contents, err := ioutil.ReadAll(r)
+		if err != nil {
+			return errors.Wrapf(err, "failed to read %q", fileName)
+		}
+
+		ret[fileName] = string(contents)
 		return nil
-	})
+	}
+
+	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", name), walk); err != nil {
+		return nil, errors.Wrap(err, "failed to walk assets")
+	}
+
 	return ret, nil
 }
 
