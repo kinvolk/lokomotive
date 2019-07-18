@@ -4,8 +4,9 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 
 ## Requirements
 
-* An API token to a Packet account
+* An API token to a Packet account (do not use the project token but a profile token)
 * A Packet project ID
+* Local BGP enabled
 * AWS Route53 DNS Zone (registered domain name or delegated subdomain)
 * Terraform v0.11.x
 * [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) installed locally
@@ -22,20 +23,30 @@ variable "packet_token" {
 }
 
 cluster "packet" {
-	asset_dir = "/tmp/lokoctl-assets"
+	# Change asset folder
+	asset_dir = "${pathexpand("~/lokoctl-assets/mycluster")}"
 	auth_token = "${var.packet_token}"
 	aws_creds_path = "${pathexpand("~/.aws/credentials")}"
+	# Change according to your AWS DNS zone
 	aws_region = "eu-central-1"
+	# Change cluster name
 	cluster_name = "test"
 	controller_count = 1
+	# Change AWS DNS zone
 	dns_zone = "k8s.example.com"
+	# and zone ID
 	dns_zone_id = "XXX"
+	# Change Packet server location
 	facility = "ams1"
+	# Change Packet project ID
 	project_id = "aaa-bbb-ccc-ddd"
+	# Change management SSH public key
 	ssh_pubkeys = [
 		"ssh-rsa AAAA...",
 	]
-	management_cidrs = ["123.45.67.89/32"]
+	# Change to your external IP address to allow it for management access
+	management_cidrs = ["my.ip.ad.dr/32"]
+	# Change to internal Packet IPs to allow cluster communication
 	node_private_cidr = "XX.XX.XX.0/24"
 
 	# Define one or more worker pools
@@ -64,16 +75,29 @@ The asset directory should be kept for the lifetime of the cluster.
 The path cannot be relative at the moment.
 
 `management_cidrs` is the list of IPv4 CIDRs authorised to access or manage the cluster.
+Find your current external IP with `curl -4 icanhazip.com` and put it there.
+You can put `0.0.0.0/0` to allow any address if you cannot predict your IP address.
 
-For `node_private_cidr`, if you do not know the actual private IP address CIDR that will be assigned to the nodes, you can use the project blocks on https://app.packet.net/projects/<PROJECT_ID>/network as a guide.
+For `node_private_cidr`, if you do not know the actual private IP address CIDR that
+will be assigned to the nodes, you can copy the project blocks from https://app.packet.net/projects/<PROJECT_ID>/network.
+If you don't know the exact block in advance you can put `10.0.0.0/8` to allow any address
+from the internal packet network for node-to-node communication. Using `0.0.0.0/0` does not
+work because calico tries to find its network interface based on reaching that.
+
+You also have to specify the `project_id` variable in the configuration file (as seen in the URL of the Packet web interface),
+add SSH public keys to the list (take the content from `~/.ssh/id_rsa.pub`),
+and change the `dns_zone` and `dns_zone_id` values matching those you set up in AWS.
 
 Next,
 
-Create a `lokocfg.vars` file and define all needed variables. Example:
+create a `lokocfg.vars` file and define all needed variables. Example:
 
 ```
 packet_token = "XXX"
 ```
+
+When you store your configuration in a git repository, do not include the `lokocfg.vars` file which holds
+the Packet authentification token (Consider adding it to `.gitignore`).
 
 To apply the configuration, run
 
