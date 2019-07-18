@@ -2,10 +2,6 @@ package contour
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
@@ -14,6 +10,7 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/assets"
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/kinvolk/lokoctl/pkg/util/walkers"
 )
 
 const name = "contour"
@@ -58,24 +55,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		panic("This is a bug: install_mode was a valid value and it is not a valid value now.")
 	}
 
-	walk := func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
-		if err != nil {
-			return errors.Wrapf(err, "error during walking at %q", fileName)
-		}
-
-		if filepath.Ext(fileName) != ".yaml" {
-			return nil
-		}
-
-		contents, err := ioutil.ReadAll(r)
-		if err != nil {
-			return errors.Wrapf(err, "failed to read %q", fileName)
-		}
-
-		ret[fileName] = string(contents)
-		return nil
-	}
-
+	walk := walkers.DumpingWalker(ret, ".yaml")
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests-%s", name, c.InstallMode), walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}

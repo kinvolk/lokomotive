@@ -1,10 +1,8 @@
 package util
 
 import (
-	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -14,6 +12,7 @@ import (
 	"k8s.io/helm/pkg/renderutil"
 
 	"github.com/kinvolk/lokoctl/pkg/assets"
+	"github.com/kinvolk/lokoctl/pkg/util/walkers"
 )
 
 // LoadChartFromAssets takes in an asset location and returns a Helm
@@ -25,31 +24,9 @@ func LoadChartFromAssets(location string) (*chart.Chart, error) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	walk := func(fileName string, fileInfo os.FileInfo, file io.ReadSeeker, err error) error {
-		if err != nil {
-			return errors.Wrapf(err, "error during walking at %q", fileName)
-		}
-
-		fileName = filepath.Join(tmpDir, fileName)
-
-		// Rendered files could contain secret data,
-		// only allow the current user but not others
-		if err := os.MkdirAll(filepath.Dir(fileName), 0700); err != nil {
-			return errors.Wrap(err, "creating dir")
-		}
-
-		targetFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, fileInfo.Mode())
-		if err != nil {
-			return errors.Wrap(err, "opening target file")
-		}
-		defer targetFile.Close()
-
-		if _, err := io.Copy(targetFile, file); err != nil {
-			return errors.Wrap(err, "writing file")
-		}
-		return nil
-	}
-
+	// Rendered files could contain secret data, only allow the
+	// current user but not others
+	walk := walkers.CopyingWalker(tmpDir, 0700)
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
 		return nil, errors.Wrap(err, "walking assets")
 	}
