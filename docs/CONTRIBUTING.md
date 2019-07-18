@@ -5,7 +5,6 @@
 ```bash
 git clone git@github.com:kinvolk/lokoctl.git
 cd lokoctl
-make install-packr2
 ```
 
 ## Build the code

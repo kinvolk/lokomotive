@@ -17,12 +17,7 @@ require (
 	github.com/cyphar/filepath-securejoin v0.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31 // indirect
-	github.com/gobuffalo/genny v0.1.1 // indirect
-	github.com/gobuffalo/gogen v0.1.1 // indirect
-	github.com/gobuffalo/packd v0.1.0
-	github.com/gobuffalo/packr/v2 v2.2.0
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/google/btree v1.0.0 // indirect
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/google/gofuzz v1.0.0 // indirect
@@ -40,27 +35,25 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/huandu/xstrings v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
-	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
-	github.com/karrick/godirwalk v1.10.3 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
-	github.com/mitchellh/cli v1.0.0 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/posener/complete v1.2.1 // indirect
+	github.com/prometheus/alertmanager v0.18.0 // indirect
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
+	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749
+	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.4

@@ -1,40 +1,40 @@
 package assets
 
-import (
-	"fmt"
+//go:generate go run assets_generate.go
 
-	"github.com/gobuffalo/packd"
-	packr "github.com/gobuffalo/packr/v2"
+import (
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
+	"github.com/shurcooL/httpfs/vfsutil"
 )
 
 type embeddedAssets struct {
-	locationsToBoxes map[string]*packr.Box
+	fs http.FileSystem
 }
 
 var _ AssetsIface = &embeddedAssets{}
 
 func newEmbeddedAssets() *embeddedAssets {
 	return &embeddedAssets{
-		locationsToBoxes: map[string]*packr.Box{
-			"/components/cert-manager/manifests":                  packr.New("cert-manager", "../../assets/components/cert-manager/manifests/"),
-			"/components/contour/manifests-deployment":            packr.New("contour-deployment", "../../assets/components/contour/manifests-deployment/"),
-			"/components/contour/manifests-daemonset":             packr.New("contour-daemonset", "../../assets/components/contour/manifests-daemonset/"),
-			"/components/ingress-nginx/manifests":                 packr.New("ingress-nginx", "../../assets/components/ingress-nginx/manifests/"),
-			"/components/openebs-default-storage-class/manifests": packr.New("openebs-default-storage-class", "../../assets/components/openebs-default-storage-class/manifests/"),
-			"/components/prometheus-operator/manifests":           packr.New("prometheus-operator", "../../assets/components/prometheus-operator/manifests/"),
-
-			"/lokomotive-kubernetes": packr.New("lokomotive-kubernetes", "../../assets/lokomotive-kubernetes"),
-		},
+		fs: vfsgenAssets,
 	}
 }
 
 func (a *embeddedAssets) WalkFiles(location string, cb WalkFunc) error {
-	box, ok := a.locationsToBoxes[location]
-	if !ok {
-		return fmt.Errorf("no box with assets for %q", location)
-	}
-	return box.Walk(func(fileName string, file packd.File) error {
-		fileInfo, err := file.FileInfo()
-		return cb(fileName, fileInfo, file, err)
+	return vfsutil.WalkFiles(a.fs, location, func(filePath string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
+		if err != nil {
+			return cb(filePath, fileInfo, r, err)
+		}
+		if fileInfo.IsDir() {
+			return nil
+		}
+		relPath, relErr := filepath.Rel(location, filePath)
+		if relErr != nil {
+			return cb(relPath, fileInfo, nil, relErr)
+		}
+		return cb(relPath, fileInfo, r, err)
 	})
 }

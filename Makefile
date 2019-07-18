@@ -14,19 +14,11 @@ LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags
 .NOTPARALLEL:
 
 .PHONY: build
-build: update-lk-submodule packr2 build-slim packr2-clean
+build: update-lk-submodule build-slim
 
 .PHONY: update-lk-submodule
 update-lk-submodule:
 	git submodule update --init
-
-.PHONY: packr2
-packr2:
-	cd pkg/assets && packr2
-
-.PHONY: packr2-clean
-packr2-clean:
-	cd pkg/assets && packr2 clean
 
 .PHONY: build-slim
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed, so
@@ -61,6 +53,4 @@ all: build test
 
 .PHONY: install-packr2
 install-packr2:
-	# Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
-	# so we rely on defaults.
-	GO111MODULE=on go get github.com/gobuffalo/packr/v2/packr2
+	echo "This target has been removed. This is here only to satisfy CI and will be removed later."

@@ -34,9 +34,8 @@ func PrepareTerraformRootDir(path string) error {
 // terraform module sources into path.
 // An error is returned if the directory already exists.
 //
-// The terraform sources are loaded from a packr2 box: depending on how
-// the binary was built, that means loaded from the binary (`make build`)
-// or from disk (`make build-slim`).
+// The terraform sources are loaded from data embedded in the lokoctl
+// binary.
 func PrepareLokomotiveTerraformModuleAt(path string) error {
 	pathExists, err := util.PathExists(path)
 	if err != nil {
