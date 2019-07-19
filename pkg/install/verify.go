@@ -31,19 +31,24 @@ func Verify(cl *lokomotive.Cluster) error {
 		return errors.Wrapf(err, "failed to ping cluster for readiness")
 	}
 
-	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, cl.NodesReady)
-	if err != nil {
-		if retryutil.IsRetryFailure(err) {
-			return fmt.Errorf("not all nodes became ready within the allowed time")
+	var ns *lokomotive.NodeStatus
+	var nsErr error
+	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, func() (bool, error) {
+		// Store the original error because Retry would stop too early if we forward it
+		// and anyway overrides the error in case of timeout.
+		ns, nsErr = cl.GetNodeStatus()
+		if nsErr != nil {
+			// To continue retrying, we don't set the error here.
+			return false, nil
 		}
-		return errors.Wrapf(err, "error determining node readiness")
+		return ns.Ready(), nil // Retry if not ready
+	})
+	if nsErr != nil {
+		return errors.Wrapf(nsErr, "error determining node status within the allowed time")
 	}
-
-	ns, err := cl.GetNodeStatus()
 	if err != nil {
-		return errors.Wrapf(err, "failed to get node status")
+		return fmt.Errorf("not all nodes became ready within the allowed time")
 	}
-
 	ns.PrettyPrint()
 
 	fmt.Println("\nSuccess - cluster is healthy and nodes are ready!")
