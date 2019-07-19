@@ -13,16 +13,12 @@ cd lokoctl
 make
 ```
 
-To build a "dev" version of lokoctl, use
+To use the assets from disk instead of the ones embedded in the binary, use the `LOKOCTL_USE_FS_ASSETS` environment variable. Empty value means that lokoctl will search for assets in `assets` directory where the binary is. Non empty value should point to the `assets` directory. The `assets` directory should contain subdirectories like `components` and `lokomotive-kubernetes`. Examples:
 
+```bash
+LOKOCTL_USE_FS_ASSETS='' ./lokoctl help
+LOKOCTL_USE_FS_ASSETS='./assets' ./lokoctl help
 ```
-make update-lk-submodule
-make build-slim
-```
-
-The resulting binary won't include the Lokomotive Kubernetes assets and
-requires the lokomotive-kubernetes code in the submodule directory.
-
 
 ## Build with docker
 

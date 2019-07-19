@@ -34,8 +34,9 @@ func PrepareTerraformRootDir(path string) error {
 // terraform module sources into path.
 // An error is returned if the directory already exists.
 //
-// The terraform sources are loaded from data embedded in the lokoctl
-// binary.
+// The terraform sources are loaded either from data embedded in the
+// lokoctl binary or from the filesystem, depending on whether the
+// LOKOCTL_USE_FS_ASSETS environment variable was specified.
 func PrepareLokomotiveTerraformModuleAt(path string) error {
 	pathExists, err := util.PathExists(path)
 	if err != nil {

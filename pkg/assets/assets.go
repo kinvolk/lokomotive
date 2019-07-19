@@ -21,4 +21,7 @@ var Assets AssetsIface
 
 func init() {
 	Assets = newEmbeddedAssets()
+	if value, found := os.LookupEnv("LOKOCTL_USE_FS_ASSETS"); found {
+		Assets = newFsAssets(value)
+	}
 }
