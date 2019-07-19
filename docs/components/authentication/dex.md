@@ -28,8 +28,28 @@ Both `ingress-nginx` and `cert-manager` are available as lokoctl components.
 
 The dex lokoctl component currently supports the following options:
 
-```
+```tf
 # dex.lokocfg
+
+variable "google_client_id" {
+  type = "string"
+}
+
+variable "google_client_secret" {
+  type = "string"
+}
+
+variable "dex_static_client_gangway_id" {
+  type = "string"
+}
+
+variable "dex_static_client_gangway_secret" {
+  type = "string"
+}
+
+variable "gangway_redirect_url" {
+  type = "string"
+}
 
 component "dex" {
   # Used as the `hosts` domain in the ingress resource for dex that is
@@ -88,6 +108,8 @@ component "dex" {
       client_secret = "${var.google_client_secret}"
 
       # The authorization callback URL
+      # Authorize this redirect URL while creating above credentials in the
+      # Restrictions -> Authorized redirect URIs
       redirect_uri = "https://dex.example.lokomotive-k8s.org/callback"
 
       # The OIDC issuer endpoint
@@ -100,16 +122,30 @@ component "dex" {
   # If you use for example gangway to drive authentication flows,
   # the config would look like the following snippet:
   static_client {
-    id = "gangway"
-    name = "gangway"
-
-    redirect_uris = [
-      "https://gangway.example.lokomotive-k8s.org/callback",
-    ]
+    name   = "gangway"
+    id     = "${var.dex_static_client_gangway_id}"
     secret = "${var.dex_static_client_gangway_secret}"
+
+    redirect_uris = ["${var.gangway_redirect_url}"]
   }
 }
 ```
+
+The secrets can be defined in another file (`lokocfg.vars`) like following:
+
+```tf
+google_client_id     = "1234567890123-SqDIX1KFvKPYmuV9Sa8eL92cvxtS3TuP.apps.googleusercontent.com"
+google_client_secret = "63zYPITtigLxLaYBEjNP9Taw"
+
+# A random secret key (create one with `openssl rand -base64 32`)
+dex_static_client_gangway_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
+dex_static_client_gangway_id     = "gangway"
+
+gangway_redirect_url = "https://gangway.example.lokomotive-k8s.org/callback"
+```
+
+**Note**: More information on the variables used in above dex config can be
+found in the [gangway doc](gangway.md#configuration).
 
 ### Installation
 
