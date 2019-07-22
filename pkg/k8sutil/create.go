@@ -65,7 +65,7 @@ func CreateAssets(config clientcmd.ClientConfig, manifestFiles map[string]string
 	}
 
 	fmt.Println("Waiting for api-server...")
-	if err := wait.Poll(5*time.Second, timeout, upFn); err != nil {
+	if err := wait.PollImmediate(5*time.Second, timeout, upFn); err != nil {
 		return errors.Wrapf(err, "API Server is not ready")
 	}
 
