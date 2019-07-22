@@ -68,7 +68,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	box := packr.New(name, "./manifests/")
+	box := packr.New(name, "../../../assets/components/ingress-nginx/manifests/")
 
 	helmChart, err := util.LoadChartFromBox(box)
 	if err != nil {

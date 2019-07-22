@@ -46,7 +46,7 @@ func PrepareLokomotiveTerraformModuleAt(path string) error {
 	if pathExists {
 		return fmt.Errorf("directory at %q exists already - aborting", path)
 	}
-	box := packr.New("lokomotive-kubernetes", "../../lokomotive-kubernetes")
+	box := packr.New("lokomotive-kubernetes", "../../assets/lokomotive-kubernetes")
 	walk := func(fileName string, file packd.File) error {
 		fileInfo, err := file.FileInfo()
 		if err != nil {

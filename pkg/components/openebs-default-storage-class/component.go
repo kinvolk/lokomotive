@@ -25,10 +25,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
-
-	var box *packr.Box
-
-	box = packr.New(name, "./manifests/")
+	box := packr.New(name, "../../../assets/components/openebs-default-storage-class/manifests/")
 
 	box.Walk(func(f string, content file.File) error {
 		if path.Ext(f) != ".yaml" {
