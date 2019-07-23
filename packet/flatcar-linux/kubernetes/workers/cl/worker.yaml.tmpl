@@ -75,6 +75,7 @@ systemd:
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
         ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
+        ExecStartPre=/etc/kubernetes/configure-kubelet-cgroup-driver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --node-ip=$${COREOS_PACKET_IPV4_PRIVATE_0} \
           --anonymous-auth=false \
@@ -84,6 +85,7 @@ systemd:
           --cluster_dns=${k8s_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
           --cni-conf-dir=/etc/kubernetes/cni/net.d \
+          --config=/etc/kubernetes/kubelet.config \
           --exit-on-lock-contention \
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
@@ -206,6 +208,19 @@ storage:
           -A INPUT -p tcp --dport 22 -j ACCEPT
           -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
           COMMIT
+    - path: /etc/kubernetes/configure-kubelet-cgroup-driver
+      filesystem: root
+      mode: 0744
+      contents:
+        inline: |
+          #!/bin/bash
+          set -e
+          readonly docker_cgroup_driver="$(docker info | awk '/^Cgroup Driver/ { print $3 }')"
+          cat <<EOF >/etc/kubernetes/kubelet.config
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          kind: KubeletConfiguration
+          cgroupDriver: "$${docker_cgroup_driver}"
+          EOF
 passwd:
   users:
   - name: core
