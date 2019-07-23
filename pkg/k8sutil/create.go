@@ -302,9 +302,6 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 		yamlManifest, err := reader.Read()
 		if err != nil {
 			if err == io.EOF {
-				if len(manifests) == 0 {
-					return nil, fmt.Errorf("no resources found")
-				}
 				return manifests, nil
 			}
 			return nil, err
@@ -328,6 +325,9 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 
 // parseJSONManifest parses a single JSON Kubernetes resource.
 func parseJSONManifest(data []byte) ([]manifest, error) {
+	if string(data) == "null" {
+		return nil, nil
+	}
 	var m struct {
 		APIVersion string `json:"apiVersion"`
 		Kind       string `json:"kind"`
