@@ -28,7 +28,7 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 	})
 
 	lokoConfig, diags := config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
-	if len(diags) > 0 {
+	if diags.HasErrors() {
 		contextLogger.Fatal(diags)
 	}
 
@@ -55,7 +55,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
 
-		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
+		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
 			return diags
 		}
 
