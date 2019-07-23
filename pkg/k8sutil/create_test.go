@@ -2,10 +2,13 @@ package k8sutil
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
 )
 
 func TestParseManifests(t *testing.T) {
+	t.Parallel()
+
 	networkPolicy := map[string]string{
 		"templates/test-deny-metadata.yml": `
 apiVersion: networking.k8s.io/v1
@@ -165,6 +168,8 @@ items:
 }
 
 func TestManifestURLPath(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		apiVersion string
 		namespace  string
@@ -183,15 +188,17 @@ func TestManifestURLPath(t *testing.T) {
 		{"apiextensions.k8s.io/v1beta1", "my-ns", "customresourcedefinitions", false, "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"},
 	}
 
-	for _, test := range tests {
-		m := manifest{
-			apiVersion: test.apiVersion,
-			namespace:  test.namespace,
-		}
-		got := m.urlPath(test.plural, test.namespaced)
-		if test.want != got {
-			t.Errorf("{&manifest{apiVersion:%q, namespace: %q}).urlPath(%q, %t); wanted=%q, got=%q",
-				test.apiVersion, test.namespace, test.plural, test.namespaced, test.want, got)
-		}
+	for i, test := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			m := manifest{
+				apiVersion: test.apiVersion,
+				namespace:  test.namespace,
+			}
+			got := m.urlPath(test.plural, test.namespaced)
+			if test.want != got {
+				t.Errorf("{&manifest{apiVersion:%q, namespace: %q}).urlPath(%q, %t); wanted=%q, got=%q",
+					test.apiVersion, test.namespace, test.plural, test.namespaced, test.want, got)
+			}
+		})
 	}
 }
