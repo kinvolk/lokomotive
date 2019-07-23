@@ -59,23 +59,17 @@ func (cl *Cluster) GetNodeStatus() (*NodeStatus, error) {
 	}, nil
 }
 
-// NodesReady checks if all nodes are ready
-// and returns false otherwise.
-func (cl *Cluster) NodesReady() (bool, error) {
-	ns, err := cl.GetNodeStatus()
-	if err != nil {
-		return false, err
-	}
-
+// Ready checks if all nodes are ready and returns false otherwise.
+func (ns *NodeStatus) Ready() bool {
 	for _, conditions := range ns.nodeConditions {
 		for _, condition := range conditions {
 			if condition.Type == "Ready" && condition.Status != v1.ConditionTrue {
-				return false, nil
+				return false
 			}
 		}
 	}
 
-	return true, nil
+	return true
 }
 
 // PrettyPrint prints Node statuses in a pretty way
