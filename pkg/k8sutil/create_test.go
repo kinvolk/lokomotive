@@ -96,6 +96,27 @@ metadata:
 			want: twoResourcesManifest,
 		},
 		{
+			name: "empty-file",
+			raw: map[string]string{
+				"foo.yaml": ``,
+			},
+			want: nil,
+		},
+		{
+			name: "file-with-whitespace",
+			raw: map[string]string{
+				"foo.yaml": `   `,
+			},
+			want: nil,
+		},
+		{
+			name: "empty-yaml-with-comments",
+			raw: map[string]string{
+				"foo.yaml": `# Optional deployment from helm chart`,
+			},
+			want: nil,
+		},
+		{
 			name: "List of resources",
 			raw: map[string]string{
 				"prometheus-operator/templates/prometheus/rolebinding-specificNamespace.yaml": `
