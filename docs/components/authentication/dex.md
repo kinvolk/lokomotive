@@ -19,10 +19,10 @@ Dex is available as a component in lokoctl.
 
 ### Requirements
 
-* An ingress controller such as `ingress-nginx` for HTTP ingress
-* A certificate manager such as `cert-manager` for valid certificates
+* An ingress controller such as Contour for HTTP ingress
+* A certificate manager such as cert-manager for valid certificates
 
-Both `ingress-nginx` and `cert-manager` are available as lokoctl components.
+Both Contour and cert-manager are available as lokoctl components.
 
 ### Configuration
 

@@ -7,7 +7,7 @@ gangway is available as a component in lokoctl
 
 ### Requirements
 
-* An ingress controller such as `ingress-nginx` for HTTP ingress
+* An ingress controller such as `contour` for HTTP ingress
 * A certificate manager such as `cert-manager` for valid certificates
 * [Dex](dex.md) installed with a static client for gangway
 
