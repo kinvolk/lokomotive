@@ -16,6 +16,6 @@ WORKDIR /usr/src/lokoctl
 # Only download dependencies
 RUN go mod download && make install-packr2
 
-# Copy remaing source code and build
+# Copy remaining source code and build
 COPY . .
 RUN make
