@@ -53,7 +53,8 @@ cluster "aws" {
 	ssh_pubkey = "${pathexpand(var.ssh_pubkey)}"
 }
 
-component "ingress-nginx" {
+component "contour" {
+  install_mode = "daemonset"
 }
 ```
 

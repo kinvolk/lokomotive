@@ -171,7 +171,7 @@ metadata:
   annotations:
     kubernetes.io/tls-acme: "true"
     certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: contour
 spec:
   tls:
   - secretName: gangway

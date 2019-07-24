@@ -70,7 +70,8 @@ cluster "bare-metal" {
   ]
 }
 
-component "ingress-nginx" {
+component "contour" {
+  install_mode = "daemonset"
 }
 ```
 

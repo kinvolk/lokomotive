@@ -25,7 +25,6 @@ Available components:
 	 dex
 	 gangway
 	 httpbin
-	 ingress-nginx
 	 metallb
 	 openebs-default-storage-class
 	 openebs-operator

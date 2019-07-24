@@ -148,10 +148,10 @@ data:
 const ingressTmpl = `apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: nginx
+  name: contour
   namespace: dex
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: contour
     kubernetes.io/tls-acme: "true"
     certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
 spec:

@@ -304,7 +304,7 @@ grafana:
     ## Annotations for Grafana Ingress
     ##
     annotations: {}
-      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/ingress.class: contour
       # kubernetes.io/tls-acme: "true"
 
     ## Labels to be added to the Ingress
