@@ -97,7 +97,7 @@ packet_token = "XXX"
 ```
 
 When you store your configuration in a git repository, do not include the `lokocfg.vars` file which holds
-the Packet authentification token (Consider adding it to `.gitignore`).
+the Packet authentication token (Consider adding it to `.gitignore`).
 
 To apply the configuration, run
 

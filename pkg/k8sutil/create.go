@@ -40,7 +40,7 @@ const (
 // 2. CRDs
 // 3. Rest of the Kubernetes config types
 // It also takes a k8s ClientConfig and a timeout duration determining wait time for API server
-// It retuns an error if any.
+// It returns an error if any.
 func CreateAssets(config clientcmd.ClientConfig, manifestFiles map[string]string, timeout time.Duration) error {
 	c, err := config.ClientConfig()
 	if err != nil {
@@ -255,7 +255,7 @@ func allCustomResourcesURI(gvr schema.GroupVersionResource) string {
 func (c *creater) create(m manifest) error {
 	info, err := c.mapper.resourceInfo(m.apiVersion, m.kind)
 	if err != nil {
-		return fmt.Errorf("dicovery failed: %v", err)
+		return fmt.Errorf("discovery failed: %v", err)
 	}
 
 	return c.client.Post().
@@ -294,7 +294,7 @@ func loadManifests(files map[string]string) ([]manifest, error) {
 }
 
 // parseManifests parses a YAML or JSON document that may contain one or more
-// kubernetes resoures.
+// kubernetes resources.
 func parseManifests(r io.Reader) ([]manifest, error) {
 	reader := yaml.NewYAMLReader(bufio.NewReader(r))
 	var manifests []manifest
