@@ -38,7 +38,9 @@ provider "aws" {
   alias   = "default"
 
   region                  = "{{.Config.Region}}"
+  {{- if .Config.CredsPath }}
   shared_credentials_file = "{{.Config.CredsPath}}"
+  {{- end }}
 }
 
 provider "ct" {
