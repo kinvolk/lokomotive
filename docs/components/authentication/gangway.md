@@ -15,8 +15,12 @@ gangway is available as a component in lokoctl
 
 The gangway lokoctl component currently supports the following options:
 
-```
+```tf
 # gangway.lokocfg
+
+variable "gangway_session_key" {
+  type = "string"
+}
 
 component "gangway" {
   # The name of the cluster. This is used to name the kubectl configuration context.
@@ -26,7 +30,6 @@ component "gangway" {
   # automatically created
   ingress_host = "gangway.example.lokomotive-k8s.org"
 
-  # A random secret key (create one with `openssl rand -base64 32`)
   session_key = "${var.gangway_session_key}"
 
   # Where kube-apiserver is reachable
@@ -39,12 +42,23 @@ component "gangway" {
   token_url = "https://dex.example.lokomotive-k8s.org/token"
 
   # The static client id and secret
-  client_id = "gangway"
-  client_secret = "${var.gangway_client_secret}"
+  client_id     = "${var.dex_static_client_gangway_id}"
+  client_secret = "${var.dex_static_client_gangway_secret}"
 
   # gangway's redirect URL, i.e. where the OIDC endpoint should callback to
-  redirect_url = "https://gangway.example.lokomotive-k8s.org/callback"
+  redirect_url = "${var.gangway_redirect_url}"
 }
+```
+
+The secrets can be defined in another file (`lokocfg.vars`) like following:
+
+```tf
+gangway_redirect_url         = "https://gangway.example.lokomotive-k8s.org/callback"
+
+# A random secret key (create one with `openssl rand -base64 32`)
+gangway_session_key              = "5Rsz5C4qRqYFoAfYcXOedQOyQpHTXyLiWFYvtjwjtm0="
+dex_static_client_gangway_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
+dex_static_client_gangway_id     = "gangway"
 ```
 
 ### Installation
