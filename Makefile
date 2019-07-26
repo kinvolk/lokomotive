@@ -38,7 +38,7 @@ build-slim:
 		github.com/kinvolk/lokoctl
 
 .PHONY: test
-test: check-go-format
+test: check-go-format run-unit-tests
 
 GOFORMAT_FILES := $(shell find . -name '*.go')
 
@@ -46,6 +46,10 @@ GOFORMAT_FILES := $(shell find . -name '*.go')
 ## Exits with an error if there are files whose formatting differs from gofmt's
 check-go-format:
 	@./scripts/go-lint ${GOFORMAT_FILES}
+
+.PHONY: run-unit-tests
+run-unit-tests:
+	go test ./...
 
 .PHONY: format-go-code
 ## Formats any go file that differs from gofmt's style
