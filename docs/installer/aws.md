@@ -73,7 +73,7 @@ The maximal length for a cluster name is 18 characters.
 Create a `lokocfg.vars` file and define all needed variables. Example:
 
 ```
-asset_dir = "~/lokoctl-assets"
+asset_dir = "~/lokoctl-assets/mycluster"
 #aws_creds = "~/.aws/credentials"
 ssh_pubkey = "~/.ssh/id_rsa.pub"
 ```
