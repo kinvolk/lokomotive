@@ -7,7 +7,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
@@ -30,7 +29,11 @@ func runHealth(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	client, err := k8sutil.NewClientset(viper.GetString("kubeconfig"))
+	kubeconfig, err := getKubeconfig()
+	if err != nil {
+		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
+	}
+	client, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}

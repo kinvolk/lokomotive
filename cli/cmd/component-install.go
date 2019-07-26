@@ -41,7 +41,11 @@ func runInstall(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := installComponents(lokoConfig, viper.GetString("kubeconfig"), componentsToInstall...); err != nil {
+	kubeconfig, err := getKubeconfig()
+	if err != nil {
+		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
+	}
+	if err := installComponents(lokoConfig, kubeconfig, componentsToInstall...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
