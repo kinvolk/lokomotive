@@ -170,24 +170,7 @@ func (ex *Executor) AddCredentials(credentials *Credentials) error {
 // TerraForm call itself failed, in which case, details can be found in the
 // output.
 func (ex *Executor) Execute(args ...string) (int, chan struct{}, error) {
-	// Prepare TerraForm command by setting up the command, configuration,
-	// working directory (so the files such as terraform.tfstate are stored at
-	// the right place), extra environment variables and outputs.
-	cmd := exec.Command(ex.binaryPath, args...)
-	// ssh changes its behavior based on these. pass them through so ssh-agent & stuff works
-	cmd.Env = append(cmd.Env, fmt.Sprintf("DISPLAY=%s", os.Getenv("DISPLAY")))
-	cmd.Env = append(cmd.Env, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
-	cmd.Env = append(cmd.Env, fmt.Sprintf("HOME=%s", os.Getenv("HOME")))
-	for _, v := range os.Environ() {
-		if strings.HasPrefix(v, "SSH_") {
-			cmd.Env = append(cmd.Env, v)
-		}
-	}
-	for k, v := range ex.envVariables {
-		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", strings.ToUpper(k), v))
-	}
-	cmd.Dir = ex.executionPath
-
+	cmd := ex.generateCommand(args...)
 	rPipe, wPipe := io.Pipe()
 	cmd.Stdout = wPipe
 	cmd.Stderr = wPipe
@@ -224,25 +207,25 @@ func (ex *Executor) Execute(args ...string) (int, chan struct{}, error) {
 	return cmd.Process.Pid, done, nil
 }
 
-// ExecuteSync Like Execute, but synchronous. TODO: clean up duplicate cmd setup code
+// ExecuteSync is like Execute, but synchronous.
 func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
-	// Prepare TerraForm command by setting up the command, configuration,
-	// working directory (so the files such as terraform.tfstate are stored at
-	// the right place), extra environment variables and outputs.
+	cmd := ex.generateCommand(args...)
+	return cmd.Output()
+}
+
+// GenerateCommand prepares a Terraform command with the given arguments
+// by setting up the command, configuration, working directory
+// (so the files such as terraform.tfstate are stored at the right place) and
+// extra environment variables. The current environment is fully inherited.
+func (ex *Executor) generateCommand(args ...string) *exec.Cmd {
 	cmd := exec.Command(ex.binaryPath, args...)
-	// ssh changes its behavior based on these. pass them through so ssh-agent & stuff works
-	cmd.Env = append(cmd.Env, fmt.Sprintf("DISPLAY=%s", os.Getenv("DISPLAY")))
-	cmd.Env = append(cmd.Env, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
-	for _, v := range os.Environ() {
-		if strings.HasPrefix(v, "SSH_") {
-			cmd.Env = append(cmd.Env, v)
-		}
-	}
+	// Copy environment because nil cannot be used to inherit if we add something in the next step.
+	cmd.Env = os.Environ()
 	for k, v := range ex.envVariables {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", strings.ToUpper(k), v))
 	}
 	cmd.Dir = ex.executionPath
-	return cmd.Output()
+	return cmd
 }
 
 // WorkingDirectory returns the directory in which TerraForm runs, which can be

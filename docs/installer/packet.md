@@ -12,6 +12,31 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 * [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) installed locally
 * An SSH key pair for management access
 
+## Credentials
+
+While the Packet profile token can be specified in the cluster configuration through the `auth_token` variable, this is not recommended because it will be stored in the terraform asset directory and possibly printed out during execution. It is safer to use the `PACKET_AUTH_TOKEN` environment variable.
+
+The [aws credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) can be found at `~/.aws/credentials` if you have set up and configured AWS CLI before.
+If you want to use that account, you don't need to specify any AWS credentials for lokoctl.
+
+You can also take any other credentials mechanism used by the AWS CLI but [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
+may be the safest option. Either prepend them when starting `lokoctl` or export each of them once in the current terminal session:
+
+```
+$ AWS_ACCESS_KEY_ID=abc AWS_SECRET_ACCESS_KEY=xyz lokoctl ...
+```
+
+If you want to use a credentials file other than the default, add a valid AWS access key ID and secret access key for your IAM user, e.g:
+
+```
+[default]
+aws_access_key_id=AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+```
+
+You can specify to use this file by setting the `AWS_SHARED_CREDENTIALS_FILE` environment variable or the `aws_creds_path` variable in the following cluster configuration.
+
+
 ## Install a Cluster
 
 Create a `my-cluster.lokocfg` file to define your cluster and, optionally,
@@ -25,8 +50,8 @@ variable "packet_token" {
 cluster "packet" {
 	# Change asset folder
 	asset_dir = "${pathexpand("~/lokoctl-assets/mycluster")}"
-	auth_token = "${var.packet_token}"
-	aws_creds_path = "${pathexpand("~/.aws/credentials")}"
+	#auth_token = "${var.packet_token}"
+	#aws_creds_path = "${pathexpand("~/.aws/credentials")}"
 	# Change according to your AWS DNS zone
 	aws_region = "eu-central-1"
 	# Change cluster name

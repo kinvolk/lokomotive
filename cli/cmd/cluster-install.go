@@ -78,9 +78,6 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		if diags := packetCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
 			ctxLogger.Fatal(diags)
 		}
-		if packetCfg.AuthToken == "" {
-			ctxLogger.Fatal("no Packet API token given")
-		}
 		if err := packet.Install(packetCfg); err != nil {
 			ctxLogger.Fatalf("error installing cluster on Packet: %v", err)
 		}

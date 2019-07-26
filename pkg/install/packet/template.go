@@ -83,7 +83,9 @@ provider "aws" {
   alias   = "default"
 
   region                  = "{{.Config.AWSRegion}}"
+  {{- if .Config.AWSCredsPath }}
   shared_credentials_file = "{{.Config.AWSCredsPath}}"
+  {{- end }}
 }
 
 provider "ct" {
@@ -114,6 +116,8 @@ provider "packet" {
   version = "~> 1.2"
   alias = "default"
 
+  {{- if .Config.AuthToken }}
   auth_token = "{{.Config.AuthToken}}"
+  {{- end }}
 }
 `

@@ -23,7 +23,7 @@ type config struct {
 	DNSZone               string   `hcl:"dns_zone"`
 	DNSZoneID             string   `hcl:"dns_zone_id"`
 	SSHPubKey             string   `hcl:"ssh_pubkey"`
-	CredsPath             string   `hcl:"creds_path"`
+	CredsPath             string   `hcl:"creds_path,optional"`
 	ControllerCount       int      `hcl:"controller_count,optional"`
 	ControllerType        string   `hcl:"controller_type,optional"`
 	WorkerCount           int      `hcl:"worker_count,optional"`

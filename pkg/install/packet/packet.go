@@ -2,6 +2,7 @@ package packet
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -23,11 +24,9 @@ type workerPool struct {
 }
 
 type config struct {
-	AssetDir string `hcl:"asset_dir"`
-	// TODO AuthToken gets written to disk when Terraform files are generated. We should consider
-	// reading this value directly from the environment.
-	AuthToken         string   `hcl:"auth_token"`
-	AWSCredsPath      string   `hcl:"aws_creds_path"`
+	AssetDir          string   `hcl:"asset_dir"`
+	AuthToken         string   `hcl:"auth_token,optional"`
+	AWSCredsPath      string   `hcl:"aws_creds_path,optional"`
 	AWSRegion         string   `hcl:"aws_region"`
 	ClusterName       string   `hcl:"cluster_name"`
 	ControllerCount   int      `hcl:"controller_count"`
@@ -68,6 +67,11 @@ func NewConfig() *config {
 }
 
 func Install(cfg *config) error {
+	if cfg.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
+		return fmt.Errorf("cannot find the Packet authentication token:\n" +
+			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
+	}
+
 	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
 	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
