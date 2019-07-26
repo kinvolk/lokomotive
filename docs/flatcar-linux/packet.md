@@ -325,7 +325,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | os_version | Version of a Flatcar Linux release | current | 2079.3.1 |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
-| setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | false | true |
+| setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | "false" | "true" |
 | taints | Comma separated list of custom taints for all workers in the worker pool | "" | "clusterType=staging:NoSchedule,nodeType=storage:NoSchedule" |
 | reservation_ids | Specify Packet hardware_reservation_id for instances, see: https://support.packet.com/kb/articles/reserved-hardware. A map where the key format is 'worker-${index}' and the associated value is the reservation id string. Nodes not present in the map will use no reservation id. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Value used for nodes not listed in the reservation_ids map. Note that using the empty string means using no hardware reservation and 'next-available' will choose any reservation that matches the instance type and facility this pool is running.| "" | "next-available"|
