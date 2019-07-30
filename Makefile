@@ -14,11 +14,15 @@ LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags
 .NOTPARALLEL:
 
 .PHONY: build
-build: update-lk-submodule build-slim
+build: update-lk-submodule update-assets build-slim
 
 .PHONY: update-lk-submodule
 update-lk-submodule:
 	git submodule update --init
+
+.PHONY: update-assets
+update-assets:
+	go generate ./...
 
 .PHONY: build-slim
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed, so
