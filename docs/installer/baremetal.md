@@ -75,8 +75,8 @@ component "contour" {
 }
 ```
 
-Note that the asset directory should be kept for the lifetime of the cluster.
-The path cannot be relative at the moment.
+>NOTE: The asset directory should be kept for the lifetime of the cluster. For more information
+>regarding the asset directory, see [here](general.md#asset-directory).
 
 To apply the configuration, run
 
