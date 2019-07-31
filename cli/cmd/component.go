@@ -19,6 +19,7 @@ import (
 	_ "github.com/kinvolk/lokoctl/pkg/components/prometheus-operator"
 	_ "github.com/kinvolk/lokoctl/pkg/components/rook"
 	_ "github.com/kinvolk/lokoctl/pkg/components/rook-ceph"
+	_ "github.com/kinvolk/lokoctl/pkg/components/velero"
 )
 
 var componentCmd = &cobra.Command{
