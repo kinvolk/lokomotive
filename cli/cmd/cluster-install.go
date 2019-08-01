@@ -11,11 +11,9 @@ import (
 
 	"github.com/kinvolk/lokoctl/pkg/config"
 	"github.com/kinvolk/lokoctl/pkg/install"
-	"github.com/kinvolk/lokoctl/pkg/install/aws"
-	"github.com/kinvolk/lokoctl/pkg/install/baremetal"
-	"github.com/kinvolk/lokoctl/pkg/install/packet"
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
+	"github.com/kinvolk/lokoctl/pkg/platform"
 )
 
 var clusterCmd = &cobra.Command{
@@ -54,37 +52,21 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	var assetDir string
 
-	switch clusterType {
-	case "aws":
-		awsCfg := aws.NewConfig()
-		if diags := awsCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
-			ctxLogger.Fatal(diags)
-		}
-		if err := awsCfg.Install(); err != nil {
-			ctxLogger.Fatalf("error installing cluster on AWS: %v", err)
-		}
-		assetDir = awsCfg.GetAssetDir()
-	case "bare-metal":
-		baremetalCfg := baremetal.NewConfig()
-		if diags := baremetalCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
-			ctxLogger.Fatal(diags)
-		}
-		if err := baremetalCfg.Install(); err != nil {
-			ctxLogger.Fatalf("error installing cluster on bare-metal: %v", err)
-		}
-		assetDir = baremetalCfg.GetAssetDir()
-	case "packet":
-		packetCfg := packet.NewConfig()
-		if diags := packetCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
-			ctxLogger.Fatal(diags)
-		}
-		if err := packetCfg.Install(); err != nil {
-			ctxLogger.Fatalf("error installing cluster on Packet: %v", err)
-		}
-		assetDir = packetCfg.GetAssetDir()
-	default:
-		ctxLogger.Fatalf("Cluster type %q is unknown", clusterType)
+	p, err := platform.GetPlatform(clusterType)
+	if err != nil {
+		ctxLogger.Fatal(err)
 	}
+	if diags := p.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
+		for _, diagnostic := range diags {
+			ctxLogger.Error(diagnostic.Summary)
+		}
+		ctxLogger.Fatal("Errors found while loading cluster configuration")
+	}
+	if err := p.Install(); err != nil {
+		ctxLogger.Fatalf("error installing cluster: %v", err)
+	}
+
+	assetDir = p.GetAssetDir()
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
