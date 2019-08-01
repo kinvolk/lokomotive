@@ -12,50 +12,41 @@ import (
 
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/kinvolk/lokoctl/pkg/components/velero/azure"
 )
 
 const name = "velero"
 
+// init registers velero component to components list, so it shows up as available to install
 func init() {
 	components.Register(name, newComponent())
 }
 
+// component represents component configuration data
 type component struct {
 	// Once we support more than one provider, this field should not be optional anymore
-	Provider  string   `hcl:"provider,optional"`
-	Namespace string   `hcl:"namespace,optional"`
-	Metrics   *Metrics `hcl:"metrics,block"`
+	Provider string `hcl:"provider,optional"`
+	// Namespace where velero resources should be installed. Defaults to 'velero'.
+	Namespace string `hcl:"namespace,optional"`
+	// Metrics specific configuration
+	Metrics *Metrics `hcl:"metrics,block"`
 
-	// Azure-specific parameters
-	Azure *AzureConfiguration `hcl:"azure,block"`
+	// Azure specific parameters
+	Azure *azure.Configuration `hcl:"azure,block"`
 }
 
+// Metrics represents prometheus specific parameters
 type Metrics struct {
 	Enabled        bool `hcl:"enabled,optional"`
 	ServiceMonitor bool `hcl:"service_monitor,optional"`
 }
 
-type AzureConfiguration struct {
-	SubscriptionId         string                       `hcl:"subscription_id,optional"`
-	TenantId               string                       `hcl:"tenant_id,optional"`
-	ClientId               string                       `hcl:"client_id,optional"`
-	ClientSecret           string                       `hcl:"client_secret,optional"`
-	ResourceGroup          string                       `hcl:"resource_group,optional"`
-	BackupStorageLocation  *AzureBackupStorageLocation  `hcl:"backup_storage_location,block"`
-	VolumeSnapshotLocation *AzureVolumeSnapshotLocation `hcl:"volume_snapshot_location,block"`
+// Provider requires implementing config validation function for each provider
+type provider interface {
+	Validate() hcl.Diagnostics
 }
 
-type AzureBackupStorageLocation struct {
-	ResourceGroup  string `hcl:"resource_group,optional"`
-	StorageAccount string `hcl:"storage_account,optional"`
-	Bucket         string `hcl:"bucket,optional"`
-}
-
-type AzureVolumeSnapshotLocation struct {
-	ResourceGroup string `hcl:"resource_group,optional"`
-	ApiTimeout    string `hcl:"api_timeout,optional"`
-}
-
+// newComponent creates new velero component struct with default values initialized
 func newComponent() *component {
 	return &component{
 		Namespace: "velero",
@@ -79,12 +70,12 @@ configuration:
       {{- if .Azure.VolumeSnapshotLocation.ResourceGroup }}
       resourceGroup: {{ .Azure.VolumeSnapshotLocation.ResourceGroup }}
       {{- end }}
-      apitimeout: {{ .Azure.VolumeSnapshotLocation.ApiTimeout }}
+      apitimeout: {{ .Azure.VolumeSnapshotLocation.APITimeout }}
 credentials:
   secretContents:
-    AZURE_SUBSCRIPTION_ID: "{{ .Azure.SubscriptionId }}"
-    AZURE_TENANT_ID: "{{ .Azure.TenantId }}"
-    AZURE_CLIENT_ID: "{{ .Azure.ClientId }}"
+    AZURE_SUBSCRIPTION_ID: "{{ .Azure.SubscriptionID }}"
+    AZURE_TENANT_ID: "{{ .Azure.TenantID }}"
+    AZURE_CLIENT_ID: "{{ .Azure.ClientID }}"
     AZURE_CLIENT_SECRET: "{{ .Azure.ClientSecret }}"
     AZURE_RESOURCE_GROUP: "{{ .Azure.ResourceGroup }}"
 metrics:
@@ -93,6 +84,9 @@ metrics:
     enabled: {{ .Metrics.ServiceMonitor }}
 `
 
+// LoadConfig decodes given HCL and validates the configuration.
+//
+// If it finds any problems, HCL diagnostics array is returned containing error messages.
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	diagnostics := hcl.Diagnostics{}
 
@@ -113,18 +107,11 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 		diagnostics = append(diagnostics, err...)
 	}
 
-	switch c.Provider {
-	case "azure":
-		diagnostics = c.validateAzure(diagnostics)
-	default:
-		// Slice can't be constant, so just use a variable
-		supportedProviders := []string{"azure"}
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("provider must be one of: '%s'", strings.Join(supportedProviders[:], "', '")),
-			Detail:   "Make sure to set provider to one of supported values",
-		})
-	}
+	// Set default values in the component configuration if they are missing
+	c.setDefaults()
+
+	// Validate component's configuration
+	diagnostics = append(diagnostics, c.validate()...)
 
 	if diagnostics.HasErrors() {
 		return diagnostics
@@ -133,6 +120,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return nil
 }
 
+// RenderManifest read helm chart from assets and renders it into list of files
 func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
 	if err != nil {
@@ -160,114 +148,51 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	return renderedFiles, nil
 }
 
+// Install installs rendered component into kubernetes cluster
 func (c *component) Install(kubeconfig string) error {
 	return util.Install(c, kubeconfig)
 }
 
-func (c *component) validateAzure(diagnostics hcl.Diagnostics) hcl.Diagnostics {
-	if c.Azure == nil {
-		c.Azure = &AzureConfiguration{}
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'azure' block must exist",
-			Detail:   "When using Azure provider, 'azure' block must exist",
-		})
-	}
-	if c.Azure.SubscriptionId == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'subscription_id' must be set",
-			Detail:   "When using Azure provider, 'subscription_id' property must be set",
-		})
-	}
-
-	if c.Azure.TenantId == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'tenant_id' must be set",
-			Detail:   "When using Azure provider, 'tenant_id' property must be set",
-		})
-	}
-
-	if c.Azure.ClientId == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'client_id' must be set",
-			Detail:   "When using Azure provider, 'client_id' property must be set",
-		})
-	}
-
-	if c.Azure.ClientSecret == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'client_secret' must be set",
-			Detail:   "When using Azure provider, 'client_secret' property must be set",
-		})
-	}
-
-	if c.Azure.ResourceGroup == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'resource_group' must be set",
-			Detail:   "When using Azure provider, 'resource_group' property must be set",
-		})
-	}
-
-	if c.Azure.BackupStorageLocation == nil {
-		c.Azure.BackupStorageLocation = &AzureBackupStorageLocation{}
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'backup_storage_location' block must exist",
-			Detail:   "When using Azure provider, 'backup_storage_location' block must exist",
-		})
-	}
-
-	if c.Azure.BackupStorageLocation.ResourceGroup == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'resource_group' field in block 'backup_storage_location' must be set",
-			Detail:   "When using Azure provider, 'resource_group' field in block 'backup_storage_location' must be set",
-		})
-	}
-
-	if c.Azure.BackupStorageLocation.StorageAccount == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'storage_account' field in block 'backup_storage_location' must be set",
-			Detail:   "When using Azure provider, 'storage_account' field in block 'backup_storage_location' must be set",
-		})
-	}
-
-	if c.Azure.BackupStorageLocation.Bucket == "" {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "'bucket' field in block 'backup_storage_location' must be set",
-			Detail:   "When using Azure provider, 'bucket' field in block 'backup_storage_location' must be set",
-		})
-	}
-
-	// Since nested blocks in hcl2 does not support default values during DecodeBody,
-	// we need to set the default value here, rather then adding diagnostics.
-	// Once PR https://github.com/hashicorp/hcl2/pull/120 is released, this value can be set in
-	// newComponent() and diagnostic can be added.
-	defaultApiTimeout := "10m"
-	if c.Azure.VolumeSnapshotLocation == nil {
-		c.Azure.VolumeSnapshotLocation = &AzureVolumeSnapshotLocation{
-			ApiTimeout: defaultApiTimeout,
-		}
-	}
-
-	if c.Azure.VolumeSnapshotLocation.ApiTimeout == "" {
-		c.Azure.VolumeSnapshotLocation.ApiTimeout = defaultApiTimeout
-	}
-
-	// Same here for metrics
+// setDefaults set default values for all nested blocks
+//
+// Since nested blocks in hcl2 does not support default values during DecodeBody,
+// we need to set the default value here, rather then adding diagnostics.
+// Once PR https://github.com/hashicorp/hcl2/pull/120 is released, this value can be set in
+// newComponent() and diagnostic can be added.
+func (c *component) setDefaults() {
 	if c.Metrics == nil {
 		c.Metrics = &Metrics{
 			Enabled:        false,
 			ServiceMonitor: false,
 		}
 	}
+}
 
-	return diagnostics
+// validate validates component configuration
+func (c *component) validate() hcl.Diagnostics {
+	diagnostics := hcl.Diagnostics{}
+
+	// Select provider and validate it's configuration
+	p, err := c.getProvider()
+	if err != nil {
+		// Slice can't be constant, so just use a variable
+		supportedProviders := []string{"azure"}
+		return append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("provider must be one of: '%s'", strings.Join(supportedProviders[:], "', '")),
+			Detail:   "Make sure to set provider to one of supported values",
+		})
+	}
+
+	return append(diagnostics, p.Validate()...)
+}
+
+// getProvider returns correct provider interface based on component configuration
+func (c *component) getProvider() (provider, error) {
+	switch c.Provider {
+	case "azure":
+		return c.Azure, nil
+	default:
+		return nil, fmt.Errorf("unsupported provider '%s'", c.Provider)
+	}
 }
