@@ -101,6 +101,7 @@ component "dex" {
       # cloud console via
       # APIs & Services -> Credentials ->
       # Create credentials -> OAuth client id -> Web application
+      # follow: https://developers.google.com/adwords/api/docs/guides/authentication#webapp
 
       # The OAuth app client id
       client_id = "${var.google_client_id}"
@@ -116,6 +117,41 @@ component "dex" {
       issuer = "https://accounts.google.com"
     }
   }
+
+  # A Google native connector
+  connector "google" {
+    id   = "google"
+    name = "Google"
+
+    config {
+      # With Google, the OAuth app credentials can be created in the
+      # cloud console via
+      # APIs & Services -> Credentials ->
+      # Create credentials -> OAuth client id -> Web application
+      # follow: https://developers.google.com/adwords/api/docs/guides/authentication#webapp
+
+      # The OAuth app client id
+      client_id = "${var.google_client_id}"
+
+      # The OAuth app client secret
+      client_secret = "${var.google_client_secret}"
+
+      # The authorization callback URL
+      # Authorize this redirect URL while creating above credentials in the
+      # Restrictions -> Authorized redirect URIs
+      redirect_uri = "https://dex.example.lokomotive-k8s.org/callback"
+
+      # This should be the email of a GSuite super user. The service account
+      # you created earlier will impersonate this user when making calls to
+      # the admin API.
+      admin_email = "foobar@example.io"
+    }
+  }
+  # only to be defined with Google connector
+  # Path to the Gsuite Service Account JSON file, more information at the end of
+  # this file in [G Suite specific instructions](#g-suite-specific-instructions)
+  gsuite_json_config_path = "project-testing-123456-er12t34y56ui.json"
+
 
   # You can configure one or more static clients, i.e. apps that use
   # dex (https://github.com/dexidp/dex/blob/master/Documentation/using-dex.md#configuring-your-app).
@@ -218,3 +254,27 @@ kubectl create clusterrolebinding cluster-admin-lokomotive-developers --clusterr
 # Give a user 'edit' access
 kubectl create clusterrolebinding jane-edit --clusterrole edit --user='jane@example.com'
 ```
+
+## Detailed Information
+
+### G Suite specific instructions
+
+You need to create a service account on your google suite account and authorize
+it to view groups on your domain.
+
+#### Perform G Suite Domain-Wide Delegation of Authority
+
+- Follow instructions [here](https://developers.google.com/admin-sdk/directory/v1/guides/delegation)
+to create service account.
+
+- During Service Account creation a JSON file will be downloaded, give the path
+of this file in dex's config for field `gsuite_json_config_path`.
+
+- While **delegating domain-wide authority to your service account** you will be
+asked to assign scope in that field select scope
+**`https://www.googleapis.com/auth/admin.directory.group.readonly`** only.
+
+#### Enable admin SDK
+
+Admin SDK lets administrators of enterprise domains to view and manage resources
+like user, groups etc. To enable it [click here](https://console.developers.google.com/apis/library/admin.googleapis.com/).

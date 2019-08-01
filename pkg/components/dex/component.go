@@ -2,7 +2,9 @@ package dex
 
 import (
 	"bytes"
+	b64 "encoding/base64"
 	"encoding/json"
+	"io/ioutil"
 	"text/template"
 
 	"github.com/hashicorp/hcl2/gohcl"
@@ -93,15 +95,18 @@ spec:
       - name: download-theme
         image: schu/alpine-git
         command:
-         - git
-         - clone
-         - "https://github.com/kinvolk/dex-theme.git"
-         - /theme
+        - git
+        - clone
+        - "https://github.com/kinvolk/dex-theme.git"
+        - /theme
         volumeMounts:
         - name: theme
           mountPath: /theme/
       containers:
-      - image: quay.io/dexidp/dex:v2.15.0
+      # This image is built from PR that adds support of google connector to
+      # dex https://github.com/dexidp/dex/pull/1185. Once this PR is merged
+      # please use the official relased image.
+      - image: quay.io/kinvolk/dex:google_connector
         name: dex
         command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
         ports:
@@ -112,6 +117,8 @@ spec:
           mountPath: /etc/dex/cfg
         - mountPath: /web/themes/custom/
           name: theme
+        - name: gsuite-auth
+          mountPath: /config/
       volumes:
       - name: config
         configMap:
@@ -121,6 +128,9 @@ spec:
             path: config.yaml
       - name: theme
         emptyDir: {}
+      - name: gsuite-auth
+        secret:
+          secretName: gsuite-auth
 `
 
 const configMapTmpl = `apiVersion: v1
@@ -168,6 +178,15 @@ spec:
           servicePort: 5556
 `
 
+const secretTmpl = `kind: Secret
+apiVersion: v1
+metadata:
+  name: gsuite-auth
+  namespace: dex
+data:
+  googleAuth.json: {{ .SecretData }}
+`
+
 func init() {
 	components.Register(name, newComponent())
 }
@@ -177,20 +196,23 @@ type org struct {
 	Teams []string `hcl:"teams,attr" json:"teams"`
 }
 
-type oidcConfig struct {
-	ClientID      string  `hcl:"client_id,attr" json:"clientID"`
-	ClientSecret  string  `hcl:"client_secret,attr" json:"clientSecret"`
-	Issuer        *string `hcl:"issuer,attr" json:"issuer"`
-	RedirectURI   string  `hcl:"redirect_uri,attr" json:"redirectURI"`
-	TeamNameField *string `hcl:"team_name_field,attr" json:"teamNameField"`
-	Orgs          []org   `hcl:"org,block" json:"orgs"`
+type config struct {
+	ClientID               string   `hcl:"client_id,attr" json:"clientID"`
+	ClientSecret           string   `hcl:"client_secret,attr" json:"clientSecret"`
+	Issuer                 string   `hcl:"issuer,optional" json:"issuer"`
+	RedirectURI            string   `hcl:"redirect_uri,attr" json:"redirectURI"`
+	TeamNameField          string   `hcl:"team_name_field,optional" json:"teamNameField"`
+	Orgs                   []org    `hcl:"org,block" json:"orgs"`
+	AdminEmail             string   `hcl:"admin_email,optional" json:"adminEmail"`
+	HostedDomains          []string `hcl:"hosted_domains,optional" json:"hostedDomains"`
+	ServiceAccountFilePath string   `json:"serviceAccountFilePath"`
 }
 
 type connector struct {
-	Type   string      `hcl:"type,label" json:"type"`
-	ID     string      `hcl:"id,attr" json:"id"`
-	Name   string      `hcl:"name,attr" json:"name"`
-	Config *oidcConfig `hcl:"config,block" json:"config"`
+	Type   string  `hcl:"type,label" json:"type"`
+	ID     string  `hcl:"id,attr" json:"id"`
+	Name   string  `hcl:"name,attr" json:"name"`
+	Config *config `hcl:"config,block" json:"config"`
 }
 
 type staticClient struct {
@@ -201,10 +223,11 @@ type staticClient struct {
 }
 
 type component struct {
-	IngressHost   string         `hcl:"ingress_host,attr"`
-	IssuerHost    string         `hcl:"issuer_host,attr"`
-	Connectors    []connector    `hcl:"connector,block"`
-	StaticClients []staticClient `hcl:"static_client,block"`
+	IngressHost          string         `hcl:"ingress_host,attr"`
+	IssuerHost           string         `hcl:"issuer_host,attr"`
+	Connectors           []connector    `hcl:"connector,block"`
+	StaticClients        []staticClient `hcl:"static_client,block"`
+	GSuiteJSONConfigPath string         `hcl:"gsuite_json_config_path,optional"`
 }
 
 func newComponent() *component {
@@ -232,6 +255,16 @@ func marshalToStr(obj interface{}) (string, error) {
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
+	// Add the default path to google's connector, this is the default path
+	// where the user given google suite json file will be available via a
+	// secret volume, this value is also hardcoded in the deployment yaml
+	for _, connc := range c.Connectors {
+		if connc.Type != "google" || connc.Config == nil {
+			continue
+		}
+		connc.Config.ServiceAccountFilePath = "/config/googleAuth.json"
+	}
+
 	tmpl, err := template.New("config-map").Parse(configMapTmpl)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse template failed")
@@ -267,12 +300,22 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
+	// based on the user's input of gsuite file path the secret will be created.
+	// If user is not using google connector then this will just be an empty
+	// output, but we create it anyway so we can keep using same deployment
+	// manifest for google connector and others.
+	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't create secret from gsuite json file")
+	}
+
 	return map[string]string{
 		"namespace.yml":            namespaceManifest,
 		"service.yml":              serviceManifest,
 		"service-account.yml":      serviceAccountManifest,
 		"cluster-role.yml":         clusterRoleManifest,
 		"cluster-role-binding.yml": clusterRoleBindingManifest,
+		"secret.yml":               secretManifest,
 		"deployment.yml":           deploymentManifest,
 		"config-map.yml":           configMap.String(),
 		"ingress.yml":              ingressBuf.String(),
@@ -281,4 +324,38 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Install(kubeconfig string) error {
 	return util.Install(c, kubeconfig)
+}
+
+func createSecretManifest(path string) (string, error) {
+
+	// Takes in the raw data and returns a Kubernetes Secret config
+	generateSecret := func(data []byte) (string, error) {
+		encodedData := b64.StdEncoding.EncodeToString(data)
+
+		secretTmplData := struct {
+			SecretData string
+		}{
+			SecretData: encodedData,
+		}
+		tmpl, err := template.New("secret").Parse(secretTmpl)
+		if err != nil {
+			return "", err
+		}
+		var secret bytes.Buffer
+		if err := tmpl.Execute(&secret, secretTmplData); err != nil {
+			return "", err
+		}
+		return secret.String(), nil
+	}
+
+	// if user is not using google connector then user won't provide the file
+	// path hence create secret with empty value
+	if path == "" {
+		return generateSecret([]byte(""))
+	}
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	return generateSecret(data)
 }
