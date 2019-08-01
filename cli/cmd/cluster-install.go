@@ -60,28 +60,28 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		if diags := awsCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
 			ctxLogger.Fatal(diags)
 		}
-		if err := aws.Install(awsCfg); err != nil {
+		if err := awsCfg.Install(); err != nil {
 			ctxLogger.Fatalf("error installing cluster on AWS: %v", err)
 		}
-		assetDir = awsCfg.AssetDir
+		assetDir = awsCfg.GetAssetDir()
 	case "bare-metal":
 		baremetalCfg := baremetal.NewConfig()
 		if diags := baremetalCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
 			ctxLogger.Fatal(diags)
 		}
-		if err := baremetal.Install(baremetalCfg); err != nil {
+		if err := baremetalCfg.Install(); err != nil {
 			ctxLogger.Fatalf("error installing cluster on bare-metal: %v", err)
 		}
-		assetDir = baremetalCfg.AssetDir
+		assetDir = baremetalCfg.GetAssetDir()
 	case "packet":
 		packetCfg := packet.NewConfig()
 		if diags := packetCfg.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
 			ctxLogger.Fatal(diags)
 		}
-		if err := packet.Install(packetCfg); err != nil {
+		if err := packetCfg.Install(); err != nil {
 			ctxLogger.Fatalf("error installing cluster on Packet: %v", err)
 		}
-		assetDir = packetCfg.AssetDir
+		assetDir = packetCfg.GetAssetDir()
 	default:
 		ctxLogger.Fatalf("Cluster type %q is unknown", clusterType)
 	}

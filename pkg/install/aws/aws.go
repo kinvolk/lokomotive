@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/install"
+	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
@@ -32,6 +33,11 @@ type config struct {
 	WorkerCLCSnippets     []string `hcl:"worker_clc_snippets,optional"`
 	Region                string   `hcl:"region,optional"`
 	EnableAggregation     string   `hcl:"enable_aggregation,optional"`
+}
+
+// init registers aws as a platform
+func init() {
+	platform.Register("aws", NewConfig())
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -57,6 +63,11 @@ func NewConfig() *config {
 	}
 }
 
+// GetAssetDir returns asset directory path
+func (c *config) GetAssetDir() string {
+	return c.AssetDir
+}
+
 func (cfg *config) readSSHPubKey() (string, error) {
 	dat, err := ioutil.ReadFile(cfg.SSHPubKey)
 	if err != nil {
@@ -66,7 +77,7 @@ func (cfg *config) readSSHPubKey() (string, error) {
 	return strings.TrimSpace(string(dat)), nil
 }
 
-func Install(cfg *config) error {
+func (cfg *config) Install() error {
 	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
 	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
