@@ -19,6 +19,7 @@ A list of all available components can be get with `lokoctl component list`. Doc
 
 * [MetalLB](docs/components/metallb.md)
 * [Contour](docs/components/contour.md)
+* [Cluster Autoscaler](docs/components/cluster-autoscaler.md)
 
 ## Installation
 
