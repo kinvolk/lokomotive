@@ -141,8 +141,12 @@ storage:
             cat /etc/mdadm.conf | while read line; do
               # Make mount persistent across reboots.
               local devname=$(echo "$${line}" | awk '{print $2}')
-              local mount_point=$(echo "$${devname}" | cut -d"/" -f 4)
 
+              # Mount the RAID device only if there is a filesystem on the device
+              local fs=$(blkid "$${devname}")
+              [ -z "$${fs}" ] && continue
+
+              local mount_point=$(echo "$${devname}" | cut -d"/" -f 4)
               # Create the mount point before mounting
               mkdir "/mnt/$${mount_point}"
               mount "$${devname}" "/mnt/$${mount_point}"
