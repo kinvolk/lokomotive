@@ -118,7 +118,7 @@ In certain scenarios, in-place edits can be useful for quickly rolling out secur
     Rarely, we may test certain security in-place edits and mention them as an option in release notes.
 
 !!! warning
-    Lokomotive does not support or document in-place edits as an upgrade strategy. They involve inherent risks and we choose not to make recommendations or guarentees about the safety of different in-place upgrades. Its explicitly a non-goal.
+    Lokomotive does not support or document in-place edits as an upgrade strategy. They involve inherent risks and we choose not to make recommendations or guarantees about the safety of different in-place upgrades. Its explicitly a non-goal.
 
 ### Terraform Plugins Directory
 

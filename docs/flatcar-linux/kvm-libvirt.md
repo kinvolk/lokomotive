@@ -168,7 +168,7 @@ module "controller" {
     libvirt  = "libvirt.default"
   }
 
-  # Path to where the image was prepared, note the tripple slash for the absolute path
+  # Path to where the image was prepared, note the triple slash for the absolute path
   os_image_unpacked = "file:///path/to/flatcar_production_qemu_image.img"
 
   # Your SSH public key
