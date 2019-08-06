@@ -1,7 +1,7 @@
+apiVersion: v1
 appVersion: v0.10.0
-description: A Helm chart for cert-manager
+description: A Helm chart for deploying the cert-manager cainjector component
 home: https://github.com/jetstack/cert-manager
-icon: https://raw.githubusercontent.com/jetstack/cert-manager/master/logo/logo.png
 keywords:
 - cert-manager
 - kube-lego
@@ -10,7 +10,7 @@ keywords:
 maintainers:
 - email: james@jetstack.io
   name: munnerz
-name: cert-manager
+name: cainjector
 sources:
 - https://github.com/jetstack/cert-manager
 version: v0.10.0

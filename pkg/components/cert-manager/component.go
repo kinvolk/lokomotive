@@ -32,7 +32,6 @@ func newComponent() *component {
 }
 
 const chartValuesTmpl = `
-namespace: {{.Namespace}}
 email: {{.Email}}
 `
 

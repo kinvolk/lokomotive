@@ -9,11 +9,13 @@ spec:
     # Email address used for ACME registration
     {{- if .Values.email }}
     email: {{ .Values.email }}
-    {{- else}}
-    email: <email>
     {{- end}}
+    email: {{ .Values.email }}
     # Name of a secret used to store the ACME account private key
     privateKeySecretRef:
       name: letsencrypt-staging
     # Enable the HTTP-01 challenge provider
-    http01: {}
+    solvers:
+    - http01:
+        ingress:
+          class: contour
