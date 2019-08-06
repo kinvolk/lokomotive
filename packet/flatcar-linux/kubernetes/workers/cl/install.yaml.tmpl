@@ -88,14 +88,59 @@ storage:
             mkfs.ext4 /dev/md/node-local-storage
           }
 
+          function create_disk_specific_data_raid() {
+            # Ignore the disk on which Linux is installed when selecting disks for RAID.
+            local osdisk="$1"
+            local major_numbers="$2"
+            # for hdd value is 1 and for ssd value is 0
+            local disk_type="$3"
+            # RAID device path on disk
+            local device_path="$4"
+
+            # Select disks for RAID.
+            local disks=$(lsblk -lnpd -o name,rota -I "$${major_numbers}" \
+              | grep "$${disk_type}" \
+              | sort -h -k 4,4 \
+              | grep -vE "^$${osdisk} " \
+              | awk '{x=$1 " " x;} END{print x}'
+            )
+            local count=$(echo "$$disks" | wc -w)
+
+            # Exit if we don't have any disks to create an array
+            [ $$count -lt 1 ] && return 0
+
+            # Create, format and mount array.
+            local extra_opts=""
+            if [ $$count -lt 2 ]; then
+              # Force array creation even with one disk
+              extra_opts="--force"
+            fi
+
+            # if the device_path is "/dev/md/node-local-hdd-storage" then array
+            # name would be "node-local-hdd-storage"
+            array_name=$(echo "$${device_path}" | cut -d"/" -f 4)
+            mdadm --create "$${device_path}" --homehost=any $$extra_opts --verbose --name="$${array_name}" --level=0 --raid-devices="$${count}" $${disks}
+            cat /proc/mdstat
+            mkfs.ext4 "$${device_path}"
+          }
+
           os_disk="$(select_install_disk $${major_numbers})"
 
           # Create a RAID 0 from extra disks to be used for persistent container storage.
           # This will only be run if setup_raid variable is set to true.
           setup_raid=${setup_raid}
+          setup_raid_hdd=${setup_raid_hdd}
+          setup_raid_ssd=${setup_raid_ssd}
 
           if [ "$${setup_raid}" = true ]; then
             create_data_raid "$${os_disk}" "$${major_numbers}"
+          else
+            if [ "$${setup_raid_hdd}" = true ]; then
+              create_disk_specific_data_raid "$${os_disk}" "$${major_numbers}" 1 /dev/md/node-local-hdd-storage
+            fi
+            if [ "$${setup_raid_ssd}" = true ]; then
+              create_disk_specific_data_raid "$${os_disk}" "$${major_numbers}" 0 /dev/md/node-local-ssd-storage
+            fi
           fi
 
           flatcar-install \
