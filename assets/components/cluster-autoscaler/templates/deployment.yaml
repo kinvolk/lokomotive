@@ -1,4 +1,4 @@
-{{- if or .Values.autoDiscovery.clusterName .Values.autoscalingGroups }}
+{{- if (or .Values.autoDiscovery.clusterName ( or .Values.autoscalingGroups (eq .Values.cloudProvider "packet" )))}}
 {{/* one of the above is required */}}
 apiVersion: {{ .Values.deployment.apiVersion }}
 kind: Deployment
@@ -50,6 +50,11 @@ spec:
             {{- range .Values.autoscalingGroups }}
             - --nodes={{ .minSize }}:{{ .maxSize }}:{{ .name }}
             {{- end }}
+          {{- else if eq .Values.cloudProvider "packet" }}
+            - --cluster-name={{ .Values.packetClusterName }}
+            {{- range .Values.packetWorkerPool }}
+            - --nodes={{ .minSize }}:{{ .maxSize }}:{{ .name }}
+            {{- end }}
           {{- end }}
           {{- if eq .Values.cloudProvider "aws" }}
             {{- if .Values.autoDiscovery.clusterName }}
@@ -64,7 +69,9 @@ spec:
           {{- end }}
           {{- if eq .Values.cloudProvider "gce" }}
             - --cloud-config={{ .Values.cloudConfigPath }}
-            {{- end }}
+          {{- else if eq .Values.cloudProvider "packet" }}
+            - --cloud-config={{ .Values.cloudConfigPath }}/cloud-config
+          {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
             - --{{ $key }}={{ $value }}
           {{- end }}
@@ -138,6 +145,12 @@ spec:
                   key: NodeResourceGroup
                   name: {{ template "cluster-autoscaler.fullname" . }}
             {{- end }}
+          {{- else if eq .Values.cloudProvider "packet" }}
+            - name: PACKET_AUTH_TOKEN
+              valueFrom:
+                  secretKeyRef:
+                    name: cluster-autoscaler-packet-token
+                    key: authtoken
           {{- end }}
           {{- range $key, $value := .Values.extraEnv }}
             - name: {{ $key }}
@@ -160,7 +173,7 @@ spec:
             - name: ssl-certs
               mountPath: {{ .Values.sslCertPath }}
               readOnly: true
-            {{- if eq .Values.cloudProvider "gce" }}
+            {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "packet") }}
             - name: cloudconfig
               mountPath: {{ .Values.cloudConfigPath }}
               readOnly: true
@@ -184,6 +197,10 @@ spec:
         - name: cloudconfig
           hostPath:
             path: {{ .Values.cloudConfigPath }}
+        {{- else if eq .Values.cloudProvider "packet" }}
+        - name: cloudconfig
+          secret:
+            secretName: {{ template "cluster-autoscaler.fullname" . }}
         {{- end }}
     {{- if .Values.image.pullSecrets }}
       imagePullSecrets:

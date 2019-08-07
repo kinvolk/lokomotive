@@ -45,7 +45,22 @@ azureNodeResourceGroup: ""
 # if using MSI, ensure subscription ID and resource group are set
 azureUseManagedIdentityExtension: false
 
-# Currently only `gce`, `aws`, `azure` & `spotinst` are supported
+# Required if cloudProvider=packet
+packetClusterName: ""
+packetAuthToken: ""
+packetCloudInit: ""
+packetProjectID: ""
+packetFacility: ""
+packetOSChannel: ""
+packetNodeType: ""
+packetWorkerPool: []
+# One element is required.
+# For now only one element is supported.
+# - name: pool
+#   maxSize: 4
+#   minSize: 1
+
+# Currently only `gce`, `aws`, `azure`, `spotinst` & `packet` are supported
 cloudProvider: aws
 
 sslCertPath: /etc/ssl/certs/ca-certificates.crt
