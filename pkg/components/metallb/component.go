@@ -2,15 +2,13 @@ package metallb
 
 import (
 	"bytes"
-	"encoding/json"
 	"text/template"
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
-	"github.com/pkg/errors"
-
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/pkg/errors"
 )
 
 const name = "metallb"
@@ -22,16 +20,8 @@ func init() {
 type component struct {
 	ControllerNodeSelectors map[string]string `hcl:"controller_node_selectors,optional"`
 	SpeakerNodeSelectors    map[string]string `hcl:"speaker_node_selectors,optional"`
-	ControllerTolerations   []toleration      `hcl:"controller_toleration,block"`
-	SpeakerTolerations      []toleration      `hcl:"speaker_toleration,block"`
-}
-
-type toleration struct {
-	Key               string `hcl:"key,optional" json:"key,omitempty"`
-	Effect            string `hcl:"effect,optional" json:"effect,omitempty"`
-	Operator          string `hcl:"operator,optional" json:"operator,omitempty"`
-	Value             string `hcl:"value,optional" json:"value,omitempty"`
-	TolerationSeconds string `hcl:"toleration_seconds,optional" json:"toleration_seconds,omitempty"`
+	ControllerTolerations   []util.Toleration `hcl:"controller_toleration,block"`
+	SpeakerTolerations      []util.Toleration `hcl:"speaker_toleration,block"`
 }
 
 func newComponent() *component {
@@ -45,28 +35,13 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-// renderTolerations takes a list of tolerations.
-// It returns a json string and an error if any.
-func renderTolerations(t []toleration) (string, error) {
-	if len(t) == 0 {
-		return "", nil
-	}
-
-	b, err := json.Marshal(t)
-	if err != nil {
-		return "", err
-	}
-
-	return string(b), nil
-}
-
 func (c *component) RenderManifests() (map[string]string, error) {
-	st, err := renderTolerations(c.SpeakerTolerations)
+	st, err := util.RenderTolerations(c.SpeakerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal speaker tolerations")
 	}
 
-	ct, err := renderTolerations(c.ControllerTolerations)
+	ct, err := util.RenderTolerations(c.ControllerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal controller tolerations")
 	}

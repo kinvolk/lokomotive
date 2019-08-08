@@ -193,8 +193,8 @@ spec:
             drop:
             - all
           readOnlyRootFilesystem: true
-      {{- if .ControllerTolerations }}
-      tolerations: {{ .ControllerTolerations }}
+      {{- if .ControllerTolerationsRaw }}
+      tolerations: {{ .ControllerTolerationsRaw }}
       {{- end }}
 `
 
@@ -258,8 +258,8 @@ spec:
             - all
             add:
             - net_raw
-      {{- if .SpeakerTolerations }}
-      tolerations: {{ .SpeakerTolerations }}
+      {{- if .SpeakerTolerationsRaw }}
+      tolerations: {{ .SpeakerTolerationsRaw }}
       {{- end }}
 `
 
