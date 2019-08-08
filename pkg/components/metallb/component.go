@@ -22,6 +22,9 @@ type component struct {
 	SpeakerNodeSelectors    map[string]string `hcl:"speaker_node_selectors,optional"`
 	ControllerTolerations   []util.Toleration `hcl:"controller_toleration,block"`
 	SpeakerTolerations      []util.Toleration `hcl:"speaker_toleration,block"`
+
+	ControllerTolerationsJSON string
+	SpeakerTolerationsJSON    string
 }
 
 func newComponent() *component {
@@ -36,27 +39,17 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	st, err := util.RenderTolerations(c.SpeakerTolerations)
+	t, err := util.RenderTolerations(c.SpeakerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal speaker tolerations")
 	}
+	c.SpeakerTolerationsJSON = t
 
-	ct, err := util.RenderTolerations(c.ControllerTolerations)
+	t, err = util.RenderTolerations(c.ControllerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal controller tolerations")
 	}
-
-	cv := struct {
-		ControllerNodeSelectors map[string]string
-		SpeakerNodeSelectors    map[string]string
-		SpeakerTolerations      string
-		ControllerTolerations   string
-	}{
-		ControllerNodeSelectors: c.ControllerNodeSelectors,
-		SpeakerNodeSelectors:    c.SpeakerNodeSelectors,
-		SpeakerTolerations:      st,
-		ControllerTolerations:   ct,
-	}
+	c.ControllerTolerationsJSON = t
 
 	tmpl, err := template.New("controller").Parse(deploymentController)
 	if err != nil {
@@ -64,7 +57,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	var controllerBuf bytes.Buffer
-	if err := tmpl.Execute(&controllerBuf, cv); err != nil {
+	if err := tmpl.Execute(&controllerBuf, c); err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
@@ -74,7 +67,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	var speakerBuf bytes.Buffer
-	if err := tmpl.Execute(&speakerBuf, cv); err != nil {
+	if err := tmpl.Execute(&speakerBuf, c); err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
