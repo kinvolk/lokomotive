@@ -1,9 +1,6 @@
 package metallb
 
 import (
-	"bytes"
-	"text/template"
-
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/kinvolk/lokoctl/pkg/components"
@@ -51,24 +48,14 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.ControllerTolerationsJSON = t
 
-	tmpl, err := template.New("controller").Parse(deploymentController)
+	controllerStr, err := util.RenderTemplate(deploymentController, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, errors.Wrap(err, "render template failed")
 	}
 
-	var controllerBuf bytes.Buffer
-	if err := tmpl.Execute(&controllerBuf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
-	}
-
-	tmpl, err = template.New("speaker").Parse(daemonsetSpeaker)
+	speakerStr, err := util.RenderTemplate(daemonsetSpeaker, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
-	}
-
-	var speakerBuf bytes.Buffer
-	if err := tmpl.Execute(&speakerBuf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, errors.Wrap(err, "render template failed")
 	}
 
 	return map[string]string{
@@ -81,8 +68,8 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"clusterrolebinding-metallb-system-controller.yaml": clusterRoleBindingMetallbSystemController,
 		"clusterrolebinding-metallb-system-speaker.yaml":    clusterRoleBindingMetallbSystemSpeaker,
 		"rolebinding-config-watcher.yaml":                   roleBindingConfigWatcher,
-		"deployment-controller.yaml":                        controllerBuf.String(),
-		"daemonset-speaker.yaml":                            speakerBuf.String(),
+		"deployment-controller.yaml":                        controllerStr,
+		"daemonset-speaker.yaml":                            speakerStr,
 		"psp-metallb-speaker.yaml":                          pspMetallbSpeaker,
 	}, nil
 }
