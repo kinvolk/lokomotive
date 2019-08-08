@@ -1,7 +1,8 @@
 package prometheus
 
 import (
-	packr "github.com/gobuffalo/packr/v2"
+	"fmt"
+
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/pkg/errors"
@@ -72,11 +73,9 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	box := packr.New(name, "../../../assets/components/prometheus-operator/manifests/")
-
-	helmChart, err := util.LoadChartFromBox(box)
+	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
 	if err != nil {
-		return nil, errors.Wrap(err, "load chart from box")
+		return nil, errors.Wrap(err, "load chart from assets")
 	}
 
 	releaseOptions := &chartutil.ReleaseOptions{

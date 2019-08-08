@@ -1,57 +1,34 @@
 package util
 
 import (
-	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/gobuffalo/packd"
-	packr "github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/proto/hapi/chart"
 	"k8s.io/helm/pkg/renderutil"
+
+	"github.com/kinvolk/lokoctl/pkg/assets"
+	"github.com/kinvolk/lokoctl/pkg/util/walkers"
 )
 
-// LoadChartFromBox takes in a packr Box and returns a Helm Chart object or an error.
-func LoadChartFromBox(box *packr.Box) (*chart.Chart, error) {
+// LoadChartFromAssets takes in an asset location and returns a Helm
+// Chart object or an error.
+func LoadChartFromAssets(location string) (*chart.Chart, error) {
 	tmpDir, err := ioutil.TempDir("", "lokoctl-chart-")
 	if err != nil {
 		return nil, errors.Wrap(err, "creating temporary dir")
 	}
 	defer os.RemoveAll(tmpDir)
 
-	walk := func(fileName string, file packd.File) error {
-		fileInfo, err := file.FileInfo()
-		if err != nil {
-			return errors.Wrap(err, "extracting file info")
-		}
-
-		fileName = filepath.Join(tmpDir, fileName)
-
-		// Rendered files could contain secret data,
-		// only allow the current user but not others
-		if err := os.MkdirAll(filepath.Dir(fileName), 0700); err != nil {
-			return errors.Wrap(err, "creating dir")
-		}
-
-		targetFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, fileInfo.Mode())
-		if err != nil {
-			return errors.Wrap(err, "opening target file")
-		}
-		defer targetFile.Close()
-
-		if _, err := io.Copy(targetFile, file); err != nil {
-			return errors.Wrap(err, "writing file")
-		}
-		return nil
-	}
-
-	if err := box.WalkPrefix("", walk); err != nil {
-		return nil, errors.Wrap(err, "walking box")
+	// Rendered files could contain secret data, only allow the
+	// current user but not others
+	walk := walkers.CopyingWalker(tmpDir, 0700)
+	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
+		return nil, errors.Wrap(err, "walking assets")
 	}
 
 	return chartutil.Load(tmpDir)

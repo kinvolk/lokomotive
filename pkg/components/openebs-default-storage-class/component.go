@@ -1,14 +1,15 @@
 package openebsoperator
 
 import (
-	"path"
+	"fmt"
 
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/packr/v2/file"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokoctl/pkg/assets"
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/kinvolk/lokoctl/pkg/util/walkers"
 )
 
 const name = "openebs-default-storage-class"
@@ -25,16 +26,11 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
-	box := packr.New(name, "../../../assets/components/openebs-default-storage-class/manifests/")
+	walk := walkers.DumpingWalker(ret, ".yaml")
+	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", name), walk); err != nil {
+		return nil, errors.Wrap(err, "failed to walk assets")
+	}
 
-	box.Walk(func(f string, content file.File) error {
-		if path.Ext(f) != ".yaml" {
-			return nil
-		}
-
-		ret[f] = content.String()
-		return nil
-	})
 	return ret, nil
 }
 
