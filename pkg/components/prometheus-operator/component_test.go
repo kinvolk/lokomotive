@@ -1,10 +1,14 @@
 package prometheus
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclparse"
+
+	"github.com/kinvolk/lokoctl/pkg/config"
 )
 
 func TestEmptyConfig(t *testing.T) {
@@ -18,29 +22,39 @@ func TestEmptyConfig(t *testing.T) {
 }
 
 func TestRenderManifest(t *testing.T) {
-	config := `
+	configHCL := `
 component "prometheus-operator" {
-  grafana_admin_password       = "admin"
-  prometheus_metrics_retention = "90d"
-  namespace                    = "monitoring"
+  grafana_admin_password = "foo"
+  namespace              = "monitoring"
 }
 `
 	hclParser := hclparse.NewParser()
 
-	file, diags := hclParser.ParseHCL([]byte(config), "prometheus-operator.lokocfg")
-	if diags.HasErrors() {
-		t.Fatalf("Parsing config should succeed, got: %s", diags)
+	file, diagnostics := hclParser.ParseHCL([]byte(configHCL), fmt.Sprintf("%s.lokocfg", name))
+	if diagnostics.HasErrors() {
+		t.Fatalf("Parsing config should succeed, got: %s", diagnostics)
 	}
 
 	configBody := hcl.MergeFiles([]*hcl.File{file})
 
-	c := newComponent()
-	diagnostics := c.LoadConfig(&configBody, &hcl.EvalContext{})
-	if !diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diags)
+	var rootConfig config.RootConfig
+
+	diagnostics = gohcl.DecodeBody(configBody, nil, &rootConfig)
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid root config should not return error, got: %s", diagnostics)
 	}
 
-	m, err := c.RenderManifests()
+	c := &config.Config{
+		RootConfig: &rootConfig,
+	}
+
+	component := newComponent()
+	diagnostics = component.LoadConfig(c.LoadComponentConfigBody(name), &hcl.EvalContext{})
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+	}
+
+	m, err := component.RenderManifests()
 	if err != nil {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
 	}
