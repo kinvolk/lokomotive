@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	// Register a component by adding an anonymous import
+	_ "github.com/kinvolk/lokoctl/pkg/components/calico-hostendpoint-controller"
 	_ "github.com/kinvolk/lokoctl/pkg/components/cert-manager"
 	_ "github.com/kinvolk/lokoctl/pkg/components/cluster-autoscaler"
 	_ "github.com/kinvolk/lokoctl/pkg/components/contour"
