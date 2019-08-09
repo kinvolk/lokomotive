@@ -89,6 +89,10 @@ needs more resources it will automatically create new nodes.
 Also, when some of your nodes are unneeded for more than
 `scale_down_unneeeded_time`, they will be removed from your cluster.
 
+It is recommended that you install the [Calico HostEndpoint controller
+component](calico-hostendpoint-controller.md) to secure new nodes created by
+the Cluster Autoscaler, otherwise they will be exposed.
+
 ## Caveats
 
 If you already have worker nodes on your cluster, they will not be considered
