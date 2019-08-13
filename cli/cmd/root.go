@@ -5,6 +5,11 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	// Register a platform by adding an anonymous import
+	_ "github.com/kinvolk/lokoctl/pkg/install/aws"
+	_ "github.com/kinvolk/lokoctl/pkg/install/baremetal"
+	_ "github.com/kinvolk/lokoctl/pkg/install/packet"
 )
 
 var rootCmd = &cobra.Command{

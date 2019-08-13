@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/install"
+	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
@@ -35,11 +36,21 @@ type config struct {
 	WorkerDomains          []string `hcl:"worker_domains"`
 }
 
+// init registers bare-metal as a platform
+func init() {
+	platform.Register("bare-metal", NewConfig())
+}
+
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
 	return gohcl.DecodeBody(*configBody, evalContext, c)
+}
+
+// GetAssetDir returns asset directory path
+func (c *config) GetAssetDir() string {
+	return c.AssetDir
 }
 
 func NewConfig() *config {
@@ -50,7 +61,7 @@ func NewConfig() *config {
 	}
 }
 
-func Install(cfg *config) error {
+func (cfg *config) Install() error {
 	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
 	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err

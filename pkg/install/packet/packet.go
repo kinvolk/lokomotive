@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/install"
+	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
@@ -44,6 +45,11 @@ type config struct {
 	WorkerPools []workerPool `hcl:"worker_pool,block"`
 }
 
+// init registers packet as a platform
+func init() {
+	platform.Register("packet", NewConfig())
+}
+
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
@@ -66,7 +72,12 @@ func NewConfig() *config {
 	return &config{}
 }
 
-func Install(cfg *config) error {
+// GetAssetDir returns asset directory path
+func (c *config) GetAssetDir() string {
+	return c.AssetDir
+}
+
+func (cfg *config) Install() error {
 	if cfg.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
 		return fmt.Errorf("cannot find the Packet authentication token:\n" +
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
