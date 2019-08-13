@@ -39,6 +39,11 @@ To install a Lokomotive component, run the following command:
 lokoctl component install <component_name>
 ```
 
+This will take the `kubeconfig` from your cluster asset directory if you run it
+in the folder of your cluster configuration files. Otherwise, the default kubeconfig
+location will be used (`~/.kube/config`) unless you specify it through the `--kubeconfig`
+flag or the `KUBECONFIG` environment variable.
+
 A set of components to install may also be provided in a `.lokocfg` file:
 
 ```hcl

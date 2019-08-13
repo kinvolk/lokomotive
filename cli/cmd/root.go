@@ -29,8 +29,8 @@ func init() {
 	// add kubeconfig flag
 	rootCmd.PersistentFlags().String(
 		"kubeconfig",
-		os.ExpandEnv("$HOME/.kube/config"),
-		"Path to kubeconfig file")
+		"", // Special empty default, use getKubeconfig()
+		"Path to kubeconfig file, taken from the asset dir if not given, and finally falls back to ~/.kube/config")
 	viper.BindPFlag("kubeconfig", rootCmd.PersistentFlags().Lookup("kubeconfig"))
 
 	rootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")

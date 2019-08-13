@@ -13,7 +13,6 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
-	"github.com/kinvolk/lokoctl/pkg/platform"
 )
 
 var clusterCmd = &cobra.Command{
@@ -43,30 +42,22 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatal(diags)
 	}
 
-	if lokoConfig.RootConfig.Cluster == nil {
-		ctxLogger.Fatal("No cluster configured")
-	}
-
-	clusterType := lokoConfig.RootConfig.Cluster.Name
-	clusterConfigBody := &lokoConfig.RootConfig.Cluster.Config
-
-	var assetDir string
-
-	p, err := platform.GetPlatform(clusterType)
-	if err != nil {
-		ctxLogger.Fatal(err)
-	}
-	if diags := p.LoadConfig(clusterConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
+	p, diags := getConfiguredPlatform(lokoConfig)
+	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			ctxLogger.Error(diagnostic.Summary)
 		}
 		ctxLogger.Fatal("Errors found while loading cluster configuration")
 	}
+	if p == nil {
+		ctxLogger.Fatal("No cluster configured")
+	}
+
 	if err := p.Install(); err != nil {
 		ctxLogger.Fatalf("error installing cluster: %v", err)
 	}
 
-	assetDir = p.GetAssetDir()
+	assetDir := p.GetAssetDir()
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
