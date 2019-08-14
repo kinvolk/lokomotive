@@ -36,7 +36,7 @@ build-slim:
 .PHONY: test
 test: check-go-format run-unit-tests
 
-GOFORMAT_FILES := $(shell find . -name '*.go')
+GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
 .PHONY: check-go-format
 ## Exits with an error if there are files whose formatting differs from gofmt's
