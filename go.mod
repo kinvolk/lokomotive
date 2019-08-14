@@ -45,6 +45,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
+	github.com/packethost/packngo v0.1.1-0.20190507131943-1343be729ca2
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.8.1
@@ -61,11 +62,11 @@ require (
 	github.com/spf13/viper v1.3.2
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/zclconf/go-cty v0.0.0-20190516203816-4fecf87372ec
-	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f // indirect
-	golang.org/x/net v0.0.0-20190514140710-3ec191127204 // indirect
+	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
+	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/oauth2 v0.0.0-20190517181255-950ef44c6e07 // indirect
-	golang.org/x/sys v0.0.0-20190516110030-61b9204099cb // indirect
-	golang.org/x/tools v0.0.0-20190517183331-d88f79806bbd // indirect
+	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
+	golang.org/x/tools v0.0.0-20190807223507-b346f7fd45de // indirect
 	google.golang.org/appengine v1.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20190516172635-bb713bdc0e52 // indirect
 	google.golang.org/grpc v1.20.1 // indirect
