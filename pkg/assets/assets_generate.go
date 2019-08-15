@@ -17,25 +17,16 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"time"
 
-	"github.com/prometheus/alertmanager/pkg/modtimevfs"
-	"github.com/shurcooL/httpfs/union"
-	"github.com/shurcooL/vfsgen"
+	"github.com/kinvolk/lokoctl/pkg/assets"
 )
 
 func main() {
-	ufs := union.New(map[string]http.FileSystem{
-		"/lokomotive-kubernetes": http.Dir("../../assets/lokomotive-kubernetes"),
-		"/components":            http.Dir("../../assets/components"),
-	})
-	fs := modtimevfs.New(ufs, time.Unix(1, 0))
-	err := vfsgen.Generate(fs, vfsgen.Options{
-		Filename:     "generated_assets.go",
-		PackageName:  "assets",
-		VariableName: "vfsgenAssets",
-	})
+	dirs := map[string]string{
+		"/lokomotive-kubernetes": "../../assets/lokomotive-kubernetes",
+		"/components":            "../../assets/components",
+	}
+	err := assets.Generate("generated_assets.go", "assets", "vfsgenAssets", dirs)
 	if err != nil {
 		log.Fatalln(err)
 	}
