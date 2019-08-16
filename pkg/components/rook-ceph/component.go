@@ -1,0 +1,60 @@
+package rookceph
+
+import (
+	"github.com/hashicorp/hcl2/gohcl"
+	"github.com/hashicorp/hcl2/hcl"
+	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/pkg/errors"
+)
+
+const name = "rook-ceph"
+
+func init() {
+	components.Register(name, newComponent())
+}
+
+type component struct {
+	Namespace      string              `hcl:"namespace,optional"`
+	MonitorCount   int                 `hcl:"monitor_count,optional"`
+	NodeSelectors  []util.NodeSelector `hcl:"node_selector,block"`
+	Tolerations    []util.Toleration   `hcl:"toleration,block"`
+	TolerationsRaw string
+}
+
+func newComponent() *component {
+	return &component{
+		Namespace:    "rook",
+		MonitorCount: 1,
+	}
+}
+
+func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
+	if configBody == nil {
+		return hcl.Diagnostics{}
+	}
+
+	return gohcl.DecodeBody(*configBody, evalContext, c)
+}
+
+func (c *component) RenderManifests() (map[string]string, error) {
+	// Generate YAML for Ceph cluster.
+	var err error
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to render tolerations")
+	}
+
+	cephClusterStr, err := util.RenderTemplate(cephCluster, c)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to render template")
+	}
+
+	return map[string]string{
+		"ceph-cluster.yaml": cephClusterStr,
+	}, nil
+}
+
+func (c *component) Install(kubeconfig string) error {
+	return util.Install(c, kubeconfig)
+}
