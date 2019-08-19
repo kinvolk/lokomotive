@@ -50,11 +50,11 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/posener/complete v1.2.1 // indirect
-	github.com/prometheus/alertmanager v0.18.0 // indirect
+	github.com/prometheus/alertmanager v0.18.0
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749
-	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
+	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.4
