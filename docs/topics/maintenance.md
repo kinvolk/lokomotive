@@ -1,5 +1,25 @@
 # Maintenance
 
+## Emergency handling
+
+When a node failed and cannot be restarted, delete it completely and recreate it by running Terraform:
+
+```
+terraform apply
+```
+
+This works for both worker and controller nodes. Exactly the same
+configuration and Lokomotive revision should be used because otherwise
+not only the deleted node will be recreated but others might be as well.
+
+However, when more than half of the controller nodes failed,
+etcd lost its quorum and is in read-only mode. Recreated nodes
+are not able to join as new members anymore. Read up how to
+manually restore the etcd cluster starting a new etcd cluster
+from a single etcd member with backup data. The alternative is
+creating an empty new Kubernetes cluster and migrating your
+applications to the new cluster.
+
 ## Best Practices
 
 * Run multiple Kubernetes clusters. Run across platforms. Plan for regional and cloud outages.

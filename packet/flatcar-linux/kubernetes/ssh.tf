@@ -58,6 +58,10 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo chmod -R 500 /etc/ssl/etcd",
     ]
   }
+
+  triggers = {
+    controller_id = "${packet_device.controllers.*.id[count.index]}"
+  }
 }
 
 # Secure copy bootkube assets to ONE controller and start bootkube to perform
