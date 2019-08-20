@@ -119,7 +119,7 @@ storage:
 
             # if the device_path is "/dev/md/node-local-hdd-storage" then array
             # name would be "node-local-hdd-storage"
-            array_name=$(echo "$${device_path}" | cut -d"/" -f 4)
+            array_name=$(basename "$${device_path}")
             mdadm --create "$${device_path}" --homehost=any $$extra_opts --verbose --name="$${array_name}" --level=0 --raid-devices="$${count}" $${disks}
             cat /proc/mdstat
             if [ "$${setup_fs_on_raid}" = true ]; then

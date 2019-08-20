@@ -146,7 +146,7 @@ storage:
               local fs=$(blkid "$${devname}")
               [ -z "$${fs}" ] && continue
 
-              local mount_point=$(echo "$${devname}" | cut -d"/" -f 4)
+              local mount_point=$(basename "$${devname}")
               # Create the mount point before mounting
               mkdir "/mnt/$${mount_point}"
               mount "$${devname}" "/mnt/$${mount_point}"
