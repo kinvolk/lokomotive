@@ -130,20 +130,14 @@ storage:
           os_disk="$(select_install_disk $${major_numbers})"
 
           # Create a RAID 0 from extra disks to be used for persistent container storage.
-          # This will only be run if setup_raid variable is set to true.
-          setup_raid=${setup_raid}
-          setup_raid_hdd=${setup_raid_hdd}
-          setup_raid_ssd=${setup_raid_ssd}
-          setup_raid_ssd_fs=${setup_raid_ssd_fs}
-
-          if [ "$${setup_raid}" = true ]; then
+          if [ ${setup_raid} = true ]; then
             create_data_raid "$${os_disk}" "$${major_numbers}"
           else
-            if [ "$${setup_raid_hdd}" = true ]; then
+            if [ ${setup_raid_hdd} = true ]; then
               create_disk_specific_data_raid "$${os_disk}" "$${major_numbers}" 1 /dev/md/node-local-hdd-storage true
             fi
-            if [ "$${setup_raid_ssd}" = true ]; then
-              create_disk_specific_data_raid "$${os_disk}" "$${major_numbers}" 0 /dev/md/node-local-ssd-storage "$${setup_raid_ssd_fs}"
+            if [ ${setup_raid_ssd} = true ]; then
+              create_disk_specific_data_raid "$${os_disk}" "$${major_numbers}" 0 /dev/md/node-local-ssd-storage ${setup_raid_ssd_fs}
             fi
           fi
 
