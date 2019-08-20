@@ -36,7 +36,7 @@ build-slim:
 .PHONY: test
 test: check-go-format run-unit-tests
 
-GOFORMAT_FILES := $(shell find . -name '*.go')
+GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
 .PHONY: check-go-format
 ## Exits with an error if there are files whose formatting differs from gofmt's
@@ -58,3 +58,18 @@ all: build test
 .PHONY: install-packr2
 install-packr2:
 	echo "This target has been removed. This is here only to satisfy CI and will be removed later."
+
+.PHONY: update
+update: update-dependencies tidy vendor
+
+.PHONY: update-dependencies
+update-dependencies:
+	GO111MODULE=on go get -u
+
+.PHONY: tidy
+tidy:
+	GO111MODULE=on go mod tidy
+
+.PHONY: vendor
+vendor:
+	GO111MODULE=on go mod vendor

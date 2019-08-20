@@ -87,3 +87,8 @@ in the title can take up a lot of characters. Also at the same time,
 using `pkg/components/` is redundant in the title, unless there is
 another directory of the same name but with a different parent
 directory, for eg: `cli/components`.
+
+## Updating dependencies
+
+In order to update dependencies managed with Go modules, run `make update`,
+which will ensure that all steps needed for an update are taken (tidy and vendoring).
