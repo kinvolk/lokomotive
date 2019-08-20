@@ -1,0 +1,67 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: flatcar-linux-update-operator
+  namespace: reboot-coordinator
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - get
+      - update
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - delete
+  - apiGroups:
+      - "extensions"
+    resources:
+      - daemonsets
+    verbs:
+      - get
+  - apiGroups:
+      - policy
+    resourceNames:
+      - flatcar-linux-update-operator
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: flatcar-linux-update-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flatcar-linux-update-operator
+subjects:
+  - kind: ServiceAccount
+    name: flatcar-linux-update-operator-sa
+    namespace: reboot-coordinator
