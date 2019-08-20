@@ -29,6 +29,9 @@ data "template_file" "install" {
     ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
     postinstall_ignition = "${data.ct_config.ignitions.rendered}"
     setup_raid           = "${var.setup_raid}"
+    setup_raid_hdd       = "${var.setup_raid_hdd}"
+    setup_raid_ssd       = "${var.setup_raid_ssd}"
+    setup_raid_ssd_fs    = "${var.setup_raid_ssd_fs}"
   }
 }
 

@@ -99,9 +99,27 @@ EOD
 }
 
 variable "setup_raid" {
-  description = "Attempt to create a RAID 0 from extra disks to be used for persistent container storage. Valid values: 'true', 'false'"
+  description = "Attempt to create a RAID 0 from extra disks to be used for persistent container storage. Valid values: \"true\", \"false\""
   type        = "string"
   default     = "false"
+}
+
+variable "setup_raid_hdd" {
+  description = "Attempt to create a RAID 0 from extra Hard Disk drives only, to be used for persistent container storage. Valid values: \"true\", \"false\""
+  type        = "string"
+  default     = "false"
+}
+
+variable "setup_raid_ssd" {
+  description = "Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage. Valid values: \"true\", \"false\""
+  type        = "string"
+  default     = "false"
+}
+
+variable "setup_raid_ssd_fs" {
+  description = "When set to \"true\" file system will be created on SSD RAID device and will be mounted on /mnt/node-local-ssd-storage. To use the raw device set it to \"false\". Valid values: \"true\", \"false\""
+  type        = "string"
+  default     = "true"
 }
 
 variable "reservation_ids" {

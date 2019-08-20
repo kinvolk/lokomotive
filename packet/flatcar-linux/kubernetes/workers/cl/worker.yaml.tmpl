@@ -138,10 +138,20 @@ storage:
             # Don't mount if no RAID is configured.
             [ -z "$${raid_config}" ] && return 0
 
-            # Make mount persistent across reboots.
-            local devname=$(awk '{print $2}' /etc/mdadm.conf)
-            mount "$${devname}" /mnt/
-            echo "$${devname} /mnt ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
+            cat /etc/mdadm.conf | while read line; do
+              # Make mount persistent across reboots.
+              local devname=$(echo "$${line}" | awk '{print $2}')
+
+              # Mount the RAID device only if there is a filesystem on the device
+              local fs=$(blkid "$${devname}")
+              [ -z "$${fs}" ] && continue
+
+              local mount_point=$(basename "$${devname}")
+              # Create the mount point before mounting
+              mkdir "/mnt/$${mount_point}"
+              mount "$${devname}" "/mnt/$${mount_point}"
+              echo "$${devname} /mnt ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
+            done
           }
 
           persist_data_raid
