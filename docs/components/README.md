@@ -23,6 +23,7 @@ Available components:
 	 cert-manager
 	 contour
 	 dex
+	 flatcar-linux-update-operator
 	 gangway
 	 httpbin
 	 metallb
