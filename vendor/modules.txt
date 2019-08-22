@@ -236,6 +236,8 @@ github.com/posener/complete
 github.com/posener/complete/cmd/install
 github.com/posener/complete/cmd
 github.com/posener/complete/match
+# github.com/prometheus/alertmanager v0.18.0
+github.com/prometheus/alertmanager/pkg/modtimevfs
 # github.com/shirou/gopsutil v2.18.12+incompatible
 github.com/shirou/gopsutil/process
 github.com/shirou/gopsutil/cpu
@@ -246,7 +248,10 @@ github.com/shirou/gopsutil/net
 # github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4
 github.com/shirou/w32
 # github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749
+github.com/shurcooL/httpfs/union
 github.com/shurcooL/httpfs/vfsutil
+# github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
+github.com/shurcooL/vfsgen
 # github.com/sirupsen/logrus v1.4.2
 github.com/sirupsen/logrus
 # github.com/spf13/afero v1.2.2
