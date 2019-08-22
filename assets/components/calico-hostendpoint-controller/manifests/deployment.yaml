@@ -23,7 +23,7 @@ spec:
     spec:
       serviceAccountName: calico-hostendpoint-controller
       containers:
-      - image: quay.io/kinvolk/calico-hostendpoint-controller:v0.0.1
+      - image: quay.io/kinvolk/calico-hostendpoint-controller:v0.0.2
         name: calico-hostendpoint-controller
         volumeMounts:
         - mountPath: /tmp/
