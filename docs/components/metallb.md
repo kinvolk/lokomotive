@@ -65,8 +65,9 @@ data:
           # K8s node name of the worker.
           kubernetes.io/hostname: worker-0
       # Address of the *external* BGP router with which the worker node should form a BGP session.
-      # On Packet this address can be found under the "GATEWAY" field on the "Overview" section in
-      # https://app.packet.net/devices/<device_id>.
+      # On Packet this is the gateway address for the private IPv4 network.
+      # This can be found under the "GATEWAY" field for the IPv4 private IP on the
+      # "Overview" section in: https://app.packet.net/devices/<device_id>.
       peer-address: 10.64.43.10
       # The BGP autonomous system number on the external BGP router.
       peer-asn: 65530
