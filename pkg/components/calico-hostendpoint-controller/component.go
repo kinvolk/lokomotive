@@ -23,9 +23,8 @@ type component struct{}
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
-		return hcl.Diagnostics{
-			components.HCLDiagConfigBodyNil,
-		}
+		// This component has no configuration, so don't complain when there is no configuration defined.
+		return nil
 	}
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
