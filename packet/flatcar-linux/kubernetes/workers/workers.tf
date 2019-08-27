@@ -3,36 +3,13 @@ resource "packet_device" "nodes" {
   hostname         = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
   plan             = "${var.type}"
   facilities       = ["${var.facility}"]
-  operating_system = "custom_ipxe"
+  operating_system = "flatcar_${var.os_channel}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
-  ipxe_script_url  = "${var.ipxe_script_url}"
-  always_pxe       = "false"
-  user_data        = "${data.ct_config.install-ignitions.rendered}"
+  user_data        = "${data.ct_config.ignitions.rendered}"
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = "${lookup(var.reservation_ids, format("worker-%v", count.index), var.reservation_ids_default)}"
-}
-
-# These configs are used for the fist boot, to run flatcar-install
-data "ct_config" "install-ignitions" {
-  content = "${data.template_file.install.rendered}"
-}
-
-data "template_file" "install" {
-  template = "${file("${path.module}/cl/install.yaml.tmpl")}"
-
-  vars {
-    os_channel           = "${var.os_channel}"
-    os_version           = "${var.os_version}"
-    flatcar_linux_oem    = "packet"
-    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
-    postinstall_ignition = "${data.ct_config.ignitions.rendered}"
-    setup_raid           = "${var.setup_raid}"
-    setup_raid_hdd       = "${var.setup_raid_hdd}"
-    setup_raid_ssd       = "${var.setup_raid_ssd}"
-    setup_raid_ssd_fs    = "${var.setup_raid_ssd_fs}"
-  }
 }
 
 resource "packet_bgp_session" "bgp" {
@@ -56,5 +33,9 @@ data "template_file" "configs" {
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
     worker_labels         = "${var.labels}"
     taints                = "${var.taints}"
+    setup_raid           = "${var.setup_raid}"
+    setup_raid_hdd       = "${var.setup_raid_hdd}"
+    setup_raid_ssd       = "${var.setup_raid_ssd}"
+    setup_raid_ssd_fs    = "${var.setup_raid_ssd_fs}"
   }
 }

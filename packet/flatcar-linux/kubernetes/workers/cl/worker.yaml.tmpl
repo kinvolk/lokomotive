@@ -34,11 +34,11 @@ systemd:
       enable: true
       contents: |
         [Unit]
-        Description=CoreOS Metadata Agent
+        Description=Flatcar Metadata Agent
         [Service]
         Type=oneshot
         Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
-        ExecStart=/usr/bin/coreos-metadata $${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/coreos
+        ExecStart=/usr/bin/coreos-metadata $${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/flatcar
         [Install]
         RequiredBy=metadata.target
     - name: kubelet.service
@@ -49,7 +49,7 @@ systemd:
         Requires=coreos-metadata.service
         After=coreos-metadata.service
         [Service]
-        EnvironmentFile=/run/metadata/coreos
+        EnvironmentFile=/run/metadata/flatcar
         EnvironmentFile=/etc/kubernetes/kubelet.env
         Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
           --volume=resolv,kind=host,source=/etc/resolv.conf \
@@ -131,30 +131,96 @@ storage:
       contents:
         inline: |
           #!/bin/bash -xe
+          # Create a RAID 0 from extra disks to be used for persistent container storage.
 
-          function persist_data_raid() {
-            local raid_config=$(mdadm --detail --scan)
-            echo "$${raid_config}" | tee -a /etc/mdadm.conf
-            # Don't mount if no RAID is configured.
-            [ -z "$${raid_config}" ] && return 0
+          function create_data_raid() {
+            local major_numbers="$1"
+            # Filtering by disk type, -1 to not filter, 1 for HDDs and 0 for SSDs
+            local disk_type="$2"
+            # RAID device path, starting with /dev/
+            local device_path="$3"
+            local setup_fs_on_raid="$4"
 
-            cat /etc/mdadm.conf | while read line; do
-              # Make mount persistent across reboots.
-              local devname=$(echo "$${line}" | awk '{print $2}')
+            # Select disks for RAID sorted by size, filter by disk type and
+            # ignore the disks which are mounted (e.g., where Linux is installed)
+            local disks=$(lsblk -lnpd -x size -o path,rota -I "$${major_numbers}" \
+            | (
+            while IFS= read -r line; do
+              local drive=$(echo "$line" | awk '{print $1}')
+              local rota=$(echo "$line" | awk '{print $2}')
+              if [ $$disk_type != -1 ] && [ $$disk_type != $$rota ]; then
+                continue
+              fi
+              local mountpoints=$(lsblk -ln -o mountpoint "$drive")
+              if [[ -z "$mountpoints" ]]; then
+                echo "$line"
+              fi
+            done) | awk '{print $1}' | tr '\n' ' ')
 
-              # Mount the RAID device only if there is a filesystem on the device
-              local fs=$(blkid "$${devname}")
-              [ -z "$${fs}" ] && continue
+            local count=$(echo "$$disks" | wc -w)
 
-              local mount_point=$(basename "$${devname}")
-              # Create the mount point before mounting
-              mkdir "/mnt/$${mount_point}"
-              mount "$${devname}" "/mnt/$${mount_point}"
-              echo "$${devname} /mnt ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
+            # Exit if we don't have any disks to create an array
+            [ $$count -lt 1 ] && return 0
+
+            # Create, format and mount array.
+            local extra_opts=""
+            if [ $$count -lt 2 ]; then
+              # Force array creation even with one disk
+              extra_opts="--force"
+            fi
+
+            # If the device_path is /dev/md/node-local-hdd-storage then the
+            # array name would be node-local-hdd-storage
+            array_name=$(basename "$${device_path}")
+
+            mdadm --create "$${device_path}" \
+              --homehost=any \
+              $$extra_opts \
+              --verbose \
+              --name="$${array_name}" \
+              --level=0 \
+              --raid-devices="$${count}" \
+              $${disks}
+
+            cat /proc/mdstat
+            # Wait for udev to create the symlinks
+            while [ ! -L "$${device_path}" ]; do
+              echo "Waiting for $${device_path}"
+              sleep 1
             done
+
+            mdadm --detail --scan | grep "ARRAY $${device_path} " | tee -a /etc/mdadm.conf
+
+            if [ "$${setup_fs_on_raid}" = true ]; then
+              mkfs.ext4 "$${device_path}"
+              mkdir "/mnt/$${array_name}"
+              mount "$${device_path}" "/mnt/$${array_name}"
+              # Make mount persistent across reboots
+              echo "$${device_path} /mnt/$${array_name} ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
+            fi
           }
 
-          persist_data_raid
+          # Don't do anything if a RAID was configured (but /etc/mdadm.conf deleted)
+          already_has_raid_config=$(mdadm --detail --scan)
+          [ ! -z "$${already_has_raid_config}" ] && exit 0
+
+          # A comma-separated list of major device numbers. Modify to control which device types
+          # are considered for data RAID.
+          # https://www.kernel.org/doc/Documentation/admin-guide/devices.txt
+          major_numbers="8,259"
+
+          # Variables replaced by Terraform
+          if [ ${setup_raid} = true ]; then
+            create_data_raid "$${major_numbers}" -1 /dev/md/node-local-storage true
+          else
+             # Both can be set independently
+             if [ ${setup_raid_hdd} = true ]; then
+               create_data_raid "$${major_numbers}" 1 /dev/md/node-local-hdd-storage true
+             fi
+             if [ ${setup_raid_ssd} = true ]; then
+               create_data_raid "$${major_numbers}" 0 /dev/md/node-local-ssd-storage ${setup_raid_ssd_fs}
+             fi
+          fi
     - path: /etc/kubernetes/kubeconfig
       filesystem: root
       mode: 0644

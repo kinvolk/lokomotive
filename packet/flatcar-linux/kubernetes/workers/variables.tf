@@ -42,19 +42,6 @@ variable "taints" {
   description = "Comma separated list of taints. eg. 'clusterType=staging:NoSchedule,nodeType=storage:NoSchedule'"
 }
 
-variable "ipxe_script_url" {
-  type = "string"
-
-  # Workaround. iPXE-booting Flatcar on Packet over HTTPS is failing due to a bug in iPXE.
-  # This patch is supposed to fix this: http://git.ipxe.org/ipxe.git/commitdiff/b6ffe28a2
-  # TODO Switch back to an iPXE script which installs Flatcar over HTTPS after iPXE on Packet is
-  # updated to a version which contains the patch. Alterntaively, if Flatcar is introduced as an
-  # official OS option on Packet, we could remove iPXE boot altogether.
-  default = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/no-https/packet.ipxe"
-
-  description = "Location to load the pxe boot script from"
-}
-
 variable "facility" {
   type        = "string"
   description = "Packet facility to deploy the cluster in"
@@ -63,13 +50,7 @@ variable "facility" {
 variable "os_channel" {
   type        = "string"
   default     = "stable"
-  description = "Flatcar Linux channel to install from (stable, beta, alpha)"
-}
-
-variable "os_version" {
-  type        = "string"
-  default     = "current"
-  description = "Flatcar Linux version to install (for example '2079.3.1' - see https://www.flatcar-linux.org/releases/)"
+  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
 }
 
 variable "cluster_domain_suffix" {
