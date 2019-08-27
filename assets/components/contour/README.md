@@ -1,10 +1,10 @@
 # Contour manifests
 
 The files in `manifest-deployment` were copied from:
-	https://github.com/heptio/contour/tree/v0.13.0/examples/deployment-grpc-v2
+	https://github.com/heptio/contour/tree/v0.14.0/examples/deployment-grpc-v2
 
 And files from `manifest-daemonset` were copied from:
-	https://github.com/heptio/contour/tree/v0.13.0/examples/ds-grpc-v2
+	https://github.com/heptio/contour/tree/v0.14.0/examples/ds-grpc-v2
 
 The service on both directories was manually modified to:
  * [Use externalTrafficPolicy: Local](#Use-externalTrafficPolicy-local)
