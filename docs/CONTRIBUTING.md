@@ -38,6 +38,13 @@ git pull --ff-only origin master
 cd ..
 ```
 
+And finally regenerate assets:
+```bash
+make update-assets
+```
+
+Commit and submit a PR.
+
 ## Commit guidelines
 
 The title of the commit message should describe the _what_ about the
