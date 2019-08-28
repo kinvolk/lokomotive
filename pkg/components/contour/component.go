@@ -16,13 +16,17 @@ import (
 const name = "contour"
 
 func init() {
-	components.Register(name, &component{})
+	components.Register(name, newComponent())
 }
 
 type component struct {
 	InstallMode string `hcl:"install_mode,attr"`
 
 	// TODO: add num of replicas when using install_mode "deployment"
+}
+
+func newComponent() *component {
+	return &component{}
 }
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
