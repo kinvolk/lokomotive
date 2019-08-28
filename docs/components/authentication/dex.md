@@ -39,6 +39,14 @@ variable "google_client_secret" {
   type = "string"
 }
 
+variable "github_client_id" {
+  type = "string"
+}
+
+variable "github_client_secret" {
+  type = "string"
+}
+
 variable "dex_static_client_gangway_id" {
   type = "string"
 }
