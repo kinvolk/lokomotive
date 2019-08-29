@@ -163,3 +163,14 @@ component "metallb" {
   }
 }
 ```
+
+### Prometheus monitoring
+If you want a ServiceMonitor to be created for Prometheus to be able to scrape MetalLB metrics, add the following as part of the component's configuration in the `*.lokocfg` file.
+
+**Note: You should already have [prometheus-operator component](/docs/components/prometheus-operator) installed before doing this.**
+
+```
+component "metallb" {
+	service_monitor = true
+}
+```
