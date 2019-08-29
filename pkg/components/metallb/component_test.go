@@ -21,32 +21,7 @@ func TestEmptyConfig(t *testing.T) {
 	}
 }
 
-func TestRenderManifest(t *testing.T) {
-	configHCL := `
-component "metallb" {
-  speaker_toleration {
-    key = "speaker_key1"
-    operator = "Equal"
-    value = "value1"
-  }
-  speaker_toleration {
-    key = "speaker_key2"
-    operator = "Equal"
-    value = "value2"
-  }
-
-  controller_toleration {
-    key = "controller_key1"
-    operator = "Equal"
-    value = "value1"
-  }
-  controller_toleration {
-    key = "controller_key2"
-    operator = "Equal"
-    value = "value2"
-  }
-}
-`
+func testRenderManifest(t *testing.T, configHCL string) {
 	hclParser := hclparse.NewParser()
 
 	file, diags := hclParser.ParseHCL([]byte(configHCL), fmt.Sprintf("%s.lokocfg", name))
@@ -80,4 +55,42 @@ component "metallb" {
 	if len(m) <= 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
+}
+
+func TestRenderManifestWithTolerations(t *testing.T) {
+	configHCL := `
+component "metallb" {
+  speaker_toleration {
+    key = "speaker_key1"
+    operator = "Equal"
+    value = "value1"
+  }
+  speaker_toleration {
+    key = "speaker_key2"
+  operator = "Equal"
+    value = "value2"
+  }
+
+  controller_toleration {
+    key = "controller_key1"
+    operator = "Equal"
+    value = "value1"
+  }
+  controller_toleration {
+    key = "controller_key2"
+    operator = "Equal"
+    value = "value2"
+  }
+}
+`
+	testRenderManifest(t, configHCL)
+}
+
+func TestRenderManifestWithServiceMonitor(t *testing.T) {
+	configHCL := `
+component "metallb" {
+  service_monitor = true
+}
+`
+	testRenderManifest(t, configHCL)
 }
