@@ -36,7 +36,6 @@ resource "aws_route53_record" "apiservers_private" {
   records = ["${packet_device.controllers.*.access_private_ipv4}"]
 }
 
-
 resource "packet_device" "controllers" {
   count            = "${var.controller_count}"
   hostname         = "${var.cluster_name}-controller-${count.index}"
