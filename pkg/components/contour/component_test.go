@@ -74,3 +74,23 @@ component "contour" {
 `
 	testRenderManifest(t, configHCL)
 }
+
+func TestRenderManifestWithInstallModeDeploymentAndServiceMonitor(t *testing.T) {
+	configHCL := `
+component "contour" {
+  install_mode = "deployment"
+  service_monitor = true
+}
+`
+	testRenderManifest(t, configHCL)
+}
+
+func TestRenderManifestWithInstallModeDaemonSetAndServiceMonitor(t *testing.T) {
+	configHCL := `
+component "contour" {
+  install_mode = "daemonset"
+  service_monitor = true
+}
+`
+	testRenderManifest(t, configHCL)
+}

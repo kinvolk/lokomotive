@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: contour
+  name: contour
+  namespace: heptio-contour
+spec:
+  endpoints:
+  - port: contour-metrics
+  - port: envoy-metrics
+    path: /stats/prometheus
+  namespaceSelector:
+    matchNames:
+    - heptio-contour
+  selector:
+    matchLabels:
+      app: contour
+---
