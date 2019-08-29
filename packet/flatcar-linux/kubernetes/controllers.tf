@@ -45,6 +45,9 @@ resource "packet_device" "controllers" {
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
   user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+
+  # If not present in the map, it uses ${var.reservation_ids_default}.
+  hardware_reservation_id = "${lookup(var.reservation_ids, format("controller-%v", count.index), var.reservation_ids_default)}"
 }
 
 data "ct_config" "controller-ignitions" {

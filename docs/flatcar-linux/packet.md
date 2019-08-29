@@ -306,6 +306,9 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | enable_reporting | Enable usage or analytics reporting to upstreams (Calico) | false | true |
 | enable_aggregation | Enable the Kubernetes Aggreagation Layer | false | true |
+| reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { controller-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
+| reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
+
 
 #### Worker module
 
