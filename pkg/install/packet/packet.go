@@ -37,6 +37,7 @@ type config struct {
 	Facility          string   `hcl:"facility"`
 	ProjectID         string   `hcl:"project_id"`
 	SSHPubKeys        []string `hcl:"ssh_pubkeys"`
+	OSChannel         string   `hcl:"os_channel,optional"`
 	IPXEScriptURL     string   `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs   []string `hcl:"management_cidrs"`
 	NodePrivateCIDR   string   `hcl:"node_private_cidr"`
