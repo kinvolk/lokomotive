@@ -46,6 +46,12 @@ variable "worker_type" {
   description = "Machine type for controllers (see `gcloud compute machine-types list`)"
 }
 
+variable "os_channel" {
+  type        = "string"
+  default     = "stable"
+  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
+}
+
 variable "os_image" {
   type        = "string"
   default     = "flatcar-stable"

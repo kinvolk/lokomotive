@@ -49,7 +49,7 @@ Configure the AWS provider to use your access key credentials in a `providers.tf
 
 ```tf
 provider "aws" {
-  version = "~> 2.8.0"
+  version = "2.25.0"
   alias   = "default"
 
   region                  = "eu-central-1"
@@ -174,21 +174,21 @@ List the pods.
 
 ```
 $ kubectl get pods --all-namespaces
-NAMESPACE     NAME                                      READY  STATUS    RESTARTS  AGE              
-kube-system   calico-node-1m5bf                         2/2    Running   0         34m              
-kube-system   calico-node-7jmr1                         2/2    Running   0         34m              
-kube-system   calico-node-bknc8                         2/2    Running   0         34m              
-kube-system   coredns-1187388186-wx1lg                  1/1    Running   0         34m              
+NAMESPACE     NAME                                      READY  STATUS    RESTARTS  AGE
+kube-system   calico-node-1m5bf                         2/2    Running   0         34m
+kube-system   calico-node-7jmr1                         2/2    Running   0         34m
+kube-system   calico-node-bknc8                         2/2    Running   0         34m
+kube-system   coredns-1187388186-wx1lg                  1/1    Running   0         34m
 kube-system   coredns-1187388186-qjnvp                  1/1    Running   0         34m
-kube-system   kube-apiserver-4mjbk                      1/1    Running   0         34m              
-kube-system   kube-controller-manager-3597210155-j2jbt  1/1    Running   1         34m              
-kube-system   kube-controller-manager-3597210155-j7g7x  1/1    Running   0         34m              
-kube-system   kube-proxy-14wxv                          1/1    Running   0         34m              
-kube-system   kube-proxy-9vxh2                          1/1    Running   0         34m              
-kube-system   kube-proxy-sbbsh                          1/1    Running   0         34m              
-kube-system   kube-scheduler-3359497473-5plhf           1/1    Running   0         34m              
-kube-system   kube-scheduler-3359497473-r7zg7           1/1    Running   1         34m              
-kube-system   pod-checkpointer-4kxtl                    1/1    Running   0         34m              
+kube-system   kube-apiserver-4mjbk                      1/1    Running   0         34m
+kube-system   kube-controller-manager-3597210155-j2jbt  1/1    Running   1         34m
+kube-system   kube-controller-manager-3597210155-j7g7x  1/1    Running   0         34m
+kube-system   kube-proxy-14wxv                          1/1    Running   0         34m
+kube-system   kube-proxy-9vxh2                          1/1    Running   0         34m
+kube-system   kube-proxy-sbbsh                          1/1    Running   0         34m
+kube-system   kube-scheduler-3359497473-5plhf           1/1    Running   0         34m
+kube-system   kube-scheduler-3359497473-r7zg7           1/1    Running   1         34m
+kube-system   pod-checkpointer-4kxtl                    1/1    Running   0         34m
 kube-system   pod-checkpointer-4kxtl-ip-10-0-3-155      1/1    Running   0         33m
 ```
 

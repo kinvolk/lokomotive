@@ -50,6 +50,7 @@ systemd:
           --volume iscsiadm,kind=host,source=/usr/sbin/iscsiadm \
           --mount volume=iscsiadm,target=/sbin/iscsiadm \
           --insecure-options=image"
+        Environment=KUBELET_CGROUP_DRIVER=${cgroup_driver}
         ExecStartPre=/bin/mkdir -p /opt/cni/bin
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
@@ -62,6 +63,7 @@ systemd:
           --anonymous-auth=false \
           --authentication-token-webhook \
           --authorization-mode=Webhook \
+          --cgroup-driver=$${KUBELET_CGROUP_DRIVER} \
           --client-ca-file=/etc/kubernetes/ca.crt \
           --cluster_dns=${cluster_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
@@ -89,7 +91,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.14.1
+          KUBELET_IMAGE_TAG=v1.15.3
     - path: /etc/hostname
       filesystem: root
       mode: 0644

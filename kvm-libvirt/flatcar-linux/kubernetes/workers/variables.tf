@@ -5,9 +5,8 @@ variable "cluster_name" {
   description = "Unique cluster name (prepended to dns_zone)"
 }
 
-
 variable "machine_domain" {
-  type = "string"
+  type        = "string"
   description = "Machine domain"
 }
 
@@ -50,6 +49,12 @@ variable "libvirtpool" {
 variable "libvirtbaseid" {
   type        = "string"
   description = "base image id for libvirt"
+}
+
+variable "os_channel" {
+  type        = "string"
+  default     = "stable"
+  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
 }
 
 variable "cluster_domain_suffix" {

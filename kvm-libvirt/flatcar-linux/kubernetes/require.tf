@@ -13,11 +13,11 @@ provider "local" {
 }
 
 provider "null" {
-  version = "~> 1.0"
+  version = "~> 2.1"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.1"
 }
 
 provider "tls" {
@@ -26,6 +26,5 @@ provider "tls" {
 
 provider "libvirt" {
   version = "~> 0.5.3"
-  uri = "qemu:///system"
+  uri     = "qemu:///system"
 }
-

@@ -33,6 +33,7 @@ data "template_file" "configs" {
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
     worker_labels         = "${var.labels}"
     taints                = "${var.taints}"
+    cgroup_driver         = "${var.os_channel == "edge" ? "systemd":"cgroupfs"}"
     setup_raid            = "${var.setup_raid}"
     setup_raid_hdd        = "${var.setup_raid_hdd}"
     setup_raid_ssd        = "${var.setup_raid_ssd}"

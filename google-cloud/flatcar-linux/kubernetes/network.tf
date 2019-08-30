@@ -2,6 +2,10 @@ resource "google_compute_network" "network" {
   name                    = "${var.cluster_name}"
   description             = "Network for the ${var.cluster_name} cluster"
   auto_create_subnetworks = true
+
+  timeouts {
+    delete = "6m"
+  }
 }
 
 resource "google_compute_firewall" "allow-ssh" {
@@ -50,7 +54,7 @@ resource "google_compute_firewall" "allow-apiserver" {
 
   allow {
     protocol = "tcp"
-    ports    = [443]
+    ports    = [6443]
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -78,16 +82,16 @@ resource "google_compute_firewall" "internal-bgp" {
   target_tags = ["${var.cluster_name}-controller", "${var.cluster_name}-worker"]
 }
 
-# flannel
-resource "google_compute_firewall" "internal-flannel" {
+# flannel VXLAN
+resource "google_compute_firewall" "internal-vxlan" {
   count = "${var.networking == "flannel" ? 1 : 0}"
 
-  name    = "${var.cluster_name}-internal-flannel"
+  name    = "${var.cluster_name}-internal-vxlan"
   network = "${google_compute_network.network.name}"
 
   allow {
     protocol = "udp"
-    ports    = [8472]
+    ports    = [4789]
   }
 
   source_tags = ["${var.cluster_name}-controller", "${var.cluster_name}-worker"]

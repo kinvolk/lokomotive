@@ -78,6 +78,7 @@ data "template_file" "worker-config" {
 
   vars = {
     kubeconfig             = "${indent(10, var.kubeconfig)}"
+    cgroup_driver          = "${var.os_channel == "edge" ? "systemd":"cgroupfs"}"
     ssh_authorized_key     = "${var.ssh_authorized_key}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
