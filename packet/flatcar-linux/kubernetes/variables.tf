@@ -127,3 +127,22 @@ variable "enable_aggregation" {
   type        = "string"
   default     = "false"
 }
+
+variable "reservation_ids" {
+  description = "Specify Packet hardware_reservation_id for instances. A map where the key format is 'controller-${index}' and the value is the reservation ID. Nodes not present in the map will use the value of `reservation_ids_default` variable. Example: reservation_ids = { controller-0 = \"<reservation_id>\" }"
+  type        = "map"
+  default     = {}
+}
+
+variable "reservation_ids_default" {
+  description = <<EOD
+Possible values: "" and "next-available".
+
+Specify a default reservation ID for nodes not listed in the `reservation_ids`
+map. An empty string means "use no hardware reservation". `next-available` will
+choose any reservation that matches the pool's device type and facility.
+EOD
+
+  type    = "string"
+  default = ""
+}
