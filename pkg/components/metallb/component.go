@@ -19,6 +19,7 @@ type component struct {
 	SpeakerNodeSelectors    map[string]string `hcl:"speaker_node_selectors,optional"`
 	ControllerTolerations   []util.Toleration `hcl:"controller_toleration,block"`
 	SpeakerTolerations      []util.Toleration `hcl:"speaker_toleration,block"`
+	ServiceMonitor          bool              `hcl:"service_monitor,optional"`
 
 	ControllerTolerationsJSON string
 	SpeakerTolerationsJSON    string
@@ -58,7 +59,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render template failed")
 	}
 
-	return map[string]string{
+	rendered := map[string]string{
 		"namespace.yaml":                                    namespace,
 		"service-account-controller.yaml":                   serviceAccountController,
 		"service-account-speaker.yaml":                      serviceAccountSpeaker,
@@ -71,7 +72,15 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"deployment-controller.yaml":                        controllerStr,
 		"daemonset-speaker.yaml":                            speakerStr,
 		"psp-metallb-speaker.yaml":                          pspMetallbSpeaker,
-	}, nil
+	}
+
+	// Create service and service monitor for Prometheus to scrape metrics
+	if c.ServiceMonitor {
+		rendered["service.yaml"] = service
+		rendered["service-monitor.yaml"] = serviceMonitor
+	}
+
+	return rendered, nil
 }
 
 func (c *component) Install(kubeconfig string) error {

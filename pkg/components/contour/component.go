@@ -20,7 +20,8 @@ func init() {
 }
 
 type component struct {
-	InstallMode string `hcl:"install_mode,attr"`
+	InstallMode    string `hcl:"install_mode,attr"`
+	ServiceMonitor bool   `hcl:"service_monitor,optional"`
 
 	// TODO: add num of replicas when using install_mode "deployment"
 }
@@ -63,6 +64,14 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests-%s", name, c.InstallMode), walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}
+
+	// Create service and service monitor for Prometheus to scrape metrics
+	if c.ServiceMonitor {
+		if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests-metrics", name), walk); err != nil {
+			return nil, errors.Wrap(err, "failed to walk assets")
+		}
+	}
+
 	return ret, nil
 }
 

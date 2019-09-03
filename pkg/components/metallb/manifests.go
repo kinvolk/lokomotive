@@ -302,3 +302,40 @@ spec:
   volumes:
   - secret
 `
+
+// Needed by ServiceMonitor
+const service = `
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: metallb
+  name: metallb-metrics
+  namespace: metallb-system
+spec:
+  ports:
+  - port: 7472
+    name: metallb-metrics
+  selector:
+    app: metallb
+`
+
+// For autodiscovery by Prometheus operator
+const serviceMonitor = `
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: metallb
+  name: metallb
+  namespace: metallb-system
+spec:
+  endpoints:
+  - port: metallb-metrics
+  namespaceSelector:
+    matchNames:
+    - metallb-system
+  selector:
+    matchLabels:
+      app: metallb
+`
