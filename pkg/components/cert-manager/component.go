@@ -20,14 +20,13 @@ func init() {
 }
 
 type component struct {
-	Email     string  `hcl:"email,attr"`
-	Namespace *string `hcl:"namespace,attr"`
+	Email     string `hcl:"email,attr"`
+	Namespace string `hcl:"namespace,optional"`
 }
 
 func newComponent() *component {
-	defaultNamespace := ""
 	return &component{
-		Namespace: &defaultNamespace,
+		Namespace: "cert-manager",
 	}
 }
 
@@ -52,7 +51,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	releaseOptions := &chartutil.ReleaseOptions{
 		Name:      name,
-		Namespace: *c.Namespace,
+		Namespace: c.Namespace,
 		IsInstall: true,
 	}
 
