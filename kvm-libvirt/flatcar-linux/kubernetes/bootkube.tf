@@ -1,5 +1,5 @@
 module "bootkube" {
-  source = "git::https://github.com/kinvolk/terraform-render-bootkube//?ref=7c30aca430ea17c8a377d47b83a783428dc8a2a4"
+  source = "git::https://github.com/kinvolk/terraform-render-bootkube//?ref=89d11c3ac11973f215265b909d2284c996ad2214"
 
   cluster_name = "${var.cluster_name}"
 
