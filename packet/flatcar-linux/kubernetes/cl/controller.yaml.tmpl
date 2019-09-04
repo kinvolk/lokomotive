@@ -267,7 +267,7 @@ storage:
         inline: |
           #!/bin/bash
           set -e
-          readonly docker_cgroup_driver="$(docker info | awk '/^Cgroup Driver/ { print $3 }')"
+          readonly docker_cgroup_driver="$(docker info -f '{{.CgroupDriver}}')"
           cat <<EOF >/etc/kubernetes/kubelet.config
           apiVersion: kubelet.config.k8s.io/v1beta1
           kind: KubeletConfiguration
