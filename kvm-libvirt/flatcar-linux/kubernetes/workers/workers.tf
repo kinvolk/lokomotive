@@ -19,6 +19,7 @@ resource "libvirt_domain" "worker-machine" {
   vcpu   = "${var.virtual_cpus}"
   memory = "${var.virtual_memory}"
 
+  fw_cfg_name     = "opt/org.flatcar-linux/config"
   coreos_ignition = "${element(libvirt_ignition.ignition.*.id, count.index)}"
 
   disk {
