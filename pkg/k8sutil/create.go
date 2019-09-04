@@ -125,7 +125,7 @@ type creater struct {
 }
 
 func newCreater(c *rest.Config) (*creater, error) {
-	c.NegotiatedSerializer = serializer.DirectCodecFactory{CodecFactory: scheme.Codecs}
+	c.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}
 	client, err := rest.UnversionedRESTClientFor(c)
 	if err != nil {
 		return nil, err
