@@ -1,0 +1,62 @@
+module "controller" {
+  source = "../../packet/flatcar-linux/kubernetes"
+
+  providers = {
+    aws      = "aws.default"
+    local    = "local.default"
+    null     = "null.default"
+    template = "template.default"
+    tls      = "tls.default"
+    packet   = "packet.default"
+  }
+
+  dns_zone = "$AWS_DNS_ZONE"
+  dns_zone_id = "$AWS_DNS_ZONE_ID"
+
+  ssh_keys = ["$PUB_KEY"]
+
+  asset_dir = "${pathexpand("~/assets")}"
+  cluster_name = "$CLUSTER_ID"
+  project_id = "$PACKET_PROJECT_ID"
+
+  facility = "sjc1"
+
+  worker_count = 2
+  worker_nodes_hostnames = "${concat("${module.worker-pool-1.worker_nodes_hostname}")}"
+
+  controller_count = 1
+  controller_type  = "t1.small.x86"
+
+  management_cidrs = [
+    "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
+  ]
+
+  node_private_cidr = "10.0.0.0/8"
+}
+
+module "worker-pool-1" {
+  source = "../../packet/flatcar-linux/kubernetes/workers"
+
+  providers = {
+    local    = "local.default"
+    template = "template.default"
+    tls      = "tls.default"
+    packet   = "packet.default"
+  }
+
+
+  ssh_keys = ["$PUB_KEY"]
+
+  cluster_name = "$CLUSTER_ID"
+  project_id = "$PACKET_PROJECT_ID"
+
+  facility     = "sjc1"
+  pool_name    = "pool-1"
+
+  count = 2
+  type  = "t1.small.x86"
+
+  kubeconfig = "${module.controller.kubeconfig}"
+
+  labels = "node.supernova.io/role=backend,node-role.kubernetes.io/backend="
+}
