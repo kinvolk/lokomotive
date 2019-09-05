@@ -147,16 +147,24 @@ func (c *creater) createManifests(manifests []manifest) (ok bool) {
 	// Bootkube used to create manifests in named order ("01-foo" before "02-foo").
 	// Maintain this behavior for everything except CRDs and NSs, which have strict ordering
 	// that we should always respect.
+	//
+	// In addition, webhooks will be created at the end. If we create a webhook
+	// in the middle of the deployment and it is required, we would have to wait for pod to show up
+	// before we continue creating resources which would slow the creation of manifests, as otherwise
+	// the deployment will fail with error, that webhook server is not available.
+	// As manifests we create should already be tested, it should be fine to skip the webhooks.
 	sort.Slice(manifests, func(i, j int) bool {
 		return manifests[i].filepath < manifests[j].filepath
 	})
 
-	var namespaces, crds, other []manifest
+	var namespaces, crds, webhooks, other []manifest
 	for _, m := range manifests {
 		if m.kind == "CustomResourceDefinition" && strings.HasPrefix(m.apiVersion, "apiextensions.k8s.io/") {
 			crds = append(crds, m)
 		} else if m.kind == "Namespace" && m.apiVersion == "v1" {
 			namespaces = append(namespaces, m)
+		} else if (m.kind == "ValidatingWebhookConfiguration" || m.kind == "MutatingWebhookConfiguration") && strings.HasPrefix(m.apiVersion, "admissionregistration.k8s.io/") {
+			webhooks = append(webhooks, m)
 		} else {
 			other = append(other, m)
 		}
@@ -197,6 +205,14 @@ func (c *creater) createManifests(manifests []manifest) (ok bool) {
 	}
 
 	for _, m := range other {
+		if err := create(m); err != nil {
+			return false
+		}
+	}
+
+	// Create webhooks after all other resources has been created, so we don't have to wait for pods to be spawned
+	// to perform validation and mutation.
+	for _, m := range webhooks {
 		if err := create(m); err != nil {
 			return false
 		}
