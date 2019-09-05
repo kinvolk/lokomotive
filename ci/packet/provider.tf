@@ -8,7 +8,7 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.0"
+  version = "~> 1.2"
   alias   = "default"
 }
 
@@ -23,7 +23,7 @@ provider "template" {
 }
 
 provider "tls" {
-  version = "~> 1.0"
+  version = "~> 2.0"
   alias   = "default"
 }
 
