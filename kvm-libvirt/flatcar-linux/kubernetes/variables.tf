@@ -6,13 +6,6 @@ variable "cluster_name" {
 }
 
 # Nodes
-
-variable "os_channel" {
-  type        = "string"
-  default     = "stable"
-  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
-}
-
 variable "os_image_unpacked" {
   type        = "string"
   description = "Path to unpacked Flatcar image flatcar_production_qemu_image.img (probably after a qemu-img resize IMG +5G)"

@@ -67,7 +67,6 @@ data "template_file" "worker-config" {
 
   vars = {
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
-    cgroup_driver          = "${var.os_channel == "edge" ? "systemd":"cgroupfs"}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
   }
 }

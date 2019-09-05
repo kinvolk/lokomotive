@@ -51,12 +51,6 @@ variable "libvirtbaseid" {
   description = "base image id for libvirt"
 }
 
-variable "os_channel" {
-  type        = "string"
-  default     = "stable"
-  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
-}
-
 variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = "string"

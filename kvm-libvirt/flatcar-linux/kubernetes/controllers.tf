@@ -83,7 +83,6 @@ data "template_file" "controller-configs" {
     etcd_name              = "${var.cluster_name}-controller-${count.index}"
     etcd_domain            = "${var.cluster_name}-controller-${count.index}.${var.machine_domain}"
     etcd_initial_cluster   = "${join(",", data.template_file.etcds.*.rendered)}"
-    cgroup_driver          = "${var.os_channel == "edge" ? "systemd":"cgroupfs"}"
     kubeconfig             = "${indent(10, module.bootkube.kubeconfig-kubelet)}"
     ssh_keys               = "${jsonencode("${var.ssh_keys}")}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"

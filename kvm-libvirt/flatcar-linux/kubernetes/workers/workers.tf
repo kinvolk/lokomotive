@@ -49,7 +49,6 @@ data "template_file" "worker-config" {
   vars {
     domain_name            = "${var.cluster_name}-${var.pool_name}-worker-${count.index}.${var.machine_domain}"
     kubeconfig             = "${indent(10, "${var.kubeconfig}")}"
-    cgroup_driver          = "${var.os_channel == "edge" ? "systemd":"cgroupfs"}"
     ssh_keys               = "${jsonencode("${var.ssh_keys}")}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
