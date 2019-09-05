@@ -19,13 +19,13 @@ variable "pool_name" {
 variable "count" {
   type        = "string"
   default     = "1"
-  description = "Number of workers"
+  description = "Number of workers, can be changed afterwards to delete or add nodes"
 }
 
 variable "type" {
   type        = "string"
   default     = "baremetal_0"
-  description = "Packet instance type for workers"
+  description = "Packet instance type for workers, can be changed afterwards to recreate the nodes"
 }
 
 # TODO: migrate to `templatefile` when Terraform `0.12` is out and use `{% for ~}`

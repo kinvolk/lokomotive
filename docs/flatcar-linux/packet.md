@@ -326,3 +326,13 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
 
 Documentation about Packet hardware reservation id can be found here: https://support.packet.com/kb/articles/reserved-hardware.
+
+## Post-installation modification
+
+Currently the only tested ways to modify a cluster are:
+
+* Adding new worker pools, done by adding a new worker module and concating its `.worker_nodes_hostname` to the `worker_nodes_hostnames` list of the controller module.
+* Scaling a worker pool by changing the `count` to delete or add nodes, even to 0 (but the worker pool definition has to be kept and the total number of workers must be > 0).
+* Changing the instance type of a worker pool by altering `type`, e.g., from `t1.small.x86` to `c1.small.x86`, which will recreate the nodes, causing downtime since they are destroyed first and then created again.
+
+This list may be expanded in the future but for now other changes are not supported but can be done at your own risk.
