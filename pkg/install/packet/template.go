@@ -2,7 +2,7 @@ package packet
 
 var terraformConfigTmpl = `
 module "packet-{{.Config.ClusterName}}" {
-  source = "{{.Source}}"
+  source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
 
   providers = {
     aws      = "aws.default"
@@ -17,7 +17,7 @@ module "packet-{{.Config.ClusterName}}" {
   dns_zone_id = "{{.Config.DNSZoneID}}"
 
   ssh_keys  = {{.SSHPublicKeys}}
-  asset_dir = "{{.Config.AssetDir}}"
+  asset_dir = "../cluster-assets"
 
   cluster_name = "{{.Config.ClusterName}}"
   project_id   = "{{.Config.ProjectID}}"
@@ -46,7 +46,7 @@ module "packet-{{.Config.ClusterName}}" {
 
 {{ range $index, $pool := .Config.WorkerPools }}
 module "worker-pool-{{ $index }}" {
-  source = "{{$.Source}}/workers"
+  source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
 
   providers = {
     local    = "local.default"

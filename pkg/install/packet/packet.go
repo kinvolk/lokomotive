@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/install"
@@ -84,12 +85,17 @@ func (cfg *config) Install() error {
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
 	}
 
-	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
+	assetDir, err := homedir.Expand(cfg.AssetDir)
+	if err != nil {
+		return err
+	}
+
+	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
 	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
 	}
 
-	terraformRootDir := filepath.Join(cfg.AssetDir, "terraform")
+	terraformRootDir := filepath.Join(assetDir, "terraform")
 	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
 		return err
 	}
@@ -116,8 +122,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	defer f.Close()
 
-	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/packet/flatcar-linux/kubernetes")
-
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal SSH public keys")
@@ -135,13 +139,11 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 	terraformCfg := struct {
 		Config          config
-		Source          string
 		SSHPublicKeys   string
 		ManagementCIDRs string
 		WorkerCount     int
 	}{
 		Config:          *cfg,
-		Source:          source,
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
 		WorkerCount:     workerCount,

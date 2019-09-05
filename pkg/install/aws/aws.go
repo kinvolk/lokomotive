@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/install"
@@ -78,12 +79,17 @@ func (cfg *config) readSSHPubKey() (string, error) {
 }
 
 func (cfg *config) Install() error {
-	terraformModuleDir := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes")
+	assetDir, err := homedir.Expand(cfg.AssetDir)
+	if err != nil {
+		return err
+	}
+
+	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
 	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
 	}
 
-	terraformRootDir := filepath.Join(cfg.AssetDir, "terraform")
+	terraformRootDir := filepath.Join(assetDir, "terraform")
 	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
 		return err
 	}
@@ -110,7 +116,6 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 	defer f.Close()
 
-	source := filepath.Join(cfg.AssetDir, "lokomotive-kubernetes/aws/flatcar-linux/kubernetes")
 	ssh_authorized_key, err := cfg.readSSHPubKey()
 	if err != nil {
 		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
@@ -128,13 +133,11 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 
 	terraformCfg := struct {
 		Config                config
-		Source                string
 		SSHAuthorizedKey      string
 		ControllerCLCSnippets string
 		WorkerCLCSnippets     string
 	}{
 		Config:                *cfg,
-		Source:                source,
 		SSHAuthorizedKey:      ssh_authorized_key,
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
 		WorkerCLCSnippets:     string(workerCLCSnippetsBytes),

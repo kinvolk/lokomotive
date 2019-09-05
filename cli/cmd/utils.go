@@ -84,7 +84,7 @@ func getKubeconfig() (string, error) {
 		return expand("~/.kube/config"), nil
 	}
 
-	return expand(filepath.Join(assetDir, "auth", "kubeconfig")), nil
+	return expand(filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")), nil
 }
 
 // doesKubeconfigExist checks if the kubeconfig provided by user exists

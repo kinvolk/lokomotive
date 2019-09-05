@@ -97,10 +97,8 @@ component "contour" {
 }
 ```
 
-Quick note:
-
-The asset directory should be kept for the lifetime of the cluster.
-The path cannot be relative at the moment.
+>NOTE: The asset directory should be kept for the lifetime of the cluster. For more information
+>regarding the asset directory, see [here](general.md#asset-directory).
 
 `management_cidrs` is the list of IPv4 CIDRs authorised to access or manage the cluster.
 Find your current external IP with `curl -4 icanhazip.com` and put it there.
