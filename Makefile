@@ -11,7 +11,10 @@ endif
 
 # Use the Go module mirror (https://blog.golang.org/module-mirror-launch).
 # This speeds up build time and protects against disappearing dependencies.
-export GOPROXY=https://proxy.golang.org
+ifeq ($(shell (go env GOPROXY)),)
+       export GOPROXY=https://proxy.golang.org
+endif
+
 
 LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags '-static'"
 
