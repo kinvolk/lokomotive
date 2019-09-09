@@ -1,3 +1,1 @@
-# README
-
-This module installs a Lokomotive cluster to Packet.
+See https://github.com/kinvolk/lokomotive-kubernetes/
