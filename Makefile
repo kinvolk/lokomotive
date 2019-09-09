@@ -97,3 +97,19 @@ tidy:
 .PHONY: vendor
 vendor:
 	GO111MODULE=on go mod vendor
+
+.PHONY: docker-build
+docker-build:
+	docker build -t kinvolk/lokoctl .
+
+.PHONY: docker-vendor
+docker-vendor: docker-build
+	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokoctl sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
+
+.PHONY: docker-update-assets
+docker-update-assets: docker-build
+	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokoctl sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
+
+.PHONY: docker-update-dependencies
+docker-update-dependencies: docker-build
+	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokoctl sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
