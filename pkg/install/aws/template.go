@@ -34,7 +34,7 @@ module "aws-{{.Config.ClusterName}}" {
 }
 
 provider "aws" {
-  version = "~> 1.13.0"
+  version = "~> 2.25.0"
   alias   = "default"
 
   region                  = "{{.Config.Region}}"
@@ -48,22 +48,22 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.0"
+  version = "~> 1.2"
   alias   = "default"
 }
 
 provider "null" {
-  version = "~> 1.0"
+  version = "~> 2.1"
   alias   = "default"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.1"
   alias   = "default"
 }
 
 provider "tls" {
-  version = "~> 1.0"
+  version = "~> 2.0"
   alias   = "default"
 }
 `
