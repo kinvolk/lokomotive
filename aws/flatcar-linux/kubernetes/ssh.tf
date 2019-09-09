@@ -82,12 +82,20 @@ resource "null_resource" "bootkube-start" {
   }
 
   provisioner "file" {
+    content     = "${module.bootkube.kubeconfig-kubelet}"
+    destination = "$HOME/kubeconfig"
+  }
+
+  provisioner "file" {
     source      = "${var.asset_dir}"
     destination = "$HOME/assets"
   }
 
   provisioner "remote-exec" {
     inline = [
+      "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
+      "sudo chown root:root /etc/kubernetes/kubeconfig",
+      "sudo chmod 644 /etc/kubernetes/kubeconfig",
       "sudo mv $HOME/assets /opt/bootkube",
       "sudo systemctl start bootkube",
     ]

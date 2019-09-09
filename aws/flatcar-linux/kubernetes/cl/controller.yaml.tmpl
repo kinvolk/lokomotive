@@ -51,6 +51,7 @@ systemd:
         Description=Kubelet via Hyperkube
         Wants=rpc-statd.service
         [Service]
+        ConditionPathExists=/etc/kubernetes/kubeconfig
         EnvironmentFile=/etc/kubernetes/kubelet.env
         Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
           --volume=resolv,kind=host,source=/etc/resolv.conf \
@@ -114,12 +115,6 @@ systemd:
         WantedBy=multi-user.target
 storage:
   files:
-    - path: /etc/kubernetes/kubeconfig
-      filesystem: root
-      mode: 0644
-      contents:
-        inline: |
-          ${kubeconfig}
     - path: /etc/kubernetes/kubelet.env
       filesystem: root
       mode: 0644
