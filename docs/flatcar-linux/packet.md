@@ -1,6 +1,6 @@
 # Packet
 
-In this tutorial, we'll create a Kubernetes v1.14.1 cluster on [Packet](https://packet.net) with [Flatcar Linux](https://www.flatcar-linux.org/). For external DNS, [Route53](https://aws.amazon.com/route53/) will be used.
+In this tutorial, we'll create a Kubernetes cluster on [Packet](https://packet.net) with [Flatcar Linux](https://www.flatcar-linux.org/). For external DNS, [Route53](https://aws.amazon.com/route53/) will be used.
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create DNS records, controller machines, worker machines and TLS assets.
 

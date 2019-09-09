@@ -1,6 +1,6 @@
 # Google Cloud
 
-In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Google Compute Engine with Flatcar Linux.
+In this tutorial, we'll create a Kubernetes cluster on Google Compute Engine with Flatcar Linux.
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a network, firewall rules, health checks, controller instances, worker managed instance group, load balancers, and TLS assets.
 

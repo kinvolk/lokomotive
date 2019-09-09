@@ -3,7 +3,7 @@
 !!! danger
     Lokomotive for Azure is alpha. For production, use AWS or bare-metal. As Azure matures, check [errata](https://github.com/poseidon/typhoon/wiki/Errata) for known shortcomings.
 
-In this tutorial, we'll create a Kubernetes v1.14.1 cluster on Azure with Flatcar Linux.
+In this tutorial, we'll create a Kubernetes cluster on Azure with Flatcar Linux.
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a resource group, virtual network, subnets, security groups, controller availability set, worker scale set, load balancer, and TLS assets.
 
