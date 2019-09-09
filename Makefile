@@ -1,5 +1,9 @@
 TAG := `git describe --tags --always`
 VERSION :=
+# MOD can either be "readonly" or "vendor".
+# The default is "readonly" which fetches the sources to the Go module cache.
+# Use make MOD=vendor to build with sources from the vendor directory instead.
+MOD ?= readonly
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
@@ -36,6 +40,7 @@ update-assets:
 # we rely on defaults.
 build-slim:
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build \
+		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
 		-buildmode=exe \
 		github.com/kinvolk/lokoctl
@@ -70,6 +75,7 @@ install: update-lk-submodule update-assets install-slim
 # so we rely on defaults.
 install-slim:
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install \
+		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
 		-buildmode=exe
 
