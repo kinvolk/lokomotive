@@ -5,9 +5,8 @@ variable "cluster_name" {
   description = "Unique cluster name (prepended to dns_zone)"
 }
 
-
 variable "machine_domain" {
-  type = "string"
+  type        = "string"
   description = "Machine domain"
 }
 

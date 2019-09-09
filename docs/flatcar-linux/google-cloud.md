@@ -62,23 +62,23 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 1.2"
+  alias   = "default"
 }
 
 provider "null" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 2.1"
+  alias   = "default"
 }
 
 provider "template" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 2.1"
+  alias   = "default"
 }
 
 provider "tls" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 2.0"
+  alias   = "default"
 }
 ```
 

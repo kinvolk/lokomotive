@@ -2,6 +2,10 @@
 resource "null_resource" "copy-controller-secrets" {
   count = "${var.controller_count}"
 
+  depends_on = [
+    "digitalocean_firewall.rules",
+  ]
+
   connection {
     type    = "ssh"
     host    = "${element(concat(digitalocean_droplet.controllers.*.ipv4_address), count.index)}"

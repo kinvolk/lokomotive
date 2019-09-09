@@ -27,7 +27,7 @@ Configure each machine to boot from the disk through IPMI or the BIOS menu.
 ```
 ipmitool -H node1 -U USER -P PASS chassis bootdev disk options=persistent
 ```
- 
+
 During provisioning, you'll explicitly set the boot device to `pxe` for the next boot only. Machines will install (overwrite) the operating system to disk on PXE boot and reboot into the disk install.
 
 !!! tip ""
@@ -154,23 +154,23 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 1.2"
+  alias   = "default"
 }
 
 provider "null" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 2.1"
+  alias   = "default"
 }
 
 provider "template" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 2.1"
+  alias   = "default"
 }
 
 provider "tls" {
-  version = "~> 1.0"
-  alias = "default"
+  version = "~> 2.0"
+  alias   = "default"
 }
 ```
 
@@ -181,14 +181,14 @@ Define a Kubernetes cluster using the module `bare-metal/flatcar-linux/kubernete
 ```tf
 module "bare-metal-mercury" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=<hash>"
-  
+
   providers = {
     local = "local.default"
     null = "null.default"
     template = "template.default"
     tls = "tls.default"
   }
-  
+
   # bare-metal
   cluster_name            = "mercury"
   matchbox_http_endpoint  = "http://matchbox.example.com"
@@ -380,7 +380,7 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | cached_install | PXE boot and install from the Matchbox `/assets` cache. Admin MUST have downloaded Flatcar Linux or Flatcar images into the cache | false | true |
 | install_disk | Disk device where Flatcar Linux should be installed | "/dev/sda" | "/dev/sdb" |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
-| network_mtu | CNI interface MTU (calico-only) | 1480 | - | 
+| network_mtu | CNI interface MTU (calico-only) | 1480 | - |
 | clc_snippets | Map from machine names to lists of Container Linux Config snippets | {} | [example](/advanced/customization/#usage) |
 | network_ip_autodetection_method | Method to detect host IPv4 address (calico-only) | first-found | can-reach=10.0.0.1 |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |

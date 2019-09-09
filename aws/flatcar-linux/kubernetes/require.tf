@@ -5,21 +5,21 @@ terraform {
 }
 
 provider "aws" {
-  version = ">= 1.13, < 3.0"
+  version = "2.25.0"
 }
 
 provider "local" {
-  version = "~> 1.0"
+  version = "~> 1.2"
 }
 
 provider "null" {
-  version = "~> 1.0"
+  version = "~> 2.1"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.1"
 }
 
 provider "tls" {
-  version = "~> 1.0"
+  version = "~> 2.0"
 }

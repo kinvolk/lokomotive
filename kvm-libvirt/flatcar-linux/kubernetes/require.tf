@@ -9,23 +9,22 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.0"
+  version = "~> 1.2"
 }
 
 provider "null" {
-  version = "~> 1.0"
+  version = "~> 2.1"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.1"
 }
 
 provider "tls" {
-  version = "~> 1.0"
+  version = "~> 2.0"
 }
 
 provider "libvirt" {
   version = "~> 0.5.3"
-  uri = "qemu:///system"
+  uri     = "qemu:///system"
 }
-

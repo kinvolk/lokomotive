@@ -31,6 +31,7 @@ resource "aws_instance" "controllers" {
     volume_type = "${var.disk_type}"
     volume_size = "${var.disk_size}"
     iops        = "${var.disk_iops}"
+    encrypted   = true
   }
 
   # network
@@ -66,8 +67,7 @@ data "template_file" "controller-configs" {
     etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
 
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
-    etcd_initial_cluster = "${join(",", data.template_file.etcds.*.rendered)}"
-
+    etcd_initial_cluster   = "${join(",", data.template_file.etcds.*.rendered)}"
     ssh_authorized_key     = "${var.ssh_authorized_key}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"

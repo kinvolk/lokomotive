@@ -113,7 +113,9 @@ resource "azurerm_network_interface" "controllers" {
 
 # Add controller NICs to the controller backend address pool
 resource "azurerm_network_interface_backend_address_pool_association" "controllers" {
-  network_interface_id    = "${azurerm_network_interface.controllers.id}"
+  count = "${var.controller_count}"
+
+  network_interface_id    = "${azurerm_network_interface.controllers.*.id}"
   ip_configuration_name   = "ip0"
   backend_address_pool_id = "${azurerm_lb_backend_address_pool.controller.id}"
 }
@@ -149,8 +151,7 @@ data "template_file" "controller-configs" {
     etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
 
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
-    etcd_initial_cluster = "${join(",", data.template_file.etcds.*.rendered)}"
-
+    etcd_initial_cluster   = "${join(",", data.template_file.etcds.*.rendered)}"
     kubeconfig             = "${indent(10, module.bootkube.kubeconfig-kubelet)}"
     ssh_authorized_key     = "${var.ssh_authorized_key}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"

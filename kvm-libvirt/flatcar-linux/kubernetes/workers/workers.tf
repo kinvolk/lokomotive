@@ -1,9 +1,9 @@
 resource "libvirt_volume" "worker-disk" {
-  name             = "${var.cluster_name}-${var.pool_name}-worker-${count.index}.qcow2"
-  count            = "${var.count}"
-  base_volume_id   = "${var.libvirtbaseid}"
-  pool             = "${var.libvirtpool}"
-  format           = "qcow2"
+  name           = "${var.cluster_name}-${var.pool_name}-worker-${count.index}.qcow2"
+  count          = "${var.count}"
+  base_volume_id = "${var.libvirtbaseid}"
+  pool           = "${var.libvirtpool}"
+  format         = "qcow2"
 }
 
 resource "libvirt_ignition" "ignition" {
@@ -35,11 +35,10 @@ resource "libvirt_domain" "worker-machine" {
     hostname       = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
     wait_for_lease = true
   }
-
 }
 
 data "ct_config" "worker-ignition" {
-  count	  = "${var.count}"
+  count   = "${var.count}"
   content = "${element(data.template_file.worker-config.*.rendered, count.index)}"
 }
 
