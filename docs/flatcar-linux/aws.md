@@ -1,6 +1,6 @@
 # AWS
 
-In this tutorial, we'll create a Kubernetes v1.14.1 cluster on AWS with Flatcar Linux.
+In this tutorial, we'll create a Kubernetes cluster on AWS with Flatcar Linux.
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a VPC, gateway, subnets, security groups, controller instances, worker auto-scaling group, network load balancer, and TLS assets.
 

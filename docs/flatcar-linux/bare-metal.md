@@ -1,6 +1,6 @@
 # Bare-Metal
 
-In this tutorial, we'll network boot and provision a Kubernetes v1.14.1 cluster on bare-metal with Flatcar Linux.
+In this tutorial, we'll network boot and provision a Kubernetes cluster on bare-metal with Flatcar Linux.
 
 First, we'll deploy a [Matchbox](https://github.com/poseidon/matchbox) service and setup a network boot environment. Then, we'll declare a Kubernetes cluster using the Lokomotive Terraform module and power on machines. On PXE boot, machines will install Flatcar Linux to disk, reboot into the disk install, and provision themselves as Kubernetes controllers or workers via Ignition.
 
