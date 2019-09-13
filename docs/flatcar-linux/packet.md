@@ -321,6 +321,9 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | "false" | "true" |
+| setup_raid_hdd    | Flag to create a RAID 0 from extra Hard Disk Drives (HDD) only. Has no effect if `setup_raid` is `"true"`   | "false" | "true" |
+| setup_raid_ssd    | Flag to create a RAID 0 from extra Solid State Drives (SSD) only. Has no effect if `setup_raid` is `"true"` | "false" | "true" |
+| setup_raid_ssd_fs | Flag to create a file system on RAID 0 created using flag `setup_raid_ssd`. Has no effect if `setup_raid` is `"true"` | "true" | "false" |
 | taints | Comma separated list of custom taints for all workers in the worker pool | "" | "clusterType=staging:NoSchedule,nodeType=storage:NoSchedule" |
 | reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
