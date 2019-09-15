@@ -148,7 +148,7 @@ storage:
             while IFS= read -r line; do
               local drive=$(echo "$line" | awk '{print $1}')
               local rota=$(echo "$line" | awk '{print $2}')
-              if [ $$disk_type != -1 ] && [ $$disk_type != $$rota ]; then
+              if [ $disk_type != -1 ] && [ $disk_type != $rota ]; then
                 continue
               fi
               local mountpoints=$(lsblk -ln -o mountpoint "$drive")
@@ -157,14 +157,14 @@ storage:
               fi
             done) | awk '{print $1}' | tr '\n' ' ')
 
-            local count=$(echo "$$disks" | wc -w)
+            local count=$(echo "$disks" | wc -w)
 
             # Exit if we don't have any disks to create an array
-            [ $$count -lt 1 ] && return 0
+            [ $count -lt 1 ] && return 0
 
             # Create, format and mount array.
             local extra_opts=""
-            if [ $$count -lt 2 ]; then
+            if [ $count -lt 2 ]; then
               # Force array creation even with one disk
               extra_opts="--force"
             fi
@@ -175,7 +175,7 @@ storage:
 
             mdadm --create "$${device_path}" \
               --homehost=any \
-              $$extra_opts \
+              $extra_opts \
               --verbose \
               --name="$${array_name}" \
               --level=0 \
