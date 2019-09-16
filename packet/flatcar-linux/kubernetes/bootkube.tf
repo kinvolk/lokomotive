@@ -1,5 +1,5 @@
 module "bootkube" {
-  source = "github.com/kinvolk/terraform-render-bootkube?ref=7e237ffa21fd85f76ddf2a215073aa7cd6ef2476"
+  source = "github.com/kinvolk/terraform-render-bootkube?ref=aec4326328bb7bdbd132a6e0b9c202e40f1ec04c"
 
   cluster_name = "${var.cluster_name}"
 
@@ -20,4 +20,6 @@ module "bootkube" {
   cluster_domain_suffix = "${var.cluster_domain_suffix}"
   enable_reporting      = "${var.enable_reporting}"
   enable_aggregation    = "${var.enable_aggregation}"
+
+  certs_validity_period_hours = "${var.certs_validity_period_hours}"
 }
