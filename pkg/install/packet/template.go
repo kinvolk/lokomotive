@@ -83,7 +83,7 @@ module "worker-pool-{{ $index }}" {
 {{ end }}
 
 provider "aws" {
-  version = "~> 1.57.0"
+  version = "~> 2.25.0"
   alias   = "default"
 
   region                  = "{{.Config.AWSRegion}}"
@@ -97,27 +97,27 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.0"
+  version = "~> 1.2"
   alias   = "default"
 }
 
 provider "null" {
-  version = "~> 1.0"
+  version = "~> 2.1"
   alias   = "default"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.1"
   alias   = "default"
 }
 
 provider "tls" {
-  version = "~> 1.0"
+  version = "~> 2.0"
   alias   = "default"
 }
 
 provider "packet" {
-  version = "~> 1.2"
+  version = "~> 1.4"
   alias = "default"
 
   {{- if .Config.AuthToken }}
