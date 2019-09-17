@@ -4,7 +4,10 @@
 
 ## Requirements
 
-**A cluster with `enable_aggregation` set to `true`.**
+**If you run a cluster `enable_aggregation` set to false (default), make sure you disable the webhooks
+feature, which will not work without aggregation enabled.**
+
+You can do that by setting `webhooks = false`
 
 ## Installation
 
@@ -24,3 +27,4 @@ component "cert-manager" {
 |-------------|--------------------------------------------------------------|--------------|----------|
 | `email`     | Email used for certificates to receive expiry notifications. | -            | true     |
 | `namespace` | Namespace to deploy the cert-manager into.                   | cert-manager | false    |
+| `webhooks`  | Controls if webhooks should be deployed.                     | true         | false    |

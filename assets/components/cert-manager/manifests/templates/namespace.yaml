@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Release.Namespace }}
+  {{- if .Values.webhook.enabled }}
   labels:
     certmanager.k8s.io/disable-validation: "true"
     name: {{ .Release.Namespace }}
+  {{- end }}

@@ -22,16 +22,20 @@ func init() {
 type component struct {
 	Email     string `hcl:"email,attr"`
 	Namespace string `hcl:"namespace,optional"`
+	Webhooks  bool   `hcl:"webhooks,optional"`
 }
 
 func newComponent() *component {
 	return &component{
 		Namespace: "cert-manager",
+		Webhooks:  true,
 	}
 }
 
 const chartValuesTmpl = `
 email: {{.Email}}
+webhook:
+  enabled: {{.Webhooks}}
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
