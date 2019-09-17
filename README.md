@@ -23,6 +23,26 @@ A list of all available components can be get with `lokoctl component list`. Doc
 
 ## Installation
 
+### Using 'go get'
+
+You can quickly get latest version of `lokoctl` by running following command:
+```
+go get github.com/kinvolk/lokoctl
+```
+
+Once finished, `lokoctl` binary should be available in `$GOPATH/bin`.
+
+**NOTE: As `lokoctl` repository is currently private, following additional git configuration
+is needed to make `go get` to work.**
+
+Add following snippet to your `~/.gitconfig` file:
+```
+[url "ssh://git@github.com/kinvolk/lokoctl"]
+  insteadOf = "https://github.com/kinvolk/lokoctl"
+```
+
+### Building from source
+
 Clone this repository and build the lokoctl binary:
 
 ```bash
