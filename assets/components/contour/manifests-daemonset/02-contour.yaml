@@ -20,6 +20,10 @@ spec:
         prometheus.io/port: "8002"
         prometheus.io/path: "/stats/prometheus"
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
       containers:
       - image: gcr.io/heptio-images/contour:v0.14.2
         imagePullPolicy: Always
