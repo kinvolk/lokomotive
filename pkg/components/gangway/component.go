@@ -83,6 +83,10 @@ spec:
         app: gangway
         revision: "1"
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
       initContainers:
       - name: download-theme
         image: schu/alpine-git

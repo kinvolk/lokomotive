@@ -90,6 +90,10 @@ spec:
       labels:
         app: dex
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
       serviceAccountName: dex
       initContainers:
       - name: download-theme
