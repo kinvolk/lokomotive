@@ -5,7 +5,7 @@ terraform {
 }
 
 provider "azurerm" {
-  version = "~> 1.21"
+  version = "1.35.0"
 }
 
 provider "local" {
