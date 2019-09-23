@@ -161,9 +161,9 @@ mv ~/.terraformrc ~/.terraform-backup
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`. Download the **same version** of `terraform-provider-ct` you were using with `~/.terraformrc`, updating only be done as a followup and is **only** safe for v1.12.2+ clusters!
 
 ```sh
-wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.2.1/terraform-provider-ct-v0.2.1-linux-amd64.tar.gz
-tar xzf terraform-provider-ct-v0.2.1-linux-amd64.tar.gz
-mv terraform-provider-ct-v0.2.1-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.2.1
+wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.4.0/terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+tar xzf terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+mv terraform-provider-ct-v0.4.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.4.0
 ```
 
 If you use bare-metal, add the [terraform-provider-matchbox](https://github.com/poseidon/terraform-provider-matchbox) plugin binary for your system to `~/.terraform.d/plugins/`, noting the versioned name.
@@ -195,7 +195,7 @@ provider "matchbox" {
 }
 
 provider "ct" {
-  version = "0.2.1"
+  version = "0.4.0"
 }
 ```
 
@@ -238,7 +238,7 @@ Update the version of the `ct` plugin in each Terraform working directory.
 ```
 # providers.tf
 provider "ct" {
-  version = "0.3.0"
+  version = "0.4.0"
 }
 ```
 

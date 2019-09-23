@@ -81,9 +81,9 @@ Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-c
 to `~/.terraform.d/plugins/`, noting the `_v0.3.1` suffix.
 
 ```sh
-wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.3.1/terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
-tar xzf terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
-mv terraform-provider-ct-v0.3.1-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.3.1
+wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.4.0/terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+tar xzf terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+mv terraform-provider-ct-v0.4.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.4.0
 ```
 
 Add the [terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt) plugin binary for your system
@@ -128,7 +128,7 @@ Create a file named `provider.tf` with the following contents:
 
 ```tf
 provider "ct" {
-  version = "0.3.1"
+  version = "0.4.0"
 }
 
 provider "local" {
