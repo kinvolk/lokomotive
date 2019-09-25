@@ -195,10 +195,9 @@ storage:
 
             if [ "$${setup_fs_on_raid}" = true ]; then
               mkfs.ext4 "$${device_path}"
-              mkdir "/mnt/$${array_name}"
-              mount "$${device_path}" "/mnt/$${array_name}"
+              mount "$${device_path}" "/mnt/"
               # Make mount persistent across reboots
-              echo "$${device_path} /mnt/$${array_name} ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
+              echo "$${device_path} /mnt/ ext4 defaults,nofail,discard 0 0" | tee -a /etc/fstab
             fi
           }
 
@@ -211,17 +210,20 @@ storage:
           # https://www.kernel.org/doc/Documentation/admin-guide/devices.txt
           major_numbers="8,259"
 
+          # XXX: These options are exclusive, as only one fs can be mounted
+          # to /mnt/
+          # This is, partly, because when creating dirs inside /mnt to mount
+          # several paths (like /mnt/node-local-storage), those are not visible
+          # to the pods. See this issue for more info:
+          # https://github.com/kinvolk/lokomotive-kubernetes/issues/73
+          #
           # Variables replaced by Terraform
           if [ ${setup_raid} = true ]; then
             create_data_raid "$${major_numbers}" -1 /dev/md/node-local-storage true
-          else
-             # Both can be set independently
-             if [ ${setup_raid_hdd} = true ]; then
-               create_data_raid "$${major_numbers}" 1 /dev/md/node-local-hdd-storage true
-             fi
-             if [ ${setup_raid_ssd} = true ]; then
-               create_data_raid "$${major_numbers}" 0 /dev/md/node-local-ssd-storage ${setup_raid_ssd_fs}
-             fi
+          elif [ ${setup_raid_hdd} = true ]; then
+            create_data_raid "$${major_numbers}" 1 /dev/md/node-local-hdd-storage true
+          elif [ ${setup_raid_ssd} = true ]; then
+            create_data_raid "$${major_numbers}" 0 /dev/md/node-local-ssd-storage ${setup_raid_ssd_fs}
           fi
     - path: /etc/kubernetes/kubeconfig
       filesystem: root
