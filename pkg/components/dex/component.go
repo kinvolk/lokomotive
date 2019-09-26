@@ -162,7 +162,7 @@ data:
 const ingressTmpl = `apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: contour
+  name: dex
   namespace: dex
   annotations:
     kubernetes.io/ingress.class: contour
