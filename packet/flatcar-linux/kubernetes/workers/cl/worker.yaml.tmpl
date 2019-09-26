@@ -7,12 +7,14 @@ systemd:
         [Unit]
         Description=Persist data RAID if exists
         ConditionPathExists=!/etc/mdadm.conf
+        Before=kubelet.service
         [Service]
         Type=oneshot
         RemainAfterExit=true
         ExecStart=/opt/persist-data-raid
         [Install]
         WantedBy=multi-user.target
+        RequiredBy=kubelet.service
     - name: docker.service
       enable: true
     - name: locksmithd.service
