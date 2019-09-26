@@ -1,6 +1,6 @@
 # Self-hosted Kubernetes assets (kubeconfig, manifests)
 module "bootkube" {
-  source = "github.com/kinvolk/terraform-render-bootkube?ref=7e237ffa21fd85f76ddf2a215073aa7cd6ef2476"
+  source = "github.com/kinvolk/terraform-render-bootkube?ref=aec4326328bb7bdbd132a6e0b9c202e40f1ec04c"
 
   cluster_name          = "${var.cluster_name}"
   api_servers           = ["${format("%s.%s", var.cluster_name, var.dns_zone)}"]
@@ -16,4 +16,6 @@ module "bootkube" {
 
   // temporary
   external_apiserver_port = 443
+
+  certs_validity_period_hours = "${var.certs_validity_period_hours}"
 }

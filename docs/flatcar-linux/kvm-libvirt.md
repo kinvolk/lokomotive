@@ -337,6 +337,7 @@ source.
 | service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" |
 | virtual_cpus | Number of virtual CPUs | "1" |
 | virtual_memory | Virtual RAM in MB | "2048" |
+| certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
 
 ### Worker
 

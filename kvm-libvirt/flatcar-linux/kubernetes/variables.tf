@@ -103,3 +103,11 @@ variable "enable_aggregation" {
   type        = "string"
   default     = "false"
 }
+
+# Certificates
+
+variable "certs_validity_period_hours" {
+  description = "Validity of all the certificates in hours"
+  type        = "string"
+  default     = 8760
+}
