@@ -80,19 +80,19 @@ EOD
 }
 
 variable "setup_raid" {
-  description = "Attempt to create a RAID 0 from extra disks to be used for persistent container storage. Valid values: \"true\", \"false\""
+  description = "Attempt to create a RAID 0 from extra disks to be used for persistent container storage. Can't be used with setup_raid_hdd nor setup_raid_sdd. Valid values: \"true\", \"false\""
   type        = "string"
   default     = "false"
 }
 
 variable "setup_raid_hdd" {
-  description = "Attempt to create a RAID 0 from extra Hard Disk drives only, to be used for persistent container storage. Valid values: \"true\", \"false\""
+  description = "Attempt to create a RAID 0 from extra Hard Disk drives only, to be used for persistent container storage. Can't be used with setup_raid nor setup_raid_sdd. Valid values: \"true\", \"false\""
   type        = "string"
   default     = "false"
 }
 
 variable "setup_raid_ssd" {
-  description = "Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage. Valid values: \"true\", \"false\""
+  description = "Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage.  Can't be used with setup_raid nor setup_raid_hdd. Valid values: \"true\", \"false\""
   type        = "string"
   default     = "false"
 }
