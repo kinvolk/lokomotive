@@ -116,7 +116,7 @@ default                  3m
 OpenEBS supports creation of a cStorPool even when diskList is not specified in the YAML specification. In this case, one pool instance on each node is created with just one striped disk. Here is the link to the [docs](https://docs.openebs.io/docs/next/configurepools.html#auto-mode) for more information on how to customise the pool creation and storage class according to your needs.
 
 ```
-✗ ./lokoctl component install openebs-default-storage-class
+✗ ./lokoctl component install openebs-storage-class
 Waiting for api-server...
 Creating assets...
 Created  StoragePoolClaim cstor-pool
