@@ -309,7 +309,7 @@ source.
 |:-----|:------------|:--------|:--------|
 | cluster_domain_suffix | Queries for domains with the suffix will be answered by coredns | "cluster.local" | "k8s.example.com" |
 | controller_count | Number of controller VMs | 1 | 1 |
-| enable_aggregation | Enable the Kubernetes Aggregation Layer | false | true |
+| enable_aggregation | Enable the Kubernetes Aggregation Layer | true | false |
 | enable_reporting | Enable usage or analytics reporting to upstreams (Calico) | false | true |
 | network_mtu | CNI interface MTU (applies to calico only) | 1480 | 8981 |
 | network_ip_autodetection_method | Method to autodetect the host IPv4 address (applies to calico only) | "first-found" or "can-reach=192.168.192.1" |
