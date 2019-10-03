@@ -20,20 +20,22 @@ func init() {
 }
 
 type component struct {
-	Email     string  `hcl:"email,attr"`
-	Namespace *string `hcl:"namespace,attr"`
+	Email     string `hcl:"email,attr"`
+	Namespace string `hcl:"namespace,optional"`
+	Webhooks  bool   `hcl:"webhooks,optional"`
 }
 
 func newComponent() *component {
-	defaultNamespace := ""
 	return &component{
-		Namespace: &defaultNamespace,
+		Namespace: "cert-manager",
+		Webhooks:  true,
 	}
 }
 
 const chartValuesTmpl = `
-namespace: {{.Namespace}}
 email: {{.Email}}
+webhook:
+  enabled: {{.Webhooks}}
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -53,7 +55,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	releaseOptions := &chartutil.ReleaseOptions{
 		Name:      name,
-		Namespace: *c.Namespace,
+		Namespace: c.Namespace,
 		IsInstall: true,
 	}
 

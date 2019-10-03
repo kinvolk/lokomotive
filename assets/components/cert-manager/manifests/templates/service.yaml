@@ -1,11 +1,8 @@
-{{- if .Values.serviceAccount.create -}}
+{{- if .Values.prometheus.enabled }}
 apiVersion: v1
-kind: ServiceAccount
-{{- if .Values.global.imagePullSecrets }}
-imagePullSecrets: {{ toYaml .Values.global.imagePullSecrets | nindent 2 }}
-{{- end }}
+kind: Service
 metadata:
-  name: {{ template "cert-manager.serviceAccountName" . }}
+  name: {{ template "cert-manager.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app: {{ template "cert-manager.name" . }}
@@ -13,4 +10,13 @@ metadata:
     app.kubernetes.io/instance:  {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ template "cert-manager.chart" . }}
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 9402
+      targetPort: 9402
+  selector:
+    app.kubernetes.io/name: {{ template "cert-manager.name" . }}
+    app.kubernetes.io/instance:  {{ .Release.Name }}
 {{- end }}
