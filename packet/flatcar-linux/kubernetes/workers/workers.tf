@@ -6,10 +6,25 @@ resource "packet_device" "nodes" {
   operating_system = "flatcar_${var.os_channel}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
+  ipxe_script_url  = "${var.ipxe_script_url}"
+  always_pxe       = "false"
   user_data        = "${data.ct_config.ignitions.rendered}"
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = "${lookup(var.reservation_ids, format("worker-%v", count.index), var.reservation_ids_default)}"
+}
+
+# These configs are used for the fist boot, to run flatcar-install
+data "template_file" "install" {
+  template = "${file("${path.module}/cl/install.yaml.tmpl")}"
+
+  vars {
+    os_channel           = "${var.os_channel}"
+    os_version           = "${var.os_version}"
+    flatcar_linux_oem    = "packet"
+    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
+    postinstall_ignition = "${data.ct_config.ignitions.rendered}"
+  }
 }
 
 resource "packet_bgp_session" "bgp" {

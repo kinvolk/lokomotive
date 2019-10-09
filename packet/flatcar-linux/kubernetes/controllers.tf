@@ -48,6 +48,27 @@ resource "packet_device" "controllers" {
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = "${lookup(var.reservation_ids, format("controller-%v", count.index), var.reservation_ids_default)}"
+
+  ipxe_script_url  = "${var.ipxe_script_url}"
+  always_pxe       = "false"
+}
+
+data "ct_config" "controller-install-ignitions" {
+  count   = "${var.controller_count}"
+  content = "${element(data.template_file.controller-install.*.rendered, count.index)}"
+}
+
+data "template_file" "controller-install" {
+  count    = "${var.controller_count}"
+  template = "${file("${path.module}/cl/controller-install.yaml.tmpl")}"
+
+  vars {
+    os_channel           = "${var.os_channel}"
+    os_version           = "${var.os_version}"
+    flatcar_linux_oem    = "packet"
+    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
+    postinstall_ignition = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  }
 }
 
 data "ct_config" "controller-ignitions" {

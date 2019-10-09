@@ -142,6 +142,8 @@ module "controller" {
   controller_count = 1
   controller_type  = "t1.small.x86"
 
+  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/add-packet-ipxe/packet.ipxe"
+
   management_cidrs = [
     "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
   ]
@@ -175,6 +177,8 @@ module "worker-pool-helium" {
 
   count = 2
   type  = "t1.small.x86"
+
+  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/add-packet-ipxe/packet.ipxe"
 
   kubeconfig = "${module.controller.kubeconfig}"
 
@@ -297,6 +301,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | controller_type | Type of nodes to provision | "baermetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
 | os_version | Version of a Flatcar Linux release | current | 2191.5.0 |
+| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/add-packet-ipxe/packet.ipxe |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | network_mtu | CNI interface MTU (calico only) | 1480 | 8981 |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
@@ -318,6 +323,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | labels | Comma separated labels to be added to the worker nodes | "" | "node.supernova.io/role=backend" |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
 | os_version | Version of a Flatcar Linux release | current | 2191.5.0 |
+| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/add-packet-ipxe/packet.ipxe | https://scripts.foobar.com/ipxe-flatcar.ipxe |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | "false" | "true" |
