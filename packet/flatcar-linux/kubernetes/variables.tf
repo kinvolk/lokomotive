@@ -48,7 +48,7 @@ variable "controller_type" {
 variable "ipxe_script_url" {
   type = "string"
 
-  # Workaround. iPXE-booting Flatcar on Packet over HTTPS is failing due to a bug in iPXE.
+  # Note: iPXE-booting Flatcar on Packet over HTTPS is failing due to a bug in iPXE.
   # This patch is supposed to fix this: http://git.ipxe.org/ipxe.git/commitdiff/b6ffe28a2
   # However, the upstream fix can work only when the HTTPS server does not rely on elliptic
   # curves. So we should use HTTPS only for servers without elliptic curves, and otherwise
@@ -56,8 +56,7 @@ variable "ipxe_script_url" {
   # curves. it should not be a problem in that case.
   # It has been possible to natively install Flatcar images as official OS option on Packet,
   # but only for amd64. There is no arm64 Flatcar image available on Packet.
-  # So we are not able to simply remove iPXE boot altogether.
-  default = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/add-packet-ipxe/packet.ipxe"
+  default = ""
 
   description = "Location to load the pxe boot script from"
 }
