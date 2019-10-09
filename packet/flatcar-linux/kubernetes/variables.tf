@@ -27,6 +27,12 @@ variable "os_channel" {
   description = "Flatcar Container Linux channel to install from (stable, beta, alpha, edge)"
 }
 
+variable "os_version" {
+  type        = "string"
+  default     = "current"
+  description = "Flatcar Linux version to install (for example '2191.5.0' - see https://www.flatcar-linux.org/releases/)"
+}
+
 variable "controller_count" {
   type        = "string"
   default     = "1"

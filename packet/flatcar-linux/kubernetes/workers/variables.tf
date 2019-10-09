@@ -70,6 +70,12 @@ variable "os_channel" {
   description = "Flatcar Container Linux channel to install from (stable, beta, alpha, edge)"
 }
 
+variable "os_version" {
+  type        = "string"
+  default     = "current"
+  description = "Flatcar Linux version to install (for example '2191.5.0' - see https://www.flatcar-linux.org/releases/)"
+}
+
 variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = "string"
