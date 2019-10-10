@@ -47,6 +47,9 @@ spec:
     useAllNodes: true
     useAllDevices: true
     config:
+      {{- if .MetadataDevice }}
+      metadataDevice: "{{ .MetadataDevice }}"
+      {{- end }}
       storeType: bluestore
       osdsPerDevice: "1" # this value can be overridden at the node or device level
     # directories:

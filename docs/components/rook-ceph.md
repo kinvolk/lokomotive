@@ -67,4 +67,5 @@ After removing the component from the cluster, make sure to delete `/var/lib/roo
 | `namespace` | Namespace to deploy the ceph cluster into. Must be same as the rook operator. | rook | false |
 | `monitor_count` | Number of ceph monitors to deploy. Odd number like 3 or 5 is recommended which should also be sufficient for most cases. | 1 | false |
 | `node_selector` | Node selectors for deploying the ceph cluster pods. | - | false |
-| `toleration` | Tolerations that the ceph cluster's pods will tolerate | - | false |
+| `toleration` | Tolerations that the ceph cluster's pods will tolerate. | - | false |
+| `metadata_device` | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing `/dev/`. | - | "md127" |

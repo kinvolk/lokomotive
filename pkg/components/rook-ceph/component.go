@@ -18,6 +18,7 @@ type component struct {
 	Namespace      string              `hcl:"namespace,optional"`
 	MonitorCount   int                 `hcl:"monitor_count,optional"`
 	NodeSelectors  []util.NodeSelector `hcl:"node_selector,block"`
+	MetadataDevice string              `hcl:"metadata_device,optional"`
 	Tolerations    []util.Toleration   `hcl:"toleration,block"`
 	TolerationsRaw string
 }
