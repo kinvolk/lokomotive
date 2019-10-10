@@ -65,6 +65,7 @@ data "template_file" "controller-install" {
   vars {
     os_channel           = "${var.os_channel}"
     os_version           = "${var.os_version}"
+    os_arch              = "${var.os_arch}"
     flatcar_linux_oem    = "packet"
     ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
     postinstall_ignition = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"

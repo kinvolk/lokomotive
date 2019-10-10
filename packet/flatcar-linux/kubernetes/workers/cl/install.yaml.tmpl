@@ -40,34 +40,21 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
-
-          # A comma-separated list of major device numbers. Modify to control which device types
-          # are considered for OS installation and data RAID.
-          # https://www.kernel.org/doc/Documentation/admin-guide/devices.txt
-          major_numbers="8,259"
-
-          # This function returns the path to the block device which represents the smallest disk
-          # attached to the system. The output can be passed to the flatcar-install script.
-          function select_install_disk() {
-            local major_numbers="$1"
-
-            local disk=$(lsblk -lnpd -I "$${major_numbers}" \
-              | sort -h -k 4,4 \
-              | head -1 \
-              | awk '{print $1}'
-            )
-
-            echo "$${disk}"
-          }
-
-          os_disk="$(select_install_disk $${major_numbers})"
+          if [ "${os_arch}" = arm64 ]; then
+            curl -o /tmp/Flatcar_ARM_Testing_Key.asc \
+              https://www.flatcar-linux.org/security/image-signing-key/Flatcar_ARM_Testing_Key.asc
+            ARG="-d /dev/sda -k /tmp/Flatcar_ARM_Testing_Key.asc"
+          else
+            ARG="-s"
+          fi
 
           flatcar-install \
-            -d "$${os_disk}" \
             -C "${os_channel}" \
             -V "${os_version}" \
             -o "${flatcar_linux_oem}" \
-            -i /opt/postinstall-ignition.json
+            -i /opt/postinstall-ignition.json \
+            $ARG
+
           udevadm settle
           systemctl reboot
 passwd:
