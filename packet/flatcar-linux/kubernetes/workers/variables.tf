@@ -72,7 +72,7 @@ variable "os_channel" {
 variable "os_version" {
   type        = "string"
   default     = "current"
-  description = "Flatcar Linux version to install (for example '2191.5.0' - see https://www.flatcar-linux.org/releases/)"
+  description = "Flatcar Container Linux version to install (for example '2191.5.0' - see https://www.flatcar-linux.org/releases/), only for iPXE"
 }
 
 variable "cluster_domain_suffix" {

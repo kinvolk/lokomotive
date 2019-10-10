@@ -3,7 +3,7 @@ resource "packet_device" "nodes" {
   hostname         = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
   plan             = "${var.type}"
   facilities       = ["${var.facility}"]
-  operating_system = "flatcar_${var.os_channel}"
+  operating_system = "${var.ipxe_script_url != "" ? "custom_ipxe" : format("flatcar_%s", var.os_channel)}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
