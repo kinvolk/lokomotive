@@ -146,7 +146,7 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
+          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
           KUBELET_IMAGE_TAG=v1.16.2
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
@@ -174,7 +174,7 @@ storage:
             --volume bootstrap,kind=host,source=/etc/kubernetes \
             --mount volume=bootstrap,target=/etc/kubernetes \
             $${RKT_OPTS} \
-            quay.io/coreos/bootkube:v0.14.0 \
+            quay.io/kinvolk/bootkube:v0.14.0-${os_arch} \
             --net=host \
             --dns=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"

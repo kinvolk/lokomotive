@@ -42,6 +42,7 @@ data "template_file" "configs" {
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
   vars {
+    os_arch               = "${var.os_arch}"
     kubeconfig            = "${indent(10, "${var.kubeconfig}")}"
     ssh_keys              = "${jsonencode("${var.ssh_keys}")}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"

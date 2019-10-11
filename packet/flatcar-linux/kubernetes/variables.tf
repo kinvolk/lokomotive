@@ -21,6 +21,12 @@ variable "project_id" {
 
 # Nodes
 
+variable "os_arch" {
+  type        = "string"
+  default     = "amd64"
+  description = "Flatcar Container Linux architecture to install (amd64, arm64)"
+}
+
 variable "os_channel" {
   type        = "string"
   default     = "stable"

@@ -296,7 +296,8 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | controller_count | Number of controllers (i.e. masters) | 1 | 1 |
 | controller_type | Type of nodes to provision | "baermetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
-| os_version | Version of a Flatcar Linux release | current | 2191.5.0 |
+| os_arch    | Flatcar Container Linux architecture to install | amd64  | amd64, arm64 |
+| os_version | Version of a Flatcar Container Linux release, only for iPXE | current | 2191.5.0 |
 | ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | network_mtu | CNI interface MTU (calico only) | 1480 | 8981 |
@@ -318,7 +319,8 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | labels | Comma separated labels to be added to the worker nodes | "" | "node.supernova.io/role=backend" |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
-| os_version | Version of a Flatcar Linux release | current | 2191.5.0 |
+| os_arch    | Flatcar Container Linux architecture to install | amd64  | amd64, arm64 |
+| os_version | Version of a Flatcar Container Linux release, only for iPXE | current | 2191.5.0 |
 | ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
