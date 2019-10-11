@@ -251,6 +251,8 @@ storage:
           #!/bin/bash
           set -e
           exec /usr/bin/rkt run \
+            --stage1-path=/usr/lib64/rkt/stage1-images/stage1-fly.aci \
+            --insecure-options=image \
             --trust-keys-from-https \
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
