@@ -16,11 +16,6 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
 )
 
-var clusterCmd = &cobra.Command{
-	Use:   "cluster",
-	Short: "Install Lokomotive cluster and components",
-}
-
 var clusterInstallCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install Lokomotive cluster with components",
@@ -28,7 +23,6 @@ var clusterInstallCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(clusterCmd)
 	clusterCmd.AddCommand(clusterInstallCmd)
 }
 
