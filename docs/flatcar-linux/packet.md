@@ -179,7 +179,7 @@ module "worker-pool-helium" {
 
   kubeconfig = "${module.controller.kubeconfig}"
 
-  labels = "node.supernova.io/role=backend,node-role.kubernetes.io/backend="
+  labels = "node.supernova.io/role=backend"
 }
 ```
 

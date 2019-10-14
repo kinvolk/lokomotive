@@ -102,8 +102,8 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node-role.kubernetes.io/master \
-          --node-labels=node-role.kubernetes.io/controller="true" \
+          --node-labels=node.kubernetes.io/master \
+          --node-labels=node.kubernetes.io/controller="true" \
           --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \

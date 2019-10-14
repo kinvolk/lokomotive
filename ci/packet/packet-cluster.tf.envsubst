@@ -58,5 +58,5 @@ module "worker-pool-1" {
 
   kubeconfig = "${module.controller.kubeconfig}"
 
-  labels = "node.supernova.io/role=backend,node-role.kubernetes.io/backend="
+  labels = "node.supernova.io/role=backend"
 }

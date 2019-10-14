@@ -92,7 +92,7 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node-role.kubernetes.io/node \
+          --node-labels=node.kubernetes.io/node \
           --node-labels=${worker_labels} \
           --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
           --pod-manifest-path=/etc/kubernetes/manifests \
