@@ -7,7 +7,8 @@ systemd:
         - name: 40-etcd-cluster.conf
           contents: |
             [Service]
-            Environment="ETCD_IMAGE_TAG=v3.4.3"
+            Environment="ETCD_IMAGE_URL=${etcd_arch_url_prefix}quay.io/coreos/etcd"
+            Environment="ETCD_IMAGE_TAG=v3.4.3${etcd_arch_tag_suffix}"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
             Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
@@ -25,6 +26,8 @@ systemd:
             Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/etcd/peer.crt"
             Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/etcd/peer.key"
             Environment="ETCD_PEER_CLIENT_CERT_AUTH=true"
+            Environment="RKT_RUN_ARGS=${etcd_arch_rkt_args}"
+            Environment="${etcd_arch_options}"
             ExecStopPost=-/opt/etcd-rejoin
     - name: docker.service
       enable: true
@@ -176,7 +179,7 @@ storage:
             --volume bootstrap,kind=host,source=/etc/kubernetes \
             --mount volume=bootstrap,target=/etc/kubernetes \
             $${RKT_OPTS} \
-            docker://quay.io/kinvolk/bootkube:v0.14.0-${os_arch} \
+            ${etcd_arch_url_prefix}quay.io/kinvolk/bootkube:v0.14.0-${os_arch} \
             --net=host \
             --dns=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"
