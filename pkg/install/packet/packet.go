@@ -12,6 +12,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokoctl/pkg/destroy"
 	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
@@ -153,4 +154,9 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
+}
+
+// Destroy destroys the Packet cluster.
+func (cfg *config) Destroy() error {
+	return destroy.ExecuteTerraformDestroy(cfg.AssetDir)
 }

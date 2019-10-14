@@ -10,6 +10,7 @@ import (
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Install() error
+	Destroy() error
 	GetAssetDir() string
 }
 

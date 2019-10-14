@@ -90,6 +90,11 @@ lokoctl cluster install
 ## Destroying the cluster
 
 ```bash
-cd <asset_dir>/terraform/
-terraform destroy
+lokoctl cluster destroy --confirm
+```
+
+You will then need to manually delete the assets directory
+
+```bash
+rm -r <asset_dir>/<cluster_name>
 ```
