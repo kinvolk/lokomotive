@@ -69,13 +69,15 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	if err != nil {
 		ctxLogger.Fatalf("error expanding path: %v", err)
 	}
-
+	// validate backend configuration.
+	if err = b.Validate(); err != nil {
+		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
+	}
 	// render backend configuration.
 	renderedBackend, err := b.Render()
 	if err != nil {
 		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
 	}
-
 	// Configure terraform directory,module and backend
 	if err = terraform.Configure(assetDir, renderedBackend); err != nil {
 		ctxLogger.Fatalf("Failed to configure terraform : %v", err)

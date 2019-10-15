@@ -13,6 +13,8 @@ type Backend interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	//Render renders the backend template with user backend configuration
 	Render() (string, error)
+	// Validates backend configuration
+	Validate() error
 }
 
 // backends is a collection where all backends gets automatically registered

@@ -34,3 +34,8 @@ func (l *local) Render() (string, error) {
 
 	return util.RenderTemplate(backendConfigTmpl, l)
 }
+
+// Validate validates local backend configuration
+func (l *local) Validate() error {
+	return nil
+}
