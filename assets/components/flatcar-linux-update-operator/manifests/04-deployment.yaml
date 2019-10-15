@@ -4,12 +4,15 @@ metadata:
   name: flatcar-linux-update-operator-sa
   namespace: reboot-coordinator
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flatcar-linux-update-operator
   namespace: reboot-coordinator
 spec:
+  selector:
+    matchLabels:
+      app: flatcar-linux-update-operator
   replicas: 1
   template:
     metadata:
