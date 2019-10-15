@@ -76,7 +76,7 @@ subjects:
   namespace: dex
 `
 
-const deploymentManifest = `apiVersion: extensions/v1beta1
+const deploymentManifest = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -84,6 +84,9 @@ metadata:
   name: dex
   namespace: dex
 spec:
+  selector:
+    matchLabels:
+      app: dex
   replicas: 3
   template:
     metadata:
