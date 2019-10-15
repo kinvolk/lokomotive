@@ -22,7 +22,7 @@ metadata:
     name: httpbin
 `
 
-const deploymentManifest = `apiVersion: extensions/v1beta1
+const deploymentManifest = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
