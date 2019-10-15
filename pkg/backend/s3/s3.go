@@ -12,10 +12,11 @@ import (
 )
 
 type s3 struct {
-	Bucket       string `hcl:"bucket"`
-	Key          string `hcl:"key"`
-	Region       string `hcl:"region,optional"`
-	AWSCredsPath string `hcl:"aws_creds_path,optional"`
+	Bucket        string `hcl:"bucket"`
+	Key           string `hcl:"key"`
+	Region        string `hcl:"region,optional"`
+	AWSCredsPath  string `hcl:"aws_creds_path,optional"`
+	DynamoDBTable string `hcl:"dynamodb_table,optional"`
 }
 
 // init registers s3 as a backend

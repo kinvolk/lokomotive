@@ -8,5 +8,8 @@ backend "s3" {
   {{- if .AWSCredsPath }}
   shared_credentials_file = "{{ .AWSCredsPath }}"
   {{- end }}
+  {{- if .DynamoDBTable }}
+  dynamodb_table = "{{ .DynamoDBTable }}"
+  {{- end }}
 }
 `
