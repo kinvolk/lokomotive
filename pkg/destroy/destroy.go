@@ -9,9 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TODO: Consider this for remote storage.
 // ExecuteTerraformDestroy executes terraform destroy -auto-approve to delete the cluster.
-// Currently this assumes that the terraform state file is stored locally.
 func ExecuteTerraformDestroy(assetDirectory string) error {
 	assetDir, err := homedir.Expand(assetDirectory)
 	if err != nil {
@@ -19,14 +17,11 @@ func ExecuteTerraformDestroy(assetDirectory string) error {
 	}
 
 	terraformRootDir := filepath.Join(assetDir, "terraform")
-	terraformStateFile := filepath.Join(terraformRootDir, "terraform.tfstate")
 
-	// Check if terraform state file exists
-	// This check is performed in case there is a misconfigured config file
-	// pointing to a different assests directory.
-	pathExists, err := util.PathExists(terraformStateFile)
+	// Check if terraform dir exists
+	pathExists, err := util.PathExists(terraformRootDir)
 	if err != nil {
-		return errors.Wrapf(err, "failed to stat path %q: %v", terraformStateFile, err)
+		return errors.Wrapf(err, "failed to stat path %q: %v", terraformRootDir, err)
 	}
 
 	if !pathExists {
