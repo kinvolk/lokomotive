@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: flatcar-linux-update-agent
   namespace: reboot-coordinator
 spec:
+  selector:
+    matchLabels:
+      app: flatcar-linux-update-agent
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
