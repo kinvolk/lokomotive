@@ -30,8 +30,14 @@ type component struct {
 	Config hcl.Body `hcl:",remain"`
 }
 
+type backend struct {
+	Name   string   `hcl:"name,label"`
+	Config hcl.Body `hcl:",remain"`
+}
+
 type RootConfig struct {
 	Cluster    *cluster    `hcl:"cluster,block"`
+	Backend    *backend    `hcl:"backend,block"`
 	Components []component `hcl:"component,block"`
 	Variables  []variable  `hcl:"variable,block"`
 }

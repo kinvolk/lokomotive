@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/kinvolk/lokoctl/pkg/backend/local"
 	"github.com/kinvolk/lokoctl/pkg/config"
 	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
@@ -49,15 +50,35 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	if p == nil {
 		ctxLogger.Fatal("No cluster configured")
 	}
+	// gets the configured backend for the cluster
+	// currently supports local and s3
+	b, diags := getConfiguredBackend(lokoConfig)
+	if diags.HasErrors() {
+		for _, diagnostic := range diags {
+			ctxLogger.Error(diagnostic.Summary)
+		}
+		ctxLogger.Fatal("Errors found while loading cluster configuration")
+	}
+
+	// New local backend if no backend configuration.
+	if b == nil {
+		b = local.NewLocalBackend()
+	}
 
 	assetDir, err := homedir.Expand(p.GetAssetDir())
 	if err != nil {
 		ctxLogger.Fatalf("error expanding path: %v", err)
 	}
 
-	err = terraform.PrepareTerraformDirectoryAndModules(assetDir)
+	// render backend configuration.
+	renderedBackend, err := b.Render()
 	if err != nil {
-		ctxLogger.Fatalf("Failed to create required terraform directory : %v", err)
+		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
+	}
+
+	// Configure terraform directory,module and backend
+	if err = terraform.Configure(assetDir, renderedBackend); err != nil {
+		ctxLogger.Fatalf("Failed to configure terraform : %v", err)
 	}
 
 	if err := p.Install(); err != nil {
