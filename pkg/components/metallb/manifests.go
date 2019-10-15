@@ -60,10 +60,17 @@ rules:
 - apiGroups: [""]
   resources: ["services", "endpoints", "nodes"]
   verbs: ["get", "list", "watch"]
-- apiGroups: ["extensions"]
+- apiGroups: ["policy"]
   resources: ["podsecuritypolicies"]
   resourceNames: ["metallb-speaker"]
   verbs: ["use"]
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
 `
 
 const roleConfigWatcher = `
@@ -138,7 +145,7 @@ roleRef:
 `
 
 const deploymentController = `
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: metallb-system
@@ -174,7 +181,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: controller
-        image: metallb/controller:v0.7.3
+        image: metallb/controller:v0.8.1
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -186,7 +193,6 @@ spec:
           limits:
             cpu: 100m
             memory: 100Mi
-
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -199,7 +205,7 @@ spec:
 `
 
 const daemonsetSpeaker = `
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   namespace: metallb-system
@@ -232,7 +238,7 @@ spec:
       hostNetwork: true
       containers:
       - name: speaker
-        image: metallb/speaker:v0.7.3
+        image: metallb/speaker:v0.8.1
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -242,6 +248,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: METALLB_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
         ports:
         - name: monitoring
           containerPort: 7472
@@ -249,15 +259,18 @@ spec:
           limits:
             cpu: 100m
             memory: 100Mi
-
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
             drop:
-            - all
+            - ALL
             add:
-            - net_raw
+            - NET_ADMIN
+            - NET_RAW
+            - SYS_ADMIN
+      nodeSelector:
+        beta.kubernetes.io/os: linux
       {{- if .SpeakerTolerationsJSON }}
       tolerations: {{ .SpeakerTolerationsJSON }}
       {{- end }}
@@ -266,13 +279,15 @@ spec:
 // Note: Diversion from upstream.
 // This config was created specifically for clusters that has Pod Security Policy enabled on them.
 const pspMetallbSpeaker = `
-apiVersion: extensions/v1beta1
+apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   annotations:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
     seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
   name: metallb-speaker
+  labels:
+    app: metallb
 spec:
   hostNetwork: true
   hostPorts:
@@ -281,7 +296,9 @@ spec:
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   allowedCapabilities:
-  - net_raw
+  - NET_RAW
+  - NET_ADMIN
+  - SYS_ADMIN
   requiredDropCapabilities:
   - all
   seLinux:
@@ -291,6 +308,7 @@ spec:
     - max: 65535
       min: 1
     rule: MustRunAs
+  privileged: true
   runAsUser:
     # Require the container to run without root privileges.
     rule: RunAsAny
