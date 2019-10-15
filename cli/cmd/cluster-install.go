@@ -14,6 +14,7 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
+	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
 var clusterInstallCmd = &cobra.Command{
@@ -44,17 +45,23 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		}
 		ctxLogger.Fatal("Errors found while loading cluster configuration")
 	}
+
 	if p == nil {
 		ctxLogger.Fatal("No cluster configured")
-	}
-
-	if err := p.Install(); err != nil {
-		ctxLogger.Fatalf("error installing cluster: %v", err)
 	}
 
 	assetDir, err := homedir.Expand(p.GetAssetDir())
 	if err != nil {
 		ctxLogger.Fatalf("error expanding path: %v", err)
+	}
+
+	err = terraform.PrepareTerraformDirectoryAndModules(assetDir)
+	if err != nil {
+		ctxLogger.Fatalf("Failed to create required terraform directory : %v", err)
+	}
+
+	if err := p.Install(); err != nil {
+		ctxLogger.Fatalf("error installing cluster: %v", err)
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
