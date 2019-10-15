@@ -64,7 +64,7 @@ data:
     customHTMLTemplatesDir: "/theme"
 `
 
-const deploymentManifest = `apiVersion: apps/v1beta1
+const deploymentManifest = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gangway
