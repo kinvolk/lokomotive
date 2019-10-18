@@ -18,3 +18,9 @@ cluster "packet" {
     count = 2
   }
 }
+
+component "contour" {
+  install_mode = "daemonset"
+}
+
+component "metallb" {}

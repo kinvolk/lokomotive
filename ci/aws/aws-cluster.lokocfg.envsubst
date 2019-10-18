@@ -15,3 +15,7 @@ cluster "aws" {
   os_image     = "flatcar-stable"
   ssh_pubkey   = "${pathexpand(var.ssh_pubkey)}"
 }
+
+component "contour" {
+  install_mode = "daemonset"
+}
