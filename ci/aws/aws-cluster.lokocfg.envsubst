@@ -1,17 +1,21 @@
 # Use variables here even if not strictly necessary
 variable "asset_dir" {
-	type = "string"
+  type = "string"
 }
 
 variable "ssh_pubkey" {
-	type = "string"
+  type = "string"
 }
 
 cluster "aws" {
-	asset_dir = "${pathexpand(var.asset_dir)}"
-        cluster_name = "$CLUSTER_ID"
-        dns_zone = "$AWS_DNS_ZONE"
-        dns_zone_id = "$AWS_DNS_ZONE_ID"
-        os_image = "flatcar-stable"
-        ssh_pubkey = "${pathexpand(var.ssh_pubkey)}"
+  asset_dir    = "${pathexpand(var.asset_dir)}"
+  cluster_name = "$CLUSTER_ID"
+  dns_zone     = "$AWS_DNS_ZONE"
+  dns_zone_id  = "$AWS_DNS_ZONE_ID"
+  os_image     = "flatcar-stable"
+  ssh_pubkey   = "${pathexpand(var.ssh_pubkey)}"
+}
+
+component "contour" {
+  install_mode = "daemonset"
 }
