@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/destroy"
-	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
@@ -91,16 +90,7 @@ func (cfg *config) Install() error {
 		return err
 	}
 
-	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
-	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
-		return err
-	}
-
-	terraformRootDir := filepath.Join(assetDir, "terraform")
-	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
-		return err
-	}
-
+	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
 	if err := createTerraformConfigFile(cfg, terraformRootDir); err != nil {
 		return err
 	}

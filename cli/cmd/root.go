@@ -10,6 +10,10 @@ import (
 	_ "github.com/kinvolk/lokoctl/pkg/install/aws"
 	_ "github.com/kinvolk/lokoctl/pkg/install/baremetal"
 	_ "github.com/kinvolk/lokoctl/pkg/install/packet"
+
+	// Register a backend by adding an anonymous import
+	_ "github.com/kinvolk/lokoctl/pkg/backend/local"
+	_ "github.com/kinvolk/lokoctl/pkg/backend/s3"
 )
 
 var rootCmd = &cobra.Command{
