@@ -39,6 +39,7 @@ func LoadChartFromAssets(location string) (*chart.Chart, error) {
 func RenderChart(helmChart *chart.Chart, chartConfig *chart.Config, releaseOptions *chartutil.ReleaseOptions) (map[string]string, error) {
 	renderOpts := renderutil.Options{
 		ReleaseOptions: *releaseOptions,
+		KubeVersion:    "1.15.3",
 	}
 	renderedFiles, err := renderutil.Render(helmChart, chartConfig, renderOpts)
 	if err != nil {
