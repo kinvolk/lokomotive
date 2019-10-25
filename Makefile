@@ -64,6 +64,16 @@ run-unit-tests:
 format-go-code:
 	@gofmt -s -l -w ${GOFORMAT_FILES}
 
+kubeconfig := $(KUBECONFIG)
+## Following kubeconfig path is only valid from CI
+ifeq ($(RUN_FROM_CI),"true")
+	kubeconfig := "${HOME}/lokoctl-assets/cluster-assets/auth/kubeconfig"
+endif
+
+.PHONY: run-e2e-tests
+run-e2e-tests:
+	KUBECONFIG=${kubeconfig} go test -tags="$(platform),e2e" ./...
+
 .PHONY: all
 all: build test
 
