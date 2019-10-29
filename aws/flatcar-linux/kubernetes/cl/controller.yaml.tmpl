@@ -7,7 +7,7 @@ systemd:
         - name: 40-etcd-cluster.conf
           contents: |
             [Service]
-            Environment="ETCD_IMAGE_TAG=v3.3.15"
+            Environment="ETCD_IMAGE_TAG=v3.4.2"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
             Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
@@ -89,8 +89,8 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node-role.kubernetes.io/master \
-          --node-labels=node-role.kubernetes.io/controller="true" \
+          --node-labels=node.kubernetes.io/master \
+          --node-labels=node.kubernetes.io/controller="true" \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
           --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
@@ -121,7 +121,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.15.3
+          KUBELET_IMAGE_TAG=v1.16.2
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:

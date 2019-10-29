@@ -25,9 +25,9 @@ Terraform v0.11.13
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
 
 ```sh
-wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.3.1/terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
-tar xzf terraform-provider-ct-v0.3.1-linux-amd64.tar.gz
-mv terraform-provider-ct-v0.3.1-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.3.1
+wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.4.0/terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+tar xzf terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+mv terraform-provider-ct-v0.4.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.4.0
 ```
 
 Read [concepts](/lokomotive/architecture/concepts.md) to learn about Terraform, modules, and organizing resources. Change to your infrastructure repository (e.g. `infra`).
@@ -55,7 +55,7 @@ Configure the AWS provider to use your access key credentials in a `providers.tf
 
 ```
 provider "aws" {
-  version = "2.25.0"
+  version = "2.31.0"
   alias   = "default"
 
   region                  = "eu-central-1"
@@ -63,7 +63,7 @@ provider "aws" {
 }
 
 provider "ct" {
-  version = "0.3.1"
+  version = "0.4.0"
 }
 
 provider "local" {
@@ -179,7 +179,7 @@ module "worker-pool-helium" {
 
   kubeconfig = "${module.controller.kubeconfig}"
 
-  labels = "node.supernova.io/role=backend,node-role.kubernetes.io/backend="
+  labels = "node.supernova.io/role=backend"
 }
 ```
 

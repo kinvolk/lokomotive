@@ -92,7 +92,7 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node-role.kubernetes.io/node \
+          --node-labels=node.kubernetes.io/node \
           --node-labels=${worker_labels} \
           --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
           --pod-manifest-path=/etc/kubernetes/manifests \
@@ -237,7 +237,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.15.3
+          KUBELET_IMAGE_TAG=v1.16.2
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:
@@ -255,7 +255,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://k8s.gcr.io/hyperkube:v1.15.3 \
+            docker://k8s.gcr.io/hyperkube:v1.16.2 \
             --net=host \
             --dns=host \
             --exec=/kubectl -- --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)

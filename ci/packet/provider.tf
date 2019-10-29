@@ -1,10 +1,10 @@
 provider "aws" {
-  version = "2.25.0"
+  version = "2.31.0"
   alias   = "default"
 }
 
 provider "ct" {
-  version = "0.3.1"
+  version = "0.4.0"
 }
 
 provider "local" {
