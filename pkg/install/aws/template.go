@@ -15,6 +15,9 @@ module "aws-{{.Config.ClusterName}}" {
   cluster_name = "{{.Config.ClusterName}}"
   dns_zone     = "{{.Config.DNSZone}}"
   dns_zone_id  = "{{.Config.DNSZoneID}}"
+  {{- if .Config.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
+  {{- end }}
 
   ssh_authorized_key = "{{.SSHAuthorizedKey}}"
   asset_dir          = "../cluster-assets"
@@ -23,7 +26,32 @@ module "aws-{{.Config.ClusterName}}" {
   controller_type  = "{{.Config.ControllerType}}"
 
   worker_count = "{{.Config.WorkerCount}}"
+  {{- if .Config.WorkerType }}
   worker_type  = "{{.Config.WorkerType}}"
+  {{- end }}
+  {{- if .Config.WorkerPrice }}
+  worker_price = "{{.Config.WorkerPrice}}"
+  {{- end }}
+  {{- if .Config.WorkerTargetGroups }}
+  worker_target_groups = {{.WorkerTargetGroups}}
+  {{- end }}
+
+  {{- if .Config.Networking }}
+  networking = "{{.Config.Networking}}"
+  {{- end }}
+  {{- if eq .Config.Networking "calico" }}
+  network_mtu = "{{.Config.NetworkMTU}}"
+  enable_reporting = "{{.Config.EnableReporting}}"
+  {{- end }}
+  {{- if .Config.PodCIDR }}
+  pod_cidr = "{{.Config.PodCIDR}}"
+  {{- end }}
+  {{- if .Config.ServiceCIDR }}
+  service_cidr = "{{.Config.ServiceCIDR}}"
+  {{- end }}
+  {{- if .Config.HostCIDR }}
+  host_cidr = "{{.Config.HostCIDR}}"
+  {{- end }}
 
   os_image = "{{.Config.OSImage}}"
 
@@ -31,6 +59,20 @@ module "aws-{{.Config.ClusterName}}" {
   worker_clc_snippets     = {{.WorkerCLCSnippets}}
 
   enable_aggregation = "{{.Config.EnableAggregation}}"
+
+  {{- if .Config.DiskSize }}
+  disk_size = "{{.Config.DiskSize}}"
+  {{- end }}
+  {{- if .Config.DiskType }}
+  disk_type = "{{.Config.DiskType}}"
+  {{- end }}
+  {{- if .Config.DiskIOPS }}
+  disk_iops = "{{.Config.DiskIOPS}}"
+  {{- end }}
+
+  {{- if .Config.CertsValidityPeriodHours }}
+  certs_validity_period_hours = "{{.Config.CertsValidityPeriodHours}}"
+  {{- end }}
 }
 
 provider "aws" {
