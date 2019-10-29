@@ -89,9 +89,6 @@ subjects:
 - kind: ServiceAccount
   name: openebs-maya-operator
   namespace: openebs
-- kind: User
-  name: system:serviceaccount:default:default
-  apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
   name: openebs-maya-operator
