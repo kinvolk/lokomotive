@@ -18,31 +18,46 @@ import (
 )
 
 type workerPool struct {
-	Name      string `hcl:"pool_name,label"`
-	Count     int    `hcl:"count"`
-	OSChannel string `hcl:"os_channel,optional"`
-	OSVersion string `hcl:"os_version,optional"`
-	NodeType  string `hcl:"node_type,optional"`
+	Name           string `hcl:"pool_name,label"`
+	Count          int    `hcl:"count"`
+	OSChannel      string `hcl:"os_channel,optional"`
+	OSVersion      string `hcl:"os_version,optional"`
+	NodeType       string `hcl:"node_type,optional"`
+	Labels         string `hcl:"labels,optional"`
+	Taints         string `hcl:"taints,optional"`
+	SetupRaid      bool   `hcl:"setup_raid,optional"`
+	SetupRaidHDD   bool   `hcl:"setup_raid_hdd,optional"`
+	SetupRaidSSD   bool   `hcl:"setup_raid_ssd,optional"`
+	SetupRaidSSDFS bool   `hcl:"setup_raid_ssd_fs,optional"`
 }
 
 type config struct {
-	AssetDir          string   `hcl:"asset_dir"`
-	AuthToken         string   `hcl:"auth_token,optional"`
-	AWSCredsPath      string   `hcl:"aws_creds_path,optional"`
-	AWSRegion         string   `hcl:"aws_region"`
-	ClusterName       string   `hcl:"cluster_name"`
-	ControllerCount   int      `hcl:"controller_count"`
-	ControllerType    string   `hcl:"controller_type,optional"`
-	DNSZone           string   `hcl:"dns_zone"`
-	DNSZoneID         string   `hcl:"dns_zone_id"`
-	Facility          string   `hcl:"facility"`
-	ProjectID         string   `hcl:"project_id"`
-	SSHPubKeys        []string `hcl:"ssh_pubkeys"`
-	OSChannel         string   `hcl:"os_channel,optional"`
-	IPXEScriptURL     string   `hcl:"ipxe_script_url,optional"`
-	ManagementCIDRs   []string `hcl:"management_cidrs"`
-	NodePrivateCIDR   string   `hcl:"node_private_cidr"`
-	EnableAggregation string   `hcl:"enable_aggregation,optional"`
+	AssetDir                 string            `hcl:"asset_dir"`
+	AuthToken                string            `hcl:"auth_token,optional"`
+	AWSCredsPath             string            `hcl:"aws_creds_path,optional"`
+	AWSRegion                string            `hcl:"aws_region"`
+	ClusterName              string            `hcl:"cluster_name"`
+	ControllerCount          int               `hcl:"controller_count"`
+	ControllerType           string            `hcl:"controller_type,optional"`
+	DNSZone                  string            `hcl:"dns_zone"`
+	DNSZoneID                string            `hcl:"dns_zone_id"`
+	Facility                 string            `hcl:"facility"`
+	ProjectID                string            `hcl:"project_id"`
+	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
+	OSChannel                string            `hcl:"os_channel,optional"`
+	IPXEScriptURL            string            `hcl:"ipxe_script_url,optional"`
+	ManagementCIDRs          []string          `hcl:"management_cidrs"`
+	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
+	EnableAggregation        string            `hcl:"enable_aggregation,optional"`
+	Networking               string            `hcl:"networking,optional"`
+	NetworkMTU               string            `hcl:"network_mtu,optional"`
+	PodCIDR                  string            `hcl:"pod_cidr,optional"`
+	ServiceCIDR              string            `hcl:"service_cidr,optional"`
+	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
+	EnableReporting          bool              `hcl:"enable_reporting,optional"`
+	ReservationIDs           map[string]string `hcl:"reservation_ids,optional"`
+	ReservationIDsDefault    string            `hcl:"reservation_ids_default,optional"`
+	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 
 	WorkerPools []workerPool `hcl:"worker_pool,block"`
 }
