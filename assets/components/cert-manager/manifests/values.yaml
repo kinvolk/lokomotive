@@ -14,11 +14,15 @@ global:
   rbac:
     create: true
 
+  podSecurityPolicy:
+    enabled: true
+
+  # Set the verbosity of cert-manager. Range of 0 - 6 with 6 being the most verbose.
   logLevel: 2
 
   leaderElection:
     # Override the namespace used to store the ConfigMap for leader election
-    namespace: ""
+    namespace: "kube-system"
 
 replicaCount: 1
 
@@ -47,6 +51,7 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name:
+  annotations: {}
 
 # Optional additional arguments
 extraArgs: []
@@ -91,6 +96,7 @@ nodeSelector: {}
 ingressShim: {}
   # defaultIssuerName: ""
   # defaultIssuerKind: ""
+  # defaultIssuerGroup: ""
   # defaultACMEChallengeType: ""
   # defaultACMEDNS01ChallengeProvider: ""
 
@@ -126,6 +132,10 @@ webhook:
     #   memory: 32Mi
 
   nodeSelector: {}
+
+  affinity: {}
+
+  tolerations: []
 
   image:
     repository: quay.io/jetstack/cert-manager-webhook
