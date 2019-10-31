@@ -170,7 +170,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: contour
     kubernetes.io/tls-acme: "true"
-    certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
 spec:
   tls:
     - hosts:

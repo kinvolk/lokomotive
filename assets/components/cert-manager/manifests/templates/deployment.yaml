@@ -64,11 +64,7 @@ spec:
         {{- else }}
           - --cluster-resource-namespace=$(POD_NAMESPACE)
         {{- end }}
-        {{- if .Values.global.leaderElection.namespace }}
           - --leader-election-namespace={{ .Values.global.leaderElection.namespace }}
-        {{- else }}
-          - --leader-election-namespace=$(POD_NAMESPACE)
-        {{- end }}
         {{- if .Values.extraArgs }}
 {{ toYaml .Values.extraArgs | indent 10 }}
         {{- end }}
@@ -78,6 +74,9 @@ spec:
           {{- end }}
           {{- if .defaultIssuerKind }}
           - --default-issuer-kind={{ .defaultIssuerKind }}
+          {{- end }}
+          {{- if .defaultIssuerGroup }}
+          - --default-issuer-group={{ .defaultIssuerGroup }}
           {{- end }}
           {{- if .defaultACMEChallengeType }}
           - --default-acme-issuer-challenge-type={{ .defaultACMEChallengeType }}
