@@ -15,7 +15,24 @@ import (
 
 const name = "metrics-server"
 
+// * --kubelet-preferred-address-types=InternalIP to be able to properly the kubelet.
+//  I am not sure why this option is needed, but tried the alternatives
+//  for this and didn't work
+//  And this option does the trick for others
+//  people too: https://github.com/kubernetes-incubator/metrics-server/issues/237#issuecomment-504427772
+//
+// * Use --kubelet-insecure-tls for the self-signed kubelets certificates
+//   When we are able to remove the option above, we may be able to use
+//   --kubelet-certificate-authority but, meanwhile, this is needed to
+//   communicate with kubelets.
+//   Something like: --kubelet-certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt
+//   But this doesn't work out of the box, it seems no permissions to open the ca.crt file.
+//   We should investigate when we can change to not use the InternalIP
+//   or use a cert that signs also the IP of the kubelet
 const chartValuesTmpl = `
+args:
+- --kubelet-insecure-tls=true
+- --kubelet-preferred-address-types=InternalIP
 `
 
 func init() {
