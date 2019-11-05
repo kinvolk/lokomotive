@@ -61,6 +61,48 @@ cluster "aws" {
 	dns_zone = "example.com"
 	dns_zone_id = "XXX"
 	ssh_pubkey = "${pathexpand(var.ssh_pubkey)}"
+
+	# Size of the EBS volume in GB
+	# disk_size = "40" (optional)
+
+	# Type of the EBS volume (e.g. standard, gp2, io1)
+	# disk_type = "gp2" (optional)
+
+	# IOPS of the EBS volume (e.g. 100)
+	# disk_iops = 0 (optional)
+
+	# Spot price in USD for autoscaling group spot instances.
+	# Leave as default empty string for autoscaling group to use on-demand instances
+	# worker_price = "" (optional)
+
+	# Choice of networking provider (calico or flannel)
+	# Default is calico
+	# networking = "flannel" (optional)
+
+	# CNI interface MTU (applies to calico only)
+	# Use 8981 if using instances types with Jumbo frames.
+	# Default is 1480
+	# network_mtu = "8991" (optional)
+
+	# Enable usage or analytics reporting to upstreams (Calico)
+	# enable_reporting = false (optional)
+
+  	# CIDR IPv4 range to assign to EC2 nodes
+  	# host_cidr = "10.0.0.0/16" (optional)
+
+  	# CIDR IPv4 range to assign Kubernetes pods
+  	# pod_cidr  = "10.2.0.0/16" (optional)
+
+	# CIDR IPv4 range to assign Kubernetes services
+	# service_cidr = "10.3.0.0/16" (optional)
+
+	# Queries for domains with the suffix will be answered by coredns.
+	# Default is cluster.local
+	# cluster_domain_suffix = "cluster.local" (optional)
+
+	# Validity of all the certificates in hours
+	# Default is 8760
+	# certs_validity_period_hours = "17520" (optional)
 }
 
 component "contour" {
