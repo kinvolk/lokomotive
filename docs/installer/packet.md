@@ -76,6 +76,38 @@ cluster "packet" {
 	# Change to internal Packet IPs to allow cluster communication
 	node_private_cidr = "XX.XX.XX.0/24"
 
+	# Cluster domain suffix
+	# cluster_domain_suffix = "cluster.local" (optional)
+
+	# CNI plugin (flannel or calico)
+	# networking = "calico" (optional)
+
+	# CNI interface MTU (applies to calico only)
+	# network_mtu = "1480" (optional)
+
+	# Enable usage or analytics reporting to upstreams (Calico)
+	# enable_reporting = false (optional) 
+	
+	# Method to autodetect the host IPv4 address (applies to calico only)
+	# network_ip_autodetection_method = "first-found" (optional)
+
+	# CIDR IPv4 range to assign Kubernetes pods
+	# pod_cidr = "10.2.0.0/16"  (optional)
+
+	# CIDR IPv4 range to assign Kubernetes services
+	# service_cidr = "10.3.0.0/16"  (optional)
+
+	# Specify Packet hardware_reservation_id for instances. Default is {}
+	# reservation_ids = { controller-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } (optional)
+
+	# Default reservation ID for nodes not listed in the `reservation_ids` map. 
+	# An empty string means "use no hardware reservation". 
+	# `next-available` will choose any reservation that matches the pool's device type and facility.
+	# reservation_ids_default = "" (optional)
+
+	# Validity of all the certificates in hours
+	# certs_validity_period_hours = "8760"  (optional)
+
 	# Define one or more worker pools
 	worker_pool "pool-1" {
 	  # Define the number of worker nodes (required)
@@ -84,11 +116,31 @@ cluster "packet" {
 	  # Define an instance type (optional)
 	  # node_type = "t1.small.x86"
 
-	  #  Define a Flatcar Linux channel (optional; 'stable', 'beta', 'alpha' or 'edge')
+	  # Define a Flatcar Linux channel (optional; 'stable', 'beta', 'alpha' or 'edge')
 	  # os_channel = "stable"
 
 	  # Define a Flatcar Linux version (optional)
 	  # os_version = "current"
+          
+	  # Custom labels to assign to worker nodes
+	  # labels = "foo=bar,baz=zab" (optional)
+
+	  # Comma separated list of taints
+	  # taints = "nodeType=storage:NoSchedule" (optional)
+
+	  # Attempt to create a RAID 0 from extra disks
+	  # setup_raid = false (optional)
+
+	  # Attempt to create a RAID 0 from extra Hard Disk Drives only
+	  # Can't be used with setup_raid nor setup_raid_ssd
+	  # setup_raid_hdd = false (optional)
+
+	  # Attempt to create a RAID 0 from extra Solid State Drives only
+	  # Can't be used with setup_raid nor setup_raid_hdd
+	  # setup_raid_ssd = false (optional)
+
+	  # To create filesystem on SSD RAID device and will be mounted on /mnt/node-local-ssd-storage
+	  # setup_raid_ssd_fs = false (optional)
 	}
 }
 

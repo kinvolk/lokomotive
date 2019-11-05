@@ -23,6 +23,10 @@ module "packet-{{.Config.ClusterName}}" {
   project_id   = "{{.Config.ProjectID}}"
   facility     = "{{.Config.Facility}}"
 
+  {{- if .Config.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
+  {{- end }}
+
   controller_count = "{{.Config.ControllerCount}}"
   {{- if .Config.ControllerType }}
   controller_type  = "{{ .Config.ControllerType }}"
@@ -42,6 +46,38 @@ module "packet-{{.Config.ClusterName}}" {
   node_private_cidr = "{{.Config.NodePrivateCIDR}}"
 
   enable_aggregation = "{{.Config.EnableAggregation}}"
+
+  {{- if .Config.Networking }}
+  networking = "{{.Config.Networking}}"
+  {{- end }}
+
+  {{- if eq .Config.Networking "calico" }}
+  network_mtu = "{{.Config.NetworkMTU}}"
+  enable_reporting = "{{.Config.EnableReporting}}"
+  {{- end }}
+
+  {{- if .Config.PodCIDR }}
+  pod_cidr = "{{.Config.PodCIDR}}"
+  {{- end }}
+
+  {{- if .Config.ServiceCIDR }}
+  service_cidr = "{{.Config.ServiceCIDR}}"
+  {{- end }}
+
+  {{- if .Config.ReservationIDs }}
+    reservation_ids = {
+      {{- range $key, $value := .Config.ReservationIDs }}
+      {{ $key }} = "{{ $value }}"
+      {{- end }}
+    }
+  {{- end }}
+
+  {{- if .Config.ReservationIDsDefault }}
+  reservation_ids_default = "{{.Config.ReservationIDsDefault}}"
+  {{- end }}
+  {{- if .Config.CertsValidityPeriodHours }}
+  certs_validity_period_hours = "{{.Config.CertsValidityPeriodHours}}"
+  {{- end }}
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
@@ -60,6 +96,9 @@ module "worker-pool-{{ $index }}" {
   cluster_name = "{{$.Config.ClusterName}}"
   project_id   = "{{$.Config.ProjectID}}"
   facility     = "{{$.Config.Facility}}"
+  {{- if $.Config.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{$.Config.ClusterDomainSuffix}}"
+  {{- end }}
 
   pool_name = "{{ $pool.Name }}"
   count     = "{{ $pool.Count }}"
@@ -79,6 +118,40 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   kubeconfig = "${module.packet-{{ $.Config.ClusterName }}.kubeconfig}"
+
+  {{- if $pool.Labels }}
+  labels = "{{ $pool.Labels }}"
+  {{- end }}
+  {{- if $pool.Taints }}
+  taints = "{{ $pool.Taints }}"
+  {{- end }}
+  {{- if $.Config.ServiceCIDR }}
+  service_cidr = "{{$.Config.ServiceCIDR}}"
+  {{- end }}
+
+  {{- if $pool.SetupRaid }}
+  setup_raid = "{{ $pool.SetupRaid }}"
+  {{- end }}
+  {{- if $pool.SetupRaidHDD }}
+  setup_raid_hdd = "{{ $pool.SetupRaidHDD }}"
+  {{- end }}
+  {{- if $pool.SetupRaidSSD }}
+  setup_raid_ssd = "{{ $pool.SetupRaidSSD }}"
+  {{- end }}
+  {{- if $pool.SetupRaidSSD }}
+  setup_raid_ssd_fs = "{{ $pool.SetupRaidSSDFS }}"
+  {{- end }}
+
+  {{- if $.Config.ReservationIDs }}
+    reservation_ids = {
+      {{- range $key, $value := $.Config.ReservationIDs }}
+      {{ $key }} = "{{ $value }}"
+      {{- end }}
+    }
+  {{- end }}
+  {{- if $.Config.ReservationIDsDefault }}
+  reservation_ids_default = "{{$.Config.ReservationIDsDefault}}"
+  {{- end }}
 }
 {{ end }}
 
