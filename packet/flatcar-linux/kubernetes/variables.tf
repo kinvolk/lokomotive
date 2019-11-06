@@ -33,16 +33,6 @@ variable "controller_count" {
   description = "Number of controllers (i.e. masters)"
 }
 
-variable "worker_count" {
-  type        = "string"
-  description = "Number of workers"
-}
-
-variable "worker_nodes_hostnames" {
-  type        = "list"
-  description = "List of hostname of packet_device resources"
-}
-
 variable "controller_type" {
   type        = "string"
   default     = "baremetal_0"
