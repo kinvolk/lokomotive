@@ -19,3 +19,5 @@ cluster "aws" {
 component "contour" {
   install_mode = "daemonset"
 }
+
+component "metrics-server" {}

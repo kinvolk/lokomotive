@@ -24,3 +24,5 @@ component "contour" {
 }
 
 component "metallb" {}
+
+component "metrics-server" {}
