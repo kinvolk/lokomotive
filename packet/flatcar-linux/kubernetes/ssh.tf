@@ -90,6 +90,11 @@ resource "null_resource" "bootkube-start" {
     destination = "$HOME/assets/manifests-networking/calico-policy.yaml"
   }
 
+  provisioner "file" {
+    source     = "${path.module}/calico/host-endpoint-controller.yaml"
+    destination = "$HOME/assets/manifests-networking/host-endpoint-controller.yaml"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "sudo mv $HOME/assets /opt/bootkube",
