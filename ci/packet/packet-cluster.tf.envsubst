@@ -21,9 +21,6 @@ module "controller" {
 
   facility = "sjc1"
 
-  worker_count = 2
-  worker_nodes_hostnames = "${concat("${module.worker-pool-1.worker_nodes_hostname}")}"
-
   controller_count = 1
   controller_type  = "t1.small.x86"
 

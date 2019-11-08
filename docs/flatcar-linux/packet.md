@@ -138,10 +138,6 @@ module "controller" {
   project_id   = "93fake81..."
   facility     = "ams1"
 
-  # This must be the total of all worker pools
-  worker_count              = 2
-  worker_nodes_hostnames    = "${concat("${module.worker-pool-1.worker_nodes_hostname}", "${module.worker-pool-2.worker_nodes_hostname}")}"
-
   # optional
   controller_count = 1
   controller_type  = "t1.small.x86"
@@ -257,8 +253,6 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/tempest" |
 | project_id | Project ID obtained from the Packet account | "93fake81-0f3c1-..." |
 | facility | Packet Region in which the instance(s) should be deployed | https://www.packet.com/developers/api/#facilities. Eg: "ams1" |
-| worker_count | Total number of workers across all worker pools | 2 |
-| worker_nodes_hostnames | List of hostnames of all worker nodes | ["foo-pool1-worker-0", "foo-pool1-worker-1"]
 | management_cidrs | List of CIDRs to allow SSH access to the nodes | ["153.79.80.1/16", "59.60.10.1/32"] |
 | node_private_cidr | Private CIDR obtained from Packet for the project and facility | 10.128.16.32/25 |
 
@@ -335,7 +329,7 @@ Documentation about Packet hardware reservation id can be found here: https://su
 
 Currently the only tested ways to modify a cluster are:
 
-* Adding new worker pools, done by adding a new worker module and concating its `.worker_nodes_hostname` to the `worker_nodes_hostnames` list of the controller module.
+* Adding new worker pools, done by adding a new worker module.
 * Scaling a worker pool by changing the `count` to delete or add nodes, even to 0 (but the worker pool definition has to be kept and the total number of workers must be > 0).
 * Changing the instance type of a worker pool by altering `type`, e.g., from `t1.small.x86` to `c1.small.x86`, which will recreate the nodes, causing downtime since they are destroyed first and then created again.
 
