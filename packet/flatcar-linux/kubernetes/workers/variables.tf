@@ -121,3 +121,9 @@ EOD
   type    = "string"
   default = ""
 }
+
+variable "disable_bgp" {
+  description = "Disable BGP on nodes. Nodes won't be able to connect to Packet BGP peers. Note that BGP is used to receive internet traffic directed to Packet elastic IPs"
+  type        = "string"
+  default     = "false"
+}
