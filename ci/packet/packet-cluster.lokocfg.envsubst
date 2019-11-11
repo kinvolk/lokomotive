@@ -26,3 +26,60 @@ component "contour" {
 component "metallb" {}
 
 component "metrics-server" {}
+
+component "cert-manager" {
+  email = "$EMAIL"
+}
+
+component "dex" {
+  ingress_host = "$DEX_INGRESS_HOST"
+
+  issuer_host = "$ISSUER_HOST"
+
+  connector "github" {
+    id = "github"
+    name = "GitHub"
+
+    config {
+      client_id = "$GITHUB_CLIENT_ID"
+      client_secret = "$GITHUB_CLIENT_SECRET"
+      redirect_uri = "$REDIRECT_URI"
+
+      team_name_field = "slug"
+
+      org {
+        name = "kinvolk"
+        teams = [
+          "lokomotive-developers",
+        ]
+      }
+    }
+  }
+
+  static_client {
+    name   = "gangway"
+    id     = "$DEX_STATIC_CLIENT_GANGWAY_ID"
+    secret = "$DEX_STATIC_CLIENT_GANGWAY_SECRET"
+
+    redirect_uris = ["$GANGWAY_REDIRECT_URL"]
+  }
+}
+
+component "gangway" {
+  cluster_name = "$CLUSTER_ID"
+
+  ingress_host = "$GANGWAY_INGRESS_HOST"
+
+  session_key = "$GANGWAY_SESSION_KEY"
+
+  api_server_url = "$API_SERVER_URL"
+
+  authorize_url = "$AUTHORIZE_URL"
+
+  token_url = "$TOKEN_URL"
+
+  client_id     = "$DEX_STATIC_CLIENT_GANGWAY_ID"
+  client_secret = "$DEX_STATIC_CLIENT_GANGWAY_SECRET"
+
+  redirect_url = "$GANGWAY_REDIRECT_URL"
+}
