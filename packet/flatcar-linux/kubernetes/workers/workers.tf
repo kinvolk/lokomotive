@@ -13,8 +13,8 @@ resource "packet_device" "nodes" {
 }
 
 resource "packet_bgp_session" "bgp" {
-  count          = "${var.count}"
-  device_id      = "${element(packet_device.nodes.*.id, count.index)}"
+  count          = "${var.disable_bgp == "true" ? 0 : var.count}"
+  device_id      = "${packet_device.nodes.*.id[count.index]}"
   address_family = "ipv4"
 }
 
