@@ -138,21 +138,14 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
 
-	var workerCount int
-	for _, pool := range cfg.WorkerPools {
-		workerCount += pool.Count
-	}
-
 	terraformCfg := struct {
 		Config          config
 		SSHPublicKeys   string
 		ManagementCIDRs string
-		WorkerCount     int
 	}{
 		Config:          *cfg,
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
-		WorkerCount:     workerCount,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
