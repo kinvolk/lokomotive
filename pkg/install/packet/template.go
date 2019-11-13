@@ -32,9 +32,6 @@ module "packet-{{.Config.ClusterName}}" {
   controller_type  = "{{ .Config.ControllerType }}"
   {{- end }}
 
-  worker_count              = "{{ .WorkerCount }}"
-  worker_nodes_hostnames    = "${concat({{- range $index, $pool := .Config.WorkerPools }}{{- if $index }}, {{- end }}"${module.worker-pool-{{- $index }}.worker_nodes_hostname}"{{- end }})}"
-
   {{- if .Config.OSChannel }}
   os_channel = "{{ .Config.OSChannel }}"
   {{- end }}
