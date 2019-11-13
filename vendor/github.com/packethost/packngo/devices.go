@@ -59,6 +59,7 @@ type DeviceRaw struct {
 	NetworkPorts        []Port                 `json:"network_ports,omitempty"`
 	CustomData          map[string]interface{} `json:"customdata,omitempty"`
 	SSHKeys             []SSHKey               `json:"ssh_keys,omitempty"`
+	ShortID             string                 `json:"short_id,omitempty"`
 }
 
 type Device struct {

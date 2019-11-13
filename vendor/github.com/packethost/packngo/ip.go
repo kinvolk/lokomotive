@@ -48,6 +48,7 @@ type IPAddressReservation struct {
 	Available   string    `json:"available"`
 	Addon       bool      `json:"addon"`
 	Bill        bool      `json:"bill"`
+	Description *string   `json:"details"`
 }
 
 // AvailableResponse is a type for listing of available addresses from a reserved block.
@@ -68,10 +69,10 @@ type IPAddressAssignment struct {
 
 // IPReservationRequest represents the body of a reservation request.
 type IPReservationRequest struct {
-	Type     string  `json:"type"`
-	Quantity int     `json:"quantity"`
-	Comments string  `json:"comments"`
-	Facility *string `json:"facility,omitempty"`
+	Type        string  `json:"type"`
+	Quantity    int     `json:"quantity"`
+	Description string  `json:"details,omitempty"`
+	Facility    *string `json:"facility,omitempty"`
 }
 
 // AddressStruct is a helper type for request/response with dict like {"address": ... }
