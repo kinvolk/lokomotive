@@ -146,7 +146,10 @@ module "controller" {
     "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
   ]
 
-  # This is different for each project on Packet and depends on the packet facility/region. Check yours from the `IPs & Networks` tab from your Packet.net account. If an IP block is not allocated yet, try provisioning an instance from the console in that region. Packet will allocate a public IP CIDR.
+  # This is different for each project on Packet and depends on the packet facility/region.
+  # Check yours from the `IPs & Networks` tab from your Packet.net account.
+  # If an IP block is not allocated yet, try provisioning an instance from the console in
+  # that region. Packet will allocate a public IP CIDR.
   node_private_cidr = "10.128.156.0/25"
 }
 
@@ -234,7 +237,7 @@ supernova-helium-worker-1  Ready   node               10m  v1.14.1
 
 ## Going Further
 
-Learn about [maintenance](/lokomotive/topics/maintenance/).
+Learn about [maintenance](../topics/maintenance.md).
 
 ## Variables
 

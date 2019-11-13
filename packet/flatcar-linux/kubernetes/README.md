@@ -1,1 +1,1 @@
-See https://github.com/kinvolk/lokomotive-kubernetes/
+See [Packet documentation](../../../docs/flatcar-linux/packet.md).

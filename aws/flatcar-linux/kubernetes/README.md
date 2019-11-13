@@ -1,1 +1,1 @@
-See https://github.com/kinvolk/lokomotive-kubernetes/
+See [AWS documentation](../../../docs/flatcar-linux/aws.md).

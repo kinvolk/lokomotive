@@ -196,7 +196,7 @@ kube-system   pod-checkpointer-l6lrt                    1/1    Running   0      
 
 ## Going Further
 
-Learn about [maintenance](/topics/maintenance/) and [addons](/addons/overview/).
+Learn about [maintenance](../topics/maintenance.md).
 
 !!! note
     On Flatcar Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.

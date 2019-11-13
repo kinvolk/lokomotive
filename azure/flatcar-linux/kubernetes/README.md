@@ -1,1 +1,1 @@
-See https://github.com/kinvolk/lokomotive-kubernetes/
+See [Azure documentation](../../../docs/flatcar-linux/azure.md).
