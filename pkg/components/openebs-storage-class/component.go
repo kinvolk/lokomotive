@@ -13,7 +13,10 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
-const name = "openebs-storage-class"
+const (
+	name     = "openebs-storage-class"
+	poolName = "openebs-storage-pool"
+)
 
 func init() {
 	components.Register(name, newComponent())
@@ -29,20 +32,23 @@ type component struct {
 	Storageclasses []Storageclass `hcl:"storage-class,block"`
 }
 
+func defaultStorageClass() Storageclass {
+	return Storageclass{
+		// Name of the storage class
+		Name: "openebs-cstor-disk-replica-3",
+		// Default replica count value is set to 3
+		ReplicaCount: 3,
+		// Make the storage class as default
+		Default: true,
+		// Default disks selection is empty
+		Disks: make([]string, 0),
+	}
+}
+
 func newComponent() *component {
+	sc := defaultStorageClass()
 	return &component{
-		Storageclasses: []Storageclass{
-			{
-				// Name of the storage class
-				Name: "openebs-cstor-disk-replica-3",
-				// Default replica count value is set to 3
-				ReplicaCount: 3,
-				// Make the storage class as default
-				Default: true,
-				// Default disks selection is empty
-				Disks: make([]string, 0),
-			},
-		},
+		Storageclasses: []Storageclass{sc},
 	}
 }
 
@@ -53,6 +59,10 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 	if diagnostics := gohcl.DecodeBody(*configBody, evalContext, c); diagnostics != nil {
 		return diagnostics
+	}
+	// if empty config body is provided, default component storage details are still preserved.
+	if len(c.Storageclasses) == 0 {
+		c.Storageclasses = append(c.Storageclasses, defaultStorageClass())
 	}
 
 	if err := c.validateConfig(); err != nil {
@@ -84,12 +94,12 @@ func (c *component) validateConfig() error {
 
 func (c *component) RenderManifests() (map[string]string, error) {
 
-	scTmpl, err := template.New("openebs-storageclass").Parse(storageClassTmpl)
+	scTmpl, err := template.New(name).Parse(storageClassTmpl)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse template failed")
 	}
 
-	spTmpl, err := template.New("openebs-storagepool").Parse(storagePoolTmpl)
+	spTmpl, err := template.New(poolName).Parse(storagePoolTmpl)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse template failed")
 	}
@@ -104,14 +114,14 @@ func (c *component) RenderManifests() (map[string]string, error) {
 			return nil, errors.Wrap(err, "execute template failed")
 		}
 
-		filename := "openebs-storageclass-" + sc.Name + ".yml"
+		filename := fmt.Sprintf("%s-%s.yml", name, sc.Name)
 		manifestsMap[filename] = scBuffer.String()
 
 		if err := spTmpl.Execute(&spBuffer, sc); err != nil {
 			return nil, errors.Wrap(err, "execute template failed")
 		}
 
-		filename = "openebs-storagepool-" + sc.Name + ".yml"
+		filename = fmt.Sprintf("%s-%s.yml", poolName, sc.Name)
 		manifestsMap[filename] = spBuffer.String()
 	}
 
