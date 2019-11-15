@@ -348,7 +348,7 @@ kube-system   pod-checkpointer-wf65d-node1.example.com   1/1       Running   0  
 
 ## Going Further
 
-Learn about [maintenance](/topics/maintenance/).
+Learn about [maintenance](../topics/maintenance.md).
 
 ## Variables
 

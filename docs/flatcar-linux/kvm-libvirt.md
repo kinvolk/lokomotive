@@ -22,7 +22,7 @@ A generated `kubeconfig` provides `kubectl` access to the cluster.
 
 ## Prepare VM Image
 
-Download the Flatcar image. The example below uses the "Edge" Flatcar channel.
+Download the Flatcar Container Linux image. The example below uses the "Edge" Flatcar Container Linux channel.
 You need to increase its size depending on your use case because the initial size
 is only enough for some small pods to be loaded. Starting pods with normal-sized
 container images may already fail because the disk space will be filled.
@@ -319,7 +319,7 @@ source.
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/infra/assets" |
 | cluster_name | Unique cluster name | "vmcluster" |
 | machine_domain | DNS zone | "vmcluster.k8s" |
-| os_image_unpacked | Path to unpacked Flatcar image (probably after a qemu-img resize IMG +5G) | "file:///home/user/infra/flatcar_production_qemu_image.img" |
+| os_image_unpacked | Path to unpacked Flatcar Container Linux image (probably after a qemu-img resize IMG +5G) | "file:///home/user/infra/flatcar_production_qemu_image.img" |
 | ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 
 #### Optional
@@ -350,7 +350,7 @@ source.
 | libvirtbaseid | The cluster's OS volume to use for copy-on-write | "${module.controller.libvirtbaseid}" |
 | libvirtpool | The cluster's disk volume pool to use | "${module.controller.libvirtpool}" |
 | machine_domain | DNS zone | "${module.controller.machine_domain}" |
-| os_image_unpacked | Path to unpacked Flatcar image (probably after a qemu-img resize IMG +5G) | "file:///home/user/infra/flatcar_production_qemu_image.img" |
+| os_image_unpacked | Path to unpacked Flatcar Container Linux image (probably after a qemu-img resize IMG +5G) | "file:///home/user/infra/flatcar_production_qemu_image.img" |
 | pool_name | Worker pool name | "one" |
 | ssh_keys | List of SSH public keys for user 'core' | "${module.controller.ssh_keys}" |
 

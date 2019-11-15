@@ -1,1 +1,1 @@
-See https://github.com/kinvolk/lokomotive-kubernetes/
+See [bare-metal documentation](../../../docs/flatcar-linux/bare-metal.md).

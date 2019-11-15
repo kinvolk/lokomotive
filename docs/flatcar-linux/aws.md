@@ -194,7 +194,7 @@ kube-system   pod-checkpointer-4kxtl-ip-10-0-3-155      1/1    Running   0      
 
 ## Going Further
 
-Learn about [maintenance](/topics/maintenance/).
+Learn about [maintenance](../topics/maintenance.md).
 
 ## Variables
 
