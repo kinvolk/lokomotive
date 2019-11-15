@@ -27,7 +27,7 @@ Available components:
 	 gangway
 	 httpbin
 	 metallb
-	 openebs-default-storage-class
+	 openebs-storage-class
 	 openebs-operator
 	 prometheus-operator
 ```
