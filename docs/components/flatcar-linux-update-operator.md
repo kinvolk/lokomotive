@@ -1,7 +1,7 @@
-# Flatcar Linux Update Operator
+# Flatcar Container Linux Update Operator
 
 This component is for a node reboot controller for Kubernetes running Flatcar
-images. When a reboot is needed after updating the system via
+Container Linux images. When a reboot is needed after updating the system via
 [update_engine](https://github.com/coreos/update_engine), the operator will
 drain the node before rebooting it.
 
