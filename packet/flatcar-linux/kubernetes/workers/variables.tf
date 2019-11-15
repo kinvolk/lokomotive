@@ -50,7 +50,7 @@ variable "facility" {
 variable "os_channel" {
   type        = "string"
   default     = "stable"
-  description = "Flatcar Linux channel to install from (stable, beta, alpha, edge)"
+  description = "Flatcar Container Linux channel to install from (stable, beta, alpha, edge)"
 }
 
 variable "cluster_domain_suffix" {

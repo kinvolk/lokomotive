@@ -37,7 +37,7 @@ variable "machine_type" {
 variable "os_image" {
   type        = "string"
   default     = "flatcar-stable"
-  description = "Flatcar Linux image for compute instanges (e.g. gcloud compute images list)"
+  description = "Flatcar Container Linux image for compute instanges (e.g. gcloud compute images list)"
 }
 
 variable "disk_size" {

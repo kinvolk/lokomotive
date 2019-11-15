@@ -49,7 +49,7 @@ variable "worker_type" {
 variable "os_image" {
   type        = "string"
   default     = "flatcar-stable"
-  description = "Flatcar Linux image for compute instances (e.g. flatcar-stable)"
+  description = "Flatcar Container Linux image for compute instances (e.g. flatcar-stable)"
 }
 
 variable "disk_size" {

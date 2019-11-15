@@ -1,6 +1,6 @@
 # Worker Pools
 
-Lokomotive on AWS, Azure, Google Cloud and Packet allows additional groups of workers to be defined and joined to a cluster. For example, add worker pools of instances with different types, disk sizes, Container Linux channels, or preemptibility modes.
+Lokomotive on AWS, Azure, Google Cloud and Packet allows additional groups of workers to be defined and joined to a cluster. For example, add worker pools of instances with different types, disk sizes, Flatcar Container Linux channels, or preemptibility modes.
 
 Internal Terraform Modules:
 
@@ -67,7 +67,7 @@ The AWS internal `workers` module supports a number of [variables](https://githu
 |:-----|:------------|:--------|:--------|
 | count | Number of instances | 1 | 3 |
 | instance_type | EC2 instance type | "t3.small" | "t3.medium" |
-| os_image | AMI channel for a Flatcar Linux derivative | flatcar-stable, flatcar-beta, flatcar-alpha, flatcar-edge |
+| os_image | AMI channel for Flatcar Container Linux | flatcar-stable, flatcar-beta, flatcar-alpha, flatcar-edge |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | spot_price | Spot price in USD for workers. Leave as default empty string for regular on-demand instances | "" | "0.10" |
 | service_cidr | Must match `service_cidr` of cluster | "10.3.0.0/16" | "10.3.0.0/24" |
@@ -137,7 +137,7 @@ The Azure internal `workers` module supports a number of [variables](https://git
 |:-----|:------------|:--------|:--------|
 | count | Number of instances | 1 | 3 |
 | vm_type | Machine type for instances | "Standard_F1" | See below |
-| os_image | Channel for a Flatcar Linux derivative | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
+| os_image | Channel for a Flatcar Container Linux derivative | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
 | priority | Set priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time | Regular | Low |
 | clc_snippets | Container Linux Config snippets | [] | [example](/advanced/customization/#usage) |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
@@ -216,7 +216,7 @@ Check the list of regions [docs](https://cloud.google.com/compute/docs/regions-z
 |:-----|:------------|:--------|:--------|
 | count | Number of instances | 1 | 3 |
 | machine_type | Compute instance machine type | "n1-standard-1" | See below |
-| os_image | Flatcar Linux image for compute instances | "flatcar-stable" | "flatcar-stable", "flatcar-beta", "flatcar-alpha" |
+| os_image | Flatcar Container Linux image for compute instances | "flatcar-stable" | "flatcar-stable", "flatcar-beta", "flatcar-alpha" |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | preemptible | If true, Compute Engine will terminate instances randomly within 24 hours | false | true |
 | service_cidr | Must match `service_cidr` of cluster | "10.3.0.0/16" | "10.3.0.0/24" |

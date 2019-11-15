@@ -12,12 +12,12 @@ variable "matchbox_http_endpoint" {
 
 variable "os_channel" {
   type        = "string"
-  description = "Channel for a Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
+  description = "Channel for a CoreOS Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
 }
 
 variable "os_version" {
   type        = "string"
-  description = "Version for a Container Linux derivative to PXE and install (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
+  description = "Version for a CoreOS Container Linux derivative to PXE and install (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
 }
 
 # machines
@@ -127,13 +127,13 @@ variable "download_protocol" {
 variable "cached_install" {
   type        = "string"
   default     = "false"
-  description = "Whether Container Linux should PXE boot and install from matchbox /assets cache. Note that the admin must have downloaded the os_version into matchbox assets."
+  description = "Whether the operating system should PXE boot and install from matchbox /assets cache. Note that the admin must have downloaded the os_version into matchbox assets."
 }
 
 variable "install_disk" {
   type        = "string"
   default     = "/dev/sda"
-  description = "Disk device to which the install profiles should install Container Linux (e.g. /dev/sda)"
+  description = "Disk device to which the install profiles should install the operating system (e.g. /dev/sda)"
 }
 
 variable "container_linux_oem" {

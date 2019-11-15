@@ -54,7 +54,7 @@ nav:
     - 'Azure': 'architecture/azure.md'
     - 'Bare-Metal': 'architecture/bare-metal.md'
     - 'Google Cloud': 'architecture/google-cloud.md'
-  - 'Flatcar Linux':
+  - 'Flatcar Container Linux':
     - 'AWS': 'flatcar-linux/aws.md'
     - 'Azure': 'flatcar-linux/azure.md'
     - 'Bare-Metal': 'flatcar-linux/bare-metal.md'

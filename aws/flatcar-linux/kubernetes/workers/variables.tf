@@ -37,7 +37,7 @@ variable "instance_type" {
 variable "os_image" {
   type        = "string"
   default     = "flatcar-stable"
-  description = "AMI channel for a Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
+  description = "AMI channel for a CoreOS Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
 }
 
 variable "disk_size" {

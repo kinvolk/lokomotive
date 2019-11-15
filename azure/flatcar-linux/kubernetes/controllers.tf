@@ -15,8 +15,8 @@ resource "azurerm_dns_a_record" "etcds" {
 }
 
 locals {
-  # Channel for a Container Linux derivative
-  # coreos-stable -> Container Linux Stable
+  # Channel for a CoreOS Container Linux derivative
+  # coreos-stable -> CoreOS Container Linux Stable
   channel = "${element(split("-", var.os_image), 1)}"
 }
 

@@ -8,7 +8,7 @@ Formats rise and evolve. Lokomotive may choose to adapt the format over time (wi
 
 ## Operating Systems
 
-Lokomotive supports Flatcar Linux. This operating system was chosen because it offers:
+Lokomotive supports Flatcar Container Linux. This operating system was chosen because it offers:
 
 * Minimalism and focus on clustered operation
 * Automated and atomic operating system upgrades

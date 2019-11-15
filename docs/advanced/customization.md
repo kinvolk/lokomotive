@@ -8,18 +8,18 @@ Lokomotive modules accept Terraform input variables for customizing clusters in 
 
 ## Hosts
 
-### Flatcar Linux
+### Flatcar Container Linux
 
 !!! danger
     Container Linux Configs provide powerful host customization abilities. You are responsible for the additional configs defined for hosts.
 
-Container Linux Configs (CLCs) declare how a Flatcar Linux instance's disk should be provisioned on first boot from disk. CLCs define disk partitions, filesystems, files, systemd units, dropins, networkd configs, mount units, raid arrays, and users. Lokomotive creates controller and worker instances with base Container Linux Configs to create a minimal, secure Kubernetes cluster on each platform.
+Container Linux Configs (CLCs) declare how a Flatcar Container Linux instance's disk should be provisioned on first boot from disk. CLCs define disk partitions, filesystems, files, systemd units, dropins, networkd configs, mount units, raid arrays, and users. Lokomotive creates controller and worker instances with base Container Linux Configs to create a minimal, secure Kubernetes cluster on each platform.
 
 Lokomotive AWS, Azure, and bare-metal support CLC *snippets* - valid Container Linux Configs that are validated and additively merged into the Lokomotive base config during `terraform plan`. This allows advanced host customizations and experimentation.
 
 #### Examples
 
-Container Linux [docs](https://coreos.com/os/docs/latest/clc-examples.html) show many simple config examples. Ensure a file `/opt/hello` is created with permissions 0644. 
+CoreOS Container Linux [docs](https://coreos.com/os/docs/latest/clc-examples.html) show many simple config examples. Ensure a file `/opt/hello` is created with permissions 0644. 
 
 ```
 # custom-files
@@ -85,7 +85,7 @@ module "aws-nemo" {
 }
 ```
 
-[Bare-Metal](/flatcar/bare-metal/#cluster) clusters allow different Container Linux snippets to be used for each node (since hardware may be heterogeneous). Populate the optional `clc_snippets` map variable with any controller or worker name keys and lists of snippets.
+[Bare-Metal](/flatcar/bare-metal/#cluster) clusters allow different CoreOS Container Linux snippets to be used for each node (since hardware may be heterogeneous). Populate the optional `clc_snippets` map variable with any controller or worker name keys and lists of snippets.
 
 ```
 module "bare-metal-mercury" {

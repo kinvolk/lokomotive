@@ -1,6 +1,6 @@
 # Operating Systems
 
-Lokomotive supports [Flatcar Linux](https://www.flatcar-linux.org/). Flatcar Linux is a friendly fork of CoreOS Container Linux and was chosen because:
+Lokomotive supports [Flatcar Container Linux](https://www.flatcar-linux.org/). Flatcar Container Linux is a friendly fork of CoreOS Container Linux and was chosen because:
 
 * Minimalism and focus on clustered operation
 * Automated and atomic operating system upgrades
@@ -10,7 +10,7 @@ Lokomotive supports [Flatcar Linux](https://www.flatcar-linux.org/). Flatcar Lin
 
 ## Host Properties
 
-| Property          | Flatcar Linux |
+| Property          | Flatcar Container Linux |
 |-------------------|-----------------|
 | host spec (bare-metal) | Container Linux Config |
 | host spec (cloud)      | Container Linux Config |
@@ -21,7 +21,7 @@ Lokomotive supports [Flatcar Linux](https://www.flatcar-linux.org/). Flatcar Lin
 
 ## Kubernetes Properties
 
-| Property          | Flatcar Linux |
+| Property          | Flatcar Container Linux |
 |-------------------|-----------------|
 | single-master     | all platforms |
 | multi-master      | planned |
@@ -45,7 +45,7 @@ Lokomotive conventional directories.
 
 ## Kubelet Mounts
 
-### Flatcar Linux
+### Flatcar Container Linux
 
 | Mount location    | Host location     | Options |
 |-------------------|-------------------|---------|

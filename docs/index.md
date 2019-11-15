@@ -18,14 +18,14 @@ Lokomotive distributes upstream Kubernetes.
 
 ## Modules
 
-Lokomotive provides a Terraform Module for each supported operating system and platform. Flatcar Linux is a mature and reliable choice.
+Lokomotive provides a Terraform Module for each supported operating system and platform. Flatcar Container Linux is a mature and reliable choice.
 
 | Platform      | Operating System | Terraform Module | Status |
 |---------------|------------------|------------------|--------|
-| AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](flatcar-linux/aws.md) | stable |
-| Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](flatcar-linux/azure.md) | alpha |
-| Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](flatcar-linux/bare-metal.md) | stable |
-| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](flatcar-linux/packet.md) | stable |
+| AWS           | Flatcar Container Linux | [aws/flatcar-linux/kubernetes](flatcar-linux/aws.md) | stable |
+| Azure         | Flatcar Container Linux | [azure/flatcar-linux/kubernetes](flatcar-linux/azure.md) | alpha |
+| Bare-Metal    | Flatcar Container Linux | [bare-metal/flatcar-linux/kubernetes](flatcar-linux/bare-metal.md) | stable |
+| Packet        | Flatcar Container Linux | [packet/flatcar-linux/kubernetes](flatcar-linux/packet.md) | stable |
 
 ## Documentation
 

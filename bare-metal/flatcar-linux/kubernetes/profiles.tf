@@ -6,7 +6,7 @@ locals {
   channel = "${element(split("-", var.os_channel), 1)}"
 }
 
-// Container Linux Install profile (from release.core-os.net)
+// CoreOS Container Linux Install profile (from release.core-os.net)
 resource "matchbox_profile" "container-linux-install" {
   count = "${length(var.controller_names) + length(var.worker_names)}"
   name  = "${format("%s-container-linux-install-%s", var.cluster_name, element(concat(var.controller_names, var.worker_names), count.index))}"
@@ -48,7 +48,7 @@ data "template_file" "container-linux-install-configs" {
   }
 }
 
-// Container Linux Install profile (from matchbox /assets cache)
+// CoreOS Container Linux Install profile (from matchbox /assets cache)
 // Note: Admin must have downloaded os_version into matchbox assets/coreos.
 resource "matchbox_profile" "cached-container-linux-install" {
   count = "${length(var.controller_names) + length(var.worker_names)}"
@@ -91,7 +91,7 @@ data "template_file" "cached-container-linux-install-configs" {
   }
 }
 
-// Flatcar Linux install profile (from release.flatcar-linux.net)
+// Flatcar Container Linux install profile (from release.flatcar-linux.net)
 resource "matchbox_profile" "flatcar-install" {
   count = "${length(var.controller_names) + length(var.worker_names)}"
   name  = "${format("%s-flatcar-install-%s", var.cluster_name, element(concat(var.controller_names, var.worker_names), count.index))}"
@@ -114,7 +114,7 @@ resource "matchbox_profile" "flatcar-install" {
   container_linux_config = "${element(data.template_file.container-linux-install-configs.*.rendered, count.index)}"
 }
 
-// Flatcar Linux Install profile (from matchbox /assets cache)
+// Flatcar Container Linux Install profile (from matchbox /assets cache)
 // Note: Admin must have downloaded os_version into matchbox assets/flatcar.
 resource "matchbox_profile" "cached-flatcar-linux-install" {
   count = "${length(var.controller_names) + length(var.worker_names)}"
@@ -200,7 +200,7 @@ data "template_file" "worker-configs" {
 
 locals {
   # Hack to workaround https://github.com/hashicorp/terraform/issues/17251
-  # Default Container Linux config snippets map every node names to list("\n") so
+  # Default CoreOS Container Linux config snippets map every node names to list("\n") so
   # all lookups succeed
   clc_defaults = "${zipmap(concat(var.controller_names, var.worker_names), chunklist(data.template_file.clc-default-snippets.*.rendered, 1))}"
 

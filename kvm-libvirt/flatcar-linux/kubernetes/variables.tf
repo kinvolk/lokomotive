@@ -8,7 +8,7 @@ variable "cluster_name" {
 # Nodes
 variable "os_image_unpacked" {
   type        = "string"
-  description = "Path to unpacked Flatcar image flatcar_production_qemu_image.img (probably after a qemu-img resize IMG +5G)"
+  description = "Path to unpacked Flatcar Container Linux image flatcar_production_qemu_image.img (probably after a qemu-img resize IMG +5G)"
 }
 
 variable "controller_count" {
