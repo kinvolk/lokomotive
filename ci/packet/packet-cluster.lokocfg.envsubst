@@ -15,7 +15,8 @@ cluster "packet" {
   node_private_cidr = "10.0.0.0/8"
 
   worker_pool "pool-1" {
-    count = 2
+    count     = 2
+    node_type = "c2.medium.x86"
   }
 }
 
