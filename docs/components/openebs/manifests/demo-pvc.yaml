@@ -5,7 +5,7 @@ apiVersion: v1
 metadata:
   name: fio-cstor-claim
 spec:
-  storageClassName: openebs-cstor-disk
+  storageClassName: openebs-cstor-disk-replica-3
   accessModes:
     - ReadWriteOnce
   resources:
