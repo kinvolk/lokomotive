@@ -63,7 +63,7 @@ cluster "packet" {
 	dns_zone_id = "XXX"
 	# Change Packet server location
 	facility = "ams1"
-	# Define a Flatcar Linux channel ('stable', 'beta', 'alpha' or 'edge')
+	# Define a Flatcar Container Linux channel ('stable', 'beta', 'alpha' or 'edge')
 	os_channel = "stable"
 	# Change Packet project ID
 	project_id = "aaa-bbb-ccc-ddd"
@@ -116,10 +116,10 @@ cluster "packet" {
 	  # Define an instance type (optional)
 	  # node_type = "t1.small.x86"
 
-	  # Define a Flatcar Linux channel (optional; 'stable', 'beta', 'alpha' or 'edge')
+	  # Define a Flatcar Container Linux channel (optional; 'stable', 'beta', 'alpha' or 'edge')
 	  # os_channel = "stable"
 
-	  # Define a Flatcar Linux version (optional)
+	  # Define a Flatcar Container Linux version (optional)
 	  # os_version = "current"
           
 	  # Custom labels to assign to worker nodes

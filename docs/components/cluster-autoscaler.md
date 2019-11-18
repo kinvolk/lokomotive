@@ -64,7 +64,7 @@ component "cluster-autoscaler" {
     #
     # Machine type for workers spawned by the Cluster Autoscaler
     worker_type = "t1.small.x86"
-    # Flatcar Linux channel to be used by workers spawned by the Cluster Autoscaler
+    # Flatcar Container Linux channel to be used by workers spawned by the Cluster Autoscaler
     worker_channel = "stable"
   }
 ```
