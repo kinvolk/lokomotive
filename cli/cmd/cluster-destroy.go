@@ -4,9 +4,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"github.com/kinvolk/lokoctl/pkg/config"
 )
 
 var confirm bool
@@ -40,12 +37,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoConfig, diags := config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
-	if diags.HasErrors() {
-		ctxLogger.Fatal(diags)
-	}
-
-	p, diags := getConfiguredPlatform(lokoConfig)
+	p, diags := getConfiguredPlatform()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			ctxLogger.Error(diagnostic.Summary)

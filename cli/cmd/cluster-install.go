@@ -39,7 +39,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatal(diags)
 	}
 
-	p, diags := getConfiguredPlatform(lokoConfig)
+	p, diags := getConfiguredPlatform()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			ctxLogger.Error(diagnostic.Summary)
