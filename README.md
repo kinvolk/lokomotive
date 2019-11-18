@@ -11,14 +11,14 @@ Lokomotive is an open source project by [Kinvolk](https://kinvolk.io/) which dis
 
 ## Modules
 
-Lokomotive provides a Terraform Module for each supported operating system and platform. Flatcar Linux is a mature and reliable choice.
+Lokomotive provides a Terraform Module for each supported operating system and platform. Flatcar Container Linux is a mature and reliable choice.
 
-| Platform      | Operating System | Terraform Module | Status |
-|---------------|------------------|------------------|--------|
-| AWS           | Flatcar Linux | [aws/flatcar-linux/kubernetes](docs/flatcar-linux/aws.md) | stable |
-| Azure         | Flatcar Linux | [azure/flatcar-linux/kubernetes](docs/flatcar-linux/azure.md) | alpha |
-| Bare-Metal    | Flatcar Linux | [bare-metal/flatcar-linux/kubernetes](docs/flatcar-linux/bare-metal.md) | stable |
-| Packet        | Flatcar Linux | [packet/flatcar-linux/kubernetes](docs/flatcar-linux/packet.md) | beta |
+| Platform      | Operating System        | Terraform Module | Status |
+|---------------|-------------------------|------------------|--------|
+| AWS           | Flatcar Container Linux | [aws/flatcar-linux/kubernetes](docs/flatcar-linux/aws.md) | stable |
+| Azure         | Flatcar Container Linux | [azure/flatcar-linux/kubernetes](docs/flatcar-linux/azure.md) | alpha |
+| Bare-Metal    | Flatcar Container Linux | [bare-metal/flatcar-linux/kubernetes](docs/flatcar-linux/bare-metal.md) | stable |
+| Packet        | Flatcar Container Linux | [packet/flatcar-linux/kubernetes](docs/flatcar-linux/packet.md) | beta |
 
 ## Documentation
 
@@ -98,9 +98,9 @@ kube-system   pod-checkpointer-l6lrt                    1/1    Running   0      
 kube-system   pod-checkpointer-l6lrt-controller-0       1/1    Running   0         6m
 ```
 
-## Try Flatcar Edge
+## Try Flatcar Container Linux Edge
 
-[Flatcar Edge](https://kinvolk.io/blog/2019/05/introducing-the-flatcar-linux-edge-channel/) is a [Flatcar Linux](https://www.flatcar-linux.org/) channel that includes experimental bleeding-edge features.
+[Flatcar Container Linux Edge](https://kinvolk.io/blog/2019/05/introducing-the-flatcar-linux-edge-channel/) is a [Flatcar Container Linux](https://www.flatcar-linux.org/) channel that includes experimental bleeding-edge features.
 
 To try it just add the following configuration option to the example above.
 

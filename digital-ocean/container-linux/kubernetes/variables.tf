@@ -44,7 +44,7 @@ variable "worker_type" {
 variable "image" {
   type        = "string"
   default     = "coreos-stable"
-  description = "Container Linux image for instances (e.g. coreos-stable)"
+  description = "CoreOS Container Linux image for instances (e.g. coreos-stable)"
 }
 
 variable "controller_clc_snippets" {

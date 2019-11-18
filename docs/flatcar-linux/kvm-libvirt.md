@@ -1,6 +1,6 @@
 # KVM libvirt
 
-In this tutorial, we'll create a Kubernetes cluster with Flatcar Linux inside VMs on our local machine.
+In this tutorial, we'll create a Kubernetes cluster with Flatcar Container Linux inside VMs on our local machine.
 
 We'll declare the cluster using the Lokomotive Terraform module for the KVM libvirt platform.
 

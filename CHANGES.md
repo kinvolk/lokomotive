@@ -84,7 +84,7 @@ Notable changes between versions.
 
 * Change the default iPXE kernel and initrd download protocol from HTTP to HTTPS ([#420](https://github.com/poseidon/typhoon/pull/420))
   * Require an iPXE-enabled network boot environment with support for TLS downloads. PXE clients must chainload to iPXE firmware compiled with `DOWNLOAD_PROTO_HTTPS` [enabled](https://ipxe.org/crypto). (**action required**)
-  * Only affects Container Linux and Flatcar Linux install profiles that pull public images (default)
+  * Only affects CoreOS Container Linux and Flatcar Container Linux install profiles that pull public images (default)
   * Add `download_protocol` variable. Recognizing boot firmware TLS support is difficult in some environments, set the protocol to "http" for the old behavior (discouraged)
 
 #### DigitalOcean
@@ -208,7 +208,7 @@ Notable changes between versions.
 * Recommend updating `terraform-provider-ct` plugin from v0.2.1 to v0.3.0 ([#363](https://github.com/poseidon/typhoon/pull/363))
   * [Migration](https://typhoon.psdn.io/topics/maintenance/#upgrade-terraform-provider-ct) instructions for upgrading `terraform-provider-ct` in-place for v1.12.2+ clusters (**action required**)
   * [Require](https://typhoon.psdn.io/topics/maintenance/#terraform-plugins-directory) switching from `~/.terraformrc` to the Terraform [third-party plugins](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins) directory `~/.terraform.d/plugins/`
-  * Require Container Linux 1688.5.3 or newer
+  * Require CoreOS Container Linux 1688.5.3 or newer
 
 #### Google Cloud
 
@@ -320,7 +320,7 @@ Notable changes between versions.
 
 #### Bare-Metal
 
-* Add support for `cached_install` mode with Flatcar Linux ([#315](https://github.com/poseidon/typhoon/pull/315))
+* Add support for `cached_install` mode with Flatcar Container Linux ([#315](https://github.com/poseidon/typhoon/pull/315))
 
 #### DigitalOcean
 
@@ -489,7 +489,7 @@ Notable changes between versions.
 ## v1.10.3
 
 * Kubernetes [v1.10.3](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.10.md#v1103)
-* Add [Flatcar Linux](https://docs.flatcar-linux.org/) (Container Linux derivative) as an option for AWS and bare-metal (thanks @kinvolk folks)
+* Add [Flatcar Container Linux](https://docs.flatcar-linux.org/) (CoreOS Container Linux derivative) as an option for AWS and bare-metal (thanks @kinvolk folks)
 * Allow bearer token authentication to the Kubelet ([#216](https://github.com/poseidon/typhoon/issues/216))
   * Require Webhook authorization to the Kubelet
   * Switch apiserver X509 client cert org to satisfy new authorization requirement
@@ -499,7 +499,7 @@ Notable changes between versions.
 
 #### AWS
 
-* Allow Flatcar Linux by setting `os_image` to flatcar-stable (default), flatcar-beta, flatcar-alpha ([#211](https://github.com/poseidon/typhoon/pull/211))
+* Allow Flatcar Container Linux by setting `os_image` to flatcar-stable (default), flatcar-beta, flatcar-alpha ([#211](https://github.com/poseidon/typhoon/pull/211))
 * Replace `os_channel` variable with `os_image` to align naming across clouds
   * Please change values stable, beta, or alpha to coreos-stable, coreos-beta, coreos-alpha (**action required!**)
 * Allow preemptible workers via spot instances ([#202](https://github.com/poseidon/typhoon/pull/202))
@@ -508,7 +508,7 @@ Notable changes between versions.
 
 #### Bare-Metal
 
-* Allow Flatcar Linux by setting `os_channel` to flatcar-stable, flatcar-beta, flatcar-alpha ([#220](https://github.com/poseidon/typhoon/pull/220))
+* Allow Flatcar Container Linux by setting `os_channel` to flatcar-stable, flatcar-beta, flatcar-alpha ([#220](https://github.com/poseidon/typhoon/pull/220))
 * Replace `container_linux_channel` variable with `os_channel`
   * Please change values stable, beta, or alpha to coreos-stable, coreos-beta, coreos-alpha (**action required!**)
 * Replace `container_linux_version` variable with `os_version`
@@ -740,8 +740,8 @@ Notable changes between versions.
 
 #### Bare-Metal
 
-* Use per-node Container Linux install profiles ([#97](https://github.com/poseidon/typhoon/pull/97))
-  * Allow Container Linux channel/version to be chosen per-cluster
+* Use per-node CoreOS Container Linux install profiles ([#97](https://github.com/poseidon/typhoon/pull/97))
+  * Allow CoreOS Container Linux channel/version to be chosen per-cluster
   * Fix issue where cluster deletion could require `terraform apply` multiple times
 
 #### Digital Ocean
@@ -752,7 +752,7 @@ Notable changes between versions.
 #### Addons
 
 * Update CLUO to v0.5.0 to fix compatibility with Kubernetes 1.9 (**important**)
-  * Earlier versions can't roll out Container Linux updates on Kubernetes 1.9 nodes ([cluo#163](https://github.com/coreos/container-linux-update-operator/issues/163))
+  * Earlier versions can't roll out CoreOS Container Linux updates on Kubernetes 1.9 nodes ([cluo#163](https://github.com/coreos/container-linux-update-operator/issues/163))
 * Update kube-state-metrics from v1.1.0 to v1.2.0
 * Fix RBAC cluster role for kube-state-metrics
 
@@ -773,10 +773,10 @@ Notable changes between versions.
 ## v1.8.5
 
 * Kubernetes [v1.8.5](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.8.md#v185)
-* Recommend Container Linux [images](https://coreos.com/releases/) with Docker 17.09
-  * Container Linux stable, beta, and alpha now provide Docker 17.09 (instead
+* Recommend CoreOS Container Linux [images](https://coreos.com/releases/) with Docker 17.09
+  * CoreOS Container Linux stable, beta, and alpha now provide Docker 17.09 (instead
   of 1.12)
-  * Older clusters (with CLUO addon) auto-update Container Linux version to begin using Docker 17.09
+  * Older clusters (with CLUO addon) auto-update CoreOS Container Linux version to begin using Docker 17.09
 * Fix race where `etcd-member.service` could fail to resolve peers ([#69](https://github.com/poseidon/typhoon/pull/69)) 
 * Add optional `cluster_domain_suffix` variable (#74)
 * Use kubernetes-incubator/bootkube v0.9.1

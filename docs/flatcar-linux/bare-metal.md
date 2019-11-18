@@ -1,8 +1,8 @@
 # Bare-Metal
 
-In this tutorial, we'll network boot and provision a Kubernetes cluster on bare-metal with Flatcar Linux.
+In this tutorial, we'll network boot and provision a Kubernetes cluster on bare-metal with Flatcar Container Linux.
 
-First, we'll deploy a [Matchbox](https://github.com/poseidon/matchbox) service and setup a network boot environment. Then, we'll declare a Kubernetes cluster using the Lokomotive Terraform module and power on machines. On PXE boot, machines will install Flatcar Linux to disk, reboot into the disk install, and provision themselves as Kubernetes controllers or workers via Ignition.
+First, we'll deploy a [Matchbox](https://github.com/poseidon/matchbox) service and setup a network boot environment. Then, we'll declare a Kubernetes cluster using the Lokomotive Terraform module and power on machines. On PXE boot, machines will install Flatcar Container Linux to disk, reboot into the disk install, and provision themselves as Kubernetes controllers or workers via Ignition.
 
 Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service. Workers run just a `kubelet` service. A one-time [bootkube](https://github.com/kubernetes-incubator/bootkube) bootstrap schedules the `apiserver`, `scheduler`, `controller-manager`, and `coredns` on controllers and schedules `kube-proxy` and `calico` (or `flannel`) on every node. A generated `kubeconfig` provides `kubectl` access to the cluster.
 
@@ -270,7 +270,7 @@ ipmitool -H node1.example.com -U USER -P PASS chassis bootdev pxe
 ipmitool -H node1.example.com -U USER -P PASS power on
 ```
 
-Machines will network boot, install Flatcar Linux to disk, reboot into the disk install, and provision themselves as controllers or workers.
+Machines will network boot, install Flatcar Container Linux to disk, reboot into the disk install, and provision themselves as controllers or workers.
 
 !!! tip ""
     If this is the first test of your PXE-enabled network boot environment, watch the SOL console of a machine to spot any misconfigurations.
@@ -360,8 +360,8 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 |:-----|:------------|:--------|
 | cluster_name | Unique cluster name | mercury |
 | matchbox_http_endpoint | Matchbox HTTP read-only endpoint | http://matchbox.example.com:port |
-| os_channel | Channel for Flatcar Linux | flatcar-stable, flatcar-beta, flatcar-alpha |
-| os_version | Version of Flatcar Linux to PXE and install | 1632.3.0 |
+| os_channel | Channel for Flatcar Container Linux | flatcar-stable, flatcar-beta, flatcar-alpha |
+| os_version | Version of Flatcar Container Linux to PXE and install | 1632.3.0 |
 | k8s_domain_name | FQDN resolving to the controller(s) nodes. Workers and kubectl will communicate with this endpoint | "myk8s.example.com" |
 | ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3Nz..." |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/mercury" |
@@ -377,8 +377,8 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | Name | Description | Default | Example |
 |:-----|:------------|:--------|:--------|
 | download_protocol | Protocol iPXE uses to download the kernel and initrd. iPXE must be compiled with [crypto](https://ipxe.org/crypto) support for https. Unused if cached_install is true | "https" | "http" |
-| cached_install | PXE boot and install from the Matchbox `/assets` cache. Admin MUST have downloaded Flatcar Linux or Flatcar images into the cache | false | true |
-| install_disk | Disk device where Flatcar Linux should be installed | "/dev/sda" | "/dev/sdb" |
+| cached_install | PXE boot and install from the Matchbox `/assets` cache. Admin MUST have downloaded Flatcar Container Linux images into the cache | false | true |
+| install_disk | Disk device where Flatcar Container Linux should be installed | "/dev/sda" | "/dev/sdb" |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | network_mtu | CNI interface MTU (calico-only) | 1480 | - |
 | clc_snippets | Map from machine names to lists of Container Linux Config snippets | {} | [example](/advanced/customization/#usage) |

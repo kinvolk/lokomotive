@@ -16,11 +16,11 @@ Lokomotive aims to be minimal and secure. We're running it ourselves after all.
 
 **Hosts**
 
-* Flatcar Linux auto-updates are enabled
+* Flatcar Container Linux auto-updates are enabled
 * Hosts limit logins to SSH key-based auth (user "core")
 
 !!! note
-    On Flatcar Linux clusters, install the [CLUO](https://typhoon.psdn.io/addons/cluo/) addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
+    On Flatcar Container Linux clusters, install the [CLUO](https://typhoon.psdn.io/addons/cluo/) addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
 
 **Platform**
 

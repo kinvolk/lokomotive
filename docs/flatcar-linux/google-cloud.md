@@ -1,6 +1,6 @@
 # Google Cloud
 
-In this tutorial, we'll create a Kubernetes cluster on Google Compute Engine with Flatcar Linux.
+In this tutorial, we'll create a Kubernetes cluster on Google Compute Engine with Flatcar Container Linux.
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create a network, firewall rules, health checks, controller instances, worker managed instance group, load balancers, and TLS assets.
 
@@ -199,7 +199,7 @@ kube-system   pod-checkpointer-l6lrt                    1/1    Running   0      
 Learn about [maintenance](../topics/maintenance.md).
 
 !!! note
-    On Flatcar Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
+    On Flatcar Container Linux clusters, install the `CLUO` addon to coordinate reboots and drains when nodes auto-update. Otherwise, updates may not be applied until the next reboot.
 
 ## Variables
 
@@ -216,7 +216,7 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/yavin" |
 
-Check the list of valid [regions](https://cloud.google.com/compute/docs/regions-zones/regions-zones) and list Flatcar Linux [images](https://cloud.google.com/compute/docs/images) with `gcloud compute images list | grep flatcar`.
+Check the list of valid [regions](https://cloud.google.com/compute/docs/regions-zones/regions-zones) and list Flatcar Container Linux [images](https://cloud.google.com/compute/docs/images) with `gcloud compute images list | grep flatcar`.
 
 #### DNS Zone
 
@@ -243,11 +243,11 @@ resource "google_dns_managed_zone" "zone-for-clusters" {
 | worker_count | Number of workers | 1 | 3 |
 | controller_type | Machine type for controllers | "n1-standard-1" | See below |
 | worker_type | Machine type for workers | "n1-standard-1" | See below |
-| os_image | Flatcar Linux image for compute instances | "flatcar-stable" | "flatcar-stable-1632-3-0-v20180215" |
+| os_image | Flatcar Container Linux image for compute instances | "flatcar-stable" | "flatcar-stable-1632-3-0-v20180215" |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | worker_preemptible | If enabled, Compute Engine will terminate workers randomly within 24 hours | false | true |
-| controller_clc_snippets | Controller Flatcar Linux Config snippets | [] | [example](/advanced/customization/) |
-| worker_clc_snippets | Worker Flatcar Linux Config snippets | [] | [example](/advanced/customization/) |
+| controller_clc_snippets | Controller Flatcar Container Linux Config snippets | [] | [example](/advanced/customization/) |
+| worker_clc_snippets | Worker Flatcar Container Linux Config snippets | [] | [example](/advanced/customization/) |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
