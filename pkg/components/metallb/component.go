@@ -82,7 +82,3 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	return rendered, nil
 }
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
-}

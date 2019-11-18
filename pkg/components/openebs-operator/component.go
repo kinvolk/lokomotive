@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const name = "openebs-operator"
@@ -48,8 +47,4 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	return map[string]string{
 		"openebs-operator.yml": installerBuf.String(),
 	}, nil
-}
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
 }

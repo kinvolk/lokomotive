@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const name = "dex"
@@ -327,10 +326,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"config-map.yml":           configMap.String(),
 		"ingress.yml":              ingressBuf.String(),
 	}, nil
-}
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
 }
 
 func createSecretManifest(path string) (string, error) {

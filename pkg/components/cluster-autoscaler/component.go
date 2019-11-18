@@ -315,7 +315,3 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	return util.RenderChart(helmChart, chartConfig, releaseOptions)
 }
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
-}

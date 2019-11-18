@@ -148,11 +148,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	return renderedFiles, nil
 }
 
-// Install installs rendered component into kubernetes cluster
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
-}
-
 // setDefaults set default values for all nested blocks
 //
 // Since nested blocks in hcl2 does not support default values during DecodeBody,

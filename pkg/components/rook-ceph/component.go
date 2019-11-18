@@ -55,7 +55,3 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"ceph-cluster.yaml": cephClusterStr,
 	}, nil
 }
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
-}
