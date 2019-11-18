@@ -8,10 +8,14 @@ resource "packet_device" "nodes" {
   project_id       = "${var.project_id}"
   ipxe_script_url  = "${var.ipxe_script_url}"
   always_pxe       = "false"
-  user_data        = "${data.ct_config.ignitions.rendered}"
+  user_data        = "${var.ipxe_script_url != "" ? data.ct_config.install-ignitions.rendered : data.ct_config.ignitions.rendered}"
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = "${lookup(var.reservation_ids, format("worker-%v", count.index), var.reservation_ids_default)}"
+}
+
+data "ct_config" "install-ignitions" {
+  content = "${data.template_file.install.rendered}"
 }
 
 # These configs are used for the fist boot, to run flatcar-install

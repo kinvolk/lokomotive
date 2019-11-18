@@ -44,7 +44,7 @@ resource "packet_device" "controllers" {
   operating_system = "${var.ipxe_script_url != "" ? "custom_ipxe" : format("flatcar_%s", var.os_channel)}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
-  user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  user_data        = "${var.ipxe_script_url != "" ? element(data.ct_config.controller-install-ignitions.*.rendered, count.index) : element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = "${lookup(var.reservation_ids, format("controller-%v", count.index), var.reservation_ids_default)}"
