@@ -121,3 +121,7 @@ func doesKubeconfigExist(*cobra.Command, []string) error {
 func clusterInstallChecks(*cobra.Command, []string) error {
 	return tools.InstallerBinaries()
 }
+
+func getLokoConfig() (*config.Config, hcl.Diagnostics) {
+	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
+}
