@@ -70,7 +70,3 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"deployment_operator.yaml": deploymentStr,
 	}, nil
 }
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
-}

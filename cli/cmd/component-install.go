@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/components/util"
 	"github.com/kinvolk/lokoctl/pkg/config"
 )
 
@@ -64,7 +65,7 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return diags
 		}
 
-		if err := component.Install(kubeconfig); err != nil {
+		if err := util.InstallComponent(component, kubeconfig); err != nil {
 			return err
 		}
 	}

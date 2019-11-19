@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const (
@@ -126,8 +125,4 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	return manifestsMap, nil
-}
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
 }

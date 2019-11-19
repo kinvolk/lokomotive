@@ -9,7 +9,8 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 )
 
-func Install(c components.Component, kubeconfig string) error {
+// InstallComponent installs given component using given kubeconfig
+func InstallComponent(c components.Component, kubeconfig string) error {
 	renderedFiles, err := c.RenderManifests()
 	if err != nil {
 		return err

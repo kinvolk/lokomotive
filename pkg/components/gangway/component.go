@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const name = "gangway"
@@ -267,8 +266,4 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"ingress.yml":    ingressBuf.String(),
 		"secret.yml":     secretBuf.String(),
 	}, nil
-}
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
 }

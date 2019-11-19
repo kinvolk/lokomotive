@@ -9,7 +9,6 @@ import (
 
 	"github.com/kinvolk/lokoctl/pkg/assets"
 	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
 	"github.com/kinvolk/lokoctl/pkg/util/walkers"
 )
 
@@ -73,8 +72,4 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	return ret, nil
-}
-
-func (c *component) Install(kubeconfig string) error {
-	return util.Install(c, kubeconfig)
 }
