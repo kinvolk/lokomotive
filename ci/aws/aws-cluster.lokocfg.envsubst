@@ -81,6 +81,8 @@ component "gangway" {
   redirect_url = "$GANGWAY_REDIRECT_URL"
 }
 
+component "rook" {}
+
 # openebs-storage-class component should always be the last to be installed
 # pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
 # because when the discovery failure for creating StoragePoolClaim happens,
