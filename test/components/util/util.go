@@ -118,3 +118,22 @@ func filterNonControllerPods(pods *corev1.PodList) *corev1.PodList {
 	pods.Items = filteredPods
 	return pods
 }
+
+func WaitForStorageClass(t *testing.T, client kubernetes.Interface, name string, retryInterval, timeout time.Duration) {
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+		_, err = client.StorageV1().StorageClasses().Get(name, metav1.GetOptions{})
+		if err == nil {
+			return true, nil
+		}
+
+		if k8serrors.IsNotFound(err) {
+			t.Logf("waiting for storageclasses %s to be available", name)
+			return false, nil
+		}
+
+		return false, err
+
+	}); err != nil {
+		t.Errorf("error while waiting for the storage class: %v", err)
+	}
+}
