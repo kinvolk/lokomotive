@@ -8,10 +8,8 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokoctl/pkg/backend/local"
-	"github.com/kinvolk/lokoctl/pkg/config"
 	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
@@ -34,12 +32,12 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoConfig, diags := config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
+	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {
 		ctxLogger.Fatal(diags)
 	}
 
-	p, diags := getConfiguredPlatform(lokoConfig)
+	p, diags := getConfiguredPlatform()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			ctxLogger.Error(diagnostic.Summary)

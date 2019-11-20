@@ -34,7 +34,12 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 }
 
 // getConfiguredPlatform loads a platform from the given configuration file.
-func getConfiguredPlatform(lokoConfig *config.Config) (platform.Platform, hcl.Diagnostics) {
+func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {
+	lokoConfig, diags := getLokoConfig()
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
 	if lokoConfig.RootConfig.Cluster == nil {
 		// No cluster defined and no configuration error
 		return nil, hcl.Diagnostics{}
@@ -56,12 +61,7 @@ func getConfiguredPlatform(lokoConfig *config.Config) (platform.Platform, hcl.Di
 // It is empty if there is no cluster defined. An error is returned if the
 // cluster configuration has problems.
 func getAssetDir() (string, error) {
-	lokoConfig, diags := config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
-	if diags.HasErrors() {
-		return "", fmt.Errorf("cannot load config: %s", diags)
-	}
-
-	cfg, diags := getConfiguredPlatform(lokoConfig)
+	cfg, diags := getConfiguredPlatform()
 	if diags.HasErrors() {
 		return "", fmt.Errorf("cannot load config: %s", diags)
 	}
@@ -120,4 +120,8 @@ func doesKubeconfigExist(*cobra.Command, []string) error {
 
 func clusterInstallChecks(*cobra.Command, []string) error {
 	return tools.InstallerBinaries()
+}
+
+func getLokoConfig() (*config.Config, hcl.Diagnostics) {
+	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
