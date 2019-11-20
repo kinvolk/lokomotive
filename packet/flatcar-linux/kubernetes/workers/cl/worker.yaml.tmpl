@@ -236,7 +236,7 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
+          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
           KUBELET_IMAGE_TAG=v1.16.2
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
@@ -251,11 +251,13 @@ storage:
           #!/bin/bash
           set -e
           exec /usr/bin/rkt run \
+            --stage1-path=/usr/lib64/rkt/stage1-images/stage1-fly.aci \
+            --insecure-options=image \
             --trust-keys-from-https \
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://k8s.gcr.io/hyperkube:v1.16.2 \
+            docker://k8s.gcr.io/hyperkube-${os_arch}:v1.16.2 \
             --net=host \
             --dns=host \
             --exec=/kubectl -- --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)

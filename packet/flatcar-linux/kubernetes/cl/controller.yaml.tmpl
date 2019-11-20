@@ -7,7 +7,8 @@ systemd:
         - name: 40-etcd-cluster.conf
           contents: |
             [Service]
-            Environment="ETCD_IMAGE_TAG=v3.4.3"
+            Environment="ETCD_IMAGE_URL=${etcd_arch_url_prefix}quay.io/coreos/etcd"
+            Environment="ETCD_IMAGE_TAG=v3.4.3${etcd_arch_tag_suffix}"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
             Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
@@ -25,6 +26,8 @@ systemd:
             Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/etcd/peer.crt"
             Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/etcd/peer.key"
             Environment="ETCD_PEER_CLIENT_CERT_AUTH=true"
+            Environment="RKT_RUN_ARGS=${etcd_arch_rkt_args}"
+            Environment="${etcd_arch_options}"
             ExecStopPost=-/opt/etcd-rejoin
     - name: docker.service
       enable: true
@@ -146,7 +149,7 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
+          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
           KUBELET_IMAGE_TAG=v1.16.2
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
@@ -168,13 +171,15 @@ storage:
           # Move experimental manifests
           [ -n "$(ls /opt/bootkube/assets/manifests-*/* 2>/dev/null)" ] && mv /opt/bootkube/assets/manifests-*/* /opt/bootkube/assets/manifests && rm -rf /opt/bootkube/assets/manifests-*
           exec /usr/bin/rkt run \
+            --stage1-path=/usr/lib64/rkt/stage1-images/stage1-fly.aci \
+            --insecure-options=image \
             --trust-keys-from-https \
             --volume assets,kind=host,source=/opt/bootkube/assets \
             --mount volume=assets,target=/assets \
             --volume bootstrap,kind=host,source=/etc/kubernetes \
             --mount volume=bootstrap,target=/etc/kubernetes \
             $${RKT_OPTS} \
-            quay.io/coreos/bootkube:v0.14.0 \
+            ${etcd_arch_url_prefix}quay.io/kinvolk/bootkube:v0.14.0-${os_arch} \
             --net=host \
             --dns=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"

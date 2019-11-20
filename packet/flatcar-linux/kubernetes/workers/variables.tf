@@ -42,15 +42,43 @@ variable "taints" {
   description = "Comma separated list of taints. eg. 'clusterType=staging:NoSchedule,nodeType=storage:NoSchedule'"
 }
 
+variable "ipxe_script_url" {
+  type = "string"
+
+  # Note: iPXE-booting Flatcar on Packet over HTTPS is failing due to a bug in iPXE.
+  # This patch is supposed to fix this: http://git.ipxe.org/ipxe.git/commitdiff/b6ffe28a2
+  # However, the upstream fix can work only when the HTTPS server does not rely on elliptic
+  # curves. So we should use HTTPS only for servers without elliptic curves, and otherwise
+  # use HTTP. Fortunately, since stable.release.flatcar-linux.net does not rely on elliptic
+  # curves. it should not be a problem in that case.
+  # It has been possible to natively install Flatcar images as official OS option on Packet,
+  # but only for amd64. There is no arm64 Flatcar image available on Packet.
+  default = ""
+
+  description = "Location to load the pxe boot script from"
+}
+
 variable "facility" {
   type        = "string"
   description = "Packet facility to deploy the cluster in"
+}
+
+variable "os_arch" {
+  type        = "string"
+  default     = "amd64"
+  description = "Flatcar Container Linux architecture to install (amd64, arm64)"
 }
 
 variable "os_channel" {
   type        = "string"
   default     = "stable"
   description = "Flatcar Container Linux channel to install from (stable, beta, alpha, edge)"
+}
+
+variable "os_version" {
+  type        = "string"
+  default     = "current"
+  description = "Flatcar Container Linux version to install (for example '2191.5.0' - see https://www.flatcar-linux.org/releases/), only for iPXE"
 }
 
 variable "cluster_domain_suffix" {

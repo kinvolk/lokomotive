@@ -41,13 +41,35 @@ resource "packet_device" "controllers" {
   hostname         = "${var.cluster_name}-controller-${count.index}"
   plan             = "${var.controller_type}"
   facilities       = ["${var.facility}"]
-  operating_system = "flatcar_${var.os_channel}"
+  operating_system = "${var.ipxe_script_url != "" ? "custom_ipxe" : format("flatcar_%s", var.os_channel)}"
   billing_cycle    = "hourly"
   project_id       = "${var.project_id}"
-  user_data        = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  user_data        = "${var.ipxe_script_url != "" ? element(data.ct_config.controller-install-ignitions.*.rendered, count.index) : element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = "${lookup(var.reservation_ids, format("controller-%v", count.index), var.reservation_ids_default)}"
+
+  ipxe_script_url  = "${var.ipxe_script_url}"
+  always_pxe       = "false"
+}
+
+data "ct_config" "controller-install-ignitions" {
+  count   = "${var.controller_count}"
+  content = "${element(data.template_file.controller-install.*.rendered, count.index)}"
+}
+
+data "template_file" "controller-install" {
+  count    = "${var.controller_count}"
+  template = "${file("${path.module}/cl/controller-install.yaml.tmpl")}"
+
+  vars {
+    os_channel           = "${var.os_channel}"
+    os_version           = "${var.os_version}"
+    os_arch              = "${var.os_arch}"
+    flatcar_linux_oem    = "packet"
+    ssh_keys             = "${jsonencode("${var.ssh_keys}")}"
+    postinstall_ignition = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+  }
 }
 
 data "ct_config" "controller-ignitions" {
@@ -61,9 +83,18 @@ data "template_file" "controller-configs" {
   template = "${file("${path.module}/cl/controller.yaml.tmpl")}"
 
   vars {
+    os_arch = "${var.os_arch}"
+
     # Cannot use cyclic dependencies on controllers or their DNS records
-    etcd_name   = "etcd${count.index}"
-    etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
+    etcd_name             = "etcd${count.index}"
+    etcd_domain           = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
+    # we need to prepend a prefix 'docker://' for arm64, because arm64 images
+    # on quay prevent us from downloading ACI correctly.
+    # So it's workaround to download arm64 images until quay images could be fixed.
+    etcd_arch_url_prefix  = "${var.os_arch == "arm64" ? "docker://" : ""}"
+    etcd_arch_tag_suffix  = "${var.os_arch == "arm64" ? "-arm64" : ""}"
+    etcd_arch_rkt_args    = "${var.os_arch == "arm64" ? "--insecure-options=image" : ""}"
+    etcd_arch_options     = "${var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""}"
 
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
     etcd_initial_cluster  = "${join(",", data.template_file.etcds.*.rendered)}"
