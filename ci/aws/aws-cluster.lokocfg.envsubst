@@ -82,15 +82,3 @@ component "gangway" {
 }
 
 component "rook" {}
-
-# openebs-storage-class component should always be the last to be installed
-# pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
-# because when the discovery failure for creating StoragePoolClaim happens,
-# lokoctl install errors out and moves on with running the tests
-# causing subsequent components below this to be skipped.
-component "openebs-storage-class" {
-  storage-class "openebs-test-sc" {
-    replica_count = 1
-    default = true
-  }
-}
