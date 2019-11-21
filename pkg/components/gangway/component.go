@@ -267,3 +267,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"secret.yml":     secretBuf.String(),
 	}, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: name,
+	}
+}

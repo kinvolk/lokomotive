@@ -99,3 +99,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	return renderedFiles, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: c.Namespace,
+	}
+}

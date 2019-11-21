@@ -12,4 +12,6 @@ type Component interface {
 	// RenderManifests returns a map of Kubernetes manifests in YAML format, where
 	// the key is the file from which the content comes.
 	RenderManifests() (map[string]string, error)
+	// Metadata returns component metadata.
+	Metadata() Metadata
 }

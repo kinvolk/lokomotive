@@ -126,3 +126,10 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	return manifestsMap, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		// Return the same namespace which the openebs-operator component is using.
+		Namespace: "openebs",
+	}
+}

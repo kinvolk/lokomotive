@@ -361,3 +361,9 @@ func createSecretManifest(path string) (string, error) {
 	}
 	return generateSecret(data)
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: name,
+	}
+}

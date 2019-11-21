@@ -191,3 +191,9 @@ func (c *component) getProvider() (provider, error) {
 		return nil, fmt.Errorf("unsupported provider '%s'", c.Provider)
 	}
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: c.Namespace,
+	}
+}
