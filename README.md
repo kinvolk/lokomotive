@@ -47,7 +47,11 @@ module "aws-tempest" {
   dns_zone_id  = "Z3PAABBCFAKEC0"
 
   # configuration
-  ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
+  ssh_keys = [
+    "ssh-rsa AAAAB3Nz...",
+    "ssh-rsa AAAAB3Nz...",
+  ]
+
   asset_dir          = "/home/user/.secrets/clusters/yavin"
 
   # optional

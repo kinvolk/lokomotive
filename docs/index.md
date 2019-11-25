@@ -55,7 +55,11 @@ module "google-cloud-yavin" {
   dns_zone_name = "example-zone"
 
   # configuration
-  ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
+  ssh_keys = [
+    "ssh-rsa AAAAB3Nz...",
+    "ssh-rsa AAAAB3Nz...",
+  ]
+
   asset_dir          = "/home/user/.secrets/clusters/yavin"
 
   # optional

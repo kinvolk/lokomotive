@@ -41,7 +41,7 @@ data "template_file" "container-linux-install-configs" {
     ignition_endpoint   = "${format("%s/ignition", var.matchbox_http_endpoint)}"
     install_disk        = "${var.install_disk}"
     container_linux_oem = "${var.container_linux_oem}"
-    ssh_authorized_key  = "${var.ssh_authorized_key}"
+    ssh_keys            = "${jsonencode("${var.ssh_keys}")}"
 
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
@@ -84,7 +84,7 @@ data "template_file" "cached-container-linux-install-configs" {
     ignition_endpoint   = "${format("%s/ignition", var.matchbox_http_endpoint)}"
     install_disk        = "${var.install_disk}"
     container_linux_oem = "${var.container_linux_oem}"
-    ssh_authorized_key  = "${var.ssh_authorized_key}"
+    ssh_keys            = "${jsonencode("${var.ssh_keys}")}"
 
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/${local.flavor}"
@@ -165,7 +165,7 @@ data "template_file" "controller-configs" {
     etcd_initial_cluster   = "${join(",", formatlist("%s=https://%s:2380", var.controller_names, var.controller_domains))}"
     cluster_dns_service_ip = "${module.bootkube.cluster_dns_service_ip}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
-    ssh_authorized_key     = "${var.ssh_authorized_key}"
+    ssh_keys               = "${jsonencode("${var.ssh_keys}")}"
   }
 }
 
@@ -194,7 +194,7 @@ data "template_file" "worker-configs" {
     domain_name            = "${element(var.worker_domains, count.index)}"
     cluster_dns_service_ip = "${module.bootkube.cluster_dns_service_ip}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
-    ssh_authorized_key     = "${var.ssh_authorized_key}"
+    ssh_keys               = "${jsonencode("${var.ssh_keys}")}"
   }
 }
 

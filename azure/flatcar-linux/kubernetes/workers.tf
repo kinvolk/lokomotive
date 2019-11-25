@@ -19,7 +19,7 @@ module "workers" {
 
   # configuration
   kubeconfig            = "${module.bootkube.kubeconfig-kubelet}"
-  ssh_authorized_key    = "${var.ssh_authorized_key}"
+  ssh_keys              = "${var.ssh_keys}"
   service_cidr          = "${var.service_cidr}"
   cluster_domain_suffix = "${var.cluster_domain_suffix}"
   clc_snippets          = "${var.worker_clc_snippets}"

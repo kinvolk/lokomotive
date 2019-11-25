@@ -59,9 +59,9 @@ variable "kubeconfig" {
   description = "Must be set to `kubeconfig` output by cluster"
 }
 
-variable "ssh_authorized_key" {
-  type        = "string"
-  description = "SSH public key for user 'core'"
+variable "ssh_keys" {
+  type        = "list"
+  description = "SSH public keys for user 'core'"
 }
 
 variable "service_cidr" {

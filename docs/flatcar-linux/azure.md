@@ -104,7 +104,11 @@ module "azure-ramius" {
   dns_zone_group = "example-group"
 
   # configuration
-  ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
+  ssh_keys = [
+    "ssh-rsa AAAAB3Nz...",
+    "ssh-rsa AAAAB3Nz...",
+  ]
+
   asset_dir          = "/home/user/.secrets/clusters/ramius"
 
   # optional
@@ -207,7 +211,7 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | region | Azure region | "centralus" |
 | dns_zone | Azure DNS zone | "azure.example.com" |
 | dns_zone_group | Resource group where the Azure DNS zone resides | "global" |
-| ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
+| ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/ramius" |
 
 !!! tip

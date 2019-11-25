@@ -108,7 +108,11 @@ module "aws-tempest" {
   dns_zone_id  = "Z3PAABBCFAKEC0"
 
   # configuration
-  ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
+  ssh_keys = [
+    "ssh-rsa AAAAB3Nz...",
+    "ssh-rsa AAAAB3Nz...",
+  ]
+
   asset_dir          = "/home/user/.secrets/clusters/tempest"
 
   # optional
@@ -207,7 +211,7 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | cluster_name | Unique cluster name (prepended to dns_zone), maximal length 18 characters | "tempest" |
 | dns_zone | AWS Route53 DNS zone | "aws.example.com" |
 | dns_zone_id | AWS Route53 DNS zone id | "Z3PAABBCFAKEC0" |
-| ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
+| ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets, used to destroy the cluster), cannot be a relative path | "/home/user/.secrets/clusters/tempest" |
 
 #### DNS Zone

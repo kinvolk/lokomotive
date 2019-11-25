@@ -88,9 +88,9 @@ variable "worker_clc_snippets" {
 
 # configuration
 
-variable "ssh_authorized_key" {
-  type        = "string"
-  description = "SSH public key for user 'core'"
+variable "ssh_keys" {
+  type        = "list"
+  description = "SSH public keys for user 'core'"
 }
 
 variable "asset_dir" {
