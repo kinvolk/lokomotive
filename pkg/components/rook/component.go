@@ -70,3 +70,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"deployment_operator.yaml": deploymentStr,
 	}, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: c.Namespace,
+	}
+}

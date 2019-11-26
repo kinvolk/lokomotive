@@ -55,3 +55,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"ceph-cluster.yaml": cephClusterStr,
 	}, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: c.Namespace,
+	}
+}

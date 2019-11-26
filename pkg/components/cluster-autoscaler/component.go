@@ -315,3 +315,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	return util.RenderChart(helmChart, chartConfig, releaseOptions)
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: c.Namespace,
+	}
+}

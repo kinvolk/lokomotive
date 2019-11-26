@@ -48,3 +48,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"openebs-operator.yml": installerBuf.String(),
 	}, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: "openebs",
+	}
+}

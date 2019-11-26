@@ -82,3 +82,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	return rendered, nil
 }
+
+func (c *component) Metadata() components.Metadata {
+	return components.Metadata{
+		Namespace: "metallb-system",
+	}
+}
