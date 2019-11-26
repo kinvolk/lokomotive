@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const name = "dex"
@@ -75,7 +76,7 @@ subjects:
   namespace: dex
 `
 
-const deploymentManifest = `apiVersion: apps/v1
+const deploymentTmpl = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -123,8 +124,10 @@ spec:
           mountPath: /etc/dex/cfg
         - mountPath: /web/themes/custom/
           name: theme
+        {{- if .GSuiteJSONConfigPath }}
         - name: gsuite-auth
           mountPath: /config/
+        {{- end }}
       volumes:
       - name: config
         configMap:
@@ -134,9 +137,11 @@ spec:
             path: config.yaml
       - name: theme
         emptyDir: {}
+      {{- if .GSuiteJSONConfigPath }}
       - name: gsuite-auth
         secret:
           secretName: gsuite-auth
+      {{- end }}
 `
 
 const configMapTmpl = `apiVersion: v1
@@ -155,10 +160,10 @@ data:
       http: 0.0.0.0:5556
     frontend:
       theme: custom
-    connectors: {{ .Connectors }}
+    connectors: {{ .ConnectorsRaw }}
     oauth2:
       skipApprovalScreen: true
-    staticClients: {{ .StaticClients }}
+    staticClients: {{ .StaticClientsRaw }}
 `
 
 const ingressTmpl = `apiVersion: extensions/v1beta1
@@ -234,6 +239,10 @@ type component struct {
 	Connectors           []connector    `hcl:"connector,block"`
 	StaticClients        []staticClient `hcl:"static_client,block"`
 	GSuiteJSONConfigPath string         `hcl:"gsuite_json_config_path,optional"`
+
+	// Those are fields not accessible by user
+	ConnectorsRaw    string
+	StaticClientsRaw string
 }
 
 func newComponent() *component {
@@ -271,61 +280,57 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		connc.Config.ServiceAccountFilePath = "/config/googleAuth.json"
 	}
 
-	tmpl, err := template.New("config-map").Parse(configMapTmpl)
-	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
-	}
-	connectorsStr, err := marshalToStr(c.Connectors)
+	connectors, err := marshalToStr(c.Connectors)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal connectors")
 	}
-	staticClientsStr, err := marshalToStr(c.StaticClients)
+	c.ConnectorsRaw = connectors
+
+	staticClients, err := marshalToStr(c.StaticClients)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal staticClients")
 	}
-	var configMap bytes.Buffer
-	configMapCreds := struct {
-		IssuerHost    string
-		Connectors    string
-		StaticClients string
-	}{
-		IssuerHost:    c.IssuerHost,
-		Connectors:    connectorsStr,
-		StaticClients: staticClientsStr,
-	}
-	if err := tmpl.Execute(&configMap, configMapCreds); err != nil {
+	c.StaticClientsRaw = staticClients
+
+	configMap, err := util.RenderTemplate(configMapTmpl, c)
+	if err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	tmpl, err = template.New("ingress").Parse(ingressTmpl)
+	ingressBuf, err := util.RenderTemplate(ingressTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
-	}
-	var ingressBuf bytes.Buffer
-	if err := tmpl.Execute(&ingressBuf, c); err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	// based on the user's input of gsuite file path the secret will be created.
-	// If user is not using google connector then this will just be an empty
-	// output, but we create it anyway so we can keep using same deployment
-	// manifest for google connector and others.
-	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
+	deployment, err := util.RenderTemplate(deploymentTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "can't create secret from gsuite json file")
+		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	return map[string]string{
+	manifests := map[string]string{
 		"namespace.yml":            namespaceManifest,
 		"service.yml":              serviceManifest,
 		"service-account.yml":      serviceAccountManifest,
 		"cluster-role.yml":         clusterRoleManifest,
 		"cluster-role-binding.yml": clusterRoleBindingManifest,
-		"secret.yml":               secretManifest,
-		"deployment.yml":           deploymentManifest,
-		"config-map.yml":           configMap.String(),
-		"ingress.yml":              ingressBuf.String(),
-	}, nil
+		"deployment.yml":           deployment,
+		"config-map.yml":           configMap,
+		"ingress.yml":              ingressBuf,
+	}
+
+	// If gsuite file path is not configured, don't create a secret object and return early.
+	// This is also referenced in deploymentTmpl to remove secret reference there.
+	if c.GSuiteJSONConfigPath == "" {
+		return manifests, nil
+	}
+
+	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't create secret from gsuite json file")
+	}
+	manifests["secret.yml"] = secretManifest
+
+	return manifests, nil
 }
 
 func createSecretManifest(path string) (string, error) {
