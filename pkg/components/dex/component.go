@@ -76,7 +76,7 @@ subjects:
   namespace: dex
 `
 
-const deploymentManifest = `apiVersion: apps/v1
+const deploymentTmpl = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -124,8 +124,10 @@ spec:
           mountPath: /etc/dex/cfg
         - mountPath: /web/themes/custom/
           name: theme
+        {{- if .GSuiteJSONConfigPath }}
         - name: gsuite-auth
           mountPath: /config/
+        {{- end }}
       volumes:
       - name: config
         configMap:
@@ -135,9 +137,11 @@ spec:
             path: config.yaml
       - name: theme
         emptyDir: {}
+      {{- if .GSuiteJSONConfigPath }}
       - name: gsuite-auth
         secret:
           secretName: gsuite-auth
+      {{- end }}
 `
 
 const configMapTmpl = `apiVersion: v1
@@ -298,26 +302,35 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	// based on the user's input of gsuite file path the secret will be created.
-	// If user is not using google connector then this will just be an empty
-	// output, but we create it anyway so we can keep using same deployment
-	// manifest for google connector and others.
-	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
+	deployment, err := util.RenderTemplate(deploymentTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "can't create secret from gsuite json file")
+		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	return map[string]string{
+	manifests := map[string]string{
 		"namespace.yml":            namespaceManifest,
 		"service.yml":              serviceManifest,
 		"service-account.yml":      serviceAccountManifest,
 		"cluster-role.yml":         clusterRoleManifest,
 		"cluster-role-binding.yml": clusterRoleBindingManifest,
-		"secret.yml":               secretManifest,
-		"deployment.yml":           deploymentManifest,
+		"deployment.yml":           deployment,
 		"config-map.yml":           configMap,
 		"ingress.yml":              ingressBuf,
-	}, nil
+	}
+
+	// If gsuite file path is not configured, don't create a secret object and return early.
+	// This is also referenced in deploymentTmpl to remove secret reference there.
+	if c.GSuiteJSONConfigPath == "" {
+		return manifests, nil
+	}
+
+	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't create secret from gsuite json file")
+	}
+	manifests["secret.yml"] = secretManifest
+
+	return manifests, nil
 }
 
 func createSecretManifest(path string) (string, error) {
