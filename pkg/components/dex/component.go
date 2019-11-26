@@ -155,10 +155,10 @@ data:
       http: 0.0.0.0:5556
     frontend:
       theme: custom
-    connectors: {{ .Connectors }}
+    connectors: {{ .ConnectorsRaw }}
     oauth2:
       skipApprovalScreen: true
-    staticClients: {{ .StaticClients }}
+    staticClients: {{ .StaticClientsRaw }}
 `
 
 const ingressTmpl = `apiVersion: extensions/v1beta1
@@ -234,6 +234,10 @@ type component struct {
 	Connectors           []connector    `hcl:"connector,block"`
 	StaticClients        []staticClient `hcl:"static_client,block"`
 	GSuiteJSONConfigPath string         `hcl:"gsuite_json_config_path,optional"`
+
+	// Those are fields not accessible by user
+	ConnectorsRaw    string
+	StaticClientsRaw string
 }
 
 func newComponent() *component {
@@ -275,25 +279,21 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "parse template failed")
 	}
-	connectorsStr, err := marshalToStr(c.Connectors)
+
+	connectors, err := marshalToStr(c.Connectors)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal connectors")
 	}
-	staticClientsStr, err := marshalToStr(c.StaticClients)
+	c.ConnectorsRaw = connectors
+
+	staticClients, err := marshalToStr(c.StaticClients)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal staticClients")
 	}
+	c.StaticClientsRaw = staticClients
+
 	var configMap bytes.Buffer
-	configMapCreds := struct {
-		IssuerHost    string
-		Connectors    string
-		StaticClients string
-	}{
-		IssuerHost:    c.IssuerHost,
-		Connectors:    connectorsStr,
-		StaticClients: staticClientsStr,
-	}
-	if err := tmpl.Execute(&configMap, configMapCreds); err != nil {
+	if err := tmpl.Execute(&configMap, c); err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
