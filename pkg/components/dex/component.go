@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
 const name = "dex"
@@ -275,11 +276,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		connc.Config.ServiceAccountFilePath = "/config/googleAuth.json"
 	}
 
-	tmpl, err := template.New("config-map").Parse(configMapTmpl)
-	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
-	}
-
 	connectors, err := marshalToStr(c.Connectors)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal connectors")
@@ -292,17 +288,13 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.StaticClientsRaw = staticClients
 
-	var configMap bytes.Buffer
-	if err := tmpl.Execute(&configMap, c); err != nil {
+	configMap, err := util.RenderTemplate(configMapTmpl, c)
+	if err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	tmpl, err = template.New("ingress").Parse(ingressTmpl)
+	ingressBuf, err := util.RenderTemplate(ingressTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
-	}
-	var ingressBuf bytes.Buffer
-	if err := tmpl.Execute(&ingressBuf, c); err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
@@ -323,8 +315,8 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"cluster-role-binding.yml": clusterRoleBindingManifest,
 		"secret.yml":               secretManifest,
 		"deployment.yml":           deploymentManifest,
-		"config-map.yml":           configMap.String(),
-		"ingress.yml":              ingressBuf.String(),
+		"config-map.yml":           configMap,
+		"ingress.yml":              ingressBuf,
 	}, nil
 }
 
