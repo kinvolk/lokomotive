@@ -20,8 +20,8 @@ func init() {
 }
 
 type component struct {
-	Namespace            string   `hcl:"namespace,attr"`
 	GrafanaAdminPassword string   `hcl:"grafana_admin_password,attr"`
+	Namespace            string   `hcl:"namespace,optional"`
 	EtcdEndpoints        []string `hcl:"etcd_endpoints,optional"`
 
 	PrometheusOperatorNodeSelector map[string]string `hcl:"prometheus_operator_node_selector,optional"`
@@ -60,6 +60,7 @@ func newComponent() *component {
 		PrometheusMetricsRetention: "10d",
 		AlertManagerRetention:      "120h",
 		AlertManagerConfig:         defaultAlertManagerConfig,
+		Namespace:                  "monitoring",
 	}
 }
 
