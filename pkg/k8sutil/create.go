@@ -116,6 +116,14 @@ func (m manifest) String() string {
 	return fmt.Sprintf("%s %s %s/%s", m.filepath, m.kind, m.namespace, m.name)
 }
 
+func (m manifest) Kind() string {
+	return m.kind
+}
+
+func (m manifest) Raw() []byte {
+	return m.raw
+}
+
 type creater struct {
 	client *rest.RESTClient
 
