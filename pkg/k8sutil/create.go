@@ -51,7 +51,7 @@ func CreateAssets(config clientcmd.ClientConfig, manifestFiles map[string]string
 		return err
 	}
 
-	m, err := loadManifests(manifestFiles)
+	m, err := LoadManifests(manifestFiles)
 	if err != nil {
 		return errors.Wrapf(err, "error loading manifests")
 	}
@@ -295,8 +295,8 @@ func (m manifest) urlPath(plural string, namespaced bool) string {
 	return u + "/" + plural
 }
 
-// loadManifests parses a map of Kubernetes manifest.
-func loadManifests(files map[string]string) ([]manifest, error) {
+// LoadManifests parses a map of Kubernetes manifest.
+func LoadManifests(files map[string]string) ([]manifest, error) {
 	var manifests []manifest
 	for path, fileContent := range files {
 		r := strings.NewReader(fileContent)
