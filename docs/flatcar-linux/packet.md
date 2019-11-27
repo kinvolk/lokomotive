@@ -106,7 +106,7 @@ Additional configuration options are describe in the `packet` provider [docs](ht
 
 ## Cluster
 
-Define a Kubernetes cluster using the controller module [packet/flatcar-linux/kubernetes](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/packet/flatcar-linux/kubernetes) and the worker module [packet/flatcar-linux/kubernetes/workers](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/packet/flatcar-linux/kubernetes).
+Define a Kubernetes cluster using the controller module [packet/flatcar-linux/kubernetes](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/packet/flatcar-linux/kubernetes) and the worker module [packet/flatcar-linux/kubernetes/workers](https://github.com/kinvolk/lokomotive-kubernetes/tree/master/packet/flatcar-linux/kubernetes/workers).
 
 ```tf
 module "controller" {

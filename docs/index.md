@@ -30,7 +30,7 @@ Lokomotive provides a Terraform Module for each supported operating system and p
 ## Documentation
 
 * Architecture [concepts](architecture/concepts.md) and [operating-systems](architecture/operating-systems.md)
-* Tutorials for [AWS](flatcar/aws.md), [Azure](flatcar/azure.md), [Bare-Metal](flatcar/bare-metal.md) and [Packet](flatcar/packet.md)
+* Tutorials for [AWS](flatcar-linux/aws.md), [Azure](flatcar-linux/azure.md), [Bare-Metal](flatcar-linux/bare-metal.md) and [Packet](flatcar-linux/packet.md)
 
 ## Example
 

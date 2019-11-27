@@ -65,7 +65,7 @@ View the Container Linux Config [format](https://coreos.com/os/docs/1576.4.0/con
 
 Write Container Linux Configs *snippets* as files in the repository where you keep Terraform configs for clusters (perhaps in a `clc` or `snippets` subdirectory). You may organize snippets in multiple files as desired, provided they are each valid.
 
-[AWS](/flatcar/aws/#cluster) and [Azure](/flatcar/azure/#cluster) clusters allow populating a list of `controller_clc_snippets` or `worker_clc_snippets`.
+[AWS](../flatcar-linux/aws.md#cluster) and [Azure](../flatcar-linux/azure.md#cluster) clusters allow populating a list of `controller_clc_snippets` or `worker_clc_snippets`.
 
 ```
 module "aws-nemo" {
@@ -85,7 +85,7 @@ module "aws-nemo" {
 }
 ```
 
-[Bare-Metal](/flatcar/bare-metal/#cluster) clusters allow different CoreOS Container Linux snippets to be used for each node (since hardware may be heterogeneous). Populate the optional `clc_snippets` map variable with any controller or worker name keys and lists of snippets.
+[Bare-Metal](../flatcar-linux/bare-metal.md#cluster) clusters allow different CoreOS Container Linux snippets to be used for each node (since hardware may be heterogeneous). Populate the optional `clc_snippets` map variable with any controller or worker name keys and lists of snippets.
 
 ```
 module "bare-metal-mercury" {

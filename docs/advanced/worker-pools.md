@@ -11,7 +11,7 @@ Internal Terraform Modules:
 
 ## AWS
 
-Create a cluster following the AWS [tutorial](../flatcar/aws.md#cluster). Define a worker pool using the AWS internal `workers` module.
+Create a cluster following the AWS [tutorial](../flatcar-linux/aws.md#cluster). Define a worker pool using the AWS internal `workers` module.
 
 ```tf
 module "tempest-worker-pool" {
@@ -77,7 +77,7 @@ Check the list of valid [instance types](https://aws.amazon.com/ec2/instance-typ
 
 ## Azure
 
-Create a cluster following the Azure [tutorial](../flatcar/azure.md#cluster). Define a worker pool using the Azure internal `workers` module.
+Create a cluster following the Azure [tutorial](../flatcar-linux/azure.md#cluster). Define a worker pool using the Azure internal `workers` module.
 
 ```tf
 module "ramius-worker-pool" {
@@ -147,7 +147,7 @@ Check the list of valid [machine types](https://azure.microsoft.com/en-us/pricin
 
 ## Google Cloud
 
-Create a cluster following the Google Cloud [tutorial](../flatcar/google-cloud.md#cluster). Define a worker pool using the Google Cloud internal `workers` module.
+Create a cluster following the Google Cloud [tutorial](../flatcar-linux/google-cloud.md#cluster). Define a worker pool using the Google Cloud internal `workers` module.
 
 ```tf
 module "yavin-worker-pool" {
@@ -226,4 +226,4 @@ Check the list of valid [machine types](https://cloud.google.com/compute/docs/ma
 
 ## Packet
 
-To create a cluster on Packet, you must define at least one worker pool as the terraform module for controllers does not provision any worker nodes. See the tutorial on [Packet](../flatcar/packet/) for details.
+To create a cluster on Packet, you must define at least one worker pool as the terraform module for controllers does not provision any worker nodes. See the tutorial on [Packet](../flatcar-linux/packet.md) for details.
