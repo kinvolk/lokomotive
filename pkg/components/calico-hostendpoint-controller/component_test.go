@@ -50,33 +50,13 @@ component "calico-hostendpoint-controller" {}
 	}
 }
 
-func TestRenderManifestNoConfig(t *testing.T) {
-	configHCL := ``
-
-	hclParser := hclparse.NewParser()
+func TestEmptyConfig(t *testing.T) {
 	component := &component{}
-
-	file, diags := hclParser.ParseHCL([]byte(configHCL), fmt.Sprintf("%s.lokocfg", name))
-	if diags.HasErrors() {
-		t.Fatalf("Parsing config should succeed")
-	}
-
-	configBody := hcl.MergeFiles([]*hcl.File{file})
-
-	var rootConfig config.RootConfig
-
-	diagnostics := gohcl.DecodeBody(configBody, nil, &rootConfig)
+	emptyConfig := hcl.EmptyBody()
+	evalContext := hcl.EvalContext{}
+	diagnostics := component.LoadConfig(&emptyConfig, &evalContext)
 	if diagnostics.HasErrors() {
-		t.Fatalf("Valid root config should not return error, got: %s", diagnostics)
-	}
-
-	c := &config.Config{
-		RootConfig: &rootConfig,
-	}
-
-	diagnostics = component.LoadConfig(c.LoadComponentConfigBody(name), &hcl.EvalContext{})
-	if diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+		t.Fatalf("Empty config should not return errors")
 	}
 
 	m, err := component.RenderManifests()
