@@ -48,7 +48,7 @@ Clone this repository and build the lokoctl binary:
 
 ```bash
 git clone https://github.com/kinvolk/lokoctl
-cd $_
+cd lokoctl
 make
 ```
 
