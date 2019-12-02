@@ -35,6 +35,8 @@ tolerations:
 rbac:
   create: true
 cloudConfigPath: /config
+deployment:
+  apiVersion: apps/v1
 
 packetClusterName: {{ .ClusterName }}
 packetAuthToken: {{ .Packet.AuthToken }}
