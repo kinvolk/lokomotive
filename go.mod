@@ -46,13 +46,14 @@ require (
 	golang.org/x/tools v0.0.0-20191114161115-faa69481e761 // indirect
 	google.golang.org/genproto v0.0.0-20191114150713-6bbd007550de // indirect
 	google.golang.org/grpc v1.25.1 // indirect
-	gopkg.in/yaml.v2 v2.2.5 // indirect; indirecti
+	gopkg.in/yaml.v2 v2.2.5 // indirect; indirect;
 	helm.sh/helm/v3 v3.0.0
 	k8s.io/api v0.0.0-20191016110408-35e52d86657a
 	k8s.io/apiextensions-apiserver v0.0.0-20191016113550-5357c4baaf65
 	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/helm v2.16.1+incompatible
+	k8s.io/helm v2.16.1+incompatible // indirect
+	sigs.k8s.io/yaml v1.1.0
 )
 
 replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309
