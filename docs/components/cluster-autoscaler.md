@@ -1,7 +1,7 @@
 The [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
-is a tool that automatically adjust the size of a Kubernetes cluster when there
-are pods that failed to run in the cluster due to insufficient resources or
-when there are nodes that have been underutilized for an extended period of
+is a tool that automatically adjusts the size of a Kubernetes cluster when
+there are pods that failed to run in the cluster due to insufficient resources
+or when there are nodes that have been underutilized for an extended period of
 time and pods can be placed on other existing nodes.
 
 ## Lokomotive component
@@ -11,14 +11,14 @@ The Cluster Autoscaler is available as a component in lokoctl.
 ## Compatibility
 
 Currently lokoctl supports the Cluster Autoscaler only on the Packet platform.
-Support for another platforms will be added in the future.
+Support for other platforms will be added in the future.
 
 ## Requirements
 
 To install the Cluster Autoscaler you need:
 
-* A Lokomotive cluster running.
-* A working Packet API Token stored in the `PACKET_AUTH_TOKEN` environment variable.
+* A running Lokomotive cluster.
+* A Packet API token stored in the `PACKET_AUTH_TOKEN` environment variable.
 
 ## Configuration
 
