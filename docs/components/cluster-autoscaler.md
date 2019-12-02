@@ -67,6 +67,7 @@ component "cluster-autoscaler" {
     # Flatcar Container Linux channel to be used by workers spawned by the Cluster Autoscaler
     worker_channel = "stable"
   }
+}
 ```
 
 ### Installation
