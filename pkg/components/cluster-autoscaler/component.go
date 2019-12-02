@@ -27,7 +27,7 @@ image:
   tag: 1.15.0-packet-4a17475a
   pullPolicy: IfNotPresent
 nodeSelector:
-  node-role.kubernetes.io/controller: "true"
+  node.kubernetes.io/controller: "true"
 tolerations:
 - effect: NoSchedule
   key: node-role.kubernetes.io/master
