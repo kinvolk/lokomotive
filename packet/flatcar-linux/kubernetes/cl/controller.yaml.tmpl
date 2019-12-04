@@ -182,7 +182,7 @@ storage:
             --volume bootstrap,kind=host,source=/etc/kubernetes \
             --mount volume=bootstrap,target=/etc/kubernetes \
             $${RKT_OPTS} \
-            ${etcd_arch_url_prefix}quay.io/kinvolk/bootkube:v0.14.0-${os_arch} \
+            ${etcd_arch_url_prefix}quay.io/kinvolk/bootkube:v0.14.0-helm-${os_arch} \
             --net=host \
             --dns=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"
