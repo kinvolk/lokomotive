@@ -64,9 +64,8 @@ resource "null_resource" "copy-controller-secrets" {
   }
 }
 
-# Secure copy bootkube assets to ONE controller and start bootkube to perform
-# one-time self-hosted cluster bootstrapping.
-resource "null_resource" "bootkube-start" {
+# Secure copy bootkube assets to ONE controller.
+resource "null_resource" "copy-assets-dir" {
   depends_on = [
     module.bootkube,
     aws_route53_record.apiservers,
@@ -84,15 +83,54 @@ resource "null_resource" "bootkube-start" {
     source      = var.asset_dir
     destination = "$HOME/assets"
   }
+}
+
+// copy the calico hostendpoint controller manifests only when networking is calico
+// TODO: convert these templates to helm charts for calico host endpoint controller
+// Currently the manfifests are copied over to the calico helm chart.
+resource "null_resource" "calico-host-endpoint-manifests" {
+  count = var.networking == "calico" ? 1 : 0
+
+  depends_on = [
+    module.bootkube,
+    aws_route53_record.apiservers,
+    null_resource.copy-controller-secrets,
+    null_resource.copy-assets-dir,
+  ]
+
+  connection {
+    type    = "ssh"
+    host    = packet_device.controllers[0].access_public_ipv4
+    user    = "core"
+    timeout = "15m"
+  }
 
   provisioner "file" {
     content     = data.template_file.host_protection_policy.rendered
-    destination = "$HOME/assets/manifests-networking/calico-policy.yaml"
+    destination = "$HOME/assets/charts/kube-system/calico/templates/calico-policy.yaml"
   }
 
   provisioner "file" {
     source      = "${path.module}/calico/host-endpoint-controller.yaml"
-    destination = "$HOME/assets/manifests-networking/host-endpoint-controller.yaml"
+    destination = "$HOME/assets/charts/kube-system/calico/templates/host-endpoint-controller.yaml"
+  }
+}
+
+# start bootkube to perform one-time self-hosted cluster bootstrapping.
+resource "null_resource" "bootkube-start" {
+  depends_on = [
+    module.bootkube,
+    aws_route53_record.apiservers,
+    null_resource.copy-controller-secrets,
+    null_resource.copy-assets-dir,
+    null_resource.calico-host-endpoint-manifests,
+  ]
+
+  connection {
+    type    = "ssh"
+    host    = packet_device.controllers[0].access_public_ipv4
+    user    = "core"
+    timeout = "15m"
   }
 
   provisioner "remote-exec" {
