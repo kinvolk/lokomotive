@@ -31,6 +31,29 @@ func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(config)
 }
 
+func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
+	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
+		ds, err := client.AppsV1().StatefulSets(ns).Get(name, metav1.GetOptions{})
+		if err != nil {
+			if k8serrors.IsNotFound(err) {
+				t.Logf("waiting for statefulset %s to be available", name)
+				return false, nil
+			}
+			return false, err
+		}
+
+		t.Logf("statefulset: %s, replicas: %d/%d", name, int(ds.Status.ReadyReplicas), replicas)
+
+		if int(ds.Status.ReadyReplicas) == replicas {
+			return true, nil
+		}
+
+		return false, nil
+	}); err != nil {
+		t.Errorf("error while waiting for the statefulset: %v", err)
+	}
+}
+
 func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string, retryInterval, timeout time.Duration) {
 	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
 		ds, err := client.AppsV1().DaemonSets(ns).Get(name, metav1.GetOptions{})
