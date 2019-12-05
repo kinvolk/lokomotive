@@ -18,9 +18,7 @@ cluster "aws" {
 
 component "openebs-operator" {}
 
-component "contour" {
-  install_mode = "daemonset"
-}
+component "contour" {}
 
 component "metrics-server" {}
 
