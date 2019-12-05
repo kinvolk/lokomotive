@@ -44,7 +44,7 @@ component "openebs-storage-class" {
   }
   storage-class "openebs-replica3" {
     replica_count = 3
-    default: true
+    default = true
   }
 }
 ```
@@ -71,8 +71,8 @@ Example configuration with disks provided
 component "openebs-storage-class" {
   storage-class "openebs-replica-3" {
     replica_count = 3
-    default: true
-    disks: [
+    default = true
+    disks = [
       "blockdevice-0565dd2d566cab012b7bc35e54874d9f",
       "blockdevice-17901367ccd9e1ead797a7e233de8cc8",
       "blockdevice-1f4315cb4acbb4b0dbf5202adcdb70d8"
