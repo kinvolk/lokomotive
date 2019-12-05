@@ -105,9 +105,7 @@ cluster "aws" {
 	# certs_validity_period_hours = "17520" (optional)
 }
 
-component "contour" {
-  install_mode = "daemonset"
-}
+component "contour" {}
 ```
 
 The maximal length for a cluster name is 18 characters.

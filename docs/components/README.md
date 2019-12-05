@@ -50,14 +50,11 @@ A set of components to install may also be provided in a `.lokocfg` file:
 ```hcl
 component "metallb" {}
 
-component "contour" {
-  install_mode = "daemonset"
-}
+component "contour" {}
 ```
 
 Specifying components in a `.lokocfg` file also allows passing configuration parameters to
-components which support them. For example, the `contour` component above has the `install_mode`
-parameter set to `daemonset`. See the documentation for individual components for information about
+components which support them. See the documentation for individual components for information about
 the supported parameters.
 
 To install all the components listed in a `.lokocfg` file, omit the component name:

@@ -35,18 +35,8 @@ To deploy Contour as a DaemonSet, include in any file with the `.lokocfg`
 extension the following:
 
 ```hcl
-component "contour" {
-	install_mode = "daemonset"
-}
+component "contour" {}
 ```
-
-To deploy Contour as a Deployment, use `install_mode = "deployment"` instead.
-
-Using DaemonSet `install_mode` spreads the load on all the cluster nodes, with
-the obvious consequence of consuming resources on all cluster nodes, while
-deployment mode uses only the desired replicas but each pod might have more
-traffic load. This is a trade-off and it is up to your use case to choose one or
-the other.
 
 Then install the component by running:
 
