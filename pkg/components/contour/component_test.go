@@ -8,16 +8,6 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/components/util"
 )
 
-func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
-	emptyConfig := hcl.EmptyBody()
-	evalContext := hcl.EvalContext{}
-	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
-	if !diagnostics.HasErrors() {
-		t.Fatalf("Empty config should return errors")
-	}
-}
-
 func testRenderManifest(t *testing.T, configHCL string) {
 	body, diagnostics := util.GetComponentBody(configHCL, name)
 	if diagnostics != nil {
@@ -39,38 +29,9 @@ func testRenderManifest(t *testing.T, configHCL string) {
 	}
 }
 
-func TestRenderManifest_WithInstallModeDeployment(t *testing.T) {
+func TestRenderManifestWithServiceMonitor(t *testing.T) {
 	configHCL := `
 component "contour" {
-  install_mode = "deployment"
-}
-`
-	testRenderManifest(t, configHCL)
-}
-
-func TestRenderManifest_WithInstallModeDaemonSet(t *testing.T) {
-	configHCL := `
-component "contour" {
-  install_mode = "daemonset"
-}
-`
-	testRenderManifest(t, configHCL)
-}
-
-func TestRenderManifestWithInstallModeDeploymentAndServiceMonitor(t *testing.T) {
-	configHCL := `
-component "contour" {
-  install_mode = "deployment"
-  service_monitor = true
-}
-`
-	testRenderManifest(t, configHCL)
-}
-
-func TestRenderManifestWithInstallModeDaemonSetAndServiceMonitor(t *testing.T) {
-	configHCL := `
-component "contour" {
-  install_mode = "daemonset"
   service_monitor = true
 }
 `
