@@ -4,11 +4,11 @@
 
 - A Kubernetes cluster with a
 [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
-plugin, e.g. [OpenEBS](/docs/components/openebs/openebs.md) or one of the
+plugin, e.g. [OpenEBS](/docs/components/openebs/openebs-operator.md) or one of the
 [built-in](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
 plugins.
 
->NOTE: The [OpenEBS component](/docs/components/openebs/openebs.md) provides a
+>NOTE: The [OpenEBS component](/docs/components/openebs/openebs-operator.md) provides a
 >k8s-native persistent storage solution which can be used on almost any
 >infrastructure.
 
@@ -76,7 +76,7 @@ kubectl create namespace <namespace>
 
 To install run:
 
-```console
+```bash
 lokoctl component install prometheus-operator
 ```
 
