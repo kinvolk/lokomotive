@@ -10,10 +10,10 @@ import (
 	testutil "github.com/kinvolk/lokoctl/test/components/util"
 )
 
-func TestContourDaemonset(t *testing.T) {
+func TestEnvoyDaemonset(t *testing.T) {
 	t.Parallel()
-	namespace := "heptio-contour"
-	daemonset := "contour"
+	namespace := "projectcontour"
+	daemonset := "envoy"
 	// is equal to no of worker nodes
 	replicas := 2
 
