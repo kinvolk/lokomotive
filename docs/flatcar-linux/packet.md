@@ -239,6 +239,35 @@ supernova-helium-worker-1  Ready   node               10m  v1.14.1
 
 Learn about [maintenance](../topics/maintenance.md).
 
+## ARM Support and Hybrid Clusters
+
+Lokomotive and Flatcar support the Packet arm64 server types `c1.large.arm` and `c2.large.arm`.
+They can be used for both worker and controller nodes.
+Besides specifying them in `controller_type`/`type` you need to configure some additional variables
+in the respective controller/worker module:
+
+```
+os_arch = "arm64"
+os_channel = "alpha"
+ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
+```
+
+The `os_channel` variable is needed as long as the content of the iPXE script refers to `alpha.release…` as `base-url`.
+Adjust `os_channel` to the named channel there or remove it once the script uses `stable.release…` since `stable` is the default.
+The iPXE boot variable can be removed once Flatcar is available for installation in the Packet OS menu for the ARM servers.
+
+If you have a hybrid cluster with both x86 and ARM nodes, you need to either use Docker multiarch images such as the standard
+`debian:latest` or `python:latest` images, or restrict the Pods to the nodes of the correct architecture with an entry like
+this for ARM (or with `amd64` for x86) in your YAML deployment:
+
+```
+nodeSelector:
+  kubernetes.io/arch: arm64
+```
+
+An example on how to build multiarch images yourself is [here](https://github.com/kinvolk/calico-hostendpoint-controller/#building).
+
+
 ## Variables
 
 Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/master/packet/flatcar-linux/kubernetes/variables.tf) source.
@@ -298,7 +327,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
 | os_arch    | Flatcar Container Linux architecture to install | amd64  | amd64, arm64 |
 | os_version | Version of a Flatcar Container Linux release, only for iPXE | current | 2191.5.0 |
-| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe |
+| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe, https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | network_mtu | CNI interface MTU (calico only) | 1480 | 8981 |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
@@ -321,7 +350,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
 | os_arch    | Flatcar Container Linux architecture to install | amd64  | amd64, arm64 |
 | os_version | Version of a Flatcar Container Linux release, only for iPXE | current | 2191.5.0 |
-| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe |
+| ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe, https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | "false" | "true" |
