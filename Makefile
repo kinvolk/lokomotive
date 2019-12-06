@@ -6,6 +6,7 @@ endif
 
 .PHONY: run-e2e-tests
 run-e2e-tests: kube-hunter
+	KUBECONFIG=${kubeconfig} ./scripts/check-version-skew.sh
 
 kube-hunter:
 	KUBECONFIG=${kubeconfig} ./scripts/kube-hunter.sh
