@@ -20,6 +20,8 @@ import (
 type workerPool struct {
 	Name           string `hcl:"pool_name,label"`
 	Count          int    `hcl:"count"`
+	IPXEScriptURL  string `hcl:"ipxe_script_url,optional"`
+	OSArch         string `hcl:"os_arch,optional"`
 	OSChannel      string `hcl:"os_channel,optional"`
 	OSVersion      string `hcl:"os_version,optional"`
 	NodeType       string `hcl:"node_type,optional"`
@@ -44,7 +46,9 @@ type config struct {
 	Facility                 string            `hcl:"facility"`
 	ProjectID                string            `hcl:"project_id"`
 	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
+	OSArch                   string            `hcl:"os_arch,optional"`
 	OSChannel                string            `hcl:"os_channel,optional"`
+	OSVersion                string            `hcl:"os_version,optional"`
 	IPXEScriptURL            string            `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs          []string          `hcl:"management_cidrs"`
 	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
