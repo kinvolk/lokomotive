@@ -246,8 +246,8 @@ resource "google_dns_managed_zone" "zone-for-clusters" {
 | os_image | Flatcar Container Linux image for compute instances | "flatcar-stable" | "flatcar-stable-1632-3-0-v20180215" |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | worker_preemptible | If enabled, Compute Engine will terminate workers randomly within 24 hours | false | true |
-| controller_clc_snippets | Controller Flatcar Container Linux Config snippets | [] | [example](/advanced/customization/) |
-| worker_clc_snippets | Worker Flatcar Container Linux Config snippets | [] | [example](/advanced/customization/) |
+| controller_clc_snippets | Controller Flatcar Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
+| worker_clc_snippets | Worker Flatcar Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
