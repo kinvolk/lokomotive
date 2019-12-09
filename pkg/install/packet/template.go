@@ -32,8 +32,14 @@ module "packet-{{.Config.ClusterName}}" {
   controller_type  = "{{ .Config.ControllerType }}"
   {{- end }}
 
+  {{- if .Config.OSArch }}
+  os_arch = "{{ .Config.OSArch }}"
+  {{- end }}
   {{- if .Config.OSChannel }}
   os_channel = "{{ .Config.OSChannel }}"
+  {{- end }}
+  {{- if .Config.OSVersion }}
+  os_version = "{{ .Config.OSVersion }}"
   {{- end }}
 
   {{- if .Config.IPXEScriptURL }}
@@ -107,6 +113,9 @@ module "worker-pool-{{ $index }}" {
   ipxe_script_url = "{{ $.Config.IPXEScriptURL }}"
   {{- end }}
 
+  {{- if $pool.OSArch }}
+  os_arch = "{{ $pool.OSArch }}"
+  {{- end }}
   {{- if $pool.OSChannel }}
   os_channel = "{{ $pool.OSChannel }}"
   {{- end }}

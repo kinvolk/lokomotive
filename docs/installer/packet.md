@@ -63,8 +63,14 @@ cluster "packet" {
 	dns_zone_id = "XXX"
 	# Change Packet server location
 	facility = "ams1"
+	# Boot via iPXE (optional but currently needed for ARM; 'https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe')
+	# ipxe_script_url = ""
+	# Define the CPU architecture (optional; 'amd64', 'arm64')
+	# os_arch = "amd64"
 	# Define a Flatcar Container Linux channel ('stable', 'beta', 'alpha' or 'edge')
 	os_channel = "stable"
+	# Define a Flatcar Container Linux version (optional)
+	# os_version = "current"
 	# Change Packet project ID
 	project_id = "aaa-bbb-ccc-ddd"
 	# Change management SSH public key
@@ -115,6 +121,12 @@ cluster "packet" {
 
 	  # Define an instance type (optional)
 	  # node_type = "t1.small.x86"
+
+	  # Boot via iPXE (optional but currently needed for ARM; 'https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe')
+	  # ipxe_script_url = ""
+
+	  # Define the CPU architecture (optional; 'amd64', 'arm64')
+	  # os_arch = "amd64"
 
 	  # Define a Flatcar Container Linux channel (optional; 'stable', 'beta', 'alpha' or 'edge')
 	  # os_channel = "stable"
