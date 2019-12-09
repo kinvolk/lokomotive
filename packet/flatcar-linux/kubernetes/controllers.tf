@@ -76,6 +76,7 @@ data "ct_config" "controller-ignitions" {
   count    = "${var.controller_count}"
   platform = "packet"
   content  = "${element(data.template_file.controller-configs.*.rendered, count.index)}"
+  snippets     = ["${var.controller_clc_snippets}"]
 }
 
 data "template_file" "controller-configs" {
