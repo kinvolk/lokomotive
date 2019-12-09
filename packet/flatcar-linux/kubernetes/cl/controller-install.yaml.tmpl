@@ -40,20 +40,12 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
-          if [ "${os_arch}" = arm64 ]; then
-            curl -o /tmp/Flatcar_ARM_Testing_Key.asc \
-              https://www.flatcar-linux.org/security/image-signing-key/Flatcar_ARM_Testing_Key.asc
-            ARG="-d /dev/sda -k /tmp/Flatcar_ARM_Testing_Key.asc"
-          else
-            ARG="-s"
-          fi
-
           flatcar-install \
             -C "${os_channel}" \
             -V "${os_version}" \
             -o "${flatcar_linux_oem}" \
             -i /opt/postinstall-ignition.json \
-            $ARG
+            -s
           udevadm settle
           systemctl reboot
 passwd:
