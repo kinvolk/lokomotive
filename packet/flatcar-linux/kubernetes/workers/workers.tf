@@ -41,6 +41,7 @@ resource "packet_bgp_session" "bgp" {
 data "ct_config" "ignitions" {
   content  = "${data.template_file.configs.rendered}"
   platform = "packet"
+  snippets     = ["${var.clc_snippets}"]
 }
 
 data "template_file" "configs" {

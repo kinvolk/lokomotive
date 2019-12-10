@@ -28,6 +28,12 @@ variable "type" {
   description = "Packet instance type for workers, can be changed afterwards to recreate the nodes"
 }
 
+variable "clc_snippets" {
+  type        = "list"
+  description = "Container Linux Config snippets"
+  default     = []
+}
+
 # TODO: migrate to `templatefile` when Terraform `0.12` is out and use `{% for ~}`
 # to avoid specifying `--node-labels` again when the var is empty.
 variable "labels" {

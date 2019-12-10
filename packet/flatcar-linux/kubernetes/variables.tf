@@ -72,6 +72,12 @@ variable "facility" {
   description = "Packet facility to deploy the cluster in"
 }
 
+variable "controller_clc_snippets" {
+  type        = "list"
+  description = "Controller Container Linux Config snippets"
+  default     = []
+}
+
 # Configuration
 
 variable "ssh_keys" {

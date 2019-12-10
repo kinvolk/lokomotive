@@ -65,7 +65,7 @@ View the Container Linux Config [format](https://coreos.com/os/docs/1576.4.0/con
 
 Write Container Linux Configs *snippets* as files in the repository where you keep Terraform configs for clusters (perhaps in a `clc` or `snippets` subdirectory). You may organize snippets in multiple files as desired, provided they are each valid.
 
-[AWS](../flatcar-linux/aws.md#cluster) and [Azure](../flatcar-linux/azure.md#cluster) clusters allow populating a list of `controller_clc_snippets` or `worker_clc_snippets`.
+[AWS](../flatcar-linux/aws.md#cluster), [Azure](../flatcar-linux/azure.md#cluster) and [Packet](../flatcar-linux/packet.md#cluster) clusters allow populating a list of `controller_clc_snippets` or `worker_clc_snippets`.
 
 ```
 module "aws-nemo" {
