@@ -4,12 +4,24 @@ metadata:
   labels:
     app: contour
   name: contour-metrics
-  namespace: heptio-contour
+  namespace: projectcontour
 spec:
   ports:
   - port: 8000
     name: contour-metrics
+  selector:
+    app: contour
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: envoy
+  name: envoy-metrics
+  namespace: projectcontour
+spec:
+  ports:
   - port: 8002
     name: envoy-metrics
   selector:
-    app: contour
+    app: envoy
