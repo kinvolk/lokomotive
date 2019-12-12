@@ -287,7 +287,6 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | facility | Packet Region in which the instance(s) should be deployed | https://www.packet.com/developers/api/#facilities. Eg: "ams1" |
 | management_cidrs | List of CIDRs to allow SSH access to the nodes | ["153.79.80.1/16", "59.60.10.1/32"] |
 | node_private_cidr | Private CIDR obtained from Packet for the project and facility | 10.128.16.32/25 |
-| controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 
 #### Worker module
 
@@ -299,7 +298,6 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | facility | Packet Region in which the instance(s) should be deployed | https://www.packet.com/developers/api/#facilities. Eg: "ams1" |
 | pool_name | Name of the worker pool. Used in setting hostname | "helium" |
 | kubeconfig | Kubeconfig to be used in worker pools | "${module.controller.kubeconfig} |
-| clc_snippets | Worker Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 
 #### DNS Zone
 
@@ -340,6 +338,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { controller-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
 | certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
+| controller_clc_snippets [[1]](#clc-snippets-limitation) | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 
 
 #### Worker module
@@ -362,8 +361,16 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | taints | Comma separated list of custom taints for all workers in the worker pool | "" | "clusterType=staging:NoSchedule,nodeType=storage:NoSchedule" |
 | reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
+| clc_snippets [[1]](#clc-snippets-limitation) | Worker Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 
 Documentation about Packet hardware reservation id can be found here: https://support.packet.com/kb/articles/reserved-hardware.
+
+#### CLC Snippets Limitation
+
+The CLC snippepts are passsed using the user-data mechanishm. The size of it affects the time Packet needs to deploy a node in a severe way, for instance a difference of 64kB increases the deployment time by 5 minutes and a user-data bigger than 128kB could cause the deployment to timeout. Lokomotive consumes about 18kB of user-data on Packet.
+Please also consider that the different vendors have different limits for the user-data, i.e. the same snippets could not work on differet providers.
+
+See [issue #111](https://github.com/kinvolk/lokomotive-kubernetes/issues/111) for more details.
 
 ## Post-installation modification
 
