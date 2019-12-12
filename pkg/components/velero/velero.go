@@ -73,15 +73,26 @@ configuration:
       apitimeout: {{ .Azure.VolumeSnapshotLocation.APITimeout }}
 credentials:
   secretContents:
-    AZURE_SUBSCRIPTION_ID: "{{ .Azure.SubscriptionID }}"
-    AZURE_TENANT_ID: "{{ .Azure.TenantID }}"
-    AZURE_CLIENT_ID: "{{ .Azure.ClientID }}"
-    AZURE_CLIENT_SECRET: "{{ .Azure.ClientSecret }}"
-    AZURE_RESOURCE_GROUP: "{{ .Azure.ResourceGroup }}"
+    cloud: |
+      AZURE_SUBSCRIPTION_ID: "{{ .Azure.SubscriptionID }}"
+      AZURE_TENANT_ID: "{{ .Azure.TenantID }}"
+      AZURE_CLIENT_ID: "{{ .Azure.ClientID }}"
+      AZURE_CLIENT_SECRET: "{{ .Azure.ClientSecret }}"
+      AZURE_RESOURCE_GROUP: "{{ .Azure.ResourceGroup }}"
 metrics:
   enabled: {{ .Metrics.Enabled }}
   serviceMonitor:
     enabled: {{ .Metrics.ServiceMonitor }}
+initContainers:
+- image: velero/velero-plugin-for-microsoft-azure:v1.0.0
+  imagePullPolicy: IfNotPresent
+  name: velero-plugin-for-azure
+  resources: {}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+  volumeMounts:
+  - mountPath: /target
+    name: plugins
 `
 
 // LoadConfig decodes given HCL and validates the configuration.
