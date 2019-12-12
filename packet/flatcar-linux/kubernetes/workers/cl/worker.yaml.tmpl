@@ -126,7 +126,36 @@ systemd:
       enabled: true
       enable: true
 storage:
+  filesystems:
+    - name: "OEM"
+      mount:
+        device: "/dev/disk/by-label/OEM"
+        format: "ext4"
   files:
+    # XXX: We need to manually specify the RAID0 layout because of a kernel bug.
+    # We use default_layout=2 as **we assume all installations from now on are
+    # using a kernel >= 3.14** (released on 2014-03-30).
+    # For more info on this kernel bug, see:
+    # https://github.com/torvalds/linux/commit/c84a1372df929033cb1a0441fb57bd3932f39ac9
+    # It is needed as kernel cmdline and modprobe config for some bug, see
+    # commit msg for details
+    - path: /etc/modprobe.d/raid0.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: options raid0 default_layout=2
+    - path: /etc/modules-load.d/raid0.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: raid0
+    - filesystem: "OEM"
+      path: "/grub.cfg"
+      mode: 0644
+      append: true
+      contents:
+        inline: |
+          set linux_append="$linux_append raid0.default_layout=2"
     - path: /opt/persist-data-raid
       filesystem: root
       mode: 0700
