@@ -323,20 +323,20 @@ source.
 | ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 
 #### Optional
-| Name | Description | Default |
-|:-----|:------------|:--------|
-| cluster_domain_suffix | Queries for domains with the suffix will be answered by coredns | "cluster.local" |
-| controller_count | Number of controller VMs | "1" |
-| enable_aggregation | Enable the Kubernetes Aggregation Layer | "false" |
-| enable_reporting | Enable usage or analytics reporting to upstreams (Calico) | "false" |
-| network_mtu | CNI interface MTU (applies to calico only) | "1480" |
+| Name | Description | Default | Example |
+|:-----|:------------|:--------|:--------|
+| cluster_domain_suffix | Queries for domains with the suffix will be answered by coredns | "cluster.local" | "k8s.example.com" |
+| controller_count | Number of controller VMs | "1" | "1" |
+| enable_aggregation | Enable the Kubernetes Aggregation Layer | "false" | "true" |
+| enable_reporting | Enable usage or analytics reporting to upstreams (Calico) | "false" | "true" |
+| network_mtu | CNI interface MTU (applies to calico only) | "1480" | "8981" |
 | network_ip_autodetection_method | Method to autodetect the host IPv4 address (applies to calico only) | "first-found" or "can-reach=192.168.192.1" |
 | networking | Choice of networking provider | "calico" | "calico" or "flannel" |
-| node_ip_pool | Unique VM IP CIDR (different per cluster) | "192.168.192.0/24" |
-| pod_cidr | CIDR IPv4 range to assign Kubernetes pods | "10.1.0.0/16" |
-| service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" |
-| virtual_cpus | Number of virtual CPUs | "1" |
-| virtual_memory | Virtual RAM in MB | "2048" |
+| node_ip_pool | Unique VM IP CIDR (different per cluster) | "192.168.192.0/24" | | "192.168.13.0/24" |
+| pod_cidr | CIDR IPv4 range to assign Kubernetes pods | "10.1.0.0/16" | "10.22.0.0/16" |
+| service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" | "10.3.0.0/24" |
+| virtual_cpus | Number of virtual CPUs | "1" | "2" |
+| virtual_memory | Virtual RAM in MB | "2048" | "4096" |
 | certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
 
 ### Worker
@@ -355,14 +355,14 @@ source.
 | ssh_keys | List of SSH public keys for user 'core' | "${module.controller.ssh_keys}" |
 
 #### Optional
-| Name | Description | Default |
-|:-----|:------------|:--------|
-| count | Number of worker VMs | "1" |
-| cluster_domain_suffix | The cluster's suffix answered by coredns | "cluster.local" |
-| labels | Custom label to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'" | "" |
-| service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" |
-| virtual_cpus | Number of virtual CPUs | "1" |
-| virtual_memory | Virtual RAM in MB | "2048" |
+| Name | Description | Default | Example |
+|:-----|:------------|:--------|:--------|
+| count | Number of worker VMs | "1" | "3" |
+| cluster_domain_suffix | The cluster's suffix answered by coredns | "cluster.local" | "k8s.example.com" |
+| labels | Custom label to assign to worker nodes. Provide comma separated key=value pairs as labels." | "" | "foo=oof,bar=,baz=zab" |
+| service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" | "10.3.0.0/24" |
+| virtual_cpus | Number of virtual CPUs | "1" | "2" |
+| virtual_memory | Virtual RAM in MB | "2048" | "4096" |
 
 #### Closing Notes
 
