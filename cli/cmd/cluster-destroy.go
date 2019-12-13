@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -9,26 +8,15 @@ import (
 var confirm bool
 
 var clusterDestroyCmd = &cobra.Command{
-	Use:     "destroy",
-	Short:   "Destroy Lokomotive cluster",
-	Run:     runClusterDestroy,
-	PreRunE: checkForDeleteConfirmation,
+	Use:   "destroy",
+	Short: "Destroy Lokomotive cluster",
+	Run:   runClusterDestroy,
 }
 
 func init() {
 	clusterCmd.AddCommand(clusterDestroyCmd)
 	pf := clusterDestroyCmd.PersistentFlags()
-	pf.BoolVarP(&confirm, "confirm", "", false, "Confirm cluster removal")
-}
-
-func checkForDeleteConfirmation(cmd *cobra.Command, args []string) error {
-	if !confirm {
-		return fmt.Errorf("PERMANENT LOSS OF DATA. ACTION CANNOT BE UNDONE\n" +
-			"If you are sure you want to destroy the cluster, execute `cluster destroy --confirm` to continue\n",
-		)
-	}
-
-	return nil
+	pf.BoolVarP(&confirm, "confirm", "", false, "Destroy cluster without asking for confirmation")
 }
 
 func runClusterDestroy(cmd *cobra.Command, args []string) {
@@ -47,6 +35,14 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 
 	if p == nil {
 		ctxLogger.Fatal("No cluster configured")
+	}
+
+	if !confirm {
+		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
+		if !confirmation {
+			ctxLogger.Println("Cluster destroy canceled")
+			return
+		}
 	}
 
 	if err := p.Destroy(); err != nil {

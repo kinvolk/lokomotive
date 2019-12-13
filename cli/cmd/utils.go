@@ -125,3 +125,14 @@ func clusterInstallChecks(*cobra.Command, []string) error {
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {
 	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
+
+// askForConfirmation asks the user to confirm an action.
+// It prints the message and then asks the user to type "yes" or "no".
+// If the user types "yes" the function returns true, otherwise it returns
+// false.
+func askForConfirmation(message string) bool {
+	var input string
+	fmt.Printf("%s [type \"yes\" to continue]: ", message)
+	fmt.Scanln(&input)
+	return input == "yes"
+}
