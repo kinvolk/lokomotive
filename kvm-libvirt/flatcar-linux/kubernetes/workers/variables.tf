@@ -57,6 +57,12 @@ variable "cluster_domain_suffix" {
   default     = "cluster.local"
 }
 
+variable "clc_snippets" {
+  type        = "list"
+  description = "Container Linux Config snippets"
+  default     = []
+}
+
 variable "kubeconfig" {
   description = "Kubeconfig file"
   type        = "string"

@@ -338,6 +338,7 @@ source.
 | virtual_cpus | Number of virtual CPUs | "1" | "2" |
 | virtual_memory | Virtual RAM in MB | "2048" | "4096" |
 | certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
+| controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 
 ### Worker
 
@@ -363,6 +364,7 @@ source.
 | service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" | "10.3.0.0/24" |
 | virtual_cpus | Number of virtual CPUs | "1" | "2" |
 | virtual_memory | Virtual RAM in MB | "2048" | "4096" |
+| clc_snippets | Worker Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 
 #### Closing Notes
 

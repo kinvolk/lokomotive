@@ -40,6 +40,12 @@ variable "virtual_memory" {
   description = "Virtual RAM in MB"
 }
 
+variable "controller_clc_snippets" {
+  type        = "list"
+  description = "Controller Container Linux Config snippets"
+  default     = []
+}
+
 # Configuration
 
 variable "ssh_keys" {
