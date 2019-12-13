@@ -120,8 +120,8 @@ spec:
         openebs.io/version: 1.3.0
     spec:
     {{- if and .NDMSelectorLabel .NDMSelectorValue}}
-    nodeSelector:
-      {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      nodeSelector:
+        "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
     {{- end }}
       serviceAccountName: openebs-maya-operator
       containers:
@@ -285,8 +285,8 @@ spec:
         openebs.io/version: 1.3.0
     spec:
     {{- if and .NDMSelectorLabel .NDMSelectorValue}}
-    nodeSelector:
-      {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      nodeSelector:
+        "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
     {{- end }}
       serviceAccountName: openebs-maya-operator
       containers:
@@ -351,8 +351,8 @@ spec:
         openebs.io/version: 1.3.0
     spec:
     {{- if and .NDMSelectorLabel .NDMSelectorValue}}
-    nodeSelector:
-      {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+      nodeSelector:
+        "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
     {{- end }}
       serviceAccountName: openebs-maya-operator
       containers:
@@ -473,7 +473,7 @@ spec:
       #  "openebs.io/nodegroup": "storage-node"
       {{- if and .NDMSelectorLabel .NDMSelectorValue}}
       nodeSelector:
-        {{ .NDMSelectorLabel }}: {{ .NDMSelectorValue }}
+        "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
       {{- end }}
       serviceAccountName: openebs-maya-operator
       hostNetwork: true
