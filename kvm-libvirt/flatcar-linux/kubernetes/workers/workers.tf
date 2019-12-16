@@ -38,8 +38,9 @@ resource "libvirt_domain" "worker-machine" {
 }
 
 data "ct_config" "worker-ignition" {
-  count   = "${var.count}"
-  content = "${element(data.template_file.worker-config.*.rendered, count.index)}"
+  count    = "${var.count}"
+  content  = "${element(data.template_file.worker-config.*.rendered, count.index)}"
+  snippets = ["${var.clc_snippets}"]
 }
 
 data "template_file" "worker-config" {
