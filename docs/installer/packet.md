@@ -156,9 +156,7 @@ cluster "packet" {
 	}
 }
 
-component "contour" {
-  install_mode = "daemonset"
-}
+component "contour" {}
 ```
 
 >NOTE: The asset directory should be kept for the lifetime of the cluster. For more information
