@@ -93,6 +93,8 @@ yourself. The version must include the `fw_cfg_name` feature as well as the expe
 
 When building from source, you have to do a final `mv $GOPATH/bin/terraform-provider-libvirt ~/.terraform.d/plugins/terraform-provider-libvirt_v0.5.3`:
 
+When building from source, you will need to install the package `libvirt-dev` for Debian/Ubuntu or `libvirt-devel` for Fedora/CentOS.
+
 ```sh
 $ # From any (even temporary) directory
 $ git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
