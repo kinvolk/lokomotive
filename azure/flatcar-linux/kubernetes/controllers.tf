@@ -115,7 +115,7 @@ resource "azurerm_network_interface" "controllers" {
 resource "azurerm_network_interface_backend_address_pool_association" "controllers" {
   count = "${var.controller_count}"
 
-  network_interface_id    = "${azurerm_network_interface.controllers.*.id}"
+  network_interface_id    = "${element(azurerm_network_interface.controllers.*.id, count.index)}"
   ip_configuration_name   = "ip0"
   backend_address_pool_id = "${azurerm_lb_backend_address_pool.controller.id}"
 }
