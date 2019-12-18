@@ -53,6 +53,6 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("error destroying cluster: %v", err)
 	}
 
-	ctxLogger.Println("Cluster successfully destroyed")
-	ctxLogger.Printf("You can safely remove assets directory now.")
+	ctxLogger.Println("Cluster destroyed successfully")
+	ctxLogger.Println("You can safely remove the assets directory now")
 }
