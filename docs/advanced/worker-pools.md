@@ -16,7 +16,7 @@ Create a cluster following the AWS [tutorial](../flatcar-linux/aws.md#cluster). 
 ```tf
 module "tempest-worker-pool" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes/workers?ref=<hash>"
-  
+
   providers = {
     aws = "aws.default"
   }
@@ -25,11 +25,11 @@ module "tempest-worker-pool" {
   vpc_id          = "${module.aws-tempest.vpc_id}"
   subnet_ids      = "${module.aws-tempest.subnet_ids}"
   security_groups = "${module.aws-tempest.worker_security_groups}"
-  
+
   # configuration
   name               = "tempest-worker-pool"
   kubeconfig         = "${module.aws-tempest.kubeconfig}"
-  ssh_authorized_key = "${var.ssh_authorized_key}"
+  ssh_keys           = "${var.ssh_keys}"
 
   # optional
   count         = 2
@@ -59,7 +59,7 @@ The AWS internal `workers` module supports a number of [variables](https://githu
 | subnet_ids | Must be set to `subnet_ids` output by cluster | "${module.cluster.subnet_ids}" |
 | security_groups | Must be set to `worker_security_groups` output by cluster | "${module.cluster.worker_security_groups}" |
 | kubeconfig | Must be set to `kubeconfig` output by cluster | "${module.cluster.kubeconfig}" |
-| ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
+| ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 
 #### Optional
 
@@ -82,7 +82,7 @@ Create a cluster following the Azure [tutorial](../flatcar-linux/azure.md#cluste
 ```tf
 module "ramius-worker-pool" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/flatcar-linux/kubernetes/workers?ref=<hash>"
-  
+
   providers = {
     azurerm = "azurerm.default"
   }
@@ -97,7 +97,7 @@ module "ramius-worker-pool" {
   # configuration
   name               = "ramius-low-priority"
   kubeconfig         = "${module.azure-ramius.kubeconfig}"
-  ssh_authorized_key = "${var.ssh_authorized_key}"
+  ssh_keys           = "${var.ssh_keys}"
 
   # optional
   count    = 2
@@ -129,7 +129,7 @@ The Azure internal `workers` module supports a number of [variables](https://git
 | security_group_id | Must be set to `security_group_id` output by cluster | "${module.cluster.security_group_id}" |
 | backend_address_pool_id | Must be set to `backend_address_pool_id` output by cluster | "${module.cluster.backend_address_pool_id}" |
 | kubeconfig | Must be set to `kubeconfig` output by cluster | "${module.cluster.kubeconfig}" |
-| ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
+| ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 
 #### Optional
 
@@ -165,8 +165,8 @@ module "yavin-worker-pool" {
   # configuration
   name               = "yavin-16x"
   kubeconfig         = "${module.google-cloud-yavin.kubeconfig}"
-  ssh_authorized_key = "${var.ssh_authorized_key}"
-  
+  ssh_keys           = "${var.ssh_keys}"
+
   # optional
   count        = 2
   machine_type = "n1-standard-16"
@@ -206,7 +206,7 @@ The Google Cloud internal `workers` module supports a number of [variables](http
 | network | Must be set to `network_name` output by cluster | "${module.cluster.network_name}" |
 | cluster_name | Must be set to `cluster_name` of cluster | "yavin" |
 | kubeconfig | Must be set to `kubeconfig` output by cluster | "${module.cluster.kubeconfig}" |
-| ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3NZ..." |
+| ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 
 Check the list of regions [docs](https://cloud.google.com/compute/docs/regions-zones/regions-zones) or with `gcloud compute regions list`.
 

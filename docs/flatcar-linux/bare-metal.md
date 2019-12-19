@@ -197,7 +197,12 @@ module "bare-metal-mercury" {
 
   # configuration
   k8s_domain_name    = "node1.example.com"
-  ssh_authorized_key = "ssh-rsa AAAAB3Nz..."
+
+  ssh_keys = [
+    "ssh-rsa AAAAB3Nz...",
+    "ssh-rsa AAAAB3Nz...",
+  ]
+
   asset_dir          = "/home/user/.secrets/clusters/mercury"
 
   # machines
@@ -363,7 +368,7 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | os_channel | Channel for Flatcar Container Linux | flatcar-stable, flatcar-beta, flatcar-alpha |
 | os_version | Version of Flatcar Container Linux to PXE and install | 1632.3.0 |
 | k8s_domain_name | FQDN resolving to the controller(s) nodes. Workers and kubectl will communicate with this endpoint | "myk8s.example.com" |
-| ssh_authorized_key | SSH public key for user 'core' | "ssh-rsa AAAAB3Nz..." |
+| ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/mercury" |
 | controller_names | Ordered list of controller short names | ["node1"] |
 | controller_macs | Ordered list of controller identifying MAC addresses | ["52:54:00:a1:9c:ae"] |

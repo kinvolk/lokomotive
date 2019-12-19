@@ -12,7 +12,7 @@ module "aws-tempest" {
   cluster_name = "$CLUSTER_ID"
   dns_zone = "$AWS_DNS_ZONE"
   dns_zone_id = "$AWS_DNS_ZONE_ID"
-  ssh_authorized_key = "$PUB_KEY"
+  ssh_keys = ["$PUB_KEY"]
 
   asset_dir = "${pathexpand("~/assets")}"
 

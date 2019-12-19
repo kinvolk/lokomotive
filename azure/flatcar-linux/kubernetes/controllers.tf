@@ -76,7 +76,7 @@ resource "azurerm_virtual_machine" "controllers" {
 
     ssh_keys {
       path     = "/home/core/.ssh/authorized_keys"
-      key_data = "${var.ssh_authorized_key}"
+      key_data = "${var.ssh_keys}"
     }
   }
 
@@ -153,7 +153,7 @@ data "template_file" "controller-configs" {
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
     etcd_initial_cluster   = "${join(",", data.template_file.etcds.*.rendered)}"
     kubeconfig             = "${indent(10, module.bootkube.kubeconfig-kubelet)}"
-    ssh_authorized_key     = "${var.ssh_authorized_key}"
+    ssh_keys               = "${jsonencode("${var.ssh_keys}")}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
   }
