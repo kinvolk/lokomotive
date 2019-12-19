@@ -21,7 +21,7 @@ Ask questions on the IRC #lokomotive-k8s channel on [freenode.net](http://freeno
 
 ## Security Issues
 
-If you find security issues, please see [security disclosures](/topics/security.md#disclosures).
+If you find security issues, please see [security disclosures](security.md#disclosures).
 
 ## Maintainers
 
