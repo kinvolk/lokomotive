@@ -38,7 +38,9 @@ components that should be installed. Example:
 ```
 cluster "bare-metal" {
   asset_dir = pathexpand("~/.lokoctl/mercury")
-  ssh_pubkey = pathexpand("~/.ssh/id_rsa.pub")
+  ssh_pubkeys = [
+    "ssh-rsa AAAA...",
+  ]
   cached_install = "true"
   matchbox_ca_path = pathexpand("~/matchbox-certs/ca.crt")
   matchbox_client_cert_path = pathexpand("~/matchbox-certs/client.crt")
