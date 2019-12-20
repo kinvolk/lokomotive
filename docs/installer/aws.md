@@ -49,8 +49,8 @@ variable "asset_dir" {
 #	type = "string"
 #}
 
-variable "ssh_pubkey" {
-	type = "string"
+variable "ssh_pubkeys" {
+	type = "list"
 }
 
 cluster "aws" {
@@ -60,7 +60,7 @@ cluster "aws" {
 	os_image = "flatcar-stable"
 	dns_zone = "example.com"
 	dns_zone_id = "XXX"
-	ssh_pubkey = pathexpand(var.ssh_pubkey)
+	ssh_pubkeys = var.ssh_pubkeys
 
 	# Size of the EBS volume in GB
 	# disk_size = "40" (optional)
@@ -115,7 +115,9 @@ Create a `lokocfg.vars` file and define all needed variables. Example:
 ```
 asset_dir = "~/lokoctl-assets/mycluster"
 #aws_creds = "~/.aws/credentials"
-ssh_pubkey = "~/.ssh/id_rsa.pub"
+ssh_pubkeys = [
+	"ssh-rsa AAAA...",
+]
 ```
 
 >NOTE: The asset directory should be kept for the lifetime of the cluster. For more information

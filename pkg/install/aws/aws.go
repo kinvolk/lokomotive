@@ -2,10 +2,8 @@ package aws
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 
 	"github.com/hashicorp/hcl2/gohcl"
@@ -24,7 +22,7 @@ type config struct {
 	OSImage                  string   `hcl:"os_image,optional"`
 	DNSZone                  string   `hcl:"dns_zone"`
 	DNSZoneID                string   `hcl:"dns_zone_id"`
-	SSHPubKey                string   `hcl:"ssh_pubkey"`
+	SSHPubKeys               []string `hcl:"ssh_pubkeys"`
 	CredsPath                string   `hcl:"creds_path,optional"`
 	ControllerCount          int      `hcl:"controller_count,optional"`
 	ControllerType           string   `hcl:"controller_type,optional"`
@@ -83,15 +81,6 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (cfg *config) readSSHPubKey() (string, error) {
-	dat, err := ioutil.ReadFile(cfg.SSHPubKey)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(string(dat)), nil
-}
-
 func (cfg *config) Install() error {
 	assetDir, err := homedir.Expand(cfg.AssetDir)
 	if err != nil {
@@ -121,9 +110,9 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 	defer f.Close()
 
-	ssh_authorized_key, err := cfg.readSSHPubKey()
+	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read ssh public key: %s", cfg.SSHPubKey)
+		return errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
 	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
@@ -143,13 +132,13 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 
 	terraformCfg := struct {
 		Config                config
-		SSHAuthorizedKey      string
+		SSHPublicKeys         string
 		ControllerCLCSnippets string
 		WorkerCLCSnippets     string
 		WorkerTargetGroups    string
 	}{
 		Config:                *cfg,
-		SSHAuthorizedKey:      ssh_authorized_key,
+		SSHPublicKeys:         string(keyListBytes),
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
 		WorkerCLCSnippets:     string(workerCLCSnippetsBytes),
 		WorkerTargetGroups:    string(workerTargetGroupsBytes),
