@@ -86,33 +86,14 @@ tar xzf terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
 mv terraform-provider-ct-v0.4.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.4.0
 ```
 
-Add the [terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt) plugin binary for your system
-to `~/.terraform.d/plugins/`, noting the `_v0.5.3` suffix. As long as this version is unreleased you have to build the plugin
-yourself. The version must include the `fw_cfg_name` feature as well as the experimental
-[pool definition feature](https://github.com/dmacvicar/terraform-provider-libvirt/commit/9f00f3d46c489f24c71d02fde816f5fda34d3f7c).
-
-When building from source, you have to do a final `mv $GOPATH/bin/terraform-provider-libvirt ~/.terraform.d/plugins/terraform-provider-libvirt_v0.5.3`:
-
-When building from source, you will need to install the package `libvirt-dev` for Debian/Ubuntu or `libvirt-devel` for Fedora/CentOS.
+Download the tar file for your distribution from the [release page](https://github.com/dmacvicar/terraform-provider-libvirt/releases):
 
 ```sh
-$ # From any (even temporary) directory
-$ git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
-$ export GO111MODULE=on
-$ export GOFLAGS=-mod=vendor
-$ make install
-$ mv "$GOPATH/bin/terraform-provider-libvirt" ~/.terraform.d/plugins/terraform-provider-libvirt_v0.5.3
+wget https://github.com/dmacvicar/terraform-provider-libvirt/releases/download/v0.6.0/terraform-provider-libvirt-0.6.0+git.1569597268.1c8597df.Fedora_28.x86_64.tar.gz
+# or, e.g., https://github.com/dmacvicar/terraform-provider-libvirt/releases/download/v0.6.0/terraform-provider-libvirt-0.6.0+git.1569597268.1c8597df.Ubuntu_18.04.amd64.tar.gz
+tar xzf terraform-provider-libvirt-0.6.0+git.1569597268.1c8597df.Fedora_28.x86_64.tar.gz
+mv terraform-provider-libvirt ~/.terraform.d/plugins/terraform-provider-libvirt_v0.6.0
 ```
-
-In the future you can download the tar file for your distribution from the [release page](https://github.com/dmacvicar/terraform-provider-libvirt/releases):
-
-```sh
-wget https://github.com/dmacvicar/terraform-provider-libvirt/releases/download/v0.5.3/terraform-provider-libvirt-0.5.3.Fedora_28.x86_64.tar.gz
-# or, e.g., https://github.com/dmacvicar/terraform-provider-libvirt/releases/download/v0.5.2/terraform-provider-libvirt-0.5.3.Ubuntu_18.04.amd64.tar.gz
-tar xzf terraform-provider-libvirt-0.5.3.Fedora_28.x86_64.tar.gz
-mv terraform-provider-libvirt ~/.terraform.d/plugins/terraform-provider-libvirt_v0.5.3
-```
-
 
 Read [concepts](/docs/architecture/concepts.md) to learn about Terraform, modules, and organizing resources if the following confuses you.
 
@@ -154,7 +135,7 @@ provider "tls" {
 }
 
 provider "libvirt" {
-  version = "~> 0.5.3"
+  version = "~> 0.6.0"
   uri     = "qemu:///system"
   alias   = "default"
 }
