@@ -67,9 +67,9 @@ resource "google_compute_instance_group" "controllers" {
   name = format(
     "%s-controllers-%s",
     var.cluster_name,
-    element(local.zones, count.index),
+    local.zones[count.index]
   )
-  zone = element(local.zones, count.index)
+  zone = local.zones[count.index]
 
   named_port {
     name = "apiserver"
@@ -80,7 +80,7 @@ resource "google_compute_instance_group" "controllers" {
   instances = matchkeys(
     google_compute_instance.controllers.*.self_link,
     google_compute_instance.controllers.*.zone,
-    [element(local.zones, count.index)],
+    [local.zones[count.index]],
   )
 }
 

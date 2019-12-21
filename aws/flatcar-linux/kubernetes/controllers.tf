@@ -10,7 +10,7 @@ resource "aws_route53_record" "etcds" {
   ttl  = 300
 
   # private IPv4 address for etcd
-  records = [element(aws_instance.controllers.*.private_ip, count.index)]
+  records = [aws_instance.controllers[count.index].private_ip]
 }
 
 # Controller instances
@@ -24,7 +24,7 @@ resource "aws_instance" "controllers" {
   instance_type = var.controller_type
 
   ami       = local.ami_id
-  user_data = element(data.ct_config.controller-ignitions.*.rendered, count.index)
+  user_data = data.ct_config.controller-ignitions[count.index].rendered
 
   # storage
   root_block_device {
@@ -36,7 +36,7 @@ resource "aws_instance" "controllers" {
 
   # network
   associate_public_ip_address = true
-  subnet_id                   = element(aws_subnet.public.*.id, count.index)
+  subnet_id                   = aws_subnet.public[count.index].id
   vpc_security_group_ids      = [aws_security_group.controller.id]
 
   lifecycle {
@@ -49,11 +49,8 @@ resource "aws_instance" "controllers" {
 
 # Controller Ignition configs
 data "ct_config" "controller-ignitions" {
-  count = var.controller_count
-  content = element(
-    data.template_file.controller-configs.*.rendered,
-    count.index,
-  )
+  count        = var.controller_count
+  content      = data.template_file.controller-configs[count.index].rendered
   pretty_print = false
   snippets     = var.controller_clc_snippets
 }

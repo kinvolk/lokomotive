@@ -10,7 +10,7 @@ resource "libvirt_ignition" "ignition" {
   name    = "${var.cluster_name}-${var.pool_name}-worker-${count.index}-ignition"
   pool    = var.libvirtpool
   count   = var.worker_count
-  content = element(data.ct_config.worker-ignition.*.rendered, count.index)
+  content = data.ct_config.worker-ignition[count.index].rendered
 }
 
 resource "libvirt_domain" "worker-machine" {
@@ -20,10 +20,10 @@ resource "libvirt_domain" "worker-machine" {
   memory = var.virtual_memory
 
   fw_cfg_name     = "opt/org.flatcar-linux/config"
-  coreos_ignition = element(libvirt_ignition.ignition.*.id, count.index)
+  coreos_ignition = libvirt_ignition.ignition[count.index].id
 
   disk {
-    volume_id = element(libvirt_volume.worker-disk.*.id, count.index)
+    volume_id = libvirt_volume.worker-disk[count.index].id
   }
 
   graphics {
@@ -39,7 +39,7 @@ resource "libvirt_domain" "worker-machine" {
 
 data "ct_config" "worker-ignition" {
   count    = var.worker_count
-  content  = element(data.template_file.worker-config.*.rendered, count.index)
+  content  = data.template_file.worker-config[count.index].rendered
   snippets = var.clc_snippets
 }
 

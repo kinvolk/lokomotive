@@ -88,6 +88,6 @@ resource "aws_lb_target_group_attachment" "controllers" {
   count = var.controller_count
 
   target_group_arn = aws_lb_target_group.controllers.arn
-  target_id        = element(aws_instance.controllers.*.id, count.index)
+  target_id        = aws_instance.controllers[count.index].id
   port             = 6443
 }

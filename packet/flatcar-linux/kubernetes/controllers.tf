@@ -10,7 +10,7 @@ resource "aws_route53_record" "etcds" {
   ttl  = 300
 
   # private IPv4 address for etcd
-  records = [element(packet_device.controllers.*.access_private_ipv4, count.index)]
+  records = [packet_device.controllers[count.index].access_private_ipv4]
 }
 
 # DNS record for the API servers
@@ -44,10 +44,7 @@ resource "packet_device" "controllers" {
   operating_system = var.ipxe_script_url != "" ? "custom_ipxe" : format("flatcar_%s", var.os_channel)
   billing_cycle    = "hourly"
   project_id       = var.project_id
-  user_data = var.ipxe_script_url != "" ? element(
-    data.ct_config.controller-install-ignitions.*.rendered,
-    count.index,
-  ) : element(data.ct_config.controller-ignitions.*.rendered, count.index)
+  user_data        = var.ipxe_script_url != "" ? data.ct_config.controller-install-ignitions[count.index].rendered : data.ct_config.controller-ignitions[count.index].rendered
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
   hardware_reservation_id = lookup(
@@ -61,11 +58,8 @@ resource "packet_device" "controllers" {
 }
 
 data "ct_config" "controller-install-ignitions" {
-  count = var.controller_count
-  content = element(
-    data.template_file.controller-install.*.rendered,
-    count.index,
-  )
+  count   = var.controller_count
+  content = data.template_file.controller-install[count.index].rendered
 }
 
 data "template_file" "controller-install" {
@@ -78,17 +72,14 @@ data "template_file" "controller-install" {
     os_arch              = var.os_arch
     flatcar_linux_oem    = "packet"
     ssh_keys             = jsonencode(var.ssh_keys)
-    postinstall_ignition = element(data.ct_config.controller-ignitions.*.rendered, count.index)
+    postinstall_ignition = data.ct_config.controller-ignitions[count.index].rendered
   }
 }
 
 data "ct_config" "controller-ignitions" {
   count    = var.controller_count
   platform = "packet"
-  content = element(
-    data.template_file.controller-configs.*.rendered,
-    count.index,
-  )
+  content  = data.template_file.controller-configs[count.index].rendered
   snippets = var.controller_clc_snippets
 }
 

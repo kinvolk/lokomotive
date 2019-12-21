@@ -12,7 +12,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   connection {
     type    = "ssh"
-    host    = element(var.controller_domains, count.index)
+    host    = var.controller_domains[count.index]
     user    = "core"
     timeout = "60m"
   }
@@ -88,7 +88,7 @@ resource "null_resource" "copy-worker-secrets" {
 
   connection {
     type    = "ssh"
-    host    = element(var.worker_domains, count.index)
+    host    = var.worker_domains[count.index]
     user    = "core"
     timeout = "60m"
   }
@@ -118,7 +118,7 @@ resource "null_resource" "bootkube-start" {
 
   connection {
     type    = "ssh"
-    host    = element(var.controller_domains, 0)
+    host    = var.controller_domains[0]
     user    = "core"
     timeout = "15m"
   }

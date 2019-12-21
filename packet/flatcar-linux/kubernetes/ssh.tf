@@ -4,7 +4,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   connection {
     type    = "ssh"
-    host    = element(packet_device.controllers.*.access_public_ipv4, count.index)
+    host    = packet_device.controllers[count.index].access_public_ipv4
     user    = "core"
     timeout = "60m"
   }
@@ -108,7 +108,7 @@ data "template_file" "controller_host_endpoints" {
   template = file("${path.module}/calico/controller-host-endpoint.yaml.tmpl")
 
   vars = {
-    node_name = element(packet_device.controllers.*.hostname, count.index)
+    node_name = packet_device.controllers[count.index].hostname
   }
 }
 

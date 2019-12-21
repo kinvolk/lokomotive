@@ -28,7 +28,7 @@ resource "libvirt_ignition" "ignition" {
   name    = "${var.cluster_name}-controller-${count.index}-ignition"
   pool    = libvirt_pool.volumetmp.name
   count   = var.controller_count
-  content = element(data.ct_config.controller-ignitions.*.rendered, count.index)
+  content = data.ct_config.controller-ignitions[count.index].rendered
 }
 
 resource "libvirt_network" "vmnet" {
@@ -50,10 +50,10 @@ resource "libvirt_domain" "controller-machine" {
   memory = var.virtual_memory
 
   fw_cfg_name     = "opt/org.flatcar-linux/config"
-  coreos_ignition = element(libvirt_ignition.ignition.*.id, count.index)
+  coreos_ignition = libvirt_ignition.ignition[count.index].id
 
   disk {
-    volume_id = element(libvirt_volume.controller-disk.*.id, count.index)
+    volume_id = libvirt_volume.controller-disk[count.index].id
   }
 
   graphics {
@@ -69,11 +69,8 @@ resource "libvirt_domain" "controller-machine" {
 }
 
 data "ct_config" "controller-ignitions" {
-  count = var.controller_count
-  content = element(
-    data.template_file.controller-configs.*.rendered,
-    count.index,
-  )
+  count    = var.controller_count
+  content  = data.template_file.controller-configs[count.index].rendered
   snippets = var.controller_clc_snippets
 }
 

@@ -1,7 +1,7 @@
 locals {
   # Channel for a CoreOS Container Linux derivative
   # coreos-stable -> CoreOS Container Linux Stable
-  channel = element(split("-", var.os_image), 1)
+  channel = split("-", var.os_image)[1]
 }
 
 data "azurerm_image" "custom_workers" {
@@ -49,7 +49,7 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
 
     ssh_keys {
       path     = "/home/core/.ssh/authorized_keys"
-      key_data = element(var.ssh_keys, 0)
+      key_data = var.ssh_keys[0]
     }
   }
 

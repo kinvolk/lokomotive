@@ -4,7 +4,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   connection {
     type    = "ssh"
-    host    = element(local.controllers_ipv4_public, count.index)
+    host    = local.controllers_ipv4_public[count.index]
     user    = "core"
     timeout = "15m"
   }
@@ -72,7 +72,7 @@ resource "null_resource" "bootkube-start" {
 
   connection {
     type    = "ssh"
-    host    = element(local.controllers_ipv4_public, 0)
+    host    = local.controllers_ipv4_public[0]
     user    = "core"
     timeout = "15m"
   }

@@ -4,7 +4,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   connection {
     type    = "ssh"
-    host    = element(aws_instance.controllers.*.public_ip, count.index)
+    host    = aws_instance.controllers[count.index].public_ip
     user    = "core"
     timeout = "15m"
   }
