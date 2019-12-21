@@ -1,6 +1,6 @@
 resource "libvirt_volume" "worker-disk" {
   name           = "${var.cluster_name}-${var.pool_name}-worker-${count.index}.qcow2"
-  count          = "${var.count}"
+  count          = "${var.worker_count}"
   base_volume_id = "${var.libvirtbaseid}"
   pool           = "${var.libvirtpool}"
   format         = "qcow2"
@@ -9,12 +9,12 @@ resource "libvirt_volume" "worker-disk" {
 resource "libvirt_ignition" "ignition" {
   name    = "${var.cluster_name}-${var.pool_name}-worker-${count.index}-ignition"
   pool    = "${var.libvirtpool}"
-  count   = "${var.count}"
+  count   = "${var.worker_count}"
   content = "${element(data.ct_config.worker-ignition.*.rendered, count.index)}"
 }
 
 resource "libvirt_domain" "worker-machine" {
-  count  = "${var.count}"
+  count  = "${var.worker_count}"
   name   = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
   vcpu   = "${var.virtual_cpus}"
   memory = "${var.virtual_memory}"
@@ -38,13 +38,13 @@ resource "libvirt_domain" "worker-machine" {
 }
 
 data "ct_config" "worker-ignition" {
-  count    = "${var.count}"
+  count    = "${var.worker_count}"
   content  = "${element(data.template_file.worker-config.*.rendered, count.index)}"
   snippets = ["${var.clc_snippets}"]
 }
 
 data "template_file" "worker-config" {
-  count    = "${var.count}"
+  count    = "${var.worker_count}"
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
   vars {

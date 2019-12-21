@@ -20,7 +20,7 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
   sku {
     name     = "${var.vm_type}"
     tier     = "standard"
-    capacity = "${var.count}"
+    capacity = "${var.worker_count}"
   }
 
   # boot
@@ -96,9 +96,9 @@ resource "azurerm_monitor_autoscale_setting" "workers" {
     name = "default"
 
     capacity {
-      minimum = "${var.count}"
-      default = "${var.count}"
-      maximum = "${var.count}"
+      minimum = "${var.worker_count}"
+      default = "${var.worker_count}"
+      maximum = "${var.worker_count}"
     }
   }
 }

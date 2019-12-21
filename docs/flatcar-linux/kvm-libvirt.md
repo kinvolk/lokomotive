@@ -198,7 +198,7 @@ module "worker-pool-one" {
 
   pool_name = "one"
 
-  count = 1
+  worker_count = 1
 
   kubeconfig = "${module.controller.kubeconfig}"
 
@@ -341,7 +341,7 @@ source.
 #### Optional
 | Name | Description | Default | Example |
 |:-----|:------------|:--------|:--------|
-| count | Number of worker VMs | "1" | "3" |
+| worker_count | Number of worker VMs | "1" | "3" |
 | cluster_domain_suffix | The cluster's suffix answered by coredns | "cluster.local" | "k8s.example.com" |
 | labels | Custom label to assign to worker nodes. Provide comma separated key=value pairs as labels." | "" | "foo=oof,bar=,baz=zab" |
 | service_cidr | CIDR IPv4 range to assign Kubernetes services. The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for coredns. | "10.2.0.0/16" | "10.3.0.0/24" |

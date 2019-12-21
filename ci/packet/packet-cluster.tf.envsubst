@@ -50,7 +50,7 @@ module "worker-pool-1" {
   facility     = "ams1"
   pool_name    = "pool-1"
 
-  count = 2
+  worker_count = 2
   type  = "c2.medium.x86"
 
   kubeconfig = "${module.controller.kubeconfig}"

@@ -173,7 +173,7 @@ module "worker-pool-helium" {
   facility     = "ams1"
   pool_name    = "helium"
 
-  count = 2
+  worker_count = 2
   type  = "t1.small.x86"
 
   kubeconfig = "${module.controller.kubeconfig}"
@@ -345,7 +345,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 
 | Name | Description | Default | Example |
 |:-----|:------------|:--------|:--------|
-| count | Number of worker nodes | 1 | 3 |
+| worker_count | Number of worker nodes | 1 | 3 |
 | type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | labels | Comma separated labels to be added to the worker nodes | "" | "node.supernova.io/role=backend" |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
@@ -377,7 +377,7 @@ See [issue #111](https://github.com/kinvolk/lokomotive-kubernetes/issues/111) fo
 Currently the only tested ways to modify a cluster are:
 
 * Adding new worker pools, done by adding a new worker module.
-* Scaling a worker pool by changing the `count` to delete or add nodes, even to 0 (but the worker pool definition has to be kept and the total number of workers must be > 0).
+* Scaling a worker pool by changing the `worker_count` to delete or add nodes, even to 0 (but the worker pool definition has to be kept and the total number of workers must be > 0).
 * Changing the instance type of a worker pool by altering `type`, e.g., from `t1.small.x86` to `c1.small.x86`, which will recreate the nodes, causing downtime since they are destroyed first and then created again.
 
 This list may be expanded in the future but for now other changes are not supported but can be done at your own risk.

@@ -16,7 +16,7 @@ variable "pool_name" {
   description = "Unique worker pool name (prepended to hostname)"
 }
 
-variable "count" {
+variable "worker_count" {
   type        = "string"
   default     = "1"
   description = "Number of workers, can be changed afterwards to delete or add nodes"
