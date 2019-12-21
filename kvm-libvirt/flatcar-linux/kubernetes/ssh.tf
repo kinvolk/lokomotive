@@ -70,7 +70,7 @@ resource "null_resource" "bootkube-start" {
 
   connection {
     type    = "ssh"
-    host    = libvirt_domain.controller-machine[0].network_interface[0].addresses
+    host    = libvirt_domain.controller-machine[0].network_interface[0].addresses[0]
     user    = "core"
     timeout = "15m"
   }
