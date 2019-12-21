@@ -24,3 +24,4 @@ provider "libvirt" {
   version = "~> 0.6.0"
   uri     = "qemu:///system"
 }
+

@@ -1,46 +1,46 @@
 # Secure copy etcd TLS assets to controllers.
 resource "null_resource" "copy-controller-secrets" {
-  count = "${var.controller_count}"
+  count = var.controller_count
 
   connection {
     type    = "ssh"
-    host    = "${element(packet_device.controllers.*.access_public_ipv4, count.index)}"
+    host    = element(packet_device.controllers.*.access_public_ipv4, count.index)
     user    = "core"
     timeout = "60m"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_ca_cert}"
+    content     = module.bootkube.etcd_ca_cert
     destination = "$HOME/etcd-client-ca.crt"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_client_cert}"
+    content     = module.bootkube.etcd_client_cert
     destination = "$HOME/etcd-client.crt"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_client_key}"
+    content     = module.bootkube.etcd_client_key
     destination = "$HOME/etcd-client.key"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_server_cert}"
+    content     = module.bootkube.etcd_server_cert
     destination = "$HOME/etcd-server.crt"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_server_key}"
+    content     = module.bootkube.etcd_server_key
     destination = "$HOME/etcd-server.key"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_peer_cert}"
+    content     = module.bootkube.etcd_peer_cert
     destination = "$HOME/etcd-peer.crt"
   }
 
   provisioner "file" {
-    content     = "${module.bootkube.etcd_peer_key}"
+    content     = module.bootkube.etcd_peer_key
     destination = "$HOME/etcd-peer.key"
   }
 
@@ -60,7 +60,7 @@ resource "null_resource" "copy-controller-secrets" {
   }
 
   triggers = {
-    controller_id = "${packet_device.controllers.*.id[count.index]}"
+    controller_id = packet_device.controllers[count.index].id
   }
 }
 
@@ -68,30 +68,30 @@ resource "null_resource" "copy-controller-secrets" {
 # one-time self-hosted cluster bootstrapping.
 resource "null_resource" "bootkube-start" {
   depends_on = [
-    "module.bootkube",
-    "aws_route53_record.apiservers",
-    "null_resource.copy-controller-secrets",
+    module.bootkube,
+    aws_route53_record.apiservers,
+    null_resource.copy-controller-secrets,
   ]
 
   connection {
     type    = "ssh"
-    host    = "${packet_device.controllers.0.access_public_ipv4}"
+    host    = packet_device.controllers[0].access_public_ipv4
     user    = "core"
     timeout = "15m"
   }
 
   provisioner "file" {
-    source      = "${var.asset_dir}"
+    source      = var.asset_dir
     destination = "$HOME/assets"
   }
 
   provisioner "file" {
-    content     = "${data.template_file.host_protection_policy.rendered}"
+    content     = data.template_file.host_protection_policy.rendered
     destination = "$HOME/assets/manifests-networking/calico-policy.yaml"
   }
 
   provisioner "file" {
-    source     = "${path.module}/calico/host-endpoint-controller.yaml"
+    source      = "${path.module}/calico/host-endpoint-controller.yaml"
     destination = "$HOME/assets/manifests-networking/host-endpoint-controller.yaml"
   }
 
@@ -104,21 +104,25 @@ resource "null_resource" "bootkube-start" {
 }
 
 data "template_file" "controller_host_endpoints" {
-  count    = "${var.controller_count}"
-  template = "${file("${path.module}/calico/controller-host-endpoint.yaml.tmpl")}"
+  count    = var.controller_count
+  template = file("${path.module}/calico/controller-host-endpoint.yaml.tmpl")
 
-  vars {
-    node_name = "${element(packet_device.controllers.*.hostname, count.index)}"
+  vars = {
+    node_name = element(packet_device.controllers.*.hostname, count.index)
   }
 }
 
 data "template_file" "host_protection_policy" {
-  template = "${file("${path.module}/calico/host-protection.yaml.tmpl")}"
+  template = file("${path.module}/calico/host-protection.yaml.tmpl")
 
   vars = {
-    controller_host_endpoints = "${join("\n", data.template_file.controller_host_endpoints.*.rendered)}"
-    management_cidrs          = "${jsonencode("${var.management_cidrs}")}"
-    cluster_internal_cidrs    = "${jsonencode(list("${var.node_private_cidr}", "${var.pod_cidr}", "${var.service_cidr}"))}"
-    etcd_server_cidrs         = "${jsonencode("${packet_device.controllers.*.access_private_ipv4}")}"
+    controller_host_endpoints = join(
+      "\n",
+      data.template_file.controller_host_endpoints.*.rendered,
+    )
+    management_cidrs       = jsonencode(var.management_cidrs)
+    cluster_internal_cidrs = jsonencode([var.node_private_cidr, var.pod_cidr, var.service_cidr])
+    etcd_server_cidrs      = jsonencode(packet_device.controllers.*.access_private_ipv4)
   }
 }
+
