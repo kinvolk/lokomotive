@@ -4,7 +4,7 @@ module "bootkube" {
 
   cluster_name = var.cluster_name
   api_servers  = [format("%s.%s", var.cluster_name, var.dns_zone)]
-  etcd_servers = [formatlist("%s.%s", azurerm_dns_a_record.etcds.*.name, var.dns_zone)]
+  etcd_servers = formatlist("%s.%s", azurerm_dns_a_record.etcds.*.name, var.dns_zone)
   asset_dir    = var.asset_dir
 
   networking = var.networking
