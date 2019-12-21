@@ -40,8 +40,8 @@ variable "os_version" {
 }
 
 variable "controller_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of controllers (i.e. masters)"
 }
 
@@ -98,8 +98,8 @@ variable "networking" {
 
 variable "network_mtu" {
   description = "CNI interface MTU (applies to calico only)"
-  type        = string
-  default     = "1480"
+  type        = number
+  default     = 1480
 }
 
 variable "network_ip_autodetection_method" {
@@ -132,9 +132,9 @@ variable "cluster_domain_suffix" {
 }
 
 variable "enable_reporting" {
-  type        = string
+  type        = bool
   description = "Enable usage or analytics reporting to upstreams (Calico)"
-  default     = "false"
+  default     = false
 }
 
 variable "management_cidrs" {
@@ -149,8 +149,8 @@ variable "node_private_cidr" {
 
 variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 variable "reservation_ids" {
@@ -177,6 +177,6 @@ EOD
 
 variable "certs_validity_period_hours" {
   description = "Validity of all the certificates in hours"
-  type        = string
+  type        = number
   default     = 8760
 }

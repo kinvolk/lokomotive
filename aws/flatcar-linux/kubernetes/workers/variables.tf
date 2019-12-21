@@ -23,8 +23,8 @@ variable "security_groups" {
 # instances
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of instances"
 }
 
@@ -41,8 +41,8 @@ variable "os_image" {
 }
 
 variable "disk_size" {
-  type        = string
-  default     = "40"
+  type        = number
+  default     = 40
   description = "Size of the EBS volume in GB"
 }
 
@@ -53,8 +53,8 @@ variable "disk_type" {
 }
 
 variable "disk_iops" {
-  type        = string
-  default     = "0"
+  type        = number
+  default     = 0
   description = "IOPS of the EBS volume (required for io1)"
 }
 

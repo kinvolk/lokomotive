@@ -6,7 +6,7 @@ resource "matchbox_group" "install" {
     concat(var.controller_names, var.worker_names)[count.index]
   )
 
-  profile = local.flavor == "flatcar" ? var.cached_install == "true" ? matchbox_profile.cached-flatcar-linux-install[count.index].name : matchbox_profile.flatcar-install[count.index].name : var.cached_install == "true" ? matchbox_profile.cached-container-linux-install[count.index].name : matchbox_profile.container-linux-install[count.index].name
+  profile = local.flavor == "flatcar" ? var.cached_install == true ? matchbox_profile.cached-flatcar-linux-install[count.index].name : matchbox_profile.flatcar-install[count.index].name : var.cached_install == true ? matchbox_profile.cached-container-linux-install[count.index].name : matchbox_profile.container-linux-install[count.index].name
 
   selector = {
     mac = concat(var.controller_macs, var.worker_macs)[count.index]

@@ -43,8 +43,8 @@ variable "custom_image_name" {
 # instances
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of instances"
 }
 

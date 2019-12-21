@@ -23,8 +23,8 @@ variable "network" {
 # instances
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of worker compute instances the instance group should manage"
 }
 
@@ -41,14 +41,14 @@ variable "os_image" {
 }
 
 variable "disk_size" {
-  type        = string
-  default     = "40"
+  type        = number
+  default     = 40
   description = "Size of the disk in GB"
 }
 
 variable "preemptible" {
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
   description = "If enabled, Compute Engine will terminate instances randomly within 24 hours"
 }
 
@@ -96,7 +96,7 @@ variable "accelerator_type" {
 }
 
 variable "accelerator_count" {
-  type        = string
-  default     = "0"
+  type        = number
+  default     = 0
   description = "Number of compute engine accelerators"
 }

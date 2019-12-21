@@ -240,9 +240,9 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | controller_type | EC2 instance type for controllers | "t3.small" | See below |
 | worker_type | EC2 instance type for workers | "t3.small" | See below |
 | os_image | AMI channel for Flatcar Container Linux | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
-| disk_size | Size of the EBS volume in GB | "40" | "100" |
+| disk_size | Size of the EBS volume in GB | 40 | 100 |
 | disk_type | Type of the EBS volume | "gp2" | standard, gp2, io1 |
-| disk_iops | IOPS of the EBS volume | "0" (i.e. auto) | "400" |
+| disk_iops | IOPS of the EBS volume | 0 (i.e. auto) | 400 |
 | worker_target_groups | Target group ARNs to which worker instances should be added | [] | ["${aws_lb_target_group.app.id}"] |
 | worker_price | Spot price in USD for workers. Leave as default empty string for regular on-demand instances | "" | "0.10" |
 | controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
@@ -253,7 +253,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
-| certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
+| certs_validity_period_hours | Validity of all the certificates in hours | 8760 | 17520 |
 
 Check the list of valid [instance types](https://aws.amazon.com/ec2/instance-types/).
 

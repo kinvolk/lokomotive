@@ -12,8 +12,8 @@ variable "os_image_unpacked" {
 }
 
 variable "controller_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of controllers (i.e. masters)"
 }
 
@@ -29,14 +29,14 @@ variable "node_ip_pool" {
 }
 
 variable "virtual_cpus" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of virtual CPUs"
 }
 
 variable "virtual_memory" {
-  type        = string
-  default     = "2048"
+  type        = number
+  default     = 2048
   description = "Virtual RAM in MB"
 }
 
@@ -66,8 +66,8 @@ variable "networking" {
 
 variable "network_mtu" {
   description = "CNI interface MTU (applies to calico only)"
-  type        = string
-  default     = "1480"
+  type        = number
+  default     = 1480
 }
 
 variable "network_ip_autodetection_method" {
@@ -100,21 +100,21 @@ variable "cluster_domain_suffix" {
 }
 
 variable "enable_reporting" {
-  type        = string
+  type        = bool
   description = "Enable usage or analytics reporting to upstreams (Calico)"
-  default     = "false"
+  default     = false
 }
 
 variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 # Certificates
 
 variable "certs_validity_period_hours" {
   description = "Validity of all the certificates in hours"
-  type        = string
+  type        = number
   default     = 8760
 }

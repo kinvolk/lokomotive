@@ -17,8 +17,8 @@ variable "pool_name" {
 }
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of workers, can be changed afterwards to delete or add nodes"
 }
 
@@ -116,26 +116,26 @@ EOD
 
 variable "setup_raid" {
   description = "Attempt to create a RAID 0 from extra disks to be used for persistent container storage. Can't be used with setup_raid_hdd nor setup_raid_sdd. Valid values: \"true\", \"false\""
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 variable "setup_raid_hdd" {
   description = "Attempt to create a RAID 0 from extra Hard Disk drives only, to be used for persistent container storage. Can't be used with setup_raid nor setup_raid_sdd. Valid values: \"true\", \"false\""
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 variable "setup_raid_ssd" {
   description = "Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage.  Can't be used with setup_raid nor setup_raid_hdd. Valid values: \"true\", \"false\""
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 variable "setup_raid_ssd_fs" {
   description = "When set to \"true\" file system will be created on SSD RAID device and will be mounted on /mnt/node-local-ssd-storage. To use the raw device set it to \"false\". Valid values: \"true\", \"false\""
-  type        = string
-  default     = "true"
+  type        = bool
+  default     = true
 }
 
 variable "reservation_ids" {
@@ -160,6 +160,6 @@ EOD
 
 variable "disable_bgp" {
   description = "Disable BGP on nodes. Nodes won't be able to connect to Packet BGP peers. Note that BGP is used to receive internet traffic directed to Packet elastic IPs"
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }

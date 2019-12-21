@@ -54,7 +54,7 @@ resource "packet_device" "controllers" {
   )
 
   ipxe_script_url = var.ipxe_script_url
-  always_pxe      = "false"
+  always_pxe      = false
 }
 
 data "ct_config" "controller-install-ignitions" {

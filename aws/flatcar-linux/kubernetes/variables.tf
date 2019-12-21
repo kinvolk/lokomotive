@@ -18,14 +18,14 @@ variable "dns_zone_id" {
 # instances
 
 variable "controller_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of controllers (i.e. masters)"
 }
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of workers"
 }
 
@@ -48,8 +48,8 @@ variable "os_image" {
 }
 
 variable "disk_size" {
-  type        = string
-  default     = "40"
+  type        = number
+  default     = 40
   description = "Size of the EBS volume in GB"
 }
 
@@ -60,8 +60,8 @@ variable "disk_type" {
 }
 
 variable "disk_iops" {
-  type        = string
-  default     = "0"
+  type        = number
+  default     = 0
   description = "IOPS of the EBS volume (e.g. 100)"
 }
 
@@ -109,8 +109,8 @@ variable "networking" {
 
 variable "network_mtu" {
   description = "CNI interface MTU (applies to calico only). Use 8981 if using instances types with Jumbo frames."
-  type        = string
-  default     = "1480"
+  type        = number
+  default     = 1480
 }
 
 variable "host_cidr" {
@@ -143,21 +143,21 @@ variable "cluster_domain_suffix" {
 }
 
 variable "enable_reporting" {
-  type        = string
+  type        = bool
   description = "Enable usage or analytics reporting to upstreams (Calico)"
-  default     = "false"
+  default     = false
 }
 
 variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 # Certificates
 
 variable "certs_validity_period_hours" {
   description = "Validity of all the certificates in hours"
-  type        = string
+  type        = number
   default     = 8760
 }

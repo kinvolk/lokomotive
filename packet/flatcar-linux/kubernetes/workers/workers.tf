@@ -7,7 +7,7 @@ resource "packet_device" "nodes" {
   billing_cycle    = "hourly"
   project_id       = var.project_id
   ipxe_script_url  = var.ipxe_script_url
-  always_pxe       = "false"
+  always_pxe       = false
   user_data        = var.ipxe_script_url != "" ? data.ct_config.install-ignitions.rendered : data.ct_config.ignitions.rendered
 
   # If not present in the map, it uses ${var.reservation_ids_default}.
@@ -37,7 +37,7 @@ data "template_file" "install" {
 }
 
 resource "packet_bgp_session" "bgp" {
-  count          = var.disable_bgp == "true" ? 0 : var.worker_count
+  count          = var.disable_bgp == true ? 0 : var.worker_count
   device_id      = packet_device.nodes[count.index].id
   address_family = "ipv4"
 }

@@ -16,20 +16,20 @@ variable "pool_name" {
 }
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of workers"
 }
 
 variable "virtual_cpus" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of virtual CPUs"
 }
 
 variable "virtual_memory" {
-  type        = string
-  default     = "2048"
+  type        = number
+  default     = 2048
   description = "Virtual RAM in MB"
 }
 

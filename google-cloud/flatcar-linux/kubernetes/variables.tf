@@ -23,14 +23,14 @@ variable "dns_zone_name" {
 # instances
 
 variable "controller_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of controllers (i.e. masters)"
 }
 
 variable "worker_count" {
-  type        = string
-  default     = "1"
+  type        = number
+  default     = 1
   description = "Number of workers"
 }
 
@@ -53,14 +53,14 @@ variable "os_image" {
 }
 
 variable "disk_size" {
-  type        = string
-  default     = "40"
+  type        = number
+  default     = 40
   description = "Size of the disk in GB"
 }
 
 variable "worker_preemptible" {
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
   description = "If enabled, Compute Engine will terminate workers randomly within 24 hours"
 }
 
@@ -118,21 +118,21 @@ variable "cluster_domain_suffix" {
 }
 
 variable "enable_reporting" {
-  type        = string
+  type        = bool
   description = "Enable usage or analytics reporting to upstreams (Calico)"
-  default     = "false"
+  default     = false
 }
 
 variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 # Certificates
 
 variable "certs_validity_period_hours" {
   description = "Validity of all the certificates in hours"
-  type        = string
+  type        = number
   default     = 8760
 }

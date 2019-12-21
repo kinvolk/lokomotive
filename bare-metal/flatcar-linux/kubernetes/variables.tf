@@ -84,8 +84,8 @@ variable "networking" {
 
 variable "network_mtu" {
   description = "CNI interface MTU (applies to calico only)"
-  type        = string
-  default     = "1480"
+  type        = number
+  default     = 1480
 }
 
 variable "network_ip_autodetection_method" {
@@ -126,8 +126,8 @@ variable "download_protocol" {
 }
 
 variable "cached_install" {
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
   description = "Whether the operating system should PXE boot and install from matchbox /assets cache. Note that the admin must have downloaded the os_version into matchbox assets."
 }
 
@@ -150,21 +150,21 @@ variable "kernel_args" {
 }
 
 variable "enable_reporting" {
-  type        = string
+  type        = bool
   description = "Enable usage or analytics reporting to upstreams (Calico)"
-  default     = "false"
+  default     = false
 }
 
 variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 # Certificates
 
 variable "certs_validity_period_hours" {
   description = "Validity of all the certificates in hours"
-  type        = string
+  type        = number
   default     = 8760
 }
