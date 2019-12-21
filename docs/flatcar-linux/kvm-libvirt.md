@@ -70,11 +70,11 @@ $ newgrp libvirt
 
 ## Terraform Setup
 
-Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your system.
+Install [Terraform](https://www.terraform.io/downloads.html) v0.12.x on your system.
 
 ```sh
 $ terraform version
-Terraform v0.11.13
+Terraform v0.12.17
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system
@@ -153,11 +153,11 @@ module "controller" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//kvm-libvirt/flatcar-linux/kubernetes"
 
   providers = {
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
-    libvirt  = "libvirt.default"
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    libvirt  = libvirt.default
   }
 
   # Path to where the image was prepared, note the triple slash for the absolute path
@@ -176,31 +176,30 @@ module "controller" {
   node_ip_pool = "192.168.192.0/24"
 
   controller_count = 1
-
 }
 
 module "worker-pool-one" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//kvm-libvirt/flatcar-linux/kubernetes/workers"
 
   providers = {
-    local    = "local.default"
-    template = "template.default"
-    tls      = "tls.default"
-    libvirt  = "libvirt.default"
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    libvirt  = libvirt.default
   }
 
-  ssh_keys = "${module.controller.ssh_keys}"
+  ssh_keys = "module.controller.ssh_keys
 
-  machine_domain = "${module.controller.machine_domain}"
-  cluster_name = "${module.controller.cluster_name}"
-  libvirtpool = "${module.controller.libvirtpool}"
-  libvirtbaseid = "${module.controller.libvirtbaseid}"
+  machine_domain = module.controller.machine_domain
+  cluster_name = module.controller.cluster_name
+  libvirtpool = module.controller.libvirtpool
+  libvirtbaseid = module.controller.libvirtbaseid
 
   pool_name = "one"
 
   worker_count = 1
 
-  kubeconfig = "${module.controller.kubeconfig}"
+  kubeconfig = module.controller.kubeconfig
 
   labels = "node.supernova.io/role=backend"
 }

@@ -13,7 +13,7 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 
 * Azure account
 * Azure DNS Zone (registered Domain Name or delegated subdomain)
-* Terraform v0.11.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
 
@@ -21,7 +21,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.12
+Terraform v0.12.17
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -90,11 +90,11 @@ module "azure-ramius" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/flatcar-linux/kubernetes"
 
   providers = {
-    azurerm  = "azurerm.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
+    azurerm  = azurerm.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
   }
 
   # Azure

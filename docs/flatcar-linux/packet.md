@@ -11,15 +11,15 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 * Packet account, Project ID and [API key](https://support.packet.com/kb/articles/api-integrations) (Note, that the term "Auth Token" is also used to refer to the API key in the packet docs)
 * AWS Account and IAM credentials
 * AWS Route53 DNS Zone (registered Domain Name or delegated subdomain)
-* Terraform v0.11.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
 
-Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your system.
+Install [Terraform](https://www.terraform.io/downloads.html) v0.12.x on your system.
 
 ```sh
 $ terraform version
-Terraform v0.11.13
+Terraform v0.12.17
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -113,12 +113,12 @@ module "controller" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
-    aws      = "aws.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   # Route53
@@ -157,10 +157,10 @@ module "worker-pool-helium" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes/workers?ref=<hash>"
 
   providers = {
-    local    = "local.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   ssh_keys = [
@@ -176,7 +176,7 @@ module "worker-pool-helium" {
   worker_count = 2
   type  = "t1.small.x86"
 
-  kubeconfig = "${module.controller.kubeconfig}"
+  kubeconfig = module.controller.kubeconfig
 
   labels = "node.supernova.io/role=backend"
 }
