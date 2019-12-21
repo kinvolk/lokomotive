@@ -161,4 +161,3 @@ variable "certs_validity_period_hours" {
   type        = string
   default     = 8760
 }
-

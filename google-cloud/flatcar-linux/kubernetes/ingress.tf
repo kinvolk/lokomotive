@@ -120,4 +120,3 @@ resource "google_compute_health_check" "ingress" {
     request_path = "/healthz"
   }
 }
-

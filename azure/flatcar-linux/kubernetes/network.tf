@@ -31,4 +31,3 @@ resource "azurerm_subnet" "worker" {
   virtual_network_name = azurerm_virtual_network.network.name
   address_prefix       = cidrsubnet(var.host_cidr, 1, 1)
 }
-

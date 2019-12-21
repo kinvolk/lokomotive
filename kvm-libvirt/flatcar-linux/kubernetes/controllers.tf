@@ -102,4 +102,3 @@ data "template_file" "etcds" {
     cluster_name = var.cluster_name
   }
 }
-

@@ -276,4 +276,3 @@ data "template_file" "clc-default-snippets" {
   count    = length(var.controller_names) + length(var.worker_names)
   template = "\n"
 }
-

@@ -5,4 +5,3 @@ output "kubeconfig-admin" {
 output "kubeconfig" {
   value = module.bootkube.kubeconfig-kubelet
 }
-

@@ -8,4 +8,3 @@ resource "aws_route53_record" "ingress-wildcard" {
     format("%s.%s.", var.cluster_name, var.dns_zone),
   ]
 }
-

@@ -87,4 +87,3 @@ data "template_file" "worker-config" {
     cluster_domain_suffix  = var.cluster_domain_suffix
   }
 }
-

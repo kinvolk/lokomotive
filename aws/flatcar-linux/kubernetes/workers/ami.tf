@@ -47,4 +47,3 @@ data "aws_ami" "flatcar" {
     values = ["Flatcar-${local.flavor == "flatcar" ? local.channel : "stable"}-*"]
   }
 }
-

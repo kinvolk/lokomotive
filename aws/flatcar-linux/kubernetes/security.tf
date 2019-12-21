@@ -361,4 +361,3 @@ resource "aws_security_group_rule" "worker-egress" {
   cidr_blocks      = ["0.0.0.0/0"]
   ipv6_cidr_blocks = ["::/0"]
 }
-

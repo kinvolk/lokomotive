@@ -125,4 +125,3 @@ data "template_file" "host_protection_policy" {
     etcd_server_cidrs      = jsonencode(packet_device.controllers.*.access_private_ipv4)
   }
 }
-

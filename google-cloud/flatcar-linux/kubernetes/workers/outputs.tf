@@ -11,4 +11,3 @@ output "target_pool" {
   description = "Worker target pool self link"
   value       = google_compute_target_pool.workers.self_link
 }
-

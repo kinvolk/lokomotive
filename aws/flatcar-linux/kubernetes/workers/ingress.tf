@@ -45,4 +45,3 @@ resource "aws_lb_target_group" "workers-https" {
     interval = 10
   }
 }
-

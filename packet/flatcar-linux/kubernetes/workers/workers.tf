@@ -65,4 +65,3 @@ data "template_file" "configs" {
     setup_raid_ssd_fs     = var.setup_raid_ssd_fs
   }
 }
-

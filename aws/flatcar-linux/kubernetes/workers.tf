@@ -20,4 +20,3 @@ module "workers" {
   cluster_domain_suffix = var.cluster_domain_suffix
   clc_snippets          = var.worker_clc_snippets
 }
-

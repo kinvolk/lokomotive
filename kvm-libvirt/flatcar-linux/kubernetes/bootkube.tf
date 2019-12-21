@@ -33,4 +33,3 @@ data "template_file" "controllernames" {
     machine_domain = var.machine_domain
   }
 }
-

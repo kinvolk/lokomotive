@@ -285,4 +285,3 @@ resource "azurerm_network_security_rule" "worker-deny-all" {
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
 }
-

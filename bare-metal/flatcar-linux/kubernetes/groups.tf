@@ -48,4 +48,3 @@ resource "matchbox_group" "worker" {
     os  = "installed"
   }
 }
-

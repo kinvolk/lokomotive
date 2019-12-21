@@ -53,4 +53,3 @@ output "backend_address_pool_id" {
   description = "ID of the worker backend address pool"
   value       = azurerm_lb_backend_address_pool.worker.id
 }
-

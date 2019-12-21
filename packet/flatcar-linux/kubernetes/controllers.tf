@@ -127,4 +127,3 @@ data "template_file" "etcds" {
     dns_zone     = var.dns_zone
   }
 }
-

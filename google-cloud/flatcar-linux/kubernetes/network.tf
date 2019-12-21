@@ -162,4 +162,3 @@ resource "google_compute_firewall" "google-ingress-health-checks" {
 
   target_tags = ["${var.cluster_name}-worker"]
 }
-

@@ -142,4 +142,3 @@ resource "azurerm_lb_probe" "ingress" {
 
   interval_in_seconds = 5
 }
-

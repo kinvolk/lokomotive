@@ -41,4 +41,3 @@ output "worker_target_pool" {
   description = "Worker target pool self link"
   value       = module.workers.target_pool
 }
-

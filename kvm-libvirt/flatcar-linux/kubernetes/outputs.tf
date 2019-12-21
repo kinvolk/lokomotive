@@ -25,4 +25,3 @@ output "libvirtpool" {
 output "libvirtbaseid" {
   value = libvirt_volume.base.id
 }
-

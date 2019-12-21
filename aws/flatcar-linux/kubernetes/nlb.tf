@@ -91,4 +91,3 @@ resource "aws_lb_target_group_attachment" "controllers" {
   target_id        = element(aws_instance.controllers.*.id, count.index)
   port             = 6443
 }
-

@@ -20,4 +20,3 @@ resource "google_compute_http_health_check" "workers" {
   port         = 10254
   request_path = "/healthz"
 }
-

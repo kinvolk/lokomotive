@@ -25,4 +25,3 @@ module "bootkube" {
 
   container_arch = var.os_arch
 }
-

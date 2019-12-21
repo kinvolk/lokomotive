@@ -163,4 +163,3 @@ variable "disable_bgp" {
   type        = string
   default     = "false"
 }
-

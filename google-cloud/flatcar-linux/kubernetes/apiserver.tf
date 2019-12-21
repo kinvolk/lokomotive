@@ -99,4 +99,3 @@ resource "google_compute_health_check" "apiserver" {
     port = "6443"
   }
 }
-

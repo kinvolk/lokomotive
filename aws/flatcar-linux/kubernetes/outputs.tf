@@ -51,4 +51,3 @@ output "worker_target_group_https" {
   description = "ARN of a target group of workers for HTTPS traffic"
   value       = module.workers.target_group_https
 }
-

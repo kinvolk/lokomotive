@@ -17,4 +17,3 @@ module "bootkube" {
 
   certs_validity_period_hours = var.certs_validity_period_hours
 }
-

@@ -100,4 +100,3 @@ variable "accelerator_count" {
   default     = "0"
   description = "Number of compute engine accelerators"
 }
-

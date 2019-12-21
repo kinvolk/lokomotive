@@ -135,4 +135,3 @@ resource "null_resource" "bootkube-start" {
     ]
   }
 }
-
