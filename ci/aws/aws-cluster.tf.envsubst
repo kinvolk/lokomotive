@@ -2,11 +2,11 @@ module "aws-tempest" {
   source = "../../aws/flatcar-linux/kubernetes"
 
   providers = {
-    aws = "aws.default"
-    local = "local.default"
-    null = "null.default"
-    template = "template.default"
-    tls = "tls.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
   }
 
   cluster_name = "$CLUSTER_ID"
@@ -14,7 +14,7 @@ module "aws-tempest" {
   dns_zone_id = "$AWS_DNS_ZONE_ID"
   ssh_keys = ["$PUB_KEY"]
 
-  asset_dir = "${pathexpand("~/assets")}"
+  asset_dir = pathexpand("~/assets")
 
   worker_count = 2
   worker_type  = "t3.small"

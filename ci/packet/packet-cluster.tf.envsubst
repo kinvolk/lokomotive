@@ -2,12 +2,12 @@ module "controller" {
   source = "../../packet/flatcar-linux/kubernetes"
 
   providers = {
-    aws      = "aws.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   dns_zone = "$AWS_DNS_ZONE"
@@ -15,7 +15,7 @@ module "controller" {
 
   ssh_keys = ["$PUB_KEY"]
 
-  asset_dir = "${pathexpand("~/assets")}"
+  asset_dir = pathexpand("~/assets")
   cluster_name = "$CLUSTER_ID"
   project_id = "$PACKET_PROJECT_ID"
 
@@ -35,10 +35,10 @@ module "worker-pool-1" {
   source = "../../packet/flatcar-linux/kubernetes/workers"
 
   providers = {
-    local    = "local.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
 
@@ -53,7 +53,7 @@ module "worker-pool-1" {
   worker_count = 2
   type  = "c2.medium.x86"
 
-  kubeconfig = "${module.controller.kubeconfig}"
+  kubeconfig = module.controller.kubeconfig
 
   labels = "node.supernova.io/role=backend"
 }
