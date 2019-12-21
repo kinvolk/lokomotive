@@ -7,7 +7,7 @@ module "bootkube" {
   api_servers          = [data.template_file.controllernames[0].rendered]
   api_servers_external = libvirt_domain.controller-machine.*.network_interface.0.addresses.0
   api_servers_ips      = libvirt_domain.controller-machine.*.network_interface.0.addresses.0
-  etcd_servers         = [data.template_file.controllernames.*.rendered]
+  etcd_servers         = data.template_file.controllernames.*.rendered
   asset_dir            = var.asset_dir
   networking           = var.networking
   network_mtu          = var.network_mtu
