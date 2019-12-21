@@ -21,14 +21,14 @@ resource "matchbox_profile" "container-linux-install" {
     "${var.download_protocol}://${local.channel}.release.core-os.net/amd64-usr/${var.os_version}/coreos_production_pxe_image.cpio.gz",
   ]
 
-  args = [
+  args = flatten([
     "initrd=coreos_production_pxe_image.cpio.gz",
     "coreos.config.url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
     "coreos.first_boot=yes",
     "console=tty0",
     "console=ttyS0",
     var.kernel_args,
-  ]
+  ])
 
   container_linux_config = element(
     data.template_file.container-linux-install-configs.*.rendered,
@@ -70,14 +70,14 @@ resource "matchbox_profile" "cached-container-linux-install" {
     "/assets/coreos/${var.os_version}/coreos_production_pxe_image.cpio.gz",
   ]
 
-  args = [
+  args = flatten([
     "initrd=coreos_production_pxe_image.cpio.gz",
     "coreos.config.url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
     "coreos.first_boot=yes",
     "console=tty0",
     "console=ttyS0",
     var.kernel_args,
-  ]
+  ])
 
   container_linux_config = element(
     data.template_file.cached-container-linux-install-configs.*.rendered,
@@ -118,14 +118,14 @@ resource "matchbox_profile" "flatcar-install" {
     "${var.download_protocol}://${local.channel}.release.flatcar-linux.net/amd64-usr/${var.os_version}/flatcar_production_pxe_image.cpio.gz",
   ]
 
-  args = [
+  args = flatten([
     "initrd=flatcar_production_pxe_image.cpio.gz",
     "ignition.config.url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
     "flatcar.first_boot=yes",
     "console=tty0",
     "console=ttyS0",
     var.kernel_args,
-  ]
+  ])
 
   container_linux_config = element(
     data.template_file.container-linux-install-configs.*.rendered,
@@ -149,14 +149,14 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     "/assets/flatcar/${var.os_version}/flatcar_production_pxe_image.cpio.gz",
   ]
 
-  args = [
+  args = flatten([
     "initrd=flatcar_production_pxe_image.cpio.gz",
     "ignition.config.url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
     "flatcar.first_boot=yes",
     "console=tty0",
     "console=ttyS0",
     var.kernel_args,
-  ]
+  ])
 
   container_linux_config = element(
     data.template_file.cached-container-linux-install-configs.*.rendered,
@@ -184,15 +184,7 @@ data "ct_config" "controller-ignitions" {
   pretty_print = false
 
   # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
-  # force an interpolation expression to be interpreted as a list by wrapping it
-  # in an extra set of list brackets. That form was supported for compatibility in
-  # v0.11, but is no longer supported in Terraform v0.12.
-  #
-  # If the expression in the following list itself returns a list, remove the
-  # brackets to avoid interpretation as a list of lists. If the expression
-  # returns a single list item then leave it as-is and remove this TODO comment.
-  snippets = [local.clc_map[element(var.controller_names, count.index)]]
+  snippets = local.clc_map[element(var.controller_names, count.index)]
 }
 
 data "template_file" "controller-configs" {
@@ -234,15 +226,7 @@ data "ct_config" "worker-ignitions" {
   pretty_print = false
 
   # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
-  # force an interpolation expression to be interpreted as a list by wrapping it
-  # in an extra set of list brackets. That form was supported for compatibility in
-  # v0.11, but is no longer supported in Terraform v0.12.
-  #
-  # If the expression in the following list itself returns a list, remove the
-  # brackets to avoid interpretation as a list of lists. If the expression
-  # returns a single list item then leave it as-is and remove this TODO comment.
-  snippets = [local.clc_map[element(var.worker_names, count.index)]]
+  snippets = local.clc_map[element(var.worker_names, count.index)]
 }
 
 data "template_file" "worker-configs" {
@@ -259,6 +243,7 @@ data "template_file" "worker-configs" {
 }
 
 locals {
+  # TODO: Probably it is not needed anymore with terraform 0.12
   # Hack to workaround https://github.com/hashicorp/terraform/issues/17251
   # Default CoreOS Container Linux config snippets map every node names to list("\n") so
   # all lookups succeed
