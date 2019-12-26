@@ -78,7 +78,7 @@ Terraform v0.11.13
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system
-to `~/.terraform.d/plugins/`, noting the `_v0.3.1` suffix.
+to `~/.terraform.d/plugins/`, noting the `_v0.4.0` suffix.
 
 ```sh
 wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.4.0/terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
