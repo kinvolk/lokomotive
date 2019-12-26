@@ -103,8 +103,8 @@ module "worker-pool-{{ $index }}" {
   cluster_domain_suffix = "{{$.Config.ClusterDomainSuffix}}"
   {{- end }}
 
-  pool_name = "{{ $pool.Name }}"
-  count     = "{{ $pool.Count }}"
+  pool_name    = "{{ $pool.Name }}"
+  worker_count = "{{ $pool.Count }}"
   {{- if $pool.NodeType }}
   type      = "{{ $pool.NodeType }}"
   {{- end }}
