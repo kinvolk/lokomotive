@@ -5,12 +5,12 @@ module "packet-{{.Config.ClusterName}}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
 
   providers = {
-    aws      = "aws.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   dns_zone    = "{{.Config.DNSZone}}"
@@ -88,10 +88,10 @@ module "worker-pool-{{ $index }}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
 
   providers = {
-    local    = "local.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   ssh_keys  = {{$.SSHPublicKeys}}
@@ -123,7 +123,7 @@ module "worker-pool-{{ $index }}" {
   os_version = "{{ $pool.OSVersion }}"
   {{- end }}
 
-  kubeconfig = "${module.packet-{{ $.Config.ClusterName }}.kubeconfig}"
+  kubeconfig = module.packet-{{ $.Config.ClusterName }}.kubeconfig
 
   {{- if $pool.Labels }}
   labels = "{{ $pool.Labels }}"
