@@ -30,7 +30,7 @@ const (
 	logsFileSuffix = ".log"
 	failFileSuffix = ".fail"
 
-	requiredVersion = ">= 0.11, < 0.12"
+	requiredVersion = ">= 0.12, < 0.13"
 )
 
 // ErrBinaryNotFound denotes the fact that the Terraform binary could not be
