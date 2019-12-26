@@ -12,7 +12,7 @@ import (
 	"github.com/kardianos/osext"
 )
 
-// sources lists the files/directories that compose the TerraForm sources.
+// sources lists the files/directories that compose the Terraform sources.
 //
 // The separator enables us to make the distinction between finding a directory
 // and a file.
@@ -26,7 +26,7 @@ var sources = []string{
 	"config.tf",
 }
 
-// RestoreSources locates the TerraForm sources for Tectonic and copy them to
+// RestoreSources locates the Terraform sources for Tectonic and copy them to
 // the given directory.
 //
 // It recursively searches the directory trees upward, for all the defined
@@ -47,7 +47,7 @@ func RestoreSources(dst string) error {
 		}
 	}
 
-	return errors.New("could not find TerraForm sources")
+	return errors.New("could not find Terraform sources")
 }
 
 // findSources recursively looks for the `platforms` and `modules` directory,
