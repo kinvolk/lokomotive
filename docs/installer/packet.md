@@ -49,9 +49,9 @@ variable "packet_token" {
 
 cluster "packet" {
 	# Change asset folder
-	asset_dir = "${pathexpand("~/lokoctl-assets/mycluster")}"
-	#auth_token = "${var.packet_token}"
-	#aws_creds_path = "${pathexpand("~/.aws/credentials")}"
+	asset_dir = pathexpand("~/lokoctl-assets/mycluster")
+	#auth_token = var.packet_token
+	#aws_creds_path = pathexpand("~/.aws/credentials")
 	# Change according to your AWS DNS zone
 	aws_region = "eu-central-1"
 	# Change cluster name

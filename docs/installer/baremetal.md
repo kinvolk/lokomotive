@@ -37,12 +37,12 @@ components that should be installed. Example:
 
 ```
 cluster "bare-metal" {
-  asset_dir = "${pathexpand("~/.lokoctl/mercury")}"
-  ssh_pubkey = "${pathexpand("~/.ssh/id_rsa.pub")}"
+  asset_dir = pathexpand("~/.lokoctl/mercury")
+  ssh_pubkey = pathexpand("~/.ssh/id_rsa.pub")
   cached_install = "true"
-  matchbox_ca_path = "${pathexpand("~/matchbox-certs/ca.crt")}"
-  matchbox_client_cert_path = "${pathexpand("~/matchbox-certs/client.crt")}"
-  matchbox_client_key_path = "${pathexpand("~/matchbox-certs/client.key")}"
+  matchbox_ca_path = pathexpand("~/matchbox-certs/ca.crt")
+  matchbox_client_cert_path = pathexpand("~/matchbox-certs/client.crt")
+  matchbox_client_key_path = pathexpand("~/matchbox-certs/client.key")
   matchbox_endpoint = "matchbox.example.com:8081"
   matchbox_http_endpoint = "http://matchbox.example.com:8080"
   cluster_name = "mercury"

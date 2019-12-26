@@ -33,7 +33,7 @@ component "prometheus-operator" {
 
   alertmanager_retention    = "360h"
   alertmanager_external_url = "https://api.example.com/alertmanager"
-  alertmanager_config       = "${file("alertmanager-config.yaml")}"
+  alertmanager_config       = file("alertmanager-config.yaml")
 }
 ```
 

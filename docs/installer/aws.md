@@ -54,13 +54,13 @@ variable "ssh_pubkey" {
 }
 
 cluster "aws" {
-	asset_dir = "${pathexpand(var.asset_dir)}"
-	# creds_path = "${pathexpand(var.aws_creds)}"
+	asset_dir = pathexpand(var.asset_dir)
+	# creds_path = pathexpand(var.aws_creds)
 	cluster_name = "test"
 	os_image = "flatcar-stable"
 	dns_zone = "example.com"
 	dns_zone_id = "XXX"
-	ssh_pubkey = "${pathexpand(var.ssh_pubkey)}"
+	ssh_pubkey = pathexpand(var.ssh_pubkey)
 
 	# Size of the EBS volume in GB
 	# disk_size = "40" (optional)
