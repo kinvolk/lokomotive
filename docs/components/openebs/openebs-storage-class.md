@@ -1,4 +1,4 @@
-# OpenEBS Storage Class 
+# OpenEBS Storage Class
 
 This component configures the storage class and storage pool claim for OpenEBS.
 
@@ -28,7 +28,7 @@ component "openebs-storage-class" {
   }
 }
 
-or 
+or
 
 component "openebs-storage-class" {}
 ```
@@ -167,14 +167,14 @@ exit
 NAME        READY   STATUS    RESTARTS   AGE
 fio-cstor   1/1     Running   0          7m3s
 
-✗ kubectl delete pods fio-cstor 
+✗ kubectl delete pods fio-cstor
 pod "fio-cstor" deleted
 
 ✗ kubectl apply -f cstor/demo-fio-cstor-workload.yaml
 pod/fio-cstor created
 persistentvolumeclaim/fio-cstor-claim unchanged
 
-✗ kubectl get pods               
+✗ kubectl get pods
 NAME        READY   STATUS    RESTARTS   AGE
 fio-cstor   1/1     Running   0          18s
 
