@@ -130,7 +130,7 @@ lokoctl cluster install
 ## Destroying the cluster
 
 ```bash
-lokoctl cluster destroy --confirm
+lokoctl cluster destroy
 ```
 
 You will then need to manually delete the assets directory

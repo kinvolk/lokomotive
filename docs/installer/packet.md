@@ -301,7 +301,7 @@ kube-system   pod-checkpointer-wf65d-node1.example.com   1/1       Running   0  
 ## Destroying the cluster
 
 ```bash
-lokoctl cluster destroy --confirm
+lokoctl cluster destroy
 ```
 
 You will then need to manually delete the assets directory
