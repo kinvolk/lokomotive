@@ -8,12 +8,12 @@ variable "ssh_pubkey" {
 }
 
 cluster "aws" {
-  asset_dir    = "${pathexpand(var.asset_dir)}"
+  asset_dir    = pathexpand(var.asset_dir)
   cluster_name = "$CLUSTER_ID"
   dns_zone     = "$AWS_DNS_ZONE"
   dns_zone_id  = "$AWS_DNS_ZONE_ID"
   os_image     = "flatcar-stable"
-  ssh_pubkey   = "${pathexpand(var.ssh_pubkey)}"
+  ssh_pubkey   = pathexpand(var.ssh_pubkey)
 }
 
 component "openebs-operator" {}
