@@ -6,12 +6,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	// Register a platform by adding an anonymous import
+	// Register platforms by adding an anonymous import.
 	_ "github.com/kinvolk/lokoctl/pkg/install/aws"
 	_ "github.com/kinvolk/lokoctl/pkg/install/baremetal"
 	_ "github.com/kinvolk/lokoctl/pkg/install/packet"
 
-	// Register a backend by adding an anonymous import
+	// Register backends by adding an anonymous import.
 	_ "github.com/kinvolk/lokoctl/pkg/backend/local"
 	_ "github.com/kinvolk/lokoctl/pkg/backend/s3"
 )
@@ -30,7 +30,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(cobraInit)
 
-	// add kubeconfig flag
+	// Add kubeconfig flag.
 	rootCmd.PersistentFlags().String(
 		"kubeconfig",
 		"", // Special empty default, use getKubeconfig()
