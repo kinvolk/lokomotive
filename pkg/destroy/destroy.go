@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ExecuteTerraformDestroy executes terraform destroy -auto-approve to delete the cluster.
+// ExecuteTerraformDestroy executes `terraform destroy -auto-approve` to delete the cluster.
 func ExecuteTerraformDestroy(assetDirectory string) error {
 	assetDir, err := homedir.Expand(assetDirectory)
 	if err != nil {
@@ -18,7 +18,7 @@ func ExecuteTerraformDestroy(assetDirectory string) error {
 
 	terraformRootDir := filepath.Join(assetDir, "terraform")
 
-	// Check if terraform dir exists
+	// Check if Terraform dir exists.
 	pathExists, err := util.PathExists(terraformRootDir)
 	if err != nil {
 		return errors.Wrapf(err, "failed to stat path %q: %v", terraformRootDir, err)
