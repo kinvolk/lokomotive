@@ -31,7 +31,6 @@ func NewLocalBackend() *local {
 
 // Render renders the go template with local backend configuration
 func (l *local) Render() (string, error) {
-
 	return util.RenderTemplate(backendConfigTmpl, l)
 }
 

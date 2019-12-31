@@ -38,13 +38,11 @@ func NewS3Backend() *s3 {
 
 // Render renders the go template with s3 backend configuration
 func (s *s3) Render() (string, error) {
-
 	return util.RenderTemplate(backendConfigTmpl, s)
 }
 
 // Validate validates S3 backend configuration
 func (s *s3) Validate() error {
-
 	if s.Bucket == "" {
 		return errors.Errorf("no bucket specified")
 	}
