@@ -7,7 +7,6 @@ import (
 )
 
 // Backend describes the storage place of terraform state.
-// Supports local and S3
 type Backend interface {
 	// LoadConfig loads the backend config provided by the user.
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
