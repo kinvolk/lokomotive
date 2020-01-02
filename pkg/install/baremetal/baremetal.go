@@ -31,7 +31,7 @@ type config struct {
 	MatchboxHTTPEndpoint   string   `hcl:"matchbox_http_endpoint"`
 	OSChannel              string   `hcl:"os_channel,optional"`
 	OSVersion              string   `hcl:"os_version,optional"`
-	SSHPubKeys             []string `hcl:"ssh_pubkey"`
+	SSHPubKeys             []string `hcl:"ssh_pubkeys"`
 	WorkerNames            []string `hcl:"worker_names"`
 	WorkerMacs             []string `hcl:"worker_macs"`
 	WorkerDomains          []string `hcl:"worker_domains"`
