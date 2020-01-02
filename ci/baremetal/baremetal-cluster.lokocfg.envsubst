@@ -1,6 +1,6 @@
 # Note: number of worker nodes has to match `pxe-testbed --num-nodes ...` count
 cluster "bare-metal" {
-  asset_dir = "${pathexpand("~/.lokoctl/mercury")}"
+  asset_dir = "${pathexpand("~/lokoctl-assets")}"
   ssh_pubkeys = ["${file(pathexpand("~/.ssh/id_rsa.pub"))}"]
   cached_install = "true"
   matchbox_ca_path = "${pathexpand("~/pxe-testbed/.matchbox/ca.crt")}"
