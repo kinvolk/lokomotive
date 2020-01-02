@@ -70,13 +70,14 @@ resource "azurerm_virtual_machine" "controllers" {
     custom_data    = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
   }
 
-  # Azure mandates setting an ssh_key, even though Ignition custom_data handles it too
+  # Azure mandates setting an ssh_key, provide just a single key as the
+  # others are handled with Ignition custom_data.
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
       path     = "/home/core/.ssh/authorized_keys"
-      key_data = "${var.ssh_keys}"
+      key_data = "${element(var.ssh_keys, 0)}"
     }
   }
 
@@ -115,7 +116,7 @@ resource "azurerm_network_interface" "controllers" {
 resource "azurerm_network_interface_backend_address_pool_association" "controllers" {
   count = "${var.controller_count}"
 
-  network_interface_id    = "${azurerm_network_interface.controllers.*.id}"
+  network_interface_id    = "${element(azurerm_network_interface.controllers.*.id, count.index)}"
   ip_configuration_name   = "ip0"
   backend_address_pool_id = "${azurerm_lb_backend_address_pool.controller.id}"
 }

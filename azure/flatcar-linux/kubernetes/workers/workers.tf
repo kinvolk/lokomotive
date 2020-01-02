@@ -42,13 +42,14 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
     custom_data          = "${data.ct_config.worker-ignition.rendered}"
   }
 
-  # Azure mandates setting an ssh_key, even though Ignition custom_data handles it too
+  # Azure mandates setting an ssh_key, provide just a single key as the
+  # others are handled with Ignition custom_data.
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
       path     = "/home/core/.ssh/authorized_keys"
-      key_data = "${var.ssh_authorized_key}"
+      key_data = "${element(var.ssh_keys, 0)}"
     }
   }
 
@@ -73,7 +74,11 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
 
   # eviction policy may only be set when priority is Low
   priority        = "${var.priority}"
-  eviction_policy = "${var.priority == "Low" ? "Delete" : null}"
+  # It is not possible to assign an optional argument in terraform 0.11,
+  # (https://github.com/hashicorp/terraform/issues/17968)
+  # however azurerm provider v1.35 ignores the value if the priority
+  # is not low. https://github.com/terraform-providers/terraform-provider-azurerm/blob/3b0ba54174ed56d2082228349b1bc19c38b75eca/azurerm/resource_arm_virtual_machine_scale_set.go#L866
+  eviction_policy = "${var.priority == "Low" ? "Delete" : "Deallocate" }"
 }
 
 # Scale up or down to maintain desired number, tolerating deallocations.
