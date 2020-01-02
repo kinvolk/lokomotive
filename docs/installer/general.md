@@ -33,7 +33,7 @@ NOTE: Installer does not support multiple backends, configure only one.
 * S3 bucket to be used should already be created.
 * DynamoDB table to be used for state locking should already be created.
 * Correct IAM permissions for the S3 bucket and DynamoDB Table. At minimum the following are the permissions required by terraform
-  * [S3 bucket permissions](https://www.terraform.io/docs/backends/types/s3.html#s3-bucket-permissions) 
+  * [S3 bucket permissions](https://www.terraform.io/docs/backends/types/s3.html#s3-bucket-permissions)
   * [DynamoDB table permissions](https://www.terraform.io/docs/backends/types/s3.html#dynamodb-table-permissions).
 
 In order to to start using a backend, one needs to create a configuration in the `.lokocfg` file.
@@ -51,7 +51,7 @@ Examples
 
   ```
 * S3 Backend
-  
+
   ```
   backend "s3" {
     # Required parameters

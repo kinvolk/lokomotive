@@ -49,9 +49,9 @@ variable "packet_token" {
 
 cluster "packet" {
 	# Change asset folder
-	asset_dir = "${pathexpand("~/lokoctl-assets/mycluster")}"
-	#auth_token = "${var.packet_token}"
-	#aws_creds_path = "${pathexpand("~/.aws/credentials")}"
+	asset_dir = pathexpand("~/lokoctl-assets/mycluster")
+	#auth_token = var.packet_token
+	#aws_creds_path = pathexpand("~/.aws/credentials")
 	# Change according to your AWS DNS zone
 	aws_region = "eu-central-1"
 	# Change cluster name
@@ -92,8 +92,8 @@ cluster "packet" {
 	# network_mtu = "1480" (optional)
 
 	# Enable usage or analytics reporting to upstreams (Calico)
-	# enable_reporting = false (optional) 
-	
+	# enable_reporting = false (optional)
+
 	# Method to autodetect the host IPv4 address (applies to calico only)
 	# network_ip_autodetection_method = "first-found" (optional)
 
@@ -106,8 +106,8 @@ cluster "packet" {
 	# Specify Packet hardware_reservation_id for instances. Default is {}
 	# reservation_ids = { controller-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } (optional)
 
-	# Default reservation ID for nodes not listed in the `reservation_ids` map. 
-	# An empty string means "use no hardware reservation". 
+	# Default reservation ID for nodes not listed in the `reservation_ids` map.
+	# An empty string means "use no hardware reservation".
 	# `next-available` will choose any reservation that matches the pool's device type and facility.
 	# reservation_ids_default = "" (optional)
 
@@ -133,7 +133,7 @@ cluster "packet" {
 
 	  # Define a Flatcar Container Linux version (optional)
 	  # os_version = "current"
-          
+
 	  # Custom labels to assign to worker nodes
 	  # labels = "foo=bar,baz=zab" (optional)
 

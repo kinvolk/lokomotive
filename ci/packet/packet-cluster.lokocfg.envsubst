@@ -1,5 +1,5 @@
 cluster "packet" {
-  asset_dir        = "${pathexpand("~/lokoctl-assets")}"
+  asset_dir        = pathexpand("~/lokoctl-assets")
   aws_region       = "$AWS_DEFAULT_REGION"
   cluster_name     = "$CLUSTER_ID"
   controller_count = 1

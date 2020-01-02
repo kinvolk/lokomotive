@@ -14,7 +14,7 @@ According to the [docs](https://docs.openebs.io/docs/next/cstor.html), cStor is 
 
 ## Requirements
 - At least 3 workers with available disks.
-- iSCSI client configured and iscsid service running on the worker nodes. In our current setup, we have iscsid service automatically enabled and running on all worker nodes. 
+- iSCSI client configured and iscsid service running on the worker nodes. In our current setup, we have iscsid service automatically enabled and running on all worker nodes.
 
 **NOTE:** OpenEBS requires available disks, i.e. disks that aren't mounted by anything. This means that by default, OpenEBS will not work on machines with just a single physical disk, e.g. Packet's t1.small.x86 (because the disk will be used for the operating system).
 
@@ -38,7 +38,7 @@ component "openebs-operator" {
 
 ### Installation
 ```bash
- ✗ ./lokoctl component install openebs-operator                           
+ ✗ ./lokoctl component install openebs-operator
 Waiting for api-server...
 Creating assets...
 Created  Namespace openebs

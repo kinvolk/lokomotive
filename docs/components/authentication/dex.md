@@ -78,9 +78,9 @@ component "dex" {
 
     config {
       # The OAuth app client id
-      client_id = "${var.github_client_id}"
+      client_id = var.github_client_id
       # The OAuth app client secret
-      client_secret = "${var.github_client_secret}"
+      client_secret = var.github_client_secret
       # The authorization callback URL as configured with GitHub
       # (i.e. where your dex instance is reachable)
       redirect_uri = "https://dex.example.lokomotive-k8s.org/callback"
@@ -112,9 +112,9 @@ component "dex" {
       # follow: https://developers.google.com/adwords/api/docs/guides/authentication#webapp
 
       # The OAuth app client id
-      client_id = "${var.google_client_id}"
+      client_id = var.google_client_id
       # The OAuth app client secret
-      client_secret = "${var.google_client_secret}"
+      client_secret = var.google_client_secret
 
       # The authorization callback URL
       # Authorize this redirect URL while creating above credentials in the
@@ -139,10 +139,10 @@ component "dex" {
       # follow: https://developers.google.com/adwords/api/docs/guides/authentication#webapp
 
       # The OAuth app client id
-      client_id = "${var.google_client_id}"
+      client_id = var.google_client_id
 
       # The OAuth app client secret
-      client_secret = "${var.google_client_secret}"
+      client_secret = var.google_client_secret
 
       # The authorization callback URL
       # Authorize this redirect URL while creating above credentials in the
@@ -167,10 +167,10 @@ component "dex" {
   # the config would look like the following snippet:
   static_client {
     name   = "gangway"
-    id     = "${var.dex_static_client_gangway_id}"
-    secret = "${var.dex_static_client_gangway_secret}"
+    id     = var.dex_static_client_gangway_id
+    secret = var.dex_static_client_gangway_secret
 
-    redirect_uris = ["${var.gangway_redirect_url}"]
+    redirect_uris = [var.gangway_redirect_url]
   }
 }
 ```

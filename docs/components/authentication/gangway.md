@@ -30,7 +30,7 @@ component "gangway" {
   # automatically created
   ingress_host = "gangway.example.lokomotive-k8s.org"
 
-  session_key = "${var.gangway_session_key}"
+  session_key = var.gangway_session_key
 
   # Where kube-apiserver is reachable
   api_server_url = "https://example.lokomotive-k8s.org:6443"
@@ -42,11 +42,11 @@ component "gangway" {
   token_url = "https://dex.example.lokomotive-k8s.org/token"
 
   # The static client id and secret
-  client_id     = "${var.dex_static_client_gangway_id}"
-  client_secret = "${var.dex_static_client_gangway_secret}"
+  client_id     = var.dex_static_client_gangway_id
+  client_secret = var.dex_static_client_gangway_secret
 
   # gangway's redirect URL, i.e. where the OIDC endpoint should callback to
-  redirect_url = "${var.gangway_redirect_url}"
+  redirect_url = var.gangway_redirect_url
 }
 ```
 

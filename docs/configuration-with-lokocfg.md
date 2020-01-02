@@ -63,7 +63,7 @@ variable "github_client_id" {
 }
 
 component "foo" {
-        github_client_id = "${var.github_client_id}"
+        github_client_id = var.github_client_id
 }
 ```
 
@@ -84,11 +84,11 @@ files and the `lokocfg.vars` file.
 `pathexpand`: expands a path with `~` in it. Example:
 
 ```
-foo_path = "${pathexpand("~/foo")}"
+foo_path = pathexpand("~/foo")
 ```
 
 `file`: reads the content of the passed file and returns it as string. Example:
 
 ```
-snippet = "${file("my-snippets/snippet.txt")}"
+snippet = file("my-snippets/snippet.txt")
 ```
