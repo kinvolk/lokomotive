@@ -20,7 +20,7 @@ module "bare-metal-{{.ClusterName}}" {
   # configuration
   cached_install     = "{{.CachedInstall}}"
   k8s_domain_name    = "{{.K8sDomainName}}"
-  ssh_authorized_key = "${file("{{.SSHAuthorizedKey}}")}"
+  ssh_keys           = {{.SSHPublicKeys}}
   asset_dir          = "../cluster-assets"
 
   # machines

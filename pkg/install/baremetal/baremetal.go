@@ -31,7 +31,7 @@ type config struct {
 	MatchboxHTTPEndpoint   string   `hcl:"matchbox_http_endpoint"`
 	OSChannel              string   `hcl:"os_channel,optional"`
 	OSVersion              string   `hcl:"os_version,optional"`
-	SSHPubKey              string   `hcl:"ssh_pubkey"`
+	SSHPubKeys             []string `hcl:"ssh_pubkey"`
 	WorkerNames            []string `hcl:"worker_names"`
 	WorkerMacs             []string `hcl:"worker_macs"`
 	WorkerDomains          []string `hcl:"worker_domains"`
@@ -90,6 +90,11 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	defer f.Close()
 
+	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal SSH public keys")
+	}
+
 	workerDomains, err := json.Marshal(cfg.WorkerDomains)
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
@@ -134,7 +139,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxHTTPEndpoint string
 		OSChannel            string
 		OSVersion            string
-		SSHAuthorizedKey     string
+		SSHPublicKeys        string
 		WorkerNames          string
 		WorkerMacs           string
 		WorkerDomains        string
@@ -152,7 +157,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
 		OSChannel:            cfg.OSChannel,
 		OSVersion:            cfg.OSVersion,
-		SSHAuthorizedKey:     cfg.SSHPubKey,
+		SSHPublicKeys:        string(keyListBytes),
 		WorkerNames:          string(workerNames),
 		WorkerMacs:           string(workerMacs),
 		WorkerDomains:        string(workerDomains),

@@ -19,8 +19,8 @@ module "aws-{{.Config.ClusterName}}" {
   cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
   {{- end }}
 
-  ssh_authorized_key = "{{.SSHAuthorizedKey}}"
-  asset_dir          = "../cluster-assets"
+  ssh_keys  = {{$.SSHPublicKeys}}
+  asset_dir = "../cluster-assets"
 
   controller_count = "{{.Config.ControllerCount}}"
   controller_type  = "{{.Config.ControllerType}}"
