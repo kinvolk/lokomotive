@@ -74,11 +74,7 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
 
   # eviction policy may only be set when priority is Low
   priority        = "${var.priority}"
-  # It is not possible to assign an optional argument in terraform 0.11,
-  # (https://github.com/hashicorp/terraform/issues/17968)
-  # however azurerm provider v1.35 ignores the value if the priority
-  # is not low. https://github.com/terraform-providers/terraform-provider-azurerm/blob/3b0ba54174ed56d2082228349b1bc19c38b75eca/azurerm/resource_arm_virtual_machine_scale_set.go#L866
-  eviction_policy = "${var.priority == "Low" ? "Delete" : "Deallocate" }"
+  eviction_policy = "${var.priority == "Low" ? "Delete" : null}"
 }
 
 # Scale up or down to maintain desired number, tolerating deallocations.
