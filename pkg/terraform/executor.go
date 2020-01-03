@@ -30,10 +30,10 @@ const (
 	failFileSuffix = ".fail"
 )
 
-// ErrBinaryNotFound denotes the fact that the TerraForm binary could not be
+// ErrBinaryNotFound denotes the fact that the Terraform binary could not be
 // found on disk.
 var ErrBinaryNotFound = errors.New(
-	"TerraForm not in executable's folder, cwd nor PATH",
+	"Terraform not in executable's folder, cwd nor PATH",
 )
 
 // ExecutionStatus describes whether an execution succeeded, failed or is still
@@ -52,22 +52,22 @@ const (
 	ExecutionStatusFailure ExecutionStatus = "Failure"
 )
 
-// Executor enables calling TerraForm from Go, across platforms, with any
+// Executor enables calling Terraform from Go, across platforms, with any
 // additional providers/provisioners that the currently executing binary
 // exposes.
 //
-// The TerraForm binary is expected to be in the executing binary's folder, in
+// The Terraform binary is expected to be in the executing binary's folder, in
 // the current working directory or in the PATH.
 // Each Executor runs in a temporary folder, so each Executor should only be
 // used for one TF project.
 //
-// TODO: Ideally, we would use TerraForm as a Go library, so we can monitor a
+// TODO: Ideally, we would use Terraform as a Go library, so we can monitor a
 // hook and report the current state in real-time when
 // Apply/Refresh/Destroy are used. While technically possible today, because
-// TerraForm currently hides the providers/provisioners list construction in
+// Terraform currently hides the providers/provisioners list construction in
 // their main package, it would require to reproduce a bunch of their logic,
 // which is out of the scope of the first-version of the Executor. With a bit of
-// efforts, we could actually even stop requiring having a TerraForm binary
+// efforts, we could actually even stop requiring having a Terraform binary
 // altogether, by linking the builtin providers/provisioners to this particular
 // binary and re-implemeting the routing here. Alternatively, we could
 // contribute upstream to add a 'debug' flag that would enable a hook that would
@@ -87,7 +87,7 @@ func NewExecutor(executionPath string) (*Executor, error) {
 	// if not existing.
 	os.MkdirAll(filepath.Join(ex.executionPath, logsFolderName), 0770)
 
-	// Find the TerraForm binary.
+	// Find the Terraform binary.
 	out, err := tfBinaryPath()
 	if err != nil {
 		return nil, err
@@ -159,15 +159,15 @@ func (ex *Executor) AddCredentials(credentials *Credentials) error {
 	return nil
 }
 
-// Execute runs the given command and arguments against TerraForm, and returns
+// Execute runs the given command and arguments against Terraform, and returns
 // an identifier that can be used to read the output of the process as it is
 // executed and after.
 //
 // Execute is non-blocking, and takes a lock in the execution path.
-// Locking is handled by TerraForm itself.
+// Locking is handled by Terraform itself.
 //
-// An error is returned if the TerraForm binary could not be found, or if the
-// TerraForm call itself failed, in which case, details can be found in the
+// An error is returned if the Terraform binary could not be found, or if the
+// Terraform call itself failed, in which case, details can be found in the
 // output.
 func (ex *Executor) Execute(args ...string) (int, chan struct{}, error) {
 	cmd := ex.generateCommand(args...)
@@ -175,7 +175,7 @@ func (ex *Executor) Execute(args ...string) (int, chan struct{}, error) {
 	cmd.Stdout = wPipe
 	cmd.Stderr = wPipe
 
-	// Start TerraForm.
+	// Start Terraform.
 	err := cmd.Start()
 	if err != nil {
 		// The process failed to start, we can't even save that it started since we
@@ -228,7 +228,7 @@ func (ex *Executor) generateCommand(args ...string) *exec.Cmd {
 	return cmd
 }
 
-// WorkingDirectory returns the directory in which TerraForm runs, which can be
+// WorkingDirectory returns the directory in which Terraform runs, which can be
 // useful for inspection or to retrieve any generated files.
 func (ex *Executor) WorkingDirectory() string {
 	return ex.executionPath
@@ -263,7 +263,7 @@ func (ex *Executor) Status(id int) (ExecutionStatus, error) {
 	return ExecutionStatusSuccess, nil
 }
 
-// State returns the current TerraForm State.
+// State returns the current Terraform State.
 //
 // The returned value can be nil if there is currently no state held.
 func (ex *Executor) State() *terraform.State {
@@ -340,7 +340,7 @@ func (ex *Executor) Zip(w io.Writer, withTopFolder bool) error {
 			if !strings.HasPrefix(linPathDir, wd) {
 				// By default, standard ZIP implementations would copy the file's
 				// content rather than preserving the link, unless explicitly specified.
-				// However, in the TerraForm's use case, we prefer to preserve the link
+				// However, in the Terraform's use case, we prefer to preserve the link
 				// as long as its target is inside the archive. If it is not the case,
 				// then we skip that entry entirely. We could fallback to copying its
 				// content by it is not justified today and would become a security
@@ -418,7 +418,7 @@ func recursiveFileWalk(dir, root string, withTopFolder bool, f recursiveFileWalk
 	return nil
 }
 
-// tfBinatyPath searches for a TerraForm binary on disk:
+// tfBinatyPath searches for a Terraform binary on disk:
 // - in the executing binary's folder,
 // - in the current working directory,
 // - in the PATH.

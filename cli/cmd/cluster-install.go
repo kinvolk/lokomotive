@@ -48,8 +48,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	if p == nil {
 		ctxLogger.Fatal("No cluster configured")
 	}
-	// gets the configured backend for the cluster
-	// currently supports local and s3
+
+	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
 	b, diags := getConfiguredBackend(lokoConfig)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
@@ -58,7 +58,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatal("Errors found while loading cluster configuration")
 	}
 
-	// New local backend if no backend configuration.
+	// Use a local backend if no backend is configured.
 	if b == nil {
 		b = local.NewLocalBackend()
 	}
@@ -67,16 +67,19 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	if err != nil {
 		ctxLogger.Fatalf("error expanding path: %v", err)
 	}
-	// validate backend configuration.
+
+	// Validate backend configuration.
 	if err = b.Validate(); err != nil {
 		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
 	}
-	// render backend configuration.
+
+	// Render backend configuration.
 	renderedBackend, err := b.Render()
 	if err != nil {
 		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
 	}
-	// Configure terraform directory,module and backend
+
+	// Configure Terraform directory, module and backend.
 	if err = terraform.Configure(assetDir, renderedBackend); err != nil {
 		ctxLogger.Fatalf("Failed to configure terraform : %v", err)
 	}

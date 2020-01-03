@@ -12,12 +12,12 @@ type local struct {
 	Path string `hcl:"path,optional"`
 }
 
-// init registers local as a backend
+// init registers local as a backend.
 func init() {
 	backend.Register("local", NewLocalBackend())
 }
 
-//Loadconfig loads configuration for local backend
+// LoadConfig loads the configuration for the local backend.
 func (l *local) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
@@ -29,13 +29,12 @@ func NewLocalBackend() *local {
 	return &local{}
 }
 
-// Render renders the go template with local backend configuration
+// Render renders the Go template with local backend configuration.
 func (l *local) Render() (string, error) {
-
 	return util.RenderTemplate(backendConfigTmpl, l)
 }
 
-// Validate validates local backend configuration
+// Validate validates the local backend configuration.
 func (l *local) Validate() error {
 	return nil
 }

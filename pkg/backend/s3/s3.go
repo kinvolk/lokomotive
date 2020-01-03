@@ -19,12 +19,12 @@ type s3 struct {
 	DynamoDBTable string `hcl:"dynamodb_table,optional"`
 }
 
-// init registers s3 as a backend
+// init registers s3 as a backend.
 func init() {
 	backend.Register("s3", NewS3Backend())
 }
 
-//Loadconfig loads configuration for s3 backend
+// LoadConfig loads the configuration for the s3 backend.
 func (s *s3) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
@@ -36,15 +36,13 @@ func NewS3Backend() *s3 {
 	return &s3{}
 }
 
-// Render renders the go template with s3 backend configuration
+// Render renders the Go template with s3 backend configuration.
 func (s *s3) Render() (string, error) {
-
 	return util.RenderTemplate(backendConfigTmpl, s)
 }
 
-// Validate validates S3 backend configuration
+// Validate validates the s3 backend configuration.
 func (s *s3) Validate() error {
-
 	if s.Bucket == "" {
 		return errors.Errorf("no bucket specified")
 	}

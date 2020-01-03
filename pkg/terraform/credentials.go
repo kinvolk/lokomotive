@@ -3,13 +3,13 @@ package terraform
 import "errors"
 
 // Credentials holds all the information that are necessary to
-// make TerraForm authenticate against various providers.
+// make Terraform authenticate against various providers.
 type Credentials struct {
 	*AWSCredentials `json:",inline"`
 }
 
 // ToEnvironment returns the environment variables that are expected by
-// TerraForm's provider.
+// Terraform's provider.
 func (c *Credentials) ToEnvironment() (map[string]string, error) {
 	env := make(map[string]string)
 
@@ -23,7 +23,7 @@ func (c *Credentials) ToEnvironment() (map[string]string, error) {
 	return env, nil
 }
 
-// AWSCredentials represents the credentials required by TerraForm's AWS
+// AWSCredentials represents the credentials required by Terraform's AWS
 // provider.
 type AWSCredentials struct {
 	AWSAccessKeyID     string `json:"AWSAccessKeyID"`
@@ -40,7 +40,7 @@ func (a *AWSCredentials) Validate() error {
 }
 
 // ToEnvironment returns the environment variables that are expected by
-// TerraForm's provider.
+// Terraform's provider.
 func (a *AWSCredentials) ToEnvironment() map[string]string {
 	return map[string]string{
 		"AWS_ACCESS_KEY_ID":     a.AWSAccessKeyID,
