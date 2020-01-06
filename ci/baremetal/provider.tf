@@ -1,5 +1,5 @@
 provider "matchbox" {
-  version     = "0.2.3"
+  version     = "0.3.0"
   ca          = "${file(pathexpand("~/pxe-testbed/.matchbox/ca.crt"))}"
   client_cert = "${file(pathexpand("~/pxe-testbed/.matchbox/client.crt"))}"
   client_key  = "${file(pathexpand("~/pxe-testbed/.matchbox/client.key"))}"
