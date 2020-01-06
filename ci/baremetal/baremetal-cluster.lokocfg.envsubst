@@ -1,11 +1,11 @@
 # Note: number of worker nodes has to match `pxe-testbed --num-nodes ...` count
 cluster "bare-metal" {
-  asset_dir = "${pathexpand("~/lokoctl-assets")}"
-  ssh_pubkeys = ["${file(pathexpand("~/.ssh/id_rsa.pub"))}"]
+  asset_dir = pathexpand("~/lokoctl-assets")
+  ssh_pubkeys = [file(pathexpand("~/.ssh/id_rsa.pub"))]
   cached_install = "true"
-  matchbox_ca_path = "${pathexpand("~/pxe-testbed/.matchbox/ca.crt")}"
-  matchbox_client_cert_path = "${pathexpand("~/pxe-testbed/.matchbox/client.crt")}"
-  matchbox_client_key_path = "${pathexpand("~/pxe-testbed/.matchbox/client.key")}"
+  matchbox_ca_path = pathexpand("~/pxe-testbed/.matchbox/ca.crt")
+  matchbox_client_cert_path = pathexpand("~/pxe-testbed/.matchbox/client.crt")
+  matchbox_client_key_path = pathexpand("~/pxe-testbed/.matchbox/client.key")
   matchbox_endpoint = "matchbox.example.com:8081"
   matchbox_http_endpoint = "http://matchbox.example.com:8080"
   cluster_name = "mercury"
