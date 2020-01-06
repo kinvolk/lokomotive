@@ -33,7 +33,7 @@ module "bare-metal-{{.ClusterName}}" {
 }
 
 provider "matchbox" {
-  version     = "~> 0.2"
+  version     = "~> 0.3"
   endpoint    = "{{.MatchboxEndpoint}}"
   client_cert = "${file("{{.MatchboxClientCert}}")}"
   client_key  = "${file("{{.MatchboxClientKey}}")}"
