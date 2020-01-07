@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kardianos/osext"
 	"github.com/shirou/gopsutil/process"
@@ -28,6 +29,8 @@ const (
 
 	logsFileSuffix = ".log"
 	failFileSuffix = ".fail"
+
+	requiredVersion = ">= 0.11, < 0.12"
 )
 
 // ErrBinaryNotFound denotes the fact that the Terraform binary could not be
@@ -93,6 +96,11 @@ func NewExecutor(executionPath string) (*Executor, error) {
 		return nil, err
 	}
 	ex.binaryPath = out
+
+	err = ex.checkVersion()
+	if err != nil {
+		return nil, err
+	}
 
 	return ex, nil
 }
@@ -465,4 +473,37 @@ func (ex *Executor) failPath(id int) string {
 func (ex *Executor) logPath(id int) string {
 	logFileName := fmt.Sprintf("%d%s", id, logsFileSuffix)
 	return filepath.Join(ex.executionPath, logsFolderName, logFileName)
+}
+
+func (ex *Executor) checkVersion() error {
+	vOutput, err := ex.ExecuteSync("--version")
+	if err != nil {
+		return fmt.Errorf("Error checking Terraform version: %w", err)
+	}
+
+	var vStr string
+	n, err := fmt.Sscanf(string(vOutput), "Terraform v%s\n", &vStr)
+	if err != nil {
+		return fmt.Errorf("Error checking Terraform version: %w", err)
+	}
+
+	if n != 1 {
+		return fmt.Errorf("Parsing Terraform version failed")
+	}
+
+	v, err := version.NewVersion(vStr)
+	if err != nil {
+		return fmt.Errorf("Error checking Terraform version: %w", err)
+	}
+
+	constraints, err := version.NewConstraint(requiredVersion)
+	if err != nil {
+		return fmt.Errorf("Error checking Terraform version: %w", err)
+	}
+
+	if !constraints.Check(v) {
+		return fmt.Errorf("Version '%s' of Terraform not supported. Needed %s", v, constraints)
+	}
+
+	return nil
 }
