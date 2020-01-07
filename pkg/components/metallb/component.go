@@ -45,6 +45,16 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.SpeakerNodeSelectors["beta.kubernetes.io/os"] = "linux"
 
+	if c.ControllerNodeSelectors == nil {
+		c.ControllerNodeSelectors = map[string]string{}
+	}
+	c.ControllerNodeSelectors["beta.kubernetes.io/os"] = "linux"
+
+	c.SpeakerTolerations = append(c.SpeakerTolerations, util.Toleration{
+		Effect: "NoSchedule",
+		Key:    "node-role.kubernetes.io/master",
+	})
+
 	t, err := util.RenderTolerations(c.SpeakerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal speaker tolerations")
