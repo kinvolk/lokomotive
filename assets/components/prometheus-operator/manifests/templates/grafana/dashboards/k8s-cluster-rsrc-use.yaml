@@ -7,7 +7,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ printf "%s-%s" (include "prometheus-operator.fullname" $) "k8s-cluster-rsrc-use" | trunc 63 | trimSuffix "-" }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- if $.Values.grafana.sidecar.dashboards.label }}
     {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
@@ -77,7 +77,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -163,7 +163,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -261,7 +261,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -347,7 +347,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -445,7 +445,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -531,7 +531,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -629,7 +629,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -715,7 +715,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -813,7 +813,7 @@ data:
                                 "format": "time_series",
                                 "intervalFactor": 2,
                                 "legendFormat": "{{`{{node}}`}}",
-                                "legendLink": "/d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
+                                "legendLink": "./d/4ac4f123aae0ff6dbaf4f4f66120033b/k8s-node-rsrc-use",
                                 "step": 10
                             }
                         ],
@@ -904,7 +904,7 @@ data:
                     "options": [
 
                     ],
-                    "query": "label_values(kube_node_info, cluster)",
+                    "query": "label_values(:kube_pod_info_node_count:, cluster)",
                     "refresh": 1,
                     "regex": "",
                     "sort": 2,

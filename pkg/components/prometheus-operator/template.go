@@ -14,6 +14,8 @@ alertmanager:
     {{ end }}
 grafana:
   adminPassword: {{.GrafanaAdminPassword}}
+  testFramework:
+    enabled: false
   rbac:
     pspUseAppArmor: false
 kubeEtcd:
