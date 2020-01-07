@@ -158,6 +158,16 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	return nil
 }
 
+func (cfg *config) GetExpectedNodes() int {
+	workers := 0
+
+	for _, wp := range cfg.WorkerPools {
+		workers += wp.Count
+	}
+
+	return cfg.ControllerCount + workers
+}
+
 // Destroy destroys the Packet cluster.
 func (cfg *config) Destroy() error {
 	return destroy.ExecuteTerraformDestroy(cfg.AssetDir)

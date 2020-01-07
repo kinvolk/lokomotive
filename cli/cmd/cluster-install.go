@@ -91,7 +91,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
 	kubeconfigPath := path.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
-	if err := verifyInstall(kubeconfigPath); err != nil {
+	if err := verifyInstall(kubeconfigPath, p.GetExpectedNodes()); err != nil {
 		ctxLogger.Fatalf("Verify cluster installation: %v", err)
 	}
 
@@ -107,13 +107,13 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	}
 }
 
-func verifyInstall(kubeconfigPath string) error {
+func verifyInstall(kubeconfigPath string, expectedNodes int) error {
 	client, err := k8sutil.NewClientset(kubeconfigPath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up clientset")
 	}
 
-	cluster, err := lokomotive.NewCluster(client)
+	cluster, err := lokomotive.NewCluster(client, expectedNodes)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up cluster client")
 	}

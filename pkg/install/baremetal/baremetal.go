@@ -169,6 +169,10 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	return nil
 }
 
+func (cfg *config) GetExpectedNodes() int {
+	return len(cfg.ControllerMacs) + len(cfg.WorkerMacs)
+}
+
 // Destroy destroys the Baremetal cluster.
 func (cfg *config) Destroy() error {
 	return destroy.ExecuteTerraformDestroy(cfg.AssetDir)

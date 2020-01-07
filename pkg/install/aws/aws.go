@@ -150,6 +150,10 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	return nil
 }
 
+func (cfg *config) GetExpectedNodes() int {
+	return cfg.ControllerCount + cfg.WorkerCount
+}
+
 // Destroy destroys the AWS cluster.
 func (cfg *config) Destroy() error {
 	return destroy.ExecuteTerraformDestroy(cfg.AssetDir)

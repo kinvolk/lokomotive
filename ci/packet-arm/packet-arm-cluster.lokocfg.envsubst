@@ -24,6 +24,6 @@ cluster "packet" {
     ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
     os_arch         = "arm64"
     os_channel      = "alpha"
-    node_type       = "c1.large.arm"
+    node_type       = "c2.large.arm"
   }
 }

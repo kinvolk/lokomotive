@@ -12,11 +12,12 @@ import (
 )
 
 type Cluster struct {
-	KubeClient *kubernetes.Clientset
+	KubeClient    *kubernetes.Clientset
+	ExpectedNodes int
 }
 
-func NewCluster(client *kubernetes.Clientset) (*Cluster, error) {
-	return &Cluster{KubeClient: client}, nil
+func NewCluster(client *kubernetes.Clientset, expectedNodes int) (*Cluster, error) {
+	return &Cluster{KubeClient: client, ExpectedNodes: expectedNodes}, nil
 }
 
 func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
@@ -40,6 +41,7 @@ func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
 // NodeStatus represents the status of all nodes of a cluster.
 type NodeStatus struct {
 	nodeConditions map[string][]v1.NodeCondition
+	expectedNodes  int
 }
 
 // GetNodeStatus returns the status for all running nodes or an error.
@@ -56,11 +58,16 @@ func (cl *Cluster) GetNodeStatus() (*NodeStatus, error) {
 	}
 	return &NodeStatus{
 		nodeConditions: nodeConditions,
+		expectedNodes:  cl.ExpectedNodes,
 	}, nil
 }
 
 // Ready checks if all nodes are ready and returns false otherwise.
 func (ns *NodeStatus) Ready() bool {
+	if len(ns.nodeConditions) < ns.expectedNodes {
+		return false
+	}
+
 	for _, conditions := range ns.nodeConditions {
 		for _, condition := range conditions {
 			if condition.Type == "Ready" && condition.Status != v1.ConditionTrue {
@@ -92,6 +99,10 @@ func (ns *NodeStatus) PrettyPrint() {
 				fmt.Fprintln(w, line)
 			}
 		}
+	}
+	if len(ns.nodeConditions) < ns.expectedNodes {
+		line := fmt.Sprintf("%d nodes are missing", ns.expectedNodes-len(ns.nodeConditions))
+		fmt.Fprintln(w, line)
 	}
 
 	w.Flush()

@@ -12,6 +12,7 @@ type Platform interface {
 	Install() error
 	Destroy() error
 	GetAssetDir() string
+	GetExpectedNodes() int
 }
 
 // platforms is a collection where all platforms gets automatically registered
