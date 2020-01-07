@@ -37,6 +37,14 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
+	// Here are `nodeSelectors` and `tolerations` that are set by upstream. To make sure that we
+	// don't miss them out we set them manually here. We cannot make these changes in the template
+	// because we have parameterized these fields.
+	if c.SpeakerNodeSelectors == nil {
+		c.SpeakerNodeSelectors = map[string]string{}
+	}
+	c.SpeakerNodeSelectors["beta.kubernetes.io/os"] = "linux"
+
 	t, err := util.RenderTolerations(c.SpeakerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal speaker tolerations")

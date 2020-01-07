@@ -269,8 +269,6 @@ spec:
             - NET_ADMIN
             - NET_RAW
             - SYS_ADMIN
-      nodeSelector:
-        beta.kubernetes.io/os: linux
       {{- if .SpeakerTolerationsJSON }}
       tolerations: {{ .SpeakerTolerationsJSON }}
       {{- end }}
