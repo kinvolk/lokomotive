@@ -1,2 +1,2 @@
 #!/bin/sh
-ln -fs ~/.local/bin/terraform11 ~/.local/bin/terraform
+ln -fs ~/.local/bin/terraform12 ~/.local/bin/terraform
