@@ -38,9 +38,32 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}
 
-	cluster, err := lokomotive.NewCluster(client)
+	p, diags := getConfiguredPlatform()
+	if diags.HasErrors() {
+		for _, diagnostic := range diags {
+			contextLogger.Error(diagnostic.Summary)
+		}
+		contextLogger.Fatal("Errors found while loading cluster configuration")
+	}
+
+	if p == nil {
+		contextLogger.Fatal("No cluster configured")
+	}
+
+	cluster, err := lokomotive.NewCluster(client, p.GetExpectedNodes())
 	if err != nil {
 		contextLogger.Fatalf("Error in creating new Lokomotive cluster: %q", err)
+	}
+
+	ns, err := cluster.GetNodeStatus()
+	if err != nil {
+		contextLogger.Fatalf("Error getting node status: %q", err)
+	}
+
+	ns.PrettyPrint()
+
+	if !ns.Ready() {
+		contextLogger.Fatalf("The cluster is not completely ready.")
 	}
 
 	components, err := cluster.Health()
