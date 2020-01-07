@@ -241,7 +241,7 @@ Learn about [maintenance](../topics/maintenance.md).
 
 ## ARM Support and Hybrid Clusters
 
-Lokomotive and Flatcar support the Packet arm64 server types `c1.large.arm` and `c2.large.arm`.
+Lokomotive and Flatcar currently include an alpha-quality preview for the Packet arm64 server types `c1.large.arm` and `c2.large.arm`.
 They can be used for both worker and controller nodes.
 Besides specifying them in `controller_type`/`type` you need to configure some additional variables
 in the respective controller/worker module:
