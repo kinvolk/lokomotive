@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func executeTerraform(ex *Executor, args ...string) error {
+func ExecuteTerraform(ex *Executor, args ...string) error {
 	pid, done, err := ex.Execute(args...)
 	if err != nil {
 		return errors.Wrapf(err, "failed to run 'terraform %s'", strings.Join(args, " "))
@@ -48,9 +48,9 @@ func InitAndApply(exPath string) error {
 		return errors.Wrap(err, "failed to create terraform executor")
 	}
 
-	if err := executeTerraform(ex, "init"); err != nil {
+	if err := ExecuteTerraform(ex, "init"); err != nil {
 		return err
 	}
 
-	return executeTerraform(ex, "apply", "-auto-approve")
+	return ExecuteTerraform(ex, "apply", "-auto-approve")
 }

@@ -12,5 +12,5 @@ func Destroy(exPath string) error {
 		return errors.Wrap(err, "failed to create terraform executor")
 	}
 
-	return executeTerraform(ex, "destroy", "-auto-approve")
+	return ExecuteTerraform(ex, "destroy", "-auto-approve")
 }
