@@ -43,6 +43,8 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	if c.SpeakerNodeSelectors == nil {
 		c.SpeakerNodeSelectors = map[string]string{}
 	}
+	// MetalLB only supports Linux, so force this selector, even if it's already specified by the
+	// user.
 	c.SpeakerNodeSelectors["beta.kubernetes.io/os"] = "linux"
 
 	if c.ControllerNodeSelectors == nil {
