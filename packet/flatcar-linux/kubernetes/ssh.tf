@@ -68,7 +68,6 @@ resource "null_resource" "copy-controller-secrets" {
 resource "null_resource" "copy-assets-dir" {
   depends_on = [
     module.bootkube,
-    aws_route53_record.apiservers,
     null_resource.copy-controller-secrets,
   ]
 
@@ -93,7 +92,6 @@ resource "null_resource" "calico-host-endpoint-manifests" {
 
   depends_on = [
     module.bootkube,
-    aws_route53_record.apiservers,
     null_resource.copy-controller-secrets,
     null_resource.copy-assets-dir,
   ]
@@ -120,7 +118,6 @@ resource "null_resource" "calico-host-endpoint-manifests" {
 resource "null_resource" "bootkube-start" {
   depends_on = [
     module.bootkube,
-    aws_route53_record.apiservers,
     null_resource.copy-controller-secrets,
     null_resource.copy-assets-dir,
     null_resource.calico-host-endpoint-manifests,
