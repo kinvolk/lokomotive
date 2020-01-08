@@ -32,7 +32,13 @@ until kubectl get nodes; do
 done
 
 # Install the kube-hunter job
-kubectl apply -f "${dir}/kube-hunter-manifests/config.yaml"
+count=0
+until kubectl apply -f "${dir}/kube-hunter-manifests/config.yaml"; do
+  check_tries
+
+  echo "Applying kube-hunter manifests..."
+  sleep 2
+done
 
 # the pod might take sometime to show up
 count=0

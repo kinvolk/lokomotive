@@ -19,10 +19,10 @@ module "controller" {
   cluster_name = "$CLUSTER_ID"
   project_id = "$PACKET_PROJECT_ID"
 
-  facility = "sjc1"
+  facility = "ams1"
 
   controller_count = 1
-  controller_type  = "t1.small.x86"
+  controller_type  = "c2.medium.x86"
 
   management_cidrs = [
     "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
@@ -47,11 +47,11 @@ module "worker-pool-1" {
   cluster_name = "$CLUSTER_ID"
   project_id = "$PACKET_PROJECT_ID"
 
-  facility     = "sjc1"
+  facility     = "ams1"
   pool_name    = "pool-1"
 
   count = 2
-  type  = "t1.small.x86"
+  type  = "c2.medium.x86"
 
   kubeconfig = "${module.controller.kubeconfig}"
 

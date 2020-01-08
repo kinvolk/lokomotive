@@ -10,3 +10,7 @@ run-e2e-tests: kube-hunter
 
 kube-hunter:
 	KUBECONFIG=${kubeconfig} ./scripts/kube-hunter.sh
+
+.PHONY: update-terraform-render-bootkube
+update-terraform-render-bootkube:
+	./scripts/update-terraform-render-bootkube.sh $(VERSION)

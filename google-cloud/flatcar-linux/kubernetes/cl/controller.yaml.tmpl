@@ -124,7 +124,8 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.16.3
+          KUBELET_IMAGE_TAG=v1.17.0
+          KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:
