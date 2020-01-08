@@ -5,7 +5,6 @@ module "packet-{{.Config.ClusterName}}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
 
   providers = {
-    aws      = aws.default
     local    = local.default
     null     = null.default
     template = template.default
@@ -13,8 +12,7 @@ module "packet-{{.Config.ClusterName}}" {
     packet   = packet.default
   }
 
-  dns_zone    = "{{.Config.DNSZone}}"
-  dns_zone_id = "{{.Config.DNSZoneID}}"
+  dns_zone    = "{{.Config.DNS.Zone}}"
 
   ssh_keys  = {{.SSHPublicKeys}}
   asset_dir = "../cluster-assets"
@@ -163,15 +161,36 @@ module "worker-pool-{{ $index }}" {
 }
 {{ end }}
 
+{{- if .Config.DNS.Provider.Manual }}
+output "dns_entries" {
+  value = module.packet-{{.Config.ClusterName}}.dns_entries
+}
+{{- end }}
+
+{{- if .Config.DNS.Provider.Route53 }}
+module "dns" {
+  source = "../lokomotive-kubernetes/dns/route53"
+
+  providers = {
+    aws = aws.default
+  }
+
+  entries = module.packet-{{.Config.ClusterName}}.dns_entries
+  aws_zone_id = "{{.Config.DNS.Provider.Route53.ZoneID}}"
+}
+
 provider "aws" {
   version = "~> 2.31.0"
   alias   = "default"
-
-  region                  = "{{.Config.AWSRegion}}"
-  {{- if .Config.AWSCredsPath }}
-  shared_credentials_file = "{{.Config.AWSCredsPath}}"
+  # The Route 53 service doesn't need a specific region to operate, however
+  # the AWS Terraform provider needs it and the documentation suggests to use
+  # "us-east-1": https://docs.aws.amazon.com/general/latest/gr/r53.html.
+  region = "us-east-1"
+  {{- if .Config.DNS.Provider.Route53.AWSCredsPath }}
+  shared_credentials_file = "{{.Config.DNS.Provider.Route53.AWSCredsPath}}"
   {{- end }}
 }
+{{- end }}
 
 provider "ct" {
   version = "~> 0.3"

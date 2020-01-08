@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/destroy"
+	"github.com/kinvolk/lokoctl/pkg/dns"
 	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
@@ -36,13 +37,10 @@ type workerPool struct {
 type config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
 	AuthToken                string            `hcl:"auth_token,optional"`
-	AWSCredsPath             string            `hcl:"aws_creds_path,optional"`
-	AWSRegion                string            `hcl:"aws_region"`
 	ClusterName              string            `hcl:"cluster_name"`
 	ControllerCount          int               `hcl:"controller_count"`
 	ControllerType           string            `hcl:"controller_type,optional"`
-	DNSZone                  string            `hcl:"dns_zone"`
-	DNSZoneID                string            `hcl:"dns_zone_id"`
+	DNS                      dns.Config        `hcl:"dns,block"`
 	Facility                 string            `hcl:"facility"`
 	ProjectID                string            `hcl:"project_id"`
 	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
@@ -111,12 +109,53 @@ func (cfg *config) Install() error {
 		return err
 	}
 
+	cfg.AssetDir = assetDir
+
+	dnsProvider, err := dns.ParseDNS(&cfg.DNS)
+	if err != nil {
+		return errors.Wrap(err, "parsing DNS configuration failed")
+	}
+
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
 	if err := createTerraformConfigFile(cfg, terraformRootDir); err != nil {
 		return err
 	}
 
-	return terraform.InitAndApply(terraformRootDir)
+	ex, err := terraform.NewExecutor(terraformRootDir)
+	if err != nil {
+		return errors.Wrap(err, "failed to create terraform executor")
+	}
+
+	if err := terraform.ExecuteTerraform(ex, "init"); err != nil {
+		return errors.Wrap(err, "failed to initialize Terraform")
+	}
+
+	// If the provider isn't manual, apply everything in a single step.
+	if dnsProvider != dns.DNSManual {
+		return terraform.ExecuteTerraform(ex, "apply", "-auto-approve")
+	}
+
+	arguments := []string{"apply", "-auto-approve"}
+
+	// Get DNS entries (it forces the creation of the controller nodes).
+	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", cfg.ClusterName))
+
+	// Add worker nodes to speed things up.
+	for index := range cfg.WorkerPools {
+		arguments = append(arguments, fmt.Sprintf("-target=module.worker-pool-%d.packet_device.nodes", index))
+	}
+
+	// Create controller and workers nodes.
+	if err := terraform.ExecuteTerraform(ex, arguments...); err != nil {
+		return errors.Wrap(err, "failed executing Terraform")
+	}
+
+	if err := dns.AskToConfigure(ex, &cfg.DNS); err != nil {
+		return errors.Wrap(err, "failed to configure DNS entries")
+	}
+
+	// Finish deployment.
+	return terraform.ExecuteTerraform(ex, "apply", "-auto-approve")
 }
 
 func createTerraformConfigFile(cfg *config, terraformPath string) error {

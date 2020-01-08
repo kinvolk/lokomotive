@@ -1,11 +1,18 @@
 cluster "packet" {
   asset_dir        = pathexpand("~/lokoctl-assets")
-  aws_region       = "$AWS_DEFAULT_REGION"
   cluster_name     = "$CLUSTER_ID"
   controller_count = 1
-  dns_zone         = "$AWS_DNS_ZONE"
 
-  dns_zone_id = "$AWS_DNS_ZONE_ID"
+  dns {
+    zone = "$AWS_DNS_ZONE"
+
+    provider {
+      route53 {
+        zone_id = "$AWS_DNS_ZONE_ID"
+      }
+    }
+  }
+
   facility    = "sjc1"
 
   project_id = "$PACKET_PROJECT_ID"
