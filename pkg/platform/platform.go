@@ -3,7 +3,7 @@ package platform
 import (
 	"fmt"
 
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
 )
 
 // Platform describes single environment, where cluster can be installed

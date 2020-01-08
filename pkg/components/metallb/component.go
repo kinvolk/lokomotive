@@ -1,8 +1,8 @@
 package metallb
 
 import (
-	"github.com/hashicorp/hcl2/gohcl"
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
 	"github.com/pkg/errors"

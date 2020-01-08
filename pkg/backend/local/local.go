@@ -1,8 +1,8 @@
 package local
 
 import (
-	"github.com/hashicorp/hcl2/gohcl"
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/gohcl"
 
 	"github.com/kinvolk/lokoctl/pkg/backend"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
