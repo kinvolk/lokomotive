@@ -19,7 +19,7 @@ module "controller" {
   cluster_name = "$CLUSTER_ID"
   project_id = "$PACKET_PROJECT_ID"
 
-  facility = "sjc1"
+  facility = "ams1"
 
   controller_count = 1
   controller_type  = "c2.medium.x86"
@@ -47,7 +47,7 @@ module "worker-pool-1" {
   cluster_name = "$CLUSTER_ID"
   project_id = "$PACKET_PROJECT_ID"
 
-  facility     = "sjc1"
+  facility     = "ams1"
   pool_name    = "pool-1"
 
   count = 2
