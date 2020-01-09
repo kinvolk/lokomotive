@@ -8,8 +8,8 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 * A Packet project ID
 * Local BGP enabled
 * AWS Route53 DNS Zone (registered domain name or delegated subdomain)
-* Terraform v0.11.x
-* [terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) installed locally
+* Terraform v0.12.x
+* [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 * An SSH key pair for management access
 
 ## Credentials
