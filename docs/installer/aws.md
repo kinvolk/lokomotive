@@ -6,7 +6,7 @@ This guide walks through the installation of Lokomotive on AWS.
 
 * AWS Account and IAM credentials
 * AWS Route53 DNS Zone (registered Domain Name or delegated subdomain)
-* [Terraform v0.11.x](https://www.terraform.io/downloads.html)
+* [Terraform v0.12.x](https://www.terraform.io/downloads.html)
 * [Terraform-provider-ct](https://github.com/coreos/terraform-provider-ct) installed locally
     ```bash
     wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.3.1/terraform-provider-ct-v0.3.1-linux-amd64.tar.gz

@@ -13,7 +13,7 @@ A minimum of two machines are required to run Lokomotive.
 * PXE-enabled [network boot](https://coreos.com/matchbox/docs/latest/network-setup.html) environment
 * Matchbox v0.6+ deployment with API enabled
 * Matchbox credentials `client.crt`, `client.key`, `ca.crt`
-* Terraform v0.11.x, [terraform-provider-matchbox](https://github.com/poseidon/terraform-provider-matchbox), and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
+* Terraform v0.12.x, [terraform-provider-matchbox](https://github.com/poseidon/terraform-provider-matchbox), and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 Note that the machines should only be powered on *after* starting the
 installation, see below.
