@@ -80,7 +80,6 @@ infra/
         ├── azure-ramius.tf
         ├── bare-metal-mercury.tf
         ├── google-cloud-yavin.tf
-        ├── digital-ocean-nemo.tf
         ├── providers.tf
         ├── terraform.tfvars
         └── remote-backend.tf
