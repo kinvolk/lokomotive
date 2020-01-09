@@ -148,25 +148,6 @@ func (ex *Executor) AddEnvironmentVariables(envVars map[string]string) {
 	}
 }
 
-// AddCredentials is a convenience function that converts the given Credentials
-// into environment variables and add them to the Executor.
-//
-// If the credentials parameter is nil, nothing is done.
-// An error is returned if the credentials are invalid.
-func (ex *Executor) AddCredentials(credentials *Credentials) error {
-	if credentials == nil {
-		return nil
-	}
-
-	env, err := credentials.ToEnvironment()
-	if err != nil {
-		return err
-	}
-	ex.AddEnvironmentVariables(env)
-
-	return nil
-}
-
 // Execute runs the given command and arguments against Terraform, and returns
 // an identifier that can be used to read the output of the process as it is
 // executed and after.
