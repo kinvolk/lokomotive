@@ -48,7 +48,7 @@ module "packet-{{.Config.ClusterName}}" {
   management_cidrs = {{.ManagementCIDRs}}
   node_private_cidr = "{{.Config.NodePrivateCIDR}}"
 
-  enable_aggregation = "{{.Config.EnableAggregation}}"
+  enable_aggregation = {{.Config.EnableAggregation}}
 
   {{- if .Config.Networking }}
   networking = "{{.Config.Networking}}"
