@@ -6,7 +6,6 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/backend"
 	"github.com/kinvolk/lokoctl/pkg/config"
 	"github.com/kinvolk/lokoctl/pkg/platform"
-	"github.com/kinvolk/lokoctl/pkg/util/tools"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -116,10 +115,6 @@ func doesKubeconfigExist(*cobra.Command, []string) error {
 		return fmt.Errorf("Kubeconfig %q not found", kubeconfig)
 	}
 	return err
-}
-
-func clusterInstallChecks(*cobra.Command, []string) error {
-	return tools.InstallerBinaries()
 }
 
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {
