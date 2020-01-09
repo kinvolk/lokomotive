@@ -6,7 +6,7 @@ cluster "packet" {
   dns_zone         = "$AWS_DNS_ZONE"
 
   dns_zone_id = "$AWS_DNS_ZONE_ID"
-  facility    = "sjc1"
+  facility    = "ams1"
 
   project_id = "$PACKET_PROJECT_ID"
 
