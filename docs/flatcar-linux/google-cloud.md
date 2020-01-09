@@ -10,7 +10,7 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 
 * Google Cloud Account and Service Account
 * Google Cloud DNS Zone (registered Domain Name or delegated subdomain)
-* Terraform v0.11.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
 
@@ -18,7 +18,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.12
+Terraform v0.12.17
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -52,7 +52,7 @@ provider "google" {
   version = "2.16.0"
   alias   = "default"
 
-  credentials = "${file("~/.config/google-cloud/terraform.json")}"
+  credentials = file("~/.config/google-cloud/terraform.json")
   project     = "project-id"
   region      = "us-central1"
 }
@@ -96,11 +96,11 @@ module "google-cloud-yavin" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
-    google   = "google.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
+    google   = google.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
   }
 
   # Google Cloud
@@ -256,11 +256,11 @@ resource "google_dns_managed_zone" "zone-for-clusters" {
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
-| certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
+| certs_validity_period_hours | Validity of all the certificates in hours | 8760 | 17520 |
 
 Check the list of valid [machine types](https://cloud.google.com/compute/docs/machine-types).
 
 #### Preemption
 
-Add `worker_preemeptible = "true"` to allow worker nodes to be [preempted](https://cloud.google.com/compute/docs/instances/preemptible) at random, but pay [significantly](https://cloud.google.com/compute/pricing) less. Clusters tolerate stopping instances fairly well (reschedules pods, but cannot drain) and preemption provides a nice reward for running fault-tolerant cluster systems.`
+Add `worker_preemeptible = true` to allow worker nodes to be [preempted](https://cloud.google.com/compute/docs/instances/preemptible) at random, but pay [significantly](https://cloud.google.com/compute/pricing) less. Clusters tolerate stopping instances fairly well (reschedules pods, but cannot drain) and preemption provides a nice reward for running fault-tolerant cluster systems.`
 

@@ -1,31 +1,31 @@
 locals {
   # Channel for a CoreOS Container Linux derivative
   # coreos-stable -> CoreOS Container Linux Stable
-  channel = "${element(split("-", var.os_image), 1)}"
+  channel = split("-", var.os_image)[1]
 }
 
 data "azurerm_image" "custom_workers" {
-  name                = "${var.custom_image_name}"
-  resource_group_name = "${var.custom_image_resource_group_name}"
+  name                = var.custom_image_name
+  resource_group_name = var.custom_image_resource_group_name
 }
 
 # Workers scale set
 resource "azurerm_virtual_machine_scale_set" "workers" {
-  resource_group_name = "${var.resource_group_name}"
+  resource_group_name = var.resource_group_name
 
   name                   = "${var.name}-workers"
-  location               = "${var.region}"
+  location               = var.region
   single_placement_group = false
 
   sku {
-    name     = "${var.vm_type}"
+    name     = var.vm_type
     tier     = "standard"
-    capacity = "${var.count}"
+    capacity = var.worker_count
   }
 
   # boot
   storage_profile_image_reference {
-    id = "${data.azurerm_image.custom_workers.id}"
+    id = data.azurerm_image.custom_workers.id
   }
 
   # storage
@@ -39,7 +39,7 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
   os_profile {
     computer_name_prefix = "${var.name}-worker-"
     admin_username       = "core"
-    custom_data          = "${data.ct_config.worker-ignition.rendered}"
+    custom_data          = data.ct_config.worker-ignition.rendered
   }
 
   # Azure mandates setting an ssh_key, provide just a single key as the
@@ -49,7 +49,7 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
 
     ssh_keys {
       path     = "/home/core/.ssh/authorized_keys"
-      key_data = "${element(var.ssh_keys, 0)}"
+      key_data = var.ssh_keys[0]
     }
   }
 
@@ -57,15 +57,15 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
   network_profile {
     name                      = "nic0"
     primary                   = true
-    network_security_group_id = "${var.security_group_id}"
+    network_security_group_id = var.security_group_id
 
     ip_configuration {
       name      = "ip0"
       primary   = true
-      subnet_id = "${var.subnet_id}"
+      subnet_id = var.subnet_id
 
       # backend address pool to which the NIC should be added
-      load_balancer_backend_address_pool_ids = ["${var.backend_address_pool_id}"]
+      load_balancer_backend_address_pool_ids = [var.backend_address_pool_id]
     }
   }
 
@@ -73,51 +73,47 @@ resource "azurerm_virtual_machine_scale_set" "workers" {
   upgrade_policy_mode = "Manual"
 
   # eviction policy may only be set when priority is Low
-  priority        = "${var.priority}"
-  # It is not possible to assign an optional argument in terraform 0.11,
-  # (https://github.com/hashicorp/terraform/issues/17968)
-  # however azurerm provider v1.35 ignores the value if the priority
-  # is not low. https://github.com/terraform-providers/terraform-provider-azurerm/blob/3b0ba54174ed56d2082228349b1bc19c38b75eca/azurerm/resource_arm_virtual_machine_scale_set.go#L866
-  eviction_policy = "${var.priority == "Low" ? "Delete" : "Deallocate" }"
+  priority        = var.priority
+  eviction_policy = var.priority == "Low" ? "Delete" : null
 }
 
 # Scale up or down to maintain desired number, tolerating deallocations.
 resource "azurerm_monitor_autoscale_setting" "workers" {
-  resource_group_name = "${var.resource_group_name}"
+  resource_group_name = var.resource_group_name
 
   name     = "${var.name}-maintain-desired"
-  location = "${var.region}"
+  location = var.region
 
   # autoscale
   enabled            = true
-  target_resource_id = "${azurerm_virtual_machine_scale_set.workers.id}"
+  target_resource_id = azurerm_virtual_machine_scale_set.workers.id
 
   profile {
     name = "default"
 
     capacity {
-      minimum = "${var.count}"
-      default = "${var.count}"
-      maximum = "${var.count}"
+      minimum = var.worker_count
+      default = var.worker_count
+      maximum = var.worker_count
     }
   }
 }
 
 # Worker Ignition configs
 data "ct_config" "worker-ignition" {
-  content      = "${data.template_file.worker-config.rendered}"
+  content      = data.template_file.worker-config.rendered
   pretty_print = false
-  snippets     = ["${var.clc_snippets}"]
+  snippets     = var.clc_snippets
 }
 
 # Worker Container Linux configs
 data "template_file" "worker-config" {
-  template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
+  template = file("${path.module}/cl/worker.yaml.tmpl")
 
   vars = {
-    kubeconfig             = "${indent(10, var.kubeconfig)}"
-    ssh_keys               = "${jsonencode("${var.ssh_keys}")}"
-    cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
-    cluster_domain_suffix  = "${var.cluster_domain_suffix}"
+    kubeconfig             = indent(10, var.kubeconfig)
+    ssh_keys               = jsonencode(var.ssh_keys)
+    cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
+    cluster_domain_suffix  = var.cluster_domain_suffix
   }
 }

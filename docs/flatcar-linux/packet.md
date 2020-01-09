@@ -11,15 +11,15 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 * Packet account, Project ID and [API key](https://support.packet.com/kb/articles/api-integrations) (Note, that the term "Auth Token" is also used to refer to the API key in the packet docs)
 * AWS Account and IAM credentials
 * AWS Route53 DNS Zone (registered Domain Name or delegated subdomain)
-* Terraform v0.11.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
 
-Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your system.
+Install [Terraform](https://www.terraform.io/downloads.html) v0.12.x on your system.
 
 ```sh
 $ terraform version
-Terraform v0.11.13
+Terraform v0.12.17
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -87,7 +87,7 @@ provider "tls" {
 }
 
 provider "packet" {
-  version = "~> 1.2"
+  version = "~> 2.7.3"
   alias   = "default"
 }
 ```
@@ -113,12 +113,12 @@ module "controller" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
-    aws      = "aws.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   # Route53
@@ -157,10 +157,10 @@ module "worker-pool-helium" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes/workers?ref=<hash>"
 
   providers = {
-    local    = "local.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   ssh_keys = [
@@ -173,10 +173,10 @@ module "worker-pool-helium" {
   facility     = "ams1"
   pool_name    = "helium"
 
-  count = 2
+  worker_count = 2
   type  = "t1.small.x86"
 
-  kubeconfig = "${module.controller.kubeconfig}"
+  kubeconfig = module.controller.kubeconfig
 
   labels = "node.supernova.io/role=backend"
 }
@@ -345,7 +345,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 
 | Name | Description | Default | Example |
 |:-----|:------------|:--------|:--------|
-| count | Number of worker nodes | 1 | 3 |
+| worker_count | Number of worker nodes | 1 | 3 |
 | type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
 | labels | Comma separated labels to be added to the worker nodes | "" | "node.supernova.io/role=backend" |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
@@ -354,10 +354,10 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe, https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
-| setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | "false" | "true" |
-| setup_raid_hdd    | Flag to create a RAID 0 from extra Hard Disk Drives (HDD) only. Has no effect if `setup_raid` is `"true"`   | "false" | "true" |
-| setup_raid_ssd    | Flag to create a RAID 0 from extra Solid State Drives (SSD) only. Has no effect if `setup_raid` is `"true"` | "false" | "true" |
-| setup_raid_ssd_fs | Flag to create a file system on RAID 0 created using flag `setup_raid_ssd`. Has no effect if `setup_raid` is `"true"` | "true" | "false" |
+| setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | false | true |
+| setup_raid_hdd    | Flag to create a RAID 0 from extra Hard Disk Drives (HDD) only. Has no effect if `setup_raid` is `true`   | false | true |
+| setup_raid_ssd    | Flag to create a RAID 0 from extra Solid State Drives (SSD) only. Has no effect if `setup_raid` is `true` | false | true |
+| setup_raid_ssd_fs | Flag to create a file system on RAID 0 created using flag `setup_raid_ssd`. Has no effect if `setup_raid` is `true` | true | false |
 | taints | Comma separated list of custom taints for all workers in the worker pool | "" | "clusterType=staging:NoSchedule,nodeType=storage:NoSchedule" |
 | reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
@@ -377,7 +377,7 @@ See [issue #111](https://github.com/kinvolk/lokomotive-kubernetes/issues/111) fo
 Currently the only tested ways to modify a cluster are:
 
 * Adding new worker pools, done by adding a new worker module.
-* Scaling a worker pool by changing the `count` to delete or add nodes, even to 0 (but the worker pool definition has to be kept and the total number of workers must be > 0).
+* Scaling a worker pool by changing the `worker_count` to delete or add nodes, even to 0 (but the worker pool definition has to be kept and the total number of workers must be > 0).
 * Changing the instance type of a worker pool by altering `type`, e.g., from `t1.small.x86` to `c1.small.x86`, which will recreate the nodes, causing downtime since they are destroyed first and then created again.
 
 This list may be expanded in the future but for now other changes are not supported but can be done at your own risk.

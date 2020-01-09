@@ -1,7 +1,7 @@
 # Terraform version and plugin versions
 
 terraform {
-  required_version = ">= 0.11.0"
+  required_version = ">= 0.12.0"
 }
 
 provider "ct" {
@@ -25,7 +25,7 @@ provider "tls" {
 }
 
 provider "packet" {
-  version = "~> 1.4"
+  version = "~> 2.7.3"
 }
 
 provider "aws" {

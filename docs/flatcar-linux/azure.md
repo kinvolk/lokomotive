@@ -13,7 +13,7 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 
 * Azure account
 * Azure DNS Zone (registered Domain Name or delegated subdomain)
-* Terraform v0.11.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
 
@@ -21,7 +21,7 @@ Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your sys
 
 ```sh
 $ terraform version
-Terraform v0.11.12
+Terraform v0.12.17
 ```
 
 Add the [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) plugin binary for your system to `~/.terraform.d/plugins/`, noting the final name.
@@ -90,11 +90,11 @@ module "azure-ramius" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//azure/flatcar-linux/kubernetes"
 
   providers = {
-    azurerm  = "azurerm.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
+    azurerm  = azurerm.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
   }
 
   # Azure
@@ -253,7 +253,7 @@ Reference the DNS zone with `"${azurerm_dns_zone.clusters.name}"` and its resour
 | controller_type | Machine type for controllers | "Standard_DS1_v2" | See below |
 | worker_type | Machine type for workers | "Standard_F1" | See below |
 | os_image | Channel for a Flatcar Container Linux | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
-| disk_size | Size of the disk in GB | "40" | "100" |
+| disk_size | Size of the disk in GB | 40 | 100 |
 | worker_priority | Set priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time | Regular | Low |
 | controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
 | worker_clc_snippets | Worker Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
@@ -261,7 +261,7 @@ Reference the DNS zone with `"${azurerm_dns_zone.clusters.name}"` and its resour
 | pod_cidr | CIDR IPv4 range to assign to Kubernetes pods | "10.2.0.0/16" | "10.22.0.0/16" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
-| certs_validity_period_hours | Validity of all the certificates in hours | "8760" | "17520" |
+| certs_validity_period_hours | Validity of all the certificates in hours | 8760 | 17520 |
 
 Check the list of valid [machine types](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/) and their [specs](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general). Use `az vm list-skus` to get the identifier.
 

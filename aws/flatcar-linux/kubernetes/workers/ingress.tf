@@ -2,7 +2,7 @@
 
 resource "aws_lb_target_group" "workers-http" {
   name        = "${var.name}-workers-http"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = var.vpc_id
   target_type = "instance"
 
   protocol = "TCP"
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "workers-http" {
 
 resource "aws_lb_target_group" "workers-https" {
   name        = "${var.name}-workers-https"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = var.vpc_id
   target_type = "instance"
 
   protocol = "TCP"
