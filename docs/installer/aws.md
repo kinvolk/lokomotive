@@ -63,7 +63,7 @@ cluster "aws" {
 	ssh_pubkeys = var.ssh_pubkeys
 
 	# Size of the EBS volume in GB
-	# disk_size = "40" (optional)
+	# disk_size = 40 (optional)
 
 	# Type of the EBS volume (e.g. standard, gp2, io1)
 	# disk_type = "gp2" (optional)
@@ -82,7 +82,7 @@ cluster "aws" {
 	# CNI interface MTU (applies to calico only)
 	# Use 8981 if using instances types with Jumbo frames.
 	# Default is 1480
-	# network_mtu = "8991" (optional)
+	# network_mtu = 8991 (optional)
 
 	# Enable usage or analytics reporting to upstreams (Calico)
 	# enable_reporting = false (optional)
@@ -102,7 +102,7 @@ cluster "aws" {
 
 	# Validity of all the certificates in hours
 	# Default is 8760
-	# certs_validity_period_hours = "17520" (optional)
+	# certs_validity_period_hours = 17520 (optional)
 }
 
 component "contour" {}

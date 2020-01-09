@@ -32,13 +32,13 @@ type config struct {
 	WorkerCLCSnippets        []string `hcl:"worker_clc_snippets,optional"`
 	Region                   string   `hcl:"region,optional"`
 	EnableAggregation        bool     `hcl:"enable_aggregation,optional"`
-	DiskSize                 string   `hcl:"disk_size,optional"`
+	DiskSize                 int      `hcl:"disk_size,optional"`
 	DiskType                 string   `hcl:"disk_type,optional"`
-	DiskIOPS                 string   `hcl:"disk_iops,optional"`
+	DiskIOPS                 int      `hcl:"disk_iops,optional"`
 	WorkerPrice              string   `hcl:"worker_price,optional"`
 	WorkerTargetGroups       []string `hcl:"worker_target_groups,optional"`
 	Networking               string   `hcl:"networking,optional"`
-	NetworkMTU               string   `hcl:"network_mtu,optional"`
+	NetworkMTU               int      `hcl:"network_mtu,optional"`
 	HostCIDR                 string   `hcl:"host_cidr,optional"`
 	PodCIDR                  string   `hcl:"pod_cidr,optional"`
 	ServiceCIDR              string   `hcl:"service_cidr,optional"`
