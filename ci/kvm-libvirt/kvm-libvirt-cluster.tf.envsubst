@@ -1,0 +1,46 @@
+module "controller" {
+  source = "../../kvm-libvirt/flatcar-linux/kubernetes"
+
+  providers = {
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    libvirt  = libvirt.default
+  }
+
+  os_image_unpacked = "file:///var/tmp/flatcar_production_qemu_image.img"
+  ssh_keys = ["$PUB_KEY"]
+
+  asset_dir = pathexpand("~/assets")
+
+  machine_domain = "vmcluster.k8s"
+  cluster_name   = "vmcluster"
+  node_ip_pool   = "192.168.192.0/24"
+
+  controller_count = 1
+}
+
+module "worker-pool-one" {
+  source = "../../kvm-libvirt/flatcar-linux/kubernetes/workers"
+
+  providers = {
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    libvirt  = libvirt.default
+  }
+
+  ssh_keys = module.controller.ssh_keys
+
+  machine_domain = module.controller.machine_domain
+  cluster_name   = module.controller.cluster_name
+  libvirtpool    = module.controller.libvirtpool
+  libvirtbaseid  = module.controller.libvirtbaseid
+
+  pool_name = "one"
+
+  worker_count = 1
+
+  kubeconfig = module.controller.kubeconfig
+}
