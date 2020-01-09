@@ -329,7 +329,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | Name | Description | Default | Example |
 |:-----|:------------|:--------|:--------|
 | controller_count | Number of controllers (i.e. masters) | 1 | 1 |
-| controller_type | Type of nodes to provision | "baermetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
+| controller_type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/cloud/servers/ for more |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
 | os_arch    | Flatcar Container Linux architecture to install | amd64  | amd64, arm64 |
 | os_version | Version of a Flatcar Container Linux release, only for iPXE | current | 2191.5.0 |
@@ -352,7 +352,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | Name | Description | Default | Example |
 |:-----|:------------|:--------|:--------|
 | worker_count | Number of worker nodes | 1 | 3 |
-| type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/developers/api/#plans for more |
+| type | Type of nodes to provision | "baremetal_0" | "t1.small.x86". See https://www.packet.com/cloud/servers/ for more |
 | labels | Comma separated labels to be added to the worker nodes | "" | "node.supernova.io/role=backend" |
 | os_channel | Flatcar Container Linux channel to install from | stable | stable, beta, alpha, edge |
 | os_arch    | Flatcar Container Linux architecture to install | amd64  | amd64, arm64 |
