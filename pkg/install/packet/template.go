@@ -5,12 +5,12 @@ module "packet-{{.Config.ClusterName}}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
 
   providers = {
-    aws      = "aws.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   dns_zone    = "{{.Config.DNSZone}}"
@@ -48,7 +48,7 @@ module "packet-{{.Config.ClusterName}}" {
   management_cidrs = {{.ManagementCIDRs}}
   node_private_cidr = "{{.Config.NodePrivateCIDR}}"
 
-  enable_aggregation = "{{.Config.EnableAggregation}}"
+  enable_aggregation = {{.Config.EnableAggregation}}
 
   {{- if .Config.Networking }}
   networking = "{{.Config.Networking}}"
@@ -88,10 +88,10 @@ module "worker-pool-{{ $index }}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
 
   providers = {
-    local    = "local.default"
-    template = "template.default"
-    tls      = "tls.default"
-    packet   = "packet.default"
+    local    = local.default
+    template = template.default
+    tls      = tls.default
+    packet   = packet.default
   }
 
   ssh_keys  = {{$.SSHPublicKeys}}
@@ -103,8 +103,8 @@ module "worker-pool-{{ $index }}" {
   cluster_domain_suffix = "{{$.Config.ClusterDomainSuffix}}"
   {{- end }}
 
-  pool_name = "{{ $pool.Name }}"
-  count     = "{{ $pool.Count }}"
+  pool_name    = "{{ $pool.Name }}"
+  worker_count = "{{ $pool.Count }}"
   {{- if $pool.NodeType }}
   type      = "{{ $pool.NodeType }}"
   {{- end }}
@@ -123,7 +123,7 @@ module "worker-pool-{{ $index }}" {
   os_version = "{{ $pool.OSVersion }}"
   {{- end }}
 
-  kubeconfig = "${module.packet-{{ $.Config.ClusterName }}.kubeconfig}"
+  kubeconfig = module.packet-{{ $.Config.ClusterName }}.kubeconfig
 
   {{- if $pool.Labels }}
   labels = "{{ $pool.Labels }}"
@@ -196,7 +196,7 @@ provider "tls" {
 }
 
 provider "packet" {
-  version = "~> 1.4"
+  version = "~> 2.7.3"
   alias = "default"
 
   {{- if .Config.AuthToken }}

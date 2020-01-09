@@ -5,11 +5,11 @@ module "aws-{{.Config.ClusterName}}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes"
 
   providers = {
-    aws      = "aws.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
+    aws      = aws.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
   }
 
   cluster_name = "{{.Config.ClusterName}}"

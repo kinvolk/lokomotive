@@ -52,7 +52,7 @@ type config struct {
 	IPXEScriptURL            string            `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs          []string          `hcl:"management_cidrs"`
 	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
-	EnableAggregation        string            `hcl:"enable_aggregation,optional"`
+	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
 	Networking               string            `hcl:"networking,optional"`
 	NetworkMTU               string            `hcl:"network_mtu,optional"`
 	PodCIDR                  string            `hcl:"pod_cidr,optional"`
