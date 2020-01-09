@@ -252,7 +252,7 @@ Reference the DNS zone with `"${azurerm_dns_zone.clusters.name}"` and its resour
 | worker_count | Number of workers | 1 | 3 |
 | controller_type | Machine type for controllers | "Standard_DS1_v2" | See below |
 | worker_type | Machine type for workers | "Standard_F1" | See below |
-| os_image | Channel for a Flatcar Container Linux | flatcar-stable | flatcar-stable, flatcar-beta, flatcar-alpha |
+| os_image | Channel for a Flatcar Container Linux | "flatcar-stable" | "flatcar-stable", "flatcar-beta", "flatcar-alpha" |
 | disk_size | Size of the disk in GB | 40 | 100 |
 | worker_priority | Set priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time | Regular | Low |
 | controller_clc_snippets | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
