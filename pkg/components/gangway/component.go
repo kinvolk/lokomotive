@@ -99,7 +99,7 @@ spec:
           mountPath: /theme/
       containers:
         - name: gangway
-          image: gcr.io/heptio-images/gangway:v3.0.0
+          image: gcr.io/heptio-images/gangway:v3.2.0
           imagePullPolicy: Always
           command: ["gangway", "-config", "/gangway/gangway.yaml"]
           env:
