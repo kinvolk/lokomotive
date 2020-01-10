@@ -31,7 +31,7 @@ func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(config)
 }
 
-func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
+func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string, retryInterval, timeout time.Duration) {
 	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
 		ds, err := client.AppsV1().DaemonSets(ns).Get(name, metav1.GetOptions{})
 		if err != nil {
@@ -41,11 +41,12 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 			}
 			return false, err
 		}
+		replicas := ds.Status.DesiredNumberScheduled
 
-		if int(ds.Status.NumberAvailable) == replicas {
+		if ds.Status.NumberAvailable == replicas {
 			return true, nil
 		}
-		t.Logf("daemonset: %s, replicas: %d/%d", name, int(ds.Status.NumberAvailable), replicas)
+		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.NumberAvailable, replicas)
 		return false, nil
 	}); err != nil {
 		t.Errorf("error while waiting for the daemonset: %v", err)

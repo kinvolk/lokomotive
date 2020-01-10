@@ -22,11 +22,8 @@ func TestMetalLBDeployment(t *testing.T) {
 	t.Run("speaker daemonset", func(t *testing.T) {
 		t.Parallel()
 		daemonset := "speaker"
-		// is equal to no of worker nodes
-		replicas := 2
 
-		testutil.WaitForDaemonSet(t, client, namespace, daemonset, replicas, time.Second*5, time.Minute*5)
-		t.Logf("Found required replicas: %d", replicas)
+		testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
 	})
 
 	t.Run("controller deployment", func(t *testing.T) {

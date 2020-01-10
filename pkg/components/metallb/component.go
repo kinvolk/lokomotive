@@ -37,6 +37,26 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
+	// Here are `nodeSelectors` and `tolerations` that are set by upstream. To make sure that we
+	// don't miss them out we set them manually here. We cannot make these changes in the template
+	// because we have parameterized these fields.
+	if c.SpeakerNodeSelectors == nil {
+		c.SpeakerNodeSelectors = map[string]string{}
+	}
+	// MetalLB only supports Linux, so force this selector, even if it's already specified by the
+	// user.
+	c.SpeakerNodeSelectors["beta.kubernetes.io/os"] = "linux"
+
+	if c.ControllerNodeSelectors == nil {
+		c.ControllerNodeSelectors = map[string]string{}
+	}
+	c.ControllerNodeSelectors["beta.kubernetes.io/os"] = "linux"
+
+	c.SpeakerTolerations = append(c.SpeakerTolerations, util.Toleration{
+		Effect: "NoSchedule",
+		Key:    "node-role.kubernetes.io/master",
+	})
+
 	t, err := util.RenderTolerations(c.SpeakerTolerations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal speaker tolerations")

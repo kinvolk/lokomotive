@@ -36,15 +36,28 @@ metadata:
   labels:
     app: metallb
 rules:
-- apiGroups: [""]
-  resources: ["services"]
-  verbs: ["get", "list", "watch", "update"]
-- apiGroups: [""]
-  resources: ["services/status"]
-  verbs: ["update"]
-- apiGroups: [""]
-  resources: ["events"]
-  verbs: ["create", "patch"]
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - services/status
+  verbs:
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
 `
 
 // Note: Diversion from upstream.
@@ -57,13 +70,16 @@ metadata:
   labels:
     app: metallb
 rules:
-- apiGroups: [""]
-  resources: ["services", "endpoints", "nodes"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["policy"]
-  resources: ["podsecuritypolicies"]
-  resourceNames: ["metallb-speaker"]
-  verbs: ["use"]
+- apiGroups:
+  - ''
+  resources:
+  - services
+  - endpoints
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - ''
   resources:
@@ -71,6 +87,14 @@ rules:
   verbs:
   - create
   - patch
+- apiGroups:
+  - extensions
+  resourceNames:
+  - speaker
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
 `
 
 const roleConfigWatcher = `
@@ -82,12 +106,14 @@ metadata:
   labels:
     app: metallb
 rules:
-- apiGroups: [""]
-  resources: ["configmaps"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["events"]
-  verbs: ["create"]
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
 `
 
 const clusterRoleBindingMetallbSystemController = `
@@ -181,7 +207,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: controller
-        image: metallb/controller:v0.8.1
+        image: metallb/controller:v0.8.3
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -238,7 +264,7 @@ spec:
       hostNetwork: true
       containers:
       - name: speaker
-        image: metallb/speaker:v0.8.1
+        image: metallb/speaker:v0.8.3
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -269,8 +295,6 @@ spec:
             - NET_ADMIN
             - NET_RAW
             - SYS_ADMIN
-      nodeSelector:
-        beta.kubernetes.io/os: linux
       {{- if .SpeakerTolerationsJSON }}
       tolerations: {{ .SpeakerTolerationsJSON }}
       {{- end }}
@@ -285,7 +309,7 @@ metadata:
   annotations:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
     seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
-  name: metallb-speaker
+  name: speaker
   labels:
     app: metallb
 spec:
@@ -294,13 +318,10 @@ spec:
   - min: 7472
     max: 7472
   allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: true
   allowedCapabilities:
   - NET_RAW
   - NET_ADMIN
   - SYS_ADMIN
-  requiredDropCapabilities:
-  - all
   seLinux:
     rule: RunAsAny
   fsGroup:
