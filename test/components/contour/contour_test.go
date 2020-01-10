@@ -14,8 +14,6 @@ func TestEnvoyDaemonset(t *testing.T) {
 	t.Parallel()
 	namespace := "projectcontour"
 	daemonset := "envoy"
-	// is equal to no of worker nodes
-	replicas := 2
 
 	client, err := testutil.CreateKubeClient(t)
 	if err != nil {
@@ -23,8 +21,7 @@ func TestEnvoyDaemonset(t *testing.T) {
 	}
 	t.Log("got kubernetes client")
 
-	testutil.WaitForDaemonSet(t, client, namespace, daemonset, replicas, time.Second*5, time.Minute*5)
-	t.Logf("Found required replicas: %d", replicas)
+	testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
 }
 
 func TestContourDeployment(t *testing.T) {
