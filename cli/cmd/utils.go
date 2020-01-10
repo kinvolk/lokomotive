@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
 	"github.com/kinvolk/lokoctl/pkg/backend"
 	"github.com/kinvolk/lokoctl/pkg/config"
 	"github.com/kinvolk/lokoctl/pkg/platform"

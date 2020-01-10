@@ -3,8 +3,8 @@ package s3
 import (
 	"os"
 
-	"github.com/hashicorp/hcl2/gohcl"
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/backend"

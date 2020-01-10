@@ -3,7 +3,7 @@ package backend
 import (
 	"fmt"
 
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
 )
 
 // Backend describes the Terraform state storage location.

@@ -1,7 +1,7 @@
 package azure
 
 import (
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
 )
 
 // Configuration contains azure specific parameters
