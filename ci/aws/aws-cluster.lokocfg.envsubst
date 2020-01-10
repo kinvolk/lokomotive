@@ -76,3 +76,5 @@ component "gangway" {
 }
 
 component "rook" {}
+
+component "flatcar-linux-update-operator" {}
