@@ -188,7 +188,7 @@ module "worker-pool-one" {
     libvirt  = libvirt.default
   }
 
-  ssh_keys = "module.controller.ssh_keys
+  ssh_keys = module.controller.ssh_keys
 
   machine_domain = module.controller.machine_domain
   cluster_name = module.controller.cluster_name
