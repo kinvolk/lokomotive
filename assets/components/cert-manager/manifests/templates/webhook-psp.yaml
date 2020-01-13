@@ -2,10 +2,10 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: {{ template "cainjector.fullname" . }}
+  name: {{ template "webhook.fullname" . }}
   labels:
-    app: {{ include "cainjector.name" . }}
-    chart: {{ include "cainjector.chart" . }}
+    app: {{ include "webhook.name" . }}
+    chart: {{ include "webhook.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
