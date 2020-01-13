@@ -55,7 +55,9 @@ module "packet-{{.Config.ClusterName}}" {
   {{- end }}
 
   {{- if eq .Config.Networking "calico" }}
+  {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
+  {{- end }}
   enable_reporting = {{.Config.EnableReporting}}
   {{- end }}
 
