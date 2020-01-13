@@ -110,10 +110,7 @@ spec:
         - name: theme
           mountPath: /theme/
       containers:
-      # This image is built from PR that adds support of google connector to
-      # dex https://github.com/dexidp/dex/pull/1185. Once this PR is merged
-      # please use the official relased image.
-      - image: quay.io/kinvolk/dex:google_connector
+      - image: quay.io/dexidp/dex:v2.21.0
         name: dex
         command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
         ports:
