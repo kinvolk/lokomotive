@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/packethost/packngo"
 	"github.com/pkg/errors"
-	"k8s.io/helm/pkg/chartutil"
-	"k8s.io/helm/pkg/proto/hapi/chart"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
@@ -282,12 +280,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}
 
-	releaseOptions := &chartutil.ReleaseOptions{
-		Name:      name,
-		Namespace: c.Namespace,
-		IsInstall: true,
-	}
-
 	if c.Provider == "packet" {
 		cl, err := packngo.NewClient()
 		if err != nil {
@@ -313,9 +305,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	chartConfig := &chart.Config{Raw: values}
-
-	return util.RenderChart(helmChart, chartConfig, releaseOptions)
+	return util.RenderChart(helmChart, name, c.Namespace, values)
 }
 
 func (c *component) Metadata() components.Metadata {

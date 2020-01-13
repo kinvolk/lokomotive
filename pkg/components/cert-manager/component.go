@@ -6,8 +6,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
-	"k8s.io/helm/pkg/chartutil"
-	"k8s.io/helm/pkg/proto/hapi/chart"
 
 	"github.com/kinvolk/lokoctl/pkg/components"
 	"github.com/kinvolk/lokoctl/pkg/components/util"
@@ -53,20 +51,12 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}
 
-	releaseOptions := &chartutil.ReleaseOptions{
-		Name:      name,
-		Namespace: c.Namespace,
-		IsInstall: true,
-	}
-
 	values, err := util.RenderTemplate(chartValuesTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	chartConfig := &chart.Config{Raw: values}
-
-	renderedFiles, err := util.RenderChart(helmChart, chartConfig, releaseOptions)
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart")
 	}
