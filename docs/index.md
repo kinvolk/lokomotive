@@ -41,11 +41,11 @@ module "google-cloud-yavin" {
   source = "git::https://github.com/kinvolk/lokomotive//google-cloud/flatcar-linux/kubernetes?ref=<hash>"
 
   providers = {
-    google   = "google.default"
-    local    = "local.default"
-    null     = "null.default"
-    template = "template.default"
-    tls      = "tls.default"
+    google   = google.default
+    local    = local.default
+    null     = null.default
+    template = template.default
+    tls      = tls.default
   }
 
   # Google Cloud
