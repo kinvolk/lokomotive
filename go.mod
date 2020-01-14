@@ -94,3 +94,7 @@ replace github.com/deislabs/oras => github.com/deislabs/oras v0.7.0
 
 // Without this, kubectl dependency does not build.
 replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.2
+
+// Use patched version of helm until upstream PR gets merged.
+// https://github.com/helm/helm/pull/7405.
+replace helm.sh/helm/v3 => github.com/kinvolk/helm/v3 v3.0.3-0.20200115143854-74392be03d9e
