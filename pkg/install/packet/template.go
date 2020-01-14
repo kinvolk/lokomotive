@@ -27,7 +27,7 @@ module "packet-{{.Config.ClusterName}}" {
   cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
   {{- end }}
 
-  controller_count = "{{.Config.ControllerCount}}"
+  controller_count = {{.Config.ControllerCount}}
   {{- if .Config.ControllerType }}
   controller_type  = "{{ .Config.ControllerType }}"
   {{- end }}
@@ -55,8 +55,10 @@ module "packet-{{.Config.ClusterName}}" {
   {{- end }}
 
   {{- if eq .Config.Networking "calico" }}
-  network_mtu = "{{.Config.NetworkMTU}}"
-  enable_reporting = "{{.Config.EnableReporting}}"
+  {{- if .Config.NetworkMTU }}
+  network_mtu = {{.Config.NetworkMTU}}
+  {{- end }}
+  enable_reporting = {{.Config.EnableReporting}}
   {{- end }}
 
   {{- if .Config.PodCIDR }}
@@ -79,7 +81,7 @@ module "packet-{{.Config.ClusterName}}" {
   reservation_ids_default = "{{.Config.ReservationIDsDefault}}"
   {{- end }}
   {{- if .Config.CertsValidityPeriodHours }}
-  certs_validity_period_hours = "{{.Config.CertsValidityPeriodHours}}"
+  certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
   {{- end }}
 }
 
@@ -104,7 +106,7 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   pool_name    = "{{ $pool.Name }}"
-  worker_count = "{{ $pool.Count }}"
+  worker_count = {{ $pool.Count }}
   {{- if $pool.NodeType }}
   type      = "{{ $pool.NodeType }}"
   {{- end }}
@@ -136,16 +138,16 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   {{- if $pool.SetupRaid }}
-  setup_raid = "{{ $pool.SetupRaid }}"
+  setup_raid = {{ $pool.SetupRaid }}
   {{- end }}
   {{- if $pool.SetupRaidHDD }}
-  setup_raid_hdd = "{{ $pool.SetupRaidHDD }}"
+  setup_raid_hdd = {{ $pool.SetupRaidHDD }}
   {{- end }}
   {{- if $pool.SetupRaidSSD }}
-  setup_raid_ssd = "{{ $pool.SetupRaidSSD }}"
+  setup_raid_ssd = {{ $pool.SetupRaidSSD }}
   {{- end }}
   {{- if $pool.SetupRaidSSD }}
-  setup_raid_ssd_fs = "{{ $pool.SetupRaidSSDFS }}"
+  setup_raid_ssd_fs = {{ $pool.SetupRaidSSDFS }}
   {{- end }}
 
   {{- if $.Config.ReservationIDs }}

@@ -22,10 +22,10 @@ module "aws-{{.Config.ClusterName}}" {
   ssh_keys  = {{$.SSHPublicKeys}}
   asset_dir = "../cluster-assets"
 
-  controller_count = "{{.Config.ControllerCount}}"
+  controller_count = {{.Config.ControllerCount}}
   controller_type  = "{{.Config.ControllerType}}"
 
-  worker_count = "{{.Config.WorkerCount}}"
+  worker_count = {{.Config.WorkerCount}}
   {{- if .Config.WorkerType }}
   worker_type  = "{{.Config.WorkerType}}"
   {{- end }}
@@ -40,8 +40,10 @@ module "aws-{{.Config.ClusterName}}" {
   networking = "{{.Config.Networking}}"
   {{- end }}
   {{- if eq .Config.Networking "calico" }}
-  network_mtu = "{{.Config.NetworkMTU}}"
-  enable_reporting = "{{.Config.EnableReporting}}"
+  {{- if .Config.NetworkMTU }}
+  network_mtu = {{.Config.NetworkMTU}}
+  {{- end }}
+  enable_reporting = {{.Config.EnableReporting}}
   {{- end }}
   {{- if .Config.PodCIDR }}
   pod_cidr = "{{.Config.PodCIDR}}"
@@ -58,20 +60,20 @@ module "aws-{{.Config.ClusterName}}" {
   controller_clc_snippets = {{.ControllerCLCSnippets}}
   worker_clc_snippets     = {{.WorkerCLCSnippets}}
 
-  enable_aggregation = "{{.Config.EnableAggregation}}"
+  enable_aggregation = {{.Config.EnableAggregation}}
 
   {{- if .Config.DiskSize }}
-  disk_size = "{{.Config.DiskSize}}"
+  disk_size = {{.Config.DiskSize}}
   {{- end }}
   {{- if .Config.DiskType }}
   disk_type = "{{.Config.DiskType}}"
   {{- end }}
   {{- if .Config.DiskIOPS }}
-  disk_iops = "{{.Config.DiskIOPS}}"
+  disk_iops = {{.Config.DiskIOPS}}
   {{- end }}
 
   {{- if .Config.CertsValidityPeriodHours }}
-  certs_validity_period_hours = "{{.Config.CertsValidityPeriodHours}}"
+  certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
   {{- end }}
 }
 

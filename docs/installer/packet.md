@@ -89,7 +89,7 @@ cluster "packet" {
 	# networking = "calico" (optional)
 
 	# CNI interface MTU (applies to calico only)
-	# network_mtu = "1480" (optional)
+	# network_mtu = 1480 (optional)
 
 	# Enable usage or analytics reporting to upstreams (Calico)
 	# enable_reporting = false (optional)
@@ -112,7 +112,7 @@ cluster "packet" {
 	# reservation_ids_default = "" (optional)
 
 	# Validity of all the certificates in hours
-	# certs_validity_period_hours = "8760"  (optional)
+	# certs_validity_period_hours = 8760  (optional)
 
 	# Define one or more worker pools
 	worker_pool "pool-1" {
