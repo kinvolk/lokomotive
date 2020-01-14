@@ -16,7 +16,7 @@ A generated `kubeconfig` provides `kubectl` access to the cluster.
 * At least 4 GB of free RAM
 * Running libvirtd system service, see [libvirtd Setup](#libvirtd-setup)
 * A user in the `libvirt` group (to create virtual machines with libvirt and access `/dev/kvm`), see [User Setup]
-* Terraform v0.11.x, [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct),
+* Terraform v0.12.x, [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct),
   and [terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt)
   installed locally
 

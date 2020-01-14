@@ -14,7 +14,7 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 
 ## Terraform Setup
 
-Install [Terraform](https://www.terraform.io/downloads.html) v0.11.x on your system.
+Install [Terraform](https://www.terraform.io/downloads.html) v0.12.x on your system.
 
 ```sh
 $ terraform version
