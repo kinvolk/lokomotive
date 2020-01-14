@@ -34,11 +34,11 @@ module "aws-tempest" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes?ref=master"
 
   providers = {
-    aws = "aws.default"
-    local = "local.default"
-    null = "null.default"
-    template = "template.default"
-    tls = "tls.default"
+    aws = aws.default
+    local = local.default
+    null = null.default
+    template = template.default
+    tls = tls.default
   }
 
   # AWS
