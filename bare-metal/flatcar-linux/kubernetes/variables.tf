@@ -156,9 +156,9 @@ variable "enable_reporting" {
 }
 
 variable "enable_aggregation" {
-  description = "Enable the Kubernetes Aggregation Layer (defaults to false)"
+  description = "Enable the Kubernetes Aggregation Layer (defaults to true)"
   type        = bool
-  default     = false
+  default     = true
 }
 
 # Certificates
