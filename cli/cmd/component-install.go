@@ -64,7 +64,7 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return diags
 		}
 
-		if err := util.InstallComponent(component, kubeconfig); err != nil {
+		if err := util.InstallComponent(componentName, component, kubeconfig); err != nil {
 			return err
 		}
 	}

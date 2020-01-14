@@ -15,8 +15,14 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 )
 
-// InstallComponent installs given component using given kubeconfig
-func InstallComponent(c components.Component, kubeconfig string) error {
+// InstallComponent installs given component using given kubeconfig.
+func InstallComponent(_ string, c components.Component, kubeconfig string) error {
+	return InstallAsManifests(c, kubeconfig)
+}
+
+// InstallAsManifests installs given component by applying manifests directly
+// to the kube-apiserver using given kubeconfig.
+func InstallAsManifests(c components.Component, kubeconfig string) error {
 	renderedFiles, err := c.RenderManifests()
 	if err != nil {
 		return err
