@@ -22,7 +22,7 @@ spec:
       serviceAccountName: flatcar-linux-update-operator-sa
       containers:
       - name: update-operator
-        image: quay.io/kinvolk/flatcar-linux-update-operator:v0.7.1
+        image: quay.io/kinvolk/flatcar-linux-update-operator:v0.7.3
         command:
         - "/bin/update-operator"
         env:
