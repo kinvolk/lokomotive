@@ -16,7 +16,11 @@ import (
 )
 
 // InstallComponent installs given component using given kubeconfig.
-func InstallComponent(_ string, c components.Component, kubeconfig string) error {
+func InstallComponent(name string, c components.Component, kubeconfig string) error {
+	if c.Metadata().Helm != nil {
+		return InstallAsRelease(name, c, kubeconfig)
+	}
+
 	return InstallAsManifests(c, kubeconfig)
 }
 
