@@ -46,7 +46,7 @@ func defaultStorageClass() *Storageclass {
 
 func newComponent() *component {
 	return &component{
-		Storageclasses: []*Storageclass{defaultStorageClass()},
+		Storageclasses: []*Storageclass{},
 	}
 }
 
