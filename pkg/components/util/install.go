@@ -83,9 +83,18 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 	install.ReleaseName = name
 	install.Namespace = ns
 
-	// Wait for charts to become ready to avoid race conditions.
-	// TODO: Make this configurable per component.
-	install.Wait = true
+	// Currently, we install components one-by-one, in the order how they are
+	// defined in the configuration and we do not support any dependencies between
+	// the components.
+	//
+	// If it is critical for component to have it's dependencies ready before it is
+	// installed, all dependencies should set Wait field to 'true' in components.HelmMetadata
+	// struct.
+	//
+	// The example of such dependency is between prometheus-operator and openebs-storage-class, where
+	// both openebs-operator and openebs-storage-class components must be fully functional, before
+	// prometheus-operator is deployed, otherwise it won't pick the default storage class.
+	install.Wait = c.Metadata().Helm.Wait
 
 	if _, err := install.Run(chart, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("installing component '%s' as chart failed: %w", name, err)
