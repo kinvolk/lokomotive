@@ -18,19 +18,16 @@ func TestEmptyConfig(t *testing.T) {
 	}
 }
 
-func TestDefaultValues(t *testing.T) {
-	c := newComponent()
+func TestDefaultStorageClass(t *testing.T) {
+	c := defaultStorageClass()
 
-	if len(c.Storageclasses) != 1 {
-		t.Fatal("Default should contain only 1 storage class")
-	}
-	if c.Storageclasses[0].ReplicaCount != 3 {
+	if c.ReplicaCount != 3 {
 		t.Fatal("Default value of replica count should be 3")
 	}
-	if !c.Storageclasses[0].Default {
+	if !c.Default {
 		t.Fatal("Default value should be true")
 	}
-	if len(c.Storageclasses[0].Disks) != 0 {
+	if len(c.Disks) != 0 {
 		t.Fatal("Default list of disks should be empty")
 	}
 }

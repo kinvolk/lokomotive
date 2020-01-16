@@ -28,11 +28,11 @@ type Storageclass struct {
 	Disks        []string `hcl:"disks,optional"`
 }
 type component struct {
-	Storageclasses []Storageclass `hcl:"storage-class,block"`
+	Storageclasses []*Storageclass `hcl:"storage-class,block"`
 }
 
-func defaultStorageClass() Storageclass {
-	return Storageclass{
+func defaultStorageClass() *Storageclass {
+	return &Storageclass{
 		// Name of the storage class
 		Name: "openebs-cstor-disk-replica-3",
 		// Default replica count value is set to 3
@@ -45,9 +45,8 @@ func defaultStorageClass() Storageclass {
 }
 
 func newComponent() *component {
-	sc := defaultStorageClass()
 	return &component{
-		Storageclasses: []Storageclass{sc},
+		Storageclasses: []*Storageclass{},
 	}
 }
 
