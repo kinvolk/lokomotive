@@ -19,6 +19,34 @@ function match_with_apiserver_version() {
   fi
 }
 
+readonly maxtries=200
+
+function check_tries() {
+  if [ "${count}" -gt "${maxtries}" ]; then
+    echo "Reached maximum number of retries."
+    echo "--------------------------------------"
+    echo "info dump:"
+    set -x
+    kubectl get pods,job
+    kubectl get events
+    kubectl logs "${pod_name}"
+    kubectl get "${pod_name}" -o yaml
+    set +x
+    echo "--------------------------------------"
+    exit 1
+  fi
+  count=$((count + 1))
+}
+
+# Wait until the cluster is responsive
+count=0
+until kubectl get nodes; do
+  check_tries
+
+  echo "Waiting for the cluster to be responsive..."
+  sleep 2
+done
+
 echo "--------------------------------------"
 echo "Testing version skew"
 # find the apiserver version
