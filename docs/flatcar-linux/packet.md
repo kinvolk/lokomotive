@@ -233,7 +233,7 @@ In 5-10 minutes, the Kubernetes cluster will be ready.
 [Install kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) on your system. Use the generated `kubeconfig` credentials to access the Kubernetes cluster and list nodes.
 
 ```
-$ export KUBECONFIG=/home/user/.secrets/clusters/tempest/auth/kubeconfig
+$ export KUBECONFIG=/home/user/.secrets/clusters/packet/auth/kubeconfig
 $ kubectl get nodes
 NAME                       STATUS  ROLES              AGE  VERSION
 supernova-controller-0     Ready   controller,master  10m  v1.14.1
