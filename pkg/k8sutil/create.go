@@ -303,7 +303,7 @@ func (m manifest) urlPath(plural string, namespaced bool) string {
 	return u + "/" + plural
 }
 
-// LoadManifests parses a map of Kubernetes manifest.
+// LoadManifests parses a map of Kubernetes manifests.
 func LoadManifests(files map[string]string) ([]manifest, error) {
 	var manifests []manifest
 	for path, fileContent := range files {
