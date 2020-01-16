@@ -42,6 +42,10 @@ func InstallAsManifests(c components.Component, kubeconfig string) error {
 
 // InstallAsRelease installs a component as a Helm release using a Helm client.
 func InstallAsRelease(name string, c components.Component, kubeconfig string) error {
+	if c.Metadata().Helm == nil {
+		return fmt.Errorf("component %s can't be installed as Helm release", name)
+	}
+
 	actionConfig := &action.Configuration{}
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
