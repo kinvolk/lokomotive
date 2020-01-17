@@ -3,13 +3,17 @@ kubeconfig := $(KUBECONFIG)
 ifeq ($(RUN_FROM_CI),"true")
 	kubeconfig := "${HOME}/assets/auth/kubeconfig"
 endif
+kubehunter := ./scripts/kube-hunter.sh
+ifeq ($(SKIP_KUBE_HUNTER),"true")
+	kubehunter := echo
+endif
 
 .PHONY: run-e2e-tests
 run-e2e-tests: kube-hunter
 	KUBECONFIG=${kubeconfig} ./scripts/check-version-skew.sh
 
 kube-hunter:
-	KUBECONFIG=${kubeconfig} ./scripts/kube-hunter.sh
+	KUBECONFIG=${kubeconfig} ${kubehunter}
 
 .PHONY: update-terraform-render-bootkube
 update-terraform-render-bootkube:
