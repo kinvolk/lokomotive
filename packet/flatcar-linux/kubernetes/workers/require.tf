@@ -2,24 +2,12 @@
 
 terraform {
   required_version = ">= 0.12.0"
-}
 
-provider "ct" {
-  version = "0.4.0"
-}
-
-provider "local" {
-  version = "~> 1.2"
-}
-
-provider "template" {
-  version = "~> 2.1"
-}
-
-provider "tls" {
-  version = "~> 2.0"
-}
-
-provider "packet" {
-  version = "~> 2.7.3"
+  required_providers {
+    ct       = "= 0.4.0"
+    local    = "~> 1.2"
+    template = "~> 2.1"
+    tls      = "~> 2.0"
+    packet   = "~> 2.7.3"
+  }
 }
