@@ -90,7 +90,9 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 }
 
 func NewConfig() *config {
-	return &config{}
+	return &config{
+		EnableAggregation: true,
+	}
 }
 
 // GetAssetDir returns asset directory path
