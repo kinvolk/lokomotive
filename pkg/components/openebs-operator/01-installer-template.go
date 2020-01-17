@@ -1,6 +1,33 @@
 package openebsoperator
 
 var operatorInstallerTmpl = `
+---
+# XXX: Remove this CRD once this component can be installed using helm3 chart
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: storagepoolclaims.openebs.io
+spec:
+  conversion:
+    strategy: None
+  group: openebs.io
+  names:
+    kind: StoragePoolClaim
+    listKind: StoragePoolClaimList
+    plural: storagepoolclaims
+    shortNames:
+    - spc
+    singular: storagepoolclaim
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        x-preserve-unknown-fields: true
+---
 # This manifest deploys the OpenEBS control plane components, with associated CRs & RBAC rules
 # NOTE: On GKE, deploy the openebs-operator.yaml in admin context
 
