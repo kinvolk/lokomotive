@@ -4,7 +4,7 @@
 
 ## Requirements
 
-**If you run a cluster `enable_aggregation` set to false (default), make sure you disable the webhooks
+**If you run a cluster `enable_aggregation` set to `false`, make sure you disable the webhooks
 feature, which will not work without aggregation enabled.**
 
 You can do that by setting `webhooks = false`
