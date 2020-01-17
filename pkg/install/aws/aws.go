@@ -73,6 +73,7 @@ func NewConfig() *config {
 		ControllerCLCSnippets: make([]string, 0),
 		WorkerCLCSnippets:     make([]string, 0),
 		WorkerTargetGroups:    make([]string, 0),
+		EnableAggregation:     true,
 	}
 }
 
