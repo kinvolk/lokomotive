@@ -11,5 +11,6 @@ terraform {
     tls      = "~> 2.0"
     libvirt  = "~> 0.6.0"
     packet   = "~> 2.7.3"
+    random   = "~> 2.2"
   }
 }
