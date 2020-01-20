@@ -1,14 +1,6 @@
 module "controller" {
   source = "../../kvm-libvirt/flatcar-linux/kubernetes"
 
-  providers = {
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-    libvirt  = libvirt.default
-  }
-
   os_image_unpacked = "file:///var/tmp/flatcar_production_qemu_image.img"
   ssh_keys = ["$PUB_KEY"]
 
@@ -23,13 +15,6 @@ module "controller" {
 
 module "worker-pool-one" {
   source = "../../kvm-libvirt/flatcar-linux/kubernetes/workers"
-
-  providers = {
-    local    = local.default
-    template = template.default
-    tls      = tls.default
-    libvirt  = libvirt.default
-  }
 
   ssh_keys = module.controller.ssh_keys
 
