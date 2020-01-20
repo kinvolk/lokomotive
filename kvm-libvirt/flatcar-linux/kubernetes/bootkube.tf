@@ -1,5 +1,5 @@
 module "bootkube" {
-  source = "github.com/kinvolk/terraform-render-bootkube?ref=ec8fc940849b534a185784201af089c001df3061"
+  source = "github.com/kinvolk/terraform-render-bootkube?ref=1a652a250e29e71cdd76f687bb03aebd64ffd2d0"
   cluster_name = var.cluster_name
 
   # Cannot use cyclic dependencies on controllers or their DNS records
