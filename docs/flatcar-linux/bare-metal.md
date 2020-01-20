@@ -148,30 +148,6 @@ provider "matchbox" {
   client_key  = "${file("~/.config/matchbox/client.key")}"
   ca          = "${file("~/.config/matchbox/ca.crt")}"
 }
-
-provider "ct" {
-  version = "0.4.0"
-}
-
-provider "local" {
-  version = "~> 1.2"
-  alias   = "default"
-}
-
-provider "null" {
-  version = "~> 2.1"
-  alias   = "default"
-}
-
-provider "template" {
-  version = "~> 2.1"
-  alias   = "default"
-}
-
-provider "tls" {
-  version = "~> 2.0"
-  alias   = "default"
-}
 ```
 
 ## Cluster
