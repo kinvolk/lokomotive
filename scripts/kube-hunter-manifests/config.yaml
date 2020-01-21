@@ -29,7 +29,7 @@ spec:
       serviceAccountName: kube-hunter
       containers:
       - name: kube-hunter
-        image: aquasec/kube-hunter
+        image: quay.io/kinvolk/kube-hunter:b0c6610
         command: ["python", "kube-hunter.py"]
         args: ["--pod", "--active"]
       restartPolicy: Never
