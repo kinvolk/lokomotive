@@ -112,8 +112,8 @@ spec:
         - --envoy-key-file=/certs/tls.key
         command:
         - contour
-        image: docker.io/projectcontour/contour:v1.0.1
-        imagePullPolicy: Always
+        image: docker.io/projectcontour/contour:v1.1.0
+        imagePullPolicy: IfNotPresent
         name: envoy-initconfig
         volumeMounts:
         - name: envoy-config
@@ -129,6 +129,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+      automountServiceAccountToken: false
       # XXX: Lokomotive specific change
       serviceAccountName: envoy
       volumes:
