@@ -121,7 +121,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.17.0
+          KUBELET_IMAGE_TAG=v1.17.1
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
@@ -141,7 +141,7 @@ storage:
           # Wrapper for bootkube start
           set -e
           # Pre-pull hyperkube image because when it is later pulled but takes too long it times out
-          docker pull k8s.gcr.io/hyperkube:v1.17.0
+          docker pull k8s.gcr.io/hyperkube:v1.17.1
           # Move experimental manifests
           [ -n "$(ls /opt/bootkube/assets/manifests-*/* 2>/dev/null)" ] && mv /opt/bootkube/assets/manifests-*/* /opt/bootkube/assets/manifests && rm -rf /opt/bootkube/assets/manifests-*
           exec /usr/bin/rkt run \
