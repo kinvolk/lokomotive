@@ -50,35 +50,49 @@ variable "packet_token" {
 cluster "packet" {
 	# Change asset folder
 	asset_dir = pathexpand("~/lokoctl-assets/mycluster")
+
 	#auth_token = var.packet_token
 	#aws_creds_path = pathexpand("~/.aws/credentials")
+
 	# Change according to your AWS DNS zone
 	aws_region = "eu-central-1"
+
 	# Change cluster name
 	cluster_name = "test"
 	controller_count = 1
+
 	# Change AWS DNS zone
 	dns_zone = "k8s.example.com"
+
 	# and zone ID
 	dns_zone_id = "XXX"
+
 	# Change Packet server location
 	facility = "ams1"
+
 	# Boot via iPXE (optional but currently needed for ARM; 'https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe')
 	# ipxe_script_url = ""
+
 	# Define the CPU architecture (optional; 'amd64', 'arm64')
 	# os_arch = "amd64"
+
 	# Define a Flatcar Container Linux channel ('stable', 'beta', 'alpha' or 'edge')
 	os_channel = "stable"
+
 	# Define a Flatcar Container Linux version (optional)
 	# os_version = "current"
+
 	# Change Packet project ID
 	project_id = "aaa-bbb-ccc-ddd"
+
 	# Change management SSH public key
 	ssh_pubkeys = [
 		"ssh-rsa AAAA...",
 	]
+
 	# Change to your external IP address to allow it for management access
 	management_cidrs = ["my.ip.ad.dr/32"]
+
 	# Change to internal Packet IPs to allow cluster communication
 	node_private_cidr = "XX.XX.XX.0/24"
 
