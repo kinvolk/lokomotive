@@ -75,12 +75,14 @@ type Executor struct {
 	executionPath string
 	binaryPath    string
 	envVariables  map[string]string
+	quiet         bool
 }
 
 // NewExecutor initializes a new Executor.
 func NewExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
 	ex.executionPath = conf.WorkingDir
+	ex.quiet = conf.Quiet
 
 	// Create the folder in which the executor, and its logs will be stored,
 	// if not existing.
@@ -135,19 +137,24 @@ func (ex *Executor) Destroy() error {
 // output.
 func (ex *Executor) Execute(args ...string) error {
 	pid, done, err := ex.ExecuteAsync(args...)
-	pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
-	t, tailErr := tail.TailFile(pathToFile, tail.Config{Follow: true})
-	if tailErr != nil {
-		return err
-	}
+	if !ex.quiet {
+		pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
-	go func() {
-		for line := range t.Lines {
-			fmt.Println(line.Text)
+		t, tailErr := tail.TailFile(pathToFile, tail.Config{Follow: true})
+		if tailErr != nil {
+			return err
 		}
-	}()
-	<-done
+
+		go func() {
+			for line := range t.Lines {
+				fmt.Println(line.Text)
+			}
+		}()
+		<-done
+	} else {
+		<-done
+	}
 
 	return err
 }
