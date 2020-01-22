@@ -266,7 +266,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
-          KUBELET_IMAGE_TAG=v1.17.1
+          KUBELET_IMAGE_TAG=v1.17.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
@@ -287,7 +287,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://k8s.gcr.io/hyperkube-${os_arch}:v1.17.1 \
+            docker://k8s.gcr.io/hyperkube-${os_arch}:v1.17.2 \
             --net=host \
             --dns=host \
             -- \
