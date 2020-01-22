@@ -1,14 +1,6 @@
 module "aws-tempest" {
   source = "../../aws/flatcar-linux/kubernetes"
 
-  providers = {
-    aws      = aws.default
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-  }
-
   cluster_name = "$CLUSTER_ID"
   dns_zone = "$AWS_DNS_ZONE"
   dns_zone_id = "$AWS_DNS_ZONE_ID"

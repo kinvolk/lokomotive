@@ -1,13 +1,6 @@
 module "baremetal" {
   source = "../../bare-metal/flatcar-linux/kubernetes"
 
-  providers = {
-    local = "local.default"
-    null = "null.default"
-    template = "template.default"
-    tls = "tls.default"
-  }
-
   cached_install = "true"
   matchbox_http_endpoint = "http://matchbox.example.com:8080"
 

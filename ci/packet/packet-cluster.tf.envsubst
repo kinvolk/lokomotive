@@ -1,15 +1,6 @@
 module "controller" {
   source = "../../packet/flatcar-linux/kubernetes"
 
-  providers = {
-    aws      = aws.default
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-    packet   = packet.default
-  }
-
   dns_zone = "$AWS_DNS_ZONE"
   dns_zone_id = "$AWS_DNS_ZONE_ID"
 
@@ -33,14 +24,6 @@ module "controller" {
 
 module "worker-pool-1" {
   source = "../../packet/flatcar-linux/kubernetes/workers"
-
-  providers = {
-    local    = local.default
-    template = template.default
-    tls      = tls.default
-    packet   = packet.default
-  }
-
 
   ssh_keys = ["$PUB_KEY"]
 
