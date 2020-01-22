@@ -13,5 +13,7 @@ repo="\"github.com/kinvolk/terraform-render-bootkube?ref=${git_version}\""
 
 for f in $(find ./ -name bootkube.tf)
 do
-  sed -i "/source =/c\  source = ${repo}" $f
+  sed -i "/source /c\  source = ${repo}" $f
 done
+
+terraform fmt -recursive
