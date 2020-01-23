@@ -138,23 +138,25 @@ func (ex *Executor) Destroy() error {
 func (ex *Executor) Execute(args ...string) error {
 	pid, done, err := ex.ExecuteAsync(args...)
 
-	if !ex.quiet {
-		pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
-
-		t, tailErr := tail.TailFile(pathToFile, tail.Config{Follow: true})
-		if tailErr != nil {
-			return err
-		}
-
-		go func() {
-			for line := range t.Lines {
-				fmt.Println(line.Text)
-			}
-		}()
+	if ex.quiet {
 		<-done
-	} else {
-		<-done
+
+		return err
 	}
+
+	pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
+
+	t, tailErr := tail.TailFile(pathToFile, tail.Config{Follow: true})
+	if tailErr != nil {
+		return err
+	}
+
+	go func() {
+		for line := range t.Lines {
+			fmt.Println(line.Text)
+		}
+	}()
+	<-done
 
 	return err
 }
