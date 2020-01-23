@@ -52,6 +52,8 @@ func runInstall(cmd *cobra.Command, args []string) {
 
 func installComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
 	for _, componentName := range componentNames {
+		fmt.Printf("Installing component '%s'...\n", componentName)
+
 		component, err := components.Get(componentName)
 		if err != nil {
 			return err
@@ -64,9 +66,11 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return diags
 		}
 
-		if err := util.InstallComponent(component, kubeconfig); err != nil {
+		if err := util.InstallComponent(componentName, component, kubeconfig); err != nil {
 			return err
 		}
+
+		fmt.Printf("Succesfully installed component '%s'!\n", componentName)
 	}
 	return nil
 }

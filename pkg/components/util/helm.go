@@ -16,6 +16,8 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 
 	"github.com/kinvolk/lokoctl/pkg/assets"
+	"github.com/kinvolk/lokoctl/pkg/components"
+	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/util/walkers"
 )
 
@@ -120,7 +122,7 @@ func filterOutUnusedFiles(files map[string]string) map[string]string {
 			continue
 		}
 
-		// The helm charts that are rendered may be empty according to the
+		// The Helm charts that are rendered may be empty according to the
 		// conditionals in the templates and with the used values. Thus
 		// check if the file contains more than emptiness.
 		fileContent = regexpLeadingTabsAndNewlines.ReplaceAllString(fileContent, "")
@@ -130,4 +132,74 @@ func filterOutUnusedFiles(files map[string]string) map[string]string {
 		ret[filename] = fileContent
 	}
 	return ret
+}
+
+// chartFromManifests use RenderManifests from Component interface to create an artificial
+// Helm chart object.
+func chartFromManifests(name string, c components.Component) (*chart.Chart, error) {
+	manifests, err := c.RenderManifests()
+	if err != nil {
+		return nil, err
+	}
+
+	ch := &chart.Chart{
+		Metadata: &chart.Metadata{
+			APIVersion: chart.APIVersionV2,
+			Name:       name,
+			// TODO Remove hardcode version, which is installed.
+			Version: "0.1.0",
+		},
+	}
+
+	crds := ""
+
+	for p, m := range manifests {
+		manifestMap := map[string]string{}
+		manifestMap[p] = m
+		parsedManifest, err := k8sutil.LoadManifests(manifestMap)
+		if err != nil {
+			return nil, err
+		}
+
+		manifestsRaw := ""
+
+		for _, pm := range parsedManifest {
+			// CRDs will be installed separately.
+			if pm.Kind() == "CustomResourceDefinition" {
+				crds = fmt.Sprintf("%s\n---\n%s", crds, pm.Raw())
+				continue
+			}
+
+			// Drop Namespace resource as we take care of its creation at another level and we don't want resources to collide.
+			// TODO: Remove only the namespace in which the chart is installed.
+			if pm.Kind() == "Namespace" {
+				continue
+			}
+
+			manifestsRaw = fmt.Sprintf("%s\n---\n%s", manifestsRaw, pm.Raw())
+		}
+
+		f := &chart.File{
+			Data: []byte(manifestsRaw),
+			Name: p,
+		}
+
+		// Apply rendered manifests to Manifests slice, which does not run through the rendering engine
+		// again when the chart is being installed. This is required, as some charts use complex escaping
+		// syntax, which breaks if the templates are evaluated twice. This, for example, breaks
+		// the prometheus-operator chart.
+		ch.Manifests = append(ch.Manifests, f)
+	}
+
+	// If we collected any CRDs, put them in the special file in the dedicated crds/ directory.
+	if crds != "" {
+		f := &chart.File{
+			Data: []byte(crds),
+			Name: "crds/crds.yaml",
+		}
+
+		ch.Files = append(ch.Files, f)
+	}
+
+	return ch, nil
 }

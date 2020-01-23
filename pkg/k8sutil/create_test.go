@@ -173,7 +173,7 @@ items:
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := loadManifests(test.raw)
+			got, err := LoadManifests(test.raw)
 			if err != nil {
 				t.Fatalf("failed to parse manifest: %v", err)
 			}
