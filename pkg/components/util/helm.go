@@ -151,14 +151,28 @@ func filterOutUnusedFiles(files map[string]string) map[string]string {
 	return ret
 }
 
-// chartFromManifests use RenderManifests from Component interface to create an artificial
-// Helm chart object.
-func chartFromManifests(name string, c components.Component) (*chart.Chart, error) {
-	manifests, err := c.RenderManifests()
+// chartFromComponent creates Helm chart object in memory for given component and makes
+// sure it is valid.
+func chartFromComponent(name string, c components.Component) (*chart.Chart, error) {
+	m, err := c.RenderManifests()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("rendering manifests failed: %w", err)
 	}
 
+	ch, err := chartFromManifests(name, m)
+	if err != nil {
+		return nil, fmt.Errorf("creating chart from manifests failed: %w", err)
+	}
+
+	if err := ch.Validate(); err != nil {
+		return nil, fmt.Errorf("created chart from manifests is invalid: %w", err)
+	}
+
+	return ch, nil
+}
+
+// chartFromManifests creates Helm chart object in memory from given manifests.
+func chartFromManifests(name string, manifests map[string]string) (*chart.Chart, error) {
 	ch := &chart.Chart{
 		Metadata: &chart.Metadata{
 			APIVersion: chart.APIVersionV2,

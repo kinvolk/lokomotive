@@ -63,7 +63,7 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		return err
 	}
 
-	chart, err := chartFromManifests(name, c)
+	chart, err := chartFromComponent(name, c)
 	if err != nil {
 		return err
 	}
