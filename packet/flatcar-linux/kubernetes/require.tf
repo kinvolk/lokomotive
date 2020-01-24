@@ -10,6 +10,5 @@ terraform {
     template = "~> 2.1"
     tls      = "~> 2.0"
     packet   = "~> 2.7.3"
-    aws      = "2.31.0"
   }
 }

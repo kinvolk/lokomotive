@@ -7,12 +7,7 @@ variable "cluster_name" {
 
 variable "dns_zone" {
   type        = string
-  description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
-}
-
-variable "dns_zone_id" {
-  type        = string
-  description = "AWS Route53 DNS Zone ID (e.g. Z3PAABBCFAKEC0)"
+  description = "DNS Zone (e.g. example.com)"
 }
 
 variable "project_id" {

@@ -1,39 +1,7 @@
-# Discrete DNS records for each controller's private IPv4 for etcd usage
-resource "aws_route53_record" "etcds" {
-  count = var.controller_count
-
-  # DNS Zone where record should be created
-  zone_id = var.dns_zone_id
-
-  name = format("%s-etcd%d.%s.", var.cluster_name, count.index, var.dns_zone)
-  type = "A"
-  ttl  = 300
-
-  # private IPv4 address for etcd
-  records = [packet_device.controllers[count.index].access_private_ipv4]
-}
-
-# DNS record for the API servers
-resource "aws_route53_record" "apiservers" {
-  zone_id = var.dns_zone_id
-
-  name = format("%s.%s.", var.cluster_name, var.dns_zone)
-  type = "A"
-  ttl  = "300"
-
-  # TODO - verify that a multi-controller setup actually works
-  records = packet_device.controllers.*.access_public_ipv4
-}
-
-resource "aws_route53_record" "apiservers_private" {
-  zone_id = var.dns_zone_id
-
-  name = format("%s-private.%s.", var.cluster_name, var.dns_zone)
-  type = "A"
-  ttl  = "300"
-
-  # TODO - verify that a multi-controller setup actually works
-  records = packet_device.controllers.*.access_private_ipv4
+locals {
+  api_external_fqdn = format("%s.%s.", var.cluster_name, var.dns_zone)
+  api_fqdn = format("%s-private.%s.", var.cluster_name, var.dns_zone)
+  etcd_fqdn = [for index, device in packet_device.controllers: format("%s-etcd%d.%s.", var.cluster_name, index, var.dns_zone)]
 }
 
 resource "packet_device" "controllers" {

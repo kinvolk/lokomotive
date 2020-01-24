@@ -1,6 +1,6 @@
 # Packet
 
-In this tutorial, we'll create a Kubernetes cluster on [Packet](https://packet.net) with [Flatcar Container Linux](https://www.flatcar-linux.org/). For external DNS, [Route53](https://aws.amazon.com/route53/) will be used.
+In this tutorial, we'll create a Kubernetes cluster on [Packet](https://packet.net) with [Flatcar Container Linux](https://www.flatcar-linux.org/).
 
 We'll declare a Kubernetes cluster using the Lokomotive Terraform module. Then apply the changes to create DNS records, controller machines, worker machines and TLS assets.
 
@@ -9,8 +9,7 @@ Controllers are provisioned to run an `etcd-member` peer and a `kubelet` service
 ## Requirements
 
 * Packet account, Project ID and [API key](https://support.packet.com/kb/articles/api-integrations) (Note, that the term "Auth Token" is also used to refer to the API key in the packet docs)
-* AWS Account and IAM credentials
-* AWS Route53 DNS Zone (registered Domain Name or delegated subdomain)
+* [DNS Zone](#dns-zone)
 * Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 
 ## Terraform Setup
@@ -38,10 +37,6 @@ cd infra/clusters
 
 ## Provider
 
-### AWS
-
-Login to your AWS IAM dashboard and find your IAM user. Select "Security Credentials" and create an access key. Save the id and secret to a file that can be referenced in configs.
-
 ```
 [default]
 aws_access_key_id = xxx
@@ -62,10 +57,9 @@ provider "aws" {
 }
 ```
 
-Additional configuration options are described in the `aws` provider [docs](https://www.terraform.io/docs/providers/aws/).
+
 
 !!! tip
-    AWS regions are listed in [docs](http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region) or with `aws ec2 describe-regions`.
     The Packet facilities (i.e. data centers) list can be dynamically queried using the [API docs](https://www.packet.com/developers/api/#facilities).
 
 ### Packet
@@ -88,9 +82,8 @@ locals {
 module "controller" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes?ref=<hash>"
 
-  # Route53
-  dns_zone    = "packet.example.com"
-  dns_zone_id = "Z3PAABBCFAKEC0"
+  # DNS configuration
+  dns_zone    = "myclusters.example.com"
 
   # configuration
   ssh_keys = [
@@ -118,6 +111,19 @@ module "controller" {
   # If an IP block is not allocated yet, try provisioning an instance from the console in
   # that region. Packet will allocate a public IP CIDR.
   node_private_cidr = "10.128.156.0/25"
+}
+
+# DNS module that creates the required DNS entries for the cluster.
+# More details in DNS Zone section of this document.
+module "dns" {
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//dns/route53?ref=<hash>"
+
+  providers = {
+    aws = aws.default
+  }
+
+  entries = module.controller.dns_entries
+  aws_zone_id = "Z1_FAKE" # Z23ABC4XYZL05B for instance
 }
 
 module "worker-pool-helium" {
@@ -180,9 +186,9 @@ Apply the changes to create the cluster.
 ```sh
 $ terraform apply
 ...
-module.aws-tempest.null_resource.bootkube-start: Still creating... (4m50s elapsed)
-module.aws-tempest.null_resource.bootkube-start: Still creating... (5m0s elapsed)
-module.aws-tempest.null_resource.bootkube-start: Creation complete after 11m8s (ID: 3961816482286168143)
+module.controller.null_resource.bootkube-start: Still creating... (4m50s elapsed)
+module.controller.null_resource.bootkube-start: Still creating... (5m0s elapsed)
+module.controller.null_resource.bootkube-start: Creation complete after 11m8s (ID: 3961816482286168143)
 
 Apply complete! Resources: 98 added, 0 changed, 0 destroyed.
 ```
@@ -246,8 +252,7 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 | Name | Description | Example |
 |:-----|:------------|:--------|
 | cluster_name | Unique cluster name (prepended to dns_zone) | "tempest" |
-| dns_zone | AWS Route53 DNS zone | "aws.example.com" |
-| dns_zone_id | AWS Route53 DNS zone id | "Z3PAABBCFAKEC0" |
+| dns_zone | DNS zone | "myclusters.example.com" |
 | ssh_keys | List of SSH public keys for user 'core' | ["ssh-rsa AAAAB3NZ..."] |
 | asset_dir | Path to a directory where generated assets should be placed (contains secrets) | "/home/user/.secrets/clusters/tempest" |
 | project_id | Project ID obtained from the Packet account | "93fake81-0f3c1-..." |
@@ -268,20 +273,35 @@ Check the [variables.tf](https://github.com/kinvolk/lokomotive-kubernetes/blob/m
 
 #### DNS Zone
 
-Clusters create a DNS A record `${cluster_name}.${dns_zone}` to resolve a network load balancer backed by controller instances. This FQDN is used by workers and `kubectl` to access the apiserver(s). In this example, the cluster's apiserver would be accessible at `tempest.aws.example.com`.
+Clusters create few DNS A records to resolve to controller instances. For example `${cluster_name}.${dns_zone}` is used by workers and `kubectl` to access the apiserver(s). In this example, the cluster's apiserver would be accessible at `tempest.myclusters.example.com`.
 
-You'll need a registered domain name or delegated subdomain on AWS Route53. You can set this up once and create many clusters with unique names.
+In order to create such DNS entries you'll need a registered domain/subdomain and to define a DNS module that takes as input the DNS entries required by the controller module.
 
 ```tf
-resource "aws_route53_zone" "zone-for-clusters" {
-  name = "aws.example.com."
+module "dns" {
+  source = "git::https://github.com/kinvolk/lokomotive-kubernetes//dns/<provider>?ref=<hash>"
+
+  # DNS entries required for the cluster to work.
+  entries = module.controller.dns_entries
+
+  # Specific configuration for this DNS provider.
 }
 ```
 
-Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`.
+Lokomotive implements support for some [DNS providers](../dns/), if your provider is not supported you'll need to implement the module yourself or set the DNS entries by hand:
 
-!!! tip ""
-    If you have an existing domain name with a zone file elsewhere, just delegate a subdomain that can be managed on Route53 (e.g. aws.mydomain.com) and [update nameservers](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/SOA-NSrecords.html).
+```bash
+  # Create controller nodes (you could also create worker nodes to save time)
+  terraform apply -target=module.controller.packet_device.controllers
+
+  # Get list of DNS entries to be created
+  terraform output dns_entries
+
+  # Create the DNS entries by hand
+
+  # Finish deploying the cluster
+  terraform apply
+```
 
 ### Optional
 
