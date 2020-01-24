@@ -17,10 +17,6 @@ Create a cluster following the AWS [tutorial](../flatcar-linux/aws.md#cluster). 
 module "tempest-worker-pool" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes/workers?ref=<hash>"
 
-  providers = {
-    aws = "aws.default"
-  }
-
   # AWS
   vpc_id          = "${module.aws-tempest.vpc_id}"
   subnet_ids      = "${module.aws-tempest.subnet_ids}"

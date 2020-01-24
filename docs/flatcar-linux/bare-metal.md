@@ -158,13 +158,6 @@ Define a Kubernetes cluster using the module `bare-metal/flatcar-linux/kubernete
 module "bare-metal-mercury" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//bare-metal/flatcar-linux/kubernetes?ref=<hash>"
 
-  providers = {
-    local = local.default
-    null = null.default
-    template = template.default
-    tls = tls.default
-  }
-
   # bare-metal
   cluster_name            = "mercury"
   matchbox_http_endpoint  = "http://matchbox.example.com"
