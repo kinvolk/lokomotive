@@ -118,23 +118,12 @@ module "controller" {
 module "dns" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//dns/route53?ref=<hash>"
 
-  providers = {
-    aws = aws.default
-  }
-
   entries = module.controller.dns_entries
   aws_zone_id = "Z1_FAKE" # Z23ABC4XYZL05B for instance
 }
 
 module "worker-pool-helium" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//packet/flatcar-linux/kubernetes/workers?ref=<hash>"
-
-  providers = {
-    local    = local.default
-    template = template.default
-    tls      = tls.default
-    packet   = packet.default
-  }
 
   ssh_keys = [
     "ssh-rsa AAAAB3Nz...",

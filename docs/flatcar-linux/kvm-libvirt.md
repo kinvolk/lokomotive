@@ -127,14 +127,6 @@ Create a file called `mycluster.tf` with these contents but remember to change t
 module "controller" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//kvm-libvirt/flatcar-linux/kubernetes"
 
-  providers = {
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-    libvirt  = libvirt.default
-  }
-
   # Path to where the image was prepared, note the triple slash for the absolute path
   os_image_unpacked = "file:///path/to/flatcar_production_qemu_image.img"
 
@@ -155,13 +147,6 @@ module "controller" {
 
 module "worker-pool-one" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//kvm-libvirt/flatcar-linux/kubernetes/workers"
-
-  providers = {
-    local    = local.default
-    template = template.default
-    tls      = tls.default
-    libvirt  = libvirt.default
-  }
 
   ssh_keys = module.controller.ssh_keys
 

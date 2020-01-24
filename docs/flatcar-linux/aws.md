@@ -69,14 +69,6 @@ Define a Kubernetes cluster using the module [aws/flatcar-linux/kubernetes](http
 module "aws-tempest" {
   source = "git::https://github.com/kinvolk/lokomotive-kubernetes//aws/flatcar-linux/kubernetes?ref=<hash>"
 
-  providers = {
-    aws = aws.default
-    local = local.default
-    null = null.default
-    template = template.default
-    tls = tls.default
-  }
-
   # AWS
   cluster_name = "tempest"
   dns_zone     = "aws.example.com"
