@@ -50,6 +50,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	if err := gohcl.DecodeBody(*configBody, evalContext, c); err != nil {
 		return err
 	}
+
 	return nil
 }
 
