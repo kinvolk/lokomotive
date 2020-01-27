@@ -281,10 +281,10 @@ Lokomotive implements support for some [DNS providers](../dns/), if your provide
 
 ```bash
   # Create controller nodes (you could also create worker nodes to save time)
-  terraform apply -target=module.controller.packet_device.controllers
+  terraform apply -target=module.controller.null_resource.dns_entries
 
   # Get list of DNS entries to be created
-  terraform output dns_entries
+  terraform state show module.controller.null_resource.dns_entries
 
   # Create the DNS entries by hand
 
