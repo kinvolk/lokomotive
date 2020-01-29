@@ -9,10 +9,10 @@ This guide walks through the installation of Lokomotive on AWS.
 * [Terraform v0.12.x](https://www.terraform.io/downloads.html)
 * [Terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
     ```bash
-    wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.4.0/    terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
+    wget https://github.com/poseidon/terraform-provider-ct/releases/download/v0.4.0/terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
     mkdir -p ~/.terraform.d/plugins
     tar xzf terraform-provider-ct-v0.4.0-linux-amd64.tar.gz
-    mv terraform-provider-ct-v0.4.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/    terraform-provider-ct_v0.4.0
+    mv terraform-provider-ct-v0.4.0-linux-amd64/terraform-provider-ct ~/.terraform.d/plugins/terraform-provider-ct_v0.4.0
     ```
 
 ## Installing the cluster
