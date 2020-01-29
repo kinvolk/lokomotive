@@ -18,7 +18,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "lokoctl",
-	Short: "Command line tool to interact with a Lokomotive Kubernetes cluster",
+	Short: "Manage Lokomotive clusters.",
 }
 
 func Execute() {
