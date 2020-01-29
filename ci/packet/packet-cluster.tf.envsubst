@@ -12,7 +12,6 @@ module "controller" {
   facility = "ams1"
 
   controller_count = 1
-  controller_type  = "c2.medium.x86"
 
   management_cidrs = [
     "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
