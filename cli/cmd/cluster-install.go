@@ -84,7 +84,16 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("Failed to configure terraform : %v", err)
 	}
 
-	if err := p.Install(); err != nil {
+	conf := terraform.Config{
+		WorkingDir: terraform.GetTerraformRootDir(assetDir),
+	}
+
+	ex, err := terraform.NewExecutor(conf)
+	if err != nil {
+		ctxLogger.Fatalf("Failed to create terraform executor: %v", err)
+	}
+
+	if err := p.Install(ex); err != nil {
 		ctxLogger.Fatalf("error installing cluster: %v", err)
 	}
 

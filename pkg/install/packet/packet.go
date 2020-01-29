@@ -12,7 +12,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/destroy"
 	"github.com/kinvolk/lokoctl/pkg/dns"
 	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
@@ -98,64 +97,59 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (cfg *config) Install() error {
-	if cfg.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
+func (c *config) Install(ex *terraform.Executor) error {
+	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
 		return fmt.Errorf("cannot find the Packet authentication token:\n" +
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
 	}
 
-	assetDir, err := homedir.Expand(cfg.AssetDir)
+	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
 	}
 
-	cfg.AssetDir = assetDir
+	c.AssetDir = assetDir
 
-	dnsProvider, err := dns.ParseDNS(&cfg.DNS)
+	dnsProvider, err := dns.ParseDNS(&c.DNS)
 	if err != nil {
 		return errors.Wrap(err, "parsing DNS configuration failed")
 	}
 
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-	if err := createTerraformConfigFile(cfg, terraformRootDir); err != nil {
+	if err := createTerraformConfigFile(c, terraformRootDir); err != nil {
 		return err
-	}
-
-	ex, err := terraform.NewExecutor(terraformRootDir)
-	if err != nil {
-		return errors.Wrap(err, "failed to create terraform executor")
-	}
-
-	if err := terraform.ExecuteTerraform(ex, "init"); err != nil {
-		return errors.Wrap(err, "failed to initialize Terraform")
 	}
 
 	// If the provider isn't manual, apply everything in a single step.
 	if dnsProvider != dns.DNSManual {
-		return terraform.ExecuteTerraform(ex, "apply", "-auto-approve")
+		return ex.Apply()
 	}
 
 	arguments := []string{"apply", "-auto-approve"}
 
 	// Get DNS entries (it forces the creation of the controller nodes).
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", cfg.ClusterName))
+	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
 
 	// Add worker nodes to speed things up.
-	for index := range cfg.WorkerPools {
+	for index := range c.WorkerPools {
 		arguments = append(arguments, fmt.Sprintf("-target=module.worker-pool-%d.packet_device.nodes", index))
 	}
 
 	// Create controller and workers nodes.
-	if err := terraform.ExecuteTerraform(ex, arguments...); err != nil {
+	if err := ex.Execute(arguments...); err != nil {
 		return errors.Wrap(err, "failed executing Terraform")
 	}
 
-	if err := dns.AskToConfigure(ex, &cfg.DNS); err != nil {
+	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
 		return errors.Wrap(err, "failed to configure DNS entries")
 	}
 
 	// Finish deployment.
-	return terraform.ExecuteTerraform(ex, "apply", "-auto-approve")
+	return ex.Apply()
+}
+
+func (c *config) Destroy(ex *terraform.Executor) error {
+	return ex.Destroy()
 }
 
 func createTerraformConfigFile(cfg *config, terraformPath string) error {
@@ -199,17 +193,12 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	return nil
 }
 
-func (cfg *config) GetExpectedNodes() int {
+func (c *config) GetExpectedNodes() int {
 	workers := 0
 
-	for _, wp := range cfg.WorkerPools {
+	for _, wp := range c.WorkerPools {
 		workers += wp.Count
 	}
 
-	return cfg.ControllerCount + workers
-}
-
-// Destroy destroys the Packet cluster.
-func (cfg *config) Destroy() error {
-	return destroy.ExecuteTerraformDestroy(cfg.AssetDir)
+	return c.ControllerCount + workers
 }

@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-version"
+	"github.com/hpcloud/tail"
 	"github.com/kardianos/osext"
 	"github.com/shirou/gopsutil/process"
 )
@@ -77,9 +78,9 @@ type Executor struct {
 }
 
 // NewExecutor initializes a new Executor.
-func NewExecutor(executionPath string) (*Executor, error) {
+func NewExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
-	ex.executionPath = executionPath
+	ex.executionPath = conf.WorkingDir
 
 	// Create the folder in which the executor, and its logs will be stored,
 	// if not existing.
@@ -100,6 +101,57 @@ func NewExecutor(executionPath string) (*Executor, error) {
 	return ex, nil
 }
 
+// Init() is a wrapper function that runs
+// `terraform init`.
+func (ex *Executor) Init() error {
+	return ex.Execute("init")
+}
+
+// Apply() is a wrapper function that runs
+// `terraform apply -auto-approve`.
+func (ex *Executor) Apply() error {
+	if err := ex.Init(); err != nil {
+		return err
+	}
+
+	return ex.Execute("apply", "-auto-approve")
+}
+
+// Destroy() is a wrapper function that runs
+// `terraform destroy -auto-approve`.
+func (ex *Executor) Destroy() error {
+	if err := ex.Init(); err != nil {
+		return err
+	}
+
+	return ex.Execute("destroy", "-auto-approve")
+}
+
+// Execute runs the given command and arguments against Terraform, and returns
+// any errors that occur during the execution.
+//
+// An error is returned if the Terraform binary could not be found, or if the
+// Terraform call itself failed, in which case, details can be found in the
+// output.
+func (ex *Executor) Execute(args ...string) error {
+	pid, done, err := ex.ExecuteAsync(args...)
+	pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
+
+	t, tailErr := tail.TailFile(pathToFile, tail.Config{Follow: true})
+	if tailErr != nil {
+		return err
+	}
+
+	go func() {
+		for line := range t.Lines {
+			fmt.Println(line.Text)
+		}
+	}()
+	<-done
+
+	return err
+}
+
 // LoadVars is a convenience function to load the tfvars file into memory
 // as a JSON object.
 func (ex *Executor) LoadVars() (map[string]interface{}, error) {
@@ -118,17 +170,17 @@ func (ex *Executor) LoadVars() (map[string]interface{}, error) {
 	return nil, errors.New("Could not parse config as JSON object")
 }
 
-// Execute runs the given command and arguments against Terraform, and returns
+// ExecuteAsync runs the given command and arguments against Terraform, and returns
 // an identifier that can be used to read the output of the process as it is
 // executed and after.
 //
-// Execute is non-blocking, and takes a lock in the execution path.
+// ExecuteAsync is non-blocking, and takes a lock in the execution path.
 // Locking is handled by Terraform itself.
 //
 // An error is returned if the Terraform binary could not be found, or if the
 // Terraform call itself failed, in which case, details can be found in the
 // output.
-func (ex *Executor) Execute(args ...string) (int, chan struct{}, error) {
+func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
 	cmd := ex.generateCommand(args...)
 	rPipe, wPipe := io.Pipe()
 	cmd.Stdout = wPipe

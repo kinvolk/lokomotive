@@ -11,7 +11,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/destroy"
 	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
@@ -86,18 +85,22 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (cfg *config) Install() error {
-	assetDir, err := homedir.Expand(cfg.AssetDir)
+func (c *config) Install(ex *terraform.Executor) error {
+	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
 	}
 
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-	if err := createTerraformConfigFile(cfg, terraformRootDir); err != nil {
+	if err := createTerraformConfigFile(c, terraformRootDir); err != nil {
 		return err
 	}
 
-	return terraform.InitAndApply(terraformRootDir)
+	return ex.Apply()
+}
+
+func (c *config) Destroy(ex *terraform.Executor) error {
+	return ex.Destroy()
 }
 
 func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
@@ -155,11 +158,6 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	return nil
 }
 
-func (cfg *config) GetExpectedNodes() int {
-	return cfg.ControllerCount + cfg.WorkerCount
-}
-
-// Destroy destroys the AWS cluster.
-func (cfg *config) Destroy() error {
-	return destroy.ExecuteTerraformDestroy(cfg.AssetDir)
+func (c *config) GetExpectedNodes() int {
+	return c.ControllerCount + c.WorkerCount
 }
