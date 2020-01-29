@@ -41,10 +41,22 @@ variable "worker_type" {
   description = "EC2 instance type for workers"
 }
 
-variable "os_image" {
+variable "os_name" {
   type        = string
-  default     = "flatcar-stable"
-  description = "AMI channel for a CoreOS Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
+  default     = "flatcar"
+  description = "Name of Operating System (coreos or flatcar)"
+}
+
+variable "os_channel" {
+  type        = string
+  default     = "stable"
+  description = "AMI channel for the OS (stable, beta, alpha, edge)"
+}
+
+variable "os_version" {
+  type        = string
+  default     = "current"
+  description = "Version of the OS (current or numeric version such as 2261.99.0)"
 }
 
 variable "disk_size" {
