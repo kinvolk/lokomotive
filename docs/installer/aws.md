@@ -57,7 +57,13 @@ cluster "aws" {
 	asset_dir = pathexpand(var.asset_dir)
 	# creds_path = pathexpand(var.aws_creds)
 	cluster_name = "test"
-	os_image = "flatcar-stable"
+	# os_name = "flatcar"
+	# os_channel = "stable"
+
+	# Version such as "2303.3.1" as published on
+	# https://www.flatcar-linux.org/releases/ or "current" for the latest
+	# os_version = "current"
+
 	dns_zone = "example.com"
 	dns_zone_id = "XXX"
 	ssh_pubkeys = var.ssh_pubkeys
