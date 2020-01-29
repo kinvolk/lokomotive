@@ -1,9 +1,9 @@
 TAG := `git describe --tags --always`
 VERSION :=
 # MOD can either be "readonly" or "vendor".
-# The default is "readonly" which fetches the sources to the Go module cache.
-# Use make MOD=vendor to build with sources from the vendor directory instead.
-MOD ?= readonly
+# The default is "vendor" which uses checked out modules for building.
+# Use make MOD=readonly to build with sources from the Go module cache instead.
+MOD ?= vendor
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
