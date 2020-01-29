@@ -1,9 +1,9 @@
 TAG := `git describe --tags --always`
 VERSION :=
 # MOD can either be "readonly" or "vendor".
-# The default is "readonly" which fetches the sources to the Go module cache.
-# Use make MOD=vendor to build with sources from the vendor directory instead.
-MOD ?= readonly
+# The default is "vendor" which uses checked out modules for building.
+# Use make MOD=readonly to build with sources from the Go module cache instead.
+MOD ?= vendor
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
@@ -57,7 +57,7 @@ check-go-format:
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	go test -covermode=atomic -buildmode=exe -v ./...
+	go test -mod=$(MOD) -covermode=atomic -buildmode=exe -v ./...
 
 .PHONY: format-go-code
 ## Formats any go file that differs from gofmt's style
@@ -72,7 +72,7 @@ endif
 
 .PHONY: run-e2e-tests
 run-e2e-tests:
-	KUBECONFIG=${kubeconfig} go test -tags="$(platform),e2e" -covermode=atomic -buildmode=exe -v ./...
+	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),e2e" -covermode=atomic -buildmode=exe -v ./...
 
 .PHONY: all
 all: build test
