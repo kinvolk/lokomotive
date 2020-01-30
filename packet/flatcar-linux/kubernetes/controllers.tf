@@ -1,12 +1,12 @@
 locals {
   api_external_fqdn = format("%s.%s.", var.cluster_name, var.dns_zone)
-  api_fqdn = format("%s-private.%s.", var.cluster_name, var.dns_zone)
-  etcd_fqdn = [for index, device in packet_device.controllers: format("%s-etcd%d.%s.", var.cluster_name, index, var.dns_zone)]
+  api_fqdn          = format("%s-private.%s.", var.cluster_name, var.dns_zone)
+  etcd_fqdn         = [for index, device in packet_device.controllers : format("%s-etcd%d.%s.", var.cluster_name, index, var.dns_zone)]
 
   dns_entries = concat(
     # etcd
     [
-      for index, device in packet_device.controllers:
+      for index, device in packet_device.controllers :
       {
         name    = local.etcd_fqdn[index],
         type    = "A",

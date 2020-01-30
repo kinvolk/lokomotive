@@ -66,7 +66,7 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node.kubernetes.io/node \
+          --node-labels=$${NODE_LABELS} \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins
@@ -103,6 +103,7 @@ storage:
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
           KUBELET_IMAGE_TAG=v1.17.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
+          NODE_LABELS="node.kubernetes.io/node"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:

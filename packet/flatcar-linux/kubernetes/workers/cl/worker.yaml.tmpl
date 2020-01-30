@@ -92,12 +92,11 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node.kubernetes.io/node \
-          --node-labels=${worker_labels} \
+          --node-labels=$${NODE_LABELS} \
           --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
-          --register-with-taints=${taints} \
+          --register-with-taints=$${NODE_TAINTS} \
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins
         ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
         Restart=always
@@ -268,6 +267,8 @@ storage:
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
           KUBELET_IMAGE_TAG=v1.17.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
+          NODE_LABELS="node.kubernetes.io/node,${worker_labels}"
+          NODE_TAINTS="${taints}"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:

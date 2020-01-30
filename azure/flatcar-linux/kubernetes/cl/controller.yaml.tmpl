@@ -85,11 +85,10 @@ systemd:
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
-          --node-labels=node.kubernetes.io/master \
-          --node-labels=node.kubernetes.io/controller="true" \
+          --node-labels=$${NODE_LABELS} \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
-          --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
+          --register-with-taints=$${NODE_TAINTS} \
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins
         ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
         Restart=always
@@ -125,6 +124,8 @@ storage:
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
           KUBELET_IMAGE_TAG=v1.17.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
+          NODE_LABELS="node.kubernetes.io/master,node.kubernetes.io/controller=true"
+          NODE_TAINTS="node-role.kubernetes.io/master=:NoSchedule"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:
