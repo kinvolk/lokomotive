@@ -1,11 +1,10 @@
 locals {
   # Pick a CoreOS Container Linux derivative
-  # coreos-stable -> CoreOS Container Linux AMI
-  # flatcar-stable -> Flatcar Container Linux AMI
   ami_id = local.flavor == "flatcar" ? data.aws_ami.flatcar.image_id : data.aws_ami.coreos.image_id
 
-  flavor  = split("-", var.os_image)[0]
-  channel = split("-", var.os_image)[1]
+  flavor  = var.os_name
+  channel = var.os_channel
+  ver = var.os_version == "current" ? "" : var.os_version
 }
 
 data "aws_ami" "coreos" {
@@ -24,7 +23,7 @@ data "aws_ami" "coreos" {
 
   filter {
     name   = "name"
-    values = ["CoreOS-${local.flavor == "coreos" ? local.channel : "stable"}-*"]
+    values = ["CoreOS-${local.flavor == "coreos" ? local.channel : "stable"}-${local.flavor == "coreos" ? local.ver : ""}*"]
   }
 }
 
@@ -44,6 +43,6 @@ data "aws_ami" "flatcar" {
 
   filter {
     name   = "name"
-    values = ["Flatcar-${local.flavor == "flatcar" ? local.channel : "stable"}-*"]
+    values = ["Flatcar-${local.flavor == "flatcar" ? local.channel : "stable"}-${local.flavor == "flatcar" ? local.ver : ""}*"]
   }
 }
