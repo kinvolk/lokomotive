@@ -33,7 +33,7 @@ update-lk-submodule:
 
 .PHONY: update-assets
 update-assets:
-	GO111MODULE=on go generate ./...
+	GO111MODULE=on go generate -mod=$(MOD) ./...
 
 .PHONY: build-slim
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed, so
