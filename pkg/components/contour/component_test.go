@@ -29,6 +29,15 @@ func testRenderManifest(t *testing.T, configHCL string) {
 	}
 }
 
+func TestRenderManifestWithIngressHosts(t *testing.T) {
+	configHCL := `
+component "contour" {
+  ingress_hosts = ["test.domain.com"]
+}
+`
+	testRenderManifest(t, configHCL)
+}
+
 func TestRenderManifestWithServiceMonitor(t *testing.T) {
 	configHCL := `
 component "contour" {
