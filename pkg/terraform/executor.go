@@ -300,6 +300,21 @@ func (ex *Executor) Plan() error {
 	return ex.Execute("plan")
 }
 
+// Output gets output value from Terraform in JSON format and tries to unmarshal it
+// to a given struct.
+func (ex *Executor) Output(key string, s interface{}) error {
+	if err := ex.Init(); err != nil {
+		return fmt.Errorf("failed initializing Terraform: %v", err)
+	}
+
+	o, err := ex.ExecuteSync("output", "-json", key)
+	if err != nil {
+		return fmt.Errorf("failed getting Terraform output: %v", err)
+	}
+
+	return json.Unmarshal(o, s)
+}
+
 // GenerateCommand prepares a Terraform command with the given arguments
 // by setting up the command, configuration, working directory
 // (so the files such as terraform.tfstate are stored at the right place) and
