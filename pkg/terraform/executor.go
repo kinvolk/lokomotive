@@ -291,6 +291,15 @@ func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
 	return cmd.Output()
 }
 
+// Plan runs 'terraform plan'.
+func (ex *Executor) Plan() error {
+	if err := ex.Init(); err != nil {
+		return err
+	}
+
+	return ex.Execute("plan")
+}
+
 // GenerateCommand prepares a Terraform command with the given arguments
 // by setting up the command, configuration, working directory
 // (so the files such as terraform.tfstate are stored at the right place) and
