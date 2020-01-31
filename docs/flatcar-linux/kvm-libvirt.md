@@ -186,6 +186,8 @@ ssh-add ~/.ssh/id_rsa
 ssh-add -L
 ```
 
+If you want to login by SSH later for debugging purposes, use the default user `core`.
+
 ## Apply
 
 Initialize the config directory since this is the first use with Terraform.
