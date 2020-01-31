@@ -22,7 +22,9 @@ cluster "packet" {
 
 component "openebs-operator" {}
 
-component "contour" {}
+component "contour" {
+  ingress_hosts = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+}
 
 component "metallb" {}
 
