@@ -67,5 +67,15 @@ func (c *component) RenderManifests() (map[string]string, error) {
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Namespace: c.Namespace,
+		Helm: &components.HelmMetadata{
+			// Cert-manager registers admission webhooks, so we should wait for the webhook to
+			// become ready before proceeding with installing other components, as it may fail.
+			// If webhooks are registered with 'failurePolicy: Fail', then kube-apiserver will reject
+			// creating objects requiring the webhook until the webhook itself becomes ready. So if the
+			// next component after cert-manager creates e.g. an Ingress object and the webhook is not ready
+			// yet, it will fail. 'Wait' serializes the process, so Helm will only return without error, when
+			// all deployments included in the component, including the webhook, become ready.
+			Wait: true,
+		},
 	}
 }
