@@ -1,3 +1,6 @@
+package contour
+
+const envoyServiceTmpl = `
 ---
 apiVersion: v1
 kind: Service
@@ -12,6 +15,9 @@ metadata:
     # for information about enabling the PROXY protocol on the ELB to recover
     # the original remote IP address.
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+    {{- if .IngressHosts }}
+    external-dns.alpha.kubernetes.io/hostname: "{{ .IngressHostsRaw }}"
+    {{- end }}
 spec:
   externalTrafficPolicy: Local
   ports:
@@ -24,3 +30,4 @@ spec:
   selector:
     app: envoy
   type: LoadBalancer
+`
