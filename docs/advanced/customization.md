@@ -134,5 +134,5 @@ Container Linux Configs (and the CoreOS Ignition system) create immutable infras
 !!! danger
     Destroying and recreating controller instances is destructive! etcd runs on controller instances and stores data there. Do not modify controller snippets. See [blue/green](/topics/maintenance/#upgrades) clusters.
 
-To customize lower-level Kubernetes control plane bootstrapping, see the [poseidon/terraform-render-bootkube](https://github.com/poseidon/terraform-render-bootkube) Terraform module.
+To customize lower-level Kubernetes control plane bootstrapping, see the [bootkube](../../bootkube) Terraform module.
 

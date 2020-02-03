@@ -1,0 +1,3 @@
+image: k8s.gcr.io/hyperkube:v1.17.2
+clusterDNS: 10.0.0.10
+clusterDomain: cluster.local

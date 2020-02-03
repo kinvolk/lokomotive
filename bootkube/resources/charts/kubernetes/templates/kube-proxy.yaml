@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+  labels:
+    tier: node
+    k8s-app: kube-proxy
+spec:
+  selector:
+    matchLabels:
+      tier: node
+      k8s-app: kube-proxy
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        tier: node
+        k8s-app: kube-proxy
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      serviceAccountName: kube-proxy
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      containers:
+      - name: kube-proxy
+        image: {{ .Values.kubeProxy.image }}
+        command:
+        - ./hyperkube
+        - kube-proxy
+        - --cluster-cidr={{ .Values.kubeProxy.podCIDR }}
+        - --hostname-override=$(NODE_NAME)
+        - --kubeconfig=/etc/kubernetes/kubeconfig
+        - --proxy-mode=iptables
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10256
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/kubernetes
+          readOnly: true
+        - name: lib-modules
+          mountPath: /lib/modules
+          readOnly: true
+        - name: ssl-certs-host
+          mountPath: /etc/ssl/certs
+          readOnly: true
+      volumes:
+      - name: kubeconfig
+        configMap:
+          name: kubeconfig-in-cluster
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules
+      - name: ssl-certs-host
+        hostPath:
+          path: {{ .Values.kubeProxy.trustedCertsDir }}
