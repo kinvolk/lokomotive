@@ -26,7 +26,6 @@ spec:
     schema:
       openAPIV3Schema:
         type: object
-        x-preserve-unknown-fields: true
 ---
 # This manifest deploys the OpenEBS control plane components, with associated CRs & RBAC rules
 # NOTE: On GKE, deploy the openebs-operator.yaml in admin context
