@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-checkpointer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pod-checkpointer
+subjects:
+- kind: ServiceAccount
+  name: pod-checkpointer
+  namespace: kube-system

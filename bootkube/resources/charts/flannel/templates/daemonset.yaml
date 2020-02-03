@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: flannel
+  namespace: kube-system
+  labels:
+    k8s-app: flannel
+spec:
+  selector:
+    matchLabels:
+      k8s-app: flannel
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: flannel
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      serviceAccountName: flannel
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+      containers:
+        - name: flannel
+          image: {{ .Values.flannel.image }}
+          command: [ "/opt/bin/flanneld", "--ip-masq", "--kube-subnet-mgr", "--iface=$(POD_IP)"]
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 100m
+          volumeMounts:
+            - name: flannel-config
+              mountPath: /etc/kube-flannel/
+            - name: run-flannel
+              mountPath: /run/flannel
+        - name: install-cni
+          image: {{ .Values.flannel.cniImage }}
+          command: ["/install-cni.sh"]
+          env:
+            - name: CNI_NETWORK_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: flannel-config
+                  key: cni-conf.json
+          volumeMounts:
+            - name: cni-bin-dir
+              mountPath: /host/opt/cni/bin/
+            - name: cni-conf-dir
+              mountPath: /host/etc/cni/net.d
+      volumes:
+        - name: flannel-config
+          configMap:
+            name: flannel-config
+        - name: run-flannel
+          hostPath:
+            path: /run/flannel
+        # Used by install-cni
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-conf-dir
+          hostPath:
+            path: /etc/kubernetes/cni/net.d

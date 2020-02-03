@@ -1,0 +1,72 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: restricted
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+spec:
+  privileged: false
+  # Required to prevent escalations to root.
+  allowPrivilegeEscalation: false
+  # This is redundant with non-root + disallow privilege escalation,
+  # but we can provide it for defense in depth.
+  requiredDropCapabilities:
+  - KILL
+  - MKNOD
+  - SETUID
+  - SETGID
+  # Allow core volume types.
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  # Assume that persistentVolumes set up by the cluster admin are safe to use.
+  - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    # Require the container to run without root privileges.
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    # Forbid adding the root group.
+    - min: 1
+      max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    # Forbid adding the root group.
+    - min: 1
+      max: 65535
+  readOnlyRootFilesystem: false
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: restricted-psp
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - restricted
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: restricted-psp-system-authenticated
+roleRef:
+  kind: ClusterRole
+  name: restricted-psp
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: Group
+  name: system:authenticated
+  apiGroup: rbac.authorization.k8s.io

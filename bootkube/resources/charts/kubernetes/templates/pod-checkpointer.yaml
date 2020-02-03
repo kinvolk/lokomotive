@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pod-checkpointer
+  namespace: kube-system
+  labels:
+    tier: control-plane
+    k8s-app: pod-checkpointer
+spec:
+  selector:
+    matchLabels:
+      tier: control-plane
+      k8s-app: pod-checkpointer
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        tier: control-plane
+        k8s-app: pod-checkpointer
+      annotations:
+        checkpointer.alpha.coreos.com/checkpoint: "true"
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        node.kubernetes.io/master: ""
+      priorityClassName: system-node-critical
+      serviceAccountName: pod-checkpointer
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: pod-checkpointer
+        image: {{ .Values.podCheckpointer.image }}
+        command:
+        - /checkpoint
+        - --lock-file=/var/run/lock/pod-checkpointer.lock
+        - --kubeconfig=/etc/checkpointer/kubeconfig
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/checkpointer
+        - name: etc-kubernetes
+          mountPath: /etc/kubernetes
+        - name: var-run
+          mountPath: /var/run
+      volumes:
+      - name: kubeconfig
+        configMap:
+          name: kubeconfig-in-cluster
+      - name: etc-kubernetes
+        hostPath:
+          path: /etc/kubernetes
+      - name: var-run
+        hostPath:
+          path: /var/run

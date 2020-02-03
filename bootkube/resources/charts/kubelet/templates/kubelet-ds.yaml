@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kubelet
+  namespace: kube-system
+  labels:
+    tier: node
+    k8s-app: kubelet
+spec:
+  selector:
+    matchLabels:
+      tier: node
+      k8s-app: kubelet
+  template:
+    metadata:
+      labels:
+        tier: node
+        k8s-app: kubelet
+    spec:
+      containers:
+      - name: kubelet
+        image: {{ .Values.image }}
+        command:
+        - /bin/sh
+        - -c
+        # File /etc/kubernetes/kubelet.env on each host has the `taints` and `labels` that bootstrap
+        # kubelet uses. This mechanism here makes sure that the same labels and taints are used in
+        # this kubelet as well.
+        args:
+        - |
+          echo "./hyperkube kubelet \
+          --node-ip=$(HOST_IP)  \
+          --anonymous-auth=false \
+          --authentication-token-webhook \
+          --authorization-mode=Webhook \
+          --client-ca-file=/etc/kubernetes/ca.crt \
+          --cluster_dns={{ .Values.clusterDNS }} \
+          --cluster_domain={{ .Values.clusterDomain }} \
+          --cni-conf-dir=/etc/kubernetes/cni/net.d \
+          --config=/etc/kubernetes/kubelet.config \
+          --kubeconfig=/etc/kubernetes/kubeconfig \
+          --lock-file=/var/run/lock/kubelet.lock \
+          --network-plugin=cni \
+          --pod-manifest-path=/etc/kubernetes/manifests \
+          --read-only-port=0 \
+          --volume-plugin-dir=/var/lib/kubelet/volumeplugins \
+          --node-labels=$(grep NODE_LABELS /etc/kubernetes/kubelet.env | cut -d'"' -f2) \
+          --register-with-taints=$(grep NODE_TAINTS /etc/kubernetes/kubelet.env | cut -d'"' -f2)
+          " | tee /tmp/start-kubelet.sh &&
+          chmod +x /tmp/start-kubelet.sh &&
+          /tmp/start-kubelet.sh
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/cni
+          name: coreos-var-lib-cni
+          readOnly: false
+        - mountPath: /var/lib/calico
+          name: coreos-var-lib-calico
+          readOnly: true
+        - mountPath: /opt/cni/bin
+          name: coreos-opt-cni-bin
+          readOnly: true
+        # TODO check if this is needed
+        - name: dev
+          mountPath: /dev
+        - name: run
+          mountPath: /run
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+        - name: etc-kubernetes
+          mountPath: /etc/kubernetes
+          readOnly: true
+        - name: var-lib-docker
+          mountPath: /var/lib/docker
+        - name: var-lib-kubelet
+          mountPath: /var/lib/kubelet
+          mountPropagation: Bidirectional
+          # Logs from the kubelet pods
+        - name: logs
+          mountPath: /var/log/pods
+          # This is mounted from host to make sure that the kubelet showcases OS as Flatcar and not
+          # Debian from the hyperkube image.
+        - name: os-release
+          mountPath: /etc/os-release
+          readOnly: true
+      hostNetwork: true
+      hostPID: true
+      # Tolerate all the taints. This ensures that the pod runs on all the nodes.
+      # https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      tolerations:
+      - operator: "Exists"
+      volumes:
+      - name: coreos-var-lib-cni
+        hostPath:
+          path: /var/lib/cni
+      - name: coreos-var-lib-calico
+        hostPath:
+          path: /var/lib/calico
+      - name: coreos-opt-cni-bin
+        hostPath:
+          path: /opt/cni/bin
+      - name: dev
+        hostPath:
+          path: /dev
+      - name: run
+        hostPath:
+          path: /run
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: etc-kubernetes
+        hostPath:
+          path: /etc/kubernetes
+      - name: var-lib-docker
+        hostPath:
+          path: /var/lib/docker
+      - name: var-lib-kubelet
+        hostPath:
+          path: /var/lib/kubelet
+      - name: logs
+        hostPath:
+          path: /var/log/pods
+      - name: os-release
+        hostPath:
+          path: /usr/lib/os-release
+          type: File
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
