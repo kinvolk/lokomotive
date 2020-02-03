@@ -7,7 +7,7 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 * An API token to a Packet account (do not use the project token but a profile token)
 * A Packet project ID
 * Local BGP enabled
-* AWS Route53 DNS Zone (registered domain name or delegated subdomain)
+* A registered domain or subdomain and a DNS provider
 * Terraform v0.12.x
 * [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
 * An SSH key pair for management access
@@ -16,7 +16,16 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 
 While the Packet profile token can be specified in the cluster configuration through the `auth_token` variable, this is not recommended because it will be stored in the terraform asset directory and possibly printed out during execution. It is safer to use the `PACKET_AUTH_TOKEN` environment variable.
 
-The [aws credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) can be found at `~/.aws/credentials` if you have set up and configured AWS CLI before.
+## DNS Provider Configuration
+
+lokoctl supports the following DNS providers:
+
+### Route53
+
+[AWS Route53](https://aws.amazon.com/route53/) will be used to create the DNS records required for
+the cluster to work.
+
+In order to set the AWS credentials you can set an [aws credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) can be found at `~/.aws/credentials` if you have configured AWS CLI before.
 If you want to use that account, you don't need to specify any AWS credentials for lokoctl.
 
 You can also take any other credentials mechanism used by the AWS CLI but [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
@@ -36,6 +45,11 @@ aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 You can specify to use this file by setting the `AWS_SHARED_CREDENTIALS_FILE` environment variable or the `aws_creds_path` variable in the following cluster configuration.
 
+### Manual
+
+No DNS records will be created by lokoctl. Instead, lokoctl will print information about the
+records required for the cluster to work. The records should be configured by the user on an
+internet-accessible DNS provider.
 
 ## Install a Cluster
 
@@ -50,35 +64,58 @@ variable "packet_token" {
 cluster "packet" {
 	# Change asset folder
 	asset_dir = pathexpand("~/lokoctl-assets/mycluster")
+
 	#auth_token = var.packet_token
-	#aws_creds_path = pathexpand("~/.aws/credentials")
-	# Change according to your AWS DNS zone
-	aws_region = "eu-central-1"
+
 	# Change cluster name
 	cluster_name = "test"
 	controller_count = 1
-	# Change AWS DNS zone
-	dns_zone = "k8s.example.com"
-	# and zone ID
-	dns_zone_id = "XXX"
+
+	dns {
+		# Change DNS zone
+		zone = "k8s.example.com"
+
+		provider {
+			# Configure a DNS provider (only one of the following)
+
+			# To use Route53 define a block like the following
+			route53 {
+				# AWS zone ID
+				zone_id = "XXX"
+				#aws_creds_path = pathexpand("~/.aws/credentials")
+			}
+
+			# To use a manual provider define the following
+			manual {}
+		}
+	}
+
 	# Change Packet server location
 	facility = "ams1"
+
 	# Boot via iPXE (optional but currently needed for ARM; 'https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe')
 	# ipxe_script_url = ""
+
 	# Define the CPU architecture (optional; 'amd64', 'arm64')
 	# os_arch = "amd64"
+
 	# Define a Flatcar Container Linux channel ('stable', 'beta', 'alpha' or 'edge')
 	os_channel = "stable"
+
 	# Define a Flatcar Container Linux version (optional)
 	# os_version = "current"
+
 	# Change Packet project ID
 	project_id = "aaa-bbb-ccc-ddd"
+
 	# Change management SSH public key
 	ssh_pubkeys = [
 		"ssh-rsa AAAA...",
 	]
+
 	# Change to your external IP address to allow it for management access
 	management_cidrs = ["my.ip.ad.dr/32"]
+
 	# Change to internal Packet IPs to allow cluster communication
 	node_private_cidr = "XX.XX.XX.0/24"
 
@@ -174,7 +211,7 @@ work because calico tries to find its network interface based on reaching that.
 
 You also have to specify the `project_id` variable in the configuration file (as seen in the URL of the Packet web interface),
 add SSH public keys to the list (take the content from `~/.ssh/id_rsa.pub`),
-and change the `dns_zone` and `dns_zone_id` values matching those you set up in AWS.
+and configure the `dns` block.
 
 Next,
 
