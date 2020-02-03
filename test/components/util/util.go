@@ -19,13 +19,13 @@ import (
 func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
 	kubeconfig := os.ExpandEnv(os.Getenv("KUBECONFIG"))
 	if kubeconfig == "" {
-		t.Errorf("env var KUBECONFIG was not set")
+		t.Fatalf("env var KUBECONFIG was not set")
 	}
 	t.Logf("using KUBECONFIG=%s", kubeconfig)
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		t.Errorf("could not build config from KUBECONFIG: %v", err)
+		t.Fatalf("could not build config from KUBECONFIG: %v", err)
 	}
 
 	return kubernetes.NewForConfig(config)
