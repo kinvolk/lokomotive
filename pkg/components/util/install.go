@@ -6,6 +6,7 @@ import (
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/storage/driver"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -83,25 +84,44 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		return fmt.Errorf("chart is invalid: %w", err)
 	}
 
-	install := action.NewInstall(actionConfig)
-	install.ReleaseName = name
-	install.Namespace = ns
+	histClient := action.NewHistory(actionConfig)
+	histClient.Max = 1
 
-	// Currently, we install components one-by-one, in the order how they are
-	// defined in the configuration and we do not support any dependencies between
-	// the components.
-	//
-	// If it is critical for component to have it's dependencies ready before it is
-	// installed, all dependencies should set Wait field to 'true' in components.HelmMetadata
-	// struct.
-	//
-	// The example of such dependency is between prometheus-operator and openebs-storage-class, where
-	// both openebs-operator and openebs-storage-class components must be fully functional, before
-	// prometheus-operator is deployed, otherwise it won't pick the default storage class.
-	install.Wait = c.Metadata().Helm.Wait
+	_, err = histClient.Run(name)
+	if err != nil && err != driver.ErrReleaseNotFound {
+		return fmt.Errorf("failed checking for chart history: %w", err)
+	}
 
-	if _, err := install.Run(chart, map[string]interface{}{}); err != nil {
-		return fmt.Errorf("installing component '%s' as chart failed: %w", name, err)
+	if err == driver.ErrReleaseNotFound {
+		install := action.NewInstall(actionConfig)
+		install.ReleaseName = name
+		install.Namespace = ns
+
+		// Currently, we install components one-by-one, in the order how they are
+		// defined in the configuration and we do not support any dependencies between
+		// the components.
+		//
+		// If it is critical for component to have it's dependencies ready before it is
+		// installed, all dependencies should set Wait field to 'true' in components.HelmMetadata
+		// struct.
+		//
+		// The example of such dependency is between prometheus-operator and openebs-storage-class, where
+		// both openebs-operator and openebs-storage-class components must be fully functional, before
+		// prometheus-operator is deployed, otherwise it won't pick the default storage class.
+		install.Wait = c.Metadata().Helm.Wait
+
+		if _, err := install.Run(chart, map[string]interface{}{}); err != nil {
+			return fmt.Errorf("installing component '%s' as chart failed: %w", name, err)
+		}
+
+		return nil
+	}
+
+	upgrade := action.NewUpgrade(actionConfig)
+	upgrade.Wait = c.Metadata().Helm.Wait
+
+	if _, err := upgrade.Run(name, chart, map[string]interface{}{}); err != nil {
+		return fmt.Errorf("updating chart failed: %w", err)
 	}
 
 	return nil
