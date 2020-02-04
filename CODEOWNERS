@@ -1,1 +1,9 @@
 * @kinvolk/team-cloud
+
+/docs @johananl @surajssd
+*.md @johananl @surajssd
+/ci @pothos @invidian
+/pkg/install @invidian @johananl @mauriciovasquezbernal @ipochi
+/pkg/dns @mauriciovasquezbernal
+/pkg/terraform @mauriciovasquezbernal @ipochi
+/pkg/components @surajssd @invidian @ipochi
