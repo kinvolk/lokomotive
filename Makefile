@@ -50,7 +50,7 @@ test: check-go-format run-unit-tests
 
 .PHONY: lint
 lint:
-	golangci-lint run --enable-all --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e --new-from-rev=$$(git merge-base master HEAD) ./...
+	golangci-lint run --enable-all --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e --new-from-rev=$$(git merge-base master HEAD) --modules-download-mode=$(MOD) --timeout=5m ./...
 
 GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
