@@ -55,7 +55,9 @@ module "aws-{{.Config.ClusterName}}" {
   host_cidr = "{{.Config.HostCIDR}}"
   {{- end }}
 
-  os_image = "{{.Config.OSImage}}"
+  os_name = "{{.Config.OSName}}"
+  os_channel = "{{.Config.OSChannel}}"
+  os_version = "{{.Config.OSVersion}}"
 
   controller_clc_snippets = {{.ControllerCLCSnippets}}
   worker_clc_snippets     = {{.WorkerCLCSnippets}}

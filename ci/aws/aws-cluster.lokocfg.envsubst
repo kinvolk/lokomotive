@@ -8,7 +8,6 @@ cluster "aws" {
   cluster_name = "$CLUSTER_ID"
   dns_zone     = "$AWS_DNS_ZONE"
   dns_zone_id  = "$AWS_DNS_ZONE_ID"
-  os_image     = "flatcar-stable"
   ssh_pubkeys  = ["$PUB_KEY"]
 }
 

@@ -19,7 +19,9 @@ import (
 type config struct {
 	AssetDir                 string   `hcl:"asset_dir"`
 	ClusterName              string   `hcl:"cluster_name"`
-	OSImage                  string   `hcl:"os_image,optional"`
+	OSName                   string   `hcl:"os_name,optional"`
+	OSChannel                string   `hcl:"os_channel,optional"`
+	OSVersion                string   `hcl:"os_version,optional"`
 	DNSZone                  string   `hcl:"dns_zone"`
 	DNSZoneID                string   `hcl:"dns_zone_id"`
 	SSHPubKeys               []string `hcl:"ssh_pubkeys"`
@@ -61,7 +63,9 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		OSImage:         "flatcar-stable",
+		OSName:          "flatcar",
+		OSChannel:       "stable",
+		OSVersion:       "current",
 		ControllerCount: 1,
 		ControllerType:  "t3.small",
 		WorkerCount:     2,
