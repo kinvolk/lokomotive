@@ -6,15 +6,16 @@ systemd:
       dropins:
         - name: 40-etcd-cluster.conf
           contents: |
+            [Unit]
+            Requires=create-etcd-config.service
+            After=create-etcd-config.service
             [Service]
+            EnvironmentFile=/etc/kubernetes/etcd.config
             Environment="ETCD_IMAGE_URL=${etcd_arch_url_prefix}quay.io/coreos/etcd"
             Environment="ETCD_IMAGE_TAG=v3.4.3${etcd_arch_tag_suffix}"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
             Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
-            Environment="ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379"
-            Environment="ETCD_LISTEN_PEER_URLS=https://0.0.0.0:2380"
-            Environment="ETCD_LISTEN_METRICS_URLS=http://0.0.0.0:2381"
             Environment="ETCD_INITIAL_CLUSTER=${etcd_initial_cluster}"
             Environment="ETCD_STRICT_RECONFIG_CHECK=true"
             Environment="ETCD_SSL_DIR=/etc/ssl/etcd"
@@ -46,6 +47,24 @@ systemd:
         ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done'
         [Install]
         RequiredBy=kubelet.service
+        RequiredBy=etcd-member.service
+    - name: create-etcd-config.service
+      # This service will extract value of private interface from the env var file `/run/metadata/flatcar`.
+      # And then assign it to the variables that which will be stored in file `/etc/kubernetes/etcd.config`,
+      # this file is sourced by etcd-member service.
+      enable: true
+      contents: |
+        [Unit]
+        Description=Create a etcd env file to be used by etcd to listen on private interface
+        Before=etcd-member.service
+        Requires=coreos-metadata.service
+        After=coreos-metadata.service
+        [Service]
+        EnvironmentFile=/run/metadata/flatcar
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/sh -c 'echo "ETCD_LISTEN_CLIENT_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2379" > /etc/kubernetes/etcd.config && echo "ETCD_LISTEN_PEER_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2380" >> /etc/kubernetes/etcd.config && echo "ETCD_LISTEN_METRICS_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2381" >> /etc/kubernetes/etcd.config'
+        [Install]
         RequiredBy=etcd-member.service
     - name: coreos-metadata.service
       enable: true
