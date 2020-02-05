@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
 var confirm bool
@@ -45,7 +48,21 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := p.Destroy(); err != nil {
+	assetDir, err := homedir.Expand(p.GetAssetDir())
+	if err != nil {
+		ctxLogger.Fatalf("error expanding path: %v", err)
+	}
+
+	conf := terraform.Config{
+		WorkingDir: terraform.GetTerraformRootDir(assetDir),
+	}
+
+	ex, err := terraform.NewExecutor(conf)
+	if err != nil {
+		ctxLogger.Fatalf("error creating terraform executor: %v", err)
+	}
+
+	if err := p.Destroy(ex); err != nil {
 		ctxLogger.Fatalf("error destroying cluster: %v", err)
 	}
 

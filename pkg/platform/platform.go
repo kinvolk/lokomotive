@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
-	Install() error
-	Destroy() error
+	Install(*terraform.Executor) error
+	Destroy(*terraform.Executor) error
 	GetAssetDir() string
 	GetExpectedNodes() int
 }
