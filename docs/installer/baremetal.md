@@ -129,7 +129,7 @@ bootkube[5]: Tearing down temporary bootstrap control plane...
 Install kubectl on your system. Use the generated `kubeconfig` credentials to access the Kubernetes cluster and list nodes.
 
 ```
-$ export KUBECONFIG="<asset_dir>/auth/kubeconfig"
+$ export KUBECONFIG="<asset_dir>/cluster-assets/auth/kubeconfig"
 $ kubectl get nodes
 NAME                STATUS  ROLES              AGE  VERSION
 node1.example.com   Ready   controller,master  10m  v1.12.2

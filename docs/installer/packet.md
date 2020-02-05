@@ -296,7 +296,7 @@ Install `kubectl` on your system. Use the generated `kubeconfig` credentials to 
 Kubernetes cluster and list the nodes:
 
 ```
-export KUBECONFIG=/tmp/lokoctl-assets/auth/kubeconfig
+export KUBECONFIG=$HOME/lokoctl-assets/mycluster/cluster-assets/auth/kubeconfig
 kubectl get nodes
 ```
 
