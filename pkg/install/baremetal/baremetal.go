@@ -90,6 +90,10 @@ func (c *config) Install(ex *terraform.Executor) error {
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
+	if err := createTerraformConfigFile(c, ex.WorkingDirectory()); err != nil {
+		return err
+	}
+
 	return ex.Destroy()
 }
 
