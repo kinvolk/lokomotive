@@ -57,7 +57,10 @@ func RenderChart(helmChart *chart.Chart, name, namespace, values string) (map[st
 	install.ClientOnly = true // avoid contacting k8s api server
 
 	result := make(map[string]interface{})
-	yaml.Unmarshal([]byte(strings.TrimSpace(values)), &result)
+
+	if err := yaml.Unmarshal([]byte(strings.TrimSpace(values)), &result); err != nil {
+		return nil, fmt.Errorf("failed decoding values: %w", err)
+	}
 
 	template, err := install.Run(helmChart, result)
 	if err != nil {
