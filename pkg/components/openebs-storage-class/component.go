@@ -130,5 +130,6 @@ func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		// Return the same namespace which the openebs-operator component is using.
 		Namespace: "openebs",
+		Helm:      &components.HelmMetadata{},
 	}
 }
