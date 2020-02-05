@@ -331,10 +331,10 @@ Lokomotive implements support for some [DNS providers](../dns/), if your provide
 | ipxe_script_url | URL that contains iPXE script to boot Flatcar on the node over PXE | "" | https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe, https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
-| setup_raid | Flag to create a RAID 0 from extra disks on a Packet node | false | true |
-| setup_raid_hdd    | Flag to create a RAID 0 from extra Hard Disk Drives (HDD) only. Has no effect if `setup_raid` is `true`   | false | true |
-| setup_raid_ssd    | Flag to create a RAID 0 from extra Solid State Drives (SSD) only. Has no effect if `setup_raid` is `true` | false | true |
-| setup_raid_ssd_fs | Flag to create a file system on RAID 0 created using flag `setup_raid_ssd`. Has no effect if `setup_raid` is `true` | true | false |
+| setup_raid | Create a RAID 0 from extra (i.e. non-OS) disks on a Packet node. Can't be used with setup_raid_hdd nor setup_raid_sdd | false | true |
+| setup_raid_hdd    | Create a RAID 0 from extra (i.e. non-OS) hard disk drives (HDD) only. Can't be used with setup_raid nor setup_raid_sdd   | false | true |
+| setup_raid_ssd    | Create a RAID 0 from extra (i.e. non-OS) solid state drives (SSD) only. Can't be used with setup_raid nor setup_raid_hdd | false | true |
+| setup_raid_ssd_fs | Create a file system on the RAID 0 created using the `setup_raid_ssd` variable. Set to `false` to use the raw device | true | false |
 | taints | Comma separated list of custom taints for all workers in the worker pool | "" | "clusterType=staging:NoSchedule,nodeType=storage:NoSchedule" |
 | reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
