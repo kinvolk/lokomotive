@@ -16,11 +16,19 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
+func KubeconfigPath(t *testing.T) string {
 	kubeconfig := os.ExpandEnv(os.Getenv("KUBECONFIG"))
+
 	if kubeconfig == "" {
 		t.Fatalf("env var KUBECONFIG was not set")
 	}
+
+	return kubeconfig
+}
+
+func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
+	kubeconfig := KubeconfigPath(t)
+
 	t.Logf("using KUBECONFIG=%s", kubeconfig)
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
