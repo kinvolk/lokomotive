@@ -1,6 +1,6 @@
 locals {
-  # Pick a CoreOS Container Linux derivative
-  ami_id = local.flavor == "flatcar" ? data.aws_ami.flatcar.image_id : data.aws_ami.coreos.image_id
+  # Pick a Container Linux derivative
+  ami_id = "${element(concat(data.aws_ami.flatcar.*.image_id, data.aws_ami.coreos.*.image_id, list("")), 0)}"
 
   flavor  = var.os_name
   channel = var.os_channel
@@ -8,6 +8,8 @@ locals {
 }
 
 data "aws_ami" "coreos" {
+  count  = "${local.flavor == "coreos" ? 1 : 0}"
+
   most_recent = true
   owners      = ["595879546273"]
 
@@ -23,11 +25,13 @@ data "aws_ami" "coreos" {
 
   filter {
     name   = "name"
-    values = ["CoreOS-${local.flavor == "coreos" ? local.channel : "stable"}-${local.flavor == "coreos" ? local.ver : ""}*"]
+    values = ["CoreOS-${local.channel}-${local.ver}*"]
   }
 }
 
 data "aws_ami" "flatcar" {
+  count  = "${local.flavor == "flatcar" ? 1 : 0}"
+
   most_recent = true
   owners      = ["075585003325"]
 
@@ -43,6 +47,6 @@ data "aws_ami" "flatcar" {
 
   filter {
     name   = "name"
-    values = ["Flatcar-${local.flavor == "flatcar" ? local.channel : "stable"}-${local.flavor == "flatcar" ? local.ver : ""}*"]
+    values = ["Flatcar-${local.channel}-${local.ver}*"]
   }
 }
