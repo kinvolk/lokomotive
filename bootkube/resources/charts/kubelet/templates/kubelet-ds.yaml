@@ -74,6 +74,9 @@ spec:
         - name: sys
           mountPath: /sys
           readOnly: true
+        - name: mnt
+          mountPath: /mnt
+          mountPropagation: Bidirectional
         - name: etc-kubernetes
           mountPath: /etc/kubernetes
           readOnly: true
@@ -115,6 +118,9 @@ spec:
       - name: sys
         hostPath:
           path: /sys
+      - name: mnt
+        hostPath:
+          path: /mnt
       - name: etc-kubernetes
         hostPath:
           path: /etc/kubernetes
