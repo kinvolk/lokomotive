@@ -181,40 +181,6 @@ func evalFuncFile() function.Function {
 	})
 }
 
-// LoadValuesFile reads the file at the given path and parses it as a
-// "values file" (flat key.value HCL config) for later use in the
-// `EvalContext`.
-//
-// Adapted from
-// https://github.com/hashicorp/terraform/blob/d4ac68423c4998279f33404db46809d27a5c2362/configs/parser_values.go#L8-L23
-func LoadValuesFile(path string) (map[string]cty.Value, hcl.Diagnostics) {
-	hclParser := hclparse.NewParser()
-	varsFile, diags := hclParser.ParseHCLFile(path)
-	if diags != nil {
-		return nil, diags
-	}
-
-	body := varsFile.Body
-	if body == nil {
-		return nil, diags
-	}
-
-	vars := make(map[string]cty.Value)
-	attrs, attrsDiags := body.JustAttributes()
-	diags = append(diags, attrsDiags...)
-	if attrs == nil {
-		return vars, diags
-	}
-
-	for name, attr := range attrs {
-		val, valDiags := attr.Expr.Value(nil)
-		diags = append(diags, valDiags...)
-		vars[name] = val
-	}
-
-	return vars, diags
-}
-
 // LoadComponentConfigBody returns nil if no component with the given
 // name is found in the configuration
 func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
