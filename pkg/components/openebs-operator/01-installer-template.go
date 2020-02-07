@@ -26,6 +26,7 @@ spec:
     schema:
       openAPIV3Schema:
         type: object
+        x-kubernetes-preserve-unknown-fields: true
 ---
 # This manifest deploys the OpenEBS control plane components, with associated CRs & RBAC rules
 # NOTE: On GKE, deploy the openebs-operator.yaml in admin context
