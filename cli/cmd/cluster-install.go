@@ -16,6 +16,8 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
+var quiet bool
+
 var clusterInstallCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install Lokomotive cluster with components",
@@ -24,6 +26,8 @@ var clusterInstallCmd = &cobra.Command{
 
 func init() {
 	clusterCmd.AddCommand(clusterInstallCmd)
+	pf := clusterInstallCmd.PersistentFlags()
+	pf.BoolVarP(&quiet, "quiet", "q", false, "Suppress the output from Terraform")
 }
 
 func runClusterInstall(cmd *cobra.Command, args []string) {
@@ -86,6 +90,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	conf := terraform.Config{
 		WorkingDir: terraform.GetTerraformRootDir(assetDir),
+		Quiet:      quiet,
 	}
 
 	ex, err := terraform.NewExecutor(conf)

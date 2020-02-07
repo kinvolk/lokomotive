@@ -5,4 +5,5 @@ package terraform
 // command-line arguments.
 type Config struct {
 	WorkingDir string
+	Quiet      bool
 }

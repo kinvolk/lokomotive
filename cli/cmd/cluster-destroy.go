@@ -20,6 +20,7 @@ func init() {
 	clusterCmd.AddCommand(clusterDestroyCmd)
 	pf := clusterDestroyCmd.PersistentFlags()
 	pf.BoolVarP(&confirm, "confirm", "", false, "Destroy cluster without asking for confirmation")
+	pf.BoolVarP(&quiet, "quiet", "q", false, "Suppress the output from Terraform")
 }
 
 func runClusterDestroy(cmd *cobra.Command, args []string) {
@@ -55,6 +56,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 
 	conf := terraform.Config{
 		WorkingDir: terraform.GetTerraformRootDir(assetDir),
+		Quiet:      quiet,
 	}
 
 	ex, err := terraform.NewExecutor(conf)
