@@ -144,6 +144,29 @@ func (ex *Executor) Destroy() error {
 	return ex.Execute("destroy", "-auto-approve")
 }
 
+// tailFile will indefinitely tail logs from the given file path, until
+// given channel is closed.
+func tailFile(path string, done chan struct{}) {
+	t, err := tail.TailFile(path, tail.Config{Follow: true})
+	if err != nil {
+		fmt.Printf("Unable to print logs from %s: %v\n", path, err)
+
+		return
+	}
+
+	go func() {
+		for line := range t.Lines {
+			fmt.Println(line.Text)
+		}
+	}()
+
+	<-done
+
+	if err := t.Stop(); err != nil {
+		fmt.Printf("Stopping printing logs from %s failed: %v\n", path, err)
+	}
+}
+
 // Execute runs the given command and arguments against Terraform, and returns
 // any errors that occur during the execution.
 //
@@ -152,28 +175,28 @@ func (ex *Executor) Destroy() error {
 // output.
 func (ex *Executor) Execute(args ...string) error {
 	pid, done, err := ex.ExecuteAsync(args...)
-
-	if ex.quiet {
-		<-done
-
-		return err
+	if err != nil {
+		return fmt.Errorf("failed executing Terraform command with arguments '%s' in directory %s: %w", strings.Join(args, " "), ex.WorkingDirectory(), err)
 	}
 
-	pathToFile := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
+	p := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
-	t, tailErr := tail.TailFile(pathToFile, tail.Config{Follow: true})
-	if tailErr != nil {
-		return err
+	if !ex.quiet {
+		go tailFile(p, done)
 	}
 
-	go func() {
-		for line := range t.Lines {
-			fmt.Println(line.Text)
-		}
-	}()
 	<-done
 
-	return err
+	s, err := ex.Status(pid)
+	if err != nil {
+		return fmt.Errorf("failed checking execution status: %w", err)
+	}
+
+	if s != ExecutionStatusSuccess {
+		return fmt.Errorf("executing Terraform failed, check %s for details", p)
+	}
+
+	return nil
 }
 
 // LoadVars is a convenience function to load the tfvars file into memory
