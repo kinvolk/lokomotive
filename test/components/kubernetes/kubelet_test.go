@@ -5,16 +5,17 @@ package kubernetes
 
 import (
 	"testing"
+	"time"
 
 	testutil "github.com/kinvolk/lokoctl/test/components/util"
 )
 
-func TestControllerManagerDeployment(t *testing.T) {
-	t.Parallel()
+const retryInterval = time.Second * 5
 
-	namespace := "kube-system"
-	deployment := "kube-controller-manager"
-	replicas := 2
+const timeout = time.Minute * 5
+
+func TestSelfHostedKubeletPods(t *testing.T) {
+	t.Parallel()
 
 	client, err := testutil.CreateKubeClient(t)
 	if err != nil {
@@ -23,5 +24,8 @@ func TestControllerManagerDeployment(t *testing.T) {
 
 	t.Log("got kubernetes client")
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, replicas, retryInterval, timeout)
+	namespace := "kube-system"
+	daemonset := "kubelet"
+
+	testutil.WaitForDaemonSet(t, client, namespace, daemonset, retryInterval, timeout)
 }
