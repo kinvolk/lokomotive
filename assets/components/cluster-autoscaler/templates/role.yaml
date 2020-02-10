@@ -22,4 +22,19 @@ rules:
       - delete
       - get
       - update
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+  - apiGroups:
+      - coordination.k8s.io
+    resourceNames:
+      - cluster-autoscaler
+    resources:
+      - leases
+    verbs:
+      - get
+      - update
 {{- end -}}
