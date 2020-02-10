@@ -278,7 +278,7 @@ func (c *component) validatePacket(diagnostics hcl.Diagnostics) hcl.Diagnostics 
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'facility' must be set",
-			Detail:   "When using Packet provider, 'project_id' must be set but it was not found",
+			Detail:   "When using Packet provider, 'facility' must be set but it was not found",
 		})
 	}
 
