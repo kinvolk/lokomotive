@@ -93,6 +93,10 @@ spec:
         - name: os-release
           mountPath: /etc/os-release
           readOnly: true
+        - name: iscsiadm
+          mountPath: /usr/sbin/iscsiadm
+        - name: modules
+          mountPath: /lib/modules
       hostNetwork: true
       hostPID: true
       # Tolerate all the taints. This ensures that the pod runs on all the nodes.
@@ -137,6 +141,12 @@ spec:
         hostPath:
           path: /usr/lib/os-release
           type: File
+      - name: iscsiadm
+        hostPath:
+          path: /usr/sbin/iscsiadm
+      - name: modules
+        hostPath:
+          path: /lib/modules
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1
