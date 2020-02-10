@@ -2,7 +2,6 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  namespace: {{ .Release.Namespace }}
   labels:
 {{ include "cluster-autoscaler.labels" . | indent 4 }}
   name: {{ template "cluster-autoscaler.fullname" . }}
