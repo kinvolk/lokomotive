@@ -46,7 +46,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 	p, diags := getConfiguredPlatform()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Summary)
+			ctxLogger.Error(diagnostic.Error())
 		}
 		ctxLogger.Fatal("Errors found while loading cluster configuration")
 	}

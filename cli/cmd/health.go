@@ -55,7 +55,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 	p, diags := getConfiguredPlatform()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Summary)
+			contextLogger.Error(diagnostic.Error())
 		}
 		contextLogger.Fatal("Errors found while loading cluster configuration")
 	}

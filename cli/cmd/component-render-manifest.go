@@ -43,7 +43,7 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Summary)
+			contextLogger.Error(diagnostic.Error())
 		}
 		contextLogger.Fatal("Errors found while loading configuration")
 	}
@@ -77,7 +77,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 
 		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
 			for _, diagnostic := range diags {
-				contextLogger.Error(diagnostic.Summary)
+				contextLogger.Error(diagnostic.Error())
 			}
 			return diags
 		}
