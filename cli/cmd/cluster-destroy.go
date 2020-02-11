@@ -15,11 +15,8 @@
 package cmd
 
 import (
-	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
 var confirm bool
@@ -43,17 +40,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	p, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
-		}
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
-	}
-
-	if p == nil {
-		ctxLogger.Fatal("No cluster configured")
-	}
+	ex, p, _, _ := initialize(ctxLogger)
 
 	if !confirm {
 		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
@@ -61,21 +48,6 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 			ctxLogger.Println("Cluster destroy canceled")
 			return
 		}
-	}
-
-	assetDir, err := homedir.Expand(p.GetAssetDir())
-	if err != nil {
-		ctxLogger.Fatalf("error expanding path: %v", err)
-	}
-
-	conf := terraform.Config{
-		WorkingDir: terraform.GetTerraformRootDir(assetDir),
-		Quiet:      quiet,
-	}
-
-	ex, err := terraform.NewExecutor(conf)
-	if err != nil {
-		ctxLogger.Fatalf("error creating terraform executor: %v", err)
 	}
 
 	if err := p.Destroy(ex); err != nil {
