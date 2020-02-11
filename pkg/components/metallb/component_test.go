@@ -27,8 +27,8 @@ func TestEmptyConfig(t *testing.T) {
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
 	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
-	if diagnostics.HasErrors() {
-		t.Fatalf("Empty config should not return errors")
+	if !diagnostics.HasErrors() {
+		t.Fatalf("Empty config should return an error")
 	}
 }
 
@@ -57,6 +57,9 @@ func testRenderManifest(t *testing.T, configHCL string) {
 func TestRenderManifestWithTolerations(t *testing.T) {
 	configHCL := `
 component "metallb" {
+  address_pools = {
+	default = ["1.1.1.1/32"]
+  }
   speaker_toleration {
     key = "speaker_key1"
     operator = "Equal"
@@ -86,6 +89,9 @@ component "metallb" {
 func TestRenderManifestWithServiceMonitor(t *testing.T) {
 	configHCL := `
 component "metallb" {
+  address_pools = {
+    default = ["1.1.1.1/32"]
+  }
   service_monitor = true
 }
 `

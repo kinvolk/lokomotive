@@ -29,11 +29,12 @@ func init() {
 }
 
 type component struct {
-	ControllerNodeSelectors map[string]string `hcl:"controller_node_selectors,optional"`
-	SpeakerNodeSelectors    map[string]string `hcl:"speaker_node_selectors,optional"`
-	ControllerTolerations   []util.Toleration `hcl:"controller_toleration,block"`
-	SpeakerTolerations      []util.Toleration `hcl:"speaker_toleration,block"`
-	ServiceMonitor          bool              `hcl:"service_monitor,optional"`
+	AddressPools            map[string][]string `hcl:"address_pools"`
+	ControllerNodeSelectors map[string]string   `hcl:"controller_node_selectors,optional"`
+	SpeakerNodeSelectors    map[string]string   `hcl:"speaker_node_selectors,optional"`
+	ControllerTolerations   []util.Toleration   `hcl:"controller_toleration,block"`
+	SpeakerTolerations      []util.Toleration   `hcl:"speaker_toleration,block"`
+	ServiceMonitor          bool                `hcl:"service_monitor,optional"`
 
 	ControllerTolerationsJSON string
 	SpeakerTolerationsJSON    string
@@ -93,6 +94,11 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render template failed")
 	}
 
+	configMapStr, err := util.RenderTemplate(configMap, c)
+	if err != nil {
+		return nil, errors.Wrap(err, "rendering ConfigMap template failed")
+	}
+
 	rendered := map[string]string{
 		"namespace.yaml":                                    namespace,
 		"service-account-controller.yaml":                   serviceAccountController,
@@ -106,6 +112,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		"deployment-controller.yaml":                        controllerStr,
 		"daemonset-speaker.yaml":                            speakerStr,
 		"psp-metallb-speaker.yaml":                          pspMetallbSpeaker,
+		"configmap.yaml":                                    configMapStr,
 	}
 
 	// Create service and service monitor for Prometheus to scrape metrics

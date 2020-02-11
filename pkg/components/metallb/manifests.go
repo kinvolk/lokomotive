@@ -221,7 +221,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: controller
-        image: metallb/controller:v0.8.3
+        image: quay.io/kinvolk/metallb-controller:v0.8.3-2-gf653773b
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -278,7 +278,7 @@ spec:
       hostNetwork: true
       containers:
       - name: speaker
-        image: metallb/speaker:v0.8.3
+        image: quay.io/kinvolk/metallb-speaker:v0.8.3-2-gf653773b
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -391,4 +391,23 @@ spec:
   selector:
     matchLabels:
       app: metallb
+`
+
+const configMap = `
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    {{- range $k, $v := .AddressPools }}
+    - name: {{ $k }}
+      protocol: bgp
+      addresses:
+      {{- range $a := $v }}
+      - {{ $a }}
+      {{- end }}
+    {{- end }}
 `

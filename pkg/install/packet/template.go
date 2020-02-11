@@ -164,6 +164,10 @@ module "worker-pool-{{ $index }}" {
   setup_raid_ssd_fs = {{ $pool.SetupRaidSSDFS }}
   {{- end }}
 
+  {{- if $pool.DisableBGP }}
+  disable_bgp = true
+  {{- end}}
+
   {{- if $.Config.ReservationIDs }}
     reservation_ids = {
       {{- range $key, $value := $.Config.ReservationIDs }}

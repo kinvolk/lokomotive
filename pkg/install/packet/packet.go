@@ -36,6 +36,7 @@ import (
 type workerPool struct {
 	Name           string `hcl:"pool_name,label"`
 	Count          int    `hcl:"count"`
+	DisableBGP     bool   `hcl:"disable_bgp,optional"`
 	IPXEScriptURL  string `hcl:"ipxe_script_url,optional"`
 	OSArch         string `hcl:"os_arch,optional"`
 	OSChannel      string `hcl:"os_channel,optional"`
