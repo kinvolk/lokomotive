@@ -42,6 +42,12 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 
 	ex, p, _, _ := initialize(ctxLogger)
 
+	if !clusterExists(ctxLogger, ex) {
+		ctxLogger.Println("Cluster already destroyed, nothing to do")
+
+		return
+	}
+
 	if !confirm {
 		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
 		if !confirmation {
