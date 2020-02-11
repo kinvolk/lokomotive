@@ -238,4 +238,11 @@ provider "packet" {
   auth_token = "{{.Config.AuthToken}}"
   {{- end }}
 }
+
+# Stub output, which indicates, that Terraform run at least once.
+# Used when checking, if we should ask user for confirmation, when
+# applying changes to the cluster.
+output "initialized" {
+  value = true
+}
 `

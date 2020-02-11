@@ -38,6 +38,7 @@ var clusterInstallCmd = &cobra.Command{
 func init() {
 	clusterCmd.AddCommand(clusterInstallCmd)
 	pf := clusterInstallCmd.PersistentFlags()
+	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&quiet, "quiet", "q", false, "Suppress the output from Terraform")
 }
 
@@ -48,6 +49,23 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	})
 
 	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
+
+	if err := p.Initialize(ex); err != nil {
+		ctxLogger.Fatalf("Failed to initialize Terraform: %v", err)
+	}
+
+	if clusterExists(ctxLogger, ex) && !confirm {
+		// TODO: We could plan to a file and use it when installing.
+		if err := ex.Plan(); err != nil {
+			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
+		}
+
+		if !askForConfirmation("Do you want to proceed with cluster install?") {
+			ctxLogger.Println("Cluster install cancelled")
+
+			return
+		}
+	}
 
 	if err := p.Install(ex); err != nil {
 		ctxLogger.Fatalf("error installing cluster: %v", err)

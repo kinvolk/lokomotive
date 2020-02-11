@@ -117,3 +117,16 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 
 	return ex
 }
+
+// clusterExists determines if cluster has already been created by getting all
+// outputs from the Terraform. If there is any output defined, it means 'terraform apply'
+// run at least once.
+func clusterExists(ctxLogger *logrus.Entry, ex *terraform.Executor) bool {
+	o := map[string]interface{}{}
+
+	if err := ex.Output("", &o); err != nil {
+		ctxLogger.Fatalf("Failed to check if cluster exists: %v", err)
+	}
+
+	return len(o) != 0
+}
