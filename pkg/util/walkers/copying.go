@@ -36,7 +36,8 @@ func CopyingWalker(path string, newDirPerms os.FileMode) assets.WalkFunc {
 			return errors.Wrap(err, "failed to create dir")
 		}
 
-		targetFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, fileInfo.Mode())
+		// TODO: If we start packing binaries, make sure they have executable bit set.
+		targetFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
 			return errors.Wrap(err, "failed to open target file")
 		}
