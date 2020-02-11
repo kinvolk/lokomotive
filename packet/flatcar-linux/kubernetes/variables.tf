@@ -175,3 +175,9 @@ variable "certs_validity_period_hours" {
   type        = number
   default     = 8760
 }
+
+variable "tags" {
+  description = "List of tags that will be propagated to master nodes"
+  type        = list(string)
+  default     = []
+}

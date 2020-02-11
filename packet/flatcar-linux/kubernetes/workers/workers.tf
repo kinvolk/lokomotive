@@ -16,6 +16,8 @@ resource "packet_device" "nodes" {
     format("worker-%v", count.index),
     var.reservation_ids_default,
   )
+
+  tags = var.tags
 }
 
 data "ct_config" "install-ignitions" {
