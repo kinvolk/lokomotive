@@ -15,7 +15,6 @@
 package install
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -34,7 +33,7 @@ func PrepareTerraformRootDir(path string) error {
 		return errors.Wrapf(err, "failed to stat path %q: %v", path, err)
 	}
 	if pathExists {
-		return fmt.Errorf("terraform assets directory at %q exists already - aborting", path)
+		return nil
 	}
 	if err := os.MkdirAll(path, 0755); err != nil {
 		return errors.Wrapf(err, "failed to create terraform assets directory at: %s", path)
@@ -51,13 +50,6 @@ func PrepareTerraformRootDir(path string) error {
 // lokoctl binary or from the filesystem, depending on whether the
 // LOKOCTL_USE_FS_ASSETS environment variable was specified.
 func PrepareLokomotiveTerraformModuleAt(path string) error {
-	pathExists, err := util.PathExists(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to stat path %q: %v", path, err)
-	}
-	if pathExists {
-		return fmt.Errorf("directory at %q exists already - aborting", path)
-	}
 	walk := walkers.CopyingWalker(path, 0755)
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
 		return errors.Wrap(err, "failed to walk assets")
