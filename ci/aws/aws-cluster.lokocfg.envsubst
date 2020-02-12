@@ -88,3 +88,7 @@ component "gangway" {
 component "rook" {}
 
 component "flatcar-linux-update-operator" {}
+
+component "httpbin" {
+  ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
+}
