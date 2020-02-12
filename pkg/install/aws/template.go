@@ -134,4 +134,27 @@ provider "tls" {
 output "initialized" {
   value = true
 }
+
+# values.yaml content for all deployed charts.
+output "kubernetes_values" {
+  value     = module.aws-{{.Config.ClusterName}}.kubernetes_values
+  sensitive = true
+}
+
+output "kubelet_values" {
+  value     = module.aws-{{.Config.ClusterName}}.kubelet_values
+  sensitive = true
+}
+
+output "calico_values" {
+  value = module.aws-{{.Config.ClusterName}}.calico_values
+}
+
+output "flannel_values" {
+  value = module.aws-{{.Config.ClusterName}}.flannel_values
+}
+
+output "kube-router_values" {
+  value = module.aws-{{.Config.ClusterName}}.kube-router_values
+}
 `
