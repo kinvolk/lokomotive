@@ -65,3 +65,24 @@ output "server" {
 output "server_admin" {
   value = format("https://%s:%s", element(local.api_servers_external, 0), var.external_apiserver_port)
 }
+
+# values.yaml content for all deployed charts.
+output "kubernetes_values" {
+  value = data.template_file.kubernetes.rendered
+}
+
+output "kubelet_values" {
+  value = data.template_file.kubelet.rendered
+}
+
+output "calico_values" {
+  value = join("", local_file.calico.*.content)
+}
+
+output "flannel_values" {
+  value = join("", local_file.flannel.*.content)
+}
+
+output "kube-router_values" {
+  value = join("", local_file.kube-router.*.content)
+}
