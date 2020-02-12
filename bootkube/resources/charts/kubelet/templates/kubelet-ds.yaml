@@ -73,7 +73,6 @@ spec:
           mountPath: /run
         - name: sys
           mountPath: /sys
-          readOnly: true
         - name: mnt
           mountPath: /mnt
           mountPropagation: Bidirectional
