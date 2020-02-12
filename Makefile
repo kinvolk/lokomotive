@@ -20,7 +20,7 @@ ifeq ($(shell (go env GOPROXY)),)
 endif
 
 
-LDFLAGS := "-X github.com/kinvolk/lokoctl/cli/cmd.version=$(VERSION) -extldflags '-static'"
+LDFLAGS := "-X github.com/kinvolk/lokoctl/pkg/version.Version=$(VERSION) -extldflags '-static'"
 
 .NOTPARALLEL:
 

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
@@ -29,6 +30,7 @@ import (
 	"github.com/kinvolk/lokoctl/pkg/dns"
 	"github.com/kinvolk/lokoctl/pkg/platform"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
+	"github.com/kinvolk/lokoctl/pkg/version"
 )
 
 type workerPool struct {
@@ -51,6 +53,7 @@ type config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
 	AuthToken                string            `hcl:"auth_token,optional"`
 	ClusterName              string            `hcl:"cluster_name"`
+	Tags                     map[string]string `hcl:"tags,optional"`
 	ControllerCount          int               `hcl:"controller_count"`
 	ControllerType           string            `hcl:"controller_type,optional"`
 	DNS                      dns.Config        `hcl:"dns,block"`
@@ -191,12 +194,30 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
 
+	if cfg.Tags == nil {
+		cfg.Tags = make(map[string]string)
+	}
+	if version.Version != "" {
+		cfg.Tags["lokoctl-version"] = version.Version
+	}
+	tagsList := []string{}
+	for k, v := range cfg.Tags {
+		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
+	}
+	sort.Strings(tagsList)
+	tags, err := json.Marshal(tagsList)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal tags")
+	}
+
 	terraformCfg := struct {
 		Config          config
+		Tags            string
 		SSHPublicKeys   string
 		ManagementCIDRs string
 	}{
 		Config:          *cfg,
+		Tags:            string(tags),
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
 	}

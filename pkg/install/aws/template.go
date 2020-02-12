@@ -27,6 +27,7 @@ module "aws-{{.Config.ClusterName}}" {
   }
 
   cluster_name = "{{.Config.ClusterName}}"
+  tags         = {{.Tags}}
   dns_zone     = "{{.Config.DNSZone}}"
   dns_zone_id  = "{{.Config.DNSZoneID}}"
   {{- if .Config.ClusterDomainSuffix }}

@@ -12,24 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package version
 
-import (
-	"fmt"
-
-	"github.com/spf13/cobra"
-
-	"github.com/kinvolk/lokoctl/pkg/version"
-)
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Show version",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(version.Version)
-	},
-}
+// This variable is used by the "version" command and is set during build.
+var Version = "undefined"
