@@ -144,4 +144,28 @@ provider "tls" {
 output "initialized" {
   value = true
 }
+
+# values.yaml content for all deployed charts.
+output "pod-checkpointer_values" {
+  value = module.aws-{{.Config.ClusterName}}.pod-checkpointer_values
+}
+
+output "kube-apiserver_values" {
+  value     = module.aws-{{.Config.ClusterName}}.kube-apiserver_values
+  sensitive = true
+}
+
+output "kubernetes_values" {
+  value     = module.aws-{{.Config.ClusterName}}.kubernetes_values
+  sensitive = true
+}
+
+output "kubelet_values" {
+  value     = module.aws-{{.Config.ClusterName}}.kubelet_values
+  sensitive = true
+}
+
+output "calico_values" {
+  value = module.aws-{{.Config.ClusterName}}.calico_values
+}
 `
