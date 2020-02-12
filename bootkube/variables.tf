@@ -95,8 +95,8 @@ variable "container_images" {
   type        = map(string)
 
   default = {
-    calico     = "calico/node:v3.11.2"
-    calico_cni = "calico/cni:v3.11.2"
+    calico     = "calico/node:v3.12.0"
+    calico_cni = "calico/cni:v3.12.0"
     flannel    = "quay.io/coreos/flannel:v0.11.0-"
     # only amd64 images available for flannel_cni
     flannel_cni = "quay.io/coreos/flannel-cni:v0.3.0"
