@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hpcloud/tail"
@@ -146,7 +147,7 @@ func (ex *Executor) Destroy() error {
 
 // tailFile will indefinitely tail logs from the given file path, until
 // given channel is closed.
-func tailFile(path string, done chan struct{}) {
+func tailFile(path string, done chan struct{}, wg *sync.WaitGroup) {
 	t, err := tail.TailFile(path, tail.Config{Follow: true})
 	if err != nil {
 		fmt.Printf("Unable to print logs from %s: %v\n", path, err)
@@ -154,10 +155,14 @@ func tailFile(path string, done chan struct{}) {
 		return
 	}
 
+	wg.Add(1)
+
 	go func() {
 		for line := range t.Lines {
 			fmt.Println(line.Text)
 		}
+
+		wg.Done()
 	}()
 
 	<-done
@@ -165,6 +170,8 @@ func tailFile(path string, done chan struct{}) {
 	if err := t.Stop(); err != nil {
 		fmt.Printf("Stopping printing logs from %s failed: %v\n", path, err)
 	}
+
+	wg.Done()
 }
 
 // Execute runs the given command and arguments against Terraform, and returns
@@ -179,13 +186,26 @@ func (ex *Executor) Execute(args ...string) error {
 		return fmt.Errorf("failed executing Terraform command with arguments '%s' in directory %s: %w", strings.Join(args, " "), ex.WorkingDirectory(), err)
 	}
 
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+
+	// Schedule waiting for Terraform execution to finish.
+	go func() {
+		<-done
+		wg.Done()
+	}()
+
 	p := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
+	// If we print output, schedule it as well.
 	if !ex.quiet {
-		go tailFile(p, done)
+		wg.Add(1)
+
+		go tailFile(p, done, &wg)
 	}
 
-	<-done
+	wg.Wait()
 
 	s, err := ex.Status(pid)
 	if err != nil {
