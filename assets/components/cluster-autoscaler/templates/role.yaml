@@ -2,7 +2,6 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
-  namespace: {{ .Release.Namespace }}
   labels:
 {{ include "cluster-autoscaler.labels" . | indent 4 }}
   name: {{ template "cluster-autoscaler.fullname" . }}
@@ -21,6 +20,21 @@ rules:
       - cluster-autoscaler-status
     verbs:
       - delete
+      - get
+      - update
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+  - apiGroups:
+      - coordination.k8s.io
+    resourceNames:
+      - cluster-autoscaler
+    resources:
+      - leases
+    verbs:
       - get
       - update
 {{- end -}}

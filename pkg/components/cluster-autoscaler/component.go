@@ -35,9 +35,7 @@ const name = "cluster-autoscaler"
 const chartValuesTmpl = `
 cloudProvider: {{ .Provider }}
 image:
-  repository: kinvolk/packet-autoscaler
-  tag: 1.15.0-packet-4a17475a
-  pullPolicy: IfNotPresent
+  tag: v1.17.0
 nodeSelector:
   node.kubernetes.io/controller: "true"
 tolerations:
@@ -47,8 +45,6 @@ tolerations:
 rbac:
   create: true
 cloudConfigPath: /config
-deployment:
-  apiVersion: apps/v1
 
 packetClusterName: {{ .ClusterName }}
 packetAuthToken: {{ .Packet.AuthToken }}
@@ -57,7 +53,7 @@ packetProjectID: {{ .Packet.ProjectID }}
 packetFacility: {{ .Packet.Facility }}
 packetOSChannel: {{ .Packet.WorkerChannel }}
 packetNodeType: {{ .Packet.WorkerType }}
-packetWorkerPool:
+autoscalingGroups:
 - name: {{ .WorkerPool }}
   maxSize: {{ .MaxWorkers }}
   minSize: {{ .MinWorkers }}
@@ -68,6 +64,7 @@ extraArgs:
   scale-down-unready-time: {{ .ScaleDownUnreadyTime }}
 
 podDisruptionBudget: []
+kubeTargetVersionOverride: v1.17.2
 `
 
 func init() {
@@ -281,7 +278,7 @@ func (c *component) validatePacket(diagnostics hcl.Diagnostics) hcl.Diagnostics 
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'facility' must be set",
-			Detail:   "When using Packet provider, 'project_id' must be set but it was not found",
+			Detail:   "When using Packet provider, 'facility' must be set but it was not found",
 		})
 	}
 
@@ -325,5 +322,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Namespace: c.Namespace,
+		Helm:      &components.HelmMetadata{},
 	}
 }

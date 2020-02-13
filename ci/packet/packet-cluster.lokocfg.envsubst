@@ -123,3 +123,17 @@ component "openebs-storage-class" {
 component "prometheus-operator" {
   grafana_admin_password = "admin"
 }
+
+component "cluster-autoscaler" {
+  cluster_name = "$CLUSTER_ID"
+
+  worker_pool = "pool-1"
+
+  min_workers = 2
+  max_workers = 2
+
+  packet {
+    project_id = "$PACKET_PROJECT_ID"
+    facility = "ams1"
+  }
+}

@@ -1,9 +1,8 @@
 {{- if (or .Values.autoDiscovery.clusterName ( or .Values.autoscalingGroups (eq .Values.cloudProvider "packet" )))}}
 {{/* one of the above is required */}}
-apiVersion: {{ .Values.deployment.apiVersion }}
+apiVersion: {{ template "deployment.apiVersion" . }}
 kind: Deployment
 metadata:
-  namespace: {{ .Release.Namespace }}
   labels:
 {{ include "cluster-autoscaler.labels" . | indent 4 }}
   name: {{ template "cluster-autoscaler.fullname" . }}
@@ -50,11 +49,9 @@ spec:
             {{- range .Values.autoscalingGroups }}
             - --nodes={{ .minSize }}:{{ .maxSize }}:{{ .name }}
             {{- end }}
-          {{- else if eq .Values.cloudProvider "packet" }}
+          {{- end }}
+          {{- if eq .Values.cloudProvider "packet" }}
             - --cluster-name={{ .Values.packetClusterName }}
-            {{- range .Values.packetWorkerPool }}
-            - --nodes={{ .minSize }}:{{ .maxSize }}:{{ .name }}
-            {{- end }}
           {{- end }}
           {{- if eq .Values.cloudProvider "aws" }}
             {{- if .Values.autoDiscovery.clusterName }}
@@ -156,6 +153,20 @@ spec:
             - name: {{ $key }}
               value: "{{ $value }}"
           {{- end }}
+          {{- range $key, $value := .Values.envFromConfigMap }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ default (include "cluster-autoscaler.fullname" $) $value.name }}
+                  key: {{ required "Must specify key!" $value.key }}
+          {{- end }}
+          {{- range $key, $value := .Values.extraEnvSecrets }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (include "cluster-autoscaler.fullname" $) $value.name }}
+                  key: {{ required "Must specify key!" $value.key }}
+          {{- end }}
           {{- if .Values.envFromSecret }}
           envFrom:
             - secretRef:
@@ -169,15 +180,16 @@ spec:
             - containerPort: 8085
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+          {{- if .Values.containerSecurityContext }}
+          securityContext:
+            {{ toYaml .Values.containerSecurityContext | nindent 12 | trim }}
+          {{- end }}
+          {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "packet") }}
           volumeMounts:
-            - name: ssl-certs
-              mountPath: {{ .Values.sslCertPath }}
-              readOnly: true
-            {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "packet") }}
             - name: cloudconfig
               mountPath: {{ .Values.cloudConfigPath }}
               readOnly: true
-            {{- end }}
+          {{- end }}
     {{- if .Values.affinity }}
       affinity:
 {{ toYaml .Values.affinity | indent 8 }}
@@ -189,20 +201,21 @@ spec:
       serviceAccountName: {{ if .Values.rbac.create }}{{ template "cluster-autoscaler.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
+      {{- if .Values.securityContext }}
+      securityContext:
+        {{ toYaml .Values.securityContext | nindent 8 | trim }}
+      {{- end }}
       volumes:
-        - name: ssl-certs
-          hostPath:
-            path: {{ .Values.sslCertHostPath }}
-        {{- if eq .Values.cloudProvider "gce" }}
+      {{- if eq .Values.cloudProvider "gce" }}
         - name: cloudconfig
           hostPath:
             path: {{ .Values.cloudConfigPath }}
-        {{- else if eq .Values.cloudProvider "packet" }}
+      {{- else if eq .Values.cloudProvider "packet" }}
         - name: cloudconfig
           secret:
             secretName: {{ template "cluster-autoscaler.fullname" . }}
-        {{- end }}
-    {{- if .Values.image.pullSecrets }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
       {{- range .Values.image.pullSecrets }}
         - name: {{ . }}
