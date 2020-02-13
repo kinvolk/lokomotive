@@ -137,3 +137,7 @@ component "cluster-autoscaler" {
     facility = "ams1"
   }
 }
+
+component "httpbin" {
+  ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
+}
