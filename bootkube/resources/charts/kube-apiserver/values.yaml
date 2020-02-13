@@ -1,0 +1,19 @@
+apiserver:
+  apiserverKey:
+  apiserverCert:
+  serviceAccountPub:
+  caCert:
+  etcdClientCaCert:
+  etcdClientCert:
+  etcdClientKey:
+  aggregationCaCert:
+  aggregationClientCert:
+  aggregationClientKey:
+  image: k8s.gcr.io/hyperkube:v1.17.3
+  cloudProvider:
+  etcdServers:
+  aggregationFlags:
+  serviceCIDR: 10.0.0.0/24
+  trustedCertsDir: /usr/share/ca-certificates
+podCheckpointer:
+  image: kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1
