@@ -101,6 +101,15 @@ variable "worker_clc_snippets" {
   default     = []
 }
 
+variable "tags" {
+  type        = map
+  default     = {
+    "ManagedBy" = "Lokomotive"
+    "CreatedBy" = "Unspecified"
+  }
+  description = "Optional details to tag on AWS resources"
+}
+
 # configuration
 
 variable "ssh_keys" {

@@ -8,9 +8,9 @@ resource "aws_security_group" "controller" {
 
   vpc_id = aws_vpc.network.id
 
-  tags = {
+  tags = merge(var.tags, {
     "Name" = "${var.cluster_name}-controller"
-  }
+  })
 }
 
 resource "aws_security_group_rule" "controller-ssh" {
@@ -189,9 +189,9 @@ resource "aws_security_group" "worker" {
 
   vpc_id = aws_vpc.network.id
 
-  tags = {
+  tags = merge(var.tags, {
     "Name" = "${var.cluster_name}-worker"
-  }
+  })
 }
 
 resource "aws_security_group_rule" "worker-ssh" {
