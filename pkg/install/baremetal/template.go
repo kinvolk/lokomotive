@@ -86,6 +86,11 @@ output "initialized" {
 }
 
 # values.yaml content for all deployed charts.
+output "kube-apiserver_values" {
+  value     = module.bare-metal-{{.ClusterName}}.kube-apiserver_values
+  sensitive = true
+}
+
 output "kubernetes_values" {
   value     = module.bare-metal-{{.ClusterName}}.kubernetes_values
   sensitive = true

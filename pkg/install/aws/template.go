@@ -136,6 +136,11 @@ output "initialized" {
 }
 
 # values.yaml content for all deployed charts.
+output "kube-apiserver_values" {
+  value     = module.aws-{{.Config.ClusterName}}.kube-apiserver_values
+  sensitive = true
+}
+
 output "kubernetes_values" {
   value     = module.aws-{{.Config.ClusterName}}.kubernetes_values
   sensitive = true
