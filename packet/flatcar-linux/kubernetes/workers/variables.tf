@@ -163,3 +163,9 @@ variable "disable_bgp" {
   type        = bool
   default     = false
 }
+
+variable "tags" {
+  description = "List of tags that will be propagated to nodes in this pool"
+  type        = list(string)
+  default     = []
+}
