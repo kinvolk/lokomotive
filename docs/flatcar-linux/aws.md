@@ -223,7 +223,7 @@ Reference the DNS zone id with `"${aws_route53_zone.zone-for-clusters.zone_id}"`
 | service_cidr | CIDR IPv4 range to assign to Kubernetes services | "10.3.0.0/16" | "10.3.0.0/24" |
 | cluster_domain_suffix | FQDN suffix for Kubernetes services answered by coredns. | "cluster.local" | "k8s.example.com" |
 | certs_validity_period_hours | Validity of all the certificates in hours | 8760 | 17520 |
-| tags | Optional details to tag on AWS resources | `{}` | `{"CreatedBy" = "Devops team"}` |
+| tags | Optional details to tag on AWS resources | `{"ManagedBy" = "Lokomotive", "CreatedBy" = "Unspecified"}` | `{"ManagedBy" = "Lokomotive", "CreatedBy" = "DevOps team"}` |
 
 Check the list of valid [instance types](https://aws.amazon.com/ec2/instance-types/).
 

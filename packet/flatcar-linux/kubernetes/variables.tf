@@ -179,5 +179,5 @@ variable "certs_validity_period_hours" {
 variable "tags" {
   description = "List of tags that will be propagated to master nodes"
   type        = list(string)
-  default     = []
+  default     = ["ManagedBy:Lokomotive", "CreatedBy:Unspecified"]
 }

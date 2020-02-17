@@ -316,7 +316,7 @@ Lokomotive implements support for some [DNS providers](../dns/), if your provide
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
 | certs_validity_period_hours | Validity of all the certificates in hours | 8760 | 17520 |
 | controller_clc_snippets [[1]](#clc-snippets-limitation) | Controller Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
-| tags | Tags for Packet instances. The tags are not directly exposed to Kubernetes but can be fetched via Packet API | [] | ["foo", "bar"] |
+| tags | Tags for Packet instances. The tags are not directly exposed to Kubernetes but can be fetched via Packet API | ["ManagedBy:Lokomotive", "CreatedBy:Unspecified"] | ["ManagedBy:Lokomotive", "CreatedBy:DevOpsTeam"] |
 
 
 #### Worker module
@@ -340,7 +340,7 @@ Lokomotive implements support for some [DNS providers](../dns/), if your provide
 | reservation_ids | Map Packet hardware reservation IDs to instances. | {} | { worker-0 = "55555f20-a1fb-55bd-1e11-11af11d11111" } |
 | reservation_ids_default | Default hardware reservation ID for nodes not listed in the `reservation_ids` map. | "" | "next-available"|
 | clc_snippets [[1]](#clc-snippets-limitation) | Worker Container Linux Config snippets | [] | [example](../advanced/customization.md#usage) |
-| tags | Tags for Packet instances. The tags are not directly exposed to Kubernetes but can be fetched via Packet API | [] | ["foo", "bar"] |
+| tags | Tags for Packet instances. The tags are not directly exposed to Kubernetes but can be fetched via Packet API | ["ManagedBy:Lokomotive", "CreatedBy:Unspecified"] | ["ManagedBy:Lokomotive", "CreatedBy:DevOpsTeam"] |
 
 Documentation about Packet hardware reservation id can be found here: https://support.packet.com/kb/articles/reserved-hardware.
 
