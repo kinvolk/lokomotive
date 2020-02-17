@@ -1,0 +1,14 @@
+{{- range .Values.hostEndpoints }}
+---
+apiVersion: crd.projectcalico.org/v1
+kind: HostEndpoint
+metadata:
+  name: {{ .name }}
+  labels:
+    {{-  range $key, $value := .labels }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+spec:
+  interfaceName: {{ .interfaceName }}
+  node: {{ .name }}
+{{- end }}
