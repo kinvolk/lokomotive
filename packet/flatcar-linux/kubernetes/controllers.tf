@@ -4,16 +4,6 @@ locals {
   etcd_fqdn         = [for index, device in packet_device.controllers : format("%s-etcd%d.%s.", var.cluster_name, index, var.dns_zone)]
 
   dns_entries = concat(
-    # etcd
-    [
-      for index, device in packet_device.controllers :
-      {
-        name    = local.etcd_fqdn[index],
-        type    = "A",
-        ttl     = 300,
-        records = [device.access_private_ipv4],
-      }
-    ],
     [
       # apiserver public
       {
@@ -29,7 +19,17 @@ locals {
         ttl     = 300,
         records = packet_device.controllers.*.access_private_ipv4,
       },
-    ]
+    ],
+    # etcd
+    [
+      for index, device in packet_device.controllers :
+      {
+        name    = local.etcd_fqdn[index],
+        type    = "A",
+        ttl     = 300,
+        records = [device.access_private_ipv4],
+      }
+    ],
   )
 }
 
