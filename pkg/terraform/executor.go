@@ -128,20 +128,12 @@ func (ex *Executor) Init() error {
 // Apply() is a wrapper function that runs
 // `terraform apply -auto-approve`.
 func (ex *Executor) Apply() error {
-	if err := ex.Init(); err != nil {
-		return err
-	}
-
 	return ex.Execute("apply", "-auto-approve")
 }
 
 // Destroy() is a wrapper function that runs
 // `terraform destroy -auto-approve`.
 func (ex *Executor) Destroy() error {
-	if err := ex.Init(); err != nil {
-		return err
-	}
-
 	return ex.Execute("destroy", "-auto-approve")
 }
 
@@ -293,20 +285,12 @@ func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
 
 // Plan runs 'terraform plan'.
 func (ex *Executor) Plan() error {
-	if err := ex.Init(); err != nil {
-		return err
-	}
-
 	return ex.Execute("plan")
 }
 
 // Output gets output value from Terraform in JSON format and tries to unmarshal it
 // to a given struct.
 func (ex *Executor) Output(key string, s interface{}) error {
-	if err := ex.Init(); err != nil {
-		return fmt.Errorf("failed initializing Terraform: %v", err)
-	}
-
 	o, err := ex.ExecuteSync("output", "-json", key)
 	if err != nil {
 		return fmt.Errorf("failed getting Terraform output: %v", err)
