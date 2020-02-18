@@ -50,10 +50,6 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
 
-	if err := p.Initialize(ex); err != nil {
-		ctxLogger.Fatalf("Failed to initialize Terraform: %v", err)
-	}
-
 	if clusterExists(ctxLogger, ex) && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := ex.Plan(); err != nil {
