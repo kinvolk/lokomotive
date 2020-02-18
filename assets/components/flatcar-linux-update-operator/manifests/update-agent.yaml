@@ -4,19 +4,19 @@ metadata:
   name: flatcar-linux-update-agent
   namespace: reboot-coordinator
 spec:
-  selector:
-    matchLabels:
-      app: flatcar-linux-update-agent
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: flatcar-linux-update-agent
   template:
     metadata:
       labels:
         app: flatcar-linux-update-agent
     spec:
-      serviceAccountName: flatcar-linux-update-operator-sa
+      serviceAccountName: flatcar-linux-update-agent
       containers:
       - name: update-agent
         image: quay.io/kinvolk/flatcar-linux-update-operator:v0.7.3
@@ -45,6 +45,9 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        # Update agent must run with a UID that is allowed to reboot nodes via logind using the D-Bus interface.
+        # FLUO Docker image runs as 65534 (nobody) by default, so we need to escalate the privileges here,
+        # as we cannot ensure, that host configuration of PolicyKit and D-Bus allows UID 65534 to execute that.
         securityContext:
           runAsUser: 0
       tolerations:

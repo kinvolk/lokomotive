@@ -39,7 +39,7 @@ rules:
       - list
       - delete
   - apiGroups:
-      - "extensions"
+      - "apps"
     resources:
       - daemonsets
     verbs:
@@ -53,15 +53,57 @@ rules:
     verbs:
       - use
 ---
-kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
 metadata:
-  name: flatcar-linux-update-operator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: flatcar-linux-update-operator
-subjects:
-  - kind: ServiceAccount
-    name: flatcar-linux-update-operator-sa
-    namespace: reboot-coordinator
+  name: flatcar-linux-update-agent
+  namespace: reboot-coordinator
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - get
+      - update
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - delete
+  - apiGroups:
+      - "apps"
+    resources:
+      - daemonsets
+    verbs:
+      - get
+  - apiGroups:
+      - policy
+    resourceNames:
+      - flatcar-linux-update-agent
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
