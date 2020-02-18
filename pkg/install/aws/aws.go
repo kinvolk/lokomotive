@@ -26,8 +26,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/platform"
+	"github.com/kinvolk/lokoctl/pkg/platform/util"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
-	"github.com/kinvolk/lokoctl/pkg/version"
 )
 
 type config struct {
@@ -154,12 +154,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
-	if cfg.Tags == nil {
-		cfg.Tags = make(map[string]string)
-	}
-	if version.Version != "" {
-		cfg.Tags["lokoctl-version"] = version.Version
-	}
+	util.AppendTags(&cfg.Tags)
 	tags, err := json.Marshal(cfg.Tags)
 	if err != nil {
 		return errors.Wrapf(err, "failed to marshal tags")

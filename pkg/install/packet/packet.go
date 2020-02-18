@@ -29,8 +29,8 @@ import (
 
 	"github.com/kinvolk/lokoctl/pkg/dns"
 	"github.com/kinvolk/lokoctl/pkg/platform"
+	"github.com/kinvolk/lokoctl/pkg/platform/util"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
-	"github.com/kinvolk/lokoctl/pkg/version"
 )
 
 type workerPool struct {
@@ -194,12 +194,9 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
 
-	if cfg.Tags == nil {
-		cfg.Tags = make(map[string]string)
-	}
-	if version.Version != "" {
-		cfg.Tags["lokoctl-version"] = version.Version
-	}
+	// Packet does not accept tags as a key-value map but as an array of
+	// strings.
+	util.AppendTags(&cfg.Tags)
 	tagsList := []string{}
 	for k, v := range cfg.Tags {
 		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
