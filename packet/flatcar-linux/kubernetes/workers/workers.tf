@@ -44,26 +44,35 @@ resource "packet_bgp_session" "bgp" {
   address_family = "ipv4"
 }
 
+# BGP node labels.
+locals {
+  my_asn = format("metallb.universe.tf/my-asn=%d", data.packet_project.project.bgp_config.0.asn)
+  # Packet always uses ASN 65530 as the remote ASN for local BGP.
+  peer_asn = format("metallb.universe.tf/peer-asn=%d", 65530)
+}
+
 data "ct_config" "ignitions" {
-  content  = data.template_file.configs.rendered
+  content = templatefile(
+    "${path.module}/cl/worker.yaml.tmpl",
+    {
+      os_arch               = var.os_arch
+      kubeconfig            = indent(10, var.kubeconfig)
+      ssh_keys              = jsonencode(var.ssh_keys)
+      k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
+      cluster_domain_suffix = var.cluster_domain_suffix
+      node_labels           = var.labels
+      bgp_node_labels       = var.disable_bgp ? "" : format("%s,%s", local.my_asn, local.peer_asn)
+      taints                = var.taints
+      setup_raid            = var.setup_raid
+      setup_raid_hdd        = var.setup_raid_hdd
+      setup_raid_ssd        = var.setup_raid_ssd
+      setup_raid_ssd_fs     = var.setup_raid_ssd_fs
+    }
+  )
   platform = "packet"
   snippets = var.clc_snippets
 }
 
-data "template_file" "configs" {
-  template = file("${path.module}/cl/worker.yaml.tmpl")
-
-  vars = {
-    os_arch               = var.os_arch
-    kubeconfig            = indent(10, var.kubeconfig)
-    ssh_keys              = jsonencode(var.ssh_keys)
-    k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
-    cluster_domain_suffix = var.cluster_domain_suffix
-    worker_labels         = var.labels
-    taints                = var.taints
-    setup_raid            = var.setup_raid
-    setup_raid_hdd        = var.setup_raid_hdd
-    setup_raid_ssd        = var.setup_raid_ssd
-    setup_raid_ssd_fs     = var.setup_raid_ssd_fs
-  }
+data "packet_project" "project" {
+  project_id = var.project_id
 }
