@@ -114,12 +114,23 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (c *config) Install(ex *terraform.Executor) error {
+func (c *config) Initialize(ex *terraform.Executor) error {
 	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
 		return fmt.Errorf("cannot find the Packet authentication token:\n" +
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
 	}
 
+	assetDir, err := homedir.Expand(c.AssetDir)
+	if err != nil {
+		return err
+	}
+
+	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
+
+	return createTerraformConfigFile(c, terraformRootDir)
+}
+
+func (c *config) Install(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
@@ -132,8 +143,7 @@ func (c *config) Install(ex *terraform.Executor) error {
 		return errors.Wrap(err, "parsing DNS configuration failed")
 	}
 
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-	if err := createTerraformConfigFile(c, terraformRootDir); err != nil {
+	if err := c.Initialize(ex); err != nil {
 		return err
 	}
 
@@ -166,6 +176,10 @@ func (c *config) Install(ex *terraform.Executor) error {
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
+	if err := c.Initialize(ex); err != nil {
+		return err
+	}
+
 	return ex.Destroy()
 }
 

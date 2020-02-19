@@ -18,16 +18,13 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/kinvolk/lokoctl/pkg/backend/local"
 	"github.com/kinvolk/lokoctl/pkg/install"
 	"github.com/kinvolk/lokoctl/pkg/k8sutil"
 	"github.com/kinvolk/lokoctl/pkg/lokomotive"
-	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
 var quiet bool
@@ -41,6 +38,7 @@ var clusterInstallCmd = &cobra.Command{
 func init() {
 	clusterCmd.AddCommand(clusterInstallCmd)
 	pf := clusterInstallCmd.PersistentFlags()
+	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&quiet, "quiet", "q", false, "Suppress the output from Terraform")
 }
 
@@ -50,66 +48,19 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoConfig, diags := getLokoConfig()
-	if len(diags) > 0 {
-		ctxLogger.Fatal(diags)
-	}
+	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
 
-	p, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
+	if clusterExists(ctxLogger, ex) && !confirm {
+		// TODO: We could plan to a file and use it when installing.
+		if err := ex.Plan(); err != nil {
+			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
 		}
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
-	}
 
-	if p == nil {
-		ctxLogger.Fatal("No cluster configured")
-	}
+		if !askForConfirmation("Do you want to proceed with cluster install?") {
+			ctxLogger.Println("Cluster install cancelled")
 
-	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
-	b, diags := getConfiguredBackend(lokoConfig)
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
+			return
 		}
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
-	}
-
-	// Use a local backend if no backend is configured.
-	if b == nil {
-		b = local.NewLocalBackend()
-	}
-
-	assetDir, err := homedir.Expand(p.GetAssetDir())
-	if err != nil {
-		ctxLogger.Fatalf("error expanding path: %v", err)
-	}
-
-	// Validate backend configuration.
-	if err = b.Validate(); err != nil {
-		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
-	}
-
-	// Render backend configuration.
-	renderedBackend, err := b.Render()
-	if err != nil {
-		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
-	}
-
-	// Configure Terraform directory, module and backend.
-	if err = terraform.Configure(assetDir, renderedBackend); err != nil {
-		ctxLogger.Fatalf("Failed to configure terraform : %v", err)
-	}
-
-	conf := terraform.Config{
-		WorkingDir: terraform.GetTerraformRootDir(assetDir),
-		Quiet:      quiet,
-	}
-
-	ex, err := terraform.NewExecutor(conf)
-	if err != nil {
-		ctxLogger.Fatalf("Failed to create terraform executor: %v", err)
 	}
 
 	if err := p.Install(ex); err != nil {
