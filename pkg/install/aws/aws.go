@@ -26,40 +26,42 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokoctl/pkg/platform"
+	"github.com/kinvolk/lokoctl/pkg/platform/util"
 	"github.com/kinvolk/lokoctl/pkg/terraform"
 )
 
 type config struct {
-	AssetDir                 string   `hcl:"asset_dir"`
-	ClusterName              string   `hcl:"cluster_name"`
-	OSName                   string   `hcl:"os_name,optional"`
-	OSChannel                string   `hcl:"os_channel,optional"`
-	OSVersion                string   `hcl:"os_version,optional"`
-	DNSZone                  string   `hcl:"dns_zone"`
-	DNSZoneID                string   `hcl:"dns_zone_id"`
-	SSHPubKeys               []string `hcl:"ssh_pubkeys"`
-	CredsPath                string   `hcl:"creds_path,optional"`
-	ControllerCount          int      `hcl:"controller_count,optional"`
-	ControllerType           string   `hcl:"controller_type,optional"`
-	WorkerCount              int      `hcl:"worker_count,optional"`
-	WorkerType               string   `hcl:"worker_type,optional"`
-	ControllerCLCSnippets    []string `hcl:"controller_clc_snippets,optional"`
-	WorkerCLCSnippets        []string `hcl:"worker_clc_snippets,optional"`
-	Region                   string   `hcl:"region,optional"`
-	EnableAggregation        bool     `hcl:"enable_aggregation,optional"`
-	DiskSize                 int      `hcl:"disk_size,optional"`
-	DiskType                 string   `hcl:"disk_type,optional"`
-	DiskIOPS                 int      `hcl:"disk_iops,optional"`
-	WorkerPrice              string   `hcl:"worker_price,optional"`
-	WorkerTargetGroups       []string `hcl:"worker_target_groups,optional"`
-	Networking               string   `hcl:"networking,optional"`
-	NetworkMTU               int      `hcl:"network_mtu,optional"`
-	HostCIDR                 string   `hcl:"host_cidr,optional"`
-	PodCIDR                  string   `hcl:"pod_cidr,optional"`
-	ServiceCIDR              string   `hcl:"service_cidr,optional"`
-	ClusterDomainSuffix      string   `hcl:"cluster_domain_suffix,optional"`
-	EnableReporting          bool     `hcl:"enable_reporting,optional"`
-	CertsValidityPeriodHours int      `hcl:"certs_validity_period_hours,optional"`
+	AssetDir                 string            `hcl:"asset_dir"`
+	ClusterName              string            `hcl:"cluster_name"`
+	Tags                     map[string]string `hcl:"tags,optional"`
+	OSName                   string            `hcl:"os_name,optional"`
+	OSChannel                string            `hcl:"os_channel,optional"`
+	OSVersion                string            `hcl:"os_version,optional"`
+	DNSZone                  string            `hcl:"dns_zone"`
+	DNSZoneID                string            `hcl:"dns_zone_id"`
+	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
+	CredsPath                string            `hcl:"creds_path,optional"`
+	ControllerCount          int               `hcl:"controller_count,optional"`
+	ControllerType           string            `hcl:"controller_type,optional"`
+	WorkerCount              int               `hcl:"worker_count,optional"`
+	WorkerType               string            `hcl:"worker_type,optional"`
+	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
+	WorkerCLCSnippets        []string          `hcl:"worker_clc_snippets,optional"`
+	Region                   string            `hcl:"region,optional"`
+	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
+	DiskSize                 int               `hcl:"disk_size,optional"`
+	DiskType                 string            `hcl:"disk_type,optional"`
+	DiskIOPS                 int               `hcl:"disk_iops,optional"`
+	WorkerPrice              string            `hcl:"worker_price,optional"`
+	WorkerTargetGroups       []string          `hcl:"worker_target_groups,optional"`
+	Networking               string            `hcl:"networking,optional"`
+	NetworkMTU               int               `hcl:"network_mtu,optional"`
+	HostCIDR                 string            `hcl:"host_cidr,optional"`
+	PodCIDR                  string            `hcl:"pod_cidr,optional"`
+	ServiceCIDR              string            `hcl:"service_cidr,optional"`
+	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
+	EnableReporting          bool              `hcl:"enable_reporting,optional"`
+	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 }
 
 // init registers aws as a platform
@@ -152,14 +154,22 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
+	util.AppendTags(&cfg.Tags)
+	tags, err := json.Marshal(cfg.Tags)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal tags")
+	}
+
 	terraformCfg := struct {
 		Config                config
+		Tags                  string
 		SSHPublicKeys         string
 		ControllerCLCSnippets string
 		WorkerCLCSnippets     string
 		WorkerTargetGroups    string
 	}{
 		Config:                *cfg,
+		Tags:                  string(tags),
 		SSHPublicKeys:         string(keyListBytes),
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
 		WorkerCLCSnippets:     string(workerCLCSnippetsBytes),

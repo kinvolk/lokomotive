@@ -32,6 +32,7 @@ module "packet-{{.Config.ClusterName}}" {
   asset_dir = "../cluster-assets"
 
   cluster_name = "{{.Config.ClusterName}}"
+  tags         = {{.Tags}}
   project_id   = "{{.Config.ProjectID}}"
   facility     = "{{.Config.Facility}}"
 
@@ -111,6 +112,7 @@ module "worker-pool-{{ $index }}" {
   ssh_keys  = {{$.SSHPublicKeys}}
 
   cluster_name = "{{$.Config.ClusterName}}"
+  tags         = {{$.Tags}}
   project_id   = "{{$.Config.ProjectID}}"
   facility     = "{{$.Config.Facility}}"
   {{- if $.Config.ClusterDomainSuffix }}
