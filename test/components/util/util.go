@@ -88,10 +88,18 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 		}
 		replicas := ds.Status.DesiredNumberScheduled
 
-		if ds.Status.NumberAvailable == replicas {
+		if replicas == 0 {
+			t.Logf("no replicas scheduled for daemonset %s", name)
+
+			return false, nil
+		}
+
+		if ds.Status.NumberReady == replicas {
+			t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
+
 			return true, nil
 		}
-		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.NumberAvailable, replicas)
+		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
 		return false, nil
 	}); err != nil {
 		t.Errorf("error while waiting for the daemonset: %v", err)
