@@ -30,10 +30,25 @@ upon node failure, and load balancing is achieved using
 - A Kubernetes cluster, running Kubernetes 1.9.0 or later, that does not already have network
 load-balancing functionality.
 - A [compatible](https://metallb.universe.tf/installation/network-addons/) cluster networking addon.
-- An IPv4 address pool for MetalLB to allocate - one address is needed per `LoadBalancer` service.
+- An IPv4 CIDR for MetalLB to allocate - one address is needed per `LoadBalancer` service.
 - One or more routers capable of speaking BGP.
 
 ## Installation
+
+Add a `component` block for MetalLB in your `*.lokocfg` file while specifying the CIDR under
+`address_pools`:
+
+```hcl
+...
+
+component "metallb" {
+    address_pools = {
+      default = ["147.63.8.20/32"]
+    }
+}
+```
+
+MetalLB will use the specified CIDR for exposing services of type `LoadBalancer`.
 
 Install the component by running the following:
 
@@ -41,64 +56,19 @@ Install the component by running the following:
 lokoctl component install metallb
 ```
 
-MetalLB requires a ConfigMap specifying the BGP peering configuration as well as the address pool(s)
-to allocate IPs from. The ConfigMap isn't automatically created by `lokoctl`.
+### Address Pools
 
-Create a `ConfigMap` similar to the following, changing the values as indicated below:
+The `address_pools` parameter is a map which allows specifying one or more CIDRs which MetalLB can
+use to expose services. Multiple pools may be specified, and multiple CIDRs may be specified per
+pool:
 
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  namespace: metallb-system
-  name: config
-data:
-  config: |
-    peers:
-    # One peer should be defined for each worker node which should form a BGP session with the
-    # infrastructure provider. Typically these would be "ingress nodes", or nodes through which
-    # traffic enters the cluster. Using more nodes improves both high availability and network
-    # traffic distribution, however some infrastructure providers have a limit on the number of
-    # ECMP next hops, which may require to carefully consider which nodes to run BGP on.
-    - node-selectors:
-      - match-labels:
-          # K8s node name of the worker.
-          kubernetes.io/hostname: worker-0
-      # Address of the *external* BGP router with which the worker node should form a BGP session.
-      # On Packet this is the gateway address for the private IPv4 network.
-      # This can be found under the "GATEWAY" field for the IPv4 private IP on the
-      # "Overview" section in: https://app.packet.net/devices/<device_id>.
-      peer-address: 10.64.43.10
-      # The BGP autonomous system number on the external BGP router.
-      peer-asn: 65530
-      # The BGP autonomous system number MetalLB should use on the node. This will likely be
-      # dictated by the infrastructure provider.
-      my-asn: 65000
-      # Affects BGP convergence time in case of failure. In stable network environments (i.e.
-      # environments in which packet loss between MetalLB and the BGP routers is unlikely), this
-      # option should probably be set as low as possible. More info:
-      # https://www.juniper.net/documentation/en_US/junos/topics/reference/configuration-statement/hold-time-edit-protocols-bgp.html
-      hold-time: 3s
-    - node-selectors:
-      - match-labels:
-          kubernetes.io/hostname: worker-1
-      peer-address: 10.64.54.2
-      peer-asn: 65530
-      my-asn: 65000
-      hold-time: 3s
-
-    address-pools:
-    - name: default
-      protocol: bgp
-      # An IPv4 IP address pool to be allocated to k8s services by MetalLB. These should be
-      # internet-routable ("public") IPv4 addresses if the k8s services need to be reachable from
-      # the internet.
-      # On Packet, an Elastic IP block of type "public" (not "global"!) should be used. While
-      # "global" EIPs can be technically used, they are unnecessary for most use cases and are much
-      # more expensive than "public" EIPs.
-      # One address is required for each service which needs to be exposed by MetalLB.
-      addresses:
-      - 147.75.40.46/32
+```hcl
+component "metallb" {
+    address_pools = {
+      default = ["147.63.8.20/32"]
+      special_addresses = ["147.85.47.16/29", "147.85.47.24/29"]
+    }
+}
 ```
 
 ### Node Selection
