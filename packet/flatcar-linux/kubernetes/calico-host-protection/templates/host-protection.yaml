@@ -9,11 +9,6 @@ metadata:
 spec:
   failsafeInboundHostPorts: []
 
-# Host endpoints
-# ==============
----
-${controller_host_endpoints}
-
 # Firewall policy
 # ===============
 ---
@@ -31,7 +26,10 @@ spec:
   - action: Allow
     protocol: TCP
     source:
-      nets: ${management_cidrs}
+      nets:
+      {{- range .Values.managementCIDRs }}
+      - {{ . }}
+      {{- end }}
     destination:
       ports: [22]
 ---
@@ -64,7 +62,10 @@ spec:
   ingress:
     - action: Allow
       source:
-        nets: ${cluster_internal_cidrs}
+        nets:
+        {{- range .Values.clusterCIDRs }}
+        - {{ . }}
+        {{- end }}
 ---
 # Ingress traffic to Contour
 apiVersion: crd.projectcalico.org/v1
