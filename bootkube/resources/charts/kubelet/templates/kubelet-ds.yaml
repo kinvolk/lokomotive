@@ -92,6 +92,12 @@ spec:
         - name: os-release
           mountPath: /etc/os-release
           readOnly: true
+        - name: etc-machine-id
+          mountPath: /etc/machine-id
+          readOnly: true
+        - name: etc-resolv
+          mountPath: /etc/resolv.conf
+          readOnly: true
         - name: iscsiadm
           mountPath: /usr/sbin/iscsiadm
         - name: modules
@@ -139,6 +145,14 @@ spec:
       - name: os-release
         hostPath:
           path: /usr/lib/os-release
+          type: File
+      - name: etc-machine-id
+        hostPath:
+          path: /etc/machine-id
+          type: File
+      - name: etc-resolv
+        hostPath:
+          path: /etc/resolv.conf
           type: File
       - name: iscsiadm
         hostPath:
