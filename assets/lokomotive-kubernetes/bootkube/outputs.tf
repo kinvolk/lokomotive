@@ -67,6 +67,10 @@ output "server_admin" {
 }
 
 # values.yaml content for all deployed charts.
+output "kube-apiserver_values" {
+  value = local_file.kube-apiserver.content
+}
+
 output "kubernetes_values" {
   value = data.template_file.kubernetes.rendered
 }
