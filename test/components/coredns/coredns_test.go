@@ -28,7 +28,6 @@ func TestCoreDNSDeployment(t *testing.T) {
 	t.Parallel()
 	namespace := "kube-system"
 	deployment := "coredns"
-	replicas := 2
 
 	client, err := testutil.CreateKubeClient(t)
 	if err != nil {
@@ -36,5 +35,5 @@ func TestCoreDNSDeployment(t *testing.T) {
 	}
 	t.Log("got kubernetes client")
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, replicas, time.Second*5, time.Minute*5)
+	testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 }

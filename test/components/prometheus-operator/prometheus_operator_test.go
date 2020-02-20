@@ -43,10 +43,8 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 	for _, deployment := range deployments {
 		t.Run("deployment", func(t *testing.T) {
 			t.Parallel()
-			replicas := 1
 
-			testutil.WaitForDeployment(t, client, namespace, deployment, replicas, time.Second*5, time.Minute*5)
-			t.Logf("Required replicas: %d", replicas)
+			testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 		})
 	}
 

@@ -36,8 +36,6 @@ func TestExternalDNSDeployments(t *testing.T) {
 	t.Run(fmt.Sprintf("deployment"), func(t *testing.T) {
 		t.Parallel()
 		deployment := "external-dns"
-		replicas := 3
-		testutil.WaitForDeployment(t, client, namespace, deployment, replicas, time.Second*5, time.Minute*5)
-		t.Logf("Found required replicas: %d", replicas)
+		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 	})
 }
