@@ -1,0 +1,48 @@
+module "controller" {
+  source = "../../packet/flatcar-linux/kubernetes"
+
+  dns_zone = "$AWS_DNS_ZONE"
+
+  ssh_keys = ["$PUB_KEY"]
+
+  asset_dir = pathexpand("~/assets")
+  cluster_name = "$CLUSTER_ID"
+  project_id = "$PACKET_PROJECT_ID"
+
+  facility = "ams1"
+
+  controller_count = 1
+
+  management_cidrs = [
+    "0.0.0.0/0",       # Instances can be SSH-ed into from anywhere on the internet.
+  ]
+
+  node_private_cidr = "10.0.0.0/8"
+}
+
+module "dns" {
+  source = "../../dns/route53"
+
+  entries = module.controller.dns_entries
+
+  aws_zone_id = "$AWS_DNS_ZONE_ID"
+}
+
+module "worker-pool-1" {
+  source = "../../packet/flatcar-linux/kubernetes/workers"
+
+  ssh_keys = ["$PUB_KEY"]
+
+  cluster_name = "$CLUSTER_ID"
+  project_id = "$PACKET_PROJECT_ID"
+
+  facility     = "ams1"
+  pool_name    = "pool-1"
+
+  worker_count = 2
+  type  = "c2.medium.x86"
+
+  kubeconfig = module.controller.kubeconfig
+
+  labels = "node.supernova.io/role=backend"
+}

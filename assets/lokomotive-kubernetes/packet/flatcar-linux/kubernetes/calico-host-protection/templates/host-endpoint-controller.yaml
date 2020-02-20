@@ -1,0 +1,72 @@
+# manifests for component calico-hostendpoint-controller
+
+---
+# deployment.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-hostendpoint-controller
+  namespace: kube-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: calico-hostendpoint-controller
+  name: calico-hostendpoint-controller
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calico-hostendpoint-controller
+  template:
+    metadata:
+      labels:
+        app: calico-hostendpoint-controller
+    spec:
+      serviceAccountName: calico-hostendpoint-controller
+      containers:
+      - image: kinvolk/calico-hostendpoint-controller:v0.0.3
+        name: calico-hostendpoint-controller
+        volumeMounts:
+        - mountPath: /tmp/
+          name: tmp-dir
+      volumes:
+      # mount in tmp so we can safely use from-scratch images and/or read-only containers
+      - name: tmp-dir
+        emptyDir: {}
+
+---
+# rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: calico-hostendpoint-controller-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["crd.projectcalico.org"]
+  resources: ["hostendpoints"]
+  verbs:
+   - create
+   - get
+   - list
+   - update
+   - delete
+   # To use kubectl apply on resources that already exist
+   - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: calico-hostendpoint-controller-role-binding
+subjects:
+- kind: ServiceAccount
+  name: calico-hostendpoint-controller
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: calico-hostendpoint-controller-role
+  apiGroup: rbac.authorization.k8s.io

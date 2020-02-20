@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-router
+  namespace: kube-system
+  labels:
+    k8s-app: kube-router
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kube-router
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-router
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      serviceAccountName: kube-router
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+      containers:
+        - name: kube-router
+          image: {{ .Values.kubeRouter.image}}
+          args:
+            - --kubeconfig=/etc/kubernetes/kubeconfig
+            - --run-router=true
+            - --run-firewall=true
+            - --run-service-proxy=false
+            - --v=5
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUBE_ROUTER_CNI_CONF_FILE
+              value: /etc/cni/net.d/10-kuberouter.conflist
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: lib-modules
+              mountPath: /lib/modules
+              readOnly: true
+            - name: cni-conf-dir
+              mountPath: /etc/cni/net.d
+            - name: kubeconfig
+              mountPath: /etc/kubernetes
+              readOnly: true
+        - name: install-cni
+          image: {{ .Values.kubeRouter.cniImage}}
+          command: ["/install-cni.sh"]
+          env:
+            - name: CNI_OLD_NAME
+              value: 10-flannel.conflist
+            - name: CNI_CONF_NAME
+              value: 10-kuberouter.conflist
+            - name: CNI_NETWORK_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: kube-router-config
+                  key: cni-conf.json
+          volumeMounts:
+            - name: cni-bin-dir
+              mountPath: /host/opt/cni/bin
+            - name: cni-conf-dir
+              mountPath: /host/etc/cni/net.d
+      volumes:
+        # Used by kube-router
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+        - name: kubeconfig
+          configMap:
+            name: kubeconfig-in-cluster
+        # Used by install-cni
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-conf-dir
+          hostPath:
+            path: /etc/kubernetes/cni/net.d

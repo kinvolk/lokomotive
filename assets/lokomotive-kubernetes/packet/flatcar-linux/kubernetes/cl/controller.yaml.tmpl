@@ -1,0 +1,307 @@
+---
+systemd:
+  units:
+    - name: etcd-member.service
+      enable: true
+      dropins:
+        - name: 40-etcd-cluster.conf
+          contents: |
+            [Unit]
+            Requires=create-etcd-config.service
+            After=create-etcd-config.service
+            [Service]
+            EnvironmentFile=/etc/kubernetes/etcd.config
+            Environment="ETCD_IMAGE_URL=${etcd_arch_url_prefix}quay.io/coreos/etcd"
+            Environment="ETCD_IMAGE_TAG=v3.4.3${etcd_arch_tag_suffix}"
+            Environment="ETCD_NAME=${etcd_name}"
+            Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
+            Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
+            Environment="ETCD_INITIAL_CLUSTER=${etcd_initial_cluster}"
+            Environment="ETCD_STRICT_RECONFIG_CHECK=true"
+            Environment="ETCD_SSL_DIR=/etc/ssl/etcd"
+            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/etcd/server-ca.crt"
+            Environment="ETCD_CERT_FILE=/etc/ssl/certs/etcd/server.crt"
+            Environment="ETCD_KEY_FILE=/etc/ssl/certs/etcd/server.key"
+            Environment="ETCD_CLIENT_CERT_AUTH=true"
+            Environment="ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/certs/etcd/peer-ca.crt"
+            Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/etcd/peer.crt"
+            Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/etcd/peer.key"
+            Environment="ETCD_PEER_CLIENT_CERT_AUTH=true"
+            Environment="RKT_RUN_ARGS=${etcd_arch_rkt_args}"
+            Environment="${etcd_arch_options}"
+            ExecStopPost=-/opt/etcd-rejoin
+    - name: docker.service
+      enable: true
+    - name: locksmithd.service
+      mask: true
+    - name: wait-for-dns.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Wait for DNS entries
+        Wants=systemd-resolved.service
+        Before=kubelet.service
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done'
+        [Install]
+        RequiredBy=kubelet.service
+        RequiredBy=etcd-member.service
+    - name: create-etcd-config.service
+      # This service will extract value of private interface from the env var file `/run/metadata/flatcar`.
+      # And then assign it to the variables that which will be stored in file `/etc/kubernetes/etcd.config`,
+      # this file is sourced by etcd-member service.
+      enable: true
+      contents: |
+        [Unit]
+        Description=Create a etcd env file to be used by etcd to listen on private interface
+        Before=etcd-member.service
+        Requires=coreos-metadata.service
+        After=coreos-metadata.service
+        [Service]
+        EnvironmentFile=/run/metadata/flatcar
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/sh -c 'echo "ETCD_LISTEN_CLIENT_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2379" > /etc/kubernetes/etcd.config && echo "ETCD_LISTEN_PEER_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2380" >> /etc/kubernetes/etcd.config && echo "ETCD_LISTEN_METRICS_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2381" >> /etc/kubernetes/etcd.config'
+        [Install]
+        RequiredBy=etcd-member.service
+    - name: coreos-metadata.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Flatcar Metadata Agent
+        [Service]
+        Type=oneshot
+        Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
+        ExecStart=/usr/bin/coreos-metadata $${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/flatcar
+        [Install]
+        RequiredBy=metadata.target
+    - name: kubelet.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Kubelet via Hyperkube
+        Requires=coreos-metadata.service
+        After=coreos-metadata.service
+        [Service]
+        EnvironmentFile=/run/metadata/flatcar
+        EnvironmentFile=/etc/kubernetes/kubelet.env
+        Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
+          --volume=resolv,kind=host,source=/etc/resolv.conf \
+          --mount volume=resolv,target=/etc/resolv.conf \
+          --volume var-lib-cni,kind=host,source=/var/lib/cni \
+          --mount volume=var-lib-cni,target=/var/lib/cni \
+          --volume var-lib-calico,kind=host,source=/var/lib/calico \
+          --mount volume=var-lib-calico,target=/var/lib/calico \
+          --volume opt-cni-bin,kind=host,source=/opt/cni/bin \
+          --mount volume=opt-cni-bin,target=/opt/cni/bin \
+          --volume var-log,kind=host,source=/var/log \
+          --mount volume=var-log,target=/var/log \
+          --insecure-options=image"
+        ExecStartPre=/bin/mkdir -p /opt/cni/bin
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
+        ExecStartPre=/bin/mkdir -p /var/lib/cni
+        ExecStartPre=/bin/mkdir -p /var/lib/calico
+        ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
+        ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
+        ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
+        ExecStartPre=/etc/kubernetes/configure-kubelet-cgroup-driver
+        ExecStart=/usr/lib/coreos/kubelet-wrapper \
+          --node-ip=$${COREOS_PACKET_IPV4_PRIVATE_0} \
+          --anonymous-auth=false \
+          --authentication-token-webhook \
+          --authorization-mode=Webhook \
+          --client-ca-file=/etc/kubernetes/ca.crt \
+          --cluster_dns=${k8s_dns_service_ip} \
+          --cluster_domain=${cluster_domain_suffix} \
+          --cni-conf-dir=/etc/kubernetes/cni/net.d \
+          --config=/etc/kubernetes/kubelet.config \
+          --exit-on-lock-contention \
+          --kubeconfig=/etc/kubernetes/kubeconfig \
+          --lock-file=/var/run/lock/kubelet.lock \
+          --network-plugin=cni \
+          --node-labels=$${NODE_LABELS} \
+          --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
+          --pod-manifest-path=/etc/kubernetes/manifests \
+          --read-only-port=0 \
+          --register-with-taints=$${NODE_TAINTS} \
+          --volume-plugin-dir=/var/lib/kubelet/volumeplugins
+        ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
+        Restart=always
+        RestartSec=10
+        [Install]
+        WantedBy=multi-user.target
+    - name: bootkube.service
+      contents: |
+        [Unit]
+        Description=Bootstrap a Kubernetes cluster
+        ConditionPathExists=!/opt/bootkube/init_bootkube.done
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        WorkingDirectory=/opt/bootkube
+        ExecStart=/opt/bootkube/bootkube-start
+        ExecStartPost=/bin/touch /opt/bootkube/init_bootkube.done
+        [Install]
+        WantedBy=multi-user.target
+    - name: "iptables-restore.service"
+      enabled: true
+      enable: true
+    - name: "ip6tables-restore.service"
+      enabled: true
+      enable: true
+storage:
+  files:
+    - path: /etc/kubernetes/kubeconfig
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          ${kubeconfig}
+    - path: /etc/kubernetes/kubelet.env
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
+          KUBELET_IMAGE_TAG=v1.17.3
+          KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
+          NODE_LABELS="node.kubernetes.io/master,node.kubernetes.io/controller=true"
+          NODE_TAINTS="node-role.kubernetes.io/master=:NoSchedule"
+    - path: /etc/sysctl.d/max-user-watches.conf
+      filesystem: root
+      contents:
+        inline: |
+          fs.inotify.max_user_watches=16184
+    - path: /opt/bootkube/bootkube-start
+      filesystem: root
+      mode: 0544
+      user:
+        id: 500
+      group:
+        id: 500
+      contents:
+        inline: |
+          #!/bin/bash
+          # Wrapper for bootkube start
+          set -e
+          # Pre-pull hyperkube image because when it is later pulled but takes too long it times out
+          docker pull k8s.gcr.io/hyperkube-${os_arch}:v1.17.3
+          # Move experimental manifests
+          [ -n "$(ls /opt/bootkube/assets/manifests-*/* 2>/dev/null)" ] && mv /opt/bootkube/assets/manifests-*/* /opt/bootkube/assets/manifests && rm -rf /opt/bootkube/assets/manifests-*
+          exec /usr/bin/rkt run \
+            --stage1-path=/usr/lib64/rkt/stage1-images/stage1-fly.aci \
+            --insecure-options=image \
+            --trust-keys-from-https \
+            --volume assets,kind=host,source=/opt/bootkube/assets \
+            --mount volume=assets,target=/assets \
+            --volume bootstrap,kind=host,source=/etc/kubernetes \
+            --mount volume=bootstrap,target=/etc/kubernetes \
+            $${RKT_OPTS} \
+            ${etcd_arch_url_prefix}quay.io/kinvolk/bootkube:v0.14.0-helm-${os_arch} \
+            --net=host \
+            --dns=host \
+            --exec=/bootkube -- start --asset-dir=/assets "$@"
+    - path: /opt/etcd-rejoin
+      filesystem: root
+      mode: 0555
+      contents:
+        inline: |
+          #!/bin/bash
+          set -eou pipefail
+          # Rejoin a cluster as fresh node when etcd cannot join
+          # (e.g., after repovisioning, crashing or node being down).
+          # Set ExecStopPost=-/opt/etcd-rejoin to run when etcd failed and
+          # use env vars of etcd-member.service.
+          # Skip if not provisioned
+          if [ ! -d "/etc/ssl/etcd/" ]; then exit 0; fi
+          # or got stopped.
+          if [ "$EXIT_CODE" = "killed" ]; then exit 0; fi
+          now=$(date +%s)
+          if [ -f /var/lib/etcd-last-fail ]; then
+            last=$(cat /var/lib/etcd-last-fail)
+          else
+            last=0
+          fi
+          echo "$now" > /var/lib/etcd-last-fail
+          let "d = $now - $last"
+          # Skip and restart regularly if it does not fail within 120s.
+          if [ "$d" -gt 120 ]; then exit 0; fi
+          export ETCDCTL_API=3
+          urls=$(echo "$ETCD_INITIAL_CLUSTER" | tr "," "\n" | cut -d "=" -f 2 | tr "\n" "," | head -c -1)
+          # $$ for terraform
+          endpoints="$${urls//2380/2379}"
+          ARGS="--cacert=/etc/ssl/etcd/etcd-client-ca.crt --cert=/etc/ssl/etcd/etcd-client.crt --key=/etc/ssl/etcd/etcd-client.key --endpoints=$endpoints"
+          # Check if unhealthy (should be because etcd is not running)
+          unhealty=$((etcdctl endpoint health $ARGS 2> /dev/stdout | grep "is unhealthy" | grep "$ETCD_NAME") || true)
+          if [ -z "$unhealty" ]; then exit 0; fi
+          # Remove old ID if still exists
+          ID=$((etcdctl member list $ARGS | grep "$ETCD_NAME" | cut -d "," -f 1) || true)
+          if [ ! -z "$ID" ]; then
+            etcdctl member remove "$ID" $ARGS
+          fi
+          # Re-add as new member
+          etcdctl member add "$ETCD_NAME" --peer-urls="$ETCD_INITIAL_ADVERTISE_PEER_URLS" $ARGS
+          # Join fresh without state
+          mv /var/lib/etcd "/var/lib/etcd-bkp-$(date +%s)" || true
+          if [ -z "$(grep ETCD_INITIAL_CLUSTER_STATE=existing /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf)" ]; then
+            echo 'Environment="ETCD_INITIAL_CLUSTER_STATE=existing"' >> /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf
+            # Apply change
+            systemctl daemon-reload
+          fi
+          # Restart unit (yes, within itself)
+          systemctl restart etcd-member &
+    - path: /var/lib/iptables/rules-save
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          *filter
+          :INPUT DROP [0:0]
+          :FORWARD ACCEPT [0:0]
+          :OUTPUT ACCEPT [0:0]
+          -A INPUT -i lo -j ACCEPT
+          -A INPUT -p tcp --dport 22 -j ACCEPT
+          -A INPUT -p tcp --dport 179 -j ACCEPT
+          -A INPUT -p tcp --dport 2379 -j ACCEPT
+          -A INPUT -p tcp --dport 2380 -j ACCEPT
+          -A INPUT -p tcp --dport 2381 -j ACCEPT
+          -A INPUT -p tcp --dport 6443 -j ACCEPT
+          -A INPUT -p tcp --dport 10250 -j ACCEPT
+          -A INPUT -p tcp --dport 10256 -j ACCEPT
+          -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          COMMIT
+    - path: /var/lib/ip6tables/rules-save
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          *filter
+          :INPUT DROP [0:0]
+          :FORWARD DROP [0:0]
+          :OUTPUT ACCEPT [0:0]
+          -A INPUT -i lo -j ACCEPT
+          -A INPUT -p tcp --dport 22 -j ACCEPT
+          -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          COMMIT
+    - path: /etc/kubernetes/configure-kubelet-cgroup-driver
+      filesystem: root
+      mode: 0744
+      contents:
+        inline: |
+          #!/bin/bash
+          set -e
+          readonly docker_cgroup_driver="$(docker info -f '{{.CgroupDriver}}')"
+          cat <<EOF >/etc/kubernetes/kubelet.config
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          kind: KubeletConfiguration
+          cgroupDriver: "$${docker_cgroup_driver}"
+          EOF
+passwd:
+  users:
+  - name: core
+    ssh_authorized_keys: ${ssh_keys}

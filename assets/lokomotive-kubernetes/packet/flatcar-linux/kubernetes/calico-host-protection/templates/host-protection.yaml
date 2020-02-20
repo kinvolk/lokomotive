@@ -1,0 +1,108 @@
+# General
+# =======
+---
+# Disable default failsafe inbound rules
+apiVersion: crd.projectcalico.org/v1
+kind: FelixConfiguration
+metadata:
+  name: default
+spec:
+  failsafeInboundHostPorts: []
+
+# Firewall policy
+# ===============
+---
+# SSH access
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: ssh
+spec:
+  selector: has(host-endpoint)
+  preDNAT: true
+  applyOnForward: true
+  order: 0
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+      {{- range .Values.managementCIDRs }}
+      - {{ . }}
+      {{- end }}
+    destination:
+      ports: [22]
+---
+# kubectl access
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: kubectl
+spec:
+  selector: nodetype == 'controller'
+  preDNAT: true
+  applyOnForward: true
+  order: 0
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [6443]
+---
+# Traffic between cluster nodes
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: inter-node-traffic
+spec:
+  selector: has(host-endpoint)
+  preDNAT: true
+  applyOnForward: true
+  order: 10
+  ingress:
+    - action: Allow
+      source:
+        nets:
+        {{- range .Values.clusterCIDRs }}
+        - {{ . }}
+        {{- end }}
+---
+# Ingress traffic to Contour
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: contour-ingress
+spec:
+  selector: nodetype == 'worker'
+  preDNAT: true
+  applyOnForward: true
+  order: 20
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [80, 443]
+---
+# Egress traffic
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: egress
+spec:
+  selector: has(host-endpoint)
+  order: 0
+  egress:
+    - action: Allow
+---
+# Deny any incoming traffic not explicitly permitted
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: deny-other
+spec:
+  selector: has(host-endpoint)
+  order: 1000
+  preDNAT: true
+  applyOnForward: true
+  ingress:
+    - action: Deny

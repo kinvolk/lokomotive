@@ -1,0 +1,17 @@
+clusterCIDRs:
+%{ for cidr in cluster_cidrs ~}
+- ${cidr}
+%{ endfor ~}
+managementCIDRs:
+%{ for cidr in management_cidrs ~}
+- ${cidr}
+%{~ endfor }
+hostEndpoints:
+%{ for h in host_endpoints ~}
+- name: ${h.name}
+  interfaceName: ${h.interface_name}
+  labels:
+  %{~ for k, v in h.labels ~}
+    ${k}: ${v}
+  %{~ endfor ~}
+%{~ endfor ~}

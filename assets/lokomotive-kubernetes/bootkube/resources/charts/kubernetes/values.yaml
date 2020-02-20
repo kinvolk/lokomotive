@@ -1,0 +1,24 @@
+controllerManager:
+  serviceAccountKey:
+  caCert:
+  caKey:
+  image: k8s.gcr.io/hyperkube:v1.17.3
+  cloudProvider:
+  serviceCIDR: 10.0.0.0/24
+  podCIDR: 10.2.0.0/16
+  controlPlaneReplicas: 1
+  trustedCertsDir: /usr/share/ca-certificates
+kubeProxy:
+  image: k8s.gcr.io/hyperkube:v1.17.3
+  podCIDR: 10.2.0.0/16
+  trustedCertsDir: /usr/share/ca-certificates
+kubeScheduler:
+  image: k8s.gcr.io/hyperkube:v1.17.3
+  controlPlaneReplicas: 1
+kubeConfigInCluster:
+  server:
+coredns:
+  clusterDomainSuffix: cluster.local
+  controlPlaneReplicas: 1
+  image: coredns/coredns:coredns-amd64
+  clusterIP: 10.0.0.10

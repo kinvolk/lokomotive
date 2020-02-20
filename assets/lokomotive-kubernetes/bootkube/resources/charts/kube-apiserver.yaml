@@ -1,0 +1,19 @@
+apiserver:
+  apiserverKey: ${apiserver_key}
+  apiserverCert: ${apiserver_cert}
+  serviceAccountPub: ${serviceaccount_pub}
+  caCert: ${ca_cert}
+  etcdClientCaCert: ${etcd_ca_cert}
+  etcdClientCert: ${etcd_client_cert}
+  etcdClientKey: ${etcd_client_key}
+  aggregationCaCert: ${aggregation_ca_cert}
+  aggregationClientCert: ${aggregation_client_cert}
+  aggregationClientKey: ${aggregation_client_key}
+  image: ${hyperkube_image}
+  cloudProvider: ${cloud_provider}
+  etcdServers: ${etcd_servers}
+  enableAggregation: ${enable_aggregation}
+  serviceCIDR: ${service_cidr}
+  trustedCertsDir: ${trusted_certs_dir}
+podCheckpointer:
+  image: ${pod_checkpointer_image}

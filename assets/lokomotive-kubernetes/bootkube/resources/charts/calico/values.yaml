@@ -1,0 +1,11 @@
+calico:
+  networkMTU: 1500
+  image: calico/node:v3.11.2
+  cniImage: calico/cni:v3.11.2
+  enableReporting: false
+  networkIpAutodetectionMethod: first-found
+  ipipEnabled: true
+  vxlanEnabled: false
+  ipipReadiness: "- --bird-ready"
+  podCIDR: 10.2.0.0/16
+  networkEncapsulation: "ipipMode: Always"

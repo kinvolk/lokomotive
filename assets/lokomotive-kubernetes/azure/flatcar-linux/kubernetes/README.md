@@ -1,0 +1,1 @@
+See [Azure documentation](../../../docs/flatcar-linux/azure.md).

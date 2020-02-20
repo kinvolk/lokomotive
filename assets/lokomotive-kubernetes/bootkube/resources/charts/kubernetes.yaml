@@ -1,0 +1,24 @@
+controllerManager:
+  serviceAccountKey: ${serviceaccount_key}
+  caCert: ${ca_cert}
+  caKey: ${ca_key}
+  image: ${hyperkube_image}
+  cloudProvider: ${cloud_provider}
+  serviceCIDR: ${service_cidr}
+  podCIDR: ${pod_cidr}
+  controlPlaneReplicas: ${control_plane_replicas}
+  trustedCertsDir: ${trusted_certs_dir}
+kubeProxy:
+  image: ${hyperkube_image}
+  podCIDR: ${pod_cidr}
+  trustedCertsDir: ${trusted_certs_dir}
+kubeScheduler:
+  image: ${hyperkube_image}
+  controlPlaneReplicas: ${control_plane_replicas}
+kubeConfigInCluster:
+  server: ${server}
+coredns:
+  clusterDomainSuffix: ${cluster_domain_suffix}
+  controlPlaneReplicas: ${control_plane_replicas}
+  image: ${coredns_image}
+  clusterIP: ${cluster_dns_service_ip}

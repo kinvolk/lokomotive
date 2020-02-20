@@ -1,0 +1,33 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  # https://kubernetes.io/docs/concepts/policy/pod-security-policy/#policy-order
+  # If the pod must be defaulted or mutated, the first PodSecurityPolicy (ordered by name) to allow the pod is selected.
+  name: pod-checkpointer-restricted
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: true
+  # Allow core volume types.
+  volumes:
+  - 'configMap'
+  - 'hostPath'
+  - 'secret'
+  hostNetwork: true
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'RunAsAny'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  readOnlyRootFilesystem: false
+  allowedHostPaths:
+  - pathPrefix: "/etc/kubernetes"
+  - pathPrefix: "/var/run"
+  - pathPrefix: "/etc/checkpointer"
