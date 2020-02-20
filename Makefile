@@ -39,7 +39,7 @@ build-slim:
 		-ldflags $(LDFLAGS) \
 		-buildmode=exe \
 		-o lokoctl \
-		github.com/kinvolk/lokomotive
+		github.com/kinvolk/lokomotive/cmd/lokoctl
 
 .PHONY: test
 test: check-go-format run-unit-tests

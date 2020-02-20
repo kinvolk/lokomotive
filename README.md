@@ -28,7 +28,7 @@ A list of all available components can be get with `lokoctl component list`. Doc
 
 You can quickly get latest version of `lokoctl` by running following command:
 ```
-go get github.com/kinvolk/lokoctl
+go get github.com/kinvolk/lokomotive/cmd/lokoctl
 ```
 
 Once finished, `lokoctl` binary should be available in `$GOPATH/bin`.
