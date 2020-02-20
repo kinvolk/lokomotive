@@ -20,8 +20,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/lokomotive"
-	"github.com/kinvolk/lokoctl/pkg/util/retryutil"
+	"github.com/kinvolk/lokomotive/pkg/lokomotive"
+	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
 )
 
 const (

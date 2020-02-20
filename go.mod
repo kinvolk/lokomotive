@@ -1,4 +1,4 @@
-module github.com/kinvolk/lokoctl
+module github.com/kinvolk/lokomotive
 
 go 1.12
 

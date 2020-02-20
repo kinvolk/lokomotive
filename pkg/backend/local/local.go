@@ -18,8 +18,8 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
-	"github.com/kinvolk/lokoctl/pkg/backend"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 type local struct {

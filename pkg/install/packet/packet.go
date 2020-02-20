@@ -27,10 +27,10 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/dns"
-	"github.com/kinvolk/lokoctl/pkg/platform"
-	"github.com/kinvolk/lokoctl/pkg/platform/util"
-	"github.com/kinvolk/lokoctl/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/dns"
+	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/platform/util"
+	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
 type workerPool struct {

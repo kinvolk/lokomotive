@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/kinvolk/lokoctl/pkg/version"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
 func init() {

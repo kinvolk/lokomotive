@@ -16,7 +16,7 @@ package terraform
 
 import (
 	"fmt"
-	"github.com/kinvolk/lokoctl/pkg/install"
+	"github.com/kinvolk/lokomotive/pkg/install"
 	"os"
 	"path/filepath"
 	"strings"

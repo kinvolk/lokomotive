@@ -19,7 +19,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 
-	"github.com/kinvolk/lokoctl/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 func TestRenderManifest(t *testing.T) {

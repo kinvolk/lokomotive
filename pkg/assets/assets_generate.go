@@ -18,7 +18,7 @@ package main
 import (
 	"log"
 
-	"github.com/kinvolk/lokoctl/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
 func main() {

@@ -25,8 +25,8 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/platform"
-	"github.com/kinvolk/lokoctl/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
 type config struct {

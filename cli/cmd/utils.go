@@ -17,9 +17,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/hashicorp/hcl/v2"
-	"github.com/kinvolk/lokoctl/pkg/backend"
-	"github.com/kinvolk/lokoctl/pkg/config"
-	"github.com/kinvolk/lokoctl/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

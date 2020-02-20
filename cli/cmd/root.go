@@ -21,13 +21,13 @@ import (
 	"github.com/spf13/viper"
 
 	// Register platforms by adding an anonymous import.
-	_ "github.com/kinvolk/lokoctl/pkg/install/aws"
-	_ "github.com/kinvolk/lokoctl/pkg/install/baremetal"
-	_ "github.com/kinvolk/lokoctl/pkg/install/packet"
+	_ "github.com/kinvolk/lokomotive/pkg/install/aws"
+	_ "github.com/kinvolk/lokomotive/pkg/install/baremetal"
+	_ "github.com/kinvolk/lokomotive/pkg/install/packet"
 
 	// Register backends by adding an anonymous import.
-	_ "github.com/kinvolk/lokoctl/pkg/backend/local"
-	_ "github.com/kinvolk/lokoctl/pkg/backend/s3"
+	_ "github.com/kinvolk/lokomotive/pkg/backend/local"
+	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
 )
 
 var rootCmd = &cobra.Command{

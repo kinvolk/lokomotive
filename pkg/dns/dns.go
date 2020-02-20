@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/kinvolk/lokoctl/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/pkg/errors"
 )
 

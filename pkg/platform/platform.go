@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/kinvolk/lokoctl/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
 // Platform describes single environment, where cluster can be installed

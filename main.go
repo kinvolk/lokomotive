@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/kinvolk/lokoctl/cli/cmd"
+import "github.com/kinvolk/lokomotive/cli/cmd"
 
 func main() {
 	cmd.Execute()

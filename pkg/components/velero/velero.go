@@ -22,9 +22,9 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
-	"github.com/kinvolk/lokoctl/pkg/components/velero/azure"
+	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
 )
 
 const name = "velero"

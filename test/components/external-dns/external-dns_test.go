@@ -19,7 +19,7 @@ package externaldns
 
 import (
 	"fmt"
-	testutil "github.com/kinvolk/lokoctl/test/components/util"
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 	"testing"
 	"time"
 )

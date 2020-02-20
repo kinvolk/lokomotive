@@ -25,7 +25,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	testutil "github.com/kinvolk/lokoctl/test/components/util"
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 func TestSelfHostedKubeletLabels(t *testing.T) {

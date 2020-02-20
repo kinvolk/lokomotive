@@ -19,7 +19,7 @@ ifeq ($(shell (go env GOPROXY)),)
        export GOPROXY=https://proxy.golang.org
 endif
 
-LDFLAGS := "-X github.com/kinvolk/lokoctl/pkg/version.Version=$(VERSION) -extldflags '-static'"
+LDFLAGS := "-X github.com/kinvolk/lokomotive/pkg/version.Version=$(VERSION) -extldflags '-static'"
 
 .NOTPARALLEL:
 
@@ -38,7 +38,8 @@ build-slim:
 		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
 		-buildmode=exe \
-		github.com/kinvolk/lokoctl
+		-o lokoctl \
+		github.com/kinvolk/lokomotive
 
 .PHONY: test
 test: check-go-format run-unit-tests
@@ -112,16 +113,16 @@ vendor:
 
 .PHONY: docker-build
 docker-build:
-	docker build -t kinvolk/lokoctl .
+	docker build -t kinvolk/lokomotive .
 
 .PHONY: docker-vendor
 docker-vendor: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokoctl sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
+	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
 
 .PHONY: docker-update-assets
 docker-update-assets: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokoctl sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
+	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
 
 .PHONY: docker-update-dependencies
 docker-update-dependencies: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokoctl sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
+	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"

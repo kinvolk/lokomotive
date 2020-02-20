@@ -22,8 +22,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/kinvolk/lokoctl/pkg/k8sutil"
-	"github.com/kinvolk/lokoctl/pkg/lokomotive"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
 
 var healthCmd = &cobra.Command{

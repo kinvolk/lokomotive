@@ -19,9 +19,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/assets"
-	"github.com/kinvolk/lokoctl/pkg/util"
-	"github.com/kinvolk/lokoctl/pkg/util/walkers"
+	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/util"
+	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
 // PrepareTerraformRootDir creates a directory named path including all

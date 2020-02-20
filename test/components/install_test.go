@@ -22,10 +22,10 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 
-	"github.com/kinvolk/lokoctl/pkg/components"
-	_ "github.com/kinvolk/lokoctl/pkg/components/flatcar-linux-update-operator"
-	"github.com/kinvolk/lokoctl/pkg/components/util"
-	testutil "github.com/kinvolk/lokoctl/test/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components"
+	_ "github.com/kinvolk/lokomotive/pkg/components/flatcar-linux-update-operator"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 func TestInstallIdempotent(t *testing.T) {

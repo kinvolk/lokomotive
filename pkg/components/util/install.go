@@ -26,8 +26,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 // InstallComponent installs given component using given kubeconfig.

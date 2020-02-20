@@ -22,7 +22,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
 func DumpingWalker(contentsMap map[string]string, allowedExts ...string) assets.WalkFunc {

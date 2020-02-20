@@ -19,11 +19,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/kinvolk/lokoctl/pkg/backend"
-	"github.com/kinvolk/lokoctl/pkg/backend/local"
-	"github.com/kinvolk/lokoctl/pkg/config"
-	"github.com/kinvolk/lokoctl/pkg/platform"
-	"github.com/kinvolk/lokoctl/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/backend/local"
+	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
 var clusterCmd = &cobra.Command{

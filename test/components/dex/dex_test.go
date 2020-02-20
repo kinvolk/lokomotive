@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	testutil "github.com/kinvolk/lokoctl/test/components/util"
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 func TestDexDeployment(t *testing.T) {

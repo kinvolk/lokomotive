@@ -26,7 +26,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 
-	"github.com/kinvolk/lokoctl/pkg/util"
+	"github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type variable struct {

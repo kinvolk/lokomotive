@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclparse"
 
-	"github.com/kinvolk/lokoctl/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 // GetComponentBody parses a string containing a component configuration in

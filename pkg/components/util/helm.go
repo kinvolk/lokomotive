@@ -29,10 +29,10 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 
-	"github.com/kinvolk/lokoctl/pkg/assets"
-	"github.com/kinvolk/lokoctl/pkg/components"
-	"github.com/kinvolk/lokoctl/pkg/k8sutil"
-	"github.com/kinvolk/lokoctl/pkg/util/walkers"
+	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
 // LoadChartFromAssets takes in an asset location and returns a Helm

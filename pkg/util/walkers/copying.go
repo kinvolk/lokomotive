@@ -21,7 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokoctl/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
 func CopyingWalker(path string, newDirPerms os.FileMode) assets.WalkFunc {
