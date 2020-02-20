@@ -19,17 +19,12 @@ ifeq ($(shell (go env GOPROXY)),)
        export GOPROXY=https://proxy.golang.org
 endif
 
-
 LDFLAGS := "-X github.com/kinvolk/lokoctl/pkg/version.Version=$(VERSION) -extldflags '-static'"
 
 .NOTPARALLEL:
 
 .PHONY: build
-build: update-lk-submodule update-assets build-slim
-
-.PHONY: update-lk-submodule
-update-lk-submodule:
-	git submodule update --init
+build: update-assets build-slim
 
 .PHONY: update-assets
 update-assets:
@@ -85,7 +80,7 @@ run-e2e-tests:
 all: build test
 
 .PHONY: install
-install: update-lk-submodule update-assets install-slim
+install: update-assets install-slim
 
 .PHONY: install-slim
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
