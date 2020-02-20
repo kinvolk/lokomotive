@@ -59,25 +59,6 @@ resource "template_dir" "calico" {
   destination_dir = "${var.asset_dir}/charts/kube-system/calico"
 }
 
-# Render calico.yaml for calico chart.
-data "template_file" "calico" {
-  count    = var.networking == "calico" ? 1 : 0
-  template = "${file("${path.module}/resources/charts/calico.yaml")}"
-
-  vars = {
-    calico_image                    = var.container_images["calico"]
-    calico_cni_image                = var.container_images["calico_cni"]
-    network_mtu                     = var.network_mtu
-    network_encapsulation           = indent(2, var.network_encapsulation == "vxlan" ? "vxlanMode: Always" : "ipipMode: Always")
-    ipip_enabled                    = var.network_encapsulation == "ipip" ? true : false
-    ipip_readiness                  = var.network_encapsulation == "ipip" ? indent(16, "- --bird-ready") : ""
-    vxlan_enabled                   = var.network_encapsulation == "vxlan" ? true : false
-    network_ip_autodetection_method = var.network_ip_autodetection_method
-    pod_cidr                        = var.pod_cidr
-    enable_reporting                = var.enable_reporting
-  }
-}
-
 # Populate kube-router chart values file named kube-router.yaml.
 resource "local_file" "kube-router" {
   count    = var.networking == "kube-router" ? 1 : 0
@@ -96,16 +77,4 @@ resource "template_dir" "kube-router" {
   count           = var.networking == "kube-router" ? 1 : 0
   source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kube-router"
   destination_dir = "${var.asset_dir}/charts/kube-system/kube-router"
-}
-
-# Render kube-router.yaml for kube-router chart.
-data "template_file" "kube-router" {
-  count    = var.networking == "kube-router" ? 1 : 0
-  template = "${file("${path.module}/resources/charts/kube-router.yaml")}"
-
-  vars = {
-    kube_router_image = var.container_images["kube_router"]
-    flannel_cni_image = var.container_images["flannel_cni"]
-    network_mtu       = var.network_mtu
-  }
 }
