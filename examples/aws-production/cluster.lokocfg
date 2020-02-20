@@ -1,0 +1,64 @@
+variable "dns_zone" {}
+variable "route53_zone_id" {}
+variable "ssh_public_keys" {}
+variable "grafana_admin_password" {}
+variable "state_s3_bucket" {}
+variable "lock_dynamodb_table" {}
+
+variable "asset_dir" {
+  default = "./lokomotive-assets"
+}
+
+variable "cluster_name" {
+  default = "lokomotive-cluster"
+}
+
+variable "controllers_count" {
+  default = 3
+}
+
+variable "workers_count" {
+  default = 3
+}
+
+variable "state_s3_key" {
+  default = "lokomotive/terraform.tfstate"
+}
+
+variable "state_s3_region" {
+  default = "eu-central-1"
+}
+
+variable "workers_type" {
+  default = "i3.large"
+}
+
+backend "s3" {
+  bucket         = var.state_s3_bucket
+  key            = var.state_s3_key
+  region         = var.state_s3_region
+  dynamodb_table = var.lock_dynamodb_table
+}
+
+cluster "aws" {
+  asset_dir        = pathexpand(var.asset_dir)
+  cluster_name     = var.cluster_name
+  controller_count = var.controllers_count
+  dns_zone         = var.dns_zone
+  dns_zone_id      = var.route53_zone_id
+  ssh_pubkeys      = var.ssh_public_keys
+  worker_count     = var.workers_count
+  worker_type      = var.workers_type
+}
+
+component "metrics-server" {}
+
+component "flatcar-linux-update-operator" {}
+
+component "openebs-operator" {}
+
+component "openebs-storage-class" {}
+
+component "prometheus-operator" {
+  grafana_admin_password = var.grafana_admin_password
+}
