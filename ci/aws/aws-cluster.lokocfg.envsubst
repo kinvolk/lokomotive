@@ -1,0 +1,99 @@
+# Use variables here even if not strictly necessary
+variable "asset_dir" {
+  type = "string"
+}
+
+variable "os_channel" {
+  type = "string"
+}
+
+cluster "aws" {
+  asset_dir    = pathexpand(var.asset_dir)
+  cluster_name = "$CLUSTER_ID"
+  dns_zone     = "$AWS_DNS_ZONE"
+  dns_zone_id  = "$AWS_DNS_ZONE_ID"
+  os_channel   = var.os_channel
+  ssh_pubkeys  = ["$PUB_KEY"]
+}
+
+component "openebs-operator" {}
+
+component "contour" {
+  ingress_hosts = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+}
+
+component "metrics-server" {}
+
+component "cert-manager" {
+  email = "$EMAIL"
+}
+
+component "external-dns"{
+  policy = "sync"
+  aws {
+    zone_id = "$AWS_DNS_ZONE_ID"
+    aws_access_key_id = "$AWS_ACCESS_KEY_ID"
+    aws_secret_access_key = "$AWS_SECRET_ACCESS_KEY"
+  }
+}
+
+component "dex" {
+  ingress_host = "$DEX_INGRESS_HOST"
+
+  issuer_host = "$ISSUER_HOST"
+
+  connector "github" {
+    id = "github"
+    name = "GitHub"
+
+    config {
+      client_id = "$GITHUB_CLIENT_ID"
+      client_secret = "$GITHUB_CLIENT_SECRET"
+      redirect_uri = "$REDIRECT_URI"
+
+      team_name_field = "slug"
+
+      org {
+        name = "kinvolk"
+        teams = [
+          "lokomotive-developers",
+        ]
+      }
+    }
+  }
+
+  static_client {
+    name   = "gangway"
+    id     = "$DEX_STATIC_CLIENT_GANGWAY_ID"
+    secret = "$DEX_STATIC_CLIENT_GANGWAY_SECRET"
+
+    redirect_uris = ["$GANGWAY_REDIRECT_URL"]
+  }
+}
+
+component "gangway" {
+  cluster_name = "$CLUSTER_ID"
+
+  ingress_host = "$GANGWAY_INGRESS_HOST"
+
+  session_key = "$GANGWAY_SESSION_KEY"
+
+  api_server_url = "$API_SERVER_URL"
+
+  authorize_url = "$AUTHORIZE_URL"
+
+  token_url = "$TOKEN_URL"
+
+  client_id     = "$DEX_STATIC_CLIENT_GANGWAY_ID"
+  client_secret = "$DEX_STATIC_CLIENT_GANGWAY_SECRET"
+
+  redirect_url = "$GANGWAY_REDIRECT_URL"
+}
+
+component "rook" {}
+
+component "flatcar-linux-update-operator" {}
+
+component "httpbin" {
+  ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
+}

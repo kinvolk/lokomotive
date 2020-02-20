@@ -1,0 +1,34 @@
+# Note: number of worker nodes has to match `pxe-testbed --num-nodes ...` count
+cluster "bare-metal" {
+  asset_dir = pathexpand("~/lokoctl-assets")
+  ssh_pubkeys = [file(pathexpand("~/.ssh/id_rsa.pub"))]
+  cached_install = "true"
+  matchbox_ca_path = pathexpand("~/pxe-testbed/.matchbox/ca.crt")
+  matchbox_client_cert_path = pathexpand("~/pxe-testbed/.matchbox/client.crt")
+  matchbox_client_key_path = pathexpand("~/pxe-testbed/.matchbox/client.key")
+  matchbox_endpoint = "matchbox.example.com:8081"
+  matchbox_http_endpoint = "http://matchbox.example.com:8080"
+  cluster_name = "mercury"
+  k8s_domain_name = "node1.example.com"
+  controller_domains = [
+    "node1.example.com",
+  ]
+  controller_macs = [
+    "52:54:00:a1:9c:ae",
+  ]
+  controller_names = [
+    "node1",
+  ]
+  worker_domains = [
+    "node2.example.com",
+    "node3.example.com",
+  ]
+  worker_macs = [
+    "52:54:00:b2:2f:86",
+    "52:54:00:c3:61:77",
+  ]
+  worker_names = [
+    "node2",
+    "node3",
+  ]
+}

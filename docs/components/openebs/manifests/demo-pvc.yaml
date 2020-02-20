@@ -1,0 +1,13 @@
+# Adapted from https://raw.githubusercontent.com/openebs/openebs/master/k8s/demo/fio/demo-fio-cstor-sparse.yaml
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: fio-cstor-claim
+spec:
+  storageClassName: openebs-cstor-disk-replica-3
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "4G"

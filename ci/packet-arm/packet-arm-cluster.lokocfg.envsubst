@@ -1,0 +1,36 @@
+cluster "packet" {
+  asset_dir        = pathexpand("~/lokoctl-assets")
+  cluster_name     = "$CLUSTER_ID"
+  controller_count = 1
+
+  dns {
+    zone = "$AWS_DNS_ZONE"
+
+    provider {
+      route53 {
+        zone_id = "$AWS_DNS_ZONE_ID"
+      }
+    }
+  }
+
+  facility    = "sjc1"
+
+  project_id = "$PACKET_PROJECT_ID"
+
+  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
+  os_arch         = "arm64"
+  os_channel      = "alpha"
+  controller_type = "c2.large.arm"
+
+  ssh_pubkeys       = ["$PUB_KEY"]
+  management_cidrs  = ["0.0.0.0/0"]
+  node_private_cidr = "10.0.0.0/8"
+
+  worker_pool "pool-1" {
+    count           = 1
+    ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
+    os_arch         = "arm64"
+    os_channel      = "alpha"
+    node_type       = "c2.large.arm"
+  }
+}

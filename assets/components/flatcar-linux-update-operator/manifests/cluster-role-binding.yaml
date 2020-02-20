@@ -1,0 +1,25 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flatcar-linux-update-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flatcar-linux-update-operator
+subjects:
+  - kind: ServiceAccount
+    name: flatcar-linux-update-operator-sa
+    namespace: reboot-coordinator
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flatcar-linux-update-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flatcar-linux-update-agent
+subjects:
+  - kind: ServiceAccount
+    name: flatcar-linux-update-agent
+    namespace: reboot-coordinator

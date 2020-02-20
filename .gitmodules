@@ -1,0 +1,3 @@
+[submodule "lokomotive-kubernetes"]
+	path = assets/lokomotive-kubernetes
+	url = git@github.com:kinvolk/lokomotive-kubernetes
