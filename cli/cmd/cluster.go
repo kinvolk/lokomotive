@@ -24,6 +24,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -175,6 +176,25 @@ func upgradeControlplaneComponent(component string, kubeconfigPath string, asset
 	values := map[string]interface{}{}
 	if err := yaml.Unmarshal([]byte(valuesRaw), &values); err != nil {
 		ctxLogger.Fatalf("Failed to parse values.yaml for kubernetes: %v", err)
+	}
+
+	histClient := action.NewHistory(actionConfig)
+	histClient.Max = 1
+
+	_, err = histClient.Run(component)
+	if err != nil && err != driver.ErrReleaseNotFound {
+		ctxLogger.Fatalf("failed checking for chart history: %v", err)
+	}
+
+	if err == driver.ErrReleaseNotFound {
+		install := action.NewInstall(actionConfig)
+		install.ReleaseName = component
+		install.Namespace = "kube-system"
+		install.Atomic = true
+
+		if _, err := install.Run(helmChart, map[string]interface{}{}); err != nil {
+			ctxLogger.Fatalf("installing controlplane component failed: %v", err)
+		}
 	}
 
 	update := action.NewUpgrade(actionConfig)
