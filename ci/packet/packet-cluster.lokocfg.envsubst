@@ -110,8 +110,6 @@ component "gangway" {
 
 component "rook" {}
 
-component "flatcar-linux-update-operator" {}
-
 # openebs-storage-class component should always be the last to be installed
 # pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
 # because when the discovery failure for creating StoragePoolClaim happens,
