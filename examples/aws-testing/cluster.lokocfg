@@ -1,0 +1,52 @@
+variable "dns_zone" {}
+variable "route53_zone_id" {}
+variable "ssh_public_keys" {}
+variable "grafana_admin_password" {}
+
+variable "asset_dir" {
+  default = "./lokomotive-assets"
+}
+
+variable "cluster_name" {
+  default = "lokomotive-cluster"
+}
+
+variable "controllers_count" {
+  default = 1
+}
+
+variable "workers_count" {
+  default = 1
+}
+
+variable "workers_type" {
+  default = "i3.large"
+}
+
+cluster "aws" {
+  asset_dir        = pathexpand(var.asset_dir)
+  cluster_name     = var.cluster_name
+  controller_count = var.controllers_count
+  dns_zone         = var.dns_zone
+  dns_zone_id      = var.route53_zone_id
+  ssh_pubkeys      = var.ssh_public_keys
+  worker_count     = var.workers_count
+  worker_type      = var.workers_type
+}
+
+component "metrics-server" {}
+
+component "flatcar-linux-update-operator" {}
+
+component "openebs-operator" {}
+
+component "openebs-storage-class" {
+  storage-class "openebs-test-sc" {
+    replica_count = 1
+    default       = true
+  }
+}
+
+component "prometheus-operator" {
+  grafana_admin_password = var.grafana_admin_password
+}
