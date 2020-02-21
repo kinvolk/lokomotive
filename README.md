@@ -33,15 +33,6 @@ go get github.com/kinvolk/lokomotive/cmd/lokoctl
 
 Once finished, `lokoctl` binary should be available in `$GOPATH/bin`.
 
-**NOTE: As `lokoctl` repository is currently private, following additional git configuration
-is needed to make `go get` to work.**
-
-Add following snippet to your `~/.gitconfig` file:
-```
-[url "ssh://git@github.com/kinvolk/lokomotive"]
-  insteadOf = "https://github.com/kinvolk/lokomotive"
-```
-
 ### Building from source
 
 Clone this repository and build the lokoctl binary:
