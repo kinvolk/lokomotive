@@ -179,6 +179,8 @@ func upgradeControlplaneComponent(component string, kubeconfigPath string, asset
 
 	update := action.NewUpgrade(actionConfig)
 
+	update.Atomic = true
+
 	if _, err := update.Run(component, helmChart, values); err != nil {
 		ctxLogger.Fatalf("updating chart failed: %v", err)
 	}
