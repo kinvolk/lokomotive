@@ -27,7 +27,10 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
 
-var quiet bool
+var (
+	quiet          bool
+	skipComponents bool
+)
 
 var clusterInstallCmd = &cobra.Command{
 	Use:   "install",
@@ -40,6 +43,7 @@ func init() {
 	pf := clusterInstallCmd.PersistentFlags()
 	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&quiet, "quiet", "q", false, "Suppress the output from Terraform")
+	pf.BoolVarP(&skipComponents, "skip-components", "", false, "Skip component installation")
 }
 
 func runClusterInstall(cmd *cobra.Command, args []string) {
@@ -72,6 +76,10 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	kubeconfigPath := path.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
 	if err := verifyInstall(kubeconfigPath, p.GetExpectedNodes()); err != nil {
 		ctxLogger.Fatalf("Verify cluster installation: %v", err)
+	}
+
+	if skipComponents {
+		return
 	}
 
 	var componentsToInstall []string
