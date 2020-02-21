@@ -1,5 +1,28 @@
+# On platforms like AWS, it's enough for kube-apiserver to listen on Node InternalIP. On other
+# like Packet, we need to listen on all interfaces to be able to expose kube-apiserver to the
+# internet. As we cannot listen on specific IP address and on 0.0.0.0 on the same port when using
+# SO_REUSEPORT, kube-apiserver process must listen on different port than HAProxy does. So if we
+# need to expose kube-apiserver on all interfaces, kube-apiserver will be listening on random
+# 127.0.0.0/8 IP address on port 7443, but will advertise Node InternalIP with port 7443 and HAProxy
+# will be listening on both Node InternalIP on port 7443 and on 0.0.0.0:6443 for both internal and
+# external traffic.
+# See commit messages and comments :https://github.com/kinvolk/lokomotive/pull/32 for more details.
+{{ define "port" }}
+{{- if and .Values.apiserver.exposeOnAllInterfaces (eq (int .Values.apiserver.replicas) 1) -}}
+7443
+{{- else -}}
+6443
+{{- end -}}
+{{ end }}
 apiVersion: apps/v1
+# If there is just one controller node, we want to use Deployment to be able to run 2 kube-apiserver
+# pods on a single node at a time, to provide graceful upgrades.
+# See commit messages and comments in https://github.com/kinvolk/lokomotive/pull/32 for more details.
+{{- if eq (int .Values.apiserver.replicas) 1 }}
+kind: Deployment
+{{- else }}
 kind: DaemonSet
+{{- end }}
 metadata:
   name: kube-apiserver
   namespace: kube-system
@@ -7,14 +30,25 @@ metadata:
     tier: control-plane
     k8s-app: kube-apiserver
 spec:
+  {{- if eq (int .Values.apiserver.replicas) 1 }}
+  replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       tier: control-plane
       k8s-app: kube-apiserver
+  {{- if eq (int .Values.apiserver.replicas) 1 }}
+  strategy:
+  {{- else }}
   updateStrategy:
+  {{- end }}
     type: RollingUpdate
     rollingUpdate:
+      {{- if eq (int .Values.apiserver.replicas) 1 }}
+      maxUnavailable: 0
+      {{- else }}
       maxUnavailable: 1
+      {{- end }}
   template:
     metadata:
       labels:
@@ -24,6 +58,37 @@ spec:
         checkpointer.alpha.coreos.com/checkpoint: "true"
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
+      affinity:
+        podAntiAffinity:
+        {{- if eq (int .Values.apiserver.replicas) 1 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: tier
+                  operator: In
+                  values:
+                  - controlplane
+                - key: k8s-app
+                  operator: In
+                  values:
+                  - kube-apiserver
+              topologyKey: kubernetes.io/hostname
+          {{- else }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: tier
+                operator: In
+                values:
+                - controlplane
+              - key: k8s-app
+                operator: In
+                values:
+                - kube-apiserver
+            topologyKey: kubernetes.io/hostname
+          {{- end }}
       hostNetwork: true
       nodeSelector:
         node.kubernetes.io/master: ""
@@ -37,6 +102,44 @@ spec:
       - name: kube-apiserver
         image: {{ .Values.apiserver.image }}
         command:
+        {{- if eq (int .Values.apiserver.replicas) 1 }}
+        - /bin/sh
+        - -c
+        - |
+          set -xe
+          exec /hyperkube \
+          kube-apiserver \
+          --advertise-address=$(POD_IP) \
+          --allow-privileged=true \
+          --anonymous-auth=false \
+          --authorization-mode=RBAC \
+          --bind-address=$(cat /run/kube-apiserver/address) \
+          --client-ca-file=/etc/kubernetes/secrets/ca.crt \
+          --cloud-provider={{ .Values.apiserver.cloudProvider }} \
+          --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy \
+          --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt \
+          --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt \
+          --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key \
+          --etcd-servers={{ .Values.apiserver.etcdServers}} \
+          --insecure-port=0 \
+          --kubelet-client-certificate=/etc/kubernetes/secrets/apiserver.crt \
+          --kubelet-client-key=/etc/kubernetes/secrets/apiserver.key \
+          --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+          --secure-port={{ template "port" . }} \
+          --service-account-key-file=/etc/kubernetes/secrets/service-account.pub \
+          --service-cluster-ip-range={{ .Values.apiserver.serviceCIDR }} \
+          --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt \
+          --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key \
+          {{ if .Values.apiserver.enableAggregation -}}
+          --proxy-client-cert-file=/etc/kubernetes/secrets/aggregation-client.crt \
+          --proxy-client-key-file=/etc/kubernetes/secrets/aggregation-client.key \
+          --requestheader-client-ca-file=/etc/kubernetes/secrets/aggregation-ca.crt \
+          --requestheader-extra-headers-prefix=X-Remote-Extra- \
+          --requestheader-group-headers=X-Remote-Group \
+          --requestheader-username-headers=X-Remote-User \
+          {{ end -}}
+          --storage-backend=etcd3
+        {{- else }}
         - /hyperkube
         - kube-apiserver
         - --advertise-address=$(POD_IP)
@@ -69,6 +172,10 @@ spec:
         - --requestheader-group-headers=X-Remote-Group
         - --requestheader-username-headers=X-Remote-User
         {{- end }}
+        readinessProbe:
+          tcpSocket:
+            port: 6443
+        {{- end }}
         env:
         - name: POD_IP
           valueFrom:
@@ -81,6 +188,84 @@ spec:
         - name: ssl-certs-host
           mountPath: /etc/ssl/certs
           readOnly: true
+      {{- if eq (int .Values.apiserver.replicas) 1 }}
+        - name: data
+          mountPath: /run/kube-apiserver
+      - name: haproxy
+        image: haproxy:2.1.3-alpine
+        volumeMounts:
+        - name: data
+          mountPath: /run/kube-apiserver
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -xe
+          export ADDRESS=$(cat /run/kube-apiserver/address)
+          # Make sure initContainer generated kube-apiserver address.
+          if [ -z $ADDRESS ]; then
+            echo "ADDRESS not found"
+            exit 1
+          fi
+          echo "Connecting to $ADDRESS:{{ template "port" . }}"
+          # We use TCP readiness probe and HAProxy does not reject connections if no backend is available,
+          # so we wait until kube-apiserver is available here, so readiness of haproxy container represents
+          # readiness of kube-apiserver, as kube-apiserver cannot have readiness probe set, as it listens
+          # on random IP address.
+          until nc -zv $ADDRESS {{ template "port" . }}; do sleep 1; done
+          echo "Connected"
+          # From https://github.com/docker-library/haproxy/blob/master/Dockerfile-debian.template#L70
+          exec haproxy -f /run/kube-apiserver/haproxy.cfg
+        # Readiness probe here tests that at least the apiserver was up at least once (because HAProxy waiting
+        # for apiserver to start), after that it will mean just that HAProxy is up. But this is needed for helm
+        # to perform atomic upgrades, helm can't do atomic upgrades for components without readinessProbe.
+        readinessProbe:
+          tcpSocket:
+            port: {{ template "port" . }}
+      initContainers:
+      - name: config-generator
+        image: haproxy:2.1.3-alpine
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -xe
+          export ADDRESS="127.$((RANDOM%255)).$((RANDOM%255)).$(((RANDOM%254)+1))"
+          echo $ADDRESS > /run/kube-apiserver/address
+          cat <<EOF > /run/kube-apiserver/haproxy.cfg
+          defaults
+            # Do TLS passthrough
+            mode tcp
+            # Required values for both frontend and backend
+            timeout connect 5s
+            timeout client 30s
+            timeout client-fin 30s
+            timeout server 30s
+            timeout tunnel 21d
+
+          frontend kube-apiserver-internal
+            bind $POD_IP:{{ template "port" . }}
+            default_backend kube-apiserver
+
+          {{- if .Values.apiserver.exposeOnAllInterfaces }}
+          frontend kube-apiserver-external
+            bind 0.0.0.0:6443
+            default_backend kube-apiserver
+
+          {{ end }}
+          backend kube-apiserver
+            server 1 $ADDRESS:{{ template "port" . }} check
+          EOF
+          cat /run/kube-apiserver/haproxy.cfg
+        volumeMounts:
+        - name: data
+          mountPath: /run/kube-apiserver
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -91,3 +276,7 @@ spec:
       - name: ssl-certs-host
         hostPath:
           path: {{ .Values.apiserver.trustedCertsDir }}
+      {{- if eq (int .Values.apiserver.replicas) 1 }}
+      - name: data
+        emptyDir: {}
+      {{- end }}

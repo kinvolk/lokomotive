@@ -128,3 +128,9 @@ variable "external_apiserver_port" {
   type        = number
   default     = 6443
 }
+
+variable "expose_on_all_interfaces" {
+  description = "If true, kube-apiserver will be exposed on all controller node interfaces on port 6443. If false, it will be exposed only one kubelet's node IP."
+  type        = bool
+  default     = false
+}
