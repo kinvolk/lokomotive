@@ -28,7 +28,7 @@ A list of all available components can be get with `lokoctl component list`. Doc
 
 You can quickly get latest version of `lokoctl` by running following command:
 ```
-go get github.com/kinvolk/lokoctl
+go get github.com/kinvolk/lokomotive/cmd/lokoctl
 ```
 
 Once finished, `lokoctl` binary should be available in `$GOPATH/bin`.
@@ -38,8 +38,8 @@ is needed to make `go get` to work.**
 
 Add following snippet to your `~/.gitconfig` file:
 ```
-[url "ssh://git@github.com/kinvolk/lokoctl"]
-  insteadOf = "https://github.com/kinvolk/lokoctl"
+[url "ssh://git@github.com/kinvolk/lokomotive"]
+  insteadOf = "https://github.com/kinvolk/lokomotive"
 ```
 
 ### Building from source
@@ -47,8 +47,8 @@ Add following snippet to your `~/.gitconfig` file:
 Clone this repository and build the lokoctl binary:
 
 ```bash
-git clone https://github.com/kinvolk/lokoctl
-cd lokoctl
+git clone https://github.com/kinvolk/lokomotive
+cd lokomotive
 make
 ```
 
