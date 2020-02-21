@@ -54,7 +54,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
 
-	if clusterExists(ctxLogger, ex) && !confirm {
+	exists := clusterExists(ctxLogger, ex)
+	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := ex.Plan(); err != nil {
 			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
@@ -78,9 +79,12 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("Verify cluster installation: %v", err)
 	}
 
-	// TODO: Check what networking solution we use and update that.
-	for _, c := range []string{"kube-apiserver", "kubernetes", "kubelet", "calico"} {
-		upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ctxLogger, ex)
+	// Do controlplane upgrades only if cluster already exists.
+	if exists {
+		// TODO: Check what networking solution we use and update that.
+		for _, c := range []string{"kube-apiserver", "kubernetes", "kubelet", "calico"} {
+			upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ctxLogger, ex)
+		}
 	}
 
 	if skipComponents {
