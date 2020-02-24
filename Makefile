@@ -34,7 +34,7 @@ build-in-docker:
 
 .PHONY: build-test
 build-test:
-	go test -run=nonexistent -mod=$(MOD) -tags="aws,packet,e2e,disruptive-e2e" -covermode=atomic -buildmode=exe -v ./...
+	go test -run=nonexistent -mod=$(MOD) -tags="aws,packet,e2e,disruptive-e2e,poste2e" -covermode=atomic -buildmode=exe -v ./...
 
 .PHONY: all
 all: build build-test test lint
@@ -59,7 +59,7 @@ test: run-unit-tests
 
 .PHONY: lint
 lint: build-slim build-test
-	golangci-lint run --enable-all --disable=godox,gochecknoglobals --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e,disruptive-e2e --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
+	golangci-lint run --enable-all --disable=godox,gochecknoglobals --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e,disruptive-e2e,poste2e --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
 
 GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
@@ -81,6 +81,8 @@ endif
 .PHONY: run-e2e-tests
 run-e2e-tests:
 	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),e2e" -covermode=atomic -buildmode=exe -v ./...
+	# Test if the metrics are actually being scraped
+	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),poste2e" -covermode=atomic -buildmode=exe -v ./...
 	# This is a test that should be run in the end to reduce the disruption to other tests because
 	# it will delete a node.
 	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),disruptive-e2e" -covermode=atomic -buildmode=exe -v ./...
