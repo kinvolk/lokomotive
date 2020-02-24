@@ -15,7 +15,10 @@
 package util
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -27,7 +30,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/portforward"
+	"k8s.io/client-go/transport/spdy"
 )
 
 func KubeconfigPath(t *testing.T) string {
@@ -40,6 +46,9 @@ func KubeconfigPath(t *testing.T) string {
 	return kubeconfig
 }
 
+// buildKubeConfig reads the environment variable KUBECONFIG and then builds the rest client config
+// object which can be either used to create kube client to talk to apiserver or to just read the
+// kubeconfig data.
 func buildKubeConfig(t *testing.T) (*restclient.Config, error) {
 	kubeconfig := KubeconfigPath(t)
 
@@ -48,6 +57,7 @@ func buildKubeConfig(t *testing.T) (*restclient.Config, error) {
 	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
 
+// CreateKubeClient returns a kubernetes client reading the KUBECONFIG environment variable.
 func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
 	config, err := buildKubeConfig(t)
 	if err != nil {
@@ -185,4 +195,127 @@ func filterNonControllerPods(pods *corev1.PodList) *corev1.PodList {
 	}
 	pods.Items = filteredPods
 	return pods
+}
+
+// PortForwardInfo allows user to provide information needed to forward port from a Kubernetes Pod
+// to local machine.
+type PortForwardInfo struct {
+	readyChan     chan struct{}
+	stopChan      chan struct{}
+	portForwarder *portforward.PortForwarder
+
+	// TODO: Add support providing service name and the API figures out the pod to forward the
+	// connection to. Port forwarding works with pods only.
+	PodName   string
+	Namespace string
+	PodPort   int
+	LocalPort int
+}
+
+// CloseChan closes the stopChan which essentially disables port forwarding. User should call this
+// method once they are done using port forwarding. This is generally called using `defer`
+// immediately after `PortFoward`.
+func (p *PortForwardInfo) CloseChan() {
+	// This to guard against the closed channel, if you close the closed channel it panics this
+	// piece of code guards against that.
+	select {
+	case <-p.stopChan:
+		return
+	default:
+	}
+	close(p.stopChan)
+}
+
+// PortForward initiates the port forward in an asynchronous mode. The user is responsible to stop
+// port forwarding by calling `CloseChan` method on the object. Also user should use the helper
+// method to wait until port forwarding is enabled by calling `WaitUntilForwardingAvailable`. So
+// the user of the this method should always call this API in following sequence for correct
+// functionality:
+//
+// p.PortForward(t)
+// defer p.CloseChan()
+// p.WaitUntilForwardingAvailable(t)
+//
+func (p *PortForwardInfo) PortForward(t *testing.T) {
+	config, err := buildKubeConfig(t)
+	if err != nil {
+		t.Fatalf("could not build config from KUBECONFIG: %v", err)
+	}
+
+	roundTripper, upgrader, err := spdy.RoundTripperFor(config)
+	if err != nil {
+		t.Fatalf("could not create round tripper: %v", err)
+	}
+
+	serverURL, err := url.Parse(config.Host)
+	if err != nil {
+		t.Fatalf("could not parse the URL from kubeconfig: %v", err)
+	}
+
+	serverURL.Path = fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/portforward", p.Namespace, p.PodName)
+	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: roundTripper}, http.MethodPost, serverURL)
+
+	ports := []string{fmt.Sprintf("0:%d", p.PodPort)}
+
+	out, errOut := new(bytes.Buffer), new(bytes.Buffer)
+	p.stopChan, p.readyChan = make(chan struct{}, 1), make(chan struct{}, 1)
+
+	forwarder, err := portforward.New(dialer, ports, p.stopChan, p.readyChan, out, errOut)
+	if err != nil {
+		p.CloseChan()
+		t.Fatalf("could not create forwarder: %v", err)
+	}
+
+	p.portForwarder = forwarder
+
+	// This goroutine will print any error or output to stdout.
+	go func() {
+		for range p.readyChan {
+		}
+
+		t.Logf("output of port forwarder:\n%s\n", out.String())
+
+		if len(errOut.String()) != 0 {
+			p.CloseChan()
+			t.Errorf(errOut.String())
+		}
+	}()
+
+	go func() {
+		if err := forwarder.ForwardPorts(); err != nil { // Locks until stopChan is closed.
+			p.CloseChan()
+			t.Errorf("could not establish port forwarding: %v", err)
+		}
+	}()
+}
+
+// findLocalPort finds out the local port that was randomly chosen. This is done here because when
+// the port forwarding is done the local port is not known upfront. It is chosen randomly and can
+// only be found once port forwarding has started.
+func (p *PortForwardInfo) findLocalPort(t *testing.T) {
+	forwardedPorts, err := p.portForwarder.GetPorts()
+	if err != nil {
+		t.Fatalf("could not get information about ports: %v", err)
+	}
+
+	const noOfForwardedPorts = 1
+	if len(forwardedPorts) != noOfForwardedPorts {
+		t.Fatalf("number of forwarded ports not 1, currently forwarding for %d ports.", len(forwardedPorts))
+	}
+
+	p.LocalPort = int(forwardedPorts[0].Local)
+}
+
+// WaitUntilForwardingAvailable is a blocking call which waits until the port-forwarding is made
+// available.
+func (p *PortForwardInfo) WaitUntilForwardingAvailable(t *testing.T) {
+	const portForwardTimeout = 2
+
+	// Wait until port forwarding is available.
+	select {
+	case <-p.readyChan:
+	case <-time.After(portForwardTimeout * time.Minute):
+		t.Fatal("timed out waiting for port forwarding")
+	}
+	p.findLocalPort(t)
 }
