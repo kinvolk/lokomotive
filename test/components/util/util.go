@@ -94,12 +94,11 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 			return false, nil
 		}
 
+		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
 		if ds.Status.NumberReady == replicas {
-			t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
-
+			t.Logf("found required replicas")
 			return true, nil
 		}
-		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
 		return false, nil
 	}); err != nil {
 		t.Errorf("error while waiting for the daemonset: %v", err)

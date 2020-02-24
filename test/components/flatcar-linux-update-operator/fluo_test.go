@@ -36,7 +36,6 @@ func TestUpdateAgentDaemonset(t *testing.T) {
 	t.Log("got kubernetes client")
 
 	testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
-	t.Logf("Found required replicas")
 }
 
 func TestUpdateOperatorDeployment(t *testing.T) {
