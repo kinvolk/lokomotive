@@ -67,6 +67,7 @@ func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name stri
 		t.Logf("statefulset: %s, replicas: %d/%d", name, int(ds.Status.ReadyReplicas), replicas)
 
 		if int(ds.Status.ReadyReplicas) == replicas {
+			t.Logf("found required replicas")
 			return true, nil
 		}
 

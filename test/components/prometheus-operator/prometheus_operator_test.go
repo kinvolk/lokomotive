@@ -59,7 +59,6 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 			replicas := 1
 
 			testutil.WaitForStatefulSet(t, client, namespace, statefulset, replicas, time.Second*5, time.Minute*5)
-			t.Logf("Required replicas: %d", replicas)
 		})
 	}
 
