@@ -41,10 +41,6 @@ func TestHttpbinDeployments(t *testing.T) {
 	t.Run(fmt.Sprintf("deployment"), func(t *testing.T) {
 		t.Parallel()
 
-		replicas := 1
-
-		testutil.WaitForDeployment(t, client, "httpbin", "httpbin", replicas, defaultDeploymentProbeInterval, defaultDeploymentTimeout)
-
-		t.Logf("Found required replicas: %d", replicas)
+		testutil.WaitForDeployment(t, client, "httpbin", "httpbin", defaultDeploymentProbeInterval, defaultDeploymentTimeout)
 	})
 }

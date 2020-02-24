@@ -67,6 +67,7 @@ func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name stri
 		t.Logf("statefulset: %s, replicas: %d/%d", name, int(ds.Status.ReadyReplicas), replicas)
 
 		if int(ds.Status.ReadyReplicas) == replicas {
+			t.Logf("found required replicas")
 			return true, nil
 		}
 
@@ -94,19 +95,18 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 			return false, nil
 		}
 
+		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
 		if ds.Status.NumberReady == replicas {
-			t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
-
+			t.Logf("found required replicas")
 			return true, nil
 		}
-		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
 		return false, nil
 	}); err != nil {
 		t.Errorf("error while waiting for the daemonset: %v", err)
 	}
 }
 
-func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
+func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name string, retryInterval, timeout time.Duration) {
 	var err error
 	var deploy *appsv1.Deployment
 
@@ -121,10 +121,20 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 			return false, err
 		}
 
+		replicas := int(deploy.Status.Replicas)
+
+		if replicas == 0 {
+			t.Logf("no replicas scheduled for deployment %s", name)
+
+			return false, nil
+		}
+
+		t.Logf("deployment: %s, replicas: %d/%d", name, int(deploy.Status.AvailableReplicas), replicas)
+
 		if int(deploy.Status.AvailableReplicas) == replicas {
+			t.Logf("found required replicas")
 			return true, nil
 		}
-		t.Logf("deployment: %s, replicas: %d/%d", name, int(deploy.Status.AvailableReplicas), replicas)
 		return false, nil
 	}); err != nil {
 		t.Errorf("error while waiting for the deployment: %v", err)

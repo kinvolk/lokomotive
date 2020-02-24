@@ -36,9 +36,7 @@ func TestRookDeployment(t *testing.T) {
 	t.Run("deployment", func(t *testing.T) {
 		t.Parallel()
 		deployment := "rook-ceph-operator"
-		replicas := 1
 
-		testutil.WaitForDeployment(t, client, namespace, deployment, replicas, time.Second*5, time.Minute*5)
-		t.Logf("Required replicas: %d", replicas)
+		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 	})
 }

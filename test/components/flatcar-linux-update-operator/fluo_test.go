@@ -36,14 +36,12 @@ func TestUpdateAgentDaemonset(t *testing.T) {
 	t.Log("got kubernetes client")
 
 	testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
-	t.Logf("Found required replicas")
 }
 
 func TestUpdateOperatorDeployment(t *testing.T) {
 	t.Parallel()
 	namespace := "reboot-coordinator"
 	deployment := "flatcar-linux-update-operator"
-	replicas := 1
 
 	client, err := testutil.CreateKubeClient(t)
 	if err != nil {
@@ -51,6 +49,5 @@ func TestUpdateOperatorDeployment(t *testing.T) {
 	}
 	t.Log("got kubernetes client")
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, replicas, time.Second*5, time.Minute*5)
-	t.Logf("Found required replicas: %d", replicas)
+	testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 }
