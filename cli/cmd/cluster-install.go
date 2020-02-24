@@ -81,6 +81,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	// Do controlplane upgrades only if cluster already exists.
 	if exists {
+		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
+
 		// TODO: Check what networking solution we use and update that.
 		for _, c := range []string{"kube-apiserver", "kubernetes", "calico"} { //,"kubelet"} {
 			upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ctxLogger, ex)
