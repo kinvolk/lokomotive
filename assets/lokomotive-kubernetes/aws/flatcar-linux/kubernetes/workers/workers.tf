@@ -40,7 +40,7 @@ resource "aws_autoscaling_group" "workers" {
         value               = "${var.name}-worker"
         propagate_at_launch = true
       },
-    ], 
+    ],
     [
       for tag in keys(var.tags):
       {
