@@ -46,7 +46,9 @@ spec:
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins \
           --node-labels=$(grep NODE_LABELS /etc/kubernetes/kubelet.env | cut -d'"' -f2) \
           --register-with-taints=$(grep NODE_TAINTS /etc/kubernetes/kubelet.env | cut -d'"' -f2) \
-          --address=$(HOST_IP)
+          --address=$(HOST_IP) \
+          --system-reserved=memory=500Mi \
+          --kube-reserved=$(grep KUBE_RESERVED /etc/kubernetes/kubelet.env | cut -d'"' -f2)
           " | tee /tmp/start-kubelet.sh &&
           chmod +x /tmp/start-kubelet.sh &&
           /tmp/start-kubelet.sh
@@ -103,6 +105,9 @@ spec:
           mountPath: /usr/sbin/iscsiadm
         - name: modules
           mountPath: /lib/modules
+        resources:
+          requests:
+            memory: "100Mi"
       hostNetwork: true
       hostPID: true
       # Tolerate all the taints. This ensures that the pod runs on all the nodes.

@@ -60,3 +60,6 @@ spec:
             port: 10259
           initialDelaySeconds: 15
           timeoutSeconds: 15
+        resources:
+          requests:
+            memory: "30Mi"

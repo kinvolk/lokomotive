@@ -108,7 +108,9 @@ systemd:
             --read-only-port=0 \
             --register-with-taints=$${NODE_TAINTS} \
             --address=$${COREOS_PACKET_IPV4_PRIVATE_0} \
-            --volume-plugin-dir=/var/lib/kubelet/volumeplugins"
+            --volume-plugin-dir=/var/lib/kubelet/volumeplugins \
+            --system-reserved=memory=500Mi \
+            --kube-reserved=$${KUBE_RESERVED}"
         ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
         Restart=always
         RestartSec=5
@@ -281,6 +283,7 @@ storage:
           NODE_LABELS="node.kubernetes.io/node,${node_labels}"
           BGP_NODE_LABELS="${bgp_node_labels}"
           NODE_TAINTS="${taints}"
+          KUBE_RESERVED="memory=100Mi"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:

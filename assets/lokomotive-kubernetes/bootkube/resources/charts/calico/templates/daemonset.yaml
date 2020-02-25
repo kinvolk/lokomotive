@@ -147,6 +147,7 @@ spec:
           resources:
             requests:
               cpu: 100m
+              memory: "60Mi"
           livenessProbe:
             exec:
               command:
