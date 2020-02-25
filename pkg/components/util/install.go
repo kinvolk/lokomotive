@@ -35,8 +35,6 @@ func InstallComponent(name string, c components.Component, kubeconfig string) er
 
 // InstallAsRelease installs a component as a Helm release using a Helm client.
 func InstallAsRelease(name string, c components.Component, kubeconfig string) error {
-	actionConfig := &action.Configuration{}
-
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return err
@@ -58,9 +56,9 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		return err
 	}
 
-	// TODO: Add some logging implementation? We currently just pass an empty function for logging.
-	if err := actionConfig.Init(kube.GetConfig(kubeconfig, "", ns), ns, "secret", func(format string, v ...interface{}) {}); err != nil {
-		return err
+	actionConfig, err := HelmActionConfig(ns, kubeconfig)
+	if err != nil {
+		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
 
 	chart, err := chartFromComponent(name, c)
@@ -72,17 +70,14 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		return fmt.Errorf("chart is invalid: %w", err)
 	}
 
-	histClient := action.NewHistory(actionConfig)
-	histClient.Max = 1
-
-	_, err = histClient.Run(name)
-	if err != nil && err != driver.ErrReleaseNotFound {
-		return fmt.Errorf("failed checking for chart history: %w", err)
+	exists, err := ReleaseExists(*actionConfig, name)
+	if err != nil {
+		return fmt.Errorf("failed checking if component is installed: %w", err)
 	}
 
 	wait := c.Metadata().Helm.Wait
 
-	if err == driver.ErrReleaseNotFound {
+	if !exists {
 		install := action.NewInstall(actionConfig)
 		install.ReleaseName = name
 		install.Namespace = ns
@@ -115,4 +110,32 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 	}
 
 	return nil
+}
+
+// HelmActionConfig creates initialized Helm action configuration.
+func HelmActionConfig(ns string, kubeconfig string) (*action.Configuration, error) {
+	actionConfig := &action.Configuration{}
+
+	// TODO: Add some logging implementation? We currently just pass an empty function for logging.
+	kubeConfig := kube.GetConfig(kubeconfig, "", ns)
+	logF := func(format string, v ...interface{}) {}
+
+	if err := actionConfig.Init(kubeConfig, ns, "secret", logF); err != nil {
+		return nil, fmt.Errorf("failed initializing helm: %w", err)
+	}
+
+	return actionConfig, nil
+}
+
+// ReleaseExists checks if given Helm release exists.
+func ReleaseExists(actionConfig action.Configuration, name string) (bool, error) {
+	histClient := action.NewHistory(&actionConfig)
+	histClient.Max = 1
+
+	_, err := histClient.Run(name)
+	if err != nil && err != driver.ErrReleaseNotFound {
+		return false, fmt.Errorf("failed checking for chart history: %w", err)
+	}
+
+	return err != driver.ErrReleaseNotFound, nil
 }
