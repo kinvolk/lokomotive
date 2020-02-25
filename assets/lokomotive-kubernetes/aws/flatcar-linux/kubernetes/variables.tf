@@ -31,7 +31,7 @@ variable "worker_count" {
 
 variable "controller_type" {
   type        = string
-  default     = "t3.small"
+  default     = "t3.medium"
   description = "EC2 instance type for controllers"
 }
 
