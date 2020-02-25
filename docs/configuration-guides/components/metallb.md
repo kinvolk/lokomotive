@@ -71,7 +71,7 @@ component "metallb" {
     operator = "Equal"
     value = "value1"
   }
-  # If true, then Prometheus operator component should be installed.
+  # If true, then Prometheus Operator component should be installed.
   service_monitor = true
 }
 ```
