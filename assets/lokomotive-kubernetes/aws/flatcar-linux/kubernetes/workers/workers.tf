@@ -1,6 +1,6 @@
 # Workers AutoScaling Group
 resource "aws_autoscaling_group" "workers" {
-  name = "${var.name}-worker ${aws_launch_configuration.worker.name}"
+  name = "${var.name}-worker"
 
   # count
   desired_capacity          = var.worker_count
