@@ -133,6 +133,8 @@ spec:
               value: "info"
             - name: FELIX_HEALTHENABLED
               value: "true"
+            - name: FELIX_PROMETHEUSMETRICSENABLED
+              value: "true"
           securityContext:
             privileged: true
           resources:
