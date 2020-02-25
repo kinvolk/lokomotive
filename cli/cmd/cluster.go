@@ -22,13 +22,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	"helm.sh/helm/v3/pkg/kube"
-	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -147,46 +147,60 @@ func clusterExists(ctxLogger *logrus.Entry, ex *terraform.Executor) bool {
 	return len(o) != 0
 }
 
+func getControlplaneChart(assetDir string, name string) (*chart.Chart, error) {
+	helmChart, err := loader.Load(filepath.Join(assetDir, "/lokomotive-kubernetes/bootkube/resources/charts", name))
+	if err != nil {
+		return nil, fmt.Errorf("loading chart from assets failed: %w", err)
+	}
+
+	if err := helmChart.Validate(); err != nil {
+		return nil, fmt.Errorf("chart is invalid: %w", err)
+	}
+
+	return helmChart, nil
+}
+
+func getControlplaneValues(ex *terraform.Executor, name string) (map[string]interface{}, error) {
+	valuesRaw := ""
+	if err := ex.Output(fmt.Sprintf("%s_values", name), &valuesRaw); err != nil {
+		return nil, fmt.Errorf("failed to get values.yaml from Terraform: %w", err)
+	}
+
+	values := map[string]interface{}{}
+	if err := yaml.Unmarshal([]byte(valuesRaw), &values); err != nil {
+		return nil, fmt.Errorf("failed to parse values.yaml for '%s': %w", name, err)
+	}
+
+	return values, nil
+}
+
 func upgradeControlplaneComponent(component string, kubeconfigPath string, assetDir string, ctxLogger *logrus.Entry, ex *terraform.Executor) {
 	ctxLogger = ctxLogger.WithFields(logrus.Fields{
 		"action":    "controlplane-upgrade",
 		"component": component,
 	})
 
-	actionConfig := &action.Configuration{}
-
-	if err := actionConfig.Init(kube.GetConfig(kubeconfigPath, "", "kube-system"), "kube-system", "secret", func(format string, v ...interface{}) {}); err != nil {
+	actionConfig, err := util.HelmActionConfig("kube-system", kubeconfigPath)
+	if err != nil {
 		ctxLogger.Fatalf("Failed initializing helm: %v", err)
 	}
 
-	helmChart, err := loader.Load(filepath.Join(assetDir, "/lokomotive-kubernetes/bootkube/resources/charts", component))
+	helmChart, err := getControlplaneChart(assetDir, component)
 	if err != nil {
 		ctxLogger.Fatalf("Loading chart from assets failed: %v", err)
 	}
 
-	if err := helmChart.Validate(); err != nil {
-		ctxLogger.Fatalf("chart is invalid: %v", err)
-	}
-
-	valuesRaw := ""
-	if err := ex.Output(fmt.Sprintf("%s_values", component), &valuesRaw); err != nil {
+	values, err := getControlplaneValues(ex, component)
+	if err != nil {
 		ctxLogger.Fatalf("Failed to get kubernetes values.yaml from Terraform: %v", err)
 	}
 
-	values := map[string]interface{}{}
-	if err := yaml.Unmarshal([]byte(valuesRaw), &values); err != nil {
-		ctxLogger.Fatalf("Failed to parse values.yaml for kubernetes: %v", err)
+	exists, err := util.ReleaseExists(*actionConfig, component)
+	if err != nil {
+		ctxLogger.Fatalf("failed checking if controlplane component is installed: %v", err)
 	}
 
-	histClient := action.NewHistory(actionConfig)
-	histClient.Max = 1
-
-	_, err = histClient.Run(component)
-	if err != nil && err != driver.ErrReleaseNotFound {
-		ctxLogger.Fatalf("failed checking for chart history: %v", err)
-	}
-
-	if err == driver.ErrReleaseNotFound {
+	if !exists {
 		fmt.Printf("Controlplane component '%s' is missing, reinstalling...", component)
 
 		install := action.NewInstall(actionConfig)
