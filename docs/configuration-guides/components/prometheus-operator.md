@@ -1,0 +1,144 @@
+# Prometheus operator configuration reference for Lokomotive
+
+## Contents
+
+* [Introduction](#introduction)
+* [Prerequisites](#prerequisites)
+* [Configuration](#configuration)
+* [Argument reference](#argument-reference)
+* [Installation](#installation)
+* [Uninstallation](#uninstallation)
+
+## Introduction
+
+The [Prometheus Operator](https://github.com/coreos/prometheus-operator) for Kubernetes provides
+easy monitoring definitions for Kubernetes services and deployment and management of Prometheus
+instances.
+
+## Prerequisites
+
+* A Lokomotive cluster with a
+  [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) plugin, e.g.
+  [OpenEBS](openebs.md) or one of the
+  [built-in](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
+  plugins.
+
+## Configuration
+
+Prometheus operator component configuration example:
+
+```tf
+component "prometheus-operator" {
+  namespace              = "monitoring"
+  grafana_admin_password = "foobar"
+
+  etcd_endpoints = [
+    "10.88.181.1",
+  ]
+
+  prometheus_metrics_retention = "14d"
+  prometheus_external_url      = "https://api.example.com/prometheus"
+  prometheus_node_selector = {
+    "kubernetes.io/hostname" = "worker3"
+  }
+
+
+  alertmanager_retention    = "360h"
+  alertmanager_external_url = "https://api.example.com/alertmanager"
+  alertmanager_config       = file("alertmanager-config.yaml")
+  alertmanager_node_selector = {
+    "kubernetes.io/hostname" = "worker3"
+  }
+```
+
+Create `alertmanager-config.yaml` file if necessary. Visit the [alertmanager
+configuration](https://prometheus.io/docs/alerting/configuration/#configuration-file) for more
+information.
+
+**Note**: Make sure it is indented to two spaces.
+
+```yaml
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by:
+      - job
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: 'null'
+    receivers:
+    - name: 'null'
+```
+
+## Argument reference
+
+Table of all the arguments accepted by the component.
+
+Example:
+
+| Argument | Description | Default | Required |
+|--------	|--------------|:-------:|:--------:|
+| `namespace` | Namespace to deploy the prometheus operator into. | - | true |
+| `grafana_admin_password` | Password for `admin` user in Grafana.  | - | true |
+| `etcd_endpoints` | List of endpoints where etcd can be reachable from Kubernetes. | [] | false |
+| `prometheus_operator_node_selector` | Node selector to specify nodes where the Prometheus Operator pods should be deployed. | {} | false |
+| `prometheus_metrics_retention` | Time duration Prometheus shall retain data for. Must match the regular expression `[0-9]+(ms\|s\|m\|h\|d\|w\|y)` (milliseconds, seconds, minutes, hours, days, weeks and years). | `10d` | false |
+| `prometheus_external_url` | The external URL Prometheus instances will be available under. This is necessary to generate correct URLs. This is necessary if Prometheus is not served from root of a DNS name. | "" | false |
+| `prometheus_node_selector` | Node selector to specify nodes where the Prometheus pods should be deployed. | {} | false |
+| `alertmanager_retention` | Time duration Alertmanager shall retain data for. Must match the regular expression `[0-9]+(ms\|s\|m\|h)` (milliseconds, seconds, minutes and hours). | `120h` | false |
+| `alertmanager_external_url` | The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. | "" | false |
+| `alertmanager_config` | Provide YAML file path to configure Alertmanager. See [https://prometheus.io/docs/alerting/configuration/#configuration-file](https://prometheus.io/docs/alerting/configuration/#configuration-file). | `{"global":{"resolve_timeout":"5m"},"route":{"group_by":["job"],"group_wait":"30s","group_interval":"5m","repeat_interval":"12h","receiver":"null","routes":[{"match":{"alertname":"Watchdog"},"receiver":"null"}]},"receivers":[{"name":"null"}]}` | false |
+| `alertmanager_node_selector` | Node selector to specify nodes where the AlertManager pods should be deployed. | {} | false |
+
+## Installation
+
+To install the Prometheus operator component:
+
+```bash
+lokoctl component install prometheus-operator
+```
+
+### Post-installation
+
+To start monitoring your applications running on Kubernetes. Just create a `ServiceMonitor` object
+in that namespace which looks like following:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: openebs
+  name: openebs
+  namespace: openebs
+spec:
+  endpoints:
+  - path: /metrics
+    port: exporter
+  namespaceSelector:
+    matchNames:
+    - openebs
+  selector:
+    matchLabels:
+      openebs.io/cas-type: cstor
+```
+
+Change the `labels`, `endpoints`, `namespaceSelector`, `selector` fields as you need. To learn more
+about basics of `ServiceMonitor` [read the docs
+here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#related-resources)
+and [the API Reference can be found
+here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#servicemonitor).
+
+## Uninstallation
+
+To uninstall the component:
+
+```bash
+lokoctl component render-manifest prometheus-operator | kubectl delete -f -
+```
