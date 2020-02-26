@@ -45,7 +45,7 @@ func CopyingWalker(path string, newDirPerms os.FileMode) assets.WalkFunc {
 // this is the only content stored in the file.
 func writeFile(p string, r io.Reader) error {
 	// TODO: If we start packing binaries, make sure they have executable bit set.
-	f, err := os.OpenFile(p, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open target file %s: %w", p, err)
 	}

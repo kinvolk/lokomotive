@@ -48,3 +48,29 @@ func TestWriteFile(t *testing.T) {
 		t.Fatalf("Expected: '%s', got '%s'", testData, string(d))
 	}
 }
+
+func TestWriteFileTruncate(t *testing.T) {
+	f, err := ioutil.TempFile("", tmpPattern)
+	if err != nil {
+		t.Fatalf("Creating temp file should succeed, got: %v", err)
+	}
+
+	defer os.Remove(f.Name())
+
+	if err := writeFile(f.Name(), strings.NewReader("111111")); err != nil {
+		t.Fatalf("Writing to file should succeed, got: %v", err)
+	}
+
+	if err := writeFile(f.Name(), strings.NewReader(testData)); err != nil {
+		t.Fatalf("Updating file should succeed, got: %v", err)
+	}
+
+	d, err := ioutil.ReadFile(f.Name())
+	if err != nil {
+		t.Fatalf("Reading tmp file should succeed, got: %v", err)
+	}
+
+	if !reflect.DeepEqual(testData, string(d)) {
+		t.Fatalf("Expected: '%s', got '%s'", testData, string(d))
+	}
+}
