@@ -84,7 +84,7 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return err
 		}
 
-		fmt.Printf("Succesfully installed component '%s'!\n", componentName)
+		fmt.Printf("Successfully installed component '%s'!\n", componentName)
 	}
 	return nil
 }
