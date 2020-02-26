@@ -83,9 +83,39 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	if exists {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
+		for _, c := range []string{"podcheckpointer"} {
+			fmt.Printf("\nUpgrading %s... ", c)
+
+			if err := upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ex); err != nil {
+				fmt.Println("Failed!")
+
+				ctxLogger.Fatalf("Upgrading controlplane component '%s' failed: %v", c, err)
+			}
+
+			fmt.Println("Done.")
+		}
+
+		fmt.Printf("\nUpgrading kube-apiserver... ")
+
+		if err := upgradeKubeAPIServer(kubeconfigPath, assetDir, ex); err != nil {
+			fmt.Println("Failed!")
+
+			ctxLogger.Fatalf("Upgrading kube-apiserver failed: %v", err)
+		}
+
+		fmt.Println("Done.")
+
 		// TODO: Check what networking solution we use and update that.
-		for _, c := range []string{"podcheckpointer", "kube-apiserver", "kubernetes", "calico"} { //,"kubelet"} {
-			upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ctxLogger, ex)
+		for _, c := range []string{"kubernetes", "calico"} { //,"kubelet"} {
+			fmt.Printf("\nUpgrading %s... ", c)
+
+			if err := upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ex); err != nil {
+				fmt.Println("Failed!")
+
+				ctxLogger.Fatalf("Upgrading controlplane component '%s' failed: %v", c, err)
+			}
+
+			fmt.Println("Done.")
 		}
 	}
 

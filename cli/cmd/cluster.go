@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
@@ -24,14 +25,18 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
 )
 
 var clusterCmd = &cobra.Command{
@@ -174,60 +179,90 @@ func getControlplaneValues(ex *terraform.Executor, name string) (map[string]inte
 	return values, nil
 }
 
-func upgradeControlplaneComponent(component string, kubeconfigPath string, assetDir string, ctxLogger *logrus.Entry, ex *terraform.Executor) {
-	ctxLogger = ctxLogger.WithFields(logrus.Fields{
-		"action":    "controlplane-upgrade",
-		"component": component,
+const (
+	upgradeRetryInterval = 10 * time.Second
+)
+
+func upgradeKubeAPIServer(kubeconfigPath string, assetDir string, ex *terraform.Executor) error {
+	var err error
+
+	_ = retryutil.Retry(upgradeRetryInterval, 60, func() (bool, error) {
+		if err = upgradeControlplaneComponent("kube-apiserver", kubeconfigPath, assetDir, ex); err != nil {
+			return false, nil
+		}
+
+		return true, nil
 	})
 
+	if err != nil {
+		return fmt.Errorf("failed upgrading kube-apiserver: %w", err)
+	}
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		return fmt.Errorf("failed building Kubernetes client config: %w", err)
+	}
+
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return fmt.Errorf("failed building Kubernetes client: %w", err)
+	}
+
+	_ = retryutil.Retry(upgradeRetryInterval, 60, func() (bool, error) {
+		var r bool
+		if r, err = k8sutil.DaemonSetReady(client, "kube-system", "kube-apiserver"); err != nil {
+			return false, nil
+		}
+
+		return r, nil
+	})
+
+	return nil
+}
+
+func upgradeControlplaneComponent(component string, kubeconfigPath string, assetDir string, ex *terraform.Executor) error {
 	actionConfig, err := util.HelmActionConfig("kube-system", kubeconfigPath)
 	if err != nil {
-		ctxLogger.Fatalf("Failed initializing helm: %v", err)
+		return fmt.Errorf("failed initializing helm: %w", err)
 	}
 
 	helmChart, err := getControlplaneChart(assetDir, component)
 	if err != nil {
-		ctxLogger.Fatalf("Loading chart from assets failed: %v", err)
+		return fmt.Errorf("loading chart from assets failed: %w", err)
 	}
 
 	values, err := getControlplaneValues(ex, component)
 	if err != nil {
-		ctxLogger.Fatalf("Failed to get kubernetes values.yaml from Terraform: %v", err)
+		return fmt.Errorf("failed to get values.yaml from Terraform: %w", err)
 	}
 
-	exists, err := util.ReleaseExists(*actionConfig, component)
+	return installOrUpdateControlplaneComponent(component, *helmChart, values, *actionConfig)
+}
+
+func installOrUpdateControlplaneComponent(component string, helmChart chart.Chart, values map[string]interface{}, actionConfig action.Configuration) error {
+	exists, err := util.ReleaseExists(actionConfig, component)
 	if err != nil {
-		ctxLogger.Fatalf("failed checking if controlplane component is installed: %v", err)
+		return fmt.Errorf("failed checking if controlplane component is installed: %w", err)
 	}
 
 	if !exists {
-		fmt.Printf("Controlplane component '%s' is missing, reinstalling...", component)
-
-		install := action.NewInstall(actionConfig)
+		install := action.NewInstall(&actionConfig)
 		install.ReleaseName = component
 		install.Namespace = "kube-system"
 		install.Atomic = true
 
-		if _, err := install.Run(helmChart, map[string]interface{}{}); err != nil {
-			fmt.Println("Failed!")
-
-			ctxLogger.Fatalf("installing controlplane component failed: %v", err)
+		if _, err := install.Run(&helmChart, map[string]interface{}{}); err != nil {
+			return fmt.Errorf("installing controlplane component failed: %w", err)
 		}
-
-		fmt.Println("Done.")
 	}
 
-	update := action.NewUpgrade(actionConfig)
+	update := action.NewUpgrade(&actionConfig)
 
 	update.Atomic = true
 
-	fmt.Printf("Ensuring controlplane component '%s' is up to date... ", component)
-
-	if _, err := update.Run(component, helmChart, values); err != nil {
-		fmt.Println("Failed!")
-
-		ctxLogger.Fatalf("updating chart failed: %v", err)
+	if _, err := update.Run(component, &helmChart, values); err != nil {
+		return fmt.Errorf("updating chart failed: %w", err)
 	}
 
-	fmt.Println("Done.")
+	return nil
 }
