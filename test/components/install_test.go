@@ -52,7 +52,7 @@ component "flatcar-linux-update-operator" {}
 
 	k := testutil.KubeconfigPath(t)
 	if err := util.InstallAsRelease(n, c, k); err != nil {
-		t.Fatalf("Installing component as relase should succeed, got: %v", err)
+		t.Fatalf("Installing component as release should succeed, got: %v", err)
 	}
 
 	if err := util.InstallAsRelease(n, c, k); err != nil {
