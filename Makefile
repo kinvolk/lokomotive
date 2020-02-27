@@ -4,6 +4,7 @@ VERSION :=
 # The default is "vendor" which uses checked out modules for building.
 # Use make MOD=readonly to build with sources from the Go module cache instead.
 MOD ?= vendor
+DOCS_DIR ?= docs/cli
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
@@ -126,3 +127,7 @@ docker-update-assets: docker-build
 .PHONY: docker-update-dependencies
 docker-update-dependencies: docker-build
 	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
+
+.PHONY: docs
+docs:
+	GO111MODULE=on go run -mod=$(MOD) -buildmode=exe cli/cmd/document/main.go $(DOCS_DIR)
