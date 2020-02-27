@@ -30,13 +30,13 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
 )
 
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "lokoctl",
 	Short: "Manage Lokomotive clusters.",
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := RootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
@@ -45,16 +45,16 @@ func init() {
 	cobra.OnInitialize(cobraInit)
 
 	// Add kubeconfig flag.
-	rootCmd.PersistentFlags().String(
+	RootCmd.PersistentFlags().String(
 		"kubeconfig",
 		"", // Special empty default, use getKubeconfig()
 		"Path to kubeconfig file, taken from the asset dir if not given, and finally falls back to ~/.kube/config")
-	viper.BindPFlag("kubeconfig", rootCmd.PersistentFlags().Lookup("kubeconfig"))
+	viper.BindPFlag("kubeconfig", RootCmd.PersistentFlags().Lookup("kubeconfig"))
 
-	rootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
-	viper.BindPFlag("lokocfg", rootCmd.PersistentFlags().Lookup("lokocfg"))
-	rootCmd.PersistentFlags().String("lokocfg-vars", "./lokocfg.vars", "Path to lokocfg.vars file")
-	viper.BindPFlag("lokocfg-vars", rootCmd.PersistentFlags().Lookup("lokocfg-vars"))
+	RootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
+	viper.BindPFlag("lokocfg", RootCmd.PersistentFlags().Lookup("lokocfg"))
+	RootCmd.PersistentFlags().String("lokocfg-vars", "./lokocfg.vars", "Path to lokocfg.vars file")
+	viper.BindPFlag("lokocfg-vars", RootCmd.PersistentFlags().Lookup("lokocfg-vars"))
 }
 
 func cobraInit() {

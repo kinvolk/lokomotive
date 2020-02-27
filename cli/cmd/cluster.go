@@ -32,7 +32,7 @@ var clusterCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(clusterCmd)
+	RootCmd.AddCommand(clusterCmd)
 }
 
 // initialize does common initialization actions between cluster operations

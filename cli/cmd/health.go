@@ -34,7 +34,7 @@ var healthCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(healthCmd)
+	RootCmd.AddCommand(healthCmd)
 }
 
 func runHealth(cmd *cobra.Command, args []string) {
