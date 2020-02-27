@@ -13,7 +13,7 @@ cluster "packet" {
     }
   }
 
-  facility    = "ams1"
+  facility    = "$PACKET_LOCATION"
 
   project_id = "$PACKET_PROJECT_ID"
 
@@ -138,7 +138,7 @@ component "cluster-autoscaler" {
 
   packet {
     project_id = "$PACKET_PROJECT_ID"
-    facility = "ams1"
+    facility = "$PACKET_LOCATION"
   }
 }
 
