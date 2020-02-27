@@ -15,6 +15,7 @@
 package walkers
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -36,16 +37,23 @@ func CopyingWalker(path string, newDirPerms os.FileMode) assets.WalkFunc {
 			return errors.Wrap(err, "failed to create dir")
 		}
 
-		// TODO: If we start packing binaries, make sure they have executable bit set.
-		targetFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0644)
-		if err != nil {
-			return errors.Wrap(err, "failed to open target file")
-		}
-		defer targetFile.Close()
-
-		if _, err := io.Copy(targetFile, r); err != nil {
-			return errors.Wrap(err, "failed to write file")
-		}
-		return nil
+		return writeFile(fileName, r)
 	}
+}
+
+// writeFile writes data from given io.Reader to the file and makes sure, that
+// this is the only content stored in the file.
+func writeFile(p string, r io.Reader) error {
+	// TODO: If we start packing binaries, make sure they have executable bit set.
+	f, err := os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open target file %s: %w", p, err)
+	}
+	defer f.Close()
+
+	if _, err := io.Copy(f, r); err != nil {
+		return fmt.Errorf("failed writing to file %s: %w", p, err)
+	}
+
+	return nil
 }
