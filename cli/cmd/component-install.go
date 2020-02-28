@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components/util/helmutil"
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
@@ -80,7 +80,7 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return diags
 		}
 
-		if err := util.InstallComponent(componentName, component, kubeconfig); err != nil {
+		if err := helmutil.InstallComponent(componentName, component, kubeconfig); err != nil {
 			return err
 		}
 

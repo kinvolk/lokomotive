@@ -24,7 +24,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	_ "github.com/kinvolk/lokomotive/pkg/components/flatcar-linux-update-operator"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components/helmutil"
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
@@ -51,11 +51,11 @@ component "flatcar-linux-update-operator" {}
 	}
 
 	k := testutil.KubeconfigPath(t)
-	if err := util.InstallAsRelease(n, c, k); err != nil {
+	if err := helmutil.InstallAsRelease(n, c, k); err != nil {
 		t.Fatalf("Installing component as release should succeed, got: %v", err)
 	}
 
-	if err := util.InstallAsRelease(n, c, k); err != nil {
+	if err := helmutil.InstallAsRelease(n, c, k); err != nil {
 		t.Fatalf("Installing component twice as release should succeed, got: %v", err)
 	}
 }
