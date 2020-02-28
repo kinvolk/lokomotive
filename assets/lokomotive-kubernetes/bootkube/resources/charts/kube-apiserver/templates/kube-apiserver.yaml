@@ -81,6 +81,9 @@ spec:
         - name: ssl-certs-host
           mountPath: /etc/ssl/certs
           readOnly: true
+        livenessProbe:
+          tcpSocket:
+            port: 6443
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
