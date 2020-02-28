@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -76,7 +76,7 @@ This component only concerns with the installation of openebs-operator. To confi
 class and storage pool claim, check out the [openebs-storage-class](openebs-storage-class.md)
 component.
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

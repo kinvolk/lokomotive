@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -54,7 +54,7 @@ lokoctl component install calico-hostendpoint-controller
 
 This component is installed in the `kube-system` namespace.
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

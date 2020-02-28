@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -56,7 +56,7 @@ lokoctl component install flatcar-linux-update-operator
 
 This component is installed in the `reboot-coordinator` namespace.
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

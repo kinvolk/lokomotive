@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -95,7 +95,7 @@ To install the Gangway component:
 ```bash
 lokoctl component install gangway
 ```
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 
