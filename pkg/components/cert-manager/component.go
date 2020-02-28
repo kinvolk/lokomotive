@@ -23,6 +23,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components/util/helmutil"
 )
 
 const name = "cert-manager"
@@ -60,7 +61,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
+	helmChart, err := helmutil.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
 	if err != nil {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}
@@ -70,7 +71,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
+	renderedFiles, err := helmutil.RenderChart(helmChart, name, c.Namespace, values)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart")
 	}
