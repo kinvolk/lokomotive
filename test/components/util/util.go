@@ -40,12 +40,16 @@ func KubeconfigPath(t *testing.T) string {
 	return kubeconfig
 }
 
-func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
+func buildKubeConfig(t *testing.T) (*restclient.Config, error) {
 	kubeconfig := KubeconfigPath(t)
 
 	t.Logf("using KUBECONFIG=%s", kubeconfig)
 
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	return clientcmd.BuildConfigFromFlags("", kubeconfig)
+}
+
+func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
+	config, err := buildKubeConfig(t)
 	if err != nil {
 		t.Fatalf("could not build config from KUBECONFIG: %v", err)
 	}
