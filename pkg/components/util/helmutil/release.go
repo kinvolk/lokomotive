@@ -55,6 +55,15 @@ func InstallAsManifests(c components.Component, kubeconfig string) error {
 	return k8sutil.CreateAssets(clientConfig, renderedFiles, 1*time.Minute)
 }
 
+// UninstallComponent removes a given component using given kubeconfig.
+func UninstallComponent(name string, c components.Component, kubeconfig string) error {
+	if c.Metadata().Helm != nil {
+		return UninstallRelease(name, c, kubeconfig)
+	}
+
+	return nil
+}
+
 // InstallAsRelease installs a component as a Helm release using a Helm client.
 func InstallAsRelease(name string, c components.Component, kubeconfig string) error {
 	if c.Metadata().Helm == nil {
@@ -136,6 +145,32 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 
 	if _, err := upgrade.Run(name, chart, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("updating chart failed: %w", err)
+	}
+
+	return nil
+}
+
+// UninstallRelease takes the release name and kubeconfig as arguments and uninstalls the given release
+// from ComponentsNamespace. This is an equivalent of 'helm uninstall --namespace <ComponentsNamespace>'.
+func UninstallRelease(name string, c components.Component, kubeconfig string) error {
+	actionConfig := &action.Configuration{}
+
+	// Get the namespace in which the component is installed.
+	componentInstalledNamespace := c.Metadata().Namespace
+
+	if err := actionConfig.Init(
+		kube.GetConfig(kubeconfig, "", componentInstalledNamespace),
+		componentInstalledNamespace,
+		"secret",
+		func(format string, v ...interface{}) {},
+	); err != nil {
+		return err
+	}
+
+	uninstall := action.NewUninstall(actionConfig)
+
+	if _, err := uninstall.Run(name); err != nil {
+		return fmt.Errorf("uninstalling chart failed: %w", err)
 	}
 
 	return nil
