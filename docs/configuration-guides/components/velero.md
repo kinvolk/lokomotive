@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -112,7 +112,7 @@ You can find how to install it in the [official documentation](https://velero.io
 
 To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.2.0/examples/)
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

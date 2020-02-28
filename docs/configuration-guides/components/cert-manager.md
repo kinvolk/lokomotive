@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -52,7 +52,7 @@ To install the cert-manager component:
 ```bash
 lokoctl component install cert-manager
 ```
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

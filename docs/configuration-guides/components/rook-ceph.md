@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -81,7 +81,7 @@ lokoctl component install rook-ceph
 Once the Ceph cluster is ready, an object store can be deployed to start writing to Ceph.
 More information is available at [configuring Ceph object store CRD](https://rook.io/docs/rook/v1.2/ceph-object-store-crd.html)
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

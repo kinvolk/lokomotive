@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -59,7 +59,7 @@ lokoctl component install contour
 
 This component is installed in the `projectcontour` namespace.
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -42,7 +42,7 @@ To install the Metrics server component:
 lokoctl component install metrics-server
 ```
 
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 

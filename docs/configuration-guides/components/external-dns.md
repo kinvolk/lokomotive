@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
 * [Installation](#installation)
-* [Uninstallation](#uninstallation)
+* [Uninstalling](#uninstalling)
 
 ## Introduction
 
@@ -78,7 +78,7 @@ To install the ExternalDNS component:
 ```bash
 lokoctl component install external-dns
 ```
-## Uninstallation
+## Uninstalling
 
 To uninstall the component:
 
