@@ -71,6 +71,10 @@ output "kube-apiserver_values" {
   value = local_file.kube-apiserver.content
 }
 
+output "podcheckpointer_values" {
+  value = local_file.podcheckpointer.content
+}
+
 output "kubernetes_values" {
   value = data.template_file.kubernetes.rendered
 }

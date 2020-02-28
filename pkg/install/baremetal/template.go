@@ -86,6 +86,10 @@ output "initialized" {
 }
 
 # values.yaml content for all deployed charts.
+output "podcheckpointer_values" {
+  value     = module.bare-metal-{{.ClusterName}}.podcheckpointer_values
+}
+
 output "kube-apiserver_values" {
   value     = module.bare-metal-{{.ClusterName}}.kube-apiserver_values
   sensitive = true

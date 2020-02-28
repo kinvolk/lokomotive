@@ -1,0 +1,2 @@
+podCheckpointer:
+  image: ${pod_checkpointer_image}

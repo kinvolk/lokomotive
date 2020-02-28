@@ -84,7 +84,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		// TODO: Check what networking solution we use and update that.
-		for _, c := range []string{"kube-apiserver", "kubernetes", "calico"} { //,"kubelet"} {
+		for _, c := range []string{"podcheckpointer", "kube-apiserver", "kubernetes", "calico"} { //,"kubelet"} {
 			upgradeControlplaneComponent(c, kubeconfigPath, assetDir, ctxLogger, ex)
 		}
 	}

@@ -53,6 +53,10 @@ output "worker_target_group_https" {
 }
 
 # values.yaml content for all deployed charts.
+output "podcheckpointer_values" {
+  value = module.bootkube.podcheckpointer_values
+}
+
 output "kube-apiserver_values" {
   value = module.bootkube.kube-apiserver_values
 }

@@ -1,0 +1,2 @@
+podCheckpointer:
+  image: kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1
