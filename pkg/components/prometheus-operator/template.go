@@ -41,6 +41,9 @@ grafana:
   adminPassword: {{.GrafanaAdminPassword}}
   testFramework:
     enabled: false
+  sidecar:
+    dashboards:
+      searchNamespace: ALL
   rbac:
     pspUseAppArmor: false
 kubeEtcd:
