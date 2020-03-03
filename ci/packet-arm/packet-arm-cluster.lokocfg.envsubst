@@ -13,7 +13,7 @@ cluster "packet" {
     }
   }
 
-  facility    = "sjc1"
+  facility    = "$PACKET_LOCATION"
 
   project_id = "$PACKET_PROJECT_ID"
 
