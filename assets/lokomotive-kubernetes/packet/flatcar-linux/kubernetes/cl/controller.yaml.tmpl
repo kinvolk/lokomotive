@@ -11,7 +11,8 @@ systemd:
             After=create-etcd-config.service
             [Service]
             EnvironmentFile=/etc/kubernetes/etcd.config
-            Environment="ETCD_IMAGE_URL=${etcd_arch_url_prefix}quay.io/coreos/etcd"
+            Environment="ETCD_IMAGE_URL=docker://quay.io/coreos/etcd"
+            Environment="RKT_RUN_ARGS=--insecure-options=image"
             Environment="ETCD_IMAGE_TAG=v3.4.4${etcd_arch_tag_suffix}"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
@@ -27,7 +28,6 @@ systemd:
             Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/etcd/peer.crt"
             Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/etcd/peer.key"
             Environment="ETCD_PEER_CLIENT_CERT_AUTH=true"
-            Environment="RKT_RUN_ARGS=${etcd_arch_rkt_args}"
             Environment="${etcd_arch_options}"
             ExecStopPost=-/opt/etcd-rejoin
     - name: docker.service
