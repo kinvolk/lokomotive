@@ -1,6 +1,18 @@
 ---
 systemd:
   units:
+    - name: set-hostname.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Set the hostname programmitcally for the AWS-preferred format
+        After=network.target
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/sh -c 'hostnamectl set-hostname $(curl -s http://169.254.169.254/latest/meta-data/hostname)'
+        [Install]
+        RequiredBy=kubelet.service
     - name: etcd-member.service
       enable: true
       dropins:
@@ -52,6 +64,7 @@ systemd:
         [Unit]
         Description=Kubelet via Hyperkube
         Wants=rpc-statd.service
+        Wants=set-hostname.service
         [Service]
         ConditionPathExists=/etc/kubernetes/kubeconfig
         EnvironmentFile=/etc/kubernetes/kubelet.env
