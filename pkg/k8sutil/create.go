@@ -353,11 +353,11 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 
 		jsonManifest, err := yaml.ToJSON(yamlManifest)
 		if err != nil {
-			return nil, fmt.Errorf("invalid manifest: %v", err)
+			return nil, fmt.Errorf("invalid manifest: %w", err)
 		}
 		m, err := parseJSONManifest(jsonManifest)
 		if err != nil {
-			return nil, fmt.Errorf("parse manifest: %v", err)
+			return nil, fmt.Errorf("parse manifest: %w", err)
 		}
 		manifests = append(manifests, m...)
 	}
