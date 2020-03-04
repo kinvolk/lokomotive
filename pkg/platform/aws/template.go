@@ -37,8 +37,13 @@ module "aws-{{.Config.ClusterName}}" {
   ssh_keys  = {{$.SSHPublicKeys}}
   asset_dir = "../cluster-assets"
 
+	{{- if .Config.ControllerCount}}
   controller_count = {{.Config.ControllerCount}}
+	{{- end }}
+
+	{{- if .Config.ControllerType}}
   controller_type  = "{{.Config.ControllerType}}"
+	{{- end }}
 
   worker_count = {{.Config.WorkerCount}}
   {{- if .Config.WorkerType }}
@@ -70,12 +75,22 @@ module "aws-{{.Config.ClusterName}}" {
   host_cidr = "{{.Config.HostCIDR}}"
   {{- end }}
 
+	{{- if .Config.OSName }}
   os_name = "{{.Config.OSName}}"
+	{{- end }}
+	{{- if .Config.OSChannel }}
   os_channel = "{{.Config.OSChannel}}"
+	{{- end }}
+	{{- if .Config.OSVersion }}
   os_version = "{{.Config.OSVersion}}"
+	{{- end }}
 
+	{{- if ne .ControllerCLCSnippets "null" }}
   controller_clc_snippets = {{.ControllerCLCSnippets}}
+	{{- end }}
+	{{- if ne .WorkerCLCSnippets "null" }}
   worker_clc_snippets     = {{.WorkerCLCSnippets}}
+	{{- end }}
 
   enable_aggregation = {{.Config.EnableAggregation}}
 

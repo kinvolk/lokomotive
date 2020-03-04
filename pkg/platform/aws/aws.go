@@ -78,21 +78,9 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		OSName:          "flatcar",
-		OSChannel:       "stable",
-		OSVersion:       "current",
-		ControllerCount: 1,
-		ControllerType:  "t3.small",
-		WorkerCount:     2,
-		WorkerType:      "t3.small",
-		Region:          "eu-central-1",
-		// Initialize the string slices to make sure they are
-		// rendered as `[]` when no snippets are given and not
-		// `null`, as the latter would lead to a terraform error
-		ControllerCLCSnippets: make([]string, 0),
-		WorkerCLCSnippets:     make([]string, 0),
-		WorkerTargetGroups:    make([]string, 0),
-		EnableAggregation:     true,
+		WorkerCount:       2,
+		Region:            "eu-central-1",
+		EnableAggregation: true,
 	}
 }
 
