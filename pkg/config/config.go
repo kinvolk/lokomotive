@@ -64,14 +64,14 @@ type Config struct {
 func loadLokocfgPaths(configPath string) ([]string, error) {
 	isDir, err := util.PathIsDir(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to stat config path %q: %v", configPath, err)
+		return nil, fmt.Errorf("failed to stat config path %q: %w", configPath, err)
 	}
 	var lokocfgPaths []string
 	if isDir {
 		globPattern := filepath.Join(configPath, "*.lokocfg")
 		configFiles, err := filepath.Glob(globPattern)
 		if err != nil {
-			return nil, fmt.Errorf("bad filepath glob pattern %q: %v", globPattern, err)
+			return nil, fmt.Errorf("bad filepath glob pattern %q: %w", globPattern, err)
 		}
 		lokocfgPaths = append(lokocfgPaths, configFiles...)
 	} else {
