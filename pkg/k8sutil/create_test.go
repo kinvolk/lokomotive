@@ -16,7 +16,6 @@ package k8sutil
 
 import (
 	"reflect"
-	"strconv"
 	"testing"
 )
 
@@ -200,40 +199,4 @@ items:
 		})
 	}
 
-}
-
-func TestManifestURLPath(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		apiVersion string
-		namespace  string
-
-		plural     string
-		namespaced bool
-
-		want string
-	}{
-		{"v1", "my-ns", "pods", true, "/api/v1/namespaces/my-ns/pods"},
-		{"apps.k8s.io/v1beta1", "my-ns", "deployments", true, "/apis/apps.k8s.io/v1beta1/namespaces/my-ns/deployments"},
-		{"v1", "", "nodes", false, "/api/v1/nodes"},
-		{"apiextensions.k8s.io/v1beta1", "", "customresourcedefinitions", false, "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"},
-		// If non-namespaced, ignore the namespace field. This is to mimic kubectl create
-		// behavior, which allows this but drops the namespace.
-		{"apiextensions.k8s.io/v1beta1", "my-ns", "customresourcedefinitions", false, "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"},
-	}
-
-	for i, test := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			m := manifest{
-				apiVersion: test.apiVersion,
-				namespace:  test.namespace,
-			}
-			got := m.urlPath(test.plural, test.namespaced)
-			if test.want != got {
-				t.Errorf("{&manifest{apiVersion:%q, namespace: %q}).urlPath(%q, %t); wanted=%q, got=%q",
-					test.apiVersion, test.namespace, test.plural, test.namespaced, test.want, got)
-			}
-		})
-	}
 }
