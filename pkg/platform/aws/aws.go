@@ -30,6 +30,10 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
+const (
+	defaultWorkerCount = 2
+)
+
 type config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
 	ClusterName              string            `hcl:"cluster_name"`
@@ -78,7 +82,7 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		WorkerCount:       2,
+		WorkerCount:       defaultWorkerCount,
 		Region:            "eu-central-1",
 		EnableAggregation: true,
 	}
