@@ -1,4 +1,4 @@
-# Lokomotive Bare Metal Installation Guide
+# Lokomotive Bare Metal quickstart guide
 
 ## Contents
 

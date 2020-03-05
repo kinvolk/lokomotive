@@ -1,4 +1,4 @@
-# Lokomotive Packet installation guide
+# Lokomotive Packet quickstart guide
 
 ## Contents
 

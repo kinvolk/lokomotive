@@ -1,4 +1,4 @@
-# Lokomotive AWS installation guide
+# Lokomotive AWS quickstart guide
 
 ## Contents
 
