@@ -138,41 +138,11 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	c.AssetDir = assetDir
 
-	dnsProvider, err := dns.ParseDNS(&c.DNS)
-	if err != nil {
-		return errors.Wrap(err, "parsing DNS configuration failed")
-	}
-
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}
 
-	// If the provider isn't manual, apply everything in a single step.
-	if dnsProvider != dns.DNSManual {
-		return ex.Apply()
-	}
-
-	arguments := []string{"apply", "-auto-approve"}
-
-	// Get DNS entries (it forces the creation of the controller nodes).
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
-
-	// Add worker nodes to speed things up.
-	for index := range c.WorkerPools {
-		arguments = append(arguments, fmt.Sprintf("-target=module.worker-pool-%d.packet_device.nodes", index))
-	}
-
-	// Create controller and workers nodes.
-	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "failed executing Terraform")
-	}
-
-	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
-		return errors.Wrap(err, "failed to configure DNS entries")
-	}
-
-	// Finish deployment.
-	return ex.Apply()
+	return c.terraformSmartApply(ex)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -237,6 +207,40 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
+}
+
+func (c *config) terraformSmartApply(ex *terraform.Executor) error {
+	dnsProvider, err := dns.ParseDNS(&c.DNS)
+	if err != nil {
+		return errors.Wrap(err, "parsing DNS configuration failed")
+	}
+
+	// If the provider isn't manual, apply everything in a single step.
+	if dnsProvider != dns.DNSManual {
+		return ex.Apply()
+	}
+
+	arguments := []string{"apply", "-auto-approve"}
+
+	// Get DNS entries (it forces the creation of the controller nodes).
+	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
+
+	// Add worker nodes to speed things up.
+	for index := range c.WorkerPools {
+		arguments = append(arguments, fmt.Sprintf("-target=module.worker-pool-%d.packet_device.nodes", index))
+	}
+
+	// Create controller and workers nodes.
+	if err := ex.Execute(arguments...); err != nil {
+		return errors.Wrap(err, "failed executing Terraform")
+	}
+
+	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
+		return errors.Wrap(err, "failed to configure DNS entries")
+	}
+
+	// Finish deployment.
+	return ex.Apply()
 }
 
 func (c *config) GetExpectedNodes() int {
