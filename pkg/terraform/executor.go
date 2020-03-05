@@ -293,7 +293,7 @@ func (ex *Executor) Plan() error {
 func (ex *Executor) Output(key string, s interface{}) error {
 	o, err := ex.ExecuteSync("output", "-json", key)
 	if err != nil {
-		return fmt.Errorf("failed getting Terraform output: %v", err)
+		return fmt.Errorf("failed getting Terraform output: %w", err)
 	}
 
 	return json.Unmarshal(o, s)
