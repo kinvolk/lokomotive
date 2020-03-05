@@ -6,7 +6,7 @@ This guide walks through a Lokomotive installation on [Packet](https://packet.ne
 
 * An API token to a Packet account (do not use the project token but a profile token)
 * A Packet project ID
-* Local BGP enabled
+* [Local BGP](https://support.packet.com/kb/articles/bgp) enabled in Packet project
 * A registered domain or subdomain and a DNS provider
 * Terraform v0.12.x
 * [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally
