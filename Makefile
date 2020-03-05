@@ -27,6 +27,13 @@ LDFLAGS := "-X github.com/kinvolk/lokomotive/pkg/version.Version=$(VERSION) -ext
 .PHONY: build
 build: update-assets build-slim
 
+.PHONY: build-test
+build-test:
+	go test -run=nonexistent -mod=$(MOD) -tags="aws,packet,e2e,disruptive-e2e" -covermode=atomic -buildmode=exe -v ./...
+
+.PHONY: all
+all: build build-test test lint
+
 .PHONY: update-assets
 update-assets:
 	GO111MODULE=on go generate -mod=$(MOD) ./...
