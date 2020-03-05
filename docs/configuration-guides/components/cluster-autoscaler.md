@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
-* [Installation](#installation)
+* [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -86,7 +86,7 @@ Example:
 | `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "baremetal_0" | false    |
 | `packet_worker_channel`      | Flatcar Container Linux channel to be used in workers spawned by the Cluster Autoscaler. | "stable"      | false    |
 
-## Installation
+## Installing
 
 To install the cluster autoscaler component:
 

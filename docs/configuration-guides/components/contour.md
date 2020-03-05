@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
-* [Installation](#installation)
+* [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -49,7 +49,7 @@ Example:
 | `service_monitor`| Create ServiceMonitor for Prometheus to scrape Contour and Envoy metrics.                   | false   | false    |
 | `ingress_hosts`  | [ExternalDNS component](external-dns.md) creates DNS entries from the values provided.      | ""      | false    |
 
-## Installation
+## Installing
 
 To install the Contour component:
 

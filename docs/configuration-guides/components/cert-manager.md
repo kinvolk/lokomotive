@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
-* [Installation](#installation)
+* [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -45,7 +45,7 @@ Example:
 | `namespace` | Namespace to deploy the cert-manager into.                   | cert-manager | false    |
 | `webhooks`  | Controls if webhooks should be deployed.                     | true         | false    |
 
-## Installation
+## Installing
 
 To install the cert-manager component:
 

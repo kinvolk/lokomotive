@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
-* [Installation](#installation)
+* [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -68,7 +68,7 @@ Example:
 | `default`       | Indicates whether the storage class is default or not.                                                                        | false   | false    |
 | `disks`         | List of selected unclaimed BlockDevice CRs which are unmounted and do not contain a filesystem in each participating node.    | -       | false    |
 
-## Installation
+## Installing
 
 To install the OpenEBS storage class component:
 

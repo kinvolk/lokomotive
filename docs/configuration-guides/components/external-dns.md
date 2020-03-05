@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
-* [Installation](#installation)
+* [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -71,7 +71,7 @@ Example:
 | `aws.aws_access_key_id`     | AWS access key ID for AWS credentials. Use environment variable AWS_ACCESS_KEY_ID instead.                        | -              | false    |
 | `aws.aws_secret_access_key` | AWS secret access key for AWS credentials. Use environment variable AWS_SECRET_ACCESS_KEY instead.                | -              | false    |
 
-## Installation
+## Installing
 
 To install the ExternalDNS component:
 
