@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Argument reference](#argument-reference)
-* [Installation](#installation)
+* [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -34,7 +34,7 @@ component "metrics-server" {}
 
 This component does not accept any arguments in its configuration.
 
-## Installation
+## Installing
 
 To install the Metrics server component:
 
