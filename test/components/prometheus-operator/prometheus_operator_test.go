@@ -25,6 +25,11 @@ import (
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
+const (
+	retryInterval = time.Second * 5
+	timeout       = time.Minute * 10
+)
+
 func TestPrometheusOperatorDeployment(t *testing.T) {
 	namespace := "monitoring"
 
@@ -41,10 +46,11 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 	}
 
 	for _, deployment := range deployments {
+		deployment := deployment
 		t.Run("deployment", func(t *testing.T) {
 			t.Parallel()
 
-			testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+			testutil.WaitForDeployment(t, client, namespace, deployment, retryInterval, timeout)
 		})
 	}
 
@@ -54,13 +60,14 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 	}
 
 	for _, statefulset := range statefulSets {
+		statefulset := statefulset
 		t.Run(fmt.Sprintf("statefulset %s", statefulset), func(t *testing.T) {
 			t.Parallel()
 			replicas := 1
 
-			testutil.WaitForStatefulSet(t, client, namespace, statefulset, replicas, time.Second*5, time.Minute*5)
+			testutil.WaitForStatefulSet(t, client, namespace, statefulset, replicas, retryInterval, timeout)
 		})
 	}
 
-	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", time.Second*5, time.Minute*10)
+	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", retryInterval, timeout)
 }
