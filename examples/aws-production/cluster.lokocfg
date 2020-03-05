@@ -4,7 +4,7 @@ variable "ssh_public_keys" {}
 variable "grafana_admin_password" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
-
+variable "cert_manager_email" {}
 variable "asset_dir" {
   default = "./lokomotive-assets"
 }
@@ -58,6 +58,10 @@ component "flatcar-linux-update-operator" {}
 component "openebs-operator" {}
 
 component "openebs-storage-class" {}
+
+component "cert-manager" {
+  email = var.cert_manager_email
+}
 
 component "prometheus-operator" {
   grafana_admin_password = var.grafana_admin_password
