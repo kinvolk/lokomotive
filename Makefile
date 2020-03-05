@@ -50,18 +50,13 @@ build-slim:
 		github.com/kinvolk/lokomotive/cmd/lokoctl
 
 .PHONY: test
-test: check-go-format run-unit-tests
+test: run-unit-tests
 
 .PHONY: lint
 lint:
 	golangci-lint run --enable-all --disable=godox --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e,disruptive-e2e --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m ./...
 
 GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
-
-.PHONY: check-go-format
-## Exits with an error if there are files whose formatting differs from gofmt's
-check-go-format:
-	@./scripts/go-lint ${GOFORMAT_FILES}
 
 .PHONY: run-unit-tests
 run-unit-tests:
