@@ -18,7 +18,6 @@ import (
 	"github.com/spf13/cobra"
 
 	// Register a component by adding an anonymous import
-	_ "github.com/kinvolk/lokomotive/pkg/components/calico-hostendpoint-controller"
 	_ "github.com/kinvolk/lokomotive/pkg/components/cert-manager"
 	_ "github.com/kinvolk/lokomotive/pkg/components/cluster-autoscaler"
 	_ "github.com/kinvolk/lokomotive/pkg/components/contour"
