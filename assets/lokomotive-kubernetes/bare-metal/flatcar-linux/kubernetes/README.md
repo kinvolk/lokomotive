@@ -1,1 +1,0 @@
-See [bare-metal documentation](../../../docs/flatcar-linux/bare-metal.md).

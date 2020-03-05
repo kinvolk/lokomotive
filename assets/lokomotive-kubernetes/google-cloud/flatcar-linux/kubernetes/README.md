@@ -1,1 +1,0 @@
-See [Google Cloud documentation](../../../docs/flatcar-linux/google-cloud.md).
