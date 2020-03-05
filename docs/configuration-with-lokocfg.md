@@ -1,6 +1,6 @@
 ## Overview
 
-lokoctl uses a [HCL2](https://github.com/hashicorp/hcl2) based configuration
+lokoctl uses a [HCL2](https://github.com/hashicorp/hcl) based configuration
 language to allow users to configure clusters and components. This configuration
 is read from `.lokocfg` files.
 
@@ -11,7 +11,7 @@ secret values. The details are explained below.
 A configuration directory for a Lokomotive cluster for example could
 look like this:
 
-```
+```console
 my-cluster/
 ├── cert-manager.lokocfg
 ├── cluster.lokocfg
@@ -43,7 +43,7 @@ With the `--lokocfg` command-line parameter, it is possible to load
 `.lokocfg` files from a different directory or to load only a single
 file:
 
-```
+```console
 lokoctl cluster install --lokocfg path/to/my-cluster.lokocfg
 ```
 
@@ -52,12 +52,12 @@ lokoctl cluster install --lokocfg path/to/my-cluster.lokocfg
 It is possible to define variables for values that should be configurable
 or that are secret in a `lokocfg.vars` file.
 
-The `lokocfg.vars` files is **not** meant to be stored in a source code
+The `lokocfg.vars` files are **not** meant to be stored in a source code
 repository.
 
 For example, if you define a variables in a `.lokocfg` file like
 
-```
+```hcl
 variable "github_client_id" {
         type = "string"
 }
@@ -83,12 +83,12 @@ files and the `lokocfg.vars` file.
 
 `pathexpand`: expands a path with `~` in it. Example:
 
-```
+```hcl
 foo_path = pathexpand("~/foo")
 ```
 
 `file`: reads the content of the passed file and returns it as string. Example:
 
-```
+```hcl
 snippet = file("my-snippets/snippet.txt")
 ```
