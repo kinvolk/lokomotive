@@ -96,10 +96,6 @@ data "template_file" "controller-configs" {
     # Cannot use cyclic dependencies on controllers or their DNS records
     etcd_name   = "etcd${count.index}"
     etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
-    # we need to prepend a prefix 'docker://' for arm64, because arm64 images
-    # on quay prevent us from downloading ACI correctly.
-    # So it's workaround to download arm64 images until quay images could be fixed.
-    etcd_arch_url_prefix = var.os_arch == "arm64" ? "docker://" : ""
     etcd_arch_tag_suffix = var.os_arch == "arm64" ? "-arm64" : ""
     etcd_arch_options    = var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
@@ -108,6 +104,11 @@ data "template_file" "controller-configs" {
     ssh_keys              = jsonencode(var.ssh_keys)
     k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix = var.cluster_domain_suffix
+
+    # we need to prepend a prefix 'docker://' for arm64, because arm64 images
+    # on quay prevent us from downloading ACI correctly.
+    # So it's workaround to download arm64 images until quay images could be fixed.
+    image_arch_url_prefix = var.os_arch == "arm64" ? "docker://" : ""
   }
 }
 
