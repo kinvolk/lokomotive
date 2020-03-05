@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"path"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -73,7 +72,7 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
-	kubeconfigPath := path.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
+	kubeconfigPath := assetsKubeconfig(assetDir)
 	if err := verifyInstall(kubeconfigPath, p.GetExpectedNodes()); err != nil {
 		ctxLogger.Fatalf("Verify cluster installation: %v", err)
 	}
