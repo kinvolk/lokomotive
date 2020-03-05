@@ -16,7 +16,6 @@ package util
 
 import (
 	"fmt"
-	"time"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/kube"
@@ -24,7 +23,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
@@ -32,35 +30,11 @@ import (
 
 // InstallComponent installs given component using given kubeconfig.
 func InstallComponent(name string, c components.Component, kubeconfig string) error {
-	if c.Metadata().Helm != nil {
-		return InstallAsRelease(name, c, kubeconfig)
-	}
-
-	return InstallAsManifests(c, kubeconfig)
-}
-
-// InstallAsManifests installs given component by applying manifests directly
-// to the kube-apiserver using given kubeconfig.
-func InstallAsManifests(c components.Component, kubeconfig string) error {
-	renderedFiles, err := c.RenderManifests()
-	if err != nil {
-		return err
-	}
-
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
-		&clientcmd.ConfigOverrides{},
-	)
-
-	return k8sutil.CreateAssets(clientConfig, renderedFiles, 1*time.Minute)
+	return InstallAsRelease(name, c, kubeconfig)
 }
 
 // InstallAsRelease installs a component as a Helm release using a Helm client.
 func InstallAsRelease(name string, c components.Component, kubeconfig string) error {
-	if c.Metadata().Helm == nil {
-		return fmt.Errorf("component %s can't be installed as Helm release", name)
-	}
-
 	actionConfig := &action.Configuration{}
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
@@ -106,6 +80,8 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		return fmt.Errorf("failed checking for chart history: %w", err)
 	}
 
+	wait := c.Metadata().Helm.Wait
+
 	if err == driver.ErrReleaseNotFound {
 		install := action.NewInstall(actionConfig)
 		install.ReleaseName = name
@@ -122,7 +98,7 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		// The example of such dependency is between prometheus-operator and openebs-storage-class, where
 		// both openebs-operator and openebs-storage-class components must be fully functional, before
 		// prometheus-operator is deployed, otherwise it won't pick the default storage class.
-		install.Wait = c.Metadata().Helm.Wait
+		install.Wait = wait
 
 		if _, err := install.Run(chart, map[string]interface{}{}); err != nil {
 			return fmt.Errorf("installing component '%s' as chart failed: %w", name, err)
@@ -132,7 +108,7 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 	}
 
 	upgrade := action.NewUpgrade(actionConfig)
-	upgrade.Wait = c.Metadata().Helm.Wait
+	upgrade.Wait = wait
 
 	if _, err := upgrade.Run(name, chart, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("updating chart failed: %w", err)

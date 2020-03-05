@@ -107,7 +107,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Namespace: c.Namespace,
-		Helm: &components.HelmMetadata{
+		Helm: components.HelmMetadata{
 			// Prometheus-operator registers admission webhooks, so we should wait for the webhook to
 			// become ready before proceeding with installing other components, as it may fail.
 			// If webhooks are registered with 'failurePolicy: Fail', then kube-apiserver will reject

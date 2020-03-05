@@ -91,6 +91,5 @@ func (c *component) RenderManifests() (map[string]string, error) {
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Namespace: c.Namespace,
-		Helm:      &components.HelmMetadata{},
 	}
 }
