@@ -1,4 +1,4 @@
-# Lokomotive AWS installation guide
+# Lokomotive AWS quickstart guide
 
 ## Contents
 
@@ -82,11 +82,11 @@ use. Copy the example configuration to the working directory and modify accordin
 
 The provided configuration installs the Lokomotive cluster and the following components:
 
-* [metrics-server](../configuration-guides/components/metrics-server.md)
-* [openebs-operator](../configuration-guides/components/openebs-operator.md)
-* [flatcar-linux-update-operator](../configuration-guides/components/flatcar-linux-upate-operator.md)
-* [openebs-storage-class](../configuration-guides/components/openebs-storage-class.md)
-* [prometheus-operator](../configuration-guides/components/prometheus-operator.md)
+* [metrics-server](../configuration-reference/components/metrics-server.md)
+* [openebs-operator](../configuration-reference/components/openebs-operator.md)
+* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-upate-operator.md)
+* [openebs-storage-class](../configuration-reference/components/openebs-storage-class.md)
+* [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
 
 You can configure the components as per your requirements.
 
@@ -117,7 +117,7 @@ cluster.lokocfg  prometheus-operator.lokocfg  lokocfg.vars
 ```
 
 For advanced cluster configurations and more information refer to the [AWS configuration
-guide](../configuration-guides/platforms/aws.md).
+guide](../configuration-reference/platforms/aws.md).
 
 ### Step 5: Create Lokomotive cluster
 
@@ -209,4 +209,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component
-configuration guides](../configuration-guides/components).
+configuration guides](../configuration-reference/components).

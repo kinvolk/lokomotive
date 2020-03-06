@@ -1,4 +1,4 @@
-# Lokomotive Packet installation guide
+# Lokomotive Packet quickstart guide
 
 ## Contents
 
@@ -87,14 +87,14 @@ use. Copy the example configuration to the working directory and modify accordin
 
 The provided configuration installs the Lokomotive cluster and the following components:
 
-* [metrics-server](../configuration-guides/components/metrics-server.md)
-* [openebs-operator](../configuration-guides/components/openebs-operator.md)
-* [contour](../configuration-guides/components/contour.md)
-* [metallb](../configuration-guides/components/metallb.md)
-* [cert-manager](../configuration-guides/components/cert-manager.md)
-* [flatcar-linux-update-operator](../configuration-guides/components/flatcar-linux-upate-operator.md)
-* [openebs-storage-class](../configuration-guides/components/openebs-storage-class.md)
-* [prometheus-operator](../configuration-guides/components/prometheus-operator.md)
+* [metrics-server](../configuration-reference/components/metrics-server.md)
+* [openebs-operator](../configuration-reference/components/openebs-operator.md)
+* [contour](../configuration-reference/components/contour.md)
+* [metallb](../configuration-reference/components/metallb.md)
+* [cert-manager](../configuration-reference/components/cert-manager.md)
+* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-upate-operator.md)
+* [openebs-storage-class](../configuration-reference/components/openebs-storage-class.md)
+* [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
 
 You can configure the components as per your requirements.
 
@@ -130,7 +130,7 @@ cluster.lokocfg  metallb.lokocfg  cert-manager.lokocfg lokocfg.vars
 ```
 
 For advanced cluster configurations and more information refer to the [Packet configuration
-guide](../configuration-guides/platforms/packet.md).
+guide](../configuration-reference/platforms/packet.md).
 
 ### Step 5: Create Lokomotive cluster
 
@@ -230,8 +230,8 @@ changing the facility or the machine type.
 ### Failed installation of components that require disk storage
 
 For components that require disk storage such as [Openebs storage
-class](../configuration-guides/components/openebs-storage-class.md), [Prometheus
-Operator](../configuration-guides/components/prometheus-operator.md) machine types with spare disks
+class](../configuration-reference/components/openebs-storage-class.md), [Prometheus
+Operator](../configuration-reference/components/prometheus-operator.md) machine types with spare disks
 should be used.
 
 ## Conclusion
@@ -243,4 +243,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component
-configuration guides](../configuration-guides/components).
+configuration guides](../configuration-reference/components).

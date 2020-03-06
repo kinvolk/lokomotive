@@ -1,4 +1,4 @@
-# Lokomotive Bare Metal Installation Guide
+# Lokomotive Bare Metal quickstart guide
 
 ## Contents
 
@@ -189,7 +189,7 @@ cluster "bare-metal" {
 ```
 
 For advanced cluster configurations and more information refer to the [Bare Metal configuration
-guide](../configuration-guides/platform/baremetal.md).
+guide](../configuration-reference/platform/baremetal.md).
 
 ### Step 5: Create Lokomotive Cluster
 
@@ -278,4 +278,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component configuration
-guides](../configuration-guides/components).
+guides](../configuration-reference/components).
