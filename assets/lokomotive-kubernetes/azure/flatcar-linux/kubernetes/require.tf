@@ -9,7 +9,7 @@ provider "azurerm" {
 }
 
 provider "local" {
-  version = "~> 1.2"
+  version = "1.4.0"
 }
 
 provider "null" {

@@ -59,7 +59,7 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.2"
+  version = "1.4.0"
   alias   = "default"
 }
 

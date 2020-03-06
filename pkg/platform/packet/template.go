@@ -200,7 +200,7 @@ module "dns" {
 }
 
 provider "aws" {
-  version = "~> 2.31.0"
+  version = "2.48.0"
   alias   = "default"
   # The Route 53 service doesn't need a specific region to operate, however
   # the AWS Terraform provider needs it and the documentation suggests to use
@@ -217,7 +217,7 @@ provider "ct" {
 }
 
 provider "local" {
-  version = "~> 1.2"
+  version = "1.4.0"
   alias   = "default"
 }
 
