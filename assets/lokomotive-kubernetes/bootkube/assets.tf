@@ -41,6 +41,18 @@ resource "template_dir" "kube-apiserver" {
   destination_dir = "${var.asset_dir}/charts/kube-system/kube-apiserver"
 }
 
+resource "local_file" "pod-checkpointer" {
+  filename = "${var.asset_dir}/charts/kube-system/pod-checkpointer.yaml"
+  content = templatefile("${path.module}/resources/charts/pod-checkpointer.yaml", {
+    pod_checkpointer_image = var.container_images["pod_checkpointer"]
+  })
+}
+
+resource "template_dir" "pod-checkpointer" {
+  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/pod-checkpointer"
+  destination_dir = "${var.asset_dir}/charts/kube-system/pod-checkpointer"
+}
+
 # Populate kubernetes chart values file named kubernetes.yaml.
 resource "local_file" "kubernetes" {
   content  = data.template_file.kubernetes.rendered
