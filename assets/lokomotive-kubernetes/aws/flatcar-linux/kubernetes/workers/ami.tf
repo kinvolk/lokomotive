@@ -4,11 +4,11 @@ locals {
 
   flavor  = var.os_name
   channel = var.os_channel
-  ver = var.os_version == "current" ? "" : var.os_version
+  ver     = var.os_version == "current" ? "" : var.os_version
 }
 
 data "aws_ami" "coreos" {
-  count  = "${local.flavor == "coreos" ? 1 : 0}"
+  count = "${local.flavor == "coreos" ? 1 : 0}"
 
   most_recent = true
   owners      = ["595879546273"]
@@ -30,7 +30,7 @@ data "aws_ami" "coreos" {
 }
 
 data "aws_ami" "flatcar" {
-  count  = "${local.flavor == "flatcar" ? 1 : 0}"
+  count = "${local.flavor == "flatcar" ? 1 : 0}"
 
   most_recent = true
   owners      = ["075585003325"]

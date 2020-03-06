@@ -2,8 +2,8 @@
 
 # Populate flannel chart values file named flannel.yaml.
 resource "local_file" "flannel" {
-  count    = var.networking == "flannel" ? 1 : 0
-  content  = templatefile("${path.module}/resources/charts/flannel.yaml",{
+  count = var.networking == "flannel" ? 1 : 0
+  content = templatefile("${path.module}/resources/charts/flannel.yaml", {
     flannel_image     = "${var.container_images["flannel"]}${var.container_arch}"
     flannel_cni_image = var.container_images["flannel_cni"]
     pod_cidr          = var.pod_cidr
@@ -34,8 +34,8 @@ data "template_file" "flannel" {
 
 # Populate calico chart values file named calico.yaml.
 resource "local_file" "calico" {
-  count    = var.networking == "calico" ? 1 : 0
-  content  = templatefile("${path.module}/resources/charts/calico.yaml",{
+  count = var.networking == "calico" ? 1 : 0
+  content = templatefile("${path.module}/resources/charts/calico.yaml", {
     calico_image                    = var.container_images["calico"]
     calico_cni_image                = var.container_images["calico_cni"]
     network_mtu                     = var.network_mtu
@@ -80,8 +80,8 @@ data "template_file" "calico" {
 
 # Populate kube-router chart values file named kube-router.yaml.
 resource "local_file" "kube-router" {
-  count    = var.networking == "kube-router" ? 1 : 0
-  content  = templatefile("${path.module}/resources/charts/kube-router.yaml",{
+  count = var.networking == "kube-router" ? 1 : 0
+  content = templatefile("${path.module}/resources/charts/kube-router.yaml", {
     kube_router_image = var.container_images["kube_router"]
     flannel_cni_image = var.container_images["flannel_cni"]
     network_mtu       = var.network_mtu

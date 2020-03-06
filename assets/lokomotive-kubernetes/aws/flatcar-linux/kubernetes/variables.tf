@@ -102,8 +102,8 @@ variable "worker_clc_snippets" {
 }
 
 variable "tags" {
-  type        = map
-  default     = {
+  type = map
+  default = {
     "ManagedBy" = "Lokomotive"
     "CreatedBy" = "Unspecified"
   }

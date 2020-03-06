@@ -15,7 +15,7 @@ resource "template_dir" "bootstrap-manifests" {
 
 resource "local_file" "kube-apiserver" {
   filename = "${var.asset_dir}/charts/kube-system/kube-apiserver.yaml"
-  content  = templatefile("${path.module}/resources/charts/kube-apiserver.yaml", {
+  content = templatefile("${path.module}/resources/charts/kube-apiserver.yaml", {
     hyperkube_image         = var.container_images["hyperkube"]
     pod_checkpointer_image  = var.container_images["pod_checkpointer"]
     etcd_servers            = join(",", formatlist("https://%s:2379", var.etcd_servers))
@@ -60,19 +60,19 @@ data "template_file" "kubernetes" {
   template = "${file("${path.module}/resources/charts/kubernetes.yaml")}"
 
   vars = {
-    hyperkube_image         = var.container_images["hyperkube"]
-    coredns_image           = "${var.container_images["coredns"]}${var.container_arch}"
-    control_plane_replicas  = max(2, length(var.etcd_servers))
-    cloud_provider          = var.cloud_provider
-    pod_cidr                = var.pod_cidr
-    service_cidr            = var.service_cidr
-    cluster_domain_suffix   = var.cluster_domain_suffix
-    cluster_dns_service_ip  = cidrhost(var.service_cidr, 10)
-    trusted_certs_dir       = var.trusted_certs_dir
-    ca_cert                 = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
-    ca_key                  = base64encode(tls_private_key.kube-ca.private_key_pem)
-    server                  = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
-    serviceaccount_key      = base64encode(tls_private_key.service-account.private_key_pem)
+    hyperkube_image        = var.container_images["hyperkube"]
+    coredns_image          = "${var.container_images["coredns"]}${var.container_arch}"
+    control_plane_replicas = max(2, length(var.etcd_servers))
+    cloud_provider         = var.cloud_provider
+    pod_cidr               = var.pod_cidr
+    service_cidr           = var.service_cidr
+    cluster_domain_suffix  = var.cluster_domain_suffix
+    cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
+    trusted_certs_dir      = var.trusted_certs_dir
+    ca_cert                = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
+    ca_key                 = base64encode(tls_private_key.kube-ca.private_key_pem)
+    server                 = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
+    serviceaccount_key     = base64encode(tls_private_key.service-account.private_key_pem)
   }
 }
 
@@ -81,15 +81,15 @@ data "template_file" "kubelet" {
   template = "${file("${path.module}/resources/charts/kubelet.yaml")}"
 
   vars = {
-    hyperkube_image         = var.container_images["hyperkube"]
-    cluster_dns_service_ip  = cidrhost(var.service_cidr, 10)
-    cluster_domain_suffix   = var.cluster_domain_suffix
+    hyperkube_image        = var.container_images["hyperkube"]
+    cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
+    cluster_domain_suffix  = var.cluster_domain_suffix
   }
 }
 
 # Populate kubelet chart values file named kubelet.yaml.
 resource "local_file" "kubelet" {
-  content = data.template_file.kubelet.rendered
+  content  = data.template_file.kubelet.rendered
   filename = "${var.asset_dir}/charts/kube-system/kubelet.yaml"
 }
 
@@ -97,7 +97,7 @@ resource "local_file" "kubelet" {
 # TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
 # The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
 resource "template_dir" "kubelet" {
-  source_dir = "${replace(path.module, path.cwd, ".")}/resources/charts/kubelet"
+  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kubelet"
   destination_dir = "${var.asset_dir}/charts/kube-system/kubelet"
 }
 
