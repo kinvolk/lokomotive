@@ -250,6 +250,15 @@ func (c *config) GetExpectedNodes() int {
 func (c *config) checkValidConfig() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
+	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
+	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+
+	return diagnostics
+}
+
+func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
 	if len(c.WorkerPools) == 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
@@ -258,8 +267,14 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 		})
 	}
 
-	// Check that worker pools names are unique
+	return diagnostics
+}
+
+func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
 	dup := make(map[string]bool)
+
 	for _, w := range c.WorkerPools {
 		if !dup[w.Name] {
 			dup[w.Name] = true
