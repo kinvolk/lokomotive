@@ -92,15 +92,7 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
 		return diags
 	}
-	if len(c.WorkerPools) == 0 {
-		err := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "At least one worker pool must be defined",
-			Detail:   "Make sure to define at least one worker pool block in your cluster block",
-		}
-		return hcl.Diagnostics{err}
-	}
-	return nil
+	return c.checkValidConfig()
 }
 
 func NewConfig() *config {
@@ -251,4 +243,17 @@ func (c *config) GetExpectedNodes() int {
 	}
 
 	return c.ControllerCount + workers
+}
+
+// Check cluster config is valid
+func (c *config) checkValidConfig() hcl.Diagnostics {
+	if len(c.WorkerPools) == 0 {
+		err := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "At least one worker pool must be defined",
+			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+		}
+		return hcl.Diagnostics{err}
+	}
+	return nil
 }
