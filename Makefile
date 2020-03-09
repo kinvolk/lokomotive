@@ -121,15 +121,15 @@ docker-build:
 
 .PHONY: docker-vendor
 docker-vendor: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
+	docker run --rm -ti -v $(shell pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
 
 .PHONY: docker-update-assets
 docker-update-assets: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
+	docker run --rm -ti -v $(shell pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
 
 .PHONY: docker-update-dependencies
 docker-update-dependencies: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
+	docker run --rm -ti -v $(shell pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
 
 .PHONY: docs
 docs:
