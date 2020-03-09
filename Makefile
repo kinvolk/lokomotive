@@ -93,7 +93,8 @@ install-slim:
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install \
 		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
-		-buildmode=exe
+		-buildmode=exe \
+		./cmd/lokoctl
 
 .PHONY: install-packr2
 install-packr2:
