@@ -3,8 +3,8 @@
 ## Setup developer environment
 
 ```bash
-git clone git@github.com:kinvolk/lokoctl.git
-cd lokoctl
+git clone git@github.com:kinvolk/lokomotive.git
+cd lokomotive
 ```
 
 ## Build the code
@@ -13,7 +13,14 @@ cd lokoctl
 make
 ```
 
-To use the assets from disk instead of the ones embedded in the binary, use the `LOKOCTL_USE_FS_ASSETS` environment variable. Empty value means that lokoctl will search for assets in `assets` directory where the binary is. Non empty value should point to the `assets` directory. The `assets` directory should contain subdirectories like `components` and `lokomotive-kubernetes`. Examples:
+To use the assets from disk instead of the ones embedded in the binary,
+use the `LOKOCTL_USE_FS_ASSETS` environment variable.
+
+Empty value means that lokoctl will search for assets in `assets`
+directory where the binary is.
+Non empty value should point to the `assets` directory.
+The `assets` directory should contain subdirectories like `components`
+and `lokomotive-kubernetes`. Examples:
 
 ```bash
 LOKOCTL_USE_FS_ASSETS='' ./lokoctl help
@@ -22,23 +29,17 @@ LOKOCTL_USE_FS_ASSETS='./assets' ./lokoctl help
 
 ## Build with docker
 
-Alternatively, you can use Docker environment to build the binary.
+Alternatively, you can use a Docker environment to build the binary.
 
 ```bash
-docker build .
+make build-in-docker
 ```
 
-## Update the lokomotive-kubernetes to current master
+## Update assets
 
-To update the local git submodule `lokomotive-kubernetes` dir to the latest master run following commands:
+When changing code under `assets/` you need to regenerate assets before
+contributing:
 
-```bash
-cd lokomotive-kubernetes
-git pull --ff-only origin master
-cd ..
-```
-
-And finally regenerate assets:
 ```bash
 make update-assets
 ```
@@ -71,7 +72,7 @@ Here are a few example commit messages:
 
 Good:
 ```
-components/cert-manager: Update manifest to 0.2
+components/cert-manager: update manifest to 0.2
 
 
 Upstream charts for cert-manager has been released to 0.2. This commit
@@ -86,7 +87,7 @@ Update manifest of cert-manager to 0.2
 
 Acceptable:
 ```
-cert-manager: Update manifest to 0.2
+cert-manager: update manifest to 0.2
 ```
 
 This format is acceptable as sometimes nesting parts of the codebase
