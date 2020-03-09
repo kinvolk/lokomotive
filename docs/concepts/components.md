@@ -20,16 +20,23 @@ Sample output:
 
 ```
 Available components:
+	 calico-hostendpoint-controller
 	 cert-manager
+	 cluster-autoscaler
 	 contour
 	 dex
+	 external-dns
 	 flatcar-linux-update-operator
 	 gangway
 	 httpbin
 	 metallb
-	 openebs-storage-class
+	 metrics-server
 	 openebs-operator
+	 openebs-storage-class
 	 prometheus-operator
+	 rook
+	 rook-ceph
+	 velero
 ```
 
 ## Installing a Component
@@ -48,7 +55,7 @@ flag or the `KUBECONFIG` environment variable.
 A set of components to install may also be provided in a `.lokocfg` file:
 
 ```hcl
-component "metallb" {}
+component "flatcar-linux-update-operator" {}
 
 component "contour" {}
 ```
@@ -78,16 +85,3 @@ lokoctl component render-manifest <component_name>
 
 Alternatively, omit the component name to render the manifests for all the components listed in
 `.lokocfg` files (while templating them with any specified configuration parameters).
-
-The output from `render-manifest` can be piped to `kubectl`. Examples:
-
-```
-# Uninstall a component
-lokoctl component render-manifest <component_name> | kubectl delete -f -
-
-# Reinstall a component
-lokoctl component render-manifest <component_name> | kubectl apply -f -
-
-# Check for component config drifts
-lokoctl component render-manifest <component_name> | kubectl diff -f -
-```
