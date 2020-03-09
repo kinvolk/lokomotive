@@ -89,10 +89,10 @@ component "cert-manager" {
   email = var.cert_manager_email
 }
 
-component "flatcar-linux-update-operator" {}
-
 component "openebs-storage-class" {}
 
 component "prometheus-operator" {
   grafana_admin_password = var.grafana_admin_password
 }
+
+component "flatcar-linux-update-operator" {}
