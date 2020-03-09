@@ -120,6 +120,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	if c.ServiceMonitor {
 		rendered["service.yaml"] = service
 		rendered["service-monitor.yaml"] = serviceMonitor
+		rendered["grafana-dashboard.yaml"] = grafanaDashboard
 	}
 
 	return rendered, nil
