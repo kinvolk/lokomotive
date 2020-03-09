@@ -94,8 +94,8 @@ data "template_file" "controller-configs" {
   vars = {
     os_arch = var.os_arch
     # Cannot use cyclic dependencies on controllers or their DNS records
-    etcd_name   = "etcd${count.index}"
-    etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
+    etcd_name            = "etcd${count.index}"
+    etcd_domain          = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
     etcd_arch_tag_suffix = var.os_arch == "arm64" ? "-arm64" : ""
     etcd_arch_options    = var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...

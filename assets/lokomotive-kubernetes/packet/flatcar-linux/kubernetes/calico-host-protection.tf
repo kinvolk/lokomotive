@@ -1,20 +1,20 @@
 resource "local_file" "calico_host_protection" {
   count = var.networking == "calico" ? 1 : 0
 
-  content  = templatefile("${path.module}/calico-host-protection.yaml.tmpl",{
+  content = templatefile("${path.module}/calico-host-protection.yaml.tmpl", {
     host_endpoints = [
       for device in packet_device.controllers :
       {
         name           = "${device.hostname}-bond0",
         interface_name = "bond0",
-        labels         = {
+        labels = {
           "host-endpoint" = "ingress"
           "nodetype"      = "controller"
         }
       }
     ],
-    management_cidrs                = var.management_cidrs
-    cluster_cidrs                   = [
+    management_cidrs = var.management_cidrs
+    cluster_cidrs = [
       var.node_private_cidr,
       var.pod_cidr,
       var.service_cidr
@@ -28,7 +28,7 @@ resource "local_file" "calico_host_protection" {
 # TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
 # The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
 resource "template_dir" "calico_host_protection" {
-  count           = var.networking == "calico" ? 1 : 0
+  count = var.networking == "calico" ? 1 : 0
 
   source_dir      = "${path.module}/calico-host-protection"
   destination_dir = "${var.asset_dir}/charts/kube-system/calico-host-protection"

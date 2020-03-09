@@ -42,7 +42,7 @@ resource "aws_autoscaling_group" "workers" {
       },
     ],
     [
-      for tag in keys(var.tags):
+      for tag in keys(var.tags) :
       {
         key                 = tag == "Name" ? "X-Name" : tag
         value               = var.tags[tag]
