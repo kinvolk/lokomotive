@@ -46,6 +46,26 @@ spec:
         app: envoy
     spec:
       containers:
+      - command:
+        - /bin/contour
+        args:
+          - envoy
+          - shutdown-manager
+        image: docker.io/projectcontour/contour:v1.2.1
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            httpGet:
+              path: /shutdown
+              port: 8090
+              scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8090
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        name: shutdown-manager
       - args:
         - -c
         - /config/envoy.json
@@ -54,7 +74,7 @@ spec:
         - --log-level info
         command:
         - envoy
-        image: docker.io/envoyproxy/envoy:v1.12.2
+        image: docker.io/envoyproxy/envoy:v1.13.1
         imagePullPolicy: IfNotPresent
         name: envoy
         env:
@@ -82,7 +102,7 @@ spec:
             path: /ready
             port: 8002
           initialDelaySeconds: 3
-          periodSeconds: 3
+          periodSeconds: 4
         volumeMounts:
           - name: envoy-config
             mountPath: /config
@@ -92,15 +112,10 @@ spec:
             mountPath: /ca
         lifecycle:
           preStop:
-            exec:
-              command:
-              - bash
-              - -c
-              - --
-              - echo
-              - -ne
-              - "POST /healthcheck/fail HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
-              - '>/dev/tcp/localhost/9001'
+            httpGet:
+              path: /shutdown
+              port: 8090
+              scheme: HTTP
       initContainers:
       - args:
         - bootstrap
@@ -112,8 +127,8 @@ spec:
         - --envoy-key-file=/certs/tls.key
         command:
         - contour
-        image: docker.io/projectcontour/contour:v1.1.0
-        imagePullPolicy: IfNotPresent
+        image: docker.io/projectcontour/contour:v1.2.1
+        imagePullPolicy: Always
         name: envoy-initconfig
         volumeMounts:
         - name: envoy-config
@@ -132,6 +147,7 @@ spec:
       automountServiceAccountToken: false
       # XXX: Lokomotive specific change
       serviceAccountName: envoy
+      terminationGracePeriodSeconds: 300
       volumes:
         - name: envoy-config
           emptyDir: {}
