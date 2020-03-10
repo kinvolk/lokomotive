@@ -1,10 +1,9 @@
-# Setting Up HTTP Load Balancing on Lokomotive with MetalLB and Contour on Packet
+# Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet
 
 ## Contents
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
-* [Estimated Time](#estimated-time)
 * [Step 1: Configure MetalLB and Contour](#step-1-configure-metallb-and-contour)
 * [Step 2: Install MetalLB and Contour](#step-4-install-metallb-and-contour)
 * [Summary](#summary)
@@ -20,13 +19,14 @@ of network load-balancers. Therefore, these services always remain in the `Pendi
 MetalLB aims to address this problem by offering a load balancer implementation for bare metal Kubernetes
 clusters using standard routing protocols.
 
-Contour, on the other hand, addresses the need for an efficient and smooth ingress traffic management at
-the [Layer 7](https://en.wikipedia.org/wiki/OSI_model#Layer_7:_Application_Layer) level.
+Contour, on the other hand, addresses the need for ingress traffic management.
 
 Contour is an Ingress controller for Kubernetes that works by deploying the Envoy proxy as a reverse proxy and load balancer.
 
 This guide provides installation steps to configure MetalLB and Contour to help you set up HTTP load balancing
-on a Lokomotive cluster with Packet Provider.
+on a Lokomotive cluster with Packet provider.
+
+This how-to guide is expected to take about 15 minutes.
 
 ## Learning Objectives
 
@@ -38,13 +38,9 @@ Upon completion of this guide, you will be able to use Service type `LoadBalance
 
 To set up HTTP load balancing, we need the following:
 
-* A Lokomotive cluster accessible via `kubectl` deployed on Packet.
+* A Lokomotive cluster accessible via `kubectl` [deployed on Packet](../quickstarts/packet.md).
 
-* IPv4 address pools for MetalLB to allocate — one address per LoadBalancer Service.
-
-## Estimated Time
-
-This how-to guide is expected to take about 15 minutes.
+* IPv4 address pools for MetalLB to allocate — one address per LoadBalancer Service. On Packet, you need to create [Public Elastic IPs](https://support.packet.com/kb/articles/elastic-ips).
 
 ## Steps
 
@@ -68,13 +64,14 @@ component "metallb" {
 component "contour" {}
 ```
 
+Change "a.b.c.d/X" to the IP address pool CIDR you've created before.
+
 ### Step 2: Install MetalLB and Contour
 
 To install, execute:
 
 ```bash
-lokoctl component install metallb
-lokoctl component install contour
+lokoctl component install
 ```
 
 MetalLB installs in `metallb-system` namespace, whereas Contour installs in `projectcontour` namespace.
@@ -84,7 +81,7 @@ In few minutes pods from MetalLB and Contour are in `Running` state.
 To verify that the BGP sessions are established, check the logs of the MetalLB speaker pods:
 
 ```bash
-$ kubectl logs speaker-89764 -n metallb-system
+$ kubectl -n metallb-system logs -l app=metallb,component=speaker
 ...
 {"caller":"bgp.go:63","event":"sessionUp","localASN":65000,"msg":"BGP session established","peer":"10.88.72.128:179","peerASN":65530,"ts":"2019-09-17T13:10:43.194650355Z"}
 ```
@@ -111,10 +108,8 @@ You can now go ahead and create Ingress resources for your applications using Co
 
 **MetalLB**
 
-* Make sure the Kubernetes CNI network plugin is compatible with MetalLB. You can check compatibility on the MetalLB website under
-[network addons section.](https://metallb.universe.tf/installation/network-addons/)
 * Ensure compatibility with cloud providers. You can check compatibility on the MetalLB website under
-[cloud providers section.](https://metallb.universe.tf/installation/clouds/)
+the [cloud providers section](https://metallb.universe.tf/installation/clouds/).
 * Ensure you have assigned an IPv4 address block for MetalLB to use and there are unused IPv4 addresses available to use.
 
 **Contour**
@@ -127,7 +122,7 @@ You can now go ahead and create Ingress resources for your applications using Co
 ## Additional Resources
 
 For more extensive and complex configuration for MetalLB, you can visit the MetalLB website for
-[configuration options.](https://metallb.universe.tf/configuration/)
+[configuration options](https://metallb.universe.tf/configuration/).
 
-For more in-depth documentation on Contour, please can visit the [Contour Documentation.](https://projectcontour.io/docs/v1.1.0/)
+For more in-depth documentation on Contour, please can visit the [Contour Documentation](https://projectcontour.io/docs/v1.1.0/).
 
