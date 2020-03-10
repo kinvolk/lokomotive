@@ -1,7 +1,7 @@
 FROM golang
 
-COPY . /usr/src/lokoctl
+COPY . /usr/src/lokomotive
 
-WORKDIR /usr/src/lokoctl
+WORKDIR /usr/src/lokomotive
 
 RUN make MOD=vendor install-slim

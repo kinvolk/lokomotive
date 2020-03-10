@@ -1,55 +1,67 @@
-# lokoctl
+# Lokomotive <img align="right" width=384 src="docs/images/lokomotive-logo.svg">
 
-lokoctl is a command line interface for Lokomotive, Kinvolk's open-source
-Kubernetes distribution which includes installers for various platforms and
-add-ons (Lokomotive Components) usable from any Kubernetes cluster.
+Lokomotive is an open source Kubernetes distribution that ships pure upstream
+Kubernetes.
+It focuses on being minimal, easy to use, and secure by default.
 
-### Supported Platforms
+Lokomotive is fully self-hosted and includes [Lokomotive
+Components](docs/concepts/components.md) adding essential functionality for production
+not shipped with upstream Kubernetes.
 
-* [AWS](/docs/installer/aws.md)
-* [Baremetal](/docs/installer/baremetal.md)
-* [Packet](/docs/installer/packet.md)
+## Features
 
-### Components
-
-Lokomotive Components are add-ons to the core Kubernetes installation that add
-extra functionality.
-
-A list of all available components can be get with `lokoctl component list`. Documentation for components can be found in [docs/components](docs/components/).
-
-* [MetalLB](docs/components/metallb.md)
-* [Contour](docs/components/contour.md)
-* [Cluster Autoscaler](docs/components/cluster-autoscaler.md)
-* [Velero](docs/components/velero.md)
+* Kubernetes v1.17.3 (upstream, via
+  [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
+* Fully self-hosted, including the kubelet
+* Single or multi-master, [Calico](https://www.projectcalico.org/) or
+  [flannel](https://github.com/coreos/flannel) networking
+* On-cluster etcd with TLS,
+  [RBAC](https://kubernetes.io/docs/admin/authorization/rbac/)-enabled,
+  [network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
 ## Installation
 
-### Using 'go get'
+Lokomotive provides the lokoctl CLI tool to manage clusters.
+Check the [installation guide](docs/installer/lokoctl.md) to install it.
 
-You can quickly get latest version of `lokoctl` by running following command:
-```
-go get github.com/kinvolk/lokomotive/cmd/lokoctl
-```
+## Getting started
 
-Once finished, `lokoctl` binary should be available in `$GOPATH/bin`.
+Follow one of the quickstart guides for the supported platforms:
 
-### Building from source
+* [Packet quickstart](docs/quickstarts/packet.md)
+* [AWS quickstart](docs/quickstarts/aws.md)
+* [Bare metal quickstart](docs/quickstarts/baremetal.md)
 
-Clone this repository and build the lokoctl binary:
+## Documentation
 
-```bash
-git clone https://github.com/kinvolk/lokomotive
-cd lokomotive
-make
-```
+Check the reference guides:
 
-Run `lokoctl help` to get an overview of all available commands.
+* [Platform configuration references](docs/configuration-reference/platforms)
+* [Component configuration references](docs/configuration-reference/components)
+* [CLI reference](docs/cli/lokoctl.md)
 
-## Setting up a cluster
+## Issues
 
-Detailed installation guides for all supported platforms can be found
-in [docs/installer](docs/installer).
+Please file [issues](https://github.com/kinvolk/lokomotive/issues) on this
+repository.
+
+Before filing an issue, please ensure you have searched through / reviewed
+existing issues.
+
+If an issue or PR you’d like to contribute to is already assigned to someone,
+please reach out to them to coordinate your work.
+
+If you would like to start contributing to an issue or PR, please request to
+have it assigned to yourself.
 
 ## Contributing
 
-Please read the [contribution guidelines](./docs/CONTRIBUTING.md).
+Check out our [contributing guidelines](CONTRIBUTING.md)
+
+## License
+
+Unless otherwise noted, all code in the Lokomotive repository is licensed under
+the [Apache 2.0 license](LICENSE).
+Some portions of the codebase are derived from other projects under different
+licenses; the appropriate information can be found in the header of those
+source files, as applicable.

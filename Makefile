@@ -27,6 +27,11 @@ LDFLAGS := "-X github.com/kinvolk/lokomotive/pkg/version.Version=$(VERSION) -ext
 .PHONY: build
 build: update-assets build-slim
 
+.PHONY: build-in-docker
+build-in-docker:
+	# increase ulimit to workaround https://github.com/golang/go/issues/37436
+	docker run --ulimit memlock=1024000 --rm -ti -v $(shell pwd):/usr/src/lokomotive -w /usr/src/lokomotive golang:1.14 sh -c "make"
+
 .PHONY: build-test
 build-test:
 	go test -run=nonexistent -mod=$(MOD) -tags="aws,packet,e2e,disruptive-e2e" -covermode=atomic -buildmode=exe -v ./...
@@ -93,7 +98,8 @@ install-slim:
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install \
 		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
-		-buildmode=exe
+		-buildmode=exe \
+		./cmd/lokoctl
 
 .PHONY: install-packr2
 install-packr2:
@@ -120,15 +126,15 @@ docker-build:
 
 .PHONY: docker-vendor
 docker-vendor: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
+	docker run --rm -ti -v $(shell pwd):/usr/src/lokomotive kinvolk/lokomotive sh -c "make vendor && chown -R $(shell id -u):$(shell id -g) vendor"
 
 .PHONY: docker-update-assets
 docker-update-assets: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
+	docker run --rm -ti -v $(shell pwd):/usr/src/lokomotive kinvolk/lokomotive sh -c "make update-assets && chown -R $(shell id -u):$(shell id -g) assets"
 
 .PHONY: docker-update-dependencies
 docker-update-dependencies: docker-build
-	docker run --rm -ti -v $(pwd):/usr/src/lokoctl kinvolk/lokomotive sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
+	docker run --rm -ti -v $(shell pwd):/usr/src/lokomotive kinvolk/lokomotive sh -c "make update-dependencies && chown $(shell id -u):$(shell id -g) go.mod go.sum"
 
 .PHONY: docs
 docs:
