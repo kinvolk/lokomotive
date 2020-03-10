@@ -88,12 +88,6 @@ variable "asset_dir" {
   type        = string
 }
 
-variable "networking" {
-  description = "Choice of networking provider (flannel or calico)"
-  type        = string
-  default     = "calico"
-}
-
 variable "pod_cidr" {
   description = "CIDR IPv4 range to assign Kubernetes pods"
   type        = string

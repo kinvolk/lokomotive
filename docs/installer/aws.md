@@ -81,16 +81,12 @@ cluster "aws" {
 	# Leave as default empty string for autoscaling group to use on-demand instances
 	# worker_price = "" (optional)
 
-	# Choice of networking provider (calico or flannel)
-	# Default is calico
-	# networking = "flannel" (optional)
-
-	# CNI interface MTU (applies to calico only)
+	# CNI interface MTU
 	# Use 8981 if using instances types with Jumbo frames.
 	# Default is 1480
 	# network_mtu = 8991 (optional)
 
-	# Enable usage or analytics reporting to upstreams (Calico)
+	# Enable usage or analytics reporting to upstreams
 	# enable_reporting = false (optional)
 
   	# CIDR IPv4 range to assign to EC2 nodes

@@ -67,10 +67,6 @@ output "calico_values" {
   value = module.bootkube.calico_values
 }
 
-output "flannel_values" {
-  value = module.bootkube.flannel_values
-}
-
 output "kube-router_values" {
   value = module.bootkube.kube-router_values
 }

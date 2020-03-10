@@ -68,7 +68,6 @@ type config struct {
 	ManagementCIDRs          []string          `hcl:"management_cidrs"`
 	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
 	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
-	Networking               string            `hcl:"networking,optional"`
 	NetworkMTU               int               `hcl:"network_mtu,optional"`
 	PodCIDR                  string            `hcl:"pod_cidr,optional"`
 	ServiceCIDR              string            `hcl:"service_cidr,optional"`

@@ -8,7 +8,6 @@ module "bootkube" {
   api_servers_ips      = libvirt_domain.controller-machine.*.network_interface.0.addresses.0
   etcd_servers         = data.template_file.controllernames.*.rendered
   asset_dir            = var.asset_dir
-  networking           = var.networking
   network_mtu          = var.network_mtu
 
   network_ip_autodetection_method = var.network_ip_autodetection_method

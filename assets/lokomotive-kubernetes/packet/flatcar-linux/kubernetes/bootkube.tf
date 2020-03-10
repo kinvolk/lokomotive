@@ -7,7 +7,6 @@ module "bootkube" {
   api_servers_external = [local.api_external_fqdn]
   etcd_servers         = local.etcd_fqdn
   asset_dir            = var.asset_dir
-  networking           = var.networking
   network_mtu          = var.network_mtu
 
   # Select private Packet NIC by using the can-reach Calico autodetection option with the first

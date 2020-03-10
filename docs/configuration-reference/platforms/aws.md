@@ -84,8 +84,6 @@ cluster "aws" {
 
   ssh_pubkeys = var.ssh_public_keys
 
-  networking = "calico"
-
   certs_validity_period_hours = 8760
 
   worker_count = var.workers_count
@@ -174,13 +172,12 @@ worker_type = var.custom_default_worker_type
 | `disk_iops`                   | IOPS of the EBS volume (e.g 100).                                                                                                                                                          | 0               | false    |
 | `worker_price`                | Spot price in USD for autoscaling group spot instances. Leave as empty string for autoscaling group to use on-demand instances. Switching in-place from spot to on-demand is not possible. | ""              | false    |
 | `worker_target_groups`        | Additional target group ARNs to which worker instances should be added.                                                                                                                    | []              | false    |
-| `networking`                  | CNI network plugin. Supported values are "flannel", "calico"                                                                                                                               | "calico"        | false    |
-| `network_mtu`                 | CNI interface MTU (applies only to calico). Use 8981 if using instances types with Jumbo frames.                                                                                           | 1480            | false    |
+| `network_mtu`                 | CNI interface MTU. Use 8981 if using instances types with Jumbo frames.                                                                                                                    | 1480            | false    |
 | `host_cidr`                   | CIDR IPv4 range to assign to EC2 nodes.                                                                                                                                                    | "10.0.0.0/16"   | false    |
 | `pod_cidr`                    | CIDR IPv4 range to assign Kubernetes pods.                                                                                                                                                 | "10.2.0.0/16"   | false    |
 | `service_cidr`                | CIDR IPv4 range to assign Kubernetes services.                                                                                                                                             | "10.3.0.0/16"   | false    |
 | `cluster_domain_suffix`       | Cluster's DNS domain.                                                                                                                                                                      | "cluster.local" | false    |
-| `enable_reporting`            | Enables usage or analytics reporting to upstream. (applies to Calico only)                                                                                                                 | false           | false    |
+| `enable_reporting`            | Enables usage or analytics reporting to upstream.                                                                                                                                          | false           | false    |
 | `certs_validity_period_hours` | Validity of all the certificates in hours.                                                                                                                                                 | 8760            | false    |
 
 ### Backend arguments

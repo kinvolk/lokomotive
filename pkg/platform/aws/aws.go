@@ -58,7 +58,6 @@ type config struct {
 	DiskIOPS                 int               `hcl:"disk_iops,optional"`
 	WorkerPrice              string            `hcl:"worker_price,optional"`
 	WorkerTargetGroups       []string          `hcl:"worker_target_groups,optional"`
-	Networking               string            `hcl:"networking,optional"`
 	NetworkMTU               int               `hcl:"network_mtu,optional"`
 	HostCIDR                 string            `hcl:"host_cidr,optional"`
 	PodCIDR                  string            `hcl:"pod_cidr,optional"`
