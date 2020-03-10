@@ -101,6 +101,16 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 		}
 		return hcl.Diagnostics{err}
 	}
+
+	if c.Networking != "" && c.Networking != "calico" {
+		err := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Only calico networking is supported on Packet",
+			Detail:   "We use calico for host protection on the Packet platform",
+		}
+
+		return hcl.Diagnostics{err}
+	}
 	return nil
 }
 
