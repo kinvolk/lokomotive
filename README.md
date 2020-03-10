@@ -34,11 +34,16 @@ Follow one of the quickstart guides for the supported platforms:
 
 ## Documentation
 
-Check the reference guides:
+### Reference guides
 
 * [Platform configuration references](docs/configuration-reference/platforms)
 * [Component configuration references](docs/configuration-reference/components)
 * [CLI reference](docs/cli/lokoctl.md)
+
+### How to guides
+
+* [Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway](docs/how-to-guides/authentication-with-dex-gangway.md)
+* [Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet](docs/how-to-guides/ingress-with-contour-metallb.md))
 
 ## Issues
 
