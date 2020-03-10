@@ -1,10 +1,9 @@
-# Setting Up Cluster Authentication on Lokomotive with GitHub and Dex and Gangway
+# Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway
 
 ## Contents
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
-* [Estimated Time](#estimated-time)
 * [Step 1: Configure Dex and Gangway](#step-1-configure-dex-and-gangway)
 * [Step 2: Register a New OAuth Application](#step-2-register-a-new-oauth-application)
 * [Step 3: Create Variables File](#step-3-create-variables-file)
@@ -20,11 +19,11 @@
 
 ## Introduction
 
-This guide provides installation steps to configure Dex and Gangway with GitHubto help you set up cluster
+This guide provides installation steps to configure Dex and Gangway with GitHub
 authentication on a Lokomotive cluster.
 
 There are two categories of users in Kubernetes: service accounts and human users. The Kubernetes
-API manages service accounts, but not human users.The creation and management of human users and
+API manages service accounts, but not human users. The creation and management of human users and
 managing their authentication is outside the scope of Kubernetes.
 
 Kubernetes supports several authentication strategies. A common strategy is to use external identity
@@ -41,6 +40,8 @@ layer between the Kubernetes API server and external identity providers.
 [Gangway](https://github.com/heptiolabs/gangway) is a web application that allows obtaining OIDC
 tokens from identity providers and automatically generating kubeconfigs to be used by Kubernetes
 users.
+
+This how-to guide is expected to take about 45 minutes.
 
 ## Learning Objectives
 
@@ -59,25 +60,21 @@ To create a fully functioning OIDC authentication infrastructure, we need the fo
 
 * [cert-manager](https://cert-manager.io/docs/) deployed on the cluster.
 
-  Installation instructions for [cert-manager](configuration-guides/cert-manager) Lokomotive component.
+  Installation instructions for [cert-manager](../configuration-reference/cert-manager) Lokomotive component.
 
 * [MetalLB](https://metallb.universe.tf/) deployed on the cluster.
 
   **NOTE**: Required only for the bare metal and Packet providers.
 
-   Installation instructions for [MetalLB](configuration-guides/metallb) component.
+   Installation instructions for [MetalLB](../configuration-reference/metallb) component.
 
 * [Contour](https://projectcontour.io/) deployed on the cluster.
 
-  Installation instructions for [Contour](configuration-guides/contour) component.
+  Installation instructions for [Contour](../configuration-reference/contour) component.
 
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) deployed on the cluster.
 
-   Installation instructions for [ExternalDNS](configuration-guides/externaldns) component.
-
-## Estimated Time
-
-This how-to guide is expected to take about 45 minutes.
+   Installation instructions for [ExternalDNS](../configuration-reference/externaldns) component.
 
 ## Steps
 
@@ -115,10 +112,10 @@ variable "gangway_session_key" {
 # Dex component configuration.
 component "dex" {
   # NOTE: This name should match with the contour component configuration
-  `ingress_hosts`
-  ingress_host = "dex.test-cluster.lokomotive.org"
+  # `ingress_hosts`
+  ingress_host = "dex.YOUR.CLUSTER.DOMAIN.NAME"
 
-  issuer_host = "https://dex.test-cluster.lokomotive.org"
+  issuer_host = "https://dex.YOUR.CLUSTER.DOMAIN.NAME"
 
   # GitHub connector configuration.
   connector "github" {
@@ -131,7 +128,7 @@ component "dex" {
       client_secret = var.github_client_secret
 
       # The authorization callback URL as configured with GitHub.
-      redirect_uri = "https://dex.test-cluster.lokomotive.org/callback"
+      redirect_uri = "https://dex.YOUR.CLUSTER.DOMAIN.NAME/callback"
 
       # Can be 'name', 'slug' or 'both'.
       # See https://github.com/dexidp/dex/blob/master/Documentation/connectors/github.md
@@ -159,19 +156,19 @@ component "dex" {
 
 # Gangway component configuration.
 component "gangway" {
-  cluster_name = "test-cluster"
+  cluster_name = "YOUR-CLUSTER-NAME"
 
-  ingress_host = "gangway.test-cluster.lokomotive.org"
+  ingress_host = "gangway.YOUR.CLUSTER.DOMAIN.NAME"
 
   session_key = var.gangway_session_key
 
-  api_server_url = "https://test-cluster.lokomotive.org:6443"
+  api_server_url = "https://YOUR.CLUSTER.DOMAIN.NAME:6443"
 
   # Dex 'auth' endpoint.
-  authorize_url = "https://dex.test-cluster.lokomotive.org/auth"
+  authorize_url = "https://dex.YOUR.CLUSTER.DOMAIN.NAME/auth"
 
   # Dex 'token' endpoint.
-  token_url = "https://dex.test-cluster.lokomotive.org/token"
+  token_url = "https://dex.YOUR.CLUSTER.DOMAIN.NAME/token"
 
   # The static client id and secret.
   client_id     = var.dex_static_client_gangway_id
@@ -210,7 +207,7 @@ dex_static_client_gangway_id="gangway"
 
 # A random secret key (create one with `openssl rand -base64 32`)
 gangway_session_key="PMXEGiQ7fScPxuKS/DAimsCHueeWxT7HBL6I16sZzHE="
-gangway_redirect_url = "https://gangway.test-cluster.lokomotive.org>/callback"
+gangway_redirect_url = "https://gangway.YOUR.CLUSTER.DOMAIN.NAME>/callback"
 
 # GitHub OAuth application client ID and secret.
 github_client_id = "87a2e79c21e7ed32re51"
@@ -222,8 +219,7 @@ github_client_secret = "1708gg95433178e6cb63ae2f86b42b78g3810978"
 To install, execute:
 
 ```bash
-lokoctl component install dex
-lokoctl component install gangway
+lokoctl component install
 ```
 
 In few minutes cert-manager component issues the TLS certificates for the Dex and Gangway Ingress hosts.
@@ -232,17 +228,17 @@ Issuing an HTTPS request to the discovery endpoint verifies the successful insta
 of Dex.
 
 ```bash
-$ curl https://dex.test-cluster.lokomotive.org/.well-known/openid-configuration
+$ curl https://dex.YOUR.CLUSTER.DOMAIN.NAME/.well-known/openid-configuration
 
 {
-  "issuer": "https://dex.test-cluster.lokomotive.org",
+  "issuer": "https://dex.YOUR.CLUSTER.DOMAIN.NAME",
   .
   .
   .
 }
 ```
 
-To verify the Gangway installation, open the URL `https://gangway.test-cluster.lokomotive.org` on your browser.
+To verify the Gangway installation, open the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME` on your browser.
 
 ### Step 5: Configure An API Server to Use Dex as an OIDC Authenticator
 
@@ -260,10 +256,10 @@ To reconfigure the API server with specific flags, edit the `kube-apiserver` Dae
 kubectl -n kube-system edit daemonset kube-apiserver
 ```
 
-Add the following arguments:
+Add the following CLI arguments to the API Server container:
 
 ```bash
---oidc-issuer-url=https://dex.test-cluster.lokomotive.org
+--oidc-issuer-url=https://dex.YOUR.CLUSTER.DOMAIN.NAME
 --oidc-client-id=gangway
 --oidc-username-claim=email
 --oidc-groups-claim=groups
@@ -273,27 +269,29 @@ Set the argument values according to the following table
 
 | Argument | Value |
 | ------------- | -------- |
-| `--oidc-issuer-url`| Value of the `issuer_host` in the Dex configuration. |
+| `--oidc-issuer-url`| Value of `issuer_host` in the Dex configuration. |
 | `--oidc-client-id` | The client ID obtained from GitHub in step 2. |
 
 Example:
 
 ```bash
-     containers:
-      - command:
-        - /hyperkube
-        - kube-apiserver
-        - --advertise-address=$(POD_IP)
-        - --allow-privileged=true
-        - --anonymous-auth=false
-        - --authorization-mode=RBAC
+    containers:
+    - command:
+      .
+      .
+      .
+      - exec /hyperkube \
+        kube-apiserver \
+        --advertise-address=$(POD_IP) \
+        --allow-privileged=true \
+        --anonymous-auth=false \
+        --authorization-mode=RBAC \
         .
         .
         .
-        .
-        --oidc-issuer-url=https://dex.test-cluster.lokomotive.org
-        --oidc-client-id=gangway
-        --oidc-username-claim=email
+        --oidc-issuer-url=https://dex.YOUR.CLUSTER.DOMAIN.NAME \
+        --oidc-client-id=gangway \
+        --oidc-username-claim=email \
         --oidc-groups-claim=groups
 ```
 
@@ -305,8 +303,8 @@ kubectl get pods -n kube-system
 
 ## Step 6: Authenticate With Gangway (For Users)
 
-Sign in to Gangway using the URL `https://gangway.test-cluster.lokomotive.org`.
-ou should be able to authenticate via GitHub. Upon successful authentication, you should be redirected to https://gangway.test-cluster.lokomotive.org/commandline.
+Sign in to Gangway using the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME`.
+ou should be able to authenticate via GitHub. Upon successful authentication, you should be redirected to https://gangway.YOUR.CLUSTER.DOMAIN.NAME/commandline.
 
 Gangway provides further instructions for configuring `kubectl` to gain access to the cluster.
 
@@ -325,7 +323,7 @@ kubectl create clusterrolebinding view-only --clusterrole view --user='jane@exam
 
 ## Summary
 
-In this guide you've learned how use Dex and Gangway to leverage existing identity providers for authentication and authorization on Lokomotive clusters."
+In this guide you've learned how use Dex and Gangway to leverage existing identity providers for authentication and authorization on Lokomotive clusters.
 
 ## Troubleshooting
 
@@ -335,7 +333,7 @@ Check the following:
 
 * Check the ExternalDNS component logs for the created DNS entries matching the contour component.
 
-* If the DNS entries are already created, ensure that `dex.test-cluster.lokomotive.org` and `gangway.test-cluster.lokomotive.org` matches
+* If the DNS entries are already created, ensure that `dex.YOUR.CLUSTER.DOMAIN.NAME` and `gangway.YOUR.CLUSTER.DOMAIN.NAME` matches
 the field `ingress_hosts` in contour configuration.
 
 * Verify the configuration in `auth.lokocfg`.
@@ -349,7 +347,7 @@ kubectl get certs --all-namespaces
 * Check the logs of cert-manager logs for errors related to issuing TLS certificates.
 
 ```bash
-kubectl logs -n cert-manager cert-manager-c38bff7ed-cqh3w
+kubectl -n cert-manager logs -l app=cert-manager
 ```
 
 **You are able to log in but have no permissions.**
@@ -365,8 +363,7 @@ For more information about OpenID Connect, see [OpenID Connect](https://openid.n
 website.
 
 To learn about Kubernetes authentication through Dex, visit [Dex
-documentation.](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md)
+documentation](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md).
 
 For more information about OIDC authentication using Gangway, visit [How Gangway
-works.](https://github.com/heptiolabs/gangway#how-it-works)
-
+works](https://github.com/heptiolabs/gangway#how-it-works).
