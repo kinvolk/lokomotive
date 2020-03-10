@@ -122,7 +122,7 @@ cluster "packet" {
 	# Cluster domain suffix
 	# cluster_domain_suffix = "cluster.local" (optional)
 
-	# CNI plugin (flannel or calico)
+	# CNI plugin (only calico supported on Packet)
 	# networking = "calico" (optional)
 
 	# CNI interface MTU (applies to calico only)
