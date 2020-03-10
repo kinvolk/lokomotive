@@ -42,33 +42,3 @@ data "template_file" "calico" {
     enable_reporting                = var.enable_reporting
   }
 }
-
-# Populate kube-router chart values file named kube-router.yaml.
-resource "local_file" "kube-router" {
-  count = var.networking == "kube-router" ? 1 : 0
-  content = templatefile("${path.module}/resources/charts/kube-router.yaml", {
-    kube_router_image = var.container_images["kube_router"]
-    network_mtu       = var.network_mtu
-  })
-  filename = "${var.asset_dir}/charts/kube-system/kube-router.yaml"
-}
-
-# Populate kube-router chart.
-# TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
-# The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
-resource "template_dir" "kube-router" {
-  count           = var.networking == "kube-router" ? 1 : 0
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kube-router"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kube-router"
-}
-
-# Render kube-router.yaml for kube-router chart.
-data "template_file" "kube-router" {
-  count    = var.networking == "kube-router" ? 1 : 0
-  template = "${file("${path.module}/resources/charts/kube-router.yaml")}"
-
-  vars = {
-    kube_router_image = var.container_images["kube_router"]
-    network_mtu       = var.network_mtu
-  }
-}

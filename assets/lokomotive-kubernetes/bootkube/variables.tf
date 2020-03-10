@@ -38,7 +38,7 @@ variable "cloud_provider" {
 }
 
 variable "network_mtu" {
-  description = "CNI interface MTU (only applies to calico and kube-router)"
+  description = "CNI interface MTU"
   type        = number
   default     = 1500
 }
@@ -91,8 +91,6 @@ variable "container_images" {
   default = {
     calico     = "calico/node:v3.12.0"
     calico_cni = "calico/cni:v3.12.0"
-    # only amd64 images available for cloudnativelabs/kube-router
-    kube_router      = "cloudnativelabs/kube-router:v0.3.2"
     hyperkube        = "k8s.gcr.io/hyperkube:v1.17.3"
     coredns          = "coredns/coredns:coredns-"
     pod_checkpointer = "kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1"

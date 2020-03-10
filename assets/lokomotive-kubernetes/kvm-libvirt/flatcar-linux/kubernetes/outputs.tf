@@ -38,7 +38,3 @@ output "kubelet_values" {
 output "calico_values" {
   value = module.bootkube.calico_values
 }
-
-output "kube-router_values" {
-  value = module.bootkube.kube-router_values
-}
