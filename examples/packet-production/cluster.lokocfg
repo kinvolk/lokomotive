@@ -8,6 +8,7 @@ variable "cert_manager_email" {}
 variable "grafana_admin_password" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
+variable "metallb_address_pool" {}
 
 variable "asset_dir" {
   default = "./lokomotive-assets"
@@ -83,7 +84,11 @@ component "openebs-operator" {}
 
 component "contour" {}
 
-component "metallb" {}
+component "metallb" {
+  address_pools = {
+    default = var.metallb_address_pool
+  }
+}
 
 component "cert-manager" {
   email = var.cert_manager_email

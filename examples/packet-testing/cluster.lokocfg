@@ -4,6 +4,7 @@ variable "packet_project_id" {}
 variable "ssh_public_keys" {}
 variable "cert_manager_email" {}
 variable "grafana_admin_password" {}
+variable "metallb_address_pool" {}
 
 variable "asset_dir" {
   default = "./lokomotive-assets"
@@ -72,7 +73,11 @@ component "openebs-operator" {}
 
 component "contour" {}
 
-component "metallb" {}
+component "metallb" {
+  address_pools = {
+    default = var.metallb_address_pool
+  }
+}
 
 component "cert-manager" {
   email = var.cert_manager_email
