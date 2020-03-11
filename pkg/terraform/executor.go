@@ -173,6 +173,14 @@ func tailFile(path string, done chan struct{}, wg *sync.WaitGroup) {
 // Terraform call itself failed, in which case, details can be found in the
 // output.
 func (ex *Executor) Execute(args ...string) error {
+	return ex.execute(ex.verbose, args...)
+}
+
+func (ex *Executor) executeVerbose(args ...string) error {
+	return ex.execute(true, args...)
+}
+
+func (ex *Executor) execute(verbose bool, args ...string) error {
 	pid, done, err := ex.ExecuteAsync(args...)
 	if err != nil {
 		return fmt.Errorf("failed executing Terraform command with arguments '%s' in directory %s: %w", strings.Join(args, " "), ex.WorkingDirectory(), err)
@@ -191,7 +199,7 @@ func (ex *Executor) Execute(args ...string) error {
 	p := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
 	// If we print output, schedule it as well.
-	if ex.verbose {
+	if verbose {
 		wg.Add(1)
 
 		go tailFile(p, done, &wg)
@@ -285,7 +293,11 @@ func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
 
 // Plan runs 'terraform plan'.
 func (ex *Executor) Plan() error {
-	return ex.Execute("plan")
+	if err := ex.Execute("refresh"); err != nil {
+		return err
+	}
+
+	return ex.executeVerbose("plan", "-refresh=false")
 }
 
 // Output gets output value from Terraform in JSON format and tries to unmarshal it
