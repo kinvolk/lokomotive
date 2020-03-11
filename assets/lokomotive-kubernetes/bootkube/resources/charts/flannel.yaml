@@ -1,4 +1,0 @@
-flannel:
-  image: ${flannel_image}
-  cniImage: ${flannel_cni_image}
-  podCIDR: ${pod_cidr}

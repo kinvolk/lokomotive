@@ -37,14 +37,8 @@ variable "cloud_provider" {
   default     = ""
 }
 
-variable "networking" {
-  description = "Choice of networking provider (flannel or calico or kube-router)"
-  type        = string
-  default     = "flannel"
-}
-
 variable "network_mtu" {
-  description = "CNI interface MTU (only applies to calico and kube-router)"
+  description = "CNI interface MTU"
   type        = number
   default     = 1500
 }
@@ -85,23 +79,18 @@ variable "cluster_domain_suffix" {
 }
 
 variable "container_arch" {
-  description = "Architecture suffix for the container images coredns/coredns:coredns- and quay.io/coreos/flannel:v0.11.0- (e.g., arm64)"
+  description = "Architecture suffix for the container image coredns/coredns:coredns- (e.g., arm64)"
   type        = string
   default     = "amd64"
 }
 
 variable "container_images" {
-  description = "Container images to use (the coredns and flannel entry will get -$${var.container_arch} appended)"
+  description = "Container images to use (the coredns entry will get -$${var.container_arch} appended)"
   type        = map(string)
 
   default = {
     calico     = "calico/node:v3.12.0"
     calico_cni = "calico/cni:v3.12.0"
-    flannel    = "quay.io/coreos/flannel:v0.11.0-"
-    # only amd64 images available for flannel_cni
-    flannel_cni = "quay.io/coreos/flannel-cni:v0.3.0"
-    # only amd64 images available for cloudnativelabs/kube-router
-    kube_router      = "cloudnativelabs/kube-router:v0.3.2"
     hyperkube        = "k8s.gcr.io/hyperkube:v1.17.3"
     coredns          = "coredns/coredns:coredns-"
     pod_checkpointer = "kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1"

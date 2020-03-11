@@ -96,8 +96,6 @@ cluster "packet" {
 
   node_private_cidr = var.node_private_cidr
 
-  networking = "calico"
-
   cluster_domain_suffix = "cluster.local"
 
   network_mtu = 1480
@@ -205,12 +203,11 @@ node_type = var.custom_default_worker_type
 | `management_cidrs`                    | List of IPv4 CIDRs authorized to access or manage the cluster. Example ["0.0.0.0/0"] to allow all.                                                                            | -               | true     |
 | `node_private_cidr`                   | Private IPv4 CIDR of the nodes used to allow inter-node traffic. Example "10.0.0.0/8"                                                                                         | -               | true     |
 | `enable_aggregation`                  | Enable the Kubernetes Aggregation Layer.                                                                                                                                      | true            | false    |
-| `networking`                          | CNI network plugin ("flannel" or "calico").                                                                                                                                   | "calico"        | false    |
-| `network_mtu`                         | CNI interface MTU (applies to Calico only).                                                                                                                                   | 1480            | false    |
+| `network_mtu`                         | CNI interface MTU                                                                                                                                                             | 1480            | false    |
 | `pod_cidr`                            | CIDR IPv4 range to assign Kubernetes pods.                                                                                                                                    | "10.2.0.0/16"   | false    |
 | `service_cidr`                        | CIDR IPv4 range to assign Kubernetes services.                                                                                                                                | "10.3.0.0/16"   | false    |
 | `cluster_domain_suffix`               | Cluster's DNS domain.                                                                                                                                                         | "cluster.local" | false    |
-| `enable_reporting`                    | Enables usage or analytics reporting to upstream. (applies to Calico only).                                                                                                   | false           | false    |
+| `enable_reporting`                    | Enables usage or analytics reporting to upstream.                                                                                                                             | false           | false    |
 | `reservation_ids`                     | Specify Packet hardware reservation ID for instances.                                                                                                                         | -               | false    |
 | `reservation_ids_default`             | Default reservation ID for nodes not listed in the `reservation_ids`. The value`next-available` will choose any reservation that matches the pool's device type and facility. | ""              | false    |
 | `certs_validity_period_hours`         | Validity of all the certificates in hours.                                                                                                                                    | 8760            | false    |

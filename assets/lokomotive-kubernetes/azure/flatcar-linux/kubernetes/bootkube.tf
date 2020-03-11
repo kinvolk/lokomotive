@@ -7,9 +7,6 @@ module "bootkube" {
   etcd_servers = formatlist("%s.%s", azurerm_dns_a_record.etcds.*.name, var.dns_zone)
   asset_dir    = var.asset_dir
 
-  networking = var.networking
-
-  # only effective with Calico networking
   network_encapsulation = "vxlan"
 
   # we should be able to use 1450 MTU, but in practice, 1410 was needed

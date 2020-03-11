@@ -13,8 +13,8 @@ not shipped with upstream Kubernetes.
 * Kubernetes v1.17.3 (upstream, via
   [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
 * Fully self-hosted, including the kubelet
-* Single or multi-master, [Calico](https://www.projectcalico.org/) or
-  [flannel](https://github.com/coreos/flannel) networking
+* Single or multi-master
+* [Calico](https://www.projectcalico.org/) networking
 * On-cluster etcd with TLS,
   [RBAC](https://kubernetes.io/docs/admin/authorization/rbac/)-enabled,
   [network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)

@@ -122,16 +122,13 @@ cluster "packet" {
 	# Cluster domain suffix
 	# cluster_domain_suffix = "cluster.local" (optional)
 
-	# CNI plugin (flannel or calico)
-	# networking = "calico" (optional)
-
-	# CNI interface MTU (applies to calico only)
+	# CNI interface MTU
 	# network_mtu = 1480 (optional)
 
 	# Enable usage or analytics reporting to upstreams (Calico)
 	# enable_reporting = false (optional)
 
-	# Method to autodetect the host IPv4 address (applies to calico only)
+	# Method to autodetect the host IPv4 address
 	# network_ip_autodetection_method = "first-found" (optional)
 
 	# CIDR IPv4 range to assign Kubernetes pods

@@ -1,4 +1,0 @@
-kubeRouter:
-  image: ${kube_router_image}
-  cniImage: ${flannel_cni_image}
-  networkMTU: ${network_mtu}

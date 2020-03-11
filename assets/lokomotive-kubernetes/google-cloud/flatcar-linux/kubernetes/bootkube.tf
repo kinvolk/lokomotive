@@ -6,7 +6,6 @@ module "bootkube" {
   api_servers           = [format("%s.%s", var.cluster_name, var.dns_zone)]
   etcd_servers          = google_dns_record_set.etcds.*.name
   asset_dir             = var.asset_dir
-  networking            = var.networking
   network_mtu           = 1440
   pod_cidr              = var.pod_cidr
   service_cidr          = var.service_cidr

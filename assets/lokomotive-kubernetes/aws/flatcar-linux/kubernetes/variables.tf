@@ -122,14 +122,8 @@ variable "asset_dir" {
   type        = string
 }
 
-variable "networking" {
-  description = "Choice of networking provider (calico or flannel)"
-  type        = string
-  default     = "calico"
-}
-
 variable "network_mtu" {
-  description = "CNI interface MTU (applies to calico only). Use 8981 if using instances types with Jumbo frames."
+  description = "CNI interface MTU. Use 8981 if using instances types with Jumbo frames."
   type        = number
   default     = 1480
 }

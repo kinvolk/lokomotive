@@ -63,16 +63,10 @@ module "packet-{{.Config.ClusterName}}" {
 
   enable_aggregation = {{.Config.EnableAggregation}}
 
-  {{- if .Config.Networking }}
-  networking = "{{.Config.Networking}}"
-  {{- end }}
-
-  {{- if eq .Config.Networking "calico" }}
   {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
   {{- end }}
   enable_reporting = {{.Config.EnableReporting}}
-  {{- end }}
 
   {{- if .Config.PodCIDR }}
   pod_cidr = "{{.Config.PodCIDR}}"

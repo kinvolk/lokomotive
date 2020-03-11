@@ -1,4 +1,0 @@
-flannel:
-  image: quay.io/coreos/flannel:v0.11.0-amd64
-  cniImage: quay.io/coreos/flannel-cni:v0.3.0
-  podCIDR: 10.2.0.0/16

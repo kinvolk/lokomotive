@@ -78,11 +78,3 @@ output "kubelet_values" {
 output "calico_values" {
   value = join("", local_file.calico.*.content)
 }
-
-output "flannel_values" {
-  value = join("", local_file.flannel.*.content)
-}
-
-output "kube-router_values" {
-  value = join("", local_file.kube-router.*.content)
-}

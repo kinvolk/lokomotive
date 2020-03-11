@@ -58,20 +58,14 @@ variable "asset_dir" {
   type        = string
 }
 
-variable "networking" {
-  description = "Choice of networking provider (flannel or calico)"
-  type        = string
-  default     = "calico"
-}
-
 variable "network_mtu" {
-  description = "CNI interface MTU (applies to calico only)"
+  description = "CNI interface MTU"
   type        = number
   default     = 1480
 }
 
 variable "network_ip_autodetection_method" {
-  description = "Method to autodetect the host IPv4 address (applies to calico only)"
+  description = "Method to autodetect the host IPv4 address"
   type        = string
   default     = "first-found"
 }
