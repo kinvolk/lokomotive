@@ -5,17 +5,17 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Step 1: Configure Dex and Gangway](#step-1-configure-dex-and-gangway)
-* [Step 2: Register a New OAuth Application](#step-2-register-a-new-oauth-application)
-* [Step 3: Create Variables File](#step-3-create-variables-file)
+* [Step 2: Register a new OAuth application](#step-2-register-a-new-oauth-application)
+* [Step 3: Create variables file](#step-3-create-variables-file)
 * [Step 4: Install Dex and Gangway](#step-4-install-dex-and-gangway)
-* [Step 5: Configure an API Server to Use Dex as an OIDC
-   Authenticator](#step-5-configure-an-api-server-to-use-dex-as-an-oidc-authenticator)
-* [Step 6: Authenticate With Gangway (For Users)](#step-6-authenticate-with-gangway-for-users)
-* [Step 7: Authorize Users (For Cluster
-   Administrators)](#step-7-authorize-users-for-cluster-administrators)
+* [Step 5: Configure the API server to use Dex as an OIDC
+   authenticator](#step-5-configure-the-api-server-to-use-dex-as-an-oidc-authenticator)
+* [Step 6: Authenticate with Gangway (for users)](#step-6-authenticate-with-gangway-for-users)
+* [Step 7: Authorize users (for cluster
+   administrators)](#step-7-authorize-users-for-cluster-administrators)
 * [Summary](#summary)
 * [Troubleshooting](#troubleshooting)
-* [Additional Resources](#additional-resources)
+* [Additional resources](#additional-resources)
 
 ## Introduction
 
@@ -43,7 +43,7 @@ users.
 
 This how-to guide is expected to take about 45 minutes.
 
-## Learning Objectives
+## Learning objectives
 
 This guide assumes familiarity with Kubernetes authorization and authentication mechanisms.
 
@@ -80,9 +80,9 @@ To create a fully functioning OIDC authentication infrastructure, we need the fo
 
 ### Step 1: Configure Dex and Gangway
 
-Dex and Gangway are available as a Lokomotive component. A configuration file is needed to install Dex and Gangway.
+Dex and Gangway are available as Lokomotive components. A configuration file is needed to install Dex and Gangway.
 
-Create a file named `auth.lokocfg` with the below contents.
+Create a file named `auth.lokocfg` with the below contents:
 
 ```hcl
 variable "github_client_id" {
@@ -179,9 +179,9 @@ component "gangway" {
 }
 ```
 
-### Step 2: Register a New OAuth Application
+### Step 2: Register a new OAuth application
 
-Go to the GitHub organization Settings
+Go to the GitHub organization settings
 page (`https://github.com/organizations/<your-org-name/settings/applications>`) and register a new
 OAuth application.
 
@@ -196,11 +196,11 @@ applicaion")
 
 After registering the application, take note of the ClientID and ClientSecret.
 
-### Step 3: Create Variables File
+### Step 3: Create variables file
 
 Create another file `lokocfg.vars` for variables and secrets that should be referenced in the cluster configuration.
 
-```
+```hcl
 # A random secret key (create one with `openssl rand -base64 32`)
 dex_static_client_gangway_secret="vJ09ouDw1BXEz6onT2+xW8PdofWIG8cN8+f0bv1zKZI="
 dex_static_client_gangway_id="gangway"
@@ -240,7 +240,7 @@ $ curl https://dex.YOUR.CLUSTER.DOMAIN.NAME/.well-known/openid-configuration
 
 To verify the Gangway installation, open the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME` on your browser.
 
-### Step 5: Configure An API Server to Use Dex as an OIDC Authenticator
+### Step 5: Configure the API server to use Dex as an OIDC authenticator
 
 Configuring an API server to use the OpenID Connect authentication plugin requires:
 
@@ -256,7 +256,7 @@ To reconfigure the API server with specific flags, edit the `kube-apiserver` Dae
 kubectl -n kube-system edit daemonset kube-apiserver
 ```
 
-Add the following CLI arguments to the API Server container:
+Add the following CLI arguments to the API server pod:
 
 ```bash
 --oidc-issuer-url=https://dex.YOUR.CLUSTER.DOMAIN.NAME
@@ -301,14 +301,14 @@ It may take a few moments for the API server pods to restart. You can check the 
 kubectl get pods -n kube-system
 ```
 
-## Step 6: Authenticate With Gangway (For Users)
+## Step 6: Authenticate with Gangway (for users)
 
 Sign in to Gangway using the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME`.
 ou should be able to authenticate via GitHub. Upon successful authentication, you should be redirected to https://gangway.YOUR.CLUSTER.DOMAIN.NAME/commandline.
 
 Gangway provides further instructions for configuring `kubectl` to gain access to the cluster.
 
-## Step 7: Authorize Users (For Cluster Administrators)
+## Step 7: Authorize users (for cluster administrators)
 
 By default, newly authenticated users/groups don't have any permissions on the cluster.
 
@@ -354,7 +354,7 @@ kubectl -n cert-manager logs -l app=cert-manager
 
 Verify you've configured RBAC correctly in step 7.
 
-## Additional Resources
+## Additional resources
 
 To configure authentication with Google as an identity provider,visit the [Dex component
 documentation](todo-dex-documentation-link) for configuration changes.

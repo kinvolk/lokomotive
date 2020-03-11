@@ -8,7 +8,7 @@
 * [Step 2: Install MetalLB and Contour](#step-4-install-metallb-and-contour)
 * [Summary](#summary)
 * [Troubleshooting](#troubleshooting)
-* [Additional Resources](#additional-resources)
+* [Additional resources](#additional-resources)
 
 ## Introduction
 
@@ -119,10 +119,9 @@ the [cloud providers section](https://metallb.universe.tf/installation/clouds/).
   Contour does not configure Envoy to listen on a port unless there is traffic to be served. For example,
   if you have not configured any TLS ingress objects then Contour does not command Envoy to open port.
 
-## Additional Resources
+## Additional resources
 
 For more extensive and complex configuration for MetalLB, you can visit the MetalLB website for
 [configuration options](https://metallb.universe.tf/configuration/).
 
 For more in-depth documentation on Contour, please can visit the [Contour Documentation](https://projectcontour.io/docs/v1.1.0/).
-
