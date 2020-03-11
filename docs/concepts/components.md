@@ -101,7 +101,7 @@ Available components:
 To install a Lokomotive component, run the following command:
 
 ```console
-lokoctl component install <component_name>
+lokoctl component apply <component_name>
 ```
 
 > If this command is executed in the directory containing cluster configuration, `lokoctl` will try
@@ -126,7 +126,7 @@ the supported parameters.
 To install all the components listed in a `.lokocfg` file, omit the component name:
 
 ```console
-lokoctl component install
+lokoctl component apply
 ```
 
 >NOTE: `lokoctl` automatically detects all `.lokocfg` files in the working directory. This can be

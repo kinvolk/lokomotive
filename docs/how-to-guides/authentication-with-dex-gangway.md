@@ -219,7 +219,7 @@ github_client_secret = "1708gg95433178e6cb63ae2f86b42b78g3810978"
 To install, execute:
 
 ```bash
-lokoctl component install
+lokoctl component apply
 ```
 
 In few minutes cert-manager component issues the TLS certificates for the Dex and Gangway Ingress hosts.

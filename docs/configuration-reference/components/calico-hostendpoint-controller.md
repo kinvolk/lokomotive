@@ -49,7 +49,7 @@ This component does not accept any arguments in its configuration.
 To install the Calico HostEndpoint controller component:
 
 ```bash
-lokoctl component install calico-hostendpoint-controller
+lokoctl component apply calico-hostendpoint-controller
 ```
 
 This component is installed in the `kube-system` namespace.

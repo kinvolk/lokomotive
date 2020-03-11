@@ -69,7 +69,7 @@ Example:
 To install the OpenEBS operator component:
 
 ```bash
-lokoctl component install openebs-operator
+lokoctl component apply openebs-operator
 ```
 
 This component only concerns with the installation of openebs-operator. To configure the storage

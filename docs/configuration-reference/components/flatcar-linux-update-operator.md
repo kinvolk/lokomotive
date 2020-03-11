@@ -51,7 +51,7 @@ This component does not accept any arguments in its configuration.
 To install the Flatcar Container Linux update operator component:
 
 ```bash
-lokoctl component install flatcar-linux-update-operator
+lokoctl component apply flatcar-linux-update-operator
 ```
 
 This component is installed in the `reboot-coordinator` namespace.

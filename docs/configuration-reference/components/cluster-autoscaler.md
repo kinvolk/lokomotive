@@ -91,7 +91,7 @@ Example:
 To install the cluster autoscaler component:
 
 ```bash
-lokoctl component install cluster-autoscaler
+lokoctl component apply cluster-autoscaler
 ```
 By default, the cluster Autoscaler pods run in the `kube-system` namespace
 

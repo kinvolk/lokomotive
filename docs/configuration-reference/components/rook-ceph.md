@@ -75,7 +75,7 @@ Example:
 To install the Rook-Ceph component:
 
 ```bash
-lokoctl component install rook-ceph
+lokoctl component apply rook-ceph
 ```
 
 Once the Ceph cluster is ready, an object store can be deployed to start writing to Ceph.

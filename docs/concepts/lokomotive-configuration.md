@@ -29,10 +29,10 @@ For example, when running `lokoctl cluster install`, lokoctl will look for a `cl
 ... }` block in all loaded lokocfg files, install the cluster and afterwards proceed with installing
 all configured components, too.
 
-Another example, when running `lokoctl component install`, lokoctl will attempt to install all
-configured components from all loaded lokocfg files. On the other hand, `lokoctl component install
-cert-manager` would only evaluate the `component "cert-manager" { ... }` block and only install the
-cert-manager component.
+Another example, when running `lokoctl component apply`, lokoctl will attempt to install or apply
+new configuration to all configured components from all loaded lokocfg files. On the other hand,
+`lokoctl component apply cert-manager` would only evaluate the `component "cert-manager" { ... }`
+block and only install or apply new configuration to the cert-manager component.
 
 With the `--lokocfg` command-line parameter, it is possible to load `.lokocfg` files from a
 different directory or to load only a single file:

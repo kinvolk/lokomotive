@@ -71,7 +71,7 @@ Change "a.b.c.d/X" to the IP address pool CIDR you've created before.
 To install, execute:
 
 ```bash
-lokoctl component install
+lokoctl component apply
 ```
 
 MetalLB installs in `metallb-system` namespace, whereas Contour installs in `projectcontour` namespace.
