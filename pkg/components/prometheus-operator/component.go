@@ -42,6 +42,7 @@ type component struct {
 	PrometheusExternalURL       string            `hcl:"prometheus_external_url,optional"`
 	PrometheusNodeSelector      map[string]string `hcl:"prometheus_node_selector,optional"`
 	WatchLabeledServiceMonitors bool              `hcl:"watch_labeled_service_monitors,optional"`
+	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
 
 	AlertManagerRetention    string            `hcl:"alertmanager_retention,optional"`
 	AlertManagerExternalURL  string            `hcl:"alertmanager_external_url,optional"`
@@ -75,6 +76,7 @@ func newComponent() *component {
 		AlertManagerConfig:          defaultAlertManagerConfig,
 		Namespace:                   "monitoring",
 		WatchLabeledServiceMonitors: true,
+		WatchLabeledPrometheusRules: true,
 	}
 }
 
