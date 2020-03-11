@@ -25,19 +25,21 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
-var componentInstallCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Install a component",
-	Run:   runInstall,
+var componentApplyCmd = &cobra.Command{
+	Use: "apply",
+	Short: `Apply a component configuration. If not present it will install it.
+If ran with no arguments it will apply all components mentioned in the
+configuration.`,
+	Run: runApply,
 }
 
 func init() {
-	componentCmd.AddCommand(componentInstallCmd)
+	componentCmd.AddCommand(componentApplyCmd)
 }
 
-func runInstall(cmd *cobra.Command, args []string) {
+func runApply(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
-		"command": "lokoctl component install",
+		"command": "lokoctl component apply",
 		"args":    args,
 	})
 
@@ -46,12 +48,12 @@ func runInstall(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal(diags)
 	}
 
-	var componentsToInstall []string
+	var componentsToApply []string
 	if len(args) > 0 {
-		componentsToInstall = append(componentsToInstall, args...)
+		componentsToApply = append(componentsToApply, args...)
 	} else {
 		for _, component := range lokoConfig.RootConfig.Components {
-			componentsToInstall = append(componentsToInstall, component.Name)
+			componentsToApply = append(componentsToApply, component.Name)
 		}
 	}
 
@@ -59,14 +61,15 @@ func runInstall(cmd *cobra.Command, args []string) {
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
-	if err := installComponents(lokoConfig, kubeconfig, componentsToInstall...); err != nil {
+
+	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
 
-func installComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
+func applyComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
 	for _, componentName := range componentNames {
-		fmt.Printf("Installing component '%s'...\n", componentName)
+		fmt.Printf("Applying component '%s'...\n", componentName)
 
 		component, err := components.Get(componentName)
 		if err != nil {
@@ -84,7 +87,7 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return err
 		}
 
-		fmt.Printf("Successfully installed component '%s'!\n", componentName)
+		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
 	}
 	return nil
 }

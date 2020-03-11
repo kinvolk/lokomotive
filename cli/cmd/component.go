@@ -39,7 +39,7 @@ import (
 
 var componentCmd = &cobra.Command{
 	Use:   "component",
-	Short: "Install Lokomotive components",
+	Short: "Manage Lokomotive components",
 }
 
 func init() {
