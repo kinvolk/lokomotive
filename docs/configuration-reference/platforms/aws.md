@@ -147,8 +147,6 @@ worker_type = var.custom_default_worker_type
 
 ## Argument reference
 
-### Cluster arguments
-
 | Argument                      | Description                                                                                                                                                                                | Default         | Required |
 |-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|
 | `asset_dir`                   | Location where Lokomotive stores cluster assets.                                                                                                                                           | -               | true     |
@@ -179,21 +177,6 @@ worker_type = var.custom_default_worker_type
 | `cluster_domain_suffix`       | Cluster's DNS domain.                                                                                                                                                                      | "cluster.local" | false    |
 | `enable_reporting`            | Enables usage or analytics reporting to upstream.                                                                                                                                          | false           | false    |
 | `certs_validity_period_hours` | Validity of all the certificates in hours.                                                                                                                                                 | 8760            | false    |
-
-### Backend arguments
-
-Default backend is local.
-
-| Argument                    | Description                                                  | Default | Required |
-|-----------------------------|--------------------------------------------------------------|:-------:|:--------:|
-| `backend.local`             | Local backend configuration block.                           | -       | false    |
-| `backend.local.path`        | Location where Lokomotive stores the cluster state.          | -       | false    |
-| `backend.s3`                | AWS S3 backend configuration block.                          | -       | false    |
-| `backend.s3.bucket`         | Name of the S3 bucket where Lokomotive stores cluster state. | -       | true     |
-| `backend.s3.key`            | Path in the S3 bucket to store the cluster state.            | -       | true     |
-| `backend.s3.region`         | AWS Region of the S3 bucket.                                 | -       | false    |
-| `backend.s3.aws_creds_path` | Path to the AWS credentials file.                            | -       | false    |
-| `backend.s3.dynamodb_table` | Name of the DynamoDB table for locking the cluster state.    | -       | false    |
 
 ## Installing
 
