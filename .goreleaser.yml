@@ -1,0 +1,21 @@
+# Port flags from Makefile.
+builds:
+- env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+  ldflags:
+  - -X github.com/kinvolk/lokomotive/pkg/version.Version={{.Version}}
+  - -extldflags '-static'
+  flags:
+  - -buildmode=exe
+  goos:
+  - linux
+  main: ./cmd/lokoctl/main.go
+  binary: lokoctl
+
+# Enable signing checksums.
+signs:
+  - artifacts: checksum
+
+# Override default project name
+project_name: lokoctl
