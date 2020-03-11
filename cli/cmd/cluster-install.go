@@ -86,6 +86,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		componentsToInstall = append(componentsToInstall, component.Name)
 	}
 
+	ctxLogger.Println("Installing components")
+
 	if len(componentsToInstall) > 0 {
 		if err := installComponents(lokoConfig, kubeconfigPath, componentsToInstall...); err != nil {
 			ctxLogger.Fatalf("Installing components failed: %v", err)
