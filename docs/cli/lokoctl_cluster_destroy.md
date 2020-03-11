@@ -15,7 +15,7 @@ lokoctl cluster destroy [flags]
 ```
       --confirm   Destroy cluster without asking for confirmation
   -h, --help      help for destroy
-  -q, --quiet     Suppress the output from Terraform
+  -v, --verbose   Show output from Terraform
 ```
 
 ### Options inherited from parent commands

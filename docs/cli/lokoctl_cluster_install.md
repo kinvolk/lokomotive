@@ -15,8 +15,8 @@ lokoctl cluster install [flags]
 ```
       --confirm           Upgrade cluster without asking for confirmation
   -h, --help              help for install
-  -q, --quiet             Suppress the output from Terraform
       --skip-components   Skip component installation
+  -v, --verbose           Show output from Terraform
 ```
 
 ### Options inherited from parent commands
