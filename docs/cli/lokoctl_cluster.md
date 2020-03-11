@@ -23,6 +23,6 @@ Manage a Lokomotive cluster
 ### SEE ALSO
 
 * [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters.
+* [lokoctl cluster apply](lokoctl_cluster_apply.md)	 - Apply configuration changes to a Lokomotive cluster with components
 * [lokoctl cluster destroy](lokoctl_cluster_destroy.md)	 - Destroy Lokomotive cluster
-* [lokoctl cluster install](lokoctl_cluster_install.md)	 - Install Lokomotive cluster with components
 
