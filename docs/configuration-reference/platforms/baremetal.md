@@ -111,8 +111,6 @@ os_version = var.custom_default_os_version
 
 ## Argument reference
 
-### Cluster arguments
-
 | Argument                    | Description                                                                                                                                                           | Default          | Required |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------:|:--------:|
 | `asset_dir`                 | Location where Lokomotive stores cluster assets.                                                                                                                      | -                | true     |
@@ -133,21 +131,6 @@ os_version = var.custom_default_os_version
 | `ssh_pubkeys`               | SSH public keys for user `core`.                                                                                                                                      | -                | true     |
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                  | "current"        | false    |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                  | "flatcar-stable" | false    |
-
-### Backend arguments
-
-Default backend is local.
-
-| Argument                    | Description                                                  | Default | Required |
-|-----------------------------|--------------------------------------------------------------|:-------:|:--------:|
-| `backend.local`             | Local backend configuration block.                           | -       | false    |
-| `backend.local.path`        | Location where Lokomotive stores the cluster state.          | -       | false    |
-| `backend.s3`                | AWS S3 backend configuration block.                          | -       | false    |
-| `backend.s3.bucket`         | Name of the S3 bucket where Lokomotive stores cluster state. | -       | true     |
-| `backend.s3.key`            | Path in the S3 bucket to store the cluster state.            | -       | true     |
-| `backend.s3.region`         | AWS Region of the S3 bucket.                                 | -       | false    |
-| `backend.s3.aws_creds_path` | Path to the AWS credentials file.                            | -       | false    |
-| `backend.s3.dynamodb_table` | Name of the DynamoDB table for locking the cluster state.    | -       | false    |
 
 ## Installing
 

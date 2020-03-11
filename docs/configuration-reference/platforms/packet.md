@@ -176,8 +176,6 @@ node_type = var.custom_default_worker_type
 
 ## Argument reference
 
-### Cluster arguments
-
 | Argument                              | Description                                                                                                                                                                   | Default         | Required |
 |---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|
 | `auth_token`                          | Packet Auth token. Use the `PACKET_AUTH_TOKEN` environment variable instead.                                                                                                  | -               | false    |
@@ -225,22 +223,6 @@ node_type = var.custom_default_worker_type
 | `worker_pool.setup_raid_hdd`          | Attempt to create a RAID 0 from extra Hard Disk drives only, to be used for persistent container storage. Can't be used with `setup_raid` nor `setup_raid_sdd`.               | false           | false    |
 | `worker_pool.setup_raid_ssd`          | Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage.  Can't be used with `setup_raid` nor `setup_raid_hdd`.            | false           | false    |
 | `worker_pool.setup_raid_ssd_fs`       | When set to `true` file system will be created on SSD RAID device and will be mounted on `/mnt/node-local-ssd-storage`. To use the raw device set it to `false`.              | false           | false    |
-
-
-### Backend arguments
-
-Default backend is local.
-
-| Argument                    | Description                                                  | Default | Required |
-|-----------------------------|--------------------------------------------------------------|:-------:|:--------:|
-| `backend.local`             | Local backend configuration block.                           | -       | false    |
-| `backend.local.path`        | Location where Lokomotive stores the cluster state.          | -       | false    |
-| `backend.s3`                | AWS S3 backend configuration block.                          | -       | false    |
-| `backend.s3.bucket`         | Name of the S3 bucket where Lokomotive stores cluster state. | -       | true     |
-| `backend.s3.key`            | Path in the S3 bucket to store the cluster state.            | -       | true     |
-| `backend.s3.region`         | AWS Region of the S3 bucket.                                 | -       | false    |
-| `backend.s3.aws_creds_path` | Path to the AWS credentials file.                            | -       | false    |
-| `backend.s3.dynamodb_table` | Name of the DynamoDB table for locking the cluster state.    | -       | false    |
 
 ## Installing
 
