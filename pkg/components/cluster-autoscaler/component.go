@@ -28,7 +28,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/kinvolk/lokomotive/pkg/components/util/helmutil"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 )
 
 const name = "cluster-autoscaler"
@@ -287,7 +287,7 @@ func (c *component) validatePacket(diagnostics hcl.Diagnostics) hcl.Diagnostics 
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := helmutil.LoadChartFromAssets(fmt.Sprintf("/components/%s", name))
+	helmChart, err := helm.LoadChartFromAssets(fmt.Sprintf("/components/%s", name))
 	if err != nil {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}
@@ -317,7 +317,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	return helmutil.RenderChart(helmChart, name, c.Namespace, values)
+	return helm.RenderChart(helmChart, name, c.Namespace, values)
 }
 
 func (c *component) Metadata() components.Metadata {

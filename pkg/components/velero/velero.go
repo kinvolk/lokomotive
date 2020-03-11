@@ -24,8 +24,8 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/kinvolk/lokomotive/pkg/components/util/helmutil"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 )
 
 const name = "velero"
@@ -146,7 +146,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 // RenderManifest read helm chart from assets and renders it into list of files
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := helmutil.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
+	helmChart, err := helm.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
 	if err != nil {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}
@@ -156,7 +156,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	renderedFiles, err := helmutil.RenderChart(helmChart, name, c.Namespace, values)
+	renderedFiles, err := helm.RenderChart(helmChart, name, c.Namespace, values)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart")
 	}

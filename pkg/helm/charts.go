@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helmutil
+// Package helm implements methods required for installing components as
+// Helm charts.
+package helm
 
 import (
 	"fmt"

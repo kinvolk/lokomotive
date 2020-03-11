@@ -21,8 +21,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util/helmutil"
 	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 )
 
 var componentInstallCmd = &cobra.Command{
@@ -80,7 +80,7 @@ func installComponents(lokoConfig *config.Config, kubeconfig string, componentNa
 			return diags
 		}
 
-		if err := helmutil.InstallComponent(componentName, component, kubeconfig); err != nil {
+		if err := helm.InstallComponent(componentName, component, kubeconfig); err != nil {
 			return err
 		}
 
