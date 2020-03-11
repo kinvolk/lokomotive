@@ -6,7 +6,7 @@
 # 127.0.0.0/8 IP address on port 7443, but will advertise Node InternalIP with port 7443 and HAProxy
 # will be listening on both Node InternalIP on port 7443 and on 0.0.0.0:6443 for both internal and
 # external traffic.
-# See commit messages and comments :https://github.com/kinvolk/lokomotive/pull/32 for more details.
+# See commit 95af6c96 for details.
 {{ define "port" }}
 {{- if and .Values.apiserver.exposeOnAllInterfaces (eq (int .Values.apiserver.replicas) 1) -}}
 7443
@@ -17,7 +17,7 @@
 apiVersion: apps/v1
 # If there is just one controller node, we want to use Deployment to be able to run 2 kube-apiserver
 # pods on a single node at a time, to provide graceful upgrades.
-# See commit messages and comments in https://github.com/kinvolk/lokomotive/pull/32 for more details.
+# See commit 95af6c96 for details.
 {{- if eq (int .Values.apiserver.replicas) 1 }}
 kind: Deployment
 {{- else }}
