@@ -1,12 +1,69 @@
-# Lokomotive Components
+# Lokomotive component
 
-`lokoctl` can be used to manage Lokomotive *components*. A component is a k8s workload which adds
-functionality to a Lokomotive cluster. Without components, a Lokomotive cluster is just a barebone
-k8s cluster. In some cases (e.g. bare metal environments), a Lokomotive cluster may even be
-unusable without certain components.
-
-Components can take care of tasks such as load balancing, monitoring, authentication, storage and
+A Lokomotive component is a Kubernetes workload which adds functionality to a Lokomotive cluster.
+Without components, a Lokomotive cluster is just a barebone kubernetes cluster. In some cases (e.g.
+bare metal environments), a Lokomotive cluster may even be unusable without certain components.
+Components take care of tasks such as load balancing, monitoring, authentication, storage and
 others.
+
+`lokoctl` is a command line interface for Lokomotive and its *components*.
+
+## Categories of Lokomotive components
+
+### User Authentication
+
+Lokomotive provides the [Dex](../configuration-reference/components/dex.md) and
+[Gangway](../configuration-reference/components/gangway.md) components for user authentication via
+OpenID Connect (OIDC). With these components, you can securely manage access to the Kubernetes
+cluster and resources.
+
+Lokomotive also provides the [cert-manager](../configuration-reference/components/cert-manager.md)
+component for automating the management and issuance of TLS certificates from various issuing
+sources.
+
+### Monitoring/Metrics
+
+Lokomotive provides a
+[prometheus-operator](../configuration-reference/components/prometheus-operator.md) component that
+creates, configures and manages [Prometheus](https://prometheus.io/) atop Kubernetes.
+
+Lokomotive also provides a [metrics-server](../configuration-reference/components/metrics-server.md)
+component responsible for collecting resource metrics from nodes and pods and exposing them in the
+Kubernetes API server through the [metrics API](https://github.com/kubernetes/metrics).
+
+### Storage
+
+Lokomotive provides the [openebs-operator](../configuration-reference/components/openebs-operator.md) and
+[openebs-storage-class](../configuration-reference/components/openebs-storage-class.md) components to
+use OpenEBS as the block storage solution for the cluster.
+
+Lokomotive also provides the [rook](../configuration-reference/components/rook.md) and
+[rook-ceph](../configuration-reference/components/rook-ceph.md) components for using Rook as the storage
+solution for Lokomotive cluster.
+
+### Load Balancing/Ingress (for Packet platform only)
+
+Lokomotive provides the [MetalLB](../configuration-reference/components/metallb.md) component for load
+balancing in platforms without network load-balancers and
+[Contour](../configuration-reference/components/contour.md) component for Ingress control.
+
+Lokomotive also provides the [external-dns](../configuration-reference/components/external-dns.md)
+component for automatic management of DNS entries for Ingress resources.
+
+### Node management
+
+Lokomotive provides the
+[calico-hostendpoint-controller](../configuration-reference/components/calico-hostendpoint-controller.md)
+component for adding and removing [Calico HostEndpoint
+objects](https://docs.projectcalico.org/v3.8/reference/resources/hostendpoint) automatically and the
+[cluster-autoscaler](../configuration-reference/components/cluster-autoscaler) component for adjusting
+the size of Lokomotive cluster.
+
+### Update
+
+Lokomotive provides the
+[flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-update-operator.md)
+component for orchestrating updates of the Flatcar Container Linux OS on cluster nodes.
 
 ## Listing Available Components
 
@@ -43,14 +100,16 @@ Available components:
 
 To install a Lokomotive component, run the following command:
 
-```
+```console
 lokoctl component install <component_name>
 ```
 
-This will take the `kubeconfig` from your cluster asset directory if you run it
-in the folder of your cluster configuration files. Otherwise, the default kubeconfig
-location will be used (`~/.kube/config`) unless you specify it through the `--kubeconfig`
-flag or the `KUBECONFIG` environment variable.
+> If this command is executed in the directory containing cluster configuration, `lokoctl` will try
+> to install the component on configured cluster. If no configuration is found, the configuration
+> from `KUBECONFIG` environment variable will be used. If th environment variable is empty,
+> `~/.kube/config` file will be used.
+
+>To use specific `kubeconfig` file, `--kubeconfig` flag can be used.
 
 A set of components to install may also be provided in a `.lokocfg` file:
 
@@ -66,7 +125,7 @@ the supported parameters.
 
 To install all the components listed in a `.lokocfg` file, omit the component name:
 
-```
+```console
 lokoctl component install
 ```
 
@@ -79,7 +138,7 @@ Sometimes it can be useful to render a component's manifests without actually ap
 cluster, for example in order to verify what is going to be applied to a cluster. To render a
 component's manifests, run the following command:
 
-```
+```console
 lokoctl component render-manifest <component_name>
 ```
 
