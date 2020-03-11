@@ -44,6 +44,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(cobraInit)
 
+	RootCmd.DisableAutoGenTag = true
+
 	// Add kubeconfig flag.
 	RootCmd.PersistentFlags().String(
 		"kubeconfig",
