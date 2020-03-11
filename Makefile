@@ -59,7 +59,7 @@ test: run-unit-tests
 
 .PHONY: lint
 lint:
-	golangci-lint run --enable-all --disable=godox --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e,disruptive-e2e --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
+	golangci-lint run --enable-all --disable=godox,gochecknoglobals --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e,disruptive-e2e --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
 
 GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 

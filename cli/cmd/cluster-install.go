@@ -27,9 +27,9 @@ import (
 )
 
 var (
-	verbose         bool //nolint:gochecknoglobals
-	skipComponents  bool //nolintgo:checknoglobals
-	upgradeKubelets bool //nolintgo:checknoglobals
+	verbose         bool
+	skipComponents  bool
+	upgradeKubelets bool
 )
 
 var clusterInstallCmd = &cobra.Command{
