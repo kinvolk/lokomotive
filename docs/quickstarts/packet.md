@@ -137,7 +137,7 @@ guide](../configuration-reference/platforms/packet.md).
 Run the following command to create the cluster:
 
 ```console
-lokoctl cluster install
+lokoctl cluster apply
 ```
 
 Once the command finishes, your Lokomotive cluster details are stored in the path you've specified

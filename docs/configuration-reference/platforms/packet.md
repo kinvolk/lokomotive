@@ -229,7 +229,7 @@ node_type = var.custom_default_worker_type
 To create the cluster, execute the following command:
 
 ```console
-lokoctl cluster install
+lokoctl cluster apply
 ```
 
 ## Uninstalling

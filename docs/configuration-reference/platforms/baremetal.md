@@ -137,7 +137,7 @@ os_version = var.custom_default_os_version
 To create the cluster, execute the following command:
 
 ```console
-lokoctl cluster install
+lokoctl cluster apply
 ```
 
 ## Uninstalling

@@ -25,9 +25,9 @@ my-cluster/
 By default, lokoctl loads and merges configuration from all `.lokocfg` files in the current
 directory. Depending on the issued command, different configuration blocks then get parsed and used.
 
-For example, when running `lokoctl cluster install`, lokoctl will look for a `cluster "<provider>" {
-... }` block in all loaded lokocfg files, install the cluster and afterwards proceed with installing
-all configured components, too.
+For example, when running `lokoctl cluster apply`, lokoctl will look for a `cluster "<provider>" {
+... }` block in all loaded lokocfg files, install or apply new configuration to the cluster and
+afterwards proceed with installing or applying new configuration to all configured components, too.
 
 Another example, when running `lokoctl component apply`, lokoctl will attempt to install or apply
 new configuration to all configured components from all loaded lokocfg files. On the other hand,
@@ -38,7 +38,7 @@ With the `--lokocfg` command-line parameter, it is possible to load `.lokocfg` f
 different directory or to load only a single file:
 
 ```console
-lokoctl cluster install --lokocfg path/to/my-cluster.lokocfg
+lokoctl cluster apply --lokocfg path/to/my-cluster.lokocfg
 ```
 
 ## Variables and the `lokocfg.vars` file
