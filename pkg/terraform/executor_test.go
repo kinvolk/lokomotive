@@ -18,7 +18,7 @@ func executor(t *testing.T) *Executor {
 	defer os.RemoveAll(tmpDir)
 
 	conf := Config{
-		Quiet:      true,
+		Verbose:    false,
 		WorkingDir: tmpDir,
 	}
 

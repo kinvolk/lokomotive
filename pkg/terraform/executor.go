@@ -32,6 +32,7 @@ import (
 	"github.com/hpcloud/tail"
 	"github.com/kardianos/osext"
 	"github.com/shirou/gopsutil/process"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -91,14 +92,18 @@ type Executor struct {
 	executionPath string
 	binaryPath    string
 	envVariables  map[string]string
-	quiet         bool
+	verbose       bool
+	logger        *log.Entry
 }
 
 // NewExecutor initializes a new Executor.
 func NewExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
 	ex.executionPath = conf.WorkingDir
-	ex.quiet = conf.Quiet
+	ex.verbose = conf.Verbose
+	ex.logger = log.WithFields(log.Fields{
+		"phase": "infrastructure",
+	})
 
 	// Create the folder in which the executor, and its logs will be stored,
 	// if not existing.
@@ -122,18 +127,21 @@ func NewExecutor(conf Config) (*Executor, error) {
 // Init() is a wrapper function that runs
 // `terraform init`.
 func (ex *Executor) Init() error {
+	ex.logger.Println("Initializing Terraform working directory")
 	return ex.Execute("init")
 }
 
 // Apply() is a wrapper function that runs
 // `terraform apply -auto-approve`.
 func (ex *Executor) Apply() error {
+	ex.logger.Println("Applying Terraform configuration. This creates infrastructure so it might take a long time...")
 	return ex.Execute("apply", "-auto-approve")
 }
 
 // Destroy() is a wrapper function that runs
 // `terraform destroy -auto-approve`.
 func (ex *Executor) Destroy() error {
+	ex.logger.Println("Destroying Terraform-managed infrastructure")
 	return ex.Execute("destroy", "-auto-approve")
 }
 
@@ -173,6 +181,14 @@ func tailFile(path string, done chan struct{}, wg *sync.WaitGroup) {
 // Terraform call itself failed, in which case, details can be found in the
 // output.
 func (ex *Executor) Execute(args ...string) error {
+	return ex.execute(ex.verbose, args...)
+}
+
+func (ex *Executor) executeVerbose(args ...string) error {
+	return ex.execute(true, args...)
+}
+
+func (ex *Executor) execute(verbose bool, args ...string) error {
 	pid, done, err := ex.ExecuteAsync(args...)
 	if err != nil {
 		return fmt.Errorf("failed executing Terraform command with arguments '%s' in directory %s: %w", strings.Join(args, " "), ex.WorkingDirectory(), err)
@@ -191,7 +207,7 @@ func (ex *Executor) Execute(args ...string) error {
 	p := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
 	// If we print output, schedule it as well.
-	if !ex.quiet {
+	if verbose {
 		wg.Add(1)
 
 		go tailFile(p, done, &wg)
@@ -285,7 +301,13 @@ func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
 
 // Plan runs 'terraform plan'.
 func (ex *Executor) Plan() error {
-	return ex.Execute("plan")
+	ex.logger.Println("Generating Terraform execution plan")
+
+	if err := ex.Execute("refresh"); err != nil {
+		return err
+	}
+
+	return ex.executeVerbose("plan", "-refresh=false")
 }
 
 // Output gets output value from Terraform in JSON format and tries to unmarshal it

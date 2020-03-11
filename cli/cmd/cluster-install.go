@@ -27,7 +27,7 @@ import (
 )
 
 var (
-	quiet          bool
+	verbose        bool //nolint:gochecknoglobals
 	skipComponents bool
 )
 
@@ -41,7 +41,7 @@ func init() {
 	clusterCmd.AddCommand(clusterInstallCmd)
 	pf := clusterInstallCmd.PersistentFlags()
 	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
-	pf.BoolVarP(&quiet, "quiet", "q", false, "Suppress the output from Terraform")
+	pf.BoolVarP(&verbose, "verbose", "v", false, "Show output from Terraform")
 	pf.BoolVarP(&skipComponents, "skip-components", "", false, "Skip component installation")
 }
 
@@ -85,6 +85,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	for _, component := range lokoConfig.RootConfig.Components {
 		componentsToInstall = append(componentsToInstall, component.Name)
 	}
+
+	ctxLogger.Println("Installing components")
 
 	if len(componentsToInstall) > 0 {
 		if err := installComponents(lokoConfig, kubeconfigPath, componentsToInstall...); err != nil {

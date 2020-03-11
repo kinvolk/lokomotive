@@ -107,7 +107,7 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 
 	conf := terraform.Config{
 		WorkingDir: terraform.GetTerraformRootDir(assetDir),
-		Quiet:      quiet,
+		Verbose:    verbose,
 	}
 
 	ex, err := terraform.NewExecutor(conf)
