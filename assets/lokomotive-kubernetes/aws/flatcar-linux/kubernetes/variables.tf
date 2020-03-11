@@ -30,8 +30,14 @@ variable "worker_count" {
 }
 
 variable "controller_type" {
-  type        = string
-  default     = "t3.small"
+  type = string
+  # When doing the upgrades of controlplane on t3.small instance type when
+  # having one single controlplane node, t3.small has not enough memory (2GB)
+  # to run more than one instance of kube-apiserver in parallel, so we need to use
+  # a bigger instance. With HA controlplane, t3.small should be fine, though for
+  # production setups, it's recommended to use instances with more RAM, to
+  # give plenty of usable memory for etcd and kube-apiserver.
+  default     = "t3.medium"
   description = "EC2 instance type for controllers"
 }
 

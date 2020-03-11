@@ -104,6 +104,7 @@ data "template_file" "controller-configs" {
     ssh_keys              = jsonencode(var.ssh_keys)
     k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix = var.cluster_domain_suffix
+    controller_count      = var.controller_count
 
     # we need to prepend a prefix 'docker://' for arm64, because arm64 images
     # on quay prevent us from downloading ACI correctly.

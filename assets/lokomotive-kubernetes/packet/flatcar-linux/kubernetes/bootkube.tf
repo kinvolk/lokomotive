@@ -22,4 +22,6 @@ module "bootkube" {
   certs_validity_period_hours = var.certs_validity_period_hours
 
   container_arch = var.os_arch
+
+  expose_on_all_interfaces = true
 }

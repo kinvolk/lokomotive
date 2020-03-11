@@ -1,0 +1,11 @@
+{{- if eq (int .Values.apiserver.replicas) 1 }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kube-apiserver
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      k8s-app: kube-apiserver
+{{- end }}

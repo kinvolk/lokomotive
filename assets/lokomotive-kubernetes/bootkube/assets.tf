@@ -16,29 +16,43 @@ resource "template_dir" "bootstrap-manifests" {
 resource "local_file" "kube-apiserver" {
   filename = "${var.asset_dir}/charts/kube-system/kube-apiserver.yaml"
   content = templatefile("${path.module}/resources/charts/kube-apiserver.yaml", {
-    hyperkube_image         = var.container_images["hyperkube"]
-    pod_checkpointer_image  = var.container_images["pod_checkpointer"]
-    etcd_servers            = join(",", formatlist("https://%s:2379", var.etcd_servers))
-    cloud_provider          = var.cloud_provider
-    service_cidr            = var.service_cidr
-    trusted_certs_dir       = var.trusted_certs_dir
-    ca_cert                 = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
-    apiserver_key           = base64encode(tls_private_key.apiserver.private_key_pem)
-    apiserver_cert          = base64encode(tls_locally_signed_cert.apiserver.cert_pem)
-    serviceaccount_pub      = base64encode(tls_private_key.service-account.public_key_pem)
-    etcd_ca_cert            = base64encode(tls_self_signed_cert.etcd-ca.cert_pem)
-    etcd_client_cert        = base64encode(tls_locally_signed_cert.client.cert_pem)
-    etcd_client_key         = base64encode(tls_private_key.client.private_key_pem)
-    enable_aggregation      = var.enable_aggregation
-    aggregation_ca_cert     = var.enable_aggregation == true ? base64encode(join(" ", tls_self_signed_cert.aggregation-ca.*.cert_pem)) : ""
-    aggregation_client_cert = var.enable_aggregation == true ? base64encode(join(" ", tls_locally_signed_cert.aggregation-client.*.cert_pem)) : ""
-    aggregation_client_key  = var.enable_aggregation == true ? base64encode(join(" ", tls_private_key.aggregation-client.*.private_key_pem)) : ""
+    hyperkube_image          = var.container_images["hyperkube"]
+    pod_checkpointer_image   = var.container_images["pod_checkpointer"]
+    etcd_servers             = join(",", formatlist("https://%s:2379", var.etcd_servers))
+    cloud_provider           = var.cloud_provider
+    service_cidr             = var.service_cidr
+    trusted_certs_dir        = var.trusted_certs_dir
+    ca_cert                  = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
+    apiserver_key            = base64encode(tls_private_key.apiserver.private_key_pem)
+    apiserver_cert           = base64encode(tls_locally_signed_cert.apiserver.cert_pem)
+    serviceaccount_pub       = base64encode(tls_private_key.service-account.public_key_pem)
+    etcd_ca_cert             = base64encode(tls_self_signed_cert.etcd-ca.cert_pem)
+    etcd_client_cert         = base64encode(tls_locally_signed_cert.client.cert_pem)
+    etcd_client_key          = base64encode(tls_private_key.client.private_key_pem)
+    enable_aggregation       = var.enable_aggregation
+    aggregation_ca_cert      = var.enable_aggregation == true ? base64encode(join(" ", tls_self_signed_cert.aggregation-ca.*.cert_pem)) : ""
+    aggregation_client_cert  = var.enable_aggregation == true ? base64encode(join(" ", tls_locally_signed_cert.aggregation-client.*.cert_pem)) : ""
+    aggregation_client_key   = var.enable_aggregation == true ? base64encode(join(" ", tls_private_key.aggregation-client.*.private_key_pem)) : ""
+    replicas                 = length(var.etcd_servers)
+    expose_on_all_interfaces = var.expose_on_all_interfaces
   })
 }
 
 resource "template_dir" "kube-apiserver" {
   source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kube-apiserver"
   destination_dir = "${var.asset_dir}/charts/kube-system/kube-apiserver"
+}
+
+resource "local_file" "pod-checkpointer" {
+  filename = "${var.asset_dir}/charts/kube-system/pod-checkpointer.yaml"
+  content = templatefile("${path.module}/resources/charts/pod-checkpointer.yaml", {
+    pod_checkpointer_image = var.container_images["pod_checkpointer"]
+  })
+}
+
+resource "template_dir" "pod-checkpointer" {
+  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/pod-checkpointer"
+  destination_dir = "${var.asset_dir}/charts/kube-system/pod-checkpointer"
 }
 
 # Populate kubernetes chart values file named kubernetes.yaml.

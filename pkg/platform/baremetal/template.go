@@ -84,4 +84,28 @@ provider "tls" {
 output "initialized" {
   value = true
 }
+
+# values.yaml content for all deployed charts.
+output "pod-checkpointer_values" {
+  value = module.bare-metal-{{.ClusterName}}.pod-checkpointer_values
+}
+
+output "kube-apiserver_values" {
+  value     = module.bare-metal-{{.ClusterName}}.kube-apiserver_values
+  sensitive = true
+}
+
+output "kubernetes_values" {
+  value     = module.bare-metal-{{.ClusterName}}.kubernetes_values
+  sensitive = true
+}
+
+output "kubelet_values" {
+  value     = module.bare-metal-{{.ClusterName}}.kubelet_values
+  sensitive = true
+}
+
+output "calico_values" {
+  value = module.bare-metal-{{.ClusterName}}.calico_values
+}
 `

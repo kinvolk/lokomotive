@@ -27,8 +27,9 @@ import (
 )
 
 var (
-	verbose        bool //nolint:gochecknoglobals
-	skipComponents bool
+	verbose         bool //nolint:gochecknoglobals
+	skipComponents  bool //nolintgo:checknoglobals
+	upgradeKubelets bool //nolintgo:checknoglobals
 )
 
 var clusterInstallCmd = &cobra.Command{
@@ -43,6 +44,7 @@ func init() {
 	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&verbose, "verbose", "v", false, "Show output from Terraform")
 	pf.BoolVarP(&skipComponents, "skip-components", "", false, "Skip component installation")
+	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
 
 func runClusterInstall(cmd *cobra.Command, args []string) {
@@ -53,7 +55,8 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 
 	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
 
-	if clusterExists(ctxLogger, ex) && !confirm {
+	exists := clusterExists(ctxLogger, ex)
+	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := ex.Plan(); err != nil {
 			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
@@ -75,6 +78,28 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 	kubeconfigPath := assetsKubeconfig(assetDir)
 	if err := verifyInstall(kubeconfigPath, p.GetExpectedNodes()); err != nil {
 		ctxLogger.Fatalf("Verify cluster installation: %v", err)
+	}
+
+	// Do controlplane upgrades only if cluster already exists.
+	if exists {
+		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
+
+		cu := controlplaneUpdater{
+			kubeconfigPath: kubeconfigPath,
+			assetDir:       assetDir,
+			ctxLogger:      *ctxLogger,
+			ex:             *ex,
+		}
+
+		releases := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"}
+
+		if upgradeKubelets {
+			releases = append(releases, "kubelet")
+		}
+
+		for _, c := range releases {
+			cu.upgradeComponent(c)
+		}
 	}
 
 	if skipComponents {

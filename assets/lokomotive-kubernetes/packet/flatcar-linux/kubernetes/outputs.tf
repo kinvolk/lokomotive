@@ -11,6 +11,14 @@ output "dns_entries" {
 }
 
 # values.yaml content for all deployed charts.
+output "pod-checkpointer_values" {
+  value = module.bootkube.pod-checkpointer_values
+}
+
+output "kube-apiserver_values" {
+  value = module.bootkube.kube-apiserver_values
+}
+
 output "kubernetes_values" {
   value = module.bootkube.kubernetes_values
 }

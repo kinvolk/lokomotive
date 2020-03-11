@@ -15,5 +15,8 @@ apiserver:
   aggregationFlags:
   serviceCIDR: 10.0.0.0/24
   trustedCertsDir: /usr/share/ca-certificates
-podCheckpointer:
-  image: kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1
+  replicas: 1
+  # If this is true, kube-apiserver will be exposed on HostIP on port 7443 to the cluster
+  # service (kubernetes.default.svc) and on all interfaces on port 6443.
+  # If false, it will be exposed only on HostIP on port 6443.
+  exposeOnAllInterfaces: false
