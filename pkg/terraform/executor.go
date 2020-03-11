@@ -91,14 +91,14 @@ type Executor struct {
 	executionPath string
 	binaryPath    string
 	envVariables  map[string]string
-	quiet         bool
+	verbose       bool
 }
 
 // NewExecutor initializes a new Executor.
 func NewExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
 	ex.executionPath = conf.WorkingDir
-	ex.quiet = conf.Quiet
+	ex.verbose = conf.Verbose
 
 	// Create the folder in which the executor, and its logs will be stored,
 	// if not existing.
@@ -191,7 +191,7 @@ func (ex *Executor) Execute(args ...string) error {
 	p := filepath.Join(ex.WorkingDirectory(), "logs", fmt.Sprintf("%d%s", pid, ".log"))
 
 	// If we print output, schedule it as well.
-	if !ex.quiet {
+	if ex.verbose {
 		wg.Add(1)
 
 		go tailFile(p, done, &wg)

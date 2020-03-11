@@ -4,10 +4,10 @@ This document includes information that is relevant for the Lokomotive installer
 regardless of the target platform. For platform-specific information, refer to the docs of the
 relevant [platform](../../README.md#supported-platforms).
 
-## Suppressing Terraform Output
+## Showing Terraform Output
 
-When running `lokoctl cluster install`, by default the installer prints all of Terraform's output.
-If you wish to hide it, you can append the `--quiet` flag, or `-q` for short.
+When running `lokoctl cluster install`, by default the installer doesn't print Terraform output.
+If you wish to show it, you can append the `--verbose` flag, or `-v` for short.
 
 ## Asset Directory
 
