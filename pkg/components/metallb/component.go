@@ -121,6 +121,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		rendered["service.yaml"] = service
 		rendered["service-monitor.yaml"] = serviceMonitor
 		rendered["grafana-dashboard.yaml"] = grafanaDashboard
+		rendered["grafana-alertmanager-rule.yaml"] = metallbPrometheusRule
 	}
 
 	return rendered, nil
