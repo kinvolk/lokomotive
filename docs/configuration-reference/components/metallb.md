@@ -98,7 +98,7 @@ Example:
 To install the MetalLB component:
 
 ```bash
-lokoctl component install metallb
+lokoctl component apply metallb
 ```
 ## Uninstalling
 

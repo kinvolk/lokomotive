@@ -130,7 +130,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	return createTerraformConfigFile(c, terraformRootDir)
 }
 
-func (c *config) Install(ex *terraform.Executor) error {
+func (c *config) Apply(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err

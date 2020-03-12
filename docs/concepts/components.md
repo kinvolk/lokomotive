@@ -98,10 +98,18 @@ Available components:
 
 ## Installing a Component
 
-To install a Lokomotive component, run the following command:
+To install a Lokomotive component add it to a `.lokocfg` file:
+
+```hcl
+component "flatcar-linux-update-operator" {}
+
+component "contour" {}
+```
+
+Then you can apply a particular component:
 
 ```console
-lokoctl component install <component_name>
+lokoctl component apply <component_name>
 ```
 
 > If this command is executed in the directory containing cluster configuration, `lokoctl` will try
@@ -111,26 +119,21 @@ lokoctl component install <component_name>
 
 >To use specific `kubeconfig` file, `--kubeconfig` flag can be used.
 
-A set of components to install may also be provided in a `.lokocfg` file:
-
-```hcl
-component "flatcar-linux-update-operator" {}
-
-component "contour" {}
-```
-
-Specifying components in a `.lokocfg` file also allows passing configuration parameters to
-components which support them. See the documentation for individual components for information about
-the supported parameters.
+You can pass configuration parameters to components, check the [component reference
+documentation](../configuration-reference/components) for details.
 
 To install all the components listed in a `.lokocfg` file, omit the component name:
 
 ```console
-lokoctl component install
+lokoctl component apply
 ```
 
 >NOTE: `lokoctl` automatically detects all `.lokocfg` files in the working directory. This can be
 >used to organize component configuration in separate files.
+
+Installing a Lokomotive component is the same operation as applying its latest configuration, so if
+you change the configuration in a `.lokocfg` file you can run apply again to apply the new
+configuration to the cluster.
 
 ## Rendering a Manifest
 

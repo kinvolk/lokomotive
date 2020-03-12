@@ -32,24 +32,25 @@ var (
 	upgradeKubelets bool
 )
 
-var clusterInstallCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Install Lokomotive cluster with components",
-	Run:   runClusterInstall,
+var clusterApplyCmd = &cobra.Command{
+	Use:   "apply",
+	Short: "Apply configuration changes to a Lokomotive cluster with components",
+	Run:   runClusterApply,
 }
 
 func init() {
-	clusterCmd.AddCommand(clusterInstallCmd)
-	pf := clusterInstallCmd.PersistentFlags()
+	clusterCmd.AddCommand(clusterApplyCmd)
+	pf := clusterApplyCmd.PersistentFlags()
 	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&verbose, "verbose", "v", false, "Show output from Terraform")
-	pf.BoolVarP(&skipComponents, "skip-components", "", false, "Skip component installation")
+	pf.BoolVarP(&skipComponents, "skip-components", "", false, "Skip applying component configuration")
 	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
 
-func runClusterInstall(cmd *cobra.Command, args []string) {
+//nolint:funlen
+func runClusterApply(cmd *cobra.Command, args []string) {
 	ctxLogger := log.WithFields(log.Fields{
-		"command": "lokoctl cluster install",
+		"command": "lokoctl cluster apply",
 		"args":    args,
 	})
 
@@ -62,22 +63,22 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
 		}
 
-		if !askForConfirmation("Do you want to proceed with cluster install?") {
-			ctxLogger.Println("Cluster install cancelled")
+		if !askForConfirmation("Do you want to proceed with cluster apply?") {
+			ctxLogger.Println("Cluster apply cancelled")
 
 			return
 		}
 	}
 
-	if err := p.Install(ex); err != nil {
-		ctxLogger.Fatalf("error installing cluster: %v", err)
+	if err := p.Apply(ex); err != nil {
+		ctxLogger.Fatalf("error applying cluster: %v", err)
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
 	kubeconfigPath := assetsKubeconfig(assetDir)
-	if err := verifyInstall(kubeconfigPath, p.GetExpectedNodes()); err != nil {
-		ctxLogger.Fatalf("Verify cluster installation: %v", err)
+	if err := verifyCluster(kubeconfigPath, p.GetExpectedNodes()); err != nil {
+		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 
 	// Do controlplane upgrades only if cluster already exists.
@@ -106,21 +107,21 @@ func runClusterInstall(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	var componentsToInstall []string
+	componentsToApply := make([]string, len(lokoConfig.RootConfig.Components))
 	for _, component := range lokoConfig.RootConfig.Components {
-		componentsToInstall = append(componentsToInstall, component.Name)
+		componentsToApply = append(componentsToApply, component.Name)
 	}
 
-	ctxLogger.Println("Installing components")
+	ctxLogger.Println("Applying component configuration")
 
-	if len(componentsToInstall) > 0 {
-		if err := installComponents(lokoConfig, kubeconfigPath, componentsToInstall...); err != nil {
-			ctxLogger.Fatalf("Installing components failed: %v", err)
+	if len(componentsToApply) > 0 {
+		if err := applyComponents(lokoConfig, kubeconfigPath, componentsToApply...); err != nil {
+			ctxLogger.Fatalf("Applying component configuration failed: %v", err)
 		}
 	}
 }
 
-func verifyInstall(kubeconfigPath string, expectedNodes int) error {
+func verifyCluster(kubeconfigPath string, expectedNodes int) error {
 	client, err := k8sutil.NewClientset(kubeconfigPath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up clientset")

@@ -73,7 +73,7 @@ Example:
 To install the OpenEBS storage class component:
 
 ```bash
-lokoctl component install openebs-storage-class
+lokoctl component apply openebs-storage-class
 ```
 ## Uninstalling
 

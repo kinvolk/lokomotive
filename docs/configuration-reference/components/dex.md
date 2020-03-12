@@ -183,7 +183,7 @@ Example:
 To install the Dex component:
 
 ```bash
-lokoctl component install dex
+lokoctl component apply dex
 ```
 
 ### G Suite specific instructions

@@ -92,7 +92,7 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (c *config) Install(ex *terraform.Executor) error {
+func (c *config) Apply(ex *terraform.Executor) error {
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}

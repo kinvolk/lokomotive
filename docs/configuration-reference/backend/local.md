@@ -14,7 +14,7 @@ Lokomotive supports local backend for storing Terraform state.
 Backend configuration is **OPTIONAL**. If no backend configuration is provided then local backend is
 used.
 
->NOTE: Installer does not support multiple backends, configure only one.
+>NOTE: lokoctl does not support multiple backends, configure only one.
 
 ## Prerequisites
 

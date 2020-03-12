@@ -52,8 +52,8 @@ The list is present at `json path {.spec.ingress[0].source.nets}`.
 
 Also remove the IP block `0.0.0.0/0` from the whitelist, if there is any.
 
->NOTE: Executing the above step will be overwritten next time a user runs `lokoctl cluster install`.
+>NOTE: Executing the above step will be overwritten next time a user runs `lokoctl cluster apply`.
 
 To make the changes permanent, the canonical way of doing such an operation is
 to edit the cluster configuration file, updating the `management_cidrs` field
-and running `lokoctl cluster install` again.
+and running `lokoctl cluster apply` again.

@@ -16,10 +16,11 @@ package terraform
 
 import (
 	"fmt"
-	"github.com/kinvolk/lokomotive/pkg/install"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/kinvolk/lokomotive/pkg/install"
 
 	"github.com/pkg/errors"
 )

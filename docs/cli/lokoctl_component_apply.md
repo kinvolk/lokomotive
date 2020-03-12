@@ -1,19 +1,23 @@
-## lokoctl component render-manifest
+## lokoctl component apply
 
-Render and print manifests for a component
+Apply a component configuration. If not present it will install it.
+If ran with no arguments it will apply all components mentioned in the
+configuration.
 
 ### Synopsis
 
-Render and print manifests for a component
+Apply a component configuration. If not present it will install it.
+If ran with no arguments it will apply all components mentioned in the
+configuration.
 
 ```
-lokoctl component render-manifest [flags]
+lokoctl component apply [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for render-manifest
+  -h, --help   help for apply
 ```
 
 ### Options inherited from parent commands

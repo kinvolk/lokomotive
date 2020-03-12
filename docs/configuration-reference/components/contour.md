@@ -54,7 +54,7 @@ Example:
 To install the Contour component:
 
 ```bash
-lokoctl component install contour
+lokoctl component apply contour
 ```
 
 This component is installed in the `projectcontour` namespace.

@@ -101,7 +101,7 @@ Example:
 To install the Prometheus Operator component:
 
 ```bash
-lokoctl component install prometheus-operator
+lokoctl component apply prometheus-operator
 ```
 
 ### Post-installation

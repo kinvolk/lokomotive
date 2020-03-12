@@ -50,7 +50,7 @@ Example:
 To install the cert-manager component:
 
 ```bash
-lokoctl component install cert-manager
+lokoctl component apply cert-manager
 ```
 ## Uninstalling
 

@@ -39,7 +39,7 @@ This component does not accept any arguments in its configuration.
 To install the Metrics server component:
 
 ```bash
-lokoctl component install metrics-server
+lokoctl component apply metrics-server
 ```
 
 ## Uninstalling

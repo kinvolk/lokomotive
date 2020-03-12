@@ -24,7 +24,7 @@ import (
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
-	Install(*terraform.Executor) error
+	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
 	Initialize(*terraform.Executor) error
 	GetAssetDir() string

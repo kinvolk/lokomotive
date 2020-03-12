@@ -196,7 +196,7 @@ guide](../configuration-reference/platform/baremetal.md).
 Run the following command to create the cluster:
 
 ```console
-lokoctl cluster install
+lokoctl cluster apply
 ```
 
 **Proceed to Power on the PXE machines while this loops.**

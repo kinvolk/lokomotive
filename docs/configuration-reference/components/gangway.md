@@ -93,7 +93,7 @@ Example:
 To install the Gangway component:
 
 ```bash
-lokoctl component install gangway
+lokoctl component apply gangway
 ```
 ## Uninstalling
 

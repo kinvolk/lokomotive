@@ -101,7 +101,7 @@ Example:
 To install the Velero component:
 
 ```bash
-lokoctl component install velero
+lokoctl component apply velero
 ```
 
 ### Post-insallation

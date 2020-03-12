@@ -76,7 +76,7 @@ Example:
 To install the ExternalDNS component:
 
 ```bash
-lokoctl component install external-dns
+lokoctl component apply external-dns
 ```
 ## Uninstalling
 

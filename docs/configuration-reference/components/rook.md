@@ -81,7 +81,7 @@ Example:
 To install the Rook component:
 
 ```bash
-lokoctl component install rook
+lokoctl component apply rook
 ```
 ## Uninstalling
 
