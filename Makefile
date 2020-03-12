@@ -139,3 +139,8 @@ docker-update-dependencies: docker-build
 .PHONY: docs
 docs:
 	GO111MODULE=on go run -mod=$(MOD) -buildmode=exe cli/cmd/document/main.go $(DOCS_DIR)
+
+.PHONY: build-and-publish-release
+build-and-publish-release: SHELL:=/bin/bash
+build-and-publish-release:
+	goreleaser --release-notes <(./scripts/print-version-changelog.sh)
