@@ -92,15 +92,8 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
 		return diags
 	}
-	if len(c.WorkerPools) == 0 {
-		err := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "At least one worker pool must be defined",
-			Detail:   "Make sure to define at least one worker pool block in your cluster block",
-		}
-		return hcl.Diagnostics{err}
-	}
-	return nil
+
+	return c.checkValidConfig()
 }
 
 func NewConfig() *config {
@@ -147,32 +140,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	// If the provider isn't manual, apply everything in a single step.
-	if dnsProvider != dns.DNSManual {
-		return ex.Apply()
-	}
-
-	arguments := []string{"apply", "-auto-approve"}
-
-	// Get DNS entries (it forces the creation of the controller nodes).
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
-
-	// Add worker nodes to speed things up.
-	for index := range c.WorkerPools {
-		arguments = append(arguments, fmt.Sprintf("-target=module.worker-pool-%d.packet_device.nodes", index))
-	}
-
-	// Create controller and workers nodes.
-	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "failed executing Terraform")
-	}
-
-	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
-		return errors.Wrap(err, "failed to configure DNS entries")
-	}
-
-	// Finish deployment.
-	return ex.Apply()
+	return c.terraformSmartApply(ex, dnsProvider)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -239,6 +207,36 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	return nil
 }
 
+// terraformSmartApply applies cluster configuration.
+func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNSProvider) error {
+	// If the provider isn't manual, apply everything in a single step.
+	if dnsProvider != dns.DNSManual {
+		return ex.Apply()
+	}
+
+	arguments := []string{"apply", "-auto-approve"}
+
+	// Get DNS entries (it forces the creation of the controller nodes).
+	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
+
+	// Add worker nodes to speed things up.
+	for _, w := range c.WorkerPools {
+		arguments = append(arguments, fmt.Sprintf("-target=module.worker-%v.packet_device.nodes", w.Name))
+	}
+
+	// Create controller and workers nodes.
+	if err := ex.Execute(arguments...); err != nil {
+		return errors.Wrap(err, "failed executing Terraform")
+	}
+
+	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
+		return errors.Wrap(err, "failed to configure DNS entries")
+	}
+
+	// Finish deployment.
+	return ex.Apply()
+}
+
 func (c *config) GetExpectedNodes() int {
 	workers := 0
 
@@ -247,4 +245,52 @@ func (c *config) GetExpectedNodes() int {
 	}
 
 	return c.ControllerCount + workers
+}
+
+// checkValidConfig validates cluster configuration.
+func (c *config) checkValidConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
+	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+
+	return diagnostics
+}
+
+// checkNotEmptyWorkers checks if the cluster has at least 1 node pool defined.
+func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if len(c.WorkerPools) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "At least one worker pool must be defined",
+			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+		})
+	}
+
+	return diagnostics
+}
+
+// checkWorkerPoolNamesUnique verifies that all worker pool names are unique.
+func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	dup := make(map[string]bool)
+
+	for _, w := range c.WorkerPools {
+		if !dup[w.Name] {
+			dup[w.Name] = true
+			continue
+		}
+
+		// It is duplicated.
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Worker pools name should be unique",
+			Detail:   fmt.Sprintf("Worker pool %v is duplicated", w.Name),
+		})
+	}
+
+	return diagnostics
 }

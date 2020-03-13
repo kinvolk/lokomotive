@@ -93,7 +93,7 @@ module "packet-{{.Config.ClusterName}}" {
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
-module "worker-pool-{{ $index }}" {
+module "worker-{{ $pool.Name }}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
 
   providers = {
