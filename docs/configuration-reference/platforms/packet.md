@@ -8,6 +8,7 @@
 * [Argument reference](#argument-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
+* [ARM support and hybrid clusters](#arm-support-and-hybrid-clusters)
 
 ## Introduction
 
@@ -240,3 +241,37 @@ To destroy the Lokomotive cluster, execute the following command:
 lokoctl cluster destroy --confirm
 ```
 
+## ARM support and hybrid clusters
+
+Lokomotive and Flatcar currently include an alpha-quality preview for the
+Packet arm64 server type `c2.large.arm`. They can be used for both worker and
+controller nodes. Besides specifying them in `controller_type`/`node_type` you
+need to configure some additional variables in the respective controller/worker
+module:
+
+```
+os_arch = "arm64"
+os_channel = "alpha"
+ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
+```
+
+The iPXE boot variable can be removed once Flatcar is available for
+installation in the Packet OS menu for the ARM servers.
+
+If you have a hybrid cluster with both x86 and ARM nodes, you need to either
+use Docker multiarch images such as the standard `debian:latest` or
+`python:latest` images, or restrict Pods to nodes of the correct architecture
+with an entry like this for ARM (or with `amd64` for x86) in your YAML
+deployment:
+
+```
+nodeSelector:
+  kubernetes.io/arch: arm64
+```
+
+An example on how to build multiarch images yourself is
+[here](https://github.com/kinvolk/calico-hostendpoint-controller/#building).
+
+**Note**: [Lokomotive Components](../../concepts/components.md) are not
+supported in this preview, so if you need them you'll have to install them
+manually using Kubernetes directly.
