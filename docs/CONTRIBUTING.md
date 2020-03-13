@@ -94,7 +94,7 @@ This format is acceptable as sometimes nesting parts of the codebase
 in the title can take up a lot of characters. Also at the same time,
 using `pkg/components/` is redundant in the title, unless there is
 another directory of the same name but with a different parent
-directory, for eg: `cli/components`.
+directory, e.g.: `cli/components`.
 
 ## Updating dependencies
 

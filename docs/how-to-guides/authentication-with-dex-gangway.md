@@ -192,7 +192,7 @@ HomePage URL must match the `issuer_host` in Dex configuration.
 Set **Authorization Callback URL** to the value of the `redirect_uri` in the Dex configuration.
 
 ![Registering OAuth application ](github-oauth-app-register.png?raw=true "Register a new OAuth
-applicaion")
+application")
 
 After registering the application, take note of the ClientID and ClientSecret.
 
@@ -304,7 +304,8 @@ kubectl get pods -n kube-system
 ## Step 6: Authenticate with Gangway (for users)
 
 Sign in to Gangway using the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME`.
-ou should be able to authenticate via GitHub. Upon successful authentication, you should be redirected to https://gangway.YOUR.CLUSTER.DOMAIN.NAME/commandline.
+You should be able to authenticate via GitHub.
+Upon successful authentication, you should be redirected to https://gangway.YOUR.CLUSTER.DOMAIN.NAME/commandline.
 
 Gangway provides further instructions for configuring `kubectl` to gain access to the cluster.
 

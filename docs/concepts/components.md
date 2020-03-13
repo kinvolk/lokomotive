@@ -1,7 +1,7 @@
 # Lokomotive component
 
 A Lokomotive component is a Kubernetes workload which adds functionality to a Lokomotive cluster.
-Without components, a Lokomotive cluster is just a barebone kubernetes cluster. In some cases (e.g.
+Without components, a Lokomotive cluster is just a barebone Kubernetes cluster. In some cases (e.g.
 bare metal environments), a Lokomotive cluster may even be unusable without certain components.
 Components take care of tasks such as load balancing, monitoring, authentication, storage and
 others.
@@ -114,7 +114,7 @@ lokoctl component apply <component_name>
 
 > If this command is executed in the directory containing cluster configuration, `lokoctl` will try
 > to install the component on configured cluster. If no configuration is found, the configuration
-> from `KUBECONFIG` environment variable will be used. If th environment variable is empty,
+> from `KUBECONFIG` environment variable will be used. If the environment variable is empty,
 > `~/.kube/config` file will be used.
 
 >To use specific `kubeconfig` file, `--kubeconfig` flag can be used.

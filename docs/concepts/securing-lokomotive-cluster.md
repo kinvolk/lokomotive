@@ -20,7 +20,7 @@ default PSPs for general purpose application usage:
     * Does not allow pods to be run as root.
     * Allows only whitelisted volumes.
     * Allows only whitelisted capabilities.
-    * The linux kernel host namespace sharing is not allowed for any pod using this PSP. The default
+    * The Linux kernel host namespace sharing is not allowed for any pod using this PSP. The default
       docker seccomp profiles are used.
 
     To allow special permissions to workloads, the recommended way is to create a bespoke PSP and

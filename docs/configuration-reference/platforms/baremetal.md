@@ -12,7 +12,7 @@
 ## Introduction
 
 This configuration guide provides information on configuring a Lokomotive cluster on Bare Metal with all
-the configuration options avaialable to the user.
+the configuration options available to the user.
 
 ## Prerequisites
 
