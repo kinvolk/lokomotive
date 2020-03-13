@@ -120,7 +120,7 @@ module "worker-{{ $pool.Name }}" {
   {{- end }}
 
   {{- if $.Config.IPXEScriptURL }}
-  ipxe_script_url = "{{ $.Config.IPXEScriptURL }}"
+  ipxe_script_url = "{{ $pool.IPXEScriptURL }}"
   {{- end }}
 
   {{- if $pool.OSArch }}
