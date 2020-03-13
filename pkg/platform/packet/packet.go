@@ -202,6 +202,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	return nil
 }
 
+// terraformSmartApply applies cluster configuration.
 func (c *config) terraformSmartApply(ex *terraform.Executor) error {
 	dnsProvider, err := dns.ParseDNS(&c.DNS)
 	if err != nil {
@@ -246,7 +247,7 @@ func (c *config) GetExpectedNodes() int {
 	return c.ControllerCount + workers
 }
 
-// Check cluster config is valid
+// checkValidConfig validates cluster configuration.
 func (c *config) checkValidConfig() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
@@ -256,6 +257,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	return diagnostics
 }
 
+// checkNotEmptyWorkers checks if the cluster has at least 1 node pool defined.
 func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
@@ -270,6 +272,7 @@ func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
 	return diagnostics
 }
 
+// checkWorkerPoolNamesUnique verifies that all worker pool names are unique.
 func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
@@ -281,7 +284,7 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 			continue
 		}
 
-		// It is duplicated
+		// It is duplicated.
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Worker pools name should be unique",
