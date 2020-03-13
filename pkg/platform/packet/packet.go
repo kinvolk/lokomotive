@@ -131,11 +131,16 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	c.AssetDir = assetDir
 
+	dnsProvider, err := dns.ParseDNS(&c.DNS)
+	if err != nil {
+		return errors.Wrap(err, "parsing DNS configuration failed")
+	}
+
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}
 
-	return c.terraformSmartApply(ex)
+	return c.terraformSmartApply(ex, dnsProvider)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -203,12 +208,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 }
 
 // terraformSmartApply applies cluster configuration.
-func (c *config) terraformSmartApply(ex *terraform.Executor) error {
-	dnsProvider, err := dns.ParseDNS(&c.DNS)
-	if err != nil {
-		return errors.Wrap(err, "parsing DNS configuration failed")
-	}
-
+func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNSProvider) error {
 	// If the provider isn't manual, apply everything in a single step.
 	if dnsProvider != dns.DNSManual {
 		return ex.Apply()
