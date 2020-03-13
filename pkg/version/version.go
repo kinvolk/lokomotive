@@ -15,4 +15,4 @@
 package version
 
 // This variable is used by the "version" command and is set during build.
-var Version = "undefined"
+var Version = "0.0.0+git"
