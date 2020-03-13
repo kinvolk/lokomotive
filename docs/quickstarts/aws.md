@@ -165,7 +165,7 @@ kubectl get nodes
 
 ## Cleanup
 
-To destroy the Lokomotive cluster, execute the following commmand:
+To destroy the Lokomotive cluster, execute the following command:
 
 ```console
 lokoctl cluster destroy --confirm

@@ -30,7 +30,7 @@ This how-to guide is expected to take about 15 minutes.
 
 ## Learning Objectives
 
-This guide assumes familiarity with Kubernetes and has a basic understanding of Ingress and Load Balancers.
+This guide assumes familiarity with Kubernetes and has a basic understanding of Ingress and load balancers.
 
 Upon completion of this guide, you will be able to use Service type `LoadBalancer` in your Lokomotive cluster on Packet.
 
