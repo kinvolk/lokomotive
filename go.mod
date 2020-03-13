@@ -6,23 +6,24 @@ require (
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Microsoft/hcsshim v0.8.7 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
-	github.com/agext/levenshtein v1.2.2 // indirect
+	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
-	github.com/containerd/cgroups v0.0.0-20200226104544-44306b6a1d46 // indirect
+	github.com/containerd/cgroups v0.0.0-20200308110149-6c3dec43a103 // indirect
 	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/containerd/continuity v0.0.0-20200228182428-0f16d7a0959c // indirect
 	github.com/deislabs/oras v0.8.1 // indirect
-	github.com/docker/cli v0.0.0-20200303162255-7d407207c304 // indirect
+	github.com/docker/cli v0.0.0-20200312141509-ef2f64abbd37 // indirect
 	github.com/docker/docker v1.13.1 // indirect
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
-	github.com/emicklei/go-restful v2.11.2+incompatible // indirect
+	github.com/emicklei/go-restful v2.12.0+incompatible // indirect
 	github.com/fatih/color v1.9.0 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
-	github.com/go-openapi/spec v0.19.6 // indirect
-	github.com/go-openapi/swag v0.19.7 // indirect
+	github.com/go-openapi/spec v0.19.7 // indirect
+	github.com/go-openapi/swag v0.19.8 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/golang/protobuf v1.3.4 // indirect
+	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
@@ -61,22 +62,22 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/zclconf/go-cty v1.3.1
 	go.opencensus.io v0.22.3 // indirect
-	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
+	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	golang.org/x/tools v0.0.0-20200129045341-207d3de1faaf // indirect
-	google.golang.org/genproto v0.0.0-20200305110556-506484158171 // indirect
-	google.golang.org/grpc v1.27.1 // indirect
-	gopkg.in/ini.v1 v1.52.0 // indirect
+	google.golang.org/genproto v0.0.0-20200312145019-da6875a35672 // indirect
+	google.golang.org/grpc v1.28.0 // indirect
+	gopkg.in/ini.v1 v1.54.0 // indirect
 	gotest.tools/v3 v3.0.2 // indirect
-	helm.sh/helm/v3 v3.1.1
-	k8s.io/api v0.17.3
-	k8s.io/apiextensions-apiserver v0.17.3 // indirect
-	k8s.io/apimachinery v0.17.3
+	helm.sh/helm/v3 v3.1.2
+	k8s.io/api v0.17.4
+	k8s.io/apiextensions-apiserver v0.17.4 // indirect
+	k8s.io/apimachinery v0.17.4
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20200204173128-addea2498afe // indirect
-	k8s.io/kubectl v0.17.3 // indirect
+	k8s.io/kubectl v0.17.4 // indirect
 	k8s.io/utils v0.0.0-20200229041039-0a110f9eb7ab // indirect
 	sigs.k8s.io/yaml v1.2.0
 )
@@ -85,7 +86,7 @@ require (
 replace github.com/docker/docker => github.com/docker/engine v1.4.2-0.20191113042239-ea84732a7725
 
 // Force upgrade client-go to latest version, otherwise go get complains about incompatible versions.
-replace k8s.io/client-go => k8s.io/client-go v0.17.3
+replace k8s.io/client-go => k8s.io/client-go v0.17.4
 
 // Without this, helm dependency does not build.
 replace github.com/deislabs/oras => github.com/deislabs/oras v0.7.0
