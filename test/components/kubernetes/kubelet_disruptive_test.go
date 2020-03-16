@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // +build packet
-// +build disruptive-e2e
+// +build disruptivee2e
 
 package kubernetes
 

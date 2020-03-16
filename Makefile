@@ -6,7 +6,7 @@ VERSION :=
 MOD ?= vendor
 DOCS_DIR ?= docs/cli
 
-ALL_BUILD_TAGS := "aws,packet,e2e,disruptive-e2e,poste2e"
+ALL_BUILD_TAGS := "aws,packet,e2e,disruptivee2e,poste2e"
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
@@ -91,7 +91,7 @@ run-e2e-tests:
 	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),poste2e" -covermode=atomic -buildmode=exe -v ./...
 	# This is a test that should be run in the end to reduce the disruption to other tests because
 	# it will delete a node.
-	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),disruptive-e2e" -covermode=atomic -buildmode=exe -v ./...
+	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),disruptivee2e" -covermode=atomic -buildmode=exe -v ./...
 
 .PHONY: all
 all: build test
