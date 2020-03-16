@@ -107,7 +107,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	componentsToApply := make([]string, len(lokoConfig.RootConfig.Components))
+	componentsToApply := []string{}
 	for _, component := range lokoConfig.RootConfig.Components {
 		componentsToApply = append(componentsToApply, component.Name)
 	}
