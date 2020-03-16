@@ -76,4 +76,23 @@ prometheus:
           resources:
             requests:
               storage: 50Gi
+
+kubeControllerManager:
+  service:
+    selector:
+      k8s-app: kube-controller-manager
+      tier: control-plane
+
+coreDns:
+  service:
+    selector:
+      k8s-app: coredns
+      tier: control-plane
+
+kubeScheduler:
+  service:
+    selector:
+      k8s-app: kube-scheduler
+      tier: control-plane
+
 `
