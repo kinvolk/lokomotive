@@ -45,16 +45,8 @@ module "aws-{{.Config.ClusterName}}" {
   controller_type  = "{{.Config.ControllerType}}"
  {{- end }}
 
-  worker_count = {{.Config.WorkerCount}}
-  {{- if .Config.WorkerType }}
-  worker_type  = "{{.Config.WorkerType}}"
-  {{- end }}
-  {{- if .Config.WorkerPrice }}
-  worker_price = "{{.Config.WorkerPrice}}"
-  {{- end }}
-  {{- if .Config.WorkerTargetGroups }}
-  worker_target_groups = {{.WorkerTargetGroups}}
-  {{- end }}
+	# Do not allow creation of workers apart from using worker pools.
+  worker_count = 0
 
   {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
@@ -82,9 +74,6 @@ module "aws-{{.Config.ClusterName}}" {
 
  {{- if ne .ControllerCLCSnippets "null" }}
   controller_clc_snippets = {{.ControllerCLCSnippets}}
- {{- end }}
-  {{- if ne .WorkerCLCSnippets "null" }}
-  worker_clc_snippets     = {{.WorkerCLCSnippets}}
  {{- end }}
 
   enable_aggregation = {{.Config.EnableAggregation}}

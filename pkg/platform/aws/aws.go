@@ -31,10 +31,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
-const (
-	defaultWorkerCount = 2
-)
-
 type workerPool struct {
 	Name         string            `hcl:"pool_name,label"`
 	Count        int               `hcl:"count"`
@@ -64,17 +60,12 @@ type config struct {
 	CredsPath                string            `hcl:"creds_path,optional"`
 	ControllerCount          int               `hcl:"controller_count,optional"`
 	ControllerType           string            `hcl:"controller_type,optional"`
-	WorkerCount              int               `hcl:"worker_count,optional"`
-	WorkerType               string            `hcl:"worker_type,optional"`
 	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
-	WorkerCLCSnippets        []string          `hcl:"worker_clc_snippets,optional"`
 	Region                   string            `hcl:"region,optional"`
 	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
 	DiskSize                 int               `hcl:"disk_size,optional"`
 	DiskType                 string            `hcl:"disk_type,optional"`
 	DiskIOPS                 int               `hcl:"disk_iops,optional"`
-	WorkerPrice              string            `hcl:"worker_price,optional"`
-	WorkerTargetGroups       []string          `hcl:"worker_target_groups,optional"`
 	NetworkMTU               int               `hcl:"network_mtu,optional"`
 	HostCIDR                 string            `hcl:"host_cidr,optional"`
 	PodCIDR                  string            `hcl:"pod_cidr,optional"`
@@ -104,7 +95,6 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		WorkerCount:       defaultWorkerCount,
 		Region:            "eu-central-1",
 		EnableAggregation: true,
 	}
@@ -168,16 +158,6 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
-	workerCLCSnippetsBytes, err := json.Marshal(cfg.WorkerCLCSnippets)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
-	workerTargetGroupsBytes, err := json.Marshal(cfg.WorkerTargetGroups)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
 	util.AppendTags(&cfg.Tags)
 
 	tags, err := json.Marshal(cfg.Tags)
@@ -222,8 +202,6 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		Tags:                  string(tags),
 		SSHPublicKeys:         string(keyListBytes),
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
-		WorkerCLCSnippets:     string(workerCLCSnippetsBytes),
-		WorkerTargetGroups:    string(workerTargetGroupsBytes),
 		WorkerpoolCfg:         workerpoolCfgList,
 	}
 
@@ -239,7 +217,7 @@ func (c *config) GetExpectedNodes() int {
 		nodes += workerpool.Count
 	}
 
-	return c.WorkerCount + nodes
+	return nodes
 }
 
 // checkValidConfig validates cluster configuration.
