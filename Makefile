@@ -6,6 +6,8 @@ VERSION :=
 MOD ?= vendor
 DOCS_DIR ?= docs/cli
 
+ALL_BUILD_TAGS := "aws,packet,e2e,disruptive-e2e,poste2e"
+
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
 ifeq ($(changes),)
@@ -34,7 +36,7 @@ build-in-docker:
 
 .PHONY: build-test
 build-test:
-	go test -run=nonexistent -mod=$(MOD) -tags="aws,packet,e2e,disruptive-e2e,poste2e" -covermode=atomic -buildmode=exe -v ./...
+	go test -run=nonexistent -mod=$(MOD) -tags=$(ALL_BUILD_TAGS) -covermode=atomic -buildmode=exe -v ./...
 
 .PHONY: all
 all: build build-test test lint
@@ -59,7 +61,7 @@ test: run-unit-tests
 
 .PHONY: lint
 lint: build-slim build-test
-	golangci-lint run --enable-all --disable=godox,gochecknoglobals --max-same-issues=0 --max-issues-per-linter=0 --build-tags aws,packet,e2e,disruptive-e2e,poste2e --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
+	golangci-lint run --enable-all --disable=godox,gochecknoglobals --max-same-issues=0 --max-issues-per-linter=0 --build-tags $(ALL_BUILD_TAGS) --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
 
 GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
