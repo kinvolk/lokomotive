@@ -1,0 +1,39 @@
+# Port flags from Makefile.
+builds:
+- env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+  ldflags:
+  - -X github.com/kinvolk/lokomotive/pkg/version.Version={{.Version}}
+  - -extldflags '-static'
+  flags:
+  - -buildmode=exe
+  goarch:
+  - amd64
+  goos:
+  - linux
+  - darwin
+  main: ./cmd/lokoctl/main.go
+  binary: lokoctl
+
+changelog:
+  # Skip changelog, we'll generate it semi-manually and pass it to goreleaser.
+  skip: true
+
+# Enable signing checksums.
+signs:
+- artifacts: all
+
+# Override default project name.
+project_name: lokoctl
+
+release:
+  # Upload a draft release so we can check everything looks good before
+  # publishing.
+  draft: true
+
+  # Mark release as prerelease for now.
+  prerelease: true
+
+archives:
+- wrap_in_directory: true
