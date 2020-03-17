@@ -47,8 +47,12 @@ cluster "aws" {
   dns_zone         = var.dns_zone
   dns_zone_id      = var.route53_zone_id
   ssh_pubkeys      = var.ssh_public_keys
-  worker_count     = var.workers_count
-  worker_type      = var.workers_type
+
+  worker_pool "my-worker-pool-name" {
+    count         = var.workers_count
+    instance_type = var.workers_type
+    ssh_pubkeys   = var.ssh_public_keys
+  }
 }
 
 component "metrics-server" {}
