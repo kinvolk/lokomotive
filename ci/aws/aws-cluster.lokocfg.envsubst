@@ -14,6 +14,15 @@ cluster "aws" {
   dns_zone_id  = "$AWS_DNS_ZONE_ID"
   os_channel   = var.os_channel
   ssh_pubkeys  = ["$PUB_KEY"]
+
+  worker_pool "pool-ci" {
+    count       = 2
+    ssh_pubkeys = ["$PUB_KEY"]
+    disk_size   = 30
+    tags = {
+      "deployment" = "ci"
+    }
+  }
 }
 
 component "openebs-operator" {}

@@ -16,6 +16,7 @@ package aws
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -30,9 +31,21 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
-const (
-	defaultWorkerCount = 2
-)
+type workerPool struct {
+	Name         string            `hcl:"pool_name,label"`
+	Count        int               `hcl:"count"`
+	SSHPubKeys   []string          `hcl:"ssh_pubkeys"`
+	InstanceType string            `hcl:"instance_type,optional"`
+	OSChannel    string            `hcl:"os_channel,optional"`
+	OSVersion    string            `hcl:"os_version,optional"`
+	DiskSize     int               `hcl:"disk_size,optional"`
+	DiskType     string            `hcl:"disk_type,optional"`
+	DiskIOPS     int               `hcl:"disk_iops,optional"`
+	SpotPrice    string            `hcl:"spot_price,optional"`
+	TargetGroups []string          `hcl:"target_groups,optional"`
+	CLCSnippets  []string          `hcl:"clc_snippets,optional"`
+	Tags         map[string]string `hcl:"tags,optional"`
+}
 
 type config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
@@ -47,17 +60,12 @@ type config struct {
 	CredsPath                string            `hcl:"creds_path,optional"`
 	ControllerCount          int               `hcl:"controller_count,optional"`
 	ControllerType           string            `hcl:"controller_type,optional"`
-	WorkerCount              int               `hcl:"worker_count,optional"`
-	WorkerType               string            `hcl:"worker_type,optional"`
 	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
-	WorkerCLCSnippets        []string          `hcl:"worker_clc_snippets,optional"`
 	Region                   string            `hcl:"region,optional"`
 	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
 	DiskSize                 int               `hcl:"disk_size,optional"`
 	DiskType                 string            `hcl:"disk_type,optional"`
 	DiskIOPS                 int               `hcl:"disk_iops,optional"`
-	WorkerPrice              string            `hcl:"worker_price,optional"`
-	WorkerTargetGroups       []string          `hcl:"worker_target_groups,optional"`
 	NetworkMTU               int               `hcl:"network_mtu,optional"`
 	HostCIDR                 string            `hcl:"host_cidr,optional"`
 	PodCIDR                  string            `hcl:"pod_cidr,optional"`
@@ -65,6 +73,7 @@ type config struct {
 	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
 	EnableReporting          bool              `hcl:"enable_reporting,optional"`
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
+	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 }
 
 // init registers aws as a platform
@@ -76,12 +85,16 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
+
+	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
+		return diags
+	}
+
+	return c.checkValidConfig()
 }
 
 func NewConfig() *config {
 	return &config{
-		WorkerCount:       defaultWorkerCount,
 		Region:            "eu-central-1",
 		EnableAggregation: true,
 	}
@@ -120,6 +133,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 }
 
 func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
+	workerpoolCfgList := []map[string]string{}
 	tmplName := "cluster.tf"
 	t := template.New(tmplName)
 	t, err := t.Parse(terraformConfigTmpl)
@@ -144,20 +158,35 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
-	workerCLCSnippetsBytes, err := json.Marshal(cfg.WorkerCLCSnippets)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
-	workerTargetGroupsBytes, err := json.Marshal(cfg.WorkerTargetGroups)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
 	util.AppendTags(&cfg.Tags)
+
 	tags, err := json.Marshal(cfg.Tags)
 	if err != nil {
 		return errors.Wrapf(err, "failed to marshal tags")
+	}
+
+	for _, workerpool := range cfg.WorkerPools {
+		input := map[string]interface{}{
+			"clc_snippets":  workerpool.CLCSnippets,
+			"target_groups": workerpool.TargetGroups,
+			"ssh_pub_keys":  workerpool.SSHPubKeys,
+			"tags":          workerpool.Tags,
+		}
+
+		output := map[string]string{}
+
+		util.AppendTags(&workerpool.Tags)
+
+		for k, v := range input {
+			bytes, err := json.Marshal(v)
+			if err != nil {
+				return fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
+			}
+
+			output[k] = string(bytes)
+		}
+
+		workerpoolCfgList = append(workerpoolCfgList, output)
 	}
 
 	terraformCfg := struct {
@@ -167,13 +196,13 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		ControllerCLCSnippets string
 		WorkerCLCSnippets     string
 		WorkerTargetGroups    string
+		WorkerpoolCfg         []map[string]string
 	}{
 		Config:                *cfg,
 		Tags:                  string(tags),
 		SSHPublicKeys:         string(keyListBytes),
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
-		WorkerCLCSnippets:     string(workerCLCSnippetsBytes),
-		WorkerTargetGroups:    string(workerTargetGroupsBytes),
+		WorkerpoolCfg:         workerpoolCfgList,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
@@ -183,5 +212,58 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 }
 
 func (c *config) GetExpectedNodes() int {
-	return c.ControllerCount + c.WorkerCount
+	nodes := c.ControllerCount
+	for _, workerpool := range c.WorkerPools {
+		nodes += workerpool.Count
+	}
+
+	return nodes
+}
+
+// checkValidConfig validates cluster configuration.
+func (c *config) checkValidConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
+	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+
+	return diagnostics
+}
+
+// checkNotEmptyWorkers checks if the cluster has at least 1 node pool defined.
+func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if len(c.WorkerPools) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "At least one worker pool must be defined",
+			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+		})
+	}
+
+	return diagnostics
+}
+
+// checkWorkerPoolNamesUnique verifies that all worker pool names are unique.
+func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	dup := make(map[string]bool)
+
+	for _, w := range c.WorkerPools {
+		if !dup[w.Name] {
+			dup[w.Name] = true
+			continue
+		}
+
+		// It is duplicated.
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Worker pools name should be unique",
+			Detail:   fmt.Sprintf("Worker pool '%v' is duplicated", w.Name),
+		})
+	}
+
+	return diagnostics
 }

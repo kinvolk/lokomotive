@@ -37,24 +37,16 @@ module "aws-{{.Config.ClusterName}}" {
   ssh_keys  = {{$.SSHPublicKeys}}
   asset_dir = "../cluster-assets"
 
-	{{- if .Config.ControllerCount}}
+ {{- if .Config.ControllerCount}}
   controller_count = {{.Config.ControllerCount}}
-	{{- end }}
+ {{- end }}
 
-	{{- if .Config.ControllerType}}
+ {{- if .Config.ControllerType}}
   controller_type  = "{{.Config.ControllerType}}"
-	{{- end }}
+ {{- end }}
 
-  worker_count = {{.Config.WorkerCount}}
-  {{- if .Config.WorkerType }}
-  worker_type  = "{{.Config.WorkerType}}"
-  {{- end }}
-  {{- if .Config.WorkerPrice }}
-  worker_price = "{{.Config.WorkerPrice}}"
-  {{- end }}
-  {{- if .Config.WorkerTargetGroups }}
-  worker_target_groups = {{.WorkerTargetGroups}}
-  {{- end }}
+	# Do not allow creation of workers apart from using worker pools.
+  worker_count = 0
 
   {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
@@ -70,22 +62,19 @@ module "aws-{{.Config.ClusterName}}" {
   host_cidr = "{{.Config.HostCIDR}}"
   {{- end }}
 
-	{{- if .Config.OSName }}
+ {{- if .Config.OSName }}
   os_name = "{{.Config.OSName}}"
-	{{- end }}
-	{{- if .Config.OSChannel }}
+ {{- end }}
+ {{- if .Config.OSChannel }}
   os_channel = "{{.Config.OSChannel}}"
-	{{- end }}
-	{{- if .Config.OSVersion }}
+ {{- end }}
+ {{- if .Config.OSVersion }}
   os_version = "{{.Config.OSVersion}}"
-	{{- end }}
+ {{- end }}
 
-	{{- if ne .ControllerCLCSnippets "null" }}
+ {{- if ne .ControllerCLCSnippets "null" }}
   controller_clc_snippets = {{.ControllerCLCSnippets}}
-	{{- end }}
-	{{- if ne .WorkerCLCSnippets "null" }}
-  worker_clc_snippets     = {{.WorkerCLCSnippets}}
-	{{- end }}
+ {{- end }}
 
   enable_aggregation = {{.Config.EnableAggregation}}
 
@@ -103,6 +92,72 @@ module "aws-{{.Config.ClusterName}}" {
   certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
   {{- end }}
 }
+
+{{ range $index, $pool := .Config.WorkerPools }}
+module "worker-pool-{{ $index }}" {
+  source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes/workers"
+
+  providers = {
+    aws      = aws.default
+  }
+
+  vpc_id                = module.aws-{{ $.Config.ClusterName }}.vpc_id
+  subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
+  security_groups       = module.aws-{{ $.Config.ClusterName }}.worker_security_groups
+  kubeconfig            = module.aws-{{ $.Config.ClusterName }}.kubeconfig
+
+  {{- if $.Config.ServiceCIDR }}
+  service_cidr          = "{{ $.Config.ServiceCIDR }}"
+  {{- end }}
+
+  {{- if $.Config.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{ $.Config.ClusterDomainSuffix }}"
+  {{- end }}
+
+  ssh_keys              = {{ index (index $.WorkerpoolCfg $index) "ssh_pub_keys" }}
+  name                  = "{{ $pool.Name }}"
+  worker_count          = "{{ $pool.Count}}"
+  os_name               = "flatcar"
+  {{- if $pool.InstanceType }}
+  instance_type         = "{{ $pool.InstanceType }}"
+  {{- end }}
+
+  {{- if $pool.OSChannel }}
+  os_channel            = "{{ $pool.OSChannel }}"
+  {{- end }}
+
+  {{- if $pool.OSVersion }}
+  os_version            = "{{ $pool.OSVersion }}"
+  {{- end }}
+
+  {{- if $pool.DiskSize }}
+  disk_size             = "{{ $pool.DiskSize }}"
+  {{- end }}
+
+  {{- if $pool.DiskType }}
+  disk_type             = "{{ $pool.DiskType }}"
+  {{- end }}
+
+  {{- if $pool.DiskIOPS }}
+  disk_iops             = "{{ $pool.DiskIOPS }}"
+  {{- end }}
+
+  {{- if $pool.SpotPrice }}
+  spot_price            = "{{ $pool.SpotPrice }}"
+  {{- end }}
+  {{- if $pool.TargetGroups }}
+  target_groups         = "{{ index (index $.WorkerpoolCfg $index) "target_groups" }}"
+  {{- end }}
+
+  {{- if ne (index (index $.WorkerpoolCfg $index) "clc_snippets") "null" }}
+  clc_snippets          = {{ index (index $.WorkerpoolCfg $index) "clc snippets" }}
+  {{- end }}
+
+  {{- if $pool.Tags }}
+  tags                  = {{ index (index $.WorkerpoolCfg $index) "tags" }}
+  {{- end }}
+}
+{{- end }}
 
 provider "aws" {
   version = "2.48.0"
