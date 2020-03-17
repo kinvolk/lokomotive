@@ -16,10 +16,11 @@ cluster "aws" {
   ssh_pubkeys  = ["$PUB_KEY"]
 
   worker_pool "$CLUSTER_ID-wp" {
-    count       = 2
-    ssh_pubkeys = ["$PUB_KEY"]
-    disk_size   = 30
-    spot_price  = "0.02"
+    count         = 2
+    ssh_pubkeys   = ["$PUB_KEY"]
+    disk_size     = 30
+    instance_type = "i3.large"
+    spot_price    = "0.08"
     tags = {
       "deployment" = "ci"
     }
