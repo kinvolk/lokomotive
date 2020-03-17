@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: Add AWS when prometheus operator is being installed on AWS
-// +build packet
+// +build aws packet
 // +build poste2e
 
 package monitoring
