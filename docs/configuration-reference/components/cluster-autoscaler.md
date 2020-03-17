@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -64,7 +64,7 @@ component "cluster-autoscaler" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -86,7 +86,7 @@ Example:
 | `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "baremetal_0" | false    |
 | `packet_worker_channel`      | Flatcar Container Linux channel to be used in workers spawned by the Cluster Autoscaler. | "stable"      | false    |
 
-## Installing
+## Applying
 
 To install the cluster autoscaler component:
 
@@ -95,7 +95,7 @@ lokoctl component apply cluster-autoscaler
 ```
 By default, the cluster Autoscaler pods run in the `kube-system` namespace
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

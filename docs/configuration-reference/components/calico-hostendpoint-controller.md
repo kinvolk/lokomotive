@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -40,11 +40,11 @@ Calico HostEndpoint controller component configuration example:
 component "calico-hostendpoint-controller" {}
 ```
 
-## Argument reference
+## Attribute reference
 
 This component does not accept any arguments in its configuration.
 
-## Installing
+## Applying
 
 To install the Calico HostEndpoint controller component:
 
@@ -54,7 +54,7 @@ lokoctl component apply calico-hostendpoint-controller
 
 This component is installed in the `kube-system` namespace.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

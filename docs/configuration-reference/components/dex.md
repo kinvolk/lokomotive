@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -147,7 +147,7 @@ gangway_redirect_url = "https://gangway.example.lokomotive-k8s.org/callback"
 **Note**: More information on the variables used in above dex config can be found in the [gangway
 doc](gangway.md#configuration).
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -178,7 +178,7 @@ Example:
 | `connector.static_client.name`          | Name used when displaying this client to the end user.                                                                                                                     | -       | true     |
 | `connector.static_client.redirect_uris` | A registered set of redirect URIs. When redirecting from dex to the client, the URI requested to redirect to MUST match one of these values.                                | -       | true     |
 
-## Installing
+## Applying
 
 To install the Dex component:
 
@@ -209,7 +209,7 @@ Admin SDK lets administrators of enterprise domains to view and manage resources
 etc. To enable it [click
 here](https://console.developers.google.com/apis/library/admin.googleapis.com/).
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

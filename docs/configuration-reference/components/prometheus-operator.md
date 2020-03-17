@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -76,7 +76,7 @@ information.
     - name: 'null'
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -98,7 +98,7 @@ Example:
 | `alertmanager_config` | Provide YAML file path to configure Alertmanager. See [https://prometheus.io/docs/alerting/configuration/#configuration-file](https://prometheus.io/docs/alerting/configuration/#configuration-file). | `{"global":{"resolve_timeout":"5m"},"route":{"group_by":["job"],"group_wait":"30s","group_interval":"5m","repeat_interval":"12h","receiver":"null","routes":[{"match":{"alertname":"Watchdog"},"receiver":"null"}]},"receivers":[{"name":"null"}]}` | false |
 | `alertmanager_node_selector` | Node selector to specify nodes where the AlertManager pods should be deployed. | {} | false |
 
-## Installing
+## Applying
 
 To install the Prometheus Operator component:
 
@@ -137,7 +137,7 @@ here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/us
 and [the API Reference can be found
 here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#servicemonitor).
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

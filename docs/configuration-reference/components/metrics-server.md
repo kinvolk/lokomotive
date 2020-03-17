@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -30,11 +30,11 @@ Metrics server component configuration example:
 component "metrics-server" {}
 ```
 
-## Argument reference
+## Attribute reference
 
 This component does not accept any arguments in its configuration.
 
-## Installing
+## Applying
 
 To install the Metrics server component:
 
@@ -42,7 +42,7 @@ To install the Metrics server component:
 lokoctl component apply metrics-server
 ```
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

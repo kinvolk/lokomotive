@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -78,7 +78,7 @@ component "metallb" {
 
 MetalLB will use the specified CIDR for exposing services of type `LoadBalancer`.
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -93,14 +93,14 @@ Example:
 | `speaker_toleration`        | Specify one or more tolerations for speaker pods.                                          | -       | false    |
 | `service_monitor`           | Create ServiceMonitor for Prometheus to scrape MetalLB metrics.                            | false   | false    |
 
-## Installing
+## Applying
 
 To install the MetalLB component:
 
 ```bash
 lokoctl component apply metallb
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

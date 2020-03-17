@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -70,7 +70,7 @@ gangway_session_key              = "5Rsz5C4qRqYFoAfYcXOedQOyQpHTXyLiWFYvtjwjtm0=
 dex_static_client_gangway_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
 dex_static_client_gangway_id     = "gangway"
 ```
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -88,14 +88,14 @@ Example:
 | `client_secret`  | Static client secret.                                                                         | -       | true     |
 | `redirect_url`   | Gangway's redirect URL, i.e. OIDC callback endpoint.                                          | -       | true     |
 
-## Installing
+## Applying
 
 To install the Gangway component:
 
 ```bash
 lokoctl component apply gangway
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

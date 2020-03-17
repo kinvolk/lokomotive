@@ -1,17 +1,17 @@
-# Lokomotive bare metal configuration guide
+# Lokomotive bare metal configuration reference
 
 ## Contents
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
-This configuration guide provides information on configuring a Lokomotive cluster on Bare Metal with all
+This configuration reference provides information on configuring a Lokomotive cluster on Bare Metal with all
 the configuration options available to the user.
 
 ## Prerequisites
@@ -109,7 +109,7 @@ os_version = var.custom_default_os_version
 
 ```
 
-## Argument reference
+## Attribute reference
 
 | Argument                    | Description                                                                                                                                                           | Default          | Required |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------:|:--------:|
@@ -132,7 +132,7 @@ os_version = var.custom_default_os_version
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                  | "current"        | false    |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                  | "flatcar-stable" | false    |
 
-## Installing
+## Applying
 
 To create the cluster, execute the following command:
 
@@ -140,7 +140,7 @@ To create the cluster, execute the following command:
 lokoctl cluster apply
 ```
 
-## Uninstalling
+## Destroying
 
 To destroy the Lokomotive cluster, execute the following command:
 

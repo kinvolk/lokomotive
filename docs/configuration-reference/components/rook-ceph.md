@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -56,7 +56,7 @@ The Ceph cluster needs to be deployed in the same namespace as the Rook operator
 Additional `Roles` and `RoleBindings` need to be created if deploying across separate namespaces is
 desired.
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -70,7 +70,7 @@ Example:
 | `toleration`        | Tolerations that the Ceph cluster pods will tolerate.                                                                                              | -       | false    |
 | `metadata_device`   | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing with `/dev/`.   | -       | false    |
 
-## Installing
+## Applying
 
 To install the Rook-Ceph component:
 
@@ -81,7 +81,7 @@ lokoctl component apply rook-ceph
 Once the Ceph cluster is ready, an object store can be deployed to start writing to Ceph.
 More information is available at [configuring Ceph object store CRD](https://rook.io/docs/rook/v1.2/ceph-object-store-crd.html)
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

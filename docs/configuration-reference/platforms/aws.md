@@ -1,17 +1,17 @@
-# Lokomotive AWS configuration guide
+# Lokomotive AWS configuration reference
 
 ## Contents
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
-This configuration guide provides information on configuring a Lokomotive cluster on AWS with all
+This configuration reference provides information on configuring a Lokomotive cluster on AWS with all
 the configuration options available to the user.
 
 ## Prerequisites
@@ -167,7 +167,7 @@ worker_pool "my-worker-pool" {
 
 ```
 
-## Argument reference
+## Attribute reference
 
 | Argument                      | Description                                                                                                                                                                                | Default         | Required |
 |-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|
@@ -208,7 +208,7 @@ worker_pool "my-worker-pool" {
 | `worker_pool.clc_snippets`    | CWorker Flatcar Container Linux Config snippets.                                                                                                                                           | []              | false    |
 | `worker_pool.tags`            | Optional details to tag on AWS resources.                                                                                                                                                  | -               | false    |
 
-## Installing
+## Applying
 
 To create the cluster, execute the following command:
 
@@ -216,7 +216,7 @@ To create the cluster, execute the following command:
 lokoctl cluster apply
 ```
 
-## Uninstalling
+## Destroying
 
 To destroy the Lokomotive cluster, execute the following command:
 

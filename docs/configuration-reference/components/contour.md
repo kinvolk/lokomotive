@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -38,7 +38,7 @@ component "contour" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -49,7 +49,7 @@ Example:
 | `service_monitor`| Create ServiceMonitor for Prometheus to scrape Contour and Envoy metrics.                   | false   | false    |
 | `ingress_hosts`  | [ExternalDNS component](external-dns.md) creates DNS entries from the values provided.      | ""      | false    |
 
-## Installing
+## Applying
 
 To install the Contour component:
 
@@ -59,7 +59,7 @@ lokoctl component apply contour
 
 This component is installed in the `projectcontour` namespace.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

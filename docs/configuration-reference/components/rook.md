@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -60,7 +60,7 @@ component "rook" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -76,14 +76,14 @@ Example:
 | `discover_toleration_key`    | Toleration key for the rook discover pods.                                                               | -       | false    |
 | `discover_toleration_effect` | Toleration effect for the rook discover pods. Needs to be specified if `discover_toleration_key` is set. | -       | false    |
 
-## Installing
+## Applying
 
 To install the Rook component:
 
 ```bash
 lokoctl component apply rook
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

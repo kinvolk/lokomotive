@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -69,7 +69,7 @@ component "velero" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -96,7 +96,7 @@ Example:
 | `azure.volume_snapshot_location.resource_group` | Azure Resource Group where snapshots will be stored.                                                                       | Stored in the same resource group as the cluster. | false    |
 | `azure.volume_snapshot_location.api_timeout`    | Azure API timeout.                                                                                                         | "10m"                                             | false    |
 
-## Installing
+## Applying
 
 To install the Velero component:
 
@@ -112,7 +112,7 @@ You can find how to install it in the [official documentation](https://velero.io
 
 To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.2.0/examples/)
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

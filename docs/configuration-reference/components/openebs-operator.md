@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -53,7 +53,7 @@ component "openebs-operator" {
 **NOTE**: If `ndm_selector_label` and `ndm_selector_value` are not provided, all worker nodes are
 considered by OpenEBS for storage.
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -64,7 +64,7 @@ Example:
 | `ndm_selector_label` | Name of the node label.  | -       | false    |
 | `ndm_selector_value` | Value of the node label  | -       | false    |
 
-## Installing
+## Applying
 
 To install the OpenEBS operator component:
 
@@ -76,7 +76,7 @@ This component only concerns with the installation of openebs-operator. To confi
 class and storage pool claim, check out the [openebs-storage-class](openebs-storage-class.md)
 component.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

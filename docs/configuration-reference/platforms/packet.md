@@ -1,18 +1,18 @@
-# Lokomotive Packet configuration guide
+# Lokomotive Packet configuration reference
 
 ## Contents
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 * [ARM support and hybrid clusters](#arm-support-and-hybrid-clusters)
 
 ## Introduction
 
-This configuration guide provides information on configuring a Lokomotive cluster on Packet with all
+This configuration reference provides information on configuring a Lokomotive cluster on Packet with all
 the configuration options available to the user.
 
 ## Prerequisites
@@ -175,7 +175,7 @@ node_type = var.custom_default_worker_type
 
 ```
 
-## Argument reference
+## Attribute reference
 
 | Argument                              | Description                                                                                                                                                                   | Default         | Required |
 |---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|
@@ -225,7 +225,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.setup_raid_ssd`          | Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage.  Can't be used with `setup_raid` nor `setup_raid_hdd`.            | false           | false    |
 | `worker_pool.setup_raid_ssd_fs`       | When set to `true` file system will be created on SSD RAID device and will be mounted on `/mnt/node-local-ssd-storage`. To use the raw device set it to `false`.              | false           | false    |
 
-## Installing
+## Applying
 
 To create the cluster, execute the following command:
 
@@ -233,7 +233,7 @@ To create the cluster, execute the following command:
 lokoctl cluster apply
 ```
 
-## Uninstalling
+## Destroying
 
 To destroy the Lokomotive cluster, execute the following command:
 

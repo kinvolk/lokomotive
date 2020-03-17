@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -51,9 +51,9 @@ component "external-dns" {
 ```
 
 ExternalDNS manages DNS entries for the values in the field `ingress_hosts` of the [Contour
-component](contour.md#argument-reference).
+component](contour.md#attribute-reference).
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -71,14 +71,14 @@ Example:
 | `aws.aws_access_key_id`     | AWS access key ID for AWS credentials. Use environment variable AWS_ACCESS_KEY_ID instead.                        | -              | false    |
 | `aws.aws_secret_access_key` | AWS secret access key for AWS credentials. Use environment variable AWS_SECRET_ACCESS_KEY instead.                | -              | false    |
 
-## Installing
+## Applying
 
 To install the ExternalDNS component:
 
 ```bash
 lokoctl component apply external-dns
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

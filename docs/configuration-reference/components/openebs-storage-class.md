@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -56,7 +56,7 @@ component "openebs-storage-class" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -68,14 +68,14 @@ Example:
 | `default`       | Indicates whether the storage class is default or not.                                                                        | false   | false    |
 | `disks`         | List of selected unclaimed BlockDevice CRs which are unmounted and do not contain a filesystem in each participating node.    | -       | false    |
 
-## Installing
+## Applying
 
 To install the OpenEBS storage class component:
 
 ```bash
 lokoctl component apply openebs-storage-class
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

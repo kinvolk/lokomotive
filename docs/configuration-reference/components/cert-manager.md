@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -33,7 +33,7 @@ component "cert-manager" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 
@@ -45,14 +45,14 @@ Example:
 | `namespace` | Namespace to deploy the cert-manager into.                   | cert-manager | false    |
 | `webhooks`  | Controls if webhooks should be deployed.                     | true         | false    |
 
-## Installing
+## Applying
 
 To install the cert-manager component:
 
 ```bash
 lokoctl component apply cert-manager
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

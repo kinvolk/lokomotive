@@ -5,9 +5,9 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
-* [Installing](#installing)
-* [Uninstalling](#uninstalling)
+* [Attribute reference](#attribute-reference)
+* [Applying](#applying)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -42,11 +42,11 @@ kubectl label nodes NODENAME flatcar-linux-update.v1.flatcar-linux.net/reboot-pa
 For more details visit the [Flatcar Container Linux update operator GitHub
 repository](https://github.com/kinvolk/flatcar-linux-update-operator).
 
-## Argument reference
+## Attribute reference
 
 This component does not accept any arguments in its configuration.
 
-## Installing
+## Applying
 
 To install the Flatcar Container Linux update operator component:
 
@@ -56,7 +56,7 @@ lokoctl component apply flatcar-linux-update-operator
 
 This component is installed in the `reboot-coordinator` namespace.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

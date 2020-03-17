@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 
 ## Introduction
 
@@ -32,7 +32,7 @@ backend "local" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Default backend is local.
 
