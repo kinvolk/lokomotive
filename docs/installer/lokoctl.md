@@ -7,23 +7,29 @@ which includes installers for various platforms and Lokomotive components.
 
 ### Download official releases
 
-To install, find the [appropriate
-package](https://github.com/kinvolk/lokomotive/releases) for your system and
-download it. lokoctl is packaged as a `tar.gz` archive.
+Every release of Lokomotive provides the `lokoctl` binary for several operating systems.
+These binaries can be manually downloaded and installed.
 
-```console
-wget <URL-TO-DOWNLOAD-LOKOCTL>
+1. Download your [desired version](https://github.com/kinvolk/lokomotive/releases), including the GPG
+   signature.
+
+2. Verify the signature. It should match one of the [Trusted
+   keys](https://github.com/kinvolk/lokomotive/blob/master/docs/KEYS.md).
+
 ```
-After downloading, untar the package. Lokoctl runs as a single binary named `lokoctl`.
-
-```console
-tar xvzf <LOKOCTL_TAR_GZ_ARCHIVE>
+gpg --verify lokoctl_0.1.0_linux_amd64.tar.gz.sig
 ```
 
-The final step is to make sure that the `lokoctl` binary is available on the `PATH`.
+3. Unpack it
 
-```console
-export PATH=$PATH:/path/to/lokoctl/binary
+```
+tar xvf lokoctl_0.1.0_linux_amd64.tar.gz
+```
+
+4. Find the lokoctl binary in the unpacked directory and move it to its desired location
+
+```
+mv lokoctl_0.1.0_linux_amd64/lokoctl ~/.local/bin/lokoctl
 ```
 
 ### Using 'go get'
