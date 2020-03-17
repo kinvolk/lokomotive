@@ -19,6 +19,7 @@ cluster "aws" {
     count       = 2
     ssh_pubkeys = ["$PUB_KEY"]
     disk_size   = 30
+    spot_price = "0.02"
     tags = {
       "deployment" = "ci"
     }
