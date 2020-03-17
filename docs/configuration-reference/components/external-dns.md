@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -51,9 +51,9 @@ component "external-dns" {
 ```
 
 ExternalDNS manages DNS entries for the values in the field `ingress_hosts` of the [Contour
-component](contour.md#argument-reference).
+component](contour.md#attribute-reference).
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 

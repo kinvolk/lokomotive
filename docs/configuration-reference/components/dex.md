@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -147,7 +147,7 @@ gangway_redirect_url = "https://gangway.example.lokomotive-k8s.org/callback"
 **Note**: More information on the variables used in above dex config can be found in the [gangway
 doc](gangway.md#configuration).
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 

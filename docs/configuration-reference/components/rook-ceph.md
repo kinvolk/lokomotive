@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -56,7 +56,7 @@ The Ceph cluster needs to be deployed in the same namespace as the Rook operator
 Additional `Roles` and `RoleBindings` need to be created if deploying across separate namespaces is
 desired.
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 

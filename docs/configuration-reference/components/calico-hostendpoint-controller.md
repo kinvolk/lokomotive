@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -40,7 +40,7 @@ Calico HostEndpoint controller component configuration example:
 component "calico-hostendpoint-controller" {}
 ```
 
-## Argument reference
+## Attribute reference
 
 This component does not accept any arguments in its configuration.
 

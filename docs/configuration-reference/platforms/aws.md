@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -167,7 +167,7 @@ worker_pool "my-worker-pool" {
 
 ```
 
-## Argument reference
+## Attribute reference
 
 | Argument                      | Description                                                                                                                                                                                | Default         | Required |
 |-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|

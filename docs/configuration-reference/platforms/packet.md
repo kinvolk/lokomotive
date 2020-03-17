@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 * [ARM support and hybrid clusters](#arm-support-and-hybrid-clusters)
@@ -175,7 +175,7 @@ node_type = var.custom_default_worker_type
 
 ```
 
-## Argument reference
+## Attribute reference
 
 | Argument                              | Description                                                                                                                                                                   | Default         | Required |
 |---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|

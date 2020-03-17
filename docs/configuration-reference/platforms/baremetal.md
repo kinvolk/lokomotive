@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -109,7 +109,7 @@ os_version = var.custom_default_os_version
 
 ```
 
-## Argument reference
+## Attribute reference
 
 | Argument                    | Description                                                                                                                                                           | Default          | Required |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------:|:--------:|

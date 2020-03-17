@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -69,7 +69,7 @@ component "velero" {
 }
 ```
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 

@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -53,7 +53,7 @@ component "openebs-operator" {
 **NOTE**: If `ndm_selector_label` and `ndm_selector_value` are not provided, all worker nodes are
 considered by OpenEBS for storage.
 
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 

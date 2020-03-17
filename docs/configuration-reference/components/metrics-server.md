@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -30,7 +30,7 @@ Metrics server component configuration example:
 component "metrics-server" {}
 ```
 
-## Argument reference
+## Attribute reference
 
 This component does not accept any arguments in its configuration.
 

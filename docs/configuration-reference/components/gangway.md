@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -70,7 +70,7 @@ gangway_session_key              = "5Rsz5C4qRqYFoAfYcXOedQOyQpHTXyLiWFYvtjwjtm0=
 dex_static_client_gangway_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
 dex_static_client_gangway_id     = "gangway"
 ```
-## Argument reference
+## Attribute reference
 
 Table of all the arguments accepted by the component.
 

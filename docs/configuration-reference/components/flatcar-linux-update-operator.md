@@ -5,7 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
-* [Argument reference](#argument-reference)
+* [Attribute reference](#attribute-reference)
 * [Installing](#installing)
 * [Uninstalling](#uninstalling)
 
@@ -42,7 +42,7 @@ kubectl label nodes NODENAME flatcar-linux-update.v1.flatcar-linux.net/reboot-pa
 For more details visit the [Flatcar Container Linux update operator GitHub
 repository](https://github.com/kinvolk/flatcar-linux-update-operator).
 
-## Argument reference
+## Attribute reference
 
 This component does not accept any arguments in its configuration.
 
