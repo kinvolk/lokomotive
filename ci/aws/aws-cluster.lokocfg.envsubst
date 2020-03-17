@@ -19,7 +19,7 @@ cluster "aws" {
     count       = 2
     ssh_pubkeys = ["$PUB_KEY"]
     disk_size   = 30
-    spot_price = "0.02"
+    spot_price  = "0.02"
     tags = {
       "deployment" = "ci"
     }
@@ -29,7 +29,7 @@ cluster "aws" {
 component "openebs-operator" {}
 
 component "contour" {
-  ingress_hosts = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  ingress_hosts = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
 }
 
 component "metrics-server" {}
@@ -38,11 +38,11 @@ component "cert-manager" {
   email = "$EMAIL"
 }
 
-component "external-dns"{
+component "external-dns" {
   policy = "sync"
   aws {
-    zone_id = "$AWS_DNS_ZONE_ID"
-    aws_access_key_id = "$AWS_ACCESS_KEY_ID"
+    zone_id               = "$AWS_DNS_ZONE_ID"
+    aws_access_key_id     = "$AWS_ACCESS_KEY_ID"
     aws_secret_access_key = "$AWS_SECRET_ACCESS_KEY"
   }
 }
@@ -53,13 +53,13 @@ component "dex" {
   issuer_host = "$ISSUER_HOST"
 
   connector "github" {
-    id = "github"
+    id   = "github"
     name = "GitHub"
 
     config {
-      client_id = "$GITHUB_CLIENT_ID"
+      client_id     = "$GITHUB_CLIENT_ID"
       client_secret = "$GITHUB_CLIENT_SECRET"
-      redirect_uri = "$REDIRECT_URI"
+      redirect_uri  = "$REDIRECT_URI"
 
       team_name_field = "slug"
 
@@ -116,7 +116,7 @@ component "httpbin" {
 component "openebs-storage-class" {
   storage-class "openebs-test-sc" {
     replica_count = 1
-    default = true
+    default       = true
   }
 }
 
