@@ -1,4 +1,4 @@
-# Lokomotive AWS configuration guide
+# Lokomotive AWS configuration reference
 
 ## Contents
 
@@ -11,7 +11,7 @@
 
 ## Introduction
 
-This configuration guide provides information on configuring a Lokomotive cluster on AWS with all
+This configuration reference provides information on configuring a Lokomotive cluster on AWS with all
 the configuration options available to the user.
 
 ## Prerequisites

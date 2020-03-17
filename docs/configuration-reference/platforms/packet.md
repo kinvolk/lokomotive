@@ -1,4 +1,4 @@
-# Lokomotive Packet configuration guide
+# Lokomotive Packet configuration reference
 
 ## Contents
 
@@ -12,7 +12,7 @@
 
 ## Introduction
 
-This configuration guide provides information on configuring a Lokomotive cluster on Packet with all
+This configuration reference provides information on configuring a Lokomotive cluster on Packet with all
 the configuration options available to the user.
 
 ## Prerequisites

@@ -243,4 +243,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component
-configuration guides](../configuration-reference/components).
+configuration references](../configuration-reference/components).

@@ -1,4 +1,4 @@
-# Lokomotive bare metal configuration guide
+# Lokomotive bare metal configuration reference
 
 ## Contents
 
@@ -11,7 +11,7 @@
 
 ## Introduction
 
-This configuration guide provides information on configuring a Lokomotive cluster on Bare Metal with all
+This configuration reference provides information on configuring a Lokomotive cluster on Bare Metal with all
 the configuration options available to the user.
 
 ## Prerequisites
