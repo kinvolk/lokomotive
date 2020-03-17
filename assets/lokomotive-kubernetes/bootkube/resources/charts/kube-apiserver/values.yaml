@@ -20,3 +20,4 @@ apiserver:
   # service (kubernetes.default.svc) and on all interfaces on port 6443.
   # If false, it will be exposed only on HostIP on port 6443.
   exposeOnAllInterfaces: false
+  extraFlags: []

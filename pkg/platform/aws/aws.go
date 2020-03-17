@@ -78,6 +78,7 @@ type config struct {
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	KubeAPIServerExtraFlags  []string
 }
 
 // init registers aws as a platform

@@ -49,6 +49,7 @@ type config struct {
 	WorkerNames              []string `hcl:"worker_names"`
 	WorkerMacs               []string `hcl:"worker_macs"`
 	WorkerDomains            []string `hcl:"worker_domains"`
+	KubeAPIServerExtraFlags  []string
 }
 
 // init registers bare-metal as a platform

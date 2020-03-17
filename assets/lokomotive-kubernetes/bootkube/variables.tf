@@ -144,3 +144,9 @@ variable "disable_self_hosted_kubelet" {
   description = "Disable the self hosted kubelet installed by default"
   type        = bool
 }
+
+variable "kube_apiserver_extra_flags" {
+  description = "Extra flags passed to self-hosted kube-apiserver."
+  type        = list(string)
+  default     = []
+}

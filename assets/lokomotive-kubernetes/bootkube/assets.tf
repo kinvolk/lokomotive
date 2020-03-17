@@ -38,6 +38,7 @@ resource "local_file" "kube-apiserver" {
     aggregation_client_key   = var.enable_aggregation == true ? base64encode(join(" ", tls_private_key.aggregation-client.*.private_key_pem)) : ""
     replicas                 = length(var.etcd_servers)
     expose_on_all_interfaces = var.expose_on_all_interfaces
+    extra_flags              = var.kube_apiserver_extra_flags
   })
 }
 
