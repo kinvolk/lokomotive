@@ -45,6 +45,6 @@ cd lokomotive
 make
 ```
 
-The binary will be created in the projects main directory.
+The binary will be created in the project main directory.
 
 Run `lokoctl help` to get an overview of all available commands.
