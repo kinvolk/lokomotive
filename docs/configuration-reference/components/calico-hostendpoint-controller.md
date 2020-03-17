@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -54,7 +54,7 @@ lokoctl component apply calico-hostendpoint-controller
 
 This component is installed in the `kube-system` namespace.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

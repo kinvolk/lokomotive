@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -209,7 +209,7 @@ Admin SDK lets administrators of enterprise domains to view and manage resources
 etc. To enable it [click
 here](https://console.developers.google.com/apis/library/admin.googleapis.com/).
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

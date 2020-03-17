@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -59,7 +59,7 @@ lokoctl component apply contour
 
 This component is installed in the `projectcontour` namespace.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

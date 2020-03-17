@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -100,7 +100,7 @@ To install the MetalLB component:
 ```bash
 lokoctl component apply metallb
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

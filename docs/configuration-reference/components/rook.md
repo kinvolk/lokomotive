@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -83,7 +83,7 @@ To install the Rook component:
 ```bash
 lokoctl component apply rook
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

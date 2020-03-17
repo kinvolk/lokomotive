@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -140,7 +140,7 @@ To create the cluster, execute the following command:
 lokoctl cluster apply
 ```
 
-## Uninstalling
+## Destroying
 
 To destroy the Lokomotive cluster, execute the following command:
 

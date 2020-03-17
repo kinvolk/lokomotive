@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -95,7 +95,7 @@ lokoctl component apply cluster-autoscaler
 ```
 By default, the cluster Autoscaler pods run in the `kube-system` namespace
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

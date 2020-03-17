@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -137,7 +137,7 @@ here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/us
 and [the API Reference can be found
 here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#servicemonitor).
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -75,7 +75,7 @@ To install the OpenEBS storage class component:
 ```bash
 lokoctl component apply openebs-storage-class
 ```
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 

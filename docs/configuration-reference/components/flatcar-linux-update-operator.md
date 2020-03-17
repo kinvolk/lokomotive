@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Uninstalling](#uninstalling)
+* [Destroying](#destroying)
 
 ## Introduction
 
@@ -56,7 +56,7 @@ lokoctl component apply flatcar-linux-update-operator
 
 This component is installed in the `reboot-coordinator` namespace.
 
-## Uninstalling
+## Destroying
 
 To uninstall the component:
 
