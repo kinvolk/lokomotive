@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -96,7 +96,7 @@ Example:
 | `azure.volume_snapshot_location.resource_group` | Azure Resource Group where snapshots will be stored.                                                                       | Stored in the same resource group as the cluster. | false    |
 | `azure.volume_snapshot_location.api_timeout`    | Azure API timeout.                                                                                                         | "10m"                                             | false    |
 
-## Installing
+## Applying
 
 To install the Velero component:
 

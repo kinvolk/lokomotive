@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -88,7 +88,7 @@ Example:
 | `client_secret`  | Static client secret.                                                                         | -       | true     |
 | `redirect_url`   | Gangway's redirect URL, i.e. OIDC callback endpoint.                                          | -       | true     |
 
-## Installing
+## Applying
 
 To install the Gangway component:
 

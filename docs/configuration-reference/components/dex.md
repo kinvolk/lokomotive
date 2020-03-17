@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -178,7 +178,7 @@ Example:
 | `connector.static_client.name`          | Name used when displaying this client to the end user.                                                                                                                     | -       | true     |
 | `connector.static_client.redirect_uris` | A registered set of redirect URIs. When redirecting from dex to the client, the URI requested to redirect to MUST match one of these values.                                | -       | true     |
 
-## Installing
+## Applying
 
 To install the Dex component:
 

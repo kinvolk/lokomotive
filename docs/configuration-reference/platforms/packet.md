@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 * [ARM support and hybrid clusters](#arm-support-and-hybrid-clusters)
 
@@ -225,7 +225,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.setup_raid_ssd`          | Attempt to create a RAID 0 from extra Solid State Drives only, to be used for persistent container storage.  Can't be used with `setup_raid` nor `setup_raid_hdd`.            | false           | false    |
 | `worker_pool.setup_raid_ssd_fs`       | When set to `true` file system will be created on SSD RAID device and will be mounted on `/mnt/node-local-ssd-storage`. To use the raw device set it to `false`.              | false           | false    |
 
-## Installing
+## Applying
 
 To create the cluster, execute the following command:
 

@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -44,7 +44,7 @@ component "calico-hostendpoint-controller" {}
 
 This component does not accept any arguments in its configuration.
 
-## Installing
+## Applying
 
 To install the Calico HostEndpoint controller component:
 

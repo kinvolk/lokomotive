@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -70,7 +70,7 @@ Example:
 | `toleration`        | Tolerations that the Ceph cluster pods will tolerate.                                                                                              | -       | false    |
 | `metadata_device`   | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing with `/dev/`.   | -       | false    |
 
-## Installing
+## Applying
 
 To install the Rook-Ceph component:
 

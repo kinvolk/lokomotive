@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -64,7 +64,7 @@ Example:
 | `ndm_selector_label` | Name of the node label.  | -       | false    |
 | `ndm_selector_value` | Value of the node label  | -       | false    |
 
-## Installing
+## Applying
 
 To install the OpenEBS operator component:
 

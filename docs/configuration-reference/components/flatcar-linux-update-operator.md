@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -46,7 +46,7 @@ repository](https://github.com/kinvolk/flatcar-linux-update-operator).
 
 This component does not accept any arguments in its configuration.
 
-## Installing
+## Applying
 
 To install the Flatcar Container Linux update operator component:
 

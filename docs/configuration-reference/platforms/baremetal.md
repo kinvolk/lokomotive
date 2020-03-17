@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -132,7 +132,7 @@ os_version = var.custom_default_os_version
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                  | "current"        | false    |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                  | "flatcar-stable" | false    |
 
-## Installing
+## Applying
 
 To create the cluster, execute the following command:
 

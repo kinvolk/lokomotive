@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -93,7 +93,7 @@ Example:
 | `speaker_toleration`        | Specify one or more tolerations for speaker pods.                                          | -       | false    |
 | `service_monitor`           | Create ServiceMonitor for Prometheus to scrape MetalLB metrics.                            | false   | false    |
 
-## Installing
+## Applying
 
 To install the MetalLB component:
 

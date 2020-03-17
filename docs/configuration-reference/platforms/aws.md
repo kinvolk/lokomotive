@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -208,7 +208,7 @@ worker_pool "my-worker-pool" {
 | `worker_pool.clc_snippets`    | CWorker Flatcar Container Linux Config snippets.                                                                                                                                           | []              | false    |
 | `worker_pool.tags`            | Optional details to tag on AWS resources.                                                                                                                                                  | -               | false    |
 
-## Installing
+## Applying
 
 To create the cluster, execute the following command:
 

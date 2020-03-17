@@ -6,7 +6,7 @@
 * [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
-* [Installing](#installing)
+* [Applying](#applying)
 * [Uninstalling](#uninstalling)
 
 ## Introduction
@@ -76,7 +76,7 @@ Example:
 | `discover_toleration_key`    | Toleration key for the rook discover pods.                                                               | -       | false    |
 | `discover_toleration_effect` | Toleration effect for the rook discover pods. Needs to be specified if `discover_toleration_key` is set. | -       | false    |
 
-## Installing
+## Applying
 
 To install the Rook component:
 
