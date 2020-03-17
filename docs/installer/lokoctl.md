@@ -16,26 +16,26 @@ These binaries can be manually downloaded and installed.
 2. Verify the signature. It should match one of the [Trusted
    keys](https://github.com/kinvolk/lokomotive/blob/master/docs/KEYS.md).
 
-```
+```console
 gpg --verify lokoctl_0.1.0_linux_amd64.tar.gz.sig
 ```
 
 3. Unpack it
 
-```
+```console
 tar xvf lokoctl_0.1.0_linux_amd64.tar.gz
 ```
 
 4. Find the lokoctl binary in the unpacked directory and move it to its desired location
 
-```
+```console
 mv lokoctl_0.1.0_linux_amd64/lokoctl ~/.local/bin/lokoctl
 ```
 
 ### Using 'go get'
 
 You can quickly get latest version of `lokoctl` by running following command:
-```
+```console
 go get github.com/kinvolk/lokomotive/cmd/lokoctl
 ```
 
@@ -45,7 +45,7 @@ Once finished, `lokoctl` binary should be available in `$GOPATH/bin`.
 
 Clone this repository and build the lokoctl binary:
 
-```bash
+```console
 git clone https://github.com/kinvolk/lokomotive
 cd lokomotive
 make
