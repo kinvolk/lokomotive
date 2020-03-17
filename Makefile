@@ -61,6 +61,8 @@ test: run-unit-tests
 
 .PHONY: lint
 lint: build-slim build-test
+	# Note: Make sure that you run `git config diff.noprefix false` in this repo
+	# See this issue for more details: https://github.com/golangci/golangci-lint/issues/948
 	golangci-lint run --enable-all --disable=godox,gochecknoglobals --max-same-issues=0 --max-issues-per-linter=0 --build-tags $(ALL_BUILD_TAGS) --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
 
 .PHONY: lint-docker
