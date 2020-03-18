@@ -51,7 +51,7 @@ Example:
 
 ## Applying
 
-To install the Contour component:
+To apply the Contour component:
 
 ```bash
 lokoctl component apply contour

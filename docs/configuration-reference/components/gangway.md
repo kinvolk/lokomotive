@@ -90,7 +90,7 @@ Example:
 
 ## Applying
 
-To install the Gangway component:
+To apply the Gangway component:
 
 ```bash
 lokoctl component apply gangway

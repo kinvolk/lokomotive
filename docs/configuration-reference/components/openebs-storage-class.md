@@ -70,7 +70,7 @@ Example:
 
 ## Applying
 
-To install the OpenEBS storage class component:
+To apply the OpenEBS storage class component:
 
 ```bash
 lokoctl component apply openebs-storage-class

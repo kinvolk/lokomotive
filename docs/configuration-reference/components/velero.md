@@ -98,7 +98,7 @@ Example:
 
 ## Applying
 
-To install the Velero component:
+To apply the Velero component:
 
 ```bash
 lokoctl component apply velero

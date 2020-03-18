@@ -95,7 +95,7 @@ Example:
 
 ## Applying
 
-To install the MetalLB component:
+To apply the MetalLB component:
 
 ```bash
 lokoctl component apply metallb

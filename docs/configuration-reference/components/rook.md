@@ -78,7 +78,7 @@ Example:
 
 ## Applying
 
-To install the Rook component:
+To apply the Rook component:
 
 ```bash
 lokoctl component apply rook

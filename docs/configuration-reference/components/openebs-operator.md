@@ -66,7 +66,7 @@ Example:
 
 ## Applying
 
-To install the OpenEBS operator component:
+To apply the OpenEBS operator component:
 
 ```bash
 lokoctl component apply openebs-operator

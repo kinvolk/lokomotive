@@ -180,7 +180,7 @@ Example:
 
 ## Applying
 
-To install the Dex component:
+To apply the Dex component:
 
 ```bash
 lokoctl component apply dex

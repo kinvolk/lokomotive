@@ -88,7 +88,7 @@ Example:
 
 ## Applying
 
-To install the cluster autoscaler component:
+To apply the cluster autoscaler component:
 
 ```bash
 lokoctl component apply cluster-autoscaler

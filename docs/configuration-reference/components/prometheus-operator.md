@@ -100,7 +100,7 @@ Example:
 
 ## Applying
 
-To install the Prometheus Operator component:
+To apply the Prometheus Operator component:
 
 ```bash
 lokoctl component apply prometheus-operator

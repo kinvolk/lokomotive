@@ -46,7 +46,7 @@ This component does not accept any arguments in its configuration.
 
 ## Applying
 
-To install the Calico HostEndpoint controller component:
+To apply the Calico HostEndpoint controller component:
 
 ```bash
 lokoctl component apply calico-hostendpoint-controller

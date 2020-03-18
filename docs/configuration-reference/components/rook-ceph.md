@@ -72,7 +72,7 @@ Example:
 
 ## Applying
 
-To install the Rook-Ceph component:
+To apply the Rook-Ceph component:
 
 ```bash
 lokoctl component apply rook-ceph

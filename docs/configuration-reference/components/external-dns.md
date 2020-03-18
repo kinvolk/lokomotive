@@ -73,7 +73,7 @@ Example:
 
 ## Applying
 
-To install the ExternalDNS component:
+To apply the ExternalDNS component:
 
 ```bash
 lokoctl component apply external-dns

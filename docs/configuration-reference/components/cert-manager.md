@@ -47,7 +47,7 @@ Example:
 
 ## Applying
 
-To install the cert-manager component:
+To apply the cert-manager component:
 
 ```bash
 lokoctl component apply cert-manager
