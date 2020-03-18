@@ -226,6 +226,36 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+	diagnostics = append(diagnostics, c.checkNameSizes()...)
+
+	return diagnostics
+}
+
+// checkNameSizes checks the size of names since AWS has a limit of 32
+// characters on resources.
+func (c *config) checkNameSizes() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	maxAWSResourceName := 32
+	maxNameLen := maxAWSResourceName - len("-workers-https") // This is the longest resource suffix.
+
+	if len(c.ClusterName) > maxNameLen {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Cluster name too long",
+			Detail:   fmt.Sprintf("Maximum lenth is %d", maxNameLen),
+		})
+	}
+
+	for _, wp := range c.WorkerPools {
+		if len(wp.Name) > maxNameLen {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "Worker pool name too long",
+				Detail:   fmt.Sprintf("Maximum lenth is %d", maxNameLen),
+			})
+		}
+	}
 
 	return diagnostics
 }

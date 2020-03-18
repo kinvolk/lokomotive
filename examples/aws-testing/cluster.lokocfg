@@ -31,7 +31,7 @@ cluster "aws" {
   dns_zone_id      = var.route53_zone_id
   ssh_pubkeys      = var.ssh_public_keys
 
-  worker_pool "my-worker-pool-name" {
+  worker_pool "my-wp-name" {
     instance_type = var.workers_type
     count         = var.workers_count
     ssh_pubkeys   = var.ssh_public_keys
