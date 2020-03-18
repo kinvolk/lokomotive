@@ -102,7 +102,7 @@ lokoctl component apply metallb
 ```
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest metallb | kubectl delete -f -

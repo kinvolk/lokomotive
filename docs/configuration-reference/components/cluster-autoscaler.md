@@ -97,7 +97,7 @@ By default, the cluster Autoscaler pods run in the `kube-system` namespace
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest cluster-autoscaler | kubectl delete -f -

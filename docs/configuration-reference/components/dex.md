@@ -211,7 +211,7 @@ here](https://console.developers.google.com/apis/library/admin.googleapis.com/).
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest dex | kubectl delete -f -

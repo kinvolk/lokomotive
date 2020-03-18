@@ -139,7 +139,7 @@ here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/ap
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest prometheus-operator | kubectl delete -f -

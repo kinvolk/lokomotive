@@ -54,7 +54,7 @@ lokoctl component apply cert-manager
 ```
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest cert-manager | kubectl delete -f -

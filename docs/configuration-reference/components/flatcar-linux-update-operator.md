@@ -58,7 +58,7 @@ This component is installed in the `reboot-coordinator` namespace.
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest flatcar-linux-update-operator | kubectl delete -f -

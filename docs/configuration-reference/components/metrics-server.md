@@ -44,7 +44,7 @@ lokoctl component apply metrics-server
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest metrics-server | kubectl delete -f -

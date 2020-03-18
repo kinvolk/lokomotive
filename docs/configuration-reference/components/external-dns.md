@@ -80,7 +80,7 @@ lokoctl component apply external-dns
 ```
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest external-dns | kubectl delete -f -

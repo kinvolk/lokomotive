@@ -83,7 +83,7 @@ More information is available at [configuring Ceph object store CRD](https://roo
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest rook-ceph | kubectl delete -f -

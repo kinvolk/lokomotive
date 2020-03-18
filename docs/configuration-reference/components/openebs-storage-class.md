@@ -77,7 +77,7 @@ lokoctl component apply openebs-storage-class
 ```
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest openebs-storage-class | kubectl delete -f -

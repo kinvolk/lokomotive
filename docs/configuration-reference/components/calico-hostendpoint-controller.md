@@ -56,7 +56,7 @@ This component is installed in the `kube-system` namespace.
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest calico-hostendpoint-controller | kubectl delete -f -
