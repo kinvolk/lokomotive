@@ -113,7 +113,7 @@ cluster "aws" {
 
   enable_reporting = false
 
-  worker_pool "my-worker-pool {
+  worker_pool "my-worker-pool" {
     count = 2
 
     instance_type = var.workers_type
