@@ -107,3 +107,10 @@ rules:
       - blockaffinities
     verbs:
       - watch
+  # https://github.com/projectcalico/node/pull/417
+  # https://github.com/projectcalico/calico/pull/3211
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs:
+      - get
