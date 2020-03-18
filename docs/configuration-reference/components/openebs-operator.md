@@ -66,7 +66,7 @@ Example:
 
 ## Applying
 
-To install the OpenEBS operator component:
+To apply the OpenEBS operator component:
 
 ```bash
 lokoctl component apply openebs-operator
@@ -78,7 +78,7 @@ component.
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest openebs-operator | kubectl delete -f -

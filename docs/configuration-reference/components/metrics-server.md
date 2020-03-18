@@ -36,7 +36,7 @@ This component does not accept any arguments in its configuration.
 
 ## Applying
 
-To install the Metrics server component:
+To apply the Metrics server component:
 
 ```bash
 lokoctl component apply metrics-server
@@ -44,7 +44,7 @@ lokoctl component apply metrics-server
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest metrics-server | kubectl delete -f -

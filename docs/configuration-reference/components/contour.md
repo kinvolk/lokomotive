@@ -51,7 +51,7 @@ Example:
 
 ## Applying
 
-To install the Contour component:
+To apply the Contour component:
 
 ```bash
 lokoctl component apply contour
@@ -61,7 +61,7 @@ This component is installed in the `projectcontour` namespace.
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest contour | kubectl delete -f -

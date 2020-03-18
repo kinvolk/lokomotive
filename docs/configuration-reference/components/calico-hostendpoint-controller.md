@@ -46,7 +46,7 @@ This component does not accept any arguments in its configuration.
 
 ## Applying
 
-To install the Calico HostEndpoint controller component:
+To apply the Calico HostEndpoint controller component:
 
 ```bash
 lokoctl component apply calico-hostendpoint-controller
@@ -56,7 +56,7 @@ This component is installed in the `kube-system` namespace.
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest calico-hostendpoint-controller | kubectl delete -f -

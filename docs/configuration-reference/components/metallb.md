@@ -95,14 +95,14 @@ Example:
 
 ## Applying
 
-To install the MetalLB component:
+To apply the MetalLB component:
 
 ```bash
 lokoctl component apply metallb
 ```
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest metallb | kubectl delete -f -

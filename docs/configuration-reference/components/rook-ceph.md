@@ -72,7 +72,7 @@ Example:
 
 ## Applying
 
-To install the Rook-Ceph component:
+To apply the Rook-Ceph component:
 
 ```bash
 lokoctl component apply rook-ceph
@@ -83,7 +83,7 @@ More information is available at [configuring Ceph object store CRD](https://roo
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest rook-ceph | kubectl delete -f -

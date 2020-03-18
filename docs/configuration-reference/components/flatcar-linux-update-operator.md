@@ -48,7 +48,7 @@ This component does not accept any arguments in its configuration.
 
 ## Applying
 
-To install the Flatcar Container Linux update operator component:
+To apply the Flatcar Container Linux update operator component:
 
 ```bash
 lokoctl component apply flatcar-linux-update-operator
@@ -58,7 +58,7 @@ This component is installed in the `reboot-coordinator` namespace.
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest flatcar-linux-update-operator | kubectl delete -f -

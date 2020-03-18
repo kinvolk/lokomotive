@@ -98,7 +98,7 @@ Example:
 
 ## Applying
 
-To install the Velero component:
+To apply the Velero component:
 
 ```bash
 lokoctl component apply velero
@@ -114,7 +114,7 @@ To learn more on taking backups with Velero, visit [Velero#getting-stated](https
 
 ## Destroying
 
-To uninstall the component:
+To destroy the component:
 
 ```bash
 lokoctl component render-manifest velero | kubectl delete -f -
