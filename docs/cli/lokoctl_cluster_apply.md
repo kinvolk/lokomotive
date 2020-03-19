@@ -1,10 +1,12 @@
 ## lokoctl cluster apply
 
-Apply configuration changes to a Lokomotive cluster with components
+Deploy or update a cluster
 
 ### Synopsis
 
-Apply configuration changes to a Lokomotive cluster with components
+Deploy or update a cluster.
+Deploys a cluster if it isn't deployed, otherwise updates it.
+Unless explicitly skipped, components listed in the configuration are applied as well.
 
 ```
 lokoctl cluster apply [flags]
@@ -30,5 +32,5 @@ lokoctl cluster apply [flags]
 
 ### SEE ALSO
 
-* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a Lokomotive cluster
+* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a cluster
 

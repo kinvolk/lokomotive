@@ -26,5 +26,5 @@ lokoctl component list [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage Lokomotive components
+* [lokoctl component](lokoctl_component.md)	 - Manage components
 

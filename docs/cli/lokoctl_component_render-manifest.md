@@ -1,10 +1,10 @@
 ## lokoctl component render-manifest
 
-Render and print manifests for a component
+Print the manifests for a component
 
 ### Synopsis
 
-Render and print manifests for a component
+Print the manifests for a component
 
 ```
 lokoctl component render-manifest [flags]
@@ -26,5 +26,5 @@ lokoctl component render-manifest [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage Lokomotive components
+* [lokoctl component](lokoctl_component.md)	 - Manage components
 

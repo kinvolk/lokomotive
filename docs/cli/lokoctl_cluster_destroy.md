@@ -1,10 +1,10 @@
 ## lokoctl cluster destroy
 
-Destroy Lokomotive cluster
+Destroy a cluster
 
 ### Synopsis
 
-Destroy Lokomotive cluster
+Destroy a cluster
 
 ```
 lokoctl cluster destroy [flags]
@@ -28,5 +28,5 @@ lokoctl cluster destroy [flags]
 
 ### SEE ALSO
 
-* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a Lokomotive cluster
+* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a cluster
 
