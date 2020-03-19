@@ -10,6 +10,7 @@ hostEndpoints:
 %{ for h in host_endpoints ~}
 - name: ${h.name}
   interfaceName: ${h.interface_name}
+  nodeName: ${h.node_name}
   labels:
   %{~ for k, v in h.labels ~}
     ${k}: ${v}

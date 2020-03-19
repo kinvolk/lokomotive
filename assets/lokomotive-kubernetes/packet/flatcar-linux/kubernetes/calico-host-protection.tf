@@ -4,6 +4,7 @@ resource "local_file" "calico_host_protection" {
       for device in packet_device.controllers :
       {
         name           = "${device.hostname}-bond0",
+        node_name      = device.hostname,
         interface_name = "bond0",
         labels = {
           "host-endpoint" = "ingress"
