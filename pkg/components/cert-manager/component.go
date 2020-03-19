@@ -32,15 +32,17 @@ func init() {
 }
 
 type component struct {
-	Email     string `hcl:"email,attr"`
-	Namespace string `hcl:"namespace,optional"`
-	Webhooks  bool   `hcl:"webhooks,optional"`
+	Email          string `hcl:"email,attr"`
+	Namespace      string `hcl:"namespace,optional"`
+	Webhooks       bool   `hcl:"webhooks,optional"`
+	ServiceMonitor bool   `hcl:"service_monitor,optional"`
 }
 
 func newComponent() *component {
 	return &component{
-		Namespace: "cert-manager",
-		Webhooks:  true,
+		Namespace:      "cert-manager",
+		Webhooks:       true,
+		ServiceMonitor: false,
 	}
 }
 
@@ -48,6 +50,13 @@ const chartValuesTmpl = `
 email: {{.Email}}
 webhook:
   enabled: {{.Webhooks}}
+{{ if .ServiceMonitor }}
+prometheus:
+  servicemonitor:
+    enabled: true
+    labels:
+      release: prometheus-operator
+{{ end }}
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
