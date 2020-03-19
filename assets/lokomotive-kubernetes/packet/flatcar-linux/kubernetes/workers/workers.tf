@@ -24,22 +24,16 @@ resource "packet_device" "nodes" {
   depends_on = [var.nodes_depend_on]
 }
 
-data "ct_config" "install-ignitions" {
-  content = data.template_file.install.rendered
-}
-
 # These configs are used for the fist boot, to run flatcar-install
-data "template_file" "install" {
-  template = file("${path.module}/cl/install.yaml.tmpl")
-
-  vars = {
+data "ct_config" "install-ignitions" {
+  content = templatefile("${path.module}/cl/install.yaml.tmpl", {
     os_channel           = var.os_channel
     os_version           = var.os_version
     os_arch              = var.os_arch
     flatcar_linux_oem    = "packet"
     ssh_keys             = jsonencode(var.ssh_keys)
     postinstall_ignition = data.ct_config.ignitions.rendered
-  }
+  })
 }
 
 resource "packet_bgp_session" "bgp" {

@@ -66,36 +66,21 @@ resource "packet_device" "controllers" {
 }
 
 data "ct_config" "controller-install-ignitions" {
-  count   = var.controller_count
-  content = data.template_file.controller-install[count.index].rendered
-}
-
-data "template_file" "controller-install" {
-  count    = var.controller_count
-  template = file("${path.module}/cl/controller-install.yaml.tmpl")
-
-  vars = {
+  count = var.controller_count
+  content = templatefile("${path.module}/cl/controller-install.yaml.tmpl", {
     os_channel           = var.os_channel
     os_version           = var.os_version
     os_arch              = var.os_arch
     flatcar_linux_oem    = "packet"
     ssh_keys             = jsonencode(var.ssh_keys)
     postinstall_ignition = data.ct_config.controller-ignitions[count.index].rendered
-  }
+  })
 }
 
 data "ct_config" "controller-ignitions" {
   count    = var.controller_count
   platform = "packet"
-  content  = data.template_file.controller-configs[count.index].rendered
-  snippets = var.controller_clc_snippets
-}
-
-data "template_file" "controller-configs" {
-  count    = var.controller_count
-  template = file("${path.module}/cl/controller.yaml.tmpl")
-
-  vars = {
+  content = templatefile("${path.module}/cl/controller.yaml.tmpl", {
     os_arch = var.os_arch
     # Cannot use cyclic dependencies on controllers or their DNS records
     etcd_name            = "etcd${count.index}"
@@ -114,7 +99,8 @@ data "template_file" "controller-configs" {
     # on quay prevent us from downloading ACI correctly.
     # So it's workaround to download arm64 images until quay images could be fixed.
     image_arch_url_prefix = var.os_arch == "arm64" ? "docker://" : ""
-  }
+  })
+  snippets = var.controller_clc_snippets
 }
 
 data "template_file" "etcds" {
