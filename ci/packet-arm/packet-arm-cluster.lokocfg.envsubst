@@ -17,7 +17,7 @@ cluster "packet" {
 
   project_id = "$PACKET_PROJECT_ID"
 
-  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
+  ipxe_script_url = "https://alpha.release.flatcar-linux.net/arm64-usr/current/flatcar_production_packet.ipxe"
   os_arch         = "arm64"
   os_channel      = "alpha"
   controller_type = "c2.large.arm"
@@ -28,7 +28,7 @@ cluster "packet" {
 
   worker_pool "pool-1" {
     count           = 1
-    ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/arm64-usr/packet.ipxe"
+    ipxe_script_url = "https://alpha.release.flatcar-linux.net/arm64-usr/current/flatcar_production_packet.ipxe"
     os_arch         = "arm64"
     os_channel      = "alpha"
     node_type       = "c2.large.arm"
