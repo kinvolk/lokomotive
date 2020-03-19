@@ -26,10 +26,11 @@ import (
 )
 
 var componentApplyCmd = &cobra.Command{
-	Use: "apply",
-	Short: `Apply a component configuration. If not present it will install it.
-If ran with no arguments it will apply all components mentioned in the
-configuration.`,
+	Use:   "apply",
+	Short: "Deploy or update a component",
+	Long: `Deploy or update a component.
+Deploys a component if not yet present, otherwise updates it.
+When run with no arguments, all components listed in the configuration are applied.`,
 	Run: runApply,
 }
 
