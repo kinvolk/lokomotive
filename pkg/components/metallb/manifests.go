@@ -380,6 +380,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: metallb
+    release: prometheus-operator
   name: metallb
   namespace: metallb-system
 spec:
