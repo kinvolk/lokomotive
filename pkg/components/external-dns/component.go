@@ -47,6 +47,16 @@ txtOwnerId: {{ .OwnerID }}
 {{- end }}
 policy: {{ .Policy }}
 replicas: 3
+
+{{ if .ServiceMonitor }}
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: {{ .Namespace }}
+    selector:
+      release: prometheus-operator
+{{ end }}
 `
 
 func init() {
@@ -63,12 +73,13 @@ type AwsConfig struct {
 
 type component struct {
 	// Once we support more providers, we should add additional field called Provider.
-	Sources   []string  `hcl:"sources,optional"`
-	Namespace string    `hcl:"namespace,optional"`
-	Metrics   bool      `hcl:"metrics,optional"`
-	Policy    string    `hcl:"policy,optional"`
-	AwsConfig AwsConfig `hcl:"aws,block"`
-	OwnerID   string    `hcl:"owner_id"`
+	Sources        []string  `hcl:"sources,optional"`
+	Namespace      string    `hcl:"namespace,optional"`
+	Metrics        bool      `hcl:"metrics,optional"`
+	Policy         string    `hcl:"policy,optional"`
+	ServiceMonitor bool      `hcl:"service_monitor,optional"`
+	AwsConfig      AwsConfig `hcl:"aws,block"`
+	OwnerID        string    `hcl:"owner_id"`
 }
 
 func newComponent() *component {
@@ -78,8 +89,9 @@ func newComponent() *component {
 		AwsConfig: AwsConfig{
 			ZoneType: "public",
 		},
-		Policy:  "upsert-only",
-		Metrics: false,
+		Policy:         "upsert-only",
+		Metrics:        false,
+		ServiceMonitor: false,
 	}
 }
 
