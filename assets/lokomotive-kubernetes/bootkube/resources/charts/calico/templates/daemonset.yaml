@@ -135,6 +135,10 @@ spec:
               value: "true"
             - name: FELIX_PROMETHEUSMETRICSENABLED
               value: "true"
+            - name: FELIX_PROMETHEUSMETRICSHOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
           securityContext:
             privileged: true
           resources:
