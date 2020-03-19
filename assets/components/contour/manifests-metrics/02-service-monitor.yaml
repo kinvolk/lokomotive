@@ -4,6 +4,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: envoy
+    release: prometheus-operator
   name: envoy
   namespace: projectcontour
 spec:
@@ -22,6 +23,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: contour
+    release: prometheus-operator
   name: contour
   namespace: projectcontour
 spec:
