@@ -843,4 +843,10 @@ spec:
       annotations:
         description: '{{ $labels.instance }}: MetalLB instance has stale configuration.'
         summary: '{{ $labels.instance }}: MetalLB stale configuration.'
+    - alert: MetalLBControllerPodsAvailability
+      expr: kube_deployment_status_replicas_unavailable{deployment="controller",namespace="metallb-system"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: MetalLB Controller pod was not available in the last minute.'
+        summary: '{{ $labels.instance }}: MetalLB Controller deployment pods.'
 `
