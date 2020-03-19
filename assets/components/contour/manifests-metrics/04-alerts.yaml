@@ -16,3 +16,11 @@ spec:
       annotations:
         description: '{{ $labels.instance }}: Contour pod is not available for last one minute.'
         summary: '{{ $labels.instance }}: Contour deployment pods.'
+  - name: envoy-rules
+    rules:
+    - alert: EnvoyPodsAvailability
+      expr: kube_daemonset_status_number_unavailable{daemonset="envoy",namespace="projectcontour"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: Envoy pod is not available for last one minute.'
+        summary: '{{ $labels.instance }}: Envoy deployment pods.'
