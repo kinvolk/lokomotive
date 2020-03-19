@@ -26,7 +26,7 @@ import (
 
 var componentRenderCmd = &cobra.Command{
 	Use:   "render-manifest",
-	Short: "Render and print manifests for a component",
+	Short: "Print the manifests for a component",
 	Run:   runComponentRender,
 }
 
