@@ -849,4 +849,10 @@ spec:
       annotations:
         description: '{{ $labels.instance }}: MetalLB Controller pod was not available in the last minute.'
         summary: '{{ $labels.instance }}: MetalLB Controller deployment pods.'
+    - alert: MetalLBSpeakerPodsAvailability
+      expr: kube_daemonset_status_number_unavailable{daemonset="speaker",namespace="metallb-system"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: MetalLB Speaker pod(s) were not available in the last minute.'
+        summary: '{{ $labels.instance }}: MetalLB Speaker daemonset pods.'
 `
