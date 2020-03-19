@@ -133,6 +133,9 @@ spec:
               value: "info"
             - name: FELIX_HEALTHENABLED
               value: "true"
+            # XXX: Lokomotive specific change
+            # This env var enables calico to expose prometheus metrics.
+            # NOTE: Do not remove this accidentally during config upgrade.
             - name: FELIX_PROMETHEUSMETRICSENABLED
               value: "true"
             - name: FELIX_PROMETHEUSMETRICSHOST
