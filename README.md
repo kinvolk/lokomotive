@@ -61,7 +61,7 @@ have it assigned to yourself.
 
 ## Contributing
 
-Check out our [contributing guidelines](CONTRIBUTING.md)
+Check out our [contributing guidelines](docs/CONTRIBUTING.md).
 
 ## License
 
