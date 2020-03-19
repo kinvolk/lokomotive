@@ -34,8 +34,11 @@ var (
 
 var clusterApplyCmd = &cobra.Command{
 	Use:   "apply",
-	Short: "Apply configuration changes to a Lokomotive cluster with components",
-	Run:   runClusterApply,
+	Short: "Deploy or update a cluster",
+	Long: `Deploy or update a cluster.
+Deploys a cluster if it isn't deployed, otherwise updates it.
+Unless explicitly skipped, components listed in the configuration are applied as well.`,
+	Run: runClusterApply,
 }
 
 func init() {
