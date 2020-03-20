@@ -68,6 +68,7 @@ func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
    sources = ["service"]
    metrics =  false
    policy = "upsert-only"
+   owner_id = "test-owner"
    aws {
      zone_id = "TESTZONEID"
      zone_type = "public"
@@ -97,6 +98,7 @@ func TestAwsConfigBySettingEnvVariables(t *testing.T) {
     sources = ["service"]
     metrics =  false
     policy = "upsert-only"
+    owner_id = "test-owner"
     aws {
       zone_id = "TESTZONEID"
       zone_type = "public"
@@ -133,6 +135,7 @@ func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
     sources = ["service"]
     metrics =  false
     policy = "upsert-only"
+    owner_id = "test-owner"
     aws {
       zone_id = "TESTZONEID"
       zone_type = "public"
@@ -168,6 +171,7 @@ func TestAwsConfigBySettingConfigFields(t *testing.T) {
     sources = ["service"]
     metrics =  false
     policy = "upsert-only"
+    owner_id = "test-owner"
     aws {
       zone_id = "TESTZONEID"
       zone_type = "public"

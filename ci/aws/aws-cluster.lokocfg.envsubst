@@ -40,7 +40,8 @@ component "cert-manager" {
 }
 
 component "external-dns" {
-  policy = "sync"
+  policy   = "sync"
+  owner_id = "$CLUSTER_ID"
   aws {
     zone_id               = "$AWS_DNS_ZONE_ID"
     aws_access_key_id     = "$AWS_ACCESS_KEY_ID"
