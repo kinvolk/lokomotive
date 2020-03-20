@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alertmanager-rules
+  namespace: projectcontour
+  labels:
+    release: prometheus-operator
+    app: prometheus-operator
+spec:
+  groups:
+  - name: contour-rules
+    rules:
+    - alert: ContourPodsAvailability
+      expr: kube_deployment_status_replicas_unavailable{deployment="contour",namespace="projectcontour"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: Contour pod is not available for last one minute.'
+        summary: '{{ $labels.instance }}: Contour deployment pods.'
+  - name: envoy-rules
+    rules:
+    - alert: EnvoyPodsAvailability
+      expr: kube_daemonset_status_number_unavailable{daemonset="envoy",namespace="projectcontour"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: Envoy pod is not available for last one minute.'
+        summary: '{{ $labels.instance }}: Envoy deployment pods.'
