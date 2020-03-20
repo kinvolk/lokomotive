@@ -36,7 +36,7 @@ import (
 
 var clusterCmd = &cobra.Command{
 	Use:   "cluster",
-	Short: "Manage a Lokomotive cluster",
+	Short: "Manage a cluster",
 }
 
 func init() {
