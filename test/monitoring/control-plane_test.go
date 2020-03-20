@@ -24,14 +24,10 @@ import (
 	"testing"
 	"time"
 
-	testutil "github.com/kinvolk/lokomotive/test/components/util"
-
-	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
-// nolint:funlen
-func TestPrometheusMetrics(t *testing.T) {
+func testControlPlanePrometheusMetrics(t *testing.T, v1api v1.API) {
 	testCases := []struct {
 		componentName string
 		query         string
@@ -66,31 +62,11 @@ func TestPrometheusMetrics(t *testing.T) {
 		},
 	}
 
-	const prometheusPodPort = 9090
-
-	p := &testutil.PortForwardInfo{
-		PodName:   "prometheus-prometheus-operator-prometheus-0",
-		Namespace: "monitoring",
-		PodPort:   prometheusPodPort,
-	}
-
-	p.PortForward(t)
-	defer p.CloseChan()
-	p.WaitUntilForwardingAvailable(t)
-
-	promClient, err := api.NewClient(api.Config{
-		Address: fmt.Sprintf("http://127.0.0.1:%d", p.LocalPort),
-	})
-	if err != nil {
-		t.Fatalf("Error creating client: %v", err)
-	}
-
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(fmt.Sprintf("prometheus-%s", tc.componentName), func(t *testing.T) {
 			t.Logf("querying %q", tc.query)
 
-			v1api := v1.NewAPI(promClient)
 			const contextTimeout = 10
 
 			ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
@@ -98,7 +74,8 @@ func TestPrometheusMetrics(t *testing.T) {
 
 			results, warnings, err := v1api.Query(ctx, tc.query, time.Now())
 			if err != nil {
-				t.Fatalf("error querying Prometheus: %v", err)
+				t.Errorf("error querying Prometheus: %v", err)
+				return
 			}
 
 			if len(warnings) > 0 {
