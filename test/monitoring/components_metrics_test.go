@@ -27,7 +27,7 @@ import (
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
-func testControlPlanePrometheusMetrics(t *testing.T, v1api v1.API) {
+func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 	testCases := []struct {
 		componentName string
 		query         string
