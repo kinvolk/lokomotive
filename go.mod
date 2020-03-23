@@ -46,6 +46,7 @@ require (
 	github.com/packethost/packngo v0.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/projectcalico/libcalico-go v1.7.2-0.20200121214551-31188cbacff0
 	github.com/prometheus/alertmanager v0.20.0
 	github.com/prometheus/client_golang v1.5.0
 	github.com/prometheus/procfs v0.0.10 // indirect
@@ -102,3 +103,6 @@ replace helm.sh/helm/v3 => github.com/kinvolk/helm/v3 v3.0.3-0.20200115143854-74
 // https://github.com/kubernetes/kubernetes/issues/88183
 // https://github.com/googleapis/gnostic/commit/896953e6749863beec38e27029c804e88c3144b8
 replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.0
+
+// To address https://github.com/etcd-io/etcd/issues/11563. Required until new version of etcd is released with the fix.
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
