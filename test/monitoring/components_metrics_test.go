@@ -104,6 +104,11 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			if len(warnings) > 0 {
 				t.Logf("warnings: %v", warnings)
 			}
+
+			if len(results.String()) == 0 {
+				t.Fatalf("no metrics found")
+			}
+
 			t.Logf("found %d results for %s", len(strings.Split(results.String(), "\n")), tc.query)
 		})
 	}
