@@ -30,7 +30,8 @@ cluster "aws" {
 component "openebs-operator" {}
 
 component "contour" {
-  ingress_hosts = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  ingress_hosts   = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  service_monitor = true
 }
 
 component "metrics-server" {}
