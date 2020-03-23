@@ -261,15 +261,15 @@ func loadConfigFromString(t *testing.T, c string) hcl.Diagnostics {
 
 	configBody := hcl.MergeFiles([]*hcl.File{f})
 
-	var rootConfig lokoconfig.RootConfig
+	var clusterConfig lokoconfig.ClusterConfig
 
-	if d := gohcl.DecodeBody(configBody, nil, &rootConfig); d.HasErrors() {
+	if d := gohcl.DecodeBody(configBody, nil, &clusterConfig); d.HasErrors() {
 		t.Fatalf("decoding root config should succeed, got: %v", d)
 	}
 
 	cc := &config{}
 
-	return cc.LoadConfig(&rootConfig.Cluster.Config, &hcl.EvalContext{})
+	return cc.LoadConfig(&clusterConfig.Cluster.Config, &hcl.EvalContext{})
 }
 
 func TestLoadConfig(t *testing.T) {

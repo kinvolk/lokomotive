@@ -35,15 +35,15 @@ func GetComponentBody(configHCL string, name string) (*hcl.Body, hcl.Diagnostics
 
 	configBody := hcl.MergeFiles([]*hcl.File{file})
 
-	var rootConfig config.RootConfig
+	var clusterConfig config.ClusterConfig
 
-	diagnostics := gohcl.DecodeBody(configBody, nil, &rootConfig)
+	diagnostics := gohcl.DecodeBody(configBody, nil, &clusterConfig)
 	if diagnostics.HasErrors() {
 		return nil, diags
 	}
 
 	c := &config.Config{
-		RootConfig: &rootConfig,
+		ClusterConfig: &clusterConfig,
 	}
 
 	return c.LoadComponentConfigBody(name), nil

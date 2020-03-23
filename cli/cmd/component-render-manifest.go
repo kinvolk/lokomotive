@@ -52,7 +52,7 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		componentsToRender = append(componentsToRender, args...)
 	} else {
-		for _, component := range lokoConfig.RootConfig.Components {
+		for _, component := range lokoConfig.ClusterConfig.Components {
 			componentsToRender = append(componentsToRender, component.Name)
 		}
 	}

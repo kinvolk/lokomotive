@@ -49,7 +49,9 @@ type backend struct {
 	Config hcl.Body `hcl:",remain"`
 }
 
-type RootConfig struct {
+// ClusterConfig represents the HCL configuration provided by the
+// user in lokocfg file. Each fields represents an HCL block type.
+type ClusterConfig struct {
 	Cluster    *cluster    `hcl:"cluster,block"`
 	Backend    *backend    `hcl:"backend,block"`
 	Components []component `hcl:"component,block"`
@@ -57,8 +59,8 @@ type RootConfig struct {
 }
 
 type Config struct {
-	RootConfig  *RootConfig
-	EvalContext *hcl.EvalContext
+	ClusterConfig *ClusterConfig
+	EvalContext   *hcl.EvalContext
 }
 
 func loadLokocfgPaths(configPath string) ([]string, error) {
@@ -122,14 +124,14 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) 
 		}
 	}
 
-	var rootConfig RootConfig
-	diags = gohcl.DecodeBody(configBody, nil, &rootConfig)
+	var clusterConfig ClusterConfig
+	diags = gohcl.DecodeBody(configBody, nil, &clusterConfig)
 	if len(diags) > 0 {
 		return nil, diags
 	}
 
 	variables := map[string]cty.Value{}
-	for _, v := range rootConfig.Variables {
+	for _, v := range clusterConfig.Variables {
 		if userVal, ok := userVals[v.Name]; ok {
 			variables[v.Name] = userVal
 			continue
@@ -159,8 +161,8 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) 
 	}
 
 	return &Config{
-		RootConfig:  &rootConfig,
-		EvalContext: &evalContext,
+		ClusterConfig: &clusterConfig,
+		EvalContext:   &evalContext,
 	}, nil
 }
 
@@ -198,7 +200,7 @@ func evalFuncFile() function.Function {
 // LoadComponentConfigBody returns nil if no component with the given
 // name is found in the configuration
 func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
-	for _, component := range c.RootConfig.Components {
+	for _, component := range c.ClusterConfig.Components {
 		if componentName == component.Name {
 			return &component.Config
 		}
