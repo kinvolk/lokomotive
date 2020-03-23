@@ -43,7 +43,7 @@ aws:
     secretKey: "{{ .AwsConfig.SecretAccessKey }}"
     accessKey: "{{ .AwsConfig.AccessKeyID }}"
   zoneType: {{ .AwsConfig.ZoneType }}
-txtOwnerId: {{ .AwsConfig.ZoneID }}
+txtOwnerId: {{ .OwnerID }}
 {{- end }}
 policy: {{ .Policy }}
 replicas: 3
@@ -68,6 +68,7 @@ type component struct {
 	Metrics   bool      `hcl:"metrics,optional"`
 	Policy    string    `hcl:"policy,optional"`
 	AwsConfig AwsConfig `hcl:"aws,block"`
+	OwnerID   string    `hcl:"owner_id"`
 }
 
 func newComponent() *component {
