@@ -53,7 +53,7 @@ func runApply(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		componentsToApply = append(componentsToApply, args...)
 	} else {
-		for _, component := range lokoConfig.RootConfig.Components {
+		for _, component := range lokoConfig.ClusterConfig.Components {
 			componentsToApply = append(componentsToApply, component.Name)
 		}
 	}
