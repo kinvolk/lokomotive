@@ -44,7 +44,8 @@ component "metallb" {
 component "metrics-server" {}
 
 component "cert-manager" {
-  email = "$EMAIL"
+  email           = "$EMAIL"
+  service_monitor = true
 }
 
 component "external-dns"{
