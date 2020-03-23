@@ -31,12 +31,7 @@ const (
 )
 
 func TestClusterAutoscalerDeployments(t *testing.T) {
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	t.Run(fmt.Sprintf("deployment"), func(t *testing.T) {
 		t.Parallel()

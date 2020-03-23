@@ -29,11 +29,7 @@ import (
 )
 
 func TestSelfHostedKubeletLabels(t *testing.T) {
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	// List all the nodes and then delete a node that is not controller.
 	nodes, err := client.CoreV1().Nodes().List(metav1.ListOptions{

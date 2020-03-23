@@ -33,11 +33,7 @@ const (
 func TestPrometheusOperatorDeployment(t *testing.T) {
 	namespace := "monitoring"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	deployments := []string{
 		"prometheus-operator-operator",

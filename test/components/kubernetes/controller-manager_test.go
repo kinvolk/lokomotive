@@ -29,12 +29,7 @@ func TestControllerManagerDeployment(t *testing.T) {
 	namespace := "kube-system"
 	deployment := "kube-controller-manager"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testutil.WaitForDeployment(t, client, namespace, deployment, retryInterval, timeout)
 }

@@ -29,11 +29,7 @@ func TestCoreDNSDeployment(t *testing.T) {
 	namespace := "kube-system"
 	deployment := "coredns"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 }

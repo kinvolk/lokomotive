@@ -29,11 +29,7 @@ func TestEnvoyDaemonset(t *testing.T) {
 	namespace := "projectcontour"
 	daemonset := "envoy"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
 }
@@ -43,11 +39,7 @@ func TestContourDeployment(t *testing.T) {
 	namespace := "projectcontour"
 	deployment := "contour"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 }

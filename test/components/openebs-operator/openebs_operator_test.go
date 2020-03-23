@@ -27,11 +27,7 @@ import (
 func TestOpenEBSOperatorDeployment(t *testing.T) {
 	namespace := "openebs"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	deployments := []string{
 		"openebs-provisioner",

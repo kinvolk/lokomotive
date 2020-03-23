@@ -29,11 +29,7 @@ func TestUpdateAgentDaemonset(t *testing.T) {
 	namespace := "reboot-coordinator"
 	daemonset := "flatcar-linux-update-agent"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
 }
@@ -43,11 +39,7 @@ func TestUpdateOperatorDeployment(t *testing.T) {
 	namespace := "reboot-coordinator"
 	deployment := "flatcar-linux-update-operator"
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
 }
