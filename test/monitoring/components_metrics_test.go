@@ -61,10 +61,6 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			query:         "kubelet_running_pod_count",
 		},
 		{
-			componentName: "calico-felix",
-			query:         "felix_active_local_endpoints",
-		},
-		{
 			componentName: "metallb",
 			query:         "metallb_bgp_session_up",
 			platforms:     []testutil.Platform{testutil.PlatformPacket},
