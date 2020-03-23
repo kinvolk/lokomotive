@@ -31,12 +31,12 @@ import (
 
 // getConfiguredBackend loads a backend from the given configuration file.
 func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
-	if lokoConfig.RootConfig.Backend == nil {
+	if lokoConfig.ClusterConfig.Backend == nil {
 		// No backend defined and no configuration error
 		return nil, hcl.Diagnostics{}
 	}
 
-	backend, err := backend.GetBackend(lokoConfig.RootConfig.Backend.Name)
+	backend, err := backend.GetBackend(lokoConfig.ClusterConfig.Backend.Name)
 	if err != nil {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
@@ -45,7 +45,7 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 		return nil, hcl.Diagnostics{diag}
 	}
 
-	return backend, backend.LoadConfig(&lokoConfig.RootConfig.Backend.Config, lokoConfig.EvalContext)
+	return backend, backend.LoadConfig(&lokoConfig.ClusterConfig.Backend.Config, lokoConfig.EvalContext)
 }
 
 // getConfiguredPlatform loads a platform from the given configuration file.
@@ -55,12 +55,12 @@ func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {
 		return nil, diags
 	}
 
-	if lokoConfig.RootConfig.Cluster == nil {
+	if lokoConfig.ClusterConfig.Cluster == nil {
 		// No cluster defined and no configuration error
 		return nil, hcl.Diagnostics{}
 	}
 
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
+	platform, err := platform.GetPlatform(lokoConfig.ClusterConfig.Cluster.Name)
 	if err != nil {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
@@ -69,7 +69,7 @@ func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {
 		return nil, hcl.Diagnostics{diag}
 	}
 
-	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
+	return platform, platform.LoadConfig(&lokoConfig.ClusterConfig.Cluster.Config, lokoConfig.EvalContext)
 }
 
 // getAssetDir extracts the asset path from the cluster configuration.

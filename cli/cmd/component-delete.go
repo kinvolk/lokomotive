@@ -61,9 +61,9 @@ func runDelete(cmd *cobra.Command, args []string) {
 	copy(componentsToDelete, args)
 
 	if len(args) == 0 {
-		componentsToDelete = make([]string, len(lokoCfg.RootConfig.Components))
+		componentsToDelete = make([]string, len(lokoCfg.ClusterConfig.Components))
 
-		for i, component := range lokoCfg.RootConfig.Components {
+		for i, component := range lokoCfg.ClusterConfig.Components {
 			componentsToDelete[i] = component.Name
 		}
 	}
