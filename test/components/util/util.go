@@ -321,3 +321,46 @@ func (p *PortForwardInfo) WaitUntilForwardingAvailable(t *testing.T) {
 	}
 	p.findLocalPort(t)
 }
+
+// Platform is a type tests will use to specify which platform they are supported on.
+type Platform string
+
+const (
+	// PlatformAWS is for AWS
+	PlatformAWS = "aws"
+
+	// PlatformPacket is for Packet
+	PlatformPacket = "packet"
+
+	// PlatformPacketARM is for Packet on ARM
+	PlatformPacketARM = "packet-arm"
+
+	// PlatformBaremetal is for Baremetal
+	PlatformBaremetal = "baremetal"
+)
+
+// IsPlatformSupported takes in the test object and the list of supported platforms. The function
+// detects the supported platform from environment variable. And if the platform is available in the
+// supported platforms provided then this returns true otherwise false. If the supported platforms
+// list is empty it is interpreted as all platforms are supported.
+func IsPlatformSupported(t *testing.T, platforms []Platform) bool {
+	// This means that all platforms are supported.
+	if len(platforms) == 0 {
+		return true
+	}
+
+	// Find out what platform we are running on.
+	p := os.Getenv("PLATFORM")
+	if p == "" {
+		t.Fatal("env var PLATFORM was not set")
+	}
+
+	// The platform should be present in the list of supported platforms.
+	for _, platform := range platforms {
+		if Platform(p) == platform {
+			return true
+		}
+	}
+
+	return false
+}
