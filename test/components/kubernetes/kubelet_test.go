@@ -31,12 +31,7 @@ const timeout = time.Minute * 5
 func TestSelfHostedKubeletPods(t *testing.T) {
 	t.Parallel()
 
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	namespace := "kube-system"
 	daemonset := "kubelet"

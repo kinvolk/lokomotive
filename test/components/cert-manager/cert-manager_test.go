@@ -28,11 +28,7 @@ import (
 const namespace = "cert-manager"
 
 func TestCertManagerDeployments(t *testing.T) {
-	client, err := testutil.CreateKubeClient(t)
-	if err != nil {
-		t.Errorf("could not create Kubernetes client: %v", err)
-	}
-	t.Log("got kubernetes client")
+	client := testutil.CreateKubeClient(t)
 
 	testCases := []struct {
 		deployment string

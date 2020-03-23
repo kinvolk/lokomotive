@@ -49,22 +49,27 @@ func KubeconfigPath(t *testing.T) string {
 // buildKubeConfig reads the environment variable KUBECONFIG and then builds the rest client config
 // object which can be either used to create kube client to talk to apiserver or to just read the
 // kubeconfig data.
-func buildKubeConfig(t *testing.T) (*restclient.Config, error) {
+func buildKubeConfig(t *testing.T) *restclient.Config {
 	kubeconfig := KubeconfigPath(t)
 
 	t.Logf("using KUBECONFIG=%s", kubeconfig)
 
-	return clientcmd.BuildConfigFromFlags("", kubeconfig)
+	c, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		t.Fatalf("failed building rest client: %v", err)
+	}
+
+	return c
 }
 
 // CreateKubeClient returns a kubernetes client reading the KUBECONFIG environment variable.
-func CreateKubeClient(t *testing.T) (*kubernetes.Clientset, error) {
-	config, err := buildKubeConfig(t)
+func CreateKubeClient(t *testing.T) *kubernetes.Clientset {
+	cs, err := kubernetes.NewForConfig(buildKubeConfig(t))
 	if err != nil {
-		t.Fatalf("could not build config from KUBECONFIG: %v", err)
+		t.Fatalf("failed creating new clientset: %v", err)
 	}
 
-	return kubernetes.NewForConfig(config)
+	return cs
 }
 
 func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
@@ -237,10 +242,7 @@ func (p *PortForwardInfo) CloseChan() {
 // p.WaitUntilForwardingAvailable(t)
 //
 func (p *PortForwardInfo) PortForward(t *testing.T) {
-	config, err := buildKubeConfig(t)
-	if err != nil {
-		t.Fatalf("could not build config from KUBECONFIG: %v", err)
-	}
+	config := buildKubeConfig(t)
 
 	roundTripper, upgrader, err := spdy.RoundTripperFor(config)
 	if err != nil {
