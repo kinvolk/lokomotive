@@ -55,7 +55,7 @@ Create `alertmanager-config.yaml` file if necessary. Visit the [alertmanager
 configuration](https://prometheus.io/docs/alerting/configuration/#configuration-file) for more
 information.
 
-**Note**: Make sure it is indented to two spaces.
+**Note**: Make sure the whole file is indented two spaces. That is, there are two spaces before the top level block.
 
 ```yaml
   config:
