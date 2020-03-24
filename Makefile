@@ -73,7 +73,7 @@ GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	go test -mod=$(MOD) -covermode=atomic -buildmode=exe -v ./...
+	go test -mod=$(MOD) -covermode=atomic -buildmode=exe -v ./pkg/...
 
 .PHONY: format-go-code
 ## Formats any go file that differs from gofmt's style
