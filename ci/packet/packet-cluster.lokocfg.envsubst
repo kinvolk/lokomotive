@@ -30,6 +30,22 @@ cluster "packet" {
 
 component "openebs-operator" {}
 
+# openebs-storage-class component should always be the last to be installed
+# pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
+# because when the discovery failure for creating StoragePoolClaim happens,
+# lokoctl install errors out and moves on with running the tests
+# causing subsequent components below this to be skipped.
+component "openebs-storage-class" {
+  storage-class "openebs-test-sc" {
+    replica_count = 1
+    default = true
+  }
+}
+
+component "prometheus-operator" {
+  grafana_admin_password = "admin"
+}
+
 component "contour" {
   ingress_hosts   = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
   service_monitor = true
@@ -118,22 +134,6 @@ component "gangway" {
 component "rook" {}
 
 component "flatcar-linux-update-operator" {}
-
-# openebs-storage-class component should always be the last to be installed
-# pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
-# because when the discovery failure for creating StoragePoolClaim happens,
-# lokoctl install errors out and moves on with running the tests
-# causing subsequent components below this to be skipped.
-component "openebs-storage-class" {
-  storage-class "openebs-test-sc" {
-    replica_count = 1
-    default = true
-  }
-}
-
-component "prometheus-operator" {
-  grafana_admin_password = "admin"
-}
 
 component "cluster-autoscaler" {
   cluster_name = "$CLUSTER_ID"
