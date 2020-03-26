@@ -4,19 +4,20 @@ resource "template_dir" "bootstrap-manifests" {
   destination_dir = "${var.asset_dir}/bootstrap-manifests"
 
   vars = {
-    hyperkube_image   = var.container_images["hyperkube"]
-    etcd_servers      = join(",", formatlist("https://%s:2379", var.etcd_servers))
-    cloud_provider    = var.cloud_provider
-    pod_cidr          = var.pod_cidr
-    service_cidr      = var.service_cidr
-    trusted_certs_dir = var.trusted_certs_dir
+    hyperkube_image      = var.container_images["hyperkube"]
+    kube_apiserver_image = var.container_images["kube_apiserver"]
+    etcd_servers         = join(",", formatlist("https://%s:2379", var.etcd_servers))
+    cloud_provider       = var.cloud_provider
+    pod_cidr             = var.pod_cidr
+    service_cidr         = var.service_cidr
+    trusted_certs_dir    = var.trusted_certs_dir
   }
 }
 
 resource "local_file" "kube-apiserver" {
   filename = "${var.asset_dir}/charts/kube-system/kube-apiserver.yaml"
   content = templatefile("${path.module}/resources/charts/kube-apiserver.yaml", {
-    hyperkube_image          = var.container_images["hyperkube"]
+    kube_apiserver_image     = var.container_images["kube_apiserver"]
     pod_checkpointer_image   = var.container_images["pod_checkpointer"]
     etcd_servers             = join(",", formatlist("https://%s:2379", var.etcd_servers))
     cloud_provider           = var.cloud_provider

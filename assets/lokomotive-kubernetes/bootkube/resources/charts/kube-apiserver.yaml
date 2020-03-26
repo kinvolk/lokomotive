@@ -9,7 +9,7 @@ apiserver:
   aggregationCaCert: ${aggregation_ca_cert}
   aggregationClientCert: ${aggregation_client_cert}
   aggregationClientKey: ${aggregation_client_key}
-  image: ${hyperkube_image}
+  image: ${kube_apiserver_image}
   cloudProvider: ${cloud_provider}
   etcdServers: ${etcd_servers}
   enableAggregation: ${enable_aggregation}

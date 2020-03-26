@@ -76,8 +76,7 @@ spec:
         - -c
         - |
           set -xe
-          exec /hyperkube \
-          kube-apiserver \
+          exec /usr/local/bin/kube-apiserver \
           --advertise-address=$(POD_IP) \
           --allow-privileged=true \
           --anonymous-auth=false \
@@ -109,7 +108,6 @@ spec:
           {{ end -}}
           --storage-backend=etcd3
         {{- else }}
-        - /hyperkube
         - kube-apiserver
         - --advertise-address=$(POD_IP)
         - --allow-privileged=true
