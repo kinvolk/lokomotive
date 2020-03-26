@@ -8,9 +8,8 @@ metadata:
 spec:
   containers:
   - name: kube-controller-manager
-    image: ${hyperkube_image}
+    image: ${kube_controller_manager_image}
     command:
-    - ./hyperkube
     - kube-controller-manager
     - --allocate-node-cidrs=true
     - --cluster-cidr=${pod_cidr}

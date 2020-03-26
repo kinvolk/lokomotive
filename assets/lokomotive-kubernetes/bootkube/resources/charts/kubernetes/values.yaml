@@ -2,7 +2,7 @@ controllerManager:
   serviceAccountKey:
   caCert:
   caKey:
-  image: k8s.gcr.io/hyperkube:v1.18.0
+  image: k8s.gcr.io/kube-controller-manager:v1.18.0
   cloudProvider:
   serviceCIDR: 10.0.0.0/24
   podCIDR: 10.2.0.0/16
