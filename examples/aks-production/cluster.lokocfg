@@ -1,0 +1,95 @@
+variable "subscription_id" {}
+variable "tenant_id" {}
+variable "grafana_admin_password" {}
+variable "resource_group_name" {}
+variable "cert_manager_email" {}
+variable "state_s3_bucket" {}
+variable "lock_dynamodb_table" {}
+
+variable "manage_resource_group" {
+  default = true
+}
+
+variable "application_name" {
+  default = ""
+}
+
+variable "asset_dir" {
+  default = "./lokomotive-assets"
+}
+
+variable "cluster_name" {
+  default = "lokomotive-cluster"
+}
+
+variable "workers_count" {
+  default = 3
+}
+
+variable "workers_type" {
+  default = "Standard_D2_v2"
+}
+
+variable "location" {
+  default = "West Europe"
+}
+
+variable "state_s3_key" {
+  default = "lokomotive/terraform.tfstate"
+}
+
+variable "state_s3_region" {
+  default = "eu-central-1"
+}
+
+backend "s3" {
+  bucket         = var.state_s3_bucket
+  key            = var.state_s3_key
+  region         = var.state_s3_region
+  dynamodb_table = var.lock_dynamodb_table
+}
+
+cluster "aks" {
+  asset_dir    = pathexpand(var.asset_dir)
+  cluster_name = var.cluster_name
+
+  subscription_id       = var.subscription_id
+  tenant_id             = var.tenant_id
+  location              = var.location
+  resource_group_name   = var.resource_group_name
+  application_name      = var.application_name
+  manage_resource_group = var.manage_resource_group
+
+  worker_pool "default" {
+    vm_size = var.workers_type
+    count   = var.workers_count
+  }
+}
+
+component "prometheus-operator" {
+  grafana_admin_password = var.grafana_admin_password
+  disable_webhooks       = true
+
+  monitor {
+    etcd                    = false
+    kube_controller_manager = false
+    kube_scheduler          = false
+    kube_proxy              = false
+    kubelet                 = false
+  }
+
+  coredns {
+    selector = {
+      "k8s-app" = "kube-dns",
+    }
+  }
+}
+
+component "cert-manager" {
+  email           = var.cert_manager_email
+  service_monitor = true
+}
+
+component "contour" {
+  service_monitor = true
+}

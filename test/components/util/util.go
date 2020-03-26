@@ -337,6 +337,9 @@ const (
 
 	// PlatformBaremetal is for Baremetal
 	PlatformBaremetal = "baremetal"
+
+	// PlatformAKS is for AKS.
+	PlatformAKS = "aks"
 )
 
 // IsPlatformSupported takes in the test object and the list of supported platforms. The function

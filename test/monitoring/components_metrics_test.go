@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws packet
+// +build aws packet aks
 // +build poste2e
 
 package monitoring
@@ -31,6 +31,11 @@ import (
 
 //nolint:funlen
 func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
+	selfHostedPlatforms := []testutil.Platform{
+		testutil.PlatformPacket,
+		testutil.PlatformAWS,
+	}
+
 	testCases := []struct {
 		componentName string
 		query         string
@@ -47,18 +52,22 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 		{
 			componentName: "kube-scheduler",
 			query:         "scheduler_schedule_attempts_total",
+			platforms:     selfHostedPlatforms,
 		},
 		{
 			componentName: "kube-controller-manager",
 			query:         "workqueue_work_duration_seconds_bucket",
+			platforms:     selfHostedPlatforms,
 		},
 		{
 			componentName: "kube-proxy",
 			query:         "kubeproxy_sync_proxy_rules_duration_seconds_bucket",
+			platforms:     selfHostedPlatforms,
 		},
 		{
 			componentName: "kubelet",
 			query:         "kubelet_running_pod_count",
+			platforms:     selfHostedPlatforms,
 		},
 		{
 			componentName: "metallb",
@@ -68,12 +77,12 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 		{
 			componentName: "contour",
 			query:         "contour_dagrebuild_timestamp",
-			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS},
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
 		},
 		{
 			componentName: "cert-manager",
 			query:         "certmanager_controller_sync_call_count",
-			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS},
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
 		},
 	}
 
