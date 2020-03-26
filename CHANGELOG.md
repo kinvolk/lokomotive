@@ -2,7 +2,7 @@
 
 Initial release.
 
-* Kubernetes v1.17.4
+* Kubernetes v1.18.0
 * Running on [Flatcar Container Linux](https://www.flatcar-linux.org/)
 * Fully self-hosted, including the kubelet
 * Single or multi-master
