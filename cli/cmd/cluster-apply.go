@@ -84,8 +84,8 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 
-	// Do controlplane upgrades only if cluster already exists.
-	if exists {
+	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
+	if exists && !p.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
