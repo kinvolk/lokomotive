@@ -29,14 +29,32 @@ cluster "aws" {
 
 component "openebs-operator" {}
 
+# openebs-storage-class component should always be the last to be installed
+# pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
+# because when the discovery failure for creating StoragePoolClaim happens,
+# lokoctl install errors out and moves on with running the tests
+# causing subsequent components below this to be skipped.
+component "openebs-storage-class" {
+  storage-class "openebs-test-sc" {
+    replica_count = 1
+    default       = true
+  }
+}
+
+component "prometheus-operator" {
+  grafana_admin_password = "admin"
+}
+
 component "contour" {
-  ingress_hosts = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  ingress_hosts   = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  service_monitor = true
 }
 
 component "metrics-server" {}
 
 component "cert-manager" {
-  email = "$EMAIL"
+  email           = "$EMAIL"
+  service_monitor = true
 }
 
 component "external-dns" {
@@ -47,6 +65,8 @@ component "external-dns" {
     aws_access_key_id     = "$AWS_ACCESS_KEY_ID"
     aws_secret_access_key = "$AWS_SECRET_ACCESS_KEY"
   }
+
+  service_monitor = true
 }
 
 component "dex" {
@@ -108,20 +128,4 @@ component "flatcar-linux-update-operator" {}
 
 component "httpbin" {
   ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
-}
-
-# openebs-storage-class component should always be the last to be installed
-# pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
-# because when the discovery failure for creating StoragePoolClaim happens,
-# lokoctl install errors out and moves on with running the tests
-# causing subsequent components below this to be skipped.
-component "openebs-storage-class" {
-  storage-class "openebs-test-sc" {
-    replica_count = 1
-    default       = true
-  }
-}
-
-component "prometheus-operator" {
-  grafana_admin_password = "admin"
 }

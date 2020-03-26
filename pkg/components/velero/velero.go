@@ -95,6 +95,8 @@ metrics:
   enabled: {{ .Metrics.Enabled }}
   serviceMonitor:
     enabled: {{ .Metrics.ServiceMonitor }}
+    additionalLabels:
+      release: prometheus-operator
 initContainers:
 - image: velero/velero-plugin-for-microsoft-azure:v1.0.0
   imagePullPolicy: IfNotPresent

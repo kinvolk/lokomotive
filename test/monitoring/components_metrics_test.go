@@ -25,12 +25,16 @@ import (
 	"time"
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func testControlPlanePrometheusMetrics(t *testing.T, v1api v1.API) {
+//nolint:funlen
+func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 	testCases := []struct {
 		componentName string
 		query         string
+		platforms     []testutil.Platform
 	}{
 		{
 			componentName: "kube-apiserver",
@@ -60,11 +64,30 @@ func testControlPlanePrometheusMetrics(t *testing.T, v1api v1.API) {
 			componentName: "calico-felix",
 			query:         "felix_active_local_endpoints",
 		},
+		{
+			componentName: "metallb",
+			query:         "metallb_bgp_session_up",
+			platforms:     []testutil.Platform{testutil.PlatformPacket},
+		},
+		{
+			componentName: "contour",
+			query:         "contour_dagrebuild_timestamp",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS},
+		},
+		{
+			componentName: "cert-manager",
+			query:         "certmanager_controller_sync_call_count",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS},
+		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(fmt.Sprintf("prometheus-%s", tc.componentName), func(t *testing.T) {
+			if !testutil.IsPlatformSupported(t, tc.platforms) {
+				t.Skip()
+			}
+
 			t.Logf("querying %q", tc.query)
 
 			const contextTimeout = 10

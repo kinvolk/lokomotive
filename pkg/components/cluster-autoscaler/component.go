@@ -65,6 +65,14 @@ extraArgs:
 
 podDisruptionBudget: []
 kubeTargetVersionOverride: v1.17.2
+
+{{ if .ServiceMonitor }}
+serviceMonitor:
+  enabled: true
+  namespace: {{ .Namespace }}
+  selector:
+    release: prometheus-operator
+{{ end }}
 `
 
 func init() {
@@ -87,6 +95,9 @@ type component struct {
 	ScaleDownDelayAfterAddRaw string `hcl:"scale_down_delay_after_add,optional"`
 	ScaleDownUnreadyTime      time.Duration
 	ScaleDownUnreadyTimeRaw   string `hcl:"scale_down_unready_time,optional"`
+
+	// Prometheus Operator related parameters.
+	ServiceMonitor bool `hcl:"service_monitor,optional"`
 
 	// Packet-specific parameters
 	Packet *packetConfiguration `hcl:"packet,block"`
@@ -113,6 +124,7 @@ func newComponent() *component {
 		ScaleDownUnneededTime:  10 * time.Minute,
 		ScaleDownDelayAfterAdd: 10 * time.Minute,
 		ScaleDownUnreadyTime:   20 * time.Minute,
+		ServiceMonitor:         false,
 	}
 
 	switch c.Provider {

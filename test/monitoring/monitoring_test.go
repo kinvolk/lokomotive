@@ -55,8 +55,8 @@ func TestPrometheus(t *testing.T) {
 		Func func(*testing.T, v1.API)
 	}{
 		{
-			Name: "ControlPlaneMetrics",
-			Func: testControlPlanePrometheusMetrics,
+			Name: "ComponentMetrics",
+			Func: testComponentsPrometheusMetrics,
 		},
 	}
 
