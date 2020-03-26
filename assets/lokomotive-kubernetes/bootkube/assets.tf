@@ -80,6 +80,7 @@ data "template_file" "kubernetes" {
     hyperkube_image               = var.container_images["hyperkube"]
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
+    kube_proxy_image              = var.container_images["kube_proxy"]
     coredns_image                 = "${var.container_images["coredns"]}${var.container_arch}"
     control_plane_replicas        = max(2, length(var.etcd_servers))
     cloud_provider                = var.cloud_provider

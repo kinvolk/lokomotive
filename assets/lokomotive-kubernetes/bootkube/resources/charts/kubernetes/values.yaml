@@ -9,7 +9,7 @@ controllerManager:
   controlPlaneReplicas: 1
   trustedCertsDir: /usr/share/ca-certificates
 kubeProxy:
-  image: k8s.gcr.io/hyperkube:v1.18.0
+  image: k8s.gcr.io/kube-proxy:v1.18.0
   podCIDR: 10.2.0.0/16
   trustedCertsDir: /usr/share/ca-certificates
 kubeScheduler:

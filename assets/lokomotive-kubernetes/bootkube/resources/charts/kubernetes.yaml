@@ -9,7 +9,7 @@ controllerManager:
   controlPlaneReplicas: ${control_plane_replicas}
   trustedCertsDir: ${trusted_certs_dir}
 kubeProxy:
-  image: ${hyperkube_image}
+  image: ${kube_proxy_image}
   podCIDR: ${pod_cidr}
   trustedCertsDir: ${trusted_certs_dir}
 kubeScheduler:
