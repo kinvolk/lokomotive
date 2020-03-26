@@ -7,6 +7,7 @@ resource "template_dir" "bootstrap-manifests" {
     hyperkube_image               = var.container_images["hyperkube"]
     kube_apiserver_image          = var.container_images["kube_apiserver"]
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
+    kube_scheduler_image          = var.container_images["kube_scheduler"]
     etcd_servers                  = join(",", formatlist("https://%s:2379", var.etcd_servers))
     cloud_provider                = var.cloud_provider
     pod_cidr                      = var.pod_cidr
@@ -78,6 +79,7 @@ data "template_file" "kubernetes" {
   vars = {
     hyperkube_image               = var.container_images["hyperkube"]
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
+    kube_scheduler_image          = var.container_images["kube_scheduler"]
     coredns_image                 = "${var.container_images["coredns"]}${var.container_arch}"
     control_plane_replicas        = max(2, length(var.etcd_servers))
     cloud_provider                = var.cloud_provider

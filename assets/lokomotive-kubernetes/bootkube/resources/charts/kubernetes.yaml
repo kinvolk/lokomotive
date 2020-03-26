@@ -13,7 +13,7 @@ kubeProxy:
   podCIDR: ${pod_cidr}
   trustedCertsDir: ${trusted_certs_dir}
 kubeScheduler:
-  image: ${hyperkube_image}
+  image: ${kube_scheduler_image}
   controlPlaneReplicas: ${control_plane_replicas}
 kubeConfigInCluster:
   server: ${server}

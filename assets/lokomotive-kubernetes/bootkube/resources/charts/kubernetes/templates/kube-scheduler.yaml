@@ -51,7 +51,6 @@ spec:
       - name: kube-scheduler
         image: "{{ .Values.kubeScheduler.image }}"
         command:
-        - ./hyperkube
         - kube-scheduler
         - --leader-elect=true
         livenessProbe:
