@@ -48,6 +48,8 @@ type component struct {
 	AlertManagerExternalURL  string            `hcl:"alertmanager_external_url,optional"`
 	AlertManagerConfig       string            `hcl:"alertmanager_config,optional"`
 	AlertManagerNodeSelector map[string]string `hcl:"alertmanager_node_selector,optional"`
+
+	DisableWebhooks bool `hcl:"disable_webhooks,optional"`
 }
 
 func newComponent() *component {

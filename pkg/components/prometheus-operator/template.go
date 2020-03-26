@@ -56,12 +56,20 @@ kubeEtcd:
   endpoints: {{.EtcdEndpoints}}
 prometheus-node-exporter:
   service: {}
-{{ if .PrometheusOperatorNodeSelector }}
+{{ if (or .PrometheusOperatorNodeSelector .DisableWebhooks) }}
 prometheusOperator:
+  {{- if .DisableWebhooks }}
+  tlsProxy:
+    enabled: false
+  admissionWebhooks:
+    enabled: false
+  {{- end }}
+	{{- if .PrometheusOperatorNodeSelector }}
   nodeSelector:
     {{ range $key, $value := .PrometheusOperatorNodeSelector }}
     {{ $key }}: {{ $value }}
     {{ end }}
+	{{- end }}
 {{ end }}
 prometheus:
   prometheusSpec:

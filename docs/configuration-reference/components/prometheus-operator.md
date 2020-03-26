@@ -97,6 +97,7 @@ Example:
 | `alertmanager_external_url` | The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. | "" | false |
 | `alertmanager_config` | Provide YAML file path to configure Alertmanager. See [https://prometheus.io/docs/alerting/configuration/#configuration-file](https://prometheus.io/docs/alerting/configuration/#configuration-file). | `{"global":{"resolve_timeout":"5m"},"route":{"group_by":["job"],"group_wait":"30s","group_interval":"5m","repeat_interval":"12h","receiver":"null","routes":[{"match":{"alertname":"Watchdog"},"receiver":"null"}]},"receivers":[{"name":"null"}]}` | false |
 | `alertmanager_node_selector` | Node selector to specify nodes where the AlertManager pods should be deployed. | {} | false |
+| `disable_webhooks` | Disables validation and mutation webhooks. This might be required on older versions of Kubernetes to install successfully. | false | false |
 
 ## Applying
 
