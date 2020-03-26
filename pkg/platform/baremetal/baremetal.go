@@ -62,9 +62,12 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-// GetAssetDir returns asset directory path
-func (c *config) GetAssetDir() string {
-	return c.AssetDir
+// Meta is part of Platform interface and returns common information about the platform configuration.
+func (c *config) Meta() platform.Meta {
+	return platform.Meta{
+		AssetDir:      c.AssetDir,
+		ExpectedNodes: len(c.ControllerMacs) + len(c.WorkerMacs),
+	}
 }
 
 func NewConfig() *config {
@@ -194,8 +197,4 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
-}
-
-func (c *config) GetExpectedNodes() int {
-	return len(c.ControllerMacs) + len(c.WorkerMacs)
 }

@@ -27,8 +27,13 @@ type Platform interface {
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
 	Initialize(*terraform.Executor) error
-	GetAssetDir() string
-	GetExpectedNodes() int
+	Meta() Meta
+}
+
+// Meta is a generic information format about the platform.
+type Meta struct {
+	AssetDir      string
+	ExpectedNodes int
 }
 
 // platforms is a collection where all platforms gets automatically registered

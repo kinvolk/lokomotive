@@ -101,9 +101,17 @@ func NewConfig() *config {
 	}
 }
 
-// GetAssetDir returns asset directory path
-func (c *config) GetAssetDir() string {
-	return c.AssetDir
+// Meta is part of Platform interface and returns common information about the platform configuration.
+func (c *config) Meta() platform.Meta {
+	nodes := c.ControllerCount
+	for _, workerpool := range c.WorkerPools {
+		nodes += workerpool.Count
+	}
+
+	return platform.Meta{
+		AssetDir:      c.AssetDir,
+		ExpectedNodes: nodes,
+	}
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
@@ -210,15 +218,6 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
-}
-
-func (c *config) GetExpectedNodes() int {
-	nodes := c.ControllerCount
-	for _, workerpool := range c.WorkerPools {
-		nodes += workerpool.Count
-	}
-
-	return nodes
 }
 
 // checkValidConfig validates cluster configuration.

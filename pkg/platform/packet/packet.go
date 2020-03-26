@@ -116,9 +116,17 @@ func NewConfig() *config {
 	}
 }
 
-// GetAssetDir returns asset directory path
-func (c *config) GetAssetDir() string {
-	return c.AssetDir
+// Meta is part of Platform interface and returns common information about the platform configuration.
+func (c *config) Meta() platform.Meta {
+	nodes := c.ControllerCount
+	for _, workerpool := range c.WorkerPools {
+		nodes += workerpool.Count
+	}
+
+	return platform.Meta{
+		AssetDir:      c.AssetDir,
+		ExpectedNodes: nodes,
+	}
 }
 
 func (c *config) Initialize(ex *terraform.Executor) error {
@@ -343,16 +351,6 @@ func poolTarget(name, resource string) string {
 //nolint: unparam
 func clusterTarget(name, resource string) string {
 	return fmt.Sprintf("module.packet-%v.%v", name, resource)
-}
-
-func (c *config) GetExpectedNodes() int {
-	workers := 0
-
-	for _, wp := range c.WorkerPools {
-		workers += wp.Count
-	}
-
-	return c.ControllerCount + workers
 }
 
 // checkValidConfig validates cluster configuration.

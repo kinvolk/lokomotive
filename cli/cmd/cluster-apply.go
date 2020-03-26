@@ -80,7 +80,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
 	kubeconfigPath := assetsKubeconfig(assetDir)
-	if err := verifyCluster(kubeconfigPath, p.GetExpectedNodes()); err != nil {
+	if err := verifyCluster(kubeconfigPath, p.Meta().ExpectedNodes); err != nil {
 		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 

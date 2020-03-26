@@ -79,7 +79,7 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 		b = local.NewLocalBackend()
 	}
 
-	assetDir, err := homedir.Expand(p.GetAssetDir())
+	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		ctxLogger.Fatalf("Error expanding path: %v", err)
 	}
@@ -97,7 +97,7 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
 func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
-	assetDir, err := homedir.Expand(p.GetAssetDir())
+	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		ctxLogger.Fatalf("Error expanding path: %v", err)
 	}
