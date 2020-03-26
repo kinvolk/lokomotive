@@ -34,6 +34,7 @@ type Platform interface {
 type Meta struct {
 	AssetDir      string
 	ExpectedNodes int
+	Managed       bool
 }
 
 // platforms is a collection where all platforms gets automatically registered
