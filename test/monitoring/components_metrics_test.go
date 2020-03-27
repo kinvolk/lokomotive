@@ -84,6 +84,8 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 				t.Skip()
 			}
 
+			t.Parallel()
+
 			t.Logf("querying %q", tc.query)
 
 			const contextTimeout = 10
