@@ -35,7 +35,6 @@ spec:
       - name: kube-proxy
         image: {{ .Values.kubeProxy.image }}
         command:
-        - ./hyperkube
         - kube-proxy
         - --cluster-cidr={{ .Values.kubeProxy.podCIDR }}
         - --hostname-override=$(NODE_NAME)

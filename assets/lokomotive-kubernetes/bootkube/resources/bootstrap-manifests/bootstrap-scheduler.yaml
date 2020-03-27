@@ -8,9 +8,8 @@ metadata:
 spec:
   containers:
   - name: kube-scheduler
-    image: ${hyperkube_image}
+    image: ${kube_scheduler_image}
     command:
-    - ./hyperkube
     - kube-scheduler
     - --kubeconfig=/etc/kubernetes/secrets/kubeconfig
     - --leader-elect=true

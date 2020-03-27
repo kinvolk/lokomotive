@@ -51,7 +51,6 @@ spec:
       - name: kube-controller-manager
         image: {{ .Values.controllerManager.image }}
         command:
-        - ./hyperkube
         - kube-controller-manager
         - --use-service-account-credentials
         - --allocate-node-cidrs=true
