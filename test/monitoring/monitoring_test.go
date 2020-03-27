@@ -72,6 +72,7 @@ func TestPrometheus(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.Name, func(t *testing.T) {
+			t.Parallel()
 			test.Func(t, v1api)
 		})
 	}
