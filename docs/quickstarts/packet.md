@@ -105,7 +105,7 @@ defined in the configuration file.
 #lokocfg.vars
 
 packet_project_id = "PACKET_PROJECT_ID"
-ssh_public_keys = ["public-ssh-key-1", "public-ssh-key-2", ...]
+ssh_public_keys = ["ssh-rsa AAAAB3Nz...", "ssh-rsa AAAAB3Nz...", ...]
 
 state_s3_bucket = "name-of-the-s3-bucket-to-store-the-cluster-state"
 lock_dynamodb_table = "name-of-the-dynamodb-table-for-state-locking"
