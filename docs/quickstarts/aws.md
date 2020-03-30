@@ -70,7 +70,7 @@ or
 ```console
 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
 export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-export AWS_DEFAULT_REGION=us-east-1
+export AWS_DEFAULT_REGION=us-east-1    # This region will be used by the lokoctl S3 backend only
 ```
 
 ### Step 4: Define cluster configuration
@@ -96,6 +96,8 @@ defined in the configuration file.
 ```console
 #lokocfg.vars
 ssh_public_keys = ["public-ssh-key-1", "public-ssh-key-2", ...]
+
+cluster_region = "region-name"
 
 state_s3_bucket = "name-of-the-s3-bucket-to-store-the-cluster-state"
 lock_dynamodb_table = "name-of-the-dynamodb-table-for-state-locking"
