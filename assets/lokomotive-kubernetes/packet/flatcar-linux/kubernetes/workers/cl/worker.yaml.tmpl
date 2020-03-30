@@ -82,10 +82,7 @@ systemd:
         # makes it into Flatcar. Then we can read COREOS_PACKET_IPV4_PRIVATE_GATEWAY_0
         # from /run/metadata/flatcar and disable the template conditionals below.
         ExecStart=/bin/sh -c \
-            "%{~ if bgp_node_labels != "" ~}
-            BGP_PEER_ADDRESS=$(ip route | grep '10.0.0.0/8' | awk {'print $3'}); \
-            %{~ endif ~}
-            /usr/lib/coreos/kubelet-wrapper \
+            "/usr/lib/coreos/kubelet-wrapper \
             --node-ip=$${COREOS_PACKET_IPV4_PRIVATE_0} \
             --anonymous-auth=false \
             --authentication-token-webhook \
@@ -102,7 +99,7 @@ systemd:
             --node-labels=$${NODE_LABELS} \
             --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
             %{~ if bgp_node_labels != "" ~}
-            --node-labels=$${BGP_NODE_LABELS},metallb.universe.tf/peer-address=$BGP_PEER_ADDRESS \
+            --node-labels=$${BGP_NODE_LABELS},metallb.universe.tf/peer-address=$(ip route | grep '10.0.0.0/8' | awk {'print $3'}) \
             %{~ endif ~}
             --pod-manifest-path=/etc/kubernetes/manifests \
             --read-only-port=0 \
