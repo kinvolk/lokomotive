@@ -33,6 +33,9 @@ default PSPs for general purpose application usage:
     Allowed to workloads in `kube-system` namespace only. This PSP does not restrict any workloads
     from any required permissions.
 
+Many projects provide their own Pod Security Policies tailored to their needs which can be used
+when deploying if the policies provided by Lokomotive are too strict.
+
 ## Global network policy (for Packet platform only)
 
 Lokomotive installs Calico’s

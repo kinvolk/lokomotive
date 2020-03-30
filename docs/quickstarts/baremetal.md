@@ -235,6 +235,19 @@ export KUBECONFIG=./lokomotive-assets/cluster-assets/auth/kubeconfig
 kubectl get nodes
 ```
 
+## Using the cluster
+
+At this point you have access to the Kubernetes cluster and can use it!
+If you don't have Kubernetes experience you can check out the [Kubernetes
+Basics official
+documentation](https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/)
+to learn about its usage.
+
+**Note**: Lokomotive sets up a pretty restrictive Pod Security Policy that
+disallows running containers as root by default, check the [Pod Security Policy
+documentation](../concepts/securing-lokomotive-cluster.md#cluster-wide-pod-security-policy)
+for more details.
+
 ## Cleanup
 
 To destroy the Lokomotive cluster, execute the following command:
