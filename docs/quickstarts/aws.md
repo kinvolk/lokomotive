@@ -159,7 +159,7 @@ Success - cluster is healthy and nodes are ready!
 Use the generated `kubeconfig` file to access the Kubernetes cluster and list nodes.
 
 ```console
-export KUBECONFIG=./lokomotive-assets/auth/kubeconfig
+export KUBECONFIG=./lokomotive-assets/cluster-assets/auth/kubeconfig
 kubectl get nodes
 ```
 
