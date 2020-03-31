@@ -817,3 +817,42 @@ data:
       "version": 1
     }
 `
+
+const metallbPrometheusRule = `
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alertmanager-rules
+  namespace: metallb-system
+  labels:
+    release: prometheus-operator
+    app: prometheus-operator
+spec:
+  groups:
+  - name: metallb-rules
+    rules:
+    - alert: MetalLBNoBGPSession
+      expr: metallb_bgp_session_up != 1
+      for: 2m
+      annotations:
+        description: '{{ $labels.instance }}: MetalLB has not established a BGP session for more than 2 minutes.'
+        summary: '{{ $labels.instance }}: MetalLB has not established BGP session.'
+    - alert: MetalLBConfigStale
+      expr: metallb_k8s_client_config_stale_bool != 0
+      for: 2m
+      annotations:
+        description: '{{ $labels.instance }}: MetalLB instance has stale configuration.'
+        summary: '{{ $labels.instance }}: MetalLB stale configuration.'
+    - alert: MetalLBControllerPodsAvailability
+      expr: kube_deployment_status_replicas_unavailable{deployment="controller",namespace="metallb-system"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: MetalLB Controller pod was not available in the last minute.'
+        summary: '{{ $labels.instance }}: MetalLB Controller deployment pods.'
+    - alert: MetalLBSpeakerPodsAvailability
+      expr: kube_daemonset_status_number_unavailable{daemonset="speaker",namespace="metallb-system"} != 0
+      for: 1m
+      annotations:
+        description: '{{ $labels.instance }}: MetalLB Speaker pod(s) were not available in the last minute.'
+        summary: '{{ $labels.instance }}: MetalLB Speaker daemonset pods.'
+`

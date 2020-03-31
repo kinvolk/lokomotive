@@ -58,6 +58,10 @@ func TestPrometheus(t *testing.T) {
 			Name: "ComponentMetrics",
 			Func: testComponentsPrometheusMetrics,
 		},
+		{
+			Name: "ComponentAlerts",
+			Func: testComponentAlerts,
+		},
 	}
 
 	// Invoke the test functions passing them the test object and the prometheus client.
