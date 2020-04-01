@@ -75,7 +75,7 @@ func testComponentAlerts(t *testing.T, v1api v1.API) {
 	}
 }
 
-func getComponentAlertRetryFunc(t *testing.T, v1api v1.API, tc alertTestCase) func() (done bool, err error) {
+func getComponentAlertRetryFunc(t *testing.T, v1api v1.API, tc alertTestCase) wait.ConditionFunc {
 	return func() (done bool, err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
 		defer cancel()
