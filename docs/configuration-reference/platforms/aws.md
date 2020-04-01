@@ -85,6 +85,8 @@ cluster "aws" {
 
   dns_zone_id = route53_zone_id
 
+  expose_nodeports = false
+
   ssh_pubkeys = var.ssh_public_keys
 
   certs_validity_period_hours = 8760
@@ -178,6 +180,7 @@ worker_pool "my-worker-pool" {
 | `os_version`                  | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                       | "current"       | false    |
 | `dns_zone`                    | Route 53 DNS Zone.                                                                                                                                                                         | -               | true     |
 | `dns_zone_id`                 | Route 53 DNS Zone ID.                                                                                                                                                                      | -               | true     |
+| `expose_nodeports`            | Expose node ports `30000-32767` in the security group, if set to `true`.                                                                                                                   | false           | false    |
 | `ssh_pubkeys`                 | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...".               | -               | true     |
 | `controller_count`            | Number of controller nodes.                                                                                                                                                                | 1               | false    |
 | `controller_type`             | AWS instance type for controllers.                                                                                                                                                         | "t3.small"      | false    |
