@@ -13,7 +13,7 @@ cluster "packet" {
     }
   }
 
-  facility    = "$PACKET_LOCATION"
+  facility    = "ewr1"
 
   project_id = "$PACKET_PROJECT_ID"
 
@@ -23,7 +23,13 @@ cluster "packet" {
 
   worker_pool "pool-1" {
     count     = 2
-    node_type = "c2.medium.x86"
+    node_type = "n2.xlarge.x86"
+
+    os_arch = "amd64"
+    os_channel = "stable"
+    os_version = "2345.3.1"
+    ipxe_script_url = "https://stable.release.flatcar-linux.net/amd64-usr/2345.3.1/flatcar_production_packet.ipxe"
+
     labels = "testing.io=yes,roleofnode=testing"
   }
 }
