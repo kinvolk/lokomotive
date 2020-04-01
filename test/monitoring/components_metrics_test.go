@@ -61,10 +61,6 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			query:         "kubelet_running_pod_count",
 		},
 		{
-			componentName: "calico-felix",
-			query:         "felix_active_local_endpoints",
-		},
-		{
 			componentName: "metallb",
 			query:         "metallb_bgp_session_up",
 			platforms:     []testutil.Platform{testutil.PlatformPacket},
@@ -88,23 +84,55 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 				t.Skip()
 			}
 
+			t.Parallel()
+
 			t.Logf("querying %q", tc.query)
 
 			const contextTimeout = 10
 
-			ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
-			defer cancel()
+			var err error
 
-			results, warnings, err := v1api.Query(ctx, tc.query, time.Now())
+			// This loop ensures that we try to query prometheus for the state of targets multiple times.
+			// This is the retry logic.
+			for i := 0; i < 20; i++ {
+				t.Logf("Running scrape test iteration #%d", i)
+
+				// Use function to be able to use defer.
+				err = func() error {
+					ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
+					defer cancel()
+
+					results, warnings, err := v1api.Query(ctx, tc.query, time.Now())
+					if err != nil {
+						return fmt.Errorf("error querying Prometheus: %w", err)
+					}
+
+					if len(warnings) > 0 {
+						t.Logf("warnings: %v", warnings)
+					}
+
+					if len(results.String()) == 0 {
+						return fmt.Errorf("no metrics found")
+					}
+
+					t.Logf("found %d results for %s", len(strings.Split(results.String(), "\n")), tc.query)
+
+					return nil
+				}()
+
+				// If there is no errors, break the retry loop.
+				if err == nil {
+					break
+				}
+
+				// Wait a bit before next attempt.
+				time.Sleep(30 * time.Second) //nolint:gomnd
+			}
+
+			// If there are still some errors after all retries, fail the test.
 			if err != nil {
-				t.Errorf("error querying Prometheus: %v", err)
-				return
+				t.Fatal(err)
 			}
-
-			if len(warnings) > 0 {
-				t.Logf("warnings: %v", warnings)
-			}
-			t.Logf("found %d results for %s", len(strings.Split(results.String(), "\n")), tc.query)
 		})
 	}
 }
