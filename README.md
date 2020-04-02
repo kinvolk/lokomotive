@@ -10,7 +10,7 @@ not shipped with upstream Kubernetes.
 
 ## Features
 
-* Kubernetes 1.17 (upstream, via
+* Kubernetes 1.18 (upstream, via
   [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
 * Fully self-hosted, including the kubelet
 * Single or multi-master
