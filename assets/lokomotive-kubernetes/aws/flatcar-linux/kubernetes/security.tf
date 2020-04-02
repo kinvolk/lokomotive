@@ -335,3 +335,15 @@ resource "aws_security_group_rule" "worker-egress" {
   cidr_blocks      = ["0.0.0.0/0"]
   ipv6_cidr_blocks = ["::/0"]
 }
+
+resource "aws_security_group_rule" "worker-nodeport" {
+  count = var.expose_nodeports ? 1 : 0
+
+  security_group_id = aws_security_group.worker.id
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 30000
+  to_port   = 32767
+  self      = true
+}
