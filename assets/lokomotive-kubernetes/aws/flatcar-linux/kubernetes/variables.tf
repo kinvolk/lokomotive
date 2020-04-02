@@ -15,6 +15,12 @@ variable "dns_zone_id" {
   description = "AWS Route53 DNS Zone ID (e.g. Z3PAABBCFAKEC0)"
 }
 
+variable "expose_nodeports" {
+  type        = bool
+  default     = false
+  description = "Expose node ports 30000-32767 in the security group"
+}
+
 # instances
 
 variable "controller_count" {

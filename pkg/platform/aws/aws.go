@@ -56,6 +56,7 @@ type config struct {
 	OSVersion                string            `hcl:"os_version,optional"`
 	DNSZone                  string            `hcl:"dns_zone"`
 	DNSZoneID                string            `hcl:"dns_zone_id"`
+	ExposeNodePorts          bool              `hcl:"expose_nodeports,optional"`
 	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
 	CredsPath                string            `hcl:"creds_path,optional"`
 	ControllerCount          int               `hcl:"controller_count,optional"`
