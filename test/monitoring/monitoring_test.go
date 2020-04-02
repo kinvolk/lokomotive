@@ -62,6 +62,10 @@ func TestPrometheus(t *testing.T) {
 			Name: "ComponentAlerts",
 			Func: testComponentAlerts,
 		},
+		{
+			Name: "ScrapeTargetReachability",
+			Func: testScrapeTargetRechability,
+		},
 	}
 
 	// Invoke the test functions passing them the test object and the prometheus client.

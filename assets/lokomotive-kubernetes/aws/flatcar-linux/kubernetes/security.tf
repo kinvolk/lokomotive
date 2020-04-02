@@ -65,6 +65,17 @@ resource "aws_security_group_rule" "controller-node-exporter" {
   source_security_group_id = aws_security_group.worker.id
 }
 
+# Allow Prometheus to scrape kube-proxy.
+resource "aws_security_group_rule" "kube-proxy-metrics" {
+  security_group_id = aws_security_group.controller.id
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 10249
+  to_port                  = 10249
+  source_security_group_id = aws_security_group.worker.id
+}
+
 # Allow apiserver to access kubelets for exec, log, port-forward
 resource "aws_security_group_rule" "controller-kubelet" {
   security_group_id = aws_security_group.controller.id
@@ -208,6 +219,17 @@ resource "aws_security_group_rule" "worker-node-exporter" {
   protocol  = "tcp"
   from_port = 9100
   to_port   = 9100
+  self      = true
+}
+
+# Allow Prometheus to scrape kube-proxy.
+resource "aws_security_group_rule" "worker-kube-proxy" {
+  security_group_id = aws_security_group.worker.id
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 10249
+  to_port   = 10249
   self      = true
 }
 
