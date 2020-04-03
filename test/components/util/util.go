@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -208,6 +209,7 @@ type PortForwardInfo struct {
 	readyChan     chan struct{}
 	stopChan      chan struct{}
 	portForwarder *portforward.PortForwarder
+	errs          []string
 
 	// TODO: Add support providing service name and the API figures out the pod to forward the
 	// connection to. Port forwarding works with pods only.
@@ -239,7 +241,7 @@ func (p *PortForwardInfo) CloseChan() {
 //
 // p.PortForward(t)
 // defer p.CloseChan()
-// p.WaitUntilForwardingAvailable(t)
+// err = p.WaitUntilForwardingAvailable(t)
 //
 func (p *PortForwardInfo) PortForward(t *testing.T) {
 	config := buildKubeConfig(t)
@@ -280,13 +282,17 @@ func (p *PortForwardInfo) PortForward(t *testing.T) {
 		if len(errOut.String()) != 0 {
 			p.CloseChan()
 			t.Errorf(errOut.String())
+			p.errs = append(p.errs, errOut.String())
 		}
 	}()
 
 	go func() {
 		if err := forwarder.ForwardPorts(); err != nil { // Locks until stopChan is closed.
 			p.CloseChan()
-			t.Errorf("could not establish port forwarding: %v", err)
+
+			errStr := fmt.Sprintf("could not establish port forwarding: %v", err)
+			t.Errorf(errStr)
+			p.errs = append(p.errs, errStr)
 		}
 	}()
 }
@@ -310,16 +316,22 @@ func (p *PortForwardInfo) findLocalPort(t *testing.T) {
 
 // WaitUntilForwardingAvailable is a blocking call which waits until the port-forwarding is made
 // available.
-func (p *PortForwardInfo) WaitUntilForwardingAvailable(t *testing.T) {
-	const portForwardTimeout = 2
+func (p *PortForwardInfo) WaitUntilForwardingAvailable(t *testing.T) error {
+	const portForwardTimeout = 1
 
 	// Wait until port forwarding is available.
 	select {
 	case <-p.readyChan:
 	case <-time.After(portForwardTimeout * time.Minute):
-		t.Fatal("timed out waiting for port forwarding")
+		p.errs = append(p.errs, "timed out waiting for port forwarding")
 	}
 	p.findLocalPort(t)
+
+	if len(p.errs) == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("%s", strings.Join(p.errs, "\n"))
 }
 
 // Platform is a type tests will use to specify which platform they are supported on.

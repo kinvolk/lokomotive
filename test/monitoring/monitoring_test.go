@@ -38,7 +38,10 @@ func TestPrometheus(t *testing.T) {
 
 	p.PortForward(t)
 	defer p.CloseChan()
-	p.WaitUntilForwardingAvailable(t)
+
+	if err := p.WaitUntilForwardingAvailable(t); err != nil {
+		t.Fatalf("error creating port forward: %v", err)
+	}
 
 	promClient, err := api.NewClient(api.Config{
 		Address: fmt.Sprintf("http://127.0.0.1:%d", p.LocalPort),
