@@ -54,7 +54,9 @@ spec:
         - kube-controller-manager
         - --use-service-account-credentials
         - --allocate-node-cidrs=true
+        {{- if .Values.controllerManager.cloudProvider }}
         - --cloud-provider={{ .Values.controllerManager.cloudProvider }}
+        {{- end }}
         - --cluster-cidr={{ .Values.controllerManager.podCIDR }}
         - --service-cluster-ip-range={{ .Values.controllerManager.serviceCIDR }}
         - --cluster-signing-cert-file=/etc/kubernetes/secrets/ca.crt

@@ -83,7 +83,9 @@ spec:
           --authorization-mode=RBAC \
           --bind-address=$(cat /run/kube-apiserver/address) \
           --client-ca-file=/etc/kubernetes/secrets/ca.crt \
+          {{- if .Values.apiserver.cloudProvider }}
           --cloud-provider={{ .Values.apiserver.cloudProvider }} \
+          {{- end }}
           --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy \
           --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt \
           --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt \
@@ -115,7 +117,9 @@ spec:
         - --authorization-mode=RBAC
         - --bind-address=0.0.0.0
         - --client-ca-file=/etc/kubernetes/secrets/ca.crt
+        {{- if .Values.apiserver.cloudProvider }}
         - --cloud-provider={{ .Values.apiserver.cloudProvider }}
+        {{- end }}
         - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
         - --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt
         - --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt
