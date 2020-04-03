@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"testing"
 
-	testutil "github.com/kinvolk/lokomotive/test/components/util"
-
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 func TestPrometheus(t *testing.T) {
