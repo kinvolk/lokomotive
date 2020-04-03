@@ -365,12 +365,6 @@ func (ex *Executor) Status(id int) (ExecutionStatus, error) {
 	return ExecutionStatusSuccess, nil
 }
 
-// Ignore certain relative paths in the Terraform data dir. Paths must start at
-// the top dir
-var pathsToIgnore = map[string]struct{}{
-	logsFolderName: {},
-}
-
 // tfBinatyPath searches for a Terraform binary on disk:
 // - in the executing binary's folder,
 // - in the current working directory,
