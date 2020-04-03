@@ -37,6 +37,10 @@ func testScrapeTargetRechability(t *testing.T, v1api v1.API) {
 	); err != nil {
 		t.Errorf("%v", err)
 
+		if w == nil {
+			return
+		}
+
 		// Finally print the table of all the targets that are down.
 		if err := w.Flush(); err != nil {
 			t.Errorf("error printing the unreachable targets: %v", err)
