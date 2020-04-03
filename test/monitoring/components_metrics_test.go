@@ -25,6 +25,7 @@ import (
 	"time"
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -97,51 +98,39 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 
 			t.Logf("querying %q", tc.query)
 
-			const contextTimeout = 10
-
-			var err error
-
-			// This loop ensures that we try to query prometheus for the state of targets multiple times.
-			// This is the retry logic.
-			for i := 0; i < 20; i++ {
-				t.Logf("Running scrape test iteration #%d", i)
-
-				// Use function to be able to use defer.
-				err = func() error {
-					ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
-					defer cancel()
-
-					results, warnings, err := v1api.Query(ctx, tc.query, time.Now())
-					if err != nil {
-						return fmt.Errorf("error querying Prometheus: %w", err)
-					}
-
-					if len(warnings) > 0 {
-						t.Logf("warnings: %v", warnings)
-					}
-
-					if len(results.String()) == 0 {
-						return fmt.Errorf("no metrics found")
-					}
-
-					t.Logf("found %d results for %s", len(strings.Split(results.String(), "\n")), tc.query)
-
-					return nil
-				}()
-
-				// If there is no errors, break the retry loop.
-				if err == nil {
-					break
-				}
-
-				// Wait a bit before next attempt.
-				time.Sleep(30 * time.Second) //nolint:gomnd
-			}
-
-			// If there are still some errors after all retries, fail the test.
-			if err != nil {
-				t.Fatal(err)
+			if err := wait.PollImmediate(retryInterval, timeout, getMetricRetryFunc(t, v1api, tc.query)); err != nil {
+				t.Errorf("%v", err)
 			}
 		})
+	}
+}
+
+// getMetricRetryFunc returns a function which can be passed to wait.PollImmediate
+// checking if a given Prometheus query returns any result.
+func getMetricRetryFunc(t *testing.T, v1api v1.API, query string) wait.ConditionFunc {
+	return func() (done bool, err error) {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
+		defer cancel()
+
+		results, warnings, err := v1api.Query(ctx, query, time.Now())
+		if err != nil {
+			t.Logf("error querying Prometheus for metric %q: %v", query, err)
+
+			return false, nil
+		}
+
+		if len(warnings) > 0 {
+			t.Logf("warnings: %v", warnings)
+		}
+
+		if len(results.String()) == 0 {
+			t.Logf("no metrics found for query %q", query)
+
+			return false, nil
+		}
+
+		t.Logf("found %d results for %q", len(strings.Split(results.String(), "\n")), query)
+
+		return true, nil
 	}
 }
