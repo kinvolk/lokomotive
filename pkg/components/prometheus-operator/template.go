@@ -64,12 +64,12 @@ prometheusOperator:
   admissionWebhooks:
     enabled: false
   {{- end }}
-	{{- if .PrometheusOperatorNodeSelector }}
+  {{- if .PrometheusOperatorNodeSelector }}
   nodeSelector:
     {{ range $key, $value := .PrometheusOperatorNodeSelector }}
     {{ $key }}: {{ $value }}
     {{ end }}
-	{{- end }}
+  {{- end }}
 {{ end }}
 prometheus:
   prometheusSpec:
