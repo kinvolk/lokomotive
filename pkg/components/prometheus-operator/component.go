@@ -31,6 +31,20 @@ func init() {
 	components.Register(name, newComponent())
 }
 
+// Monitor holds information about which Kubernetes components should be monitored with the default Prometheus instance.
+type Monitor struct {
+	Etcd                  bool `hcl:"etcd,optional"`
+	KubeControllerManager bool `hcl:"kube_controller_manager,optional"`
+	KubeScheduler         bool `hcl:"kube_scheduler,optional"`
+	KubeProxy             bool `hcl:"kube_proxy,optional"`
+	Kubelet               bool `hcl:"kubelet,optional"`
+}
+
+// CoreDNS holds information about how CoreDNS should be scraped.
+type CoreDNS struct {
+	Selector map[string]string `hcl:"selector,optional"`
+}
+
 type component struct {
 	GrafanaAdminPassword string   `hcl:"grafana_admin_password,attr"`
 	Namespace            string   `hcl:"namespace,optional"`
@@ -50,6 +64,9 @@ type component struct {
 	AlertManagerNodeSelector map[string]string `hcl:"alertmanager_node_selector,optional"`
 
 	DisableWebhooks bool `hcl:"disable_webhooks,optional"`
+
+	Monitor *Monitor `hcl:"monitor,block"`
+	CoreDNS *CoreDNS `hcl:"coredns,block"`
 }
 
 func newComponent() *component {
@@ -79,6 +96,19 @@ func newComponent() *component {
 		Namespace:                   "monitoring",
 		WatchLabeledServiceMonitors: true,
 		WatchLabeledPrometheusRules: true,
+		Monitor: &Monitor{
+			Etcd:                  true,
+			KubeControllerManager: true,
+			KubeScheduler:         true,
+			KubeProxy:             true,
+			Kubelet:               true,
+		},
+		CoreDNS: &CoreDNS{
+			Selector: map[string]string{
+				"k8s-app": "coredns",
+				"tier":    "control-plane",
+			},
+		},
 	}
 }
 

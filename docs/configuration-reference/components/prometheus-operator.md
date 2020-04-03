@@ -98,6 +98,14 @@ Example:
 | `alertmanager_config` | Provide YAML file path to configure Alertmanager. See [https://prometheus.io/docs/alerting/configuration/#configuration-file](https://prometheus.io/docs/alerting/configuration/#configuration-file). | `{"global":{"resolve_timeout":"5m"},"route":{"group_by":["job"],"group_wait":"30s","group_interval":"5m","repeat_interval":"12h","receiver":"null","routes":[{"match":{"alertname":"Watchdog"},"receiver":"null"}]},"receivers":[{"name":"null"}]}` | false |
 | `alertmanager_node_selector` | Node selector to specify nodes where the AlertManager pods should be deployed. | {} | false |
 | `disable_webhooks` | Disables validation and mutation webhooks. This might be required on older versions of Kubernetes to install successfully. | false | false |
+| `monitor` | Block, which allows to disable scraping of individual Kubernetes components. | - | false |
+| `monitor.etcd` | Controls if the default Prometheus instance should scrape etcd metrics. | true | false |
+| `monitor.kube_controller_manager` | Controls if the default Prometheus instance should scrape kube-controller-manager metrics. | true | false |
+| `monitor.kube_scheduler` | Controls if the default Prometheus instance should scrape kube-scheduler metrics. | true | false |
+| `monitor.kube_proxy` | Controls if the default Prometheus instance should scrape kube-proxy metrics. | true | false |
+| `monitor.kubelet` | Controls if the default Prometheus instance should scrape kubelet metrics. | true | false |
+| `coredns` | Block, which allows to customize, how CoreDNS is scraped. | - | false |
+| `coredns.selector` | Defines, how CoreDNS pods should be selected for scraping. | {"k8s-app":"coredns","tier":"control-plane"} | false |
 
 ## Applying
 
