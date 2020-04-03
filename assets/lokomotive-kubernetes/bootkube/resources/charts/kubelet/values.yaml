@@ -1,3 +1,4 @@
 image: k8s.gcr.io/hyperkube:v1.18.0
 clusterDNS: 10.0.0.10
 clusterDomain: cluster.local
+cloudProvider: "external"
