@@ -82,6 +82,9 @@ spec:
         - name: ssl-host
           mountPath: /etc/ssl/certs
           readOnly: true
+        resources:
+          requests:
+            memory: "50Mi"
       volumes:
       - name: secrets
         secret:

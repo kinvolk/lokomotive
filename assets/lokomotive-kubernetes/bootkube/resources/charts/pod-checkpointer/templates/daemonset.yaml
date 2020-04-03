@@ -60,6 +60,9 @@ spec:
           mountPath: /etc/kubernetes
         - name: var-run
           mountPath: /var/run
+        resources:
+          requests:
+            memory: "5Mi"
       volumes:
       - name: kubeconfig
         configMap:
