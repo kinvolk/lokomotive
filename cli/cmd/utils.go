@@ -16,15 +16,17 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/hashicorp/hcl/v2"
-	"github.com/kinvolk/lokomotive/pkg/backend"
-	"github.com/kinvolk/lokomotive/pkg/config"
-	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
+
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
 // getConfiguredBackend loads a backend from the given configuration file.
