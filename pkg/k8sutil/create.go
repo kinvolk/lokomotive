@@ -23,18 +23,12 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
 // Adapted from https://github.com/kubernetes-incubator/bootkube/blob/83d32756c6b02c26cab1de3f03b57f06ae4339a7/pkg/bootkube/create.go
-
-const (
-	crdRolloutDuration = 1 * time.Second
-	crdRolloutTimeout  = 2 * time.Minute
-)
 
 type manifest struct {
 	kind       string
