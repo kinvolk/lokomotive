@@ -2,6 +2,7 @@ calico:
   networkMTU: ${network_mtu}
   image: ${calico_image}
   cniImage: ${calico_cni_image}
+  controllersImage: ${calico_controllers_image}
   enableReporting: ${enable_reporting}
   networkIpAutodetectionMethod: ${network_ip_autodetection_method}
   ipipEnabled: ${ipip_enabled}
