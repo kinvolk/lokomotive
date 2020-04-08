@@ -29,7 +29,7 @@ By the end of this guide, you'll have a production-ready Kubernetes cluster runn
   key](https://www.packet.com/developers/docs/API/getting-started/)).
 * AWS account and IAM credentials (optional for Route53 DNS configuration).
 * AWS Route53 DNS Zone (registered Domain Name or delegated subdomain).
-* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct)
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) v0.5.0
   installed locally.
 * Local BGP enabled. More information on how to enable Local BGP for the Packet Project is found in
   the [Packet support document](https://support.packet.com/kb/articles/bgp).
