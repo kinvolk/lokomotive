@@ -18,6 +18,10 @@ resource "packet_device" "nodes" {
   )
 
   tags = var.tags
+
+  # This way to handle dependencies was inspired in this:
+  # https://discuss.hashicorp.com/t/tips-howto-implement-module-depends-on-emulation/2305/2
+  depends_on = [var.nodes_depend_on]
 }
 
 data "ct_config" "install-ignitions" {

@@ -90,6 +90,14 @@ module "packet-{{.Config.ClusterName}}" {
   {{- if .Config.CertsValidityPeriodHours }}
   certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
   {{- end }}
+
+  {{- if .Config.NodesDependOn }}
+  nodes_depend_on = [
+    {{- range $dep := .Config.NodesDependOn }}
+    {{ $dep }},
+    {{- end }}
+  ]
+  {{- end }}
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
@@ -162,16 +170,25 @@ module "worker-{{ $pool.Name }}" {
   disable_bgp = true
   {{- end}}
 
-  {{- if $.Config.ReservationIDs }}
-    reservation_ids = {
-      {{- range $key, $value := $.Config.ReservationIDs }}
-      {{ $key }} = "{{ $value }}"
-      {{- end }}
-    }
+  {{- if $pool.ReservationIDs }}
+  reservation_ids = {
+    {{- range $key, $value := $pool.ReservationIDs }}
+    {{ $key }} = "{{ $value }}"
+    {{- end }}
+  }
   {{- end }}
-  {{- if $.Config.ReservationIDsDefault }}
-  reservation_ids_default = "{{$.Config.ReservationIDsDefault}}"
+  {{- if $pool.ReservationIDsDefault }}
+  reservation_ids_default = "{{$pool.ReservationIDsDefault}}"
   {{- end }}
+
+  {{- if $pool.NodesDependOn }}
+  nodes_depend_on = [
+    {{- range $dep := $pool.NodesDependOn }}
+    {{ $dep }},
+    {{- end }}
+  ]
+  {{- end }}
+
 }
 {{ end }}
 

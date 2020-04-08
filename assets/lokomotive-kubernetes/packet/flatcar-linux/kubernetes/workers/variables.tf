@@ -169,3 +169,9 @@ variable "tags" {
   type        = list(string)
   default     = ["ManagedBy:Lokomotive", "CreatedBy:Unspecified"]
 }
+
+variable "nodes_depend_on" {
+  description = "Make the worker nodes depend on the list of resources. Might change, must not be used by an end-user"
+  type        = list(any)
+  default     = null
+}
