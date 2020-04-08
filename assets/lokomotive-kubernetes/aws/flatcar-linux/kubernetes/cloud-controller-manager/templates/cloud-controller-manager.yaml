@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloud-controller-manager
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:cloud-controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: cloud-controller-manager
+  namespace: kube-system
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: cloud-controller-manager
+  name: cloud-controller-manager
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: cloud-controller-manager
+  template:
+    metadata:
+      labels:
+        k8s-app: cloud-controller-manager
+    spec:
+      serviceAccountName: cloud-controller-manager
+      containers:
+      - name: cloud-controller-manager
+        image: k8s.gcr.io/cloud-controller-manager:v1.8.0
+        command:
+        - /usr/local/bin/cloud-controller-manager
+        - --cloud-provider=aws
+        - --leader-elect=true
+        - --use-service-account-credentials
+        # Prevents breakdown of CCM spamming AWS
+        # for cloud routes
+        - --configure-cloud-routes=false
+        - --allocate-node-cidrs=true
+        - --cluster-cidr=172.17.0.0/16
+        - --allow-untagged-cloud
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ca-certs
+          readOnly: true
+        - mountPath: /usr/chare/ca-certificates/
+          name: ca-real-certs
+          readOnly: true
+      tolerations:
+      - key: node.cloudprovider.kubernetes.io/uninitialized
+        value: "true"
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      volumes:
+        - hostPath:
+            path: /usr/share/ca-certificates/
+            type: DirectoryOrCreate
+          name: ca-real-certs
+        - hostPath:
+            path: /usr/share/ca-certificates/
+            type: DirectoryOrCreate
+          name: ca-certs
+      nodeSelector:
+        node.kubernetes.io/master: ""
