@@ -162,15 +162,15 @@ module "worker-{{ $pool.Name }}" {
   disable_bgp = true
   {{- end}}
 
-  {{- if $.Config.ReservationIDs }}
+  {{- if $pool.ReservationIDs }}
     reservation_ids = {
-      {{- range $key, $value := $.Config.ReservationIDs }}
+      {{- range $key, $value := $pool.ReservationIDs }}
       {{ $key }} = "{{ $value }}"
       {{- end }}
     }
   {{- end }}
-  {{- if $.Config.ReservationIDsDefault }}
-  reservation_ids_default = "{{$.Config.ReservationIDsDefault}}"
+  {{- if $pool.ReservationIDsDefault }}
+  reservation_ids_default = "{{$pool.ReservationIDsDefault}}"
   {{- end }}
 }
 {{ end }}

@@ -20,6 +20,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
+	"strings"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
@@ -34,20 +36,22 @@ import (
 )
 
 type workerPool struct {
-	Name           string `hcl:"pool_name,label"`
-	Count          int    `hcl:"count"`
-	DisableBGP     bool   `hcl:"disable_bgp,optional"`
-	IPXEScriptURL  string `hcl:"ipxe_script_url,optional"`
-	OSArch         string `hcl:"os_arch,optional"`
-	OSChannel      string `hcl:"os_channel,optional"`
-	OSVersion      string `hcl:"os_version,optional"`
-	NodeType       string `hcl:"node_type,optional"`
-	Labels         string `hcl:"labels,optional"`
-	Taints         string `hcl:"taints,optional"`
-	SetupRaid      bool   `hcl:"setup_raid,optional"`
-	SetupRaidHDD   bool   `hcl:"setup_raid_hdd,optional"`
-	SetupRaidSSD   bool   `hcl:"setup_raid_ssd,optional"`
-	SetupRaidSSDFS bool   `hcl:"setup_raid_ssd_fs,optional"`
+	Name                  string            `hcl:"pool_name,label"`
+	Count                 int               `hcl:"count"`
+	DisableBGP            bool              `hcl:"disable_bgp,optional"`
+	IPXEScriptURL         string            `hcl:"ipxe_script_url,optional"`
+	OSArch                string            `hcl:"os_arch,optional"`
+	OSChannel             string            `hcl:"os_channel,optional"`
+	OSVersion             string            `hcl:"os_version,optional"`
+	NodeType              string            `hcl:"node_type,optional"`
+	Labels                string            `hcl:"labels,optional"`
+	Taints                string            `hcl:"taints,optional"`
+	ReservationIDs        map[string]string `hcl:"reservation_ids,optional"`
+	ReservationIDsDefault string            `hcl:"reservation_ids_default,optional"`
+	SetupRaid             bool              `hcl:"setup_raid,optional"`
+	SetupRaidHDD          bool              `hcl:"setup_raid_hdd,optional"`
+	SetupRaidSSD          bool              `hcl:"setup_raid_ssd,optional"`
+	SetupRaidSSDFS        bool              `hcl:"setup_raid_ssd_fs,optional"`
 }
 
 type config struct {
@@ -89,6 +93,7 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
+
 	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
 		return diags
 	}
@@ -209,7 +214,17 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 
 // terraformSmartApply applies cluster configuration.
 func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNSProvider) error {
-	// If the provider isn't manual, apply everything in a single step.
+	// Create first nodes (controllers or workers) with a reservation UUID
+	// This guarantees that nodes using hardware reservation
+	// "next-available" won't use reservation IDS that another worker pool
+	// may specify with a specific UUID, and thus fail to create the node.
+	// This race condition is best explained here, if you want more info:
+	// https://github.com/terraform-providers/terraform-provider-packet/issues/176
+	if err := c.terraformCreateReservations(ex); err != nil {
+		return err
+	}
+
+	// If the provider isn't manual, apply everything else in a single step.
 	if dnsProvider != dns.DNSManual {
 		return ex.Apply()
 	}
@@ -237,6 +252,34 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 	return ex.Apply()
 }
 
+// terraformCreateReservations creates nodes that use a specific hardware
+// reservation ID.
+func (c *config) terraformCreateReservations(ex *terraform.Executor) error {
+	targets := []string{}
+
+	// Create workers that use specific UUIDS as hardware reservation.
+	for _, w := range c.WorkerPools {
+		if len(w.ReservationIDs) > 0 {
+			targets = append(targets, fmt.Sprintf("-target=module.worker-%v.packet_device.nodes", w.Name))
+		}
+	}
+
+	// Create controllers that use specific UUIDS as hardware reservation.
+	if len(c.ReservationIDs) > 0 {
+		targets = append(targets, fmt.Sprintf("-target=module.packet-%v.packet_device.controllers", c.ClusterName))
+	}
+
+	// No "-target" arg was added, no nodes with hw reservations to create.
+	if len(targets) == 0 {
+		return nil
+	}
+
+	arguments := []string{"apply", "-auto-approve"}
+	arguments = append(arguments, targets...)
+
+	return ex.Execute(arguments...)
+}
+
 func (c *config) GetExpectedNodes() int {
 	workers := 0
 
@@ -253,6 +296,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+	diagnostics = append(diagnostics, c.checkReservationIDs()...)
 
 	return diagnostics
 }
@@ -288,8 +332,130 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Worker pools name should be unique",
-			Detail:   fmt.Sprintf("Worker pool %v is duplicated", w.Name),
+			Detail:   fmt.Sprintf("Worker pool %q is duplicated", w.Name),
 		})
+	}
+
+	return diagnostics
+}
+
+// checkReservationIDs checks that reservations configured for controllers and
+// workers are valid according to checkEachReservation().
+func (c *config) checkReservationIDs() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	d := checkEachReservation(c.ReservationIDs, c.ReservationIDsDefault, "controller", c.ClusterName)
+	diagnostics = append(diagnostics, d...)
+
+	for _, w := range c.WorkerPools {
+		d := checkEachReservation(w.ReservationIDs, w.ReservationIDsDefault, "worker", w.Name)
+		diagnostics = append(diagnostics, d...)
+	}
+
+	return diagnostics
+}
+
+// checkEachReservation checks that hardware reservations are in the correct
+// format and, when it will cause problems, that reservation IDs values in this
+// pool are not mixed between using "next-available" and specific UUIDs, as this
+// can't work reliably.
+// For more info, see comment when calling terraformCreateReservations().
+func checkEachReservation(reservationIDs map[string]string, resDefault, nodeRole, name string) hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	errorPrefix := "Worker pool"
+	if nodeRole == "controller" {
+		errorPrefix = "Cluster"
+	}
+
+	// The following (several) checks try to avoid this: having a worker
+	// pool that a node uses specific UUID as hardware reservation ID and
+	// another node in the same pool that uses "next-available".
+	// All different variations that in the end result in that are checked
+	// below, and the reason is simple: we can't guarantee for those cases
+	// that nodes can be created reliably. Creation granularity is per pool,
+	// so if one pool mixes both, we can't guarantee that another pool
+	// created later that needs specific UUIDs won't have them used by the
+	// instances using "next-available" in the previous worker pool created.
+	// This can be solved in two ways: adding more granularity, or forbidding
+	// those cases. We opt for the second option, for simplicity, given that
+	// in the rare case that the user needs to mix them, it can specify another
+	// identical worker pool with "next-available".
+
+	// Avoid cases that set (to non default values) reservation_ids and
+	// reservation_ids_default.
+	if len(reservationIDs) > 0 && resDefault != "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("%v can't set both: reservation_ids and reservation_ids_default", errorPrefix),
+			Detail:   fmt.Sprintf("%v: %q sets both, instead add an entry in reservations_ids for each node", errorPrefix, name),
+		})
+	}
+
+	// Check reservation_ids map doesn't use "next-available" as a value.
+	for _, v := range reservationIDs {
+		if v != "next-available" {
+			continue
+		}
+
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("%v reservations_ids entries can't use \"next-available\"", errorPrefix),
+			Detail:   fmt.Sprintf("%v: %q uses it, use specific UUIDs or reservations_ids_default only", errorPrefix, name),
+		})
+	}
+
+	// Check format is:
+	// controller-<int> or worker-<int>
+	// If not, terraform code will silently ignore it. We don't want that.
+	resPrefix := "worker-"
+	if nodeRole == "controller" {
+		resPrefix = "controller-"
+	}
+
+	d := checkResFormat(reservationIDs, name, errorPrefix, resPrefix)
+	diagnostics = append(diagnostics, d...)
+
+	return diagnostics
+}
+
+// checkResFormat checks that format for every key in reservationIDs is:
+// <resPrefix>-<int>.
+func checkResFormat(reservationIDs map[string]string, name, errorPrefix, resPrefix string) hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	for key := range reservationIDs {
+		hclErr := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Invalid reservation ID",
+			Detail: fmt.Sprintf("%v: %q used %q, format should be \"%v<int>\"",
+				errorPrefix, name, key, resPrefix),
+		}
+
+		// The expected format is: <resPrefix>-<int>.
+		// Let's check it is this way.
+
+		if !strings.HasPrefix(key, resPrefix) {
+			diagnostics = append(diagnostics, hclErr)
+			// Don't duplicate the same error, show it one per key.
+			continue
+		}
+
+		resEntry := strings.Split(key, "-")
+		if len(resEntry) != 2 { //nolint:gomnd
+			diagnostics = append(diagnostics, hclErr)
+			// Don't duplicate the same error, show it one per key.
+			continue
+		}
+
+		// Check a valid number is used after "controller-" or
+		// "worker-".
+		index := resEntry[1]
+		if _, err := strconv.Atoi(index); err != nil {
+			diagnostics = append(diagnostics, hclErr)
+			// Don't duplicate the same error, show it one per key.
+			continue
+		}
 	}
 
 	return diagnostics
