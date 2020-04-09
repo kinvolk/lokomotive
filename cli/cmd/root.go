@@ -32,7 +32,7 @@ import (
 
 var RootCmd = &cobra.Command{
 	Use:   "lokoctl",
-	Short: "Manage Lokomotive clusters.",
+	Short: "Manage Lokomotive clusters",
 }
 
 func Execute() {

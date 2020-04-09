@@ -1,10 +1,10 @@
 ## lokoctl version
 
-Show version
+Print version information
 
 ### Synopsis
 
-Show version
+Print version information
 
 ```
 lokoctl version [flags]
@@ -26,5 +26,5 @@ lokoctl version [flags]
 
 ### SEE ALSO
 
-* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters.
+* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
 

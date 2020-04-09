@@ -23,7 +23,7 @@ var confirm bool
 
 var clusterDestroyCmd = &cobra.Command{
 	Use:   "destroy",
-	Short: "Destroy Lokomotive cluster",
+	Short: "Destroy a cluster",
 	Run:   runClusterDestroy,
 }
 

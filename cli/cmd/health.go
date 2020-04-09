@@ -28,7 +28,7 @@ import (
 
 var healthCmd = &cobra.Command{
 	Use:               "health",
-	Short:             "Get the health of a Lokomotive cluster",
+	Short:             "Get the health of a cluster",
 	Run:               runHealth,
 	PersistentPreRunE: doesKubeconfigExist,
 }

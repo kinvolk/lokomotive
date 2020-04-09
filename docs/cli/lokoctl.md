@@ -1,10 +1,10 @@
 ## lokoctl
 
-Manage Lokomotive clusters.
+Manage Lokomotive clusters
 
 ### Synopsis
 
-Manage Lokomotive clusters.
+Manage Lokomotive clusters
 
 ### Options
 
@@ -17,8 +17,8 @@ Manage Lokomotive clusters.
 
 ### SEE ALSO
 
-* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a Lokomotive cluster
-* [lokoctl component](lokoctl_component.md)	 - Manage Lokomotive components
-* [lokoctl health](lokoctl_health.md)	 - Get the health of a Lokomotive cluster
-* [lokoctl version](lokoctl_version.md)	 - Show version
+* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a cluster
+* [lokoctl component](lokoctl_component.md)	 - Manage components
+* [lokoctl health](lokoctl_health.md)	 - Get the health of a cluster
+* [lokoctl version](lokoctl_version.md)	 - Print version information
 
