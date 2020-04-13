@@ -97,4 +97,9 @@ kubeScheduler:
       k8s-app: kube-scheduler
       tier: control-plane
 
+kube-state-metrics:
+  podSecurityPolicy:
+    annotations:
+      seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+      seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 `
