@@ -53,9 +53,6 @@ component for automatic management of DNS entries for Ingress resources.
 ### Node management
 
 Lokomotive provides the
-[calico-hostendpoint-controller](../configuration-reference/components/calico-hostendpoint-controller.md)
-component for adding and removing [Calico HostEndpoint
-objects](https://docs.projectcalico.org/v3.8/reference/resources/hostendpoint) automatically and the
 [cluster-autoscaler](../configuration-reference/components/cluster-autoscaler) component for adjusting
 the size of Lokomotive cluster.
 
@@ -77,7 +74,6 @@ Sample output:
 
 ```
 Available components:
-	 calico-hostendpoint-controller
 	 cert-manager
 	 cluster-autoscaler
 	 contour
