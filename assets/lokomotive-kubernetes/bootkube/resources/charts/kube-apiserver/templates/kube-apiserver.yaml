@@ -14,6 +14,15 @@
 6443
 {{- end -}}
 {{ end }}
+# Value of "token" is composed by injecting all values into kube-apiserver-secret.yaml template and
+# then calculating sha256 sum of it, so it will be different for each cluster and additionally will be
+# changed every time certificate or secret template changes.
+{{- define "token" -}}
+{{ include (print $.Template.BasePath "/kube-apiserver-secret.yaml") . | sha256sum }}
+{{- end -}}
+{{- define "authHeader" }}
+Bearer {{ template "token" . }}
+{{- end }}
 apiVersion: apps/v1
 # If there is just one controller node, we want to use Deployment to be able to run 2 kube-apiserver
 # pods on a single node at a time, to provide graceful upgrades.
@@ -98,6 +107,7 @@ spec:
           --service-cluster-ip-range={{ .Values.apiserver.serviceCIDR }} \
           --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt \
           --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key \
+          --token-auth-file=/run/kube-apiserver/token-auth-file \
           {{ if .Values.apiserver.enableAggregation -}}
           --proxy-client-cert-file=/etc/kubernetes/secrets/aggregation-client.crt \
           --proxy-client-key-file=/etc/kubernetes/secrets/aggregation-client.key \
@@ -131,6 +141,7 @@ spec:
         - --storage-backend=etcd3
         - --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt
         - --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key
+        - --token-auth-file=/run/kube-apiserver/token-auth-file
         {{- if .Values.apiserver.enableAggregation }}
         - --proxy-client-cert-file=/etc/kubernetes/secrets/aggregation-client.crt
         - --proxy-client-key-file=/etc/kubernetes/secrets/aggregation-client.key
@@ -139,15 +150,20 @@ spec:
         - --requestheader-group-headers=X-Remote-Group
         - --requestheader-username-headers=X-Remote-User
         {{- end }}
-        readinessProbe:
-          tcpSocket:
-            port: 6443
         {{- end }}
         env:
         - name: POD_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+        readinessProbe:
+          httpGet:
+            httpHeaders:
+            - name: Authorization
+              value: "{{ include "authHeader" . }}"
+            path: /healthz
+            port: 6443
+            scheme: HTTPS
         volumeMounts:
         - name: secrets
           mountPath: /etc/kubernetes/secrets
@@ -187,8 +203,13 @@ spec:
         # for apiserver to start), after that it will mean just that HAProxy is up. But this is needed for helm
         # to perform atomic upgrades, helm can't do atomic upgrades for components without readinessProbe.
         readinessProbe:
-          tcpSocket:
+          httpGet:
+            httpHeaders:
+            - name: Authorization
+              value: "{{ include "authHeader" . }}"
+            path: /healthz
             port: {{ template "port" . }}
+            scheme: HTTPS
       initContainers:
       - name: config-generator
         image: haproxy:2.1.3-alpine
@@ -224,6 +245,9 @@ spec:
             server 1 $ADDRESS:{{ template "port" . }}
           EOF
           cat /run/kube-apiserver/haproxy.cfg
+          # "nobody" is just an arbitrary user, which has no RBAC roles assigned, so it only has
+          # access to /healthz endpoint.
+          echo "{{ template "token" . }},nobody,nobody" > /run/kube-apiserver/token-auth-file
         volumeMounts:
         - name: data
           mountPath: /run/kube-apiserver
