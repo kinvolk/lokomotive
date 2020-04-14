@@ -138,6 +138,17 @@ func (ex *Executor) Apply() error {
 	return ex.Execute("apply", "-auto-approve")
 }
 
+// ApplyArgs is a wrapper function that runs
+// `terraform apply -auto-approve args...`.
+func (ex *Executor) ApplyArgs(args ...string) error {
+	ex.logger.Println("Applying part of the Terraform configuration. It might take a long time...")
+
+	arguments := []string{"apply", "-auto-approve"}
+	arguments = append(arguments, args...)
+
+	return ex.Execute(arguments...)
+}
+
 // Destroy() is a wrapper function that runs
 // `terraform destroy -auto-approve`.
 func (ex *Executor) Destroy() error {

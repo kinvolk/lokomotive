@@ -229,7 +229,7 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 		return ex.Apply()
 	}
 
-	arguments := []string{"apply", "-auto-approve"}
+	arguments := make([]string, 0)
 
 	// Get DNS entries (it forces the creation of the controller nodes).
 	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
@@ -240,7 +240,7 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 	}
 
 	// Create controller and workers nodes.
-	if err := ex.Execute(arguments...); err != nil {
+	if err := ex.ApplyArgs(arguments...); err != nil {
 		return errors.Wrap(err, "failed executing Terraform")
 	}
 
@@ -274,10 +274,7 @@ func (c *config) terraformCreateReservations(ex *terraform.Executor) error {
 		return nil
 	}
 
-	arguments := []string{"apply", "-auto-approve"}
-	arguments = append(arguments, targets...)
-
-	return ex.Execute(arguments...)
+	return ex.ApplyArgs(targets...)
 }
 
 func (c *config) GetExpectedNodes() int {
