@@ -4,7 +4,7 @@ terraform {
   required_version = ">= 0.12.0"
 
   required_providers {
-    ct       = "= 0.4.0"
+    ct       = "= 0.5.0"
     local    = "~> 1.2"
     null     = "~> 2.1"
     template = "~> 2.1"

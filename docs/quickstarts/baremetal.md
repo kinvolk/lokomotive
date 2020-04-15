@@ -27,7 +27,7 @@ worker nodes.
 
 * Basic understanding of Kubernetes concepts.
 * Terraform v0.12.x, [terraform-provider-matchbox](https://github.com/poseidon/terraform-provider-matchbox)
-and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) installed locally.
+and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) v0.5.0 installed locally.
 * Machines with at least 2GB RAM, 30GB disk, PXE-enabled NIC and IPMI.
 * PXE-enabled [network boot](https://coreos.com/matchbox/docs/latest/network-setup.html) environment.
 * Matchbox v0.6+ deployment with API enabled.

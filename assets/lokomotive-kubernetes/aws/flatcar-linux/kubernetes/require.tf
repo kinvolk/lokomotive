@@ -5,7 +5,7 @@ terraform {
 
   required_providers {
     aws      = "2.48.0"
-    ct       = "0.4.0"
+    ct       = "0.5.0"
     local    = "~> 1.2"
     null     = "~> 2.1"
     template = "~> 2.1"
