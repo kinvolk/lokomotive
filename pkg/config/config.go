@@ -34,30 +34,55 @@ type variable struct {
 	Default hcl.Attributes `hcl:",remain"`
 }
 
-type cluster struct {
-	Name   string   `hcl:"name,label"`
-	Config hcl.Body `hcl:",remain"`
+type hclPlatform struct {
+  Name   string   `hcl:"name,label"`
+  Config hcl.Body `hcl:",remain"`
 }
 
-type component struct {
-	Name   string   `hcl:"name,label"`
-	Config hcl.Body `hcl:",remain"`
+type hclComponent struct {
+  Name   string   `hcl:"name,label"`
+  Config hcl.Body `hcl:",remain"`
 }
 
-type backend struct {
-	Name   string   `hcl:"name,label"`
-	Config hcl.Body `hcl:",remain"`
+type hclBackend struct {
+  Name   string   `hcl:"name,label"`
+  Config hcl.Body `hcl:",remain"`
 }
 
-type ClusterConfig struct {
-	Cluster    *cluster    `hcl:"cluster,block"`
-	Backend    *backend    `hcl:"backend,block"`
-	Components []component `hcl:"component,block"`
-	Variables  []variable  `hcl:"variable,block"`
+type hclCluster struct {
+  Config hcl.Body `hcl:",remain"`
+}
+
+type hclMetadata struct {
+  Config hcl.Body `hcl:",remain"`
+}
+
+type hclController struct {
+  Config hcl.Body `hcl:",remain"`
+}
+
+type hclFlatcar struct {
+  Config hcl.Body `hcl:",remain"`
+}
+
+type hclNetwork struct {
+  Config hcl.Body `hcl:",remain"`
+}
+
+type HCLClusterConfig struct {
+  Platform   *hclPlatform   `hcl:"platform,block"`
+  Backend    *hclBackend    `hcl:"backend,block"`
+  Cluster    *hclCluster    `hcl:"cluster,block"`
+  Metadata   *hclMetadata   `hcl:"metadata,block"`
+  Network    *hclNetwork    `hcl:"network,block"`
+  Controller *hclController `hcl:"controller,block"`
+  Flatcar    *hclFlatcar    `hcl:"flatcar,block"`
+  Components []hclComponent `hcl:"component,block"`
+  Variables  []variable     `hcl:"variable,block"`
 }
 
 type Config struct {
-	ClusterConfig *ClusterConfig
+	ClusterConfig *HCLClusterConfig
 	EvalContext   *hcl.EvalContext
 }
 
@@ -80,7 +105,7 @@ func loadLokocfgPaths(configPath string) ([]string, error) {
 	return lokocfgPaths, nil
 }
 
-func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) {
+func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCLConfig, hcl.Diagnostics) {
 	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
