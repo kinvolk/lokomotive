@@ -1,5 +1,3 @@
-// Copyright 2020 The Lokomotive Authors
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -35,78 +33,87 @@ type variable struct {
 }
 
 type hclPlatform struct {
-  Name   string   `hcl:"name,label"`
-  Config hcl.Body `hcl:",remain"`
+	Name   string   `hcl:"name,label"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclComponent struct {
-  Name   string   `hcl:"name,label"`
-  Config hcl.Body `hcl:",remain"`
+	Name   string   `hcl:"name,label"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclBackend struct {
-  Name   string   `hcl:"name,label"`
-  Config hcl.Body `hcl:",remain"`
+	Name   string   `hcl:"name,label"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclCluster struct {
-  Config hcl.Body `hcl:",remain"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclMetadata struct {
-  Config hcl.Body `hcl:",remain"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclController struct {
-  Config hcl.Body `hcl:",remain"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclFlatcar struct {
-  Config hcl.Body `hcl:",remain"`
+	Config hcl.Body `hcl:",remain"`
 }
 
 type hclNetwork struct {
-  Config hcl.Body `hcl:",remain"`
+	Config hcl.Body `hcl:",remain"`
 }
 
-type HCLClusterConfig struct {
-  Platform   *hclPlatform   `hcl:"platform,block"`
-  Backend    *hclBackend    `hcl:"backend,block"`
-  Cluster    *hclCluster    `hcl:"cluster,block"`
-  Metadata   *hclMetadata   `hcl:"metadata,block"`
-  Network    *hclNetwork    `hcl:"network,block"`
-  Controller *hclController `hcl:"controller,block"`
-  Flatcar    *hclFlatcar    `hcl:"flatcar,block"`
-  Components []hclComponent `hcl:"component,block"`
-  Variables  []variable     `hcl:"variable,block"`
+type hclConfig struct {
+	Platform   *hclPlatform   `hcl:"platform,block"`
+	Backend    *hclBackend    `hcl:"backend,block"`
+	Cluster    *hclCluster    `hcl:"cluster,block"`
+	Metadata   *hclMetadata   `hcl:"metadata,block"`
+	Network    *hclNetwork    `hcl:"network,block"`
+	Controller *hclController `hcl:"controller,block"`
+	Flatcar    *hclFlatcar    `hcl:"flatcar,block"`
+	Components []hclComponent `hcl:"component,block"`
+	Variables  []variable     `hcl:"variable,block"`
 }
 
-type Config struct {
-	ClusterConfig *HCLClusterConfig
-	EvalContext   *hcl.EvalContext
+// HCLConfig manages the HCL configuration.
+type HCLConfig struct {
+	Config      *hclConfig
+	EvalContext *hcl.EvalContext
 }
 
-func loadLokocfgPaths(configPath string) ([]string, error) {
-	isDir, err := util.PathIsDir(configPath)
+func loadLokocfgPaths(path, extension string) ([]string, error) {
+	var paths []string
+
+	isDir, err := util.PathIsDir(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to stat config path %q: %w", configPath, err)
+		return nil, fmt.Errorf("failed to stat file path %q: %w", path, err)
 	}
-	var lokocfgPaths []string
+
 	if isDir {
-		globPattern := filepath.Join(configPath, "*.lokocfg")
-		configFiles, err := filepath.Glob(globPattern)
+		globPattern := filepath.Join(path, fmt.Sprintf("*.%s", extension))
+
+		hclFiles, err := filepath.Glob(globPattern)
 		if err != nil {
 			return nil, fmt.Errorf("bad filepath glob pattern %q: %w", globPattern, err)
 		}
-		lokocfgPaths = append(lokocfgPaths, configFiles...)
+
+		paths = append(paths, hclFiles...)
 	} else {
-		lokocfgPaths = append(lokocfgPaths, configPath)
+		paths = append(paths, path)
 	}
-	return lokocfgPaths, nil
+
+	return paths, nil
 }
 
-func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCLConfig, hcl.Diagnostics) {
-	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
+// loadHCLFiles loads all the hcl files present in the path provided into a
+// map of file name and content in byte array
+func loadHCLFiles(path, extension string) (map[string][]byte, hcl.Diagnostics) {
+	files := make(map[string][]byte)
+	lokocfgPaths, err := loadLokocfgPaths(path, extension)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
@@ -116,45 +123,89 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCLConfig, hcl.Diagnostic
 		}
 	}
 
+	if len(lokocfgPaths) == 0 {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "could not find any `.lokocfg` files in the provided path",
+			},
+		}
+	}
+
+	for _, path := range lokocfgPaths {
+		data, err := loadHCLFile(path)
+		if err != nil {
+			return nil, hcl.Diagnostics{
+				&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  err.Error(),
+				},
+			}
+		}
+
+		files[path] = data
+	}
+
+	return files, nil
+}
+
+func loadHCLFile(path string) ([]byte, error) {
+	data, err := ioutil.ReadFile(filepath.Clean(path))
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// ParseHCLFiles parses the HCL files into an instance of Config.
+//nolint:funlen
+func ParseHCLFiles(lokocfgFiles, variablesFile map[string][]byte) (*HCLConfig, hcl.Diagnostics) {
+	hclFiles := []*hcl.File{}
+	varsFiles := []*hcl.File{}
+
 	hclParser := hclparse.NewParser()
 
-	var hclFiles []*hcl.File
-	for _, f := range lokocfgPaths {
-		hclFile, diags := hclParser.ParseHCLFile(f)
-		if len(diags) > 0 {
+	for path, content := range lokocfgFiles {
+		file, diags := hclParser.ParseHCL(content, path)
+		if diags.HasErrors() {
 			return nil, diags
 		}
-		hclFiles = append(hclFiles, hclFile)
+
+		hclFiles = append(hclFiles, file)
+	}
+
+	for path, content := range variablesFile {
+		file, diags := hclParser.ParseHCL(content, path)
+		if diags.HasErrors() {
+			return nil, diags
+		}
+
+		varsFiles = append(varsFiles, file)
 	}
 
 	configBody := hcl.MergeFiles(hclFiles)
 
-	exists, err := util.PathExists(lokocfgVarsPath)
-	if err != nil {
-		return nil, hcl.Diagnostics{
-			&hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  fmt.Sprintf("could not stat %q: %v", lokocfgVarsPath, err),
-			},
-		}
-	}
 	var userVals map[string]cty.Value
 	var diags hcl.Diagnostics
-	if exists {
-		userVals, diags = LoadValuesFile(lokocfgVarsPath)
+
+	if len(variablesFile) > 0 {
+		userVals, diags = LoadValues(varsFiles)
 		if len(diags) > 0 {
 			return nil, diags
 		}
 	}
 
-	var clusterConfig ClusterConfig
-	diags = gohcl.DecodeBody(configBody, nil, &clusterConfig)
+	var cfg hclConfig
+
+	diags = gohcl.DecodeBody(configBody, nil, &cfg)
 	if len(diags) > 0 {
 		return nil, diags
 	}
 
 	variables := map[string]cty.Value{}
-	for _, v := range clusterConfig.Variables {
+
+	for _, v := range cfg.Variables {
 		if userVal, ok := userVals[v.Name]; ok {
 			variables[v.Name] = userVal
 			continue
@@ -183,9 +234,9 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCLConfig, hcl.Diagnostic
 		},
 	}
 
-	return &Config{
-		ClusterConfig: &clusterConfig,
-		EvalContext:   &evalContext,
+	return &HCLConfig{
+		Config:      &cfg,
+		EvalContext: &evalContext,
 	}, nil
 }
 
@@ -222,8 +273,8 @@ func evalFuncFile() function.Function {
 
 // LoadComponentConfigBody returns nil if no component with the given
 // name is found in the configuration
-func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
-	for _, component := range c.ClusterConfig.Components {
+func (c *HCLConfig) LoadComponentConfigBody(componentName string) *hcl.Body {
+	for _, component := range c.Config.Components {
 		if componentName == component.Name {
 			return &component.Config
 		}
