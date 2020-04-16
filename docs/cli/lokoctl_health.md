@@ -1,10 +1,10 @@
 ## lokoctl health
 
-Get the health of a cluster
+Get the health of a Lokomotive cluster
 
 ### Synopsis
 
-Get the health of a cluster
+Get the health of a Lokomotive cluster
 
 ```
 lokoctl health [flags]
