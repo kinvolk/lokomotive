@@ -68,18 +68,10 @@ func TestUserInputValues(t *testing.T) {
 }
 
 func testRenderManifest(t *testing.T, configHCL string) {
-	component := newComponent()
-
-	body, diagnostics := util.GetComponentBody(configHCL, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-
-	diagnostics = component.LoadConfig(body, &hcl.EvalContext{})
+	component, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
 	if diagnostics.HasErrors() {
 		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
 	}
-
 	m, err := component.RenderManifests()
 	if err != nil {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)

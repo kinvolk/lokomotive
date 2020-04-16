@@ -17,7 +17,6 @@ package externaldns
 import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"os"
 	"testing"
 )
 
@@ -32,14 +31,10 @@ func TestEmptyConfig(t *testing.T) {
 }
 
 func TestEmptyBody(t *testing.T) {
-	c := newComponent()
-	config := `component "external-dns" {}`
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); !diagnostics.HasErrors() {
-		t.Fatal("Empty config should return errors as AWS block is required.")
+	configHCL := `component "external-dns" {}`
+	_, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if !diagnostics.HasErrors() {
+		t.Fatal("Empty config should return errors as there are required fields.")
 	}
 }
 func TestDefaultValues(t *testing.T) {
@@ -61,112 +56,8 @@ func TestDefaultValues(t *testing.T) {
 	}
 }
 
-func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
-	c := newComponent()
-	config := `
- component "external-dns" {
-   sources = ["service"]
-   metrics =  false
-   policy = "upsert-only"
-   owner_id = "test-owner"
-   aws {
-     zone_id = "TESTZONEID"
-     zone_type = "public"
-   }
- }
- `
-	// Unset AWS environment variables
-	os.Unsetenv("AWS_ACCESS_KEY_ID")
-	os.Unsetenv("AWS_SECRET_ACCESS_KEY")
-
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
-	}
-	if _, err := c.RenderManifests(); err == nil {
-		t.Fatalf("Rendering manifests should produce error as AWS credentials were not passed")
-	}
-}
-
-func TestAwsConfigBySettingEnvVariables(t *testing.T) {
-	c := newComponent()
-	config := `
-  component "external-dns" {
-    sources = ["service"]
-    metrics =  false
-    policy = "upsert-only"
-    owner_id = "test-owner"
-    aws {
-      zone_id = "TESTZONEID"
-      zone_type = "public"
-    }
-  }
-  `
-	// Set env variables.
-	if err := os.Setenv("AWS_ACCESS_KEY_ID", "TESTACCESSKEY"); err != nil {
-		t.Fatalf("Error setting env variable: %s", err)
-	}
-	if err := os.Setenv("AWS_SECRET_ACCESS_KEY", "TESTSECRETACCESSKEY"); err != nil {
-		t.Fatalf("Error setting env variable: %s", err)
-	}
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
-	}
-	m, err := c.RenderManifests()
-	if err != nil {
-		t.Fatalf("Rendering manifests should not produce error as env variables were set, got: %s", err)
-	}
-	if len(m) <= 0 {
-		t.Fatalf("Rendered manifests shouldn't be empty")
-	}
-}
-
-func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
-	c := newComponent()
-	config := `
-  component "external-dns" {
-    sources = ["service"]
-    metrics =  false
-    policy = "upsert-only"
-    owner_id = "test-owner"
-    aws {
-      zone_id = "TESTZONEID"
-      zone_type = "public"
-    }
-  }
-  `
-	// Set env variables.
-	err := os.Setenv("AWS_ACCESS_KEY_ID", "")
-	if err != nil {
-		t.Fatalf("Error setting env variable: %s", err)
-	}
-	err = os.Setenv("AWS_SECRET_ACCESS_KEY", "")
-	if err != nil {
-		t.Fatalf("Error setting env variable: %s", err)
-	}
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
-	}
-	_, err = c.RenderManifests()
-	if err == nil {
-		t.Fatalf("Rendering manifests should produce error as AWS credentials were passed empty")
-	}
-}
-
 func TestAwsConfigBySettingConfigFields(t *testing.T) {
-	c := newComponent()
-	config := `
+	configHCL := `
   component "external-dns" {
     sources = ["service"]
     metrics =  false
@@ -180,14 +71,11 @@ func TestAwsConfigBySettingConfigFields(t *testing.T) {
     }
   }
   `
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); diagnostics.HasErrors() {
+	component, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if diagnostics.HasErrors() {
 		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
 	}
-	m, err := c.RenderManifests()
+	m, err := component.RenderManifests()
 	if err != nil {
 		t.Fatalf("Rendering manifests should not produce error as config fields were set, got: %s", err)
 	}
