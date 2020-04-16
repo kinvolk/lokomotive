@@ -15,15 +15,8 @@
 package cmd
 
 import (
-	"fmt"
-
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	"github.com/kinvolk/lokomotive/pkg/install"
-	"github.com/kinvolk/lokomotive/pkg/k8sutil"
-	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
 
 var (
@@ -57,83 +50,9 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
-
-	exists := clusterExists(ctxLogger, ex)
-	if exists && !confirm {
-		// TODO: We could plan to a file and use it when installing.
-		if err := ex.Plan(); err != nil {
-			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
-		}
-
-		if !askForConfirmation("Do you want to proceed with cluster apply?") {
-			ctxLogger.Println("Cluster apply cancelled")
-
-			return
-		}
+	l, options := initialize(ctxLogger)
+	// Apply the user configuration to create Lokomotive cluster
+	if err := l.Apply(options); err != nil {
+		ctxLogger.Fatalf("Error creating cluster: %q", err)
 	}
-
-	if err := p.Apply(ex); err != nil {
-		ctxLogger.Fatalf("error applying cluster: %v", err)
-	}
-
-	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
-
-	kubeconfigPath := assetsKubeconfig(assetDir)
-	if err := verifyCluster(kubeconfigPath, p.GetExpectedNodes()); err != nil {
-		ctxLogger.Fatalf("Verify cluster: %v", err)
-	}
-
-	// Do controlplane upgrades only if cluster already exists.
-	if exists {
-		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
-
-		cu := controlplaneUpdater{
-			kubeconfigPath: kubeconfigPath,
-			assetDir:       assetDir,
-			ctxLogger:      *ctxLogger,
-			ex:             *ex,
-		}
-
-		releases := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"}
-
-		if upgradeKubelets {
-			releases = append(releases, "kubelet")
-		}
-
-		for _, c := range releases {
-			cu.upgradeComponent(c)
-		}
-	}
-
-	if skipComponents {
-		return
-	}
-
-	componentsToApply := []string{}
-	for _, component := range lokoConfig.ClusterConfig.Components {
-		componentsToApply = append(componentsToApply, component.Name)
-	}
-
-	ctxLogger.Println("Applying component configuration")
-
-	if len(componentsToApply) > 0 {
-		if err := applyComponents(lokoConfig, kubeconfigPath, componentsToApply...); err != nil {
-			ctxLogger.Fatalf("Applying component configuration failed: %v", err)
-		}
-	}
-}
-
-func verifyCluster(kubeconfigPath string, expectedNodes int) error {
-	client, err := k8sutil.NewClientset(kubeconfigPath)
-	if err != nil {
-		return errors.Wrapf(err, "failed to set up clientset")
-	}
-
-	cluster, err := lokomotive.NewCluster(client, expectedNodes)
-	if err != nil {
-		return errors.Wrapf(err, "failed to set up cluster client")
-	}
-
-	return install.Verify(cluster)
 }
