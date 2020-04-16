@@ -15,7 +15,7 @@
 package baremetal
 
 var terraformConfigTmpl = `
-module "bare-metal-{{.ClusterName}}" {
+module "bare-metal-{{.Config.Metadata.ClusterName}}" {
   source = "../lokomotive-kubernetes/bare-metal/flatcar-linux/kubernetes"
 
   providers = {
@@ -26,32 +26,32 @@ module "bare-metal-{{.ClusterName}}" {
   }
 
   # bare-metal
-  cluster_name           = "{{.ClusterName}}"
-  matchbox_http_endpoint = "{{.MatchboxHTTPEndpoint}}"
-  os_channel             = "{{.OSChannel}}"
-  os_version             = "{{.OSVersion}}"
+  cluster_name           = "{{.Config.Metadata.ClusterName}}"
+  matchbox_http_endpoint = "{{.Config.Matchbox.HTTPEndpoint}}"
+  os_channel             = "{{.Config.Flatcar.OSChannel}}"
+  os_version             = "{{.Config.Flatcar.OSVersion}}"
 
   # configuration
-  cached_install     = "{{.CachedInstall}}"
-  k8s_domain_name    = "{{.K8sDomainName}}"
-  ssh_keys           = {{.SSHPublicKeys}}
+  cached_install     = "{{.Config.CachedInstall}}"
+  k8s_domain_name    = "{{.Config.K8sDomainName}}"
+  ssh_keys           = {{.SSHPubKeys}}
   asset_dir          = "../cluster-assets"
 
   # machines
   controller_names   = {{.ControllerNames}}
-  controller_macs    = {{.ControllerMacs}}
+  controller_macs    = {{.ControllerMACs}}
   controller_domains = {{.ControllerDomains}}
   worker_names       = {{.WorkerNames}}
-  worker_macs        = {{.WorkerMacs}}
+  worker_macs        = {{.WorkerMACs}}
   worker_domains     = {{.WorkerDomains}}
 }
 
 provider "matchbox" {
   version     = "~> 0.3"
-  endpoint    = "{{.MatchboxEndpoint}}"
-  client_cert = file("{{.MatchboxClientCert}}")
-  client_key  = file("{{.MatchboxClientKey}}")
-  ca          = file("{{.MatchboxCA}}")
+  endpoint    = "{{.Config.Matchbox.Endpoint}}"
+  client_cert = file("{{.Config.Matchbox.ClientCertPath}}")
+  client_key  = file("{{.Config.Matchbox.ClientKeyPath}}")
+  ca          = file("{{.Config.Matchbox.CAPath}}")
 }
 
 provider "ct" {
@@ -87,25 +87,25 @@ output "initialized" {
 
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
-  value = module.bare-metal-{{.ClusterName}}.pod-checkpointer_values
+  value = module.bare-metal-{{.Config.Metadata.ClusterName}}.pod-checkpointer_values
 }
 
 output "kube-apiserver_values" {
-  value     = module.bare-metal-{{.ClusterName}}.kube-apiserver_values
+  value     = module.bare-metal-{{.Config.Metadata.ClusterName}}.kube-apiserver_values
   sensitive = true
 }
 
 output "kubernetes_values" {
-  value     = module.bare-metal-{{.ClusterName}}.kubernetes_values
+  value     = module.bare-metal-{{.Config.Metadata.ClusterName}}.kubernetes_values
   sensitive = true
 }
 
 output "kubelet_values" {
-  value     = module.bare-metal-{{.ClusterName}}.kubelet_values
+  value     = module.bare-metal-{{.Config.Metadata.ClusterName}}.kubelet_values
   sensitive = true
 }
 
 output "calico_values" {
-  value = module.bare-metal-{{.ClusterName}}.calico_values
+  value = module.bare-metal-{{.Config.Metadata.ClusterName}}.calico_values
 }
 `
