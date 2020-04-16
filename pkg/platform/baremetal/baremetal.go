@@ -16,186 +16,141 @@ package baremetal
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
-
-	"github.com/kinvolk/lokomotive/pkg/platform"
+	configpkg "github.com/kinvolk/lokomotive/pkg/cluster/config"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/util"
+	"github.com/pkg/errors"
 )
 
+type controller struct {
+	Domains []string `hcl:"controller_domains"`
+	MACs    []string `hcl:"controller_macs"`
+	Names   []string `hcl:"controller_names"`
+}
+
+type worker struct {
+	Names   []string `hcl:"worker_names"`
+	MACs    []string `hcl:"worker_macs"`
+	Domains []string `hcl:"worker_domains"`
+}
+
+type matchbox struct {
+	CAPath         string `hcl:"matchbox_ca_path"`
+	ClientCertPath string `hcl:"matchbox_client_cert_path"`
+	ClientKeyPath  string `hcl:"matchbox_client_key_path"`
+	Endpoint       string `hcl:"matchbox_endpoint"`
+	HTTPEndpoint   string `hcl:"matchbox_http_endpoint"`
+}
+
+type flatcar struct {
+	OSChannel string `hcl:"os_channel,optional"`
+	OSVersion string `hcl:"os_version,optional"`
+}
+
 type config struct {
-	AssetDir               string   `hcl:"asset_dir"`
-	CachedInstall          string   `hcl:"cached_install,optional"`
-	ClusterName            string   `hcl:"cluster_name"`
-	ControllerDomains      []string `hcl:"controller_domains"`
-	ControllerMacs         []string `hcl:"controller_macs"`
-	ControllerNames        []string `hcl:"controller_names"`
-	K8sDomainName          string   `hcl:"k8s_domain_name"`
-	MatchboxCAPath         string   `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath string   `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath  string   `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint       string   `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint   string   `hcl:"matchbox_http_endpoint"`
-	OSChannel              string   `hcl:"os_channel,optional"`
-	OSVersion              string   `hcl:"os_version,optional"`
-	SSHPubKeys             []string `hcl:"ssh_pubkeys"`
-	WorkerNames            []string `hcl:"worker_names"`
-	WorkerMacs             []string `hcl:"worker_macs"`
-	WorkerDomains          []string `hcl:"worker_domains"`
+	Metadata      *configpkg.Metadata
+	Controller    *controller `hcl:"controller,block"`
+	Worker        *worker     `hcl:"worker,block"`
+	Matchbox      *matchbox   `hcl:"matchbox,block"`
+	Flatcar       *flatcar    `hcl:"flatcar,block"`
+	CachedInstall string      `hcl:"cached_install,optional"`
+	K8sDomainName string      `hcl:"k8s_domain_name"`
 }
 
 // init registers bare-metal as a platform
+//nolint:gochecknoinits
 func init() {
-	platform.Register("bare-metal", NewConfig())
+	configpkg.Register("bare-metal", newConfig())
 }
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
-}
-
-// GetAssetDir returns asset directory path
-func (c *config) GetAssetDir() string {
-	return c.AssetDir
-}
-
-func NewConfig() *config {
+// newConfig returns an instance on baremetal specific config.
+func newConfig() *config {
 	return &config{
 		CachedInstall: "false",
-		OSChannel:     "flatcar-stable",
-		OSVersion:     "current",
+		Flatcar: &flatcar{
+			OSChannel: "flatcar-stable",
+			OSVersion: "current",
+		},
 	}
+}
+
+func (c *config) Render(cfg *configpkg.LokomotiveConfig) (string, error) {
+	keyListBytes, err := json.Marshal(cfg.Controller.SSHPubKeys)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to marshal SSH public keys")
+	}
+
+	workerDomains, err := json.Marshal(c.Worker.Domains)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.Worker.Domains)
+	}
+
+	workerMACs, err := json.Marshal(c.Worker.MACs)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.Worker.MACs)
+	}
+
+	workerNames, err := json.Marshal(c.Worker.Names)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.Worker.Names)
+	}
+
+	controllerDomains, err := json.Marshal(c.Controller.Domains)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.Controller.Domains)
+	}
+
+	controllerMACs, err := json.Marshal(c.Controller.MACs)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.Controller.MACs)
+	}
+
+	controllerNames, err := json.Marshal(c.Controller.Names)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.Controller.Names)
+	}
+
+	terraformCfg := struct {
+		Config            *config
+		ControllerDomains string
+		ControllerMACs    string
+		ControllerNames   string
+		SSHPubKeys        string
+		WorkerNames       string
+		WorkerMACs        string
+		WorkerDomains     string
+	}{
+		Config:            c,
+		ControllerDomains: string(controllerDomains),
+		ControllerMACs:    string(controllerMACs),
+		ControllerNames:   string(controllerNames),
+		SSHPubKeys:        string(keyListBytes),
+		WorkerNames:       string(workerNames),
+		WorkerMACs:        string(workerMACs),
+		WorkerDomains:     string(workerDomains),
+	}
+
+	return util.RenderTemplate(terraformConfigTmpl, terraformCfg)
+}
+
+func (c *config) SetMetadata(metadata *configpkg.Metadata) {
+	c.Metadata = metadata
+}
+
+func (c *config) Validate() hcl.Diagnostics {
+	return hcl.Diagnostics{}
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
-
 	return ex.Apply()
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
-
 	return ex.Destroy()
 }
 
-func (c *config) Initialize(ex *terraform.Executor) error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
-}
-
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
-	}
-
-	path := filepath.Join(terraformPath, tmplName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	workerDomains, err := json.Marshal(cfg.WorkerDomains)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
-	}
-
-	workerMacs, err := json.Marshal(cfg.WorkerMacs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerMacs)
-	}
-
-	workerNames, err := json.Marshal(cfg.WorkerNames)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerNames)
-	}
-
-	controllerDomains, err := json.Marshal(cfg.ControllerDomains)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerDomains)
-	}
-
-	controllerMacs, err := json.Marshal(cfg.ControllerMacs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerMacs)
-	}
-
-	controllerNames, err := json.Marshal(cfg.ControllerNames)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
-	}
-
-	terraformCfg := struct {
-		CachedInstall        string
-		ClusterName          string
-		ControllerDomains    string
-		ControllerMacs       string
-		ControllerNames      string
-		K8sDomainName        string
-		MatchboxClientCert   string
-		MatchboxClientKey    string
-		MatchboxCA           string
-		MatchboxEndpoint     string
-		MatchboxHTTPEndpoint string
-		OSChannel            string
-		OSVersion            string
-		SSHPublicKeys        string
-		WorkerNames          string
-		WorkerMacs           string
-		WorkerDomains        string
-	}{
-		CachedInstall:        cfg.CachedInstall,
-		ClusterName:          cfg.ClusterName,
-		ControllerDomains:    string(controllerDomains),
-		ControllerMacs:       string(controllerMacs),
-		ControllerNames:      string(controllerNames),
-		K8sDomainName:        cfg.K8sDomainName,
-		MatchboxCA:           cfg.MatchboxCAPath,
-		MatchboxClientCert:   cfg.MatchboxClientCertPath,
-		MatchboxClientKey:    cfg.MatchboxClientKeyPath,
-		MatchboxEndpoint:     cfg.MatchboxEndpoint,
-		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
-		OSChannel:            cfg.OSChannel,
-		OSVersion:            cfg.OSVersion,
-		SSHPublicKeys:        string(keyListBytes),
-		WorkerNames:          string(workerNames),
-		WorkerMacs:           string(workerMacs),
-		WorkerDomains:        string(workerDomains),
-	}
-
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
-}
-
-func (c *config) GetExpectedNodes() int {
-	return len(c.ControllerMacs) + len(c.WorkerMacs)
+func (c *config) GetExpectedNodes(cfg *configpkg.LokomotiveConfig) int {
+	return len(c.Controller.MACs) + len(c.Worker.MACs)
 }
