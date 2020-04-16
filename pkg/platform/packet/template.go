@@ -15,7 +15,7 @@
 package packet
 
 var terraformConfigTmpl = `
-module "packet-{{.Config.ClusterName}}" {
+module "packet-{{.PacketConfig.Metadata.ClusterName}}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
 
   providers = {
@@ -26,73 +26,73 @@ module "packet-{{.Config.ClusterName}}" {
     packet   = packet.default
   }
 
-  dns_zone    = "{{.Config.DNS.Zone}}"
+  dns_zone    = "{{.PacketConfig.DNS.Zone}}"
 
-  ssh_keys  = {{.SSHPublicKeys}}
+  ssh_keys  = {{.SSHPubKeys}}
   asset_dir = "../cluster-assets"
 
-  cluster_name = "{{.Config.ClusterName}}"
-  tags         = {{.Tags}}
-  project_id   = "{{.Config.ProjectID}}"
-  facility     = "{{.Config.Facility}}"
+  cluster_name = "{{.PacketConfig.Metadata.ClusterName}}"
+  tags         = {{.ControllerTags}}
+  project_id   = "{{.PacketConfig.ProjectID}}"
+  facility     = "{{.PacketConfig.Facility}}"
 
-  {{- if .Config.ClusterDomainSuffix }}
-  cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
-  {{- end }}
-
-  controller_count = {{.Config.ControllerCount}}
-  {{- if .Config.ControllerType }}
-  controller_type  = "{{ .Config.ControllerType }}"
+  {{- if .LokomotiveConfig.Cluster.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{.LokomotiveConfig.Cluster.ClusterDomainSuffix}}"
   {{- end }}
 
-  {{- if .Config.OSArch }}
-  os_arch = "{{ .Config.OSArch }}"
-  {{- end }}
-  {{- if .Config.OSChannel }}
-  os_channel = "{{ .Config.OSChannel }}"
-  {{- end }}
-  {{- if .Config.OSVersion }}
-  os_version = "{{ .Config.OSVersion }}"
+  controller_count = {{.LokomotiveConfig.Controller.Count}}
+  {{- if .PacketConfig.Controller.Type }}
+  controller_type  = "{{ .PacketConfig.Controller.Type }}"
   {{- end }}
 
-  {{- if .Config.IPXEScriptURL }}
-  ipxe_script_url = "{{ .Config.IPXEScriptURL }}"
+  {{- if .PacketConfig.Flatcar.Arch }}
+  os_arch = "{{ .PacketConfig.Flatcar.Arch }}"
+  {{- end }}
+  {{- if .LokomotiveConfig.Flatcar.Channel }}
+  os_channel = "{{ .LokomotiveConfig.Flatcar.Channel }}"
+  {{- end }}
+  {{- if .LokomotiveConfig.Flatcar.Version }}
+  os_version = "{{ .LokomotiveConfig.Flatcar.Version }}"
+  {{- end }}
+
+  {{- if .PacketConfig.Flatcar.IPXEScriptURL }}
+  ipxe_script_url = "{{ .PacketConfig.Flatcar.IPXEScriptURL }}"
   {{ end }}
   management_cidrs = {{.ManagementCIDRs}}
-  node_private_cidr = "{{.Config.NodePrivateCIDR}}"
+  node_private_cidr = "{{.PacketConfig.Network.NodePrivateCIDR}}"
 
-  enable_aggregation = {{.Config.EnableAggregation}}
+  enable_aggregation = {{.LokomotiveConfig.Cluster.EnableAggregation}}
 
-  {{- if .Config.NetworkMTU }}
-  network_mtu = {{.Config.NetworkMTU}}
+  {{- if .LokomotiveConfig.Network.NetworkMTU }}
+  network_mtu = {{.LokomotiveConfig.Network.NetworkMTU}}
   {{- end }}
-  enable_reporting = {{.Config.EnableReporting}}
+  enable_reporting = {{.LokomotiveConfig.Network.EnableReporting}}
 
-  {{- if .Config.PodCIDR }}
-  pod_cidr = "{{.Config.PodCIDR}}"
-  {{- end }}
-
-  {{- if .Config.ServiceCIDR }}
-  service_cidr = "{{.Config.ServiceCIDR}}"
+  {{- if .LokomotiveConfig.Network.PodCIDR }}
+  pod_cidr = "{{.LokomotiveConfig.Network.PodCIDR}}"
   {{- end }}
 
-  {{- if .Config.ReservationIDs }}
+  {{- if .LokomotiveConfig.Network.ServiceCIDR }}
+  service_cidr = "{{.LokomotiveConfig.Network.ServiceCIDR}}"
+  {{- end }}
+
+  {{- if .PacketConfig.ReservationIDs }}
     reservation_ids = {
-      {{- range $key, $value := .Config.ReservationIDs }}
+      {{- range $key, $value := .PacketConfig.ReservationIDs }}
       {{ $key }} = "{{ $value }}"
       {{- end }}
     }
   {{- end }}
 
-  {{- if .Config.ReservationIDsDefault }}
-  reservation_ids_default = "{{.Config.ReservationIDsDefault}}"
+  {{- if .PacketConfig.ReservationIDsDefault }}
+  reservation_ids_default = "{{.PacketConfig.ReservationIDsDefault}}"
   {{- end }}
-  {{- if .Config.CertsValidityPeriodHours }}
-  certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
+  {{- if .LokomotiveConfig.Cluster.CertsValidityPeriodHours }}
+  certs_validity_period_hours = {{.LokomotiveConfig.Cluster.CertsValidityPeriodHours}}
   {{- end }}
 }
 
-{{ range $index, $pool := .Config.WorkerPools }}
+{{ range $index, $pool := .PacketConfig.WorkerPools }}
 module "worker-{{ $pool.Name }}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
 
@@ -103,14 +103,14 @@ module "worker-{{ $pool.Name }}" {
     packet   = packet.default
   }
 
-  ssh_keys  = {{$.SSHPublicKeys}}
+  ssh_keys  = {{$.SSHPubKeys}}
 
-  cluster_name = "{{$.Config.ClusterName}}"
-  tags         = {{$.Tags}}
-  project_id   = "{{$.Config.ProjectID}}"
-  facility     = "{{$.Config.Facility}}"
-  {{- if $.Config.ClusterDomainSuffix }}
-  cluster_domain_suffix = "{{$.Config.ClusterDomainSuffix}}"
+  cluster_name = "{{$.PacketConfig.Metadata.ClusterName}}"
+  tags         = {{$.ControllerTags}}
+  project_id   = "{{$.PacketConfig.ProjectID}}"
+  facility     = "{{$.PacketConfig.Facility}}"
+  {{- if $.LokomotiveConfig.Cluster.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{$.LokomotiveConfig.Cluster.ClusterDomainSuffix}}"
   {{- end }}
 
   pool_name    = "{{ $pool.Name }}"
@@ -119,7 +119,7 @@ module "worker-{{ $pool.Name }}" {
   type      = "{{ $pool.NodeType }}"
   {{- end }}
 
-  {{- if $.Config.IPXEScriptURL }}
+  {{- if $pool.IPXEScriptURL }}
   ipxe_script_url = "{{ $pool.IPXEScriptURL }}"
   {{- end }}
 
@@ -133,7 +133,7 @@ module "worker-{{ $pool.Name }}" {
   os_version = "{{ $pool.OSVersion }}"
   {{- end }}
 
-  kubeconfig = module.packet-{{ $.Config.ClusterName }}.kubeconfig
+  kubeconfig = module.packet-{{ $.PacketConfig.Metadata.ClusterName }}.kubeconfig
 
   {{- if $pool.Labels }}
   labels = "{{ $pool.Labels }}"
@@ -141,8 +141,8 @@ module "worker-{{ $pool.Name }}" {
   {{- if $pool.Taints }}
   taints = "{{ $pool.Taints }}"
   {{- end }}
-  {{- if $.Config.ServiceCIDR }}
-  service_cidr = "{{$.Config.ServiceCIDR}}"
+  {{- if $.LokomotiveConfig.Network.ServiceCIDR }}
+  service_cidr = "{{$.LokomotiveConfig.Network.ServiceCIDR}}"
   {{- end }}
 
   {{- if $pool.SetupRaid }}
@@ -162,26 +162,26 @@ module "worker-{{ $pool.Name }}" {
   disable_bgp = true
   {{- end}}
 
-  {{- if $.Config.ReservationIDs }}
+  {{- if $.PacketConfig.ReservationIDs }}
     reservation_ids = {
-      {{- range $key, $value := $.Config.ReservationIDs }}
+      {{- range $key, $value := $.PacketConfig.ReservationIDs }}
       {{ $key }} = "{{ $value }}"
       {{- end }}
     }
   {{- end }}
-  {{- if $.Config.ReservationIDsDefault }}
-  reservation_ids_default = "{{$.Config.ReservationIDsDefault}}"
+  {{- if $.PacketConfig.ReservationIDsDefault }}
+  reservation_ids_default = "{{$.PacketConfig.ReservationIDsDefault}}"
   {{- end }}
 }
 {{ end }}
 
-{{- if .Config.DNS.Provider.Manual }}
+{{- if .PacketConfig.DNS.Provider.Manual }}
 output "dns_entries" {
-  value = module.packet-{{.Config.ClusterName}}.dns_entries
+  value = module.packet-{{.PacketConfig.Metadata.ClusterName}}.dns_entries
 }
 {{- end }}
 
-{{- if .Config.DNS.Provider.Route53 }}
+{{- if .PacketConfig.DNS.Provider.Route53 }}
 module "dns" {
   source = "../lokomotive-kubernetes/dns/route53"
 
@@ -189,8 +189,8 @@ module "dns" {
     aws = aws.default
   }
 
-  entries = module.packet-{{.Config.ClusterName}}.dns_entries
-  aws_zone_id = "{{.Config.DNS.Provider.Route53.ZoneID}}"
+  entries = module.packet-{{.PacketConfig.Metadata.ClusterName}}.dns_entries
+  aws_zone_id = "{{.PacketConfig.DNS.Provider.Route53.ZoneID}}"
 }
 
 provider "aws" {
@@ -200,8 +200,8 @@ provider "aws" {
   # the AWS Terraform provider needs it and the documentation suggests to use
   # "us-east-1": https://docs.aws.amazon.com/general/latest/gr/r53.html.
   region = "us-east-1"
-  {{- if .Config.DNS.Provider.Route53.AWSCredsPath }}
-  shared_credentials_file = "{{.Config.DNS.Provider.Route53.AWSCredsPath}}"
+  {{- if .PacketConfig.DNS.Provider.Route53.AWSCredsPath }}
+  shared_credentials_file = "{{.PacketConfig.DNS.Provider.Route53.AWSCredsPath}}"
   {{- end }}
 }
 {{- end }}
@@ -234,8 +234,8 @@ provider "packet" {
   version = "~> 2.7.3"
   alias = "default"
 
-  {{- if .Config.AuthToken }}
-  auth_token = "{{.Config.AuthToken}}"
+  {{- if .PacketConfig.AuthToken }}
+  auth_token = "{{.PacketConfig.AuthToken}}"
   {{- end }}
 }
 
@@ -248,25 +248,25 @@ output "initialized" {
 
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
-  value = module.packet-{{.Config.ClusterName}}.pod-checkpointer_values
+  value = module.packet-{{.PacketConfig.Metadata.ClusterName}}.pod-checkpointer_values
 }
 
 output "kube-apiserver_values" {
-  value     = module.packet-{{.Config.ClusterName}}.kube-apiserver_values
+  value     = module.packet-{{.PacketConfig.Metadata.ClusterName}}.kube-apiserver_values
   sensitive = true
 }
 
 output "kubernetes_values" {
-  value     = module.packet-{{.Config.ClusterName}}.kubernetes_values
+  value     = module.packet-{{.PacketConfig.Metadata.ClusterName}}.kubernetes_values
   sensitive = true
 }
 
 output "kubelet_values" {
-  value     = module.packet-{{.Config.ClusterName}}.kubelet_values
+  value     = module.packet-{{.PacketConfig.Metadata.ClusterName}}.kubelet_values
   sensitive = true
 }
 
 output "calico_values" {
-  value = module.packet-{{.Config.ClusterName}}.calico_values
+  value = module.packet-{{.PacketConfig.Metadata.ClusterName}}.calico_values
 }
 `
