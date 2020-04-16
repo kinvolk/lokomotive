@@ -96,8 +96,24 @@ type Executor struct {
 	logger        *log.Entry
 }
 
-// NewExecutor initializes a new Executor.
-func NewExecutor(conf Config) (*Executor, error) {
+// InitializeExecutor initialized Terraform directory using given backend and platform
+// and returns configured executor.
+func InitializeExecutor(assetDir string, verbose bool) (*Executor, error) {
+	conf := Config{
+		WorkingDir: GetTerraformRootDir(assetDir),
+		Verbose:    verbose,
+	}
+
+	ex, err := newExecutor(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return ex, nil
+}
+
+// newExecutor initializes a new Executor.
+func newExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
 	ex.executionPath = conf.WorkingDir
 	ex.verbose = conf.Verbose

@@ -22,7 +22,7 @@ func executor(t *testing.T) *Executor {
 		WorkingDir: tmpDir,
 	}
 
-	ex, err := NewExecutor(conf)
+	ex, err := newExecutor(conf)
 	if err != nil {
 		t.Fatalf("Creating new executor should succeed, got: %v", err)
 	}
