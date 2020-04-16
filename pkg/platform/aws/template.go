@@ -15,7 +15,7 @@
 package aws
 
 var terraformConfigTmpl = `
-module "aws-{{.Config.ClusterName}}" {
+module "aws-{{.AWSConfig.Metadata.ClusterName}}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes"
 
   providers = {
@@ -26,78 +26,78 @@ module "aws-{{.Config.ClusterName}}" {
     tls      = tls.default
   }
 
-  cluster_name = "{{.Config.ClusterName}}"
-  tags         = {{.Tags}}
-  dns_zone     = "{{.Config.DNSZone}}"
-  dns_zone_id  = "{{.Config.DNSZoneID}}"
-  {{- if .Config.ClusterDomainSuffix }}
-  cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
+  cluster_name = "{{.AWSConfig.Metadata.ClusterName}}"
+  tags         = {{.ControllerTags}}
+  dns_zone     = "{{.AWSConfig.DNSZone}}"
+  dns_zone_id  = "{{.AWSConfig.DNSZoneID}}"
+  {{- if .LokomotiveConfig.Cluster.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{.LokomotiveConfig.Cluster.ClusterDomainSuffix}}"
   {{- end }}
 
-  {{- if .Config.ExposeNodePorts }}
-  expose_nodeports = {{.Config.ExposeNodePorts}}
+  {{- if .AWSConfig.ExposeNodePorts }}
+  expose_nodeports = {{.AWSConfig.ExposeNodePorts}}
   {{- end }}
 
-  ssh_keys  = {{$.SSHPublicKeys}}
+  ssh_keys  = {{.SSHPubKeys}}
   asset_dir = "../cluster-assets"
 
- {{- if .Config.ControllerCount}}
-  controller_count = {{.Config.ControllerCount}}
+ {{- if .LokomotiveConfig.Controller.Count}}
+  controller_count = {{.LokomotiveConfig.Controller.Count}}
  {{- end }}
 
- {{- if .Config.ControllerType}}
-  controller_type  = "{{.Config.ControllerType}}"
+ {{- if .AWSConfig.Controller.Type}}
+  controller_type  = "{{.AWSConfig.Controller.Type}}"
  {{- end }}
 
 	# Do not allow creation of workers apart from using worker pools.
   worker_count = 0
 
-  {{- if .Config.NetworkMTU }}
-  network_mtu = {{.Config.NetworkMTU}}
+  {{- if .LokomotiveConfig.Network.NetworkMTU }}
+  network_mtu = {{.LokomotiveConfig.Network.NetworkMTU}}
   {{- end }}
-  enable_reporting = {{.Config.EnableReporting}}
-  {{- if .Config.PodCIDR }}
-  pod_cidr = "{{.Config.PodCIDR}}"
+  enable_reporting = {{.LokomotiveConfig.Network.EnableReporting}}
+  {{- if .LokomotiveConfig.Network.PodCIDR }}
+  pod_cidr = "{{.LokomotiveConfig.Network.PodCIDR}}"
   {{- end }}
-  {{- if .Config.ServiceCIDR }}
-  service_cidr = "{{.Config.ServiceCIDR}}"
+  {{- if .LokomotiveConfig.Network.ServiceCIDR }}
+  service_cidr = "{{.LokomotiveConfig.Network.ServiceCIDR}}"
   {{- end }}
-  {{- if .Config.HostCIDR }}
-  host_cidr = "{{.Config.HostCIDR}}"
+  {{- if .AWSConfig.Network.HostCIDR }}
+  host_cidr = "{{.AWSConfig.Network.HostCIDR}}"
   {{- end }}
 
- {{- if .Config.OSName }}
-  os_name = "{{.Config.OSName}}"
+ {{- if .AWSConfig.Flatcar.OSName }}
+  os_name = "{{.AWSConfig.Flatcar.OSName}}"
  {{- end }}
- {{- if .Config.OSChannel }}
-  os_channel = "{{.Config.OSChannel}}"
+ {{- if .LokomotiveConfig.Flatcar.Channel }}
+  os_channel = "{{.LokomotiveConfig.Flatcar.Channel}}"
  {{- end }}
- {{- if .Config.OSVersion }}
-  os_version = "{{.Config.OSVersion}}"
+ {{- if .LokomotiveConfig.Flatcar.Version }}
+  os_version = "{{.LokomotiveConfig.Flatcar.Version}}"
  {{- end }}
 
  {{- if ne .ControllerCLCSnippets "null" }}
   controller_clc_snippets = {{.ControllerCLCSnippets}}
  {{- end }}
 
-  enable_aggregation = {{.Config.EnableAggregation}}
+  enable_aggregation = {{.LokomotiveConfig.Cluster.EnableAggregation}}
 
-  {{- if .Config.DiskSize }}
-  disk_size = {{.Config.DiskSize}}
+  {{- if .AWSConfig.Disk.Size }}
+  disk_size = {{.AWSConfig.Disk.Size}}
   {{- end }}
-  {{- if .Config.DiskType }}
-  disk_type = "{{.Config.DiskType}}"
+  {{- if .AWSConfig.Disk.Type }}
+  disk_type = "{{.AWSConfig.Disk.Type}}"
   {{- end }}
-  {{- if .Config.DiskIOPS }}
-  disk_iops = {{.Config.DiskIOPS}}
+  {{- if .AWSConfig.Disk.IOPS }}
+  disk_iops = {{.AWSConfig.Disk.IOPS}}
   {{- end }}
 
-  {{- if .Config.CertsValidityPeriodHours }}
-  certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
+  {{- if .LokomotiveConfig.Cluster.CertsValidityPeriodHours }}
+  certs_validity_period_hours = {{.LokomotiveConfig.Cluster.CertsValidityPeriodHours}}
   {{- end }}
 }
 
-{{ range $index, $pool := .Config.WorkerPools }}
+{{ range $index, $pool := .AWSConfig.WorkerPools }}
 module "worker-pool-{{ $index }}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes/workers"
 
@@ -105,20 +105,20 @@ module "worker-pool-{{ $index }}" {
     aws      = aws.default
   }
 
-  vpc_id                = module.aws-{{ $.Config.ClusterName }}.vpc_id
-  subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
-  security_groups       = module.aws-{{ $.Config.ClusterName }}.worker_security_groups
-  kubeconfig            = module.aws-{{ $.Config.ClusterName }}.kubeconfig
+  vpc_id                = module.aws-{{ $.AWSConfig.Metadata.ClusterName }}.vpc_id
+  subnet_ids            = flatten([module.aws-{{ $.AWSConfig.Metadata.ClusterName }}.subnet_ids])
+  security_groups       = module.aws-{{ $.AWSConfig.Metadata.ClusterName }}.worker_security_groups
+  kubeconfig            = module.aws-{{ $.AWSConfig.Metadata.ClusterName }}.kubeconfig
 
-  {{- if $.Config.ServiceCIDR }}
-  service_cidr          = "{{ $.Config.ServiceCIDR }}"
+  {{- if $.LokomotiveConfig.Network.ServiceCIDR }}
+  service_cidr          = "{{ $.LokomotiveConfig.Network.ServiceCIDR }}"
   {{- end }}
 
-  {{- if $.Config.ClusterDomainSuffix }}
-  cluster_domain_suffix = "{{ $.Config.ClusterDomainSuffix }}"
+  {{- if $.LokomotiveConfig.Cluster.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{ $.LokomotiveConfig.Cluster.ClusterDomainSuffix }}"
   {{- end }}
 
-  ssh_keys              = {{ index (index $.WorkerpoolCfg $index) "ssh_pub_keys" }}
+  ssh_keys              = {{ index (index $.WorkerPoolsList $index) "ssh_pub_keys" }}
   name                  = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
   os_name               = "flatcar"
@@ -150,15 +150,15 @@ module "worker-pool-{{ $index }}" {
   spot_price            = "{{ $pool.SpotPrice }}"
   {{- end }}
   {{- if $pool.TargetGroups }}
-  target_groups         = "{{ index (index $.WorkerpoolCfg $index) "target_groups" }}"
+  target_groups         = "{{ index (index $.WorkerPoolsList $index) "target_groups" }}"
   {{- end }}
 
-  {{- if ne (index (index $.WorkerpoolCfg $index) "clc_snippets") "null" }}
-  clc_snippets          = {{ index (index $.WorkerpoolCfg $index) "clc snippets" }}
+  {{- if ne (index (index $.WorkerPoolsList $index) "clc_snippets") "null" }}
+  clc_snippets          = {{ index (index $.WorkerPoolsList $index) "clc_snippets" }}
   {{- end }}
 
   {{- if $pool.Tags }}
-  tags                  = {{ index (index $.WorkerpoolCfg $index) "tags" }}
+  tags                  = {{ index (index $.WorkerPoolsList $index) "tags" }}
   {{- end }}
 }
 {{- end }}
@@ -167,9 +167,9 @@ provider "aws" {
   version = "2.48.0"
   alias   = "default"
 
-  region                  = "{{.Config.Region}}"
-  {{- if .Config.CredsPath }}
-  shared_credentials_file = "{{.Config.CredsPath}}"
+  region                  = "{{.AWSConfig.Region}}"
+  {{- if .AWSConfig.CredsPath }}
+  shared_credentials_file = "{{.AWSConfig.CredsPath}}"
   {{- end }}
 }
 
@@ -206,25 +206,25 @@ output "initialized" {
 
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
-  value = module.aws-{{.Config.ClusterName}}.pod-checkpointer_values
+  value = module.aws-{{.AWSConfig.Metadata.ClusterName}}.pod-checkpointer_values
 }
 
 output "kube-apiserver_values" {
-  value     = module.aws-{{.Config.ClusterName}}.kube-apiserver_values
+  value     = module.aws-{{.AWSConfig.Metadata.ClusterName}}.kube-apiserver_values
   sensitive = true
 }
 
 output "kubernetes_values" {
-  value     = module.aws-{{.Config.ClusterName}}.kubernetes_values
+  value     = module.aws-{{.AWSConfig.Metadata.ClusterName}}.kubernetes_values
   sensitive = true
 }
 
 output "kubelet_values" {
-  value     = module.aws-{{.Config.ClusterName}}.kubelet_values
+  value     = module.aws-{{.AWSConfig.Metadata.ClusterName}}.kubelet_values
   sensitive = true
 }
 
 output "calico_values" {
-  value = module.aws-{{.Config.ClusterName}}.calico_values
+  value = module.aws-{{.AWSConfig.Metadata.ClusterName}}.calico_values
 }
 `
