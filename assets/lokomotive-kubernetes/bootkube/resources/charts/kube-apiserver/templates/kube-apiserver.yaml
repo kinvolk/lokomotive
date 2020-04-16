@@ -221,7 +221,7 @@ spec:
 
           {{ end }}
           backend kube-apiserver
-            server 1 $ADDRESS:{{ template "port" . }} check
+            server 1 $ADDRESS:{{ template "port" . }}
           EOF
           cat /run/kube-apiserver/haproxy.cfg
         volumeMounts:
