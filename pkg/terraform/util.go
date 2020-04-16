@@ -26,21 +26,24 @@ import (
 )
 
 const backendFileName = "backend.tf"
+const clusterFileName = "cluster.tf"
 
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
-func Configure(assetDir, renderedBackend string) error {
+func Configure(assetDir, renderedBackend, renderedPlatform string) error {
 	if err := PrepareTerraformDirectoryAndModules(assetDir); err != nil {
 		return errors.Wrapf(err, "Failed to create required terraform directory")
 	}
 
 	// Create backend file only if the backend rendered string isn't empty.
-	if len(strings.TrimSpace(renderedBackend)) <= 0 {
-		return nil
+	if len(strings.TrimSpace(renderedBackend)) > 0 {
+		if err := CreateTerraformBackendFile(assetDir, renderedBackend); err != nil {
+			return errors.Wrapf(err, "Failed to create backend configuration file")
+		}
 	}
 
-	if err := CreateTerraformBackendFile(assetDir, renderedBackend); err != nil {
-		return errors.Wrapf(err, "Failed to create backend configuration file")
+	if err := CreateTerraformClusterFile(assetDir, renderedPlatform); err != nil {
+		return errors.Wrapf(err, "Failed to create cluster configuration file")
 	}
 
 	return nil
@@ -68,6 +71,8 @@ func GetTerraformRootDir(assetDir string) string {
 
 // CreateTerraformBackendFile creates the Terraform backend configuration file.
 func CreateTerraformBackendFile(assetDir, data string) error {
+	var err error
+
 	backendString := fmt.Sprintf("terraform {%s}\n", data)
 	terraformRootDir := GetTerraformRootDir(assetDir)
 	path := filepath.Join(terraformRootDir, backendFileName)
@@ -75,7 +80,12 @@ func CreateTerraformBackendFile(assetDir, data string) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to create file %q", path)
 	}
-	defer f.Close()
+
+	defer func() {
+		if ferr := f.Close(); ferr != nil {
+			err = ferr
+		}
+	}()
 
 	if _, err = f.WriteString(backendString); err != nil {
 		return errors.Wrapf(err, "failed to write to backend file %q", path)
@@ -85,5 +95,34 @@ func CreateTerraformBackendFile(assetDir, data string) error {
 		return errors.Wrapf(err, "failed to flush data to file %q", path)
 	}
 
-	return nil
+	return err
+}
+
+// CreateTerraformClusterFile creates the Terraform cluster configuration file.
+func CreateTerraformClusterFile(assetDir, data string) error {
+	var err error
+
+	terraformRootDir := GetTerraformRootDir(assetDir)
+	path := filepath.Join(terraformRootDir, clusterFileName)
+
+	f, err := os.Create(path)
+	if err != nil {
+		return errors.Wrapf(err, "failed to create file %q", path)
+	}
+
+	defer func() {
+		if ferr := f.Close(); ferr != nil {
+			err = ferr
+		}
+	}()
+
+	if _, err = f.WriteString(data); err != nil {
+		return errors.Wrapf(err, "failed to write to cluster file %q", path)
+	}
+
+	if err = f.Sync(); err != nil {
+		return errors.Wrapf(err, "failed to flush data to file %q", path)
+	}
+
+	return err
 }
