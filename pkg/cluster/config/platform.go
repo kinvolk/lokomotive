@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package platform
+package config
 
 import (
 	"fmt"
@@ -23,12 +23,12 @@ import (
 
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
-	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
-	Initialize(*terraform.Executor) error
-	GetAssetDir() string
-	GetExpectedNodes() int
+	GetExpectedNodes(*LokomotiveConfig) int
+	Validate() hcl.Diagnostics
+	SetMetadata(*Metadata)
+	Render(*LokomotiveConfig) (string, error)
 }
 
 // platforms is a collection where all platforms gets automatically registered
