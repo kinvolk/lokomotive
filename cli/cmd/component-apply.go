@@ -15,14 +15,10 @@
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 var componentApplyCmd = &cobra.Command{
@@ -39,56 +35,22 @@ func init() {
 }
 
 func runApply(cmd *cobra.Command, args []string) {
-	contextLogger := log.WithFields(log.Fields{
+	ctxLogger := log.WithFields(log.Fields{
 		"command": "lokoctl component apply",
 		"args":    args,
 	})
 
-	lokoConfig, diags := getLokoConfig()
-	if len(diags) > 0 {
-		contextLogger.Fatal(diags)
-	}
-
-	var componentsToApply []string
-	if len(args) > 0 {
-		componentsToApply = append(componentsToApply, args...)
-	} else {
-		for _, component := range lokoConfig.ClusterConfig.Components {
-			componentsToApply = append(componentsToApply, component.Name)
-		}
-	}
-
-	kubeconfig, err := getKubeconfig()
-	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
-	}
-
-	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
-		contextLogger.Fatal(err)
-	}
-}
-
-func applyComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
-	for _, componentName := range componentNames {
-		fmt.Printf("Applying component '%s'...\n", componentName)
-
-		component, err := components.Get(componentName)
+	l, _ := initialize(ctxLogger)
+	for _, name := range args {
+		_, err := components.Get(name)
 		if err != nil {
-			return err
+			ctxLogger.Fatalf("Unsupported component, got: %v", err)
 		}
-
-		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
-
-		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
-			fmt.Printf("%v\n", diags)
-			return diags
-		}
-
-		if err := util.InstallComponent(componentName, component, kubeconfig); err != nil {
-			return err
-		}
-
-		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
 	}
-	return nil
+
+	//Install components mentioned as arguments,if no arguments provided
+	//install all configured components
+	if err := l.ApplyComponents(args); err != nil {
+		ctxLogger.Fatalf("Error applying components: %q", err)
+	}
 }
