@@ -36,24 +36,16 @@ func TestEmptyConfig(t *testing.T) {
 }
 
 func TestEmptyBody(t *testing.T) {
-	c := newComponent()
+	configHCL := `component "cluster-autoscaler" {}`
 
-	config := `component "cluster-autoscaler" {}`
-
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); !diagnostics.HasErrors() {
+	_, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if !diagnostics.HasErrors() {
 		t.Fatal("Empty config should return errors as there are required fields.")
 	}
 }
 
 func TestRender(t *testing.T) {
-	c := newComponent()
-
-	config := `
+	configHCL := `
   component "cluster-autoscaler" {
 		cluster_name = "foo"
 
@@ -66,12 +58,8 @@ func TestRender(t *testing.T) {
 	}
   `
 
-	body, diagnostics := util.GetComponentBody(config, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-
-	if diagnostics := c.LoadConfig(body, &hcl.EvalContext{}); diagnostics.HasErrors() {
+	_, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if diagnostics.HasErrors() {
 		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
 	}
 }

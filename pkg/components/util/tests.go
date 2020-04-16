@@ -16,35 +16,27 @@ package util
 
 import (
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/hashicorp/hcl/v2/hclparse"
-
+	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
-// GetComponentBody parses a string containing a component configuration in
-// HCL and returns its body.
-// Currently only the body of the first component is returned.
-func GetComponentBody(configHCL string, name string) (*hcl.Body, hcl.Diagnostics) {
-	hclParser := hclparse.NewParser()
+// LoadComponentFromHCLString loads a Component instance from a
+// given HCL string. This function is mainly used in tests.
+func LoadComponentFromHCLString(configHCL, name string) (components.Component, hcl.Diagnostics) {
+	cfgMap := map[string][]byte{
+		"test.lokocfg": []byte(configHCL),
+	}
+	varconfigMap := map[string][]byte{}
 
-	file, diags := hclParser.ParseHCL([]byte(configHCL), "x.lokocfg")
+	cfg, diags := config.ParseHCLFiles(cfgMap, varconfigMap)
 	if diags.HasErrors() {
 		return nil, diags
 	}
 
-	configBody := hcl.MergeFiles([]*hcl.File{file})
-
-	var clusterConfig config.ClusterConfig
-
-	diagnostics := gohcl.DecodeBody(configBody, nil, &clusterConfig)
-	if diagnostics.HasErrors() {
+	components, diags := config.LoadConfiguredComponents(cfg)
+	if diags.HasErrors() {
 		return nil, diags
 	}
 
-	c := &config.HCLConfig{
-		ClusterConfig: &clusterConfig,
-	}
-
-	return c.LoadComponentConfigBody(name), nil
+	return components[name], hcl.Diagnostics{}
 }
