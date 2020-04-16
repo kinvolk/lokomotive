@@ -17,20 +17,18 @@ package packet
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
-	"path/filepath"
 	"sort"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
+	configpkg "github.com/kinvolk/lokomotive/pkg/cluster/config"
 	"github.com/kinvolk/lokomotive/pkg/dns"
-	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type workerPool struct {
@@ -50,161 +48,121 @@ type workerPool struct {
 	SetupRaidSSDFS bool   `hcl:"setup_raid_ssd_fs,optional"`
 }
 
-type config struct {
-	AssetDir                 string            `hcl:"asset_dir"`
-	AuthToken                string            `hcl:"auth_token,optional"`
-	ClusterName              string            `hcl:"cluster_name"`
-	Tags                     map[string]string `hcl:"tags,optional"`
-	ControllerCount          int               `hcl:"controller_count"`
-	ControllerType           string            `hcl:"controller_type,optional"`
-	DNS                      dns.Config        `hcl:"dns,block"`
-	Facility                 string            `hcl:"facility"`
-	ProjectID                string            `hcl:"project_id"`
-	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
-	OSArch                   string            `hcl:"os_arch,optional"`
-	OSChannel                string            `hcl:"os_channel,optional"`
-	OSVersion                string            `hcl:"os_version,optional"`
-	IPXEScriptURL            string            `hcl:"ipxe_script_url,optional"`
-	ManagementCIDRs          []string          `hcl:"management_cidrs"`
-	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
-	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
-	NetworkMTU               int               `hcl:"network_mtu,optional"`
-	PodCIDR                  string            `hcl:"pod_cidr,optional"`
-	ServiceCIDR              string            `hcl:"service_cidr,optional"`
-	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
-	EnableReporting          bool              `hcl:"enable_reporting,optional"`
-	ReservationIDs           map[string]string `hcl:"reservation_ids,optional"`
-	ReservationIDsDefault    string            `hcl:"reservation_ids_default,optional"`
-	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
+type flatcar struct {
+	Arch          string `hcl:"os_arch,optional"`
+	IPXEScriptURL string `hcl:"ipxe_script_url,optional"`
+}
 
-	WorkerPools []workerPool `hcl:"worker_pool,block"`
+type network struct {
+	ManagementCIDRs []string `hcl:"management_cidrs"`
+	NodePrivateCIDR string   `hcl:"node_private_cidr"`
+}
+
+type controller struct {
+	Type string            `hcl:"type,optional"`
+	Tags map[string]string `hcl:"tags,optional"`
+}
+
+type config struct {
+	Metadata              *configpkg.Metadata
+	Controller            *controller       `hcl:"controller,block"`
+	Flatcar               *flatcar          `hcl:"flatcar,block"`
+	Network               *network          `hcl:"network,block"`
+	AuthToken             string            `hcl:"auth_token,optional"`
+	DNS                   dns.Config        `hcl:"dns,block"`
+	Facility              string            `hcl:"facility"`
+	ProjectID             string            `hcl:"project_id"`
+	ReservationIDs        map[string]string `hcl:"reservation_ids,optional"`
+	ReservationIDsDefault string            `hcl:"reservation_ids_default,optional"`
+	WorkerPools           []workerPool      `hcl:"worker_pool,block"`
 }
 
 // init registers packet as a platform
+//nolint:gochecknoinits
 func init() {
-	platform.Register("packet", NewConfig())
+	configpkg.Register("packet", newConfig())
 }
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
-		return diags
-	}
-
-	return c.checkValidConfig()
-}
-
-func NewConfig() *config {
+// newConfig returns an instance of config specific to Packet.
+func newConfig() *config {
 	return &config{
-		EnableAggregation: true,
+		Flatcar: &flatcar{
+			Arch: "amd64",
+		},
+		Network: &network{},
+		Controller: &controller{
+			Type: "baremetal_0",
+		},
 	}
-}
-
-// GetAssetDir returns asset directory path
-func (c *config) GetAssetDir() string {
-	return c.AssetDir
-}
-
-func (c *config) Initialize(ex *terraform.Executor) error {
-	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
-		return fmt.Errorf("cannot find the Packet authentication token:\n" +
-			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
-	}
-
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	c.AssetDir = assetDir
-
 	dnsProvider, err := dns.ParseDNS(&c.DNS)
 	if err != nil {
 		return errors.Wrap(err, "parsing DNS configuration failed")
-	}
-
-	if err := c.Initialize(ex); err != nil {
-		return err
 	}
 
 	return c.terraformSmartApply(ex, dnsProvider)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
+	if err := ex.Destroy(); err != nil {
+		return fmt.Errorf("failed to destroy cluster: %v", err)
 	}
 
-	return ex.Destroy()
+	return nil
 }
 
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
+func (c *config) SetMetadata(metadata *configpkg.Metadata) {
+	c.Metadata = metadata
+}
+
+func (c *config) Validate() hcl.Diagnostics {
+	return c.checkValidConfig()
+}
+
+func (c *config) Render(cfg *configpkg.LokomotiveConfig) (string, error) {
+	keyListBytes, err := json.Marshal(cfg.Controller.SSHPubKeys)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
+		return "", errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
-	path := filepath.Join(terraformPath, tmplName)
-	f, err := os.Create(path)
+	managementCIDRs, err := json.Marshal(c.Network.ManagementCIDRs)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	managementCIDRs, err := json.Marshal(cfg.ManagementCIDRs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal management CIDRs")
+		return "", errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
 
 	// Packet does not accept tags as a key-value map but as an array of
 	// strings.
-	util.AppendTags(&cfg.Tags)
+	util.AppendTags(&c.Controller.Tags)
 	tagsList := []string{}
-	for k, v := range cfg.Tags {
+
+	for k, v := range c.Controller.Tags {
 		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
 	}
+
 	sort.Strings(tagsList)
 	tags, err := json.Marshal(tagsList)
+
 	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
+		return "", errors.Wrapf(err, "failed to marshal tags")
 	}
 
 	terraformCfg := struct {
-		Config          config
-		Tags            string
-		SSHPublicKeys   string
-		ManagementCIDRs string
+		LokomotiveConfig *configpkg.LokomotiveConfig
+		PacketConfig     *config
+		ControllerTags   string
+		SSHPubKeys       string
+		ManagementCIDRs  string
 	}{
-		Config:          *cfg,
-		Tags:            string(tags),
-		SSHPublicKeys:   string(keyListBytes),
-		ManagementCIDRs: string(managementCIDRs),
+		LokomotiveConfig: cfg,
+		PacketConfig:     c,
+		ControllerTags:   string(tags),
+		SSHPubKeys:       string(keyListBytes),
+		ManagementCIDRs:  string(managementCIDRs),
 	}
 
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
+	return utilpkg.RenderTemplate(terraformConfigTmpl, terraformCfg)
 }
 
 // terraformSmartApply applies cluster configuration.
@@ -217,7 +175,8 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 	arguments := []string{"apply", "-auto-approve"}
 
 	// Get DNS entries (it forces the creation of the controller nodes).
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
+	str := fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.Metadata.ClusterName)
+	arguments = append(arguments, str)
 
 	// Add worker nodes to speed things up.
 	for _, w := range c.WorkerPools {
@@ -237,14 +196,14 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 	return ex.Apply()
 }
 
-func (c *config) GetExpectedNodes() int {
+func (c *config) GetExpectedNodes(cfg *configpkg.LokomotiveConfig) int {
 	workers := 0
 
 	for _, wp := range c.WorkerPools {
 		workers += wp.Count
 	}
 
-	return c.ControllerCount + workers
+	return cfg.Controller.Count + workers
 }
 
 // checkValidConfig validates cluster configuration.
@@ -253,6 +212,124 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+	diagnostics = append(diagnostics, c.checkPacketConfig()...)
+	diagnostics = append(diagnostics, c.checkFlatcarConfig()...)
+	diagnostics = append(diagnostics, c.checkNetworkConfig()...)
+	diagnostics = append(diagnostics, c.checkControllerConfig()...)
+
+	return diagnostics
+}
+
+func (c *config) checkPacketConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary: fmt.Sprintf("Cannot find the Packet authentication token:\n" +
+				"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable"),
+		})
+	}
+
+	// TODO: Get a list of valid Packet facilities and test against
+	// user input
+	if c.Facility == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected `facility` to be non-empty"),
+		})
+	}
+
+	if c.ProjectID == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected `project_id` to be non-empty"),
+		})
+	}
+
+	return diagnostics
+}
+
+func (c *config) checkNetworkConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if len(c.Network.ManagementCIDRs) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "required field `management_cidrs` is missing",
+		})
+	}
+
+	for _, cidr := range c.Network.ManagementCIDRs {
+		if err := validCIDR(cidr); err != nil {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("invalid management_cidr `%s`: %v", cidr, err),
+			})
+		}
+	}
+
+	if c.Network.NodePrivateCIDR == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "required field `management_cidrs` is missing",
+		})
+	}
+
+	if err := validCIDR(c.Network.NodePrivateCIDR); err != nil {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("invalid node_private_cidr `%s`: %v", c.Network.NodePrivateCIDR, err),
+		})
+	}
+
+	return diagnostics
+}
+
+func validCIDR(cidr string) error {
+	_, _, err := net.ParseCIDR(cidr)
+
+	return err
+}
+
+func (c *config) checkFlatcarConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	archs := []string{"amd64", "arm64"}
+	valid := false
+
+	for _, arch := range archs {
+		if c.Flatcar.Arch == arch {
+			valid = true
+		}
+	}
+
+	if !valid {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("unsupported architecture, got: %s", c.Flatcar.Arch),
+		})
+	}
+
+	if c.Flatcar.Arch == "arm64" && c.Flatcar.IPXEScriptURL == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "if arch is `arm64`, `ipxe_script_url` cannot be empty",
+		})
+	}
+
+	return diagnostics
+}
+
+func (c *config) checkControllerConfig() hcl.Diagnostics {
+	//TODO: Get a list of valid packet machine types and validate
+	var diagnostics hcl.Diagnostics
+
+	if c.Controller.Type == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "`type` cannot be empty",
+		})
+	}
 
 	return diagnostics
 }
@@ -264,8 +341,7 @@ func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
 	if len(c.WorkerPools) == 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  "At least one worker pool must be defined",
-			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+			Summary:  "one or more worker pools required",
 		})
 	}
 
@@ -287,8 +363,7 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 		// It is duplicated.
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  "Worker pools name should be unique",
-			Detail:   fmt.Sprintf("Worker pool %v is duplicated", w.Name),
+			Summary:  fmt.Sprintf("worker pool name %v is not unique", w.Name),
 		})
 	}
 
