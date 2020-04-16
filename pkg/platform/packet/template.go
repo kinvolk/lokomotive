@@ -77,11 +77,11 @@ module "packet-{{.Config.ClusterName}}" {
   {{- end }}
 
   {{- if .Config.ReservationIDs }}
-    reservation_ids = {
+  reservation_ids = {
       {{- range $key, $value := .Config.ReservationIDs }}
       {{ $key }} = "{{ $value }}"
       {{- end }}
-    }
+  }
   {{- end }}
 
   {{- if .Config.ReservationIDsDefault }}
