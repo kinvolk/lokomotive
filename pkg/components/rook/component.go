@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 	"github.com/pkg/errors"
 )
 
@@ -55,13 +56,13 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	// Generate YAML for namespace.
-	namespaceStr, err := util.RenderTemplate(namespace, c)
+	namespaceStr, err := utilpkg.RenderTemplate(namespace, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to render template")
 	}
 
 	// Generate YAML for RBAC resources.
-	rbacStr, err := util.RenderTemplate(rbac, c)
+	rbacStr, err := utilpkg.RenderTemplate(rbac, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to render template")
 	}
@@ -72,7 +73,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "failed to marshal operator tolerations")
 	}
 
-	deploymentStr, err := util.RenderTemplate(deploymentOperator, c)
+	deploymentStr, err := utilpkg.RenderTemplate(deploymentOperator, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to render template")
 	}

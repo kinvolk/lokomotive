@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 	"github.com/pkg/errors"
 )
 
@@ -128,7 +129,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		c.AwsConfig.SecretAccessKey = secretAccessKey
 	}
 
-	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	values, err := utilpkg.RenderTemplate(chartValuesTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart values template")
 	}

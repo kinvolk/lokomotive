@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/util"
 )
 
 const name = "dex"

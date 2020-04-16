@@ -20,7 +20,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/util"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"

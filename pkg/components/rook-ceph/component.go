@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 	"github.com/pkg/errors"
 )
 
@@ -60,7 +61,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "failed to render tolerations")
 	}
 
-	cephClusterStr, err := util.RenderTemplate(cephCluster, c)
+	cephClusterStr, err := utilpkg.RenderTemplate(cephCluster, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to render template")
 	}
