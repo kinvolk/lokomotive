@@ -17,19 +17,17 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"text/template"
+	"net"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
-
-	"github.com/kinvolk/lokomotive/pkg/platform"
+	configpkg "github.com/kinvolk/lokomotive/pkg/cluster/config"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
+	"github.com/pkg/errors"
 )
+
+const defaultDiskSize = 40
 
 type workerPool struct {
 	Name         string            `hcl:"pool_name,label"`
@@ -47,126 +45,100 @@ type workerPool struct {
 	Tags         map[string]string `hcl:"tags,optional"`
 }
 
+type flatcar struct {
+	OSName string `hcl:"os_name,optional"`
+}
+
+type network struct {
+	HostCIDR string `hcl:"host_cidr"`
+}
+
+type controller struct {
+	Type        string            `hcl:"type,optional"`
+	CLCSnippets []string          `hcl:"clc_snippets,optional"`
+	Tags        map[string]string `hcl:"tags,optional"`
+}
+
+type disk struct {
+	Size int    `hcl:"size,optional"`
+	Type string `hcl:"type,optional"`
+	IOPS int    `hcl:"iops,optional"`
+}
+
 type config struct {
-	AssetDir                 string            `hcl:"asset_dir"`
-	ClusterName              string            `hcl:"cluster_name"`
-	Tags                     map[string]string `hcl:"tags,optional"`
-	OSName                   string            `hcl:"os_name,optional"`
-	OSChannel                string            `hcl:"os_channel,optional"`
-	OSVersion                string            `hcl:"os_version,optional"`
-	DNSZone                  string            `hcl:"dns_zone"`
-	DNSZoneID                string            `hcl:"dns_zone_id"`
-	ExposeNodePorts          bool              `hcl:"expose_nodeports,optional"`
-	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
-	CredsPath                string            `hcl:"creds_path,optional"`
-	ControllerCount          int               `hcl:"controller_count,optional"`
-	ControllerType           string            `hcl:"controller_type,optional"`
-	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
-	Region                   string            `hcl:"region,optional"`
-	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
-	DiskSize                 int               `hcl:"disk_size,optional"`
-	DiskType                 string            `hcl:"disk_type,optional"`
-	DiskIOPS                 int               `hcl:"disk_iops,optional"`
-	NetworkMTU               int               `hcl:"network_mtu,optional"`
-	HostCIDR                 string            `hcl:"host_cidr,optional"`
-	PodCIDR                  string            `hcl:"pod_cidr,optional"`
-	ServiceCIDR              string            `hcl:"service_cidr,optional"`
-	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
-	EnableReporting          bool              `hcl:"enable_reporting,optional"`
-	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
-	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
+	Metadata        *configpkg.Metadata
+	DNSZone         string       `hcl:"dns_zone"`
+	DNSZoneID       string       `hcl:"dns_zone_id"`
+	ExposeNodePorts bool         `hcl:"expose_nodeports,optional"`
+	CredsPath       string       `hcl:"creds_path,optional"`
+	Region          string       `hcl:"region,optional"`
+	WorkerPools     []workerPool `hcl:"worker_pool,block"`
+	Disk            *disk        `hcl:"disk,block"`
+	Flatcar         *flatcar     `hcl:"flatcar,block"`
+	Network         *network     `hcl:"network,block"`
+	Controller      *controller  `hcl:"controller,block"`
 }
 
-// init registers aws as a platform
+// init registers packet as a platform
+//nolint:gochecknoinits
 func init() {
-	platform.Register("aws", NewConfig())
+	configpkg.Register("aws", newConfig())
 }
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-
-	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
-		return diags
-	}
-
-	return c.checkValidConfig()
-}
-
-func NewConfig() *config {
+func newConfig() *config {
 	return &config{
-		Region:            "eu-central-1",
-		EnableAggregation: true,
+		Flatcar: &flatcar{
+			OSName: "flatcar",
+		},
+		Network: &network{
+			HostCIDR: "10.0.0.0/16",
+		},
+		Controller: &controller{
+			Type: "t3.medium",
+		},
+		Disk: &disk{
+			Size: defaultDiskSize,
+			IOPS: 0,
+			Type: "gp2",
+		},
+		Region: "eu-central-1",
 	}
-}
-
-// GetAssetDir returns asset directory path
-func (c *config) GetAssetDir() string {
-	return c.AssetDir
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
 
 	return ex.Apply()
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
 
 	return ex.Destroy()
 }
 
-func (c *config) Initialize(ex *terraform.Executor) error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
+func (c *config) SetMetadata(metadata *configpkg.Metadata) {
+	c.Metadata = metadata
 }
 
-func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
+func (c *config) Render(cfg *configpkg.LokomotiveConfig) (string, error) {
 	workerpoolCfgList := []map[string]string{}
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
+	keyListBytes, err := json.Marshal(cfg.Controller.SSHPubKeys)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
+		return "", errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
-	path := filepath.Join(terraformRootDir, tmplName)
-	f, err := os.Create(path)
+	controllerCLCSnippetsBytes, err := json.Marshal(c.Controller.CLCSnippets)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
+		return "", errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
-	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
+	util.AppendTags(&c.Controller.Tags)
+
+	tags, err := json.Marshal(c.Controller.Tags)
 	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
+		return "", errors.Wrapf(err, "failed to marshal tags")
 	}
 
-	util.AppendTags(&cfg.Tags)
-
-	tags, err := json.Marshal(cfg.Tags)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
-	}
-
-	for _, workerpool := range cfg.WorkerPools {
+	for _, workerpool := range c.WorkerPools {
 		input := map[string]interface{}{
 			"clc_snippets":  workerpool.CLCSnippets,
 			"target_groups": workerpool.TargetGroups,
@@ -181,7 +153,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		for k, v := range input {
 			bytes, err := json.Marshal(v)
 			if err != nil {
-				return fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
+				return "", fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
 			}
 
 			output[k] = string(bytes)
@@ -191,29 +163,32 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 
 	terraformCfg := struct {
-		Config                config
-		Tags                  string
-		SSHPublicKeys         string
+		LokomotiveConfig      *configpkg.LokomotiveConfig
+		AWSConfig             *config
+		ControllerTags        string
+		SSHPubKeys            string
 		ControllerCLCSnippets string
-		WorkerCLCSnippets     string
-		WorkerTargetGroups    string
-		WorkerpoolCfg         []map[string]string
+		WorkerPoolsList       []map[string]string
 	}{
-		Config:                *cfg,
-		Tags:                  string(tags),
-		SSHPublicKeys:         string(keyListBytes),
+		LokomotiveConfig:      cfg,
+		AWSConfig:             c,
+		ControllerTags:        string(tags),
+		SSHPubKeys:            string(keyListBytes),
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
-		WorkerpoolCfg:         workerpoolCfgList,
+		WorkerPoolsList:       workerpoolCfgList,
 	}
 
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
+	return utilpkg.RenderTemplate(terraformConfigTmpl, terraformCfg)
 }
 
-func (c *config) GetExpectedNodes() int {
-	nodes := c.ControllerCount
+func (c *config) Validate() hcl.Diagnostics {
+	// check all configuration
+	// whether its valid or not
+	return c.checkValidConfig()
+}
+
+func (c *config) GetExpectedNodes(cfg *configpkg.LokomotiveConfig) int {
+	nodes := cfg.Controller.Count
 	for _, workerpool := range c.WorkerPools {
 		nodes += workerpool.Count
 	}
@@ -228,6 +203,84 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkNameSizes()...)
+	diagnostics = append(diagnostics, c.checkAWSConfig()...)
+	diagnostics = append(diagnostics, c.checkFlatcarConfig()...)
+	diagnostics = append(diagnostics, c.checkNetworkConfig()...)
+	diagnostics = append(diagnostics, c.checkControllerConfig()...)
+
+	return diagnostics
+}
+
+func (c *config) checkAWSConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+	if c.Region == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected `region` to be non-empty"),
+		})
+	}
+
+	if c.DNSZone == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected `dns_zone` to be non-empty"),
+		})
+	}
+
+	if c.DNSZoneID == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected `dns_zone_id` to be non-empty"),
+		})
+	}
+
+	return diagnostics
+}
+func (c *config) checkNetworkConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+	if c.Network.HostCIDR == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Detail:   "required field `host_cidr` is missing",
+		})
+	}
+
+	if err := validCIDR(c.Network.HostCIDR); err != nil {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("invalid 'host_cidr' `%s`: %v", c.Network.HostCIDR, err),
+		})
+	}
+
+	return diagnostics
+}
+
+func validCIDR(cidr string) error {
+	_, _, err := net.ParseCIDR(cidr)
+
+	return err
+}
+func (c *config) checkFlatcarConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+	if c.Flatcar.OSName != "flatcar" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected 'flatcar', got: %s", c.Flatcar.OSName),
+		})
+	}
+
+	return diagnostics
+}
+
+func (c *config) checkControllerConfig() hcl.Diagnostics {
+	//TODO: Get a list of valid packet machine types and validate
+	var diagnostics hcl.Diagnostics
+	if c.Controller.Type == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "`type` cannot be empty",
+		})
+	}
 
 	return diagnostics
 }
@@ -240,7 +293,7 @@ func (c *config) checkNameSizes() hcl.Diagnostics {
 	maxAWSResourceName := 32
 	maxNameLen := maxAWSResourceName - len("-workers-https") // This is the longest resource suffix.
 
-	if len(c.ClusterName) > maxNameLen {
+	if len(c.Metadata.ClusterName) > maxNameLen {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Cluster name too long",
@@ -268,8 +321,7 @@ func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
 	if len(c.WorkerPools) == 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  "At least one worker pool must be defined",
-			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+			Summary:  "one or more worker pool blocks required",
 		})
 	}
 
@@ -291,8 +343,7 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 		// It is duplicated.
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  "Worker pools name should be unique",
-			Detail:   fmt.Sprintf("Worker pool '%v' is duplicated", w.Name),
+			Summary:  fmt.Sprintf("worker pool '%v' is not unique", w.Name),
 		})
 	}
 
