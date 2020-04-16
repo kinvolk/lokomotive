@@ -28,6 +28,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 )
 
 const name = "cluster-autoscaler"
@@ -323,7 +324,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		c.Packet.AuthToken = base64.StdEncoding.EncodeToString([]byte(os.Getenv("PACKET_AUTH_TOKEN")))
 	}
 
-	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	values, err := utilpkg.RenderTemplate(chartValuesTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart values template")
 	}

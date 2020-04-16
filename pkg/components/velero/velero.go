@@ -25,6 +25,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 )
 
 const name = "velero"
@@ -152,7 +153,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}
 
-	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	values, err := utilpkg.RenderTemplate(chartValuesTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart values template")
 	}

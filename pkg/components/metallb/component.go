@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 	"github.com/pkg/errors"
 )
 
@@ -85,17 +86,17 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.ControllerTolerationsJSON = t
 
-	controllerStr, err := util.RenderTemplate(deploymentController, c)
+	controllerStr, err := utilpkg.RenderTemplate(deploymentController, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render template failed")
 	}
 
-	speakerStr, err := util.RenderTemplate(daemonsetSpeaker, c)
+	speakerStr, err := utilpkg.RenderTemplate(daemonsetSpeaker, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render template failed")
 	}
 
-	configMapStr, err := util.RenderTemplate(configMap, c)
+	configMapStr, err := utilpkg.RenderTemplate(configMap, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "rendering ConfigMap template failed")
 	}
