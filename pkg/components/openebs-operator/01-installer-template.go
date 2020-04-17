@@ -120,7 +120,7 @@ rules:
   verbs: ["*"]
   # Note: For our PSP
 - apiGroups: ["policy"]
-  resourceNames: ["privileged"]
+  resourceNames: ["zz-privileged"]
   resources: ["podsecuritypolicies"]
   verbs: ["use"]
 ---
