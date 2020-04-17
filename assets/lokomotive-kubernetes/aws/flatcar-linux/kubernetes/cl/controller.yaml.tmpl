@@ -122,7 +122,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.18.1
+          KUBELET_IMAGE_TAG=v1.18.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/master,node.kubernetes.io/controller=true"
           NODE_TAINTS="node-role.kubernetes.io/master=:NoSchedule"
@@ -144,7 +144,7 @@ storage:
           # Wrapper for bootkube start
           set -e
           # Pre-pull hyperkube image because when it is later pulled but takes too long it times out
-          docker pull k8s.gcr.io/hyperkube:v1.18.1
+          docker pull k8s.gcr.io/hyperkube:v1.18.2
           # Move experimental manifests
           [ -n "$(ls /opt/bootkube/assets/manifests-*/* 2>/dev/null)" ] && mv /opt/bootkube/assets/manifests-*/* /opt/bootkube/assets/manifests && rm -rf /opt/bootkube/assets/manifests-*
           exec /usr/bin/rkt run \

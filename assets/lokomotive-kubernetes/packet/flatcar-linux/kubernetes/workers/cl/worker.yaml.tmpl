@@ -276,7 +276,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube-${os_arch}
-          KUBELET_IMAGE_TAG=v1.18.1
+          KUBELET_IMAGE_TAG=v1.18.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/node,${node_labels}"
           BGP_NODE_LABELS="${bgp_node_labels}"
@@ -300,7 +300,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://k8s.gcr.io/hyperkube-${os_arch}:v1.18.1 \
+            docker://k8s.gcr.io/hyperkube-${os_arch}:v1.18.2 \
             --net=host \
             --dns=host \
             -- \
