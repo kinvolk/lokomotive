@@ -58,7 +58,7 @@ backend "s3" {
   dynamodb_table = var.lock_dynamodb_table
 }
 
-# backed "local" {
+# backend "local" {
 #   path = "path/to/local/file"
 #}
 
