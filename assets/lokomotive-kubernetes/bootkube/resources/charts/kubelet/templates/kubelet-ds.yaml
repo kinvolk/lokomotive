@@ -17,6 +17,7 @@ spec:
         tier: node
         k8s-app: kubelet
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: kubelet
         image: {{ .Values.image }}
