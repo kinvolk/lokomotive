@@ -288,7 +288,7 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Worker pools name should be unique",
-			Detail:   fmt.Sprintf("Worker pool %v is duplicated", w.Name),
+			Detail:   fmt.Sprintf("Worker pool %q is duplicated", w.Name),
 		})
 	}
 
