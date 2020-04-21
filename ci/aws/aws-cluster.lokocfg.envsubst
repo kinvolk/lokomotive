@@ -7,13 +7,22 @@ variable "os_channel" {
   type = "string"
 }
 
-cluster "aws" {
+metadata {
   asset_dir    = pathexpand(var.asset_dir)
   cluster_name = "$CLUSTER_ID"
+}
+
+flatcar {
+  channel   = var.os_channel
+}
+
+controller {
+  ssh_pubkeys  = ["$PUB_KEY"]
+}
+
+platform "aws" {
   dns_zone     = "$AWS_DNS_ZONE"
   dns_zone_id  = "$AWS_DNS_ZONE_ID"
-  os_channel   = var.os_channel
-  ssh_pubkeys  = ["$PUB_KEY"]
 
   worker_pool "$CLUSTER_ID-wp" {
     count         = 2
