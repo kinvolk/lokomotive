@@ -39,12 +39,14 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 		// This component has no configuration, so don't complain when there is no configuration defined.
 		return nil
 	}
+
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
 	walk := walkers.DumpingWalker(ret, ".yaml")
+
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", name), walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}

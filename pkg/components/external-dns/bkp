@@ -1,0 +1,92 @@
+
+func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
+	configHCL := `
+ component "external-dns" {
+   sources = ["service"]
+   metrics =  false
+   policy = "upsert-only"
+   owner_id = "test-owner"
+   aws {
+     zone_id = "TESTZONEID"
+     zone_type = "public"
+   }
+ }
+ `
+	// Unset AWS environment variables
+	os.Unsetenv("AWS_ACCESS_KEY_ID")
+	os.Unsetenv("AWS_SECRET_ACCESS_KEY")
+
+	component, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+	}
+	if _, err := component.RenderManifests(); err == nil {
+		t.Fatalf("Rendering manifests should produce error as AWS credentials were not passed")
+	}
+}
+
+func TestAwsConfigBySettingEnvVariables(t *testing.T) {
+	configHCL := `
+  component "external-dns" {
+    sources = ["service"]
+    metrics =  false
+    policy = "upsert-only"
+    owner_id = "test-owner"
+    aws {
+      zone_id = "TESTZONEID"
+      zone_type = "public"
+    }
+  }
+  `
+	// Set env variables.
+	if err := os.Setenv("AWS_ACCESS_KEY_ID", "TESTACCESSKEY"); err != nil {
+		t.Fatalf("Error setting env variable: %s", err)
+	}
+	if err := os.Setenv("AWS_SECRET_ACCESS_KEY", "TESTSECRETACCESSKEY"); err != nil {
+		t.Fatalf("Error setting env variable: %s", err)
+	}
+	component, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+	}
+	m, err := component.RenderManifests()
+	if err != nil {
+		t.Fatalf("Rendering manifests should not produce error as env variables were set, got: %s", err)
+	}
+	if len(m) <= 0 {
+		t.Fatalf("Rendered manifests shouldn't be empty")
+	}
+}
+
+func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
+	configHCL := `
+  component "external-dns" {
+    sources = ["service"]
+    metrics =  false
+    policy = "upsert-only"
+    owner_id = "test-owner"
+    aws {
+      zone_id = "TESTZONEID"
+      zone_type = "public"
+    }
+  }
+  `
+	// Set env variables.
+	err := os.Setenv("AWS_ACCESS_KEY_ID", "")
+	if err != nil {
+		t.Fatalf("Error setting env variable: %s", err)
+	}
+	err = os.Setenv("AWS_SECRET_ACCESS_KEY", "")
+	if err != nil {
+		t.Fatalf("Error setting env variable: %s", err)
+	}
+	component, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+	}
+	_, err = component.RenderManifests()
+	t.Log("Got err ::", err)
+	if err == nil {
+		t.Fatalf("Rendering manifests should produce error as AWS credentials were passed empty")
+	}
+}
