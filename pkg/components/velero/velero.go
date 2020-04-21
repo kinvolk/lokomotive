@@ -211,6 +211,7 @@ func (c *component) getProvider() (provider, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
+		Name:      name,
 		Namespace: c.Namespace,
 	}
 }
