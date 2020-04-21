@@ -1,8 +1,19 @@
-cluster "packet" {
+
+metadata {
   asset_dir        = pathexpand("~/lokoctl-assets")
   cluster_name     = "$CLUSTER_ID"
-  controller_count = 1
+}
 
+controller {
+  count = 1
+  ssh_pubkeys       = ["$PUB_KEY"]
+}
+
+flatcar {
+  channel = "alpha"
+}
+
+platform "packet" {
   dns {
     zone = "$AWS_DNS_ZONE"
 
@@ -17,14 +28,19 @@ cluster "packet" {
 
   project_id = "$PACKET_PROJECT_ID"
 
-  ipxe_script_url = "https://alpha.release.flatcar-linux.net/arm64-usr/current/flatcar_production_packet.ipxe"
-  os_arch         = "arm64"
-  os_channel      = "alpha"
-  controller_type = "c2.large.arm"
+  flatcar {
+    ipxe_script_url = "https://alpha.release.flatcar-linux.net/arm64-usr/current/flatcar_production_packet.ipxe"
+    os_arch         = "arm64"
+  }
 
-  ssh_pubkeys       = ["$PUB_KEY"]
-  management_cidrs  = ["0.0.0.0/0"]
-  node_private_cidr = "10.0.0.0/8"
+  controller {
+    type = "c2.large.arm"
+  }
+
+  network {
+    management_cidrs  = ["0.0.0.0/0"]
+    node_private_cidr = "10.0.0.0/8"
+  }
 
   worker_pool "pool-1" {
     count           = 1
