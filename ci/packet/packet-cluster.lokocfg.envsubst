@@ -1,8 +1,14 @@
-cluster "packet" {
+metadata {
   asset_dir        = pathexpand("~/lokoctl-assets")
   cluster_name     = "$CLUSTER_ID"
-  controller_count = 1
+}
 
+controller {
+  count = 1
+  ssh_pubkeys       = ["$PUB_KEY"]
+}
+
+platform "packet" {
   dns {
     zone = "$AWS_DNS_ZONE"
 
@@ -17,9 +23,10 @@ cluster "packet" {
 
   project_id = "$PACKET_PROJECT_ID"
 
-  ssh_pubkeys       = ["$PUB_KEY"]
-  management_cidrs  = ["0.0.0.0/0"]
-  node_private_cidr = "10.0.0.0/8"
+  network {
+    management_cidrs  = ["0.0.0.0/0"]
+    node_private_cidr = "10.0.0.0/8"
+  }
 
   worker_pool "pool-1" {
     count     = 2
