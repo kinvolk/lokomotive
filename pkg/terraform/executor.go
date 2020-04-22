@@ -44,6 +44,8 @@ const (
 	failFileSuffix = ".fail"
 
 	requiredVersion = ">= 0.12, < 0.13"
+
+	noOfLinesOnError = 20
 )
 
 // ErrBinaryNotFound denotes the fact that the Terraform binary could not be
@@ -219,14 +221,45 @@ func (ex *Executor) execute(verbose bool, args ...string) error {
 
 	s, err := ex.Status(pid)
 	if err != nil {
+		if !verbose {
+			showError(p, noOfLinesOnError)
+		}
 		return fmt.Errorf("failed checking execution status: %w", err)
 	}
 
 	if s != ExecutionStatusSuccess {
+		if !verbose {
+			showError(p, noOfLinesOnError)
+		}
 		return fmt.Errorf("executing Terraform failed, check %s for details", p)
 	}
 
 	return nil
+}
+
+func showError(path string, noOfLines int) {
+	// nolint: gosec
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Printf("error reading file: %v", err)
+		return
+	}
+
+	text := string(data)
+	lines := strings.Split(text, "\n")
+
+	// Deletion by one is done here to adjust the difference between the user provided number which
+	// starts counting from 1 and array indices which start counting from 0.
+	// nolint: gomnd
+	offset := len(lines) - noOfLines - 1
+
+	if offset > 0 {
+		lines = lines[offset:]
+	}
+
+	for _, line := range lines {
+		fmt.Println(line)
+	}
 }
 
 // LoadVars is a convenience function to load the tfvars file into memory
