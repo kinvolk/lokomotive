@@ -14,11 +14,11 @@
 
 package rook
 
-// These manifests were taken from https://github.com/rook/rook/tree/v1.2.1/cluster/examples/kubernetes/ceph with
-// some modifications (explained below on a case to case basis).
+// These manifests were taken from below some modifications (explained below on a case to case basis).
+// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph with
 
-// Namespace was split from https://github.com/rook/rook/blob/v1.2.1/cluster/examples/kubernetes/ceph/common.yaml
-// for easier management in code.
+// Namespace was split from below for easier management in code.
+// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/common.yaml
 const namespace = `
 # Namespace where the operator and other rook resources are created
 apiVersion: v1
@@ -27,8 +27,8 @@ metadata:
   name: {{ .Namespace }}
 `
 
-// CRD resource definitions was split from https://github.com/rook/rook/blob/v1.2.1/cluster/examples/kubernetes/ceph/common.yaml
-// for easier management in code.
+// CRD resource definitions was split from below for easier management in code.
+// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/common.yaml
 const crds = `
 # The CRD declarations
 ---
@@ -83,6 +83,8 @@ spec:
                 manageMachineDisruptionBudgets:
                   type: boolean
             skipUpgradeChecks:
+              type: boolean
+            continueUpgradeAfterChecksEvenIfNotHealthy:
               type: boolean
             mon:
               properties:
@@ -152,12 +154,6 @@ spec:
                         type: string
                       devicePathFilter:
                         type: string
-                      directories:
-                        type: array
-                        items:
-                          properties:
-                            path:
-                              type: string
                       devices:
                         type: array
                         items:
@@ -173,12 +169,6 @@ spec:
                   type: string
                 devicePathFilter:
                   type: string
-                directories:
-                  type: array
-                  items:
-                    properties:
-                      path:
-                        type: string
                 config: {}
                 storageClassDeviceSets: {}
             monitoring:
@@ -197,8 +187,17 @@ spec:
               properties:
                 enable:
                   type: boolean
+            cleanupPolicy:
+              properties:
+                deleteDataDirOnHosts:
+                  type: string
+                  pattern: ^$|^yes-really-destroy-data$
             placement: {}
             resources: {}
+  # somehow this is breaking the status, but let's keep this here so we don't forget it once we move
+  # to controller-runtime
+  # subresources:
+  #   status: {}
   additionalPrinterColumns:
     - name: DataDirHostPath
       type: string
@@ -211,10 +210,14 @@ spec:
     - name: Age
       type: date
       JSONPath: .metadata.creationTimestamp
-    - name: State
+    - name: Phase
       type: string
-      description: Current State
-      JSONPath: .status.state
+      description: Phase
+      JSONPath: .status.phase
+    - name: Message
+      type: string
+      description: Message
+      JSONPath: .status.message
     - name: Health
       type: string
       description: Ceph Health
@@ -241,6 +244,8 @@ spec:
           properties:
             caps:
               type: object
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -279,15 +284,29 @@ spec:
                 replicated:
                   properties:
                     size:
-                      minimum: 1
+                      minimum: 0
                       maximum: 10
                       type: integer
+                    requireSafeReplicaSize:
+                      type: boolean
                 erasureCoded:
                   properties:
                     dataChunks:
+                      minimum: 0
+                      maximum: 10
                       type: integer
                     codingChunks:
+                      minimum: 0
+                      maximum: 10
                       type: integer
+                compressionMode:
+                  type: string
+                  enum:
+                  - ""
+                  - none
+                  - passive
+                  - aggressive
+                  - force
             dataPools:
               type: array
               items:
@@ -297,15 +316,29 @@ spec:
                   replicated:
                     properties:
                       size:
-                        minimum: 1
+                        minimum: 0
                         maximum: 10
                         type: integer
+                      requireSafeReplicaSize:
+                        type: boolean
                   erasureCoded:
                     properties:
                       dataChunks:
+                        minimum: 0
+                        maximum: 10
                         type: integer
                       codingChunks:
+                        minimum: 0
+                        maximum: 10
                         type: integer
+                  compressionMode:
+                    type: string
+                    enum:
+                    - ""
+                    - none
+                    - passive
+                    - aggressive
+                    - force
             preservePoolsOnDelete:
               type: boolean
   additionalPrinterColumns:
@@ -316,6 +349,8 @@ spec:
     - name: Age
       type: date
       JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -351,6 +386,8 @@ spec:
                 annotations: {}
                 placement: {}
                 resources: {}
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -378,6 +415,8 @@ spec:
                 sslCertificateRef: {}
                 port:
                   type: integer
+                  minimum: 1
+                  maximum: 65535
                 securePort: {}
                 instances:
                   type: integer
@@ -392,12 +431,22 @@ spec:
                   properties:
                     size:
                       type: integer
+                    requireSafeReplicaSize:
+                      type: boolean
                 erasureCoded:
                   properties:
                     dataChunks:
                       type: integer
                     codingChunks:
                       type: integer
+                compressionMode:
+                  type: string
+                  enum:
+                  - ""
+                  - none
+                  - passive
+                  - aggressive
+                  - force
             dataPool:
               properties:
                 failureDomain:
@@ -406,14 +455,26 @@ spec:
                   properties:
                     size:
                       type: integer
+                    requireSafeReplicaSize:
+                      type: boolean
                 erasureCoded:
                   properties:
                     dataChunks:
                       type: integer
                     codingChunks:
                       type: integer
+                compressionMode:
+                  type: string
+                  enum:
+                  - ""
+                  - none
+                  - passive
+                  - aggressive
+                  - force
             preservePoolsOnDelete:
               type: boolean
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -432,6 +493,8 @@ spec:
     - objectuser
   scope: Namespaced
   version: v1
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -447,6 +510,43 @@ spec:
     singular: cephblockpool
   scope: Namespaced
   version: v1
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          properties:
+            failureDomain:
+                type: string
+            replicated:
+              properties:
+                size:
+                  type: integer
+                  minimum: 0
+                  maximum: 9
+                targetSizeRatio:
+                  type: number
+                requireSafeReplicaSize:
+                  type: boolean
+            erasureCoded:
+              properties:
+                dataChunks:
+                  type: integer
+                  minimum: 0
+                  maximum: 9
+                codingChunks:
+                  type: integer
+                  minimum: 0
+                  maximum: 9
+            compressionMode:
+              type: string
+              enum:
+              - ""
+              - none
+              - passive
+              - aggressive
+              - force
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -464,6 +564,8 @@ spec:
     - rv
   scope: Namespaced
   version: v1alpha2
+  subresources:
+    status: {}
 
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -513,7 +615,7 @@ spec:
 `
 
 // RBAC resource definitions was split from
-// https://github.com/rook/rook/blob/v1.2.1/cluster/examples/kubernetes/ceph/common.yaml for easier management in
+// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/common.yaml for easier management in
 // code.  This section contains additional Role and Rolebinding named "rook-psp-privileged" that allows the service
 // accounts in the {{ .Namespace }} namespace to use the privileged PSP. Without this, Rook will not work on a cluster
 // with PSP enabled.
@@ -558,29 +660,21 @@ metadata:
 rules:
 - apiGroups:
   - ""
+  - apps
+  - extensions
   resources:
   - secrets
   - pods
   - pods/log
   - services
   - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-  - patch
-  - create
-  - update
-  - delete
-- apiGroups:
-  - apps
-  resources:
   - deployments
   - daemonsets
   verbs:
   - get
   - list
   - watch
+  - patch
   - create
   - update
   - delete
@@ -611,6 +705,7 @@ rules:
   - delete
 - apiGroups:
   - apps
+  - extensions
   resources:
   - daemonsets
   - statefulsets
@@ -622,6 +717,12 @@ rules:
   - create
   - update
   - delete
+- apiGroups:
+  - k8s.cni.cncf.io
+  resources:
+  - network-attachment-definitions
+  verbs:
+  - get
 ---
 # The cluster role for managing the Rook CRDs
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -654,6 +755,7 @@ rules:
   # Node access is needed for determining nodes where mons should run
   - nodes
   - nodes/proxy
+  - services
   verbs:
   - get
   - list
@@ -708,6 +810,7 @@ rules:
 - apiGroups:
   - policy
   - apps
+  - extensions
   resources:
   # This is for the clusterdisruption controller
   - poddisruptionbudgets
@@ -830,6 +933,8 @@ metadata:
   labels:
     operator: rook
     storage-backend: ceph
+# imagePullSecrets:
+# - name: my-registry-secret
 ---
 # Grant the operator, agent, and discovery agents access to resources in the namespace
 kind: RoleBinding
@@ -854,7 +959,6 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: rook-ceph-global
-  namespace: {{ .Namespace }}
   labels:
     operator: rook
     storage-backend: ceph
@@ -879,6 +983,8 @@ kind: ServiceAccount
 metadata:
   name: rook-ceph-osd
   namespace: {{ .Namespace }}
+# imagePullSecrets:
+# - name: my-registry-secret
 ---
 # Service account for the Ceph Mgr. Must exist and cannot be renamed.
 apiVersion: v1
@@ -886,6 +992,8 @@ kind: ServiceAccount
 metadata:
   name: rook-ceph-mgr
   namespace: {{ .Namespace }}
+# imagePullSecrets:
+# - name: my-registry-secret
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -911,7 +1019,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: rook-ceph-osd
-  namespace: {{ .Namespace }}
 rules:
 - apiGroups:
   - ""
@@ -926,7 +1033,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: rook-ceph-mgr-system
-  namespace: {{ .Namespace }}
 aggregationRule:
   clusterRoleSelectors:
   - matchLabels:
@@ -937,7 +1043,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: rook-ceph-mgr-system-rules
-  namespace: {{ .Namespace }}
   labels:
       rbac.ceph.rook.io/aggregate-to-rook-ceph-mgr-system: "true"
 rules:
@@ -962,10 +1067,12 @@ rules:
   resources:
   - pods
   - services
+  - pods/log
   verbs:
   - get
   - list
   - watch
+  - delete
 - apiGroups:
   - batch
   resources:
@@ -1120,6 +1227,9 @@ apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   name: rook-privileged
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 spec:
   privileged: true
   allowedCapabilities:
@@ -1368,7 +1478,7 @@ rules:
     verbs: ["get", "list"]
   - apiGroups: [""]
     resources: ["persistentvolumes"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
     verbs: ["get", "list", "watch", "update"]
@@ -1380,10 +1490,13 @@ rules:
     verbs: ["list", "watch", "create", "update", "patch"]
   - apiGroups: ["storage.k8s.io"]
     resources: ["volumeattachments"]
-    verbs: ["get", "list", "watch", "update"]
+    verbs: ["get", "list", "watch", "update", "patch"]
   - apiGroups: [""]
     resources: ["nodes"]
     verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims/status"]
+    verbs: ["update", "patch"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -1543,13 +1656,13 @@ rules:
     verbs: ["get", "list"]
   - apiGroups: [""]
     resources: ["persistentvolumes"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
     verbs: ["get", "list", "watch", "update"]
   - apiGroups: ["storage.k8s.io"]
     resources: ["volumeattachments"]
-    verbs: ["get", "list", "watch", "update"]
+    verbs: ["get", "list", "watch", "update", "patch"]
   - apiGroups: [""]
     resources: ["nodes"]
     verbs: ["get", "list", "watch"]
@@ -1574,6 +1687,9 @@ rules:
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshots/status"]
     verbs: ["update"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims/status"]
+    verbs: ["update", "patch"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -1629,9 +1745,95 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 `
 
-// Deployment resource definition was taken from https://github.com/rook/rook/blob/v1.2.1/cluster/examples/kubernetes/ceph/operator.yaml
-// The only change was made to uncomment the configuration of `FLEXVOLUME_DIR_PATH` which is required for Rook to work.
+// Deployment resource definition was taken from below:
+// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/operator.yaml
+// The only change was made to uncomment the configuration of `FLEXVOLUME_DIR_PATH` which is
+// required for Rook to work.
 const deploymentOperator = `
+# Rook Ceph Operator Config ConfigMap
+# Use this ConfigMap to override Rook-Ceph Operator configurations.
+# NOTE! Precedence will be given to this config if the same Env Var config also exists in the
+#       Operator Deployment.
+# To move a configuration(s) from the Operator Deployment to this ConfigMap, add the config
+# here. It is recommended to then remove it from the Deployment to eliminate any future confusion.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rook-ceph-operator-config
+  # should be in the namespace of the operator
+  namespace: {{ .Namespace }}
+data:
+  # Enable the CSI driver.
+  # To run the non-default version of the CSI driver, see the override-able image properties in operator.yaml
+  ROOK_CSI_ENABLE_CEPHFS: "true"
+  # Enable the default version of the CSI RBD driver. To start another version of the CSI driver,
+  # see image properties below.
+  ROOK_CSI_ENABLE_RBD: "true"
+  ROOK_CSI_ENABLE_GRPC_METRICS: "true"
+  # Enable deployment of csi-snapshotter sidecar container in ceph-csi provisioner pod.
+  CSI_ENABLE_SNAPSHOTTER: "true"
+
+  # Set logging level for csi containers.
+  # Supported values from 0 to 5. 0 for general useful logs, 5 for trace level verbosity.
+  # CSI_LOG_LEVEL: "0"
+
+  # Enable Ceph Kernel clients on kernel < 4.17 which support quotas for Cephfs
+  # If you disable the kernel client, your application may be disrupted during upgrade.
+  # See the upgrade guide: https://rook.io/docs/rook/master/ceph-upgrade.html
+  CSI_FORCE_CEPHFS_KERNEL_CLIENT: "true"
+
+  # (Optional) Allow starting unsupported ceph-csi image
+  ROOK_CSI_ALLOW_UNSUPPORTED_VERSION: "false"
+  # The default version of CSI supported by Rook will be started. To change the version
+  # of the CSI driver to something other than what is officially supported, change
+  # these images to the desired release of the CSI driver.
+  # ROOK_CSI_CEPH_IMAGE: "quay.io/cephcsi/cephcsi:v2.0.1"
+  # ROOK_CSI_REGISTRAR_IMAGE: "quay.io/k8scsi/csi-node-driver-registrar:v1.2.0"
+  # ROOK_CSI_RESIZER_IMAGE: "quay.io/k8scsi/csi-resizer:v0.4.0"
+  # ROOK_CSI_PROVISIONER_IMAGE: "quay.io/k8scsi/csi-provisioner:v1.4.0"
+  # ROOK_CSI_SNAPSHOTTER_IMAGE: "quay.io/k8scsi/csi-snapshotter:v1.2.2"
+  # ROOK_CSI_ATTACHER_IMAGE: "quay.io/k8scsi/csi-attacher:v2.1.0"
+
+  # CSI CephFS plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
+  # Default value is RollingUpdate.
+  # CSI_CEPHFS_PLUGIN_UPDATE_STRATEGY: "OnDelete"
+  # CSI RBD plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
+  # Default value is RollingUpdate.
+  # CSI_RBD_PLUGIN_UPDATE_STRATEGY: "OnDelete"
+
+  # kubelet directory path, if kubelet configured to use other than /var/lib/kubelet path.
+  # ROOK_CSI_KUBELET_DIR_PATH: "/var/lib/kubelet"
+
+  # (Optional) Ceph Provisioner NodeAffinity.
+  # CSI_PROVISIONER_NODE_AFFINITY: "role=storage-node; storage=rook, ceph"
+  # (Optional) CEPH CSI provisioner tolerations list. Put here list of taints you want to tolerate in YAML format.
+  # CSI provisioner would be best to start on the same nodes as other ceph daemons.
+  # CSI_PROVISIONER_TOLERATIONS: |
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/controlplane
+  #     operator: Exists
+  #   - effect: NoExecute
+  #     key: node-role.kubernetes.io/etcd
+  #     operator: Exists
+  # (Optional) Ceph CSI plugin NodeAffinity.
+  # CSI_PLUGIN_NODE_AFFINITY: "role=storage-node; storage=rook, ceph"
+  # (Optional) CEPH CSI plugin tolerations list. Put here list of taints you want to tolerate in YAML format.
+  # CSI plugins need to be started on all the nodes where the clients need to mount the storage.
+  # CSI_PLUGIN_TOLERATIONS: |
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/controlplane
+  #     operator: Exists
+  #   - effect: NoExecute
+  #     key: node-role.kubernetes.io/etcd
+  #     operator: Exists
+
+  # Configure CSI CSI Ceph FS grpc and liveness metrics port
+  # CSI_CEPHFS_GRPC_METRICS_PORT: "9091"
+  # CSI_CEPHFS_LIVENESS_METRICS_PORT: "9081"
+  # Configure CSI RBD grpc and liveness metrics port
+  # CSI_RBD_GRPC_METRICS_PORT: "9090"
+  # CSI_RBD_LIVENESS_METRICS_PORT: "9080"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1673,7 +1875,7 @@ spec:
       serviceAccountName: rook-ceph-system
       containers:
       - name: rook-ceph-operator
-        image: rook/ceph:v1.2.1
+        image: rook/ceph:v1.3.1
         args: ["ceph", "operator"]
         volumeMounts:
         - mountPath: /var/lib/rook
@@ -1684,10 +1886,10 @@ spec:
         # If the operator should only watch for cluster CRDs in the same namespace, set this to "true".
         # If this is not set to true, the operator will watch for cluster CRDs in all namespaces.
         - name: ROOK_CURRENT_NAMESPACE_ONLY
-          value: "true"
+          value: "false"
         # To disable RBAC, uncomment the following:
         # - name: RBAC_ENABLED
-        #  value: "false"
+        #   value: "false"
         {{- if .AgentTolerationEffect }}
         # Rook Agent toleration. Will tolerate all taints with all keys.
         # Choose between NoSchedule, PreferNoSchedule and NoExecute:
@@ -1823,84 +2025,6 @@ spec:
         - name: ROOK_ENABLE_DISCOVERY_DAEMON
           value: "true"
 
-        # Enable the default version of the CSI CephFS driver. To start another version of the CSI driver, see image properties below.
-        - name: ROOK_CSI_ENABLE_CEPHFS
-          value: "true"
-
-        # Enable the default version of the CSI RBD driver. To start another version of the CSI driver, see image properties below.
-        - name: ROOK_CSI_ENABLE_RBD
-          value: "true"
-        - name: ROOK_CSI_ENABLE_GRPC_METRICS
-          value: "true"
-        # Enable deployment of snapshotter container in ceph-csi provisioner.
-        - name: CSI_ENABLE_SNAPSHOTTER
-          value: "true"
-        # Enable Ceph Kernel clients on kernel < 4.17 which support quotas for Cephfs
-        # If you disable the kernel client, your application may be disrupted during upgrade.
-        # See the upgrade guide: https://rook.io/docs/rook/v1.2/ceph-upgrade.html
-        - name: CSI_FORCE_CEPHFS_KERNEL_CLIENT
-          value: "true"
-        # CSI CephFS plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
-        # Default value is RollingUpdate.
-        #- name: CSI_CEPHFS_PLUGIN_UPDATE_STRATEGY
-        #  value: "OnDelete"
-        # CSI Rbd plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
-        # Default value is RollingUpdate.
-        #- name: CSI_RBD_PLUGIN_UPDATE_STRATEGY
-        #  value: "OnDelete"
-        # The default version of CSI supported by Rook will be started. To change the version
-        # of the CSI driver to something other than what is officially supported, change
-        # these images to the desired release of the CSI driver.
-        #- name: ROOK_CSI_CEPH_IMAGE
-        #  value: "quay.io/cephcsi/cephcsi:v1.2.2"
-        #- name: ROOK_CSI_REGISTRAR_IMAGE
-        #  value: "quay.io/k8scsi/csi-node-driver-registrar:v1.1.0"
-        #- name: ROOK_CSI_PROVISIONER_IMAGE
-        #  value: "quay.io/k8scsi/csi-provisioner:v1.4.0"
-        #- name: ROOK_CSI_SNAPSHOTTER_IMAGE
-        #  value: "quay.io/k8scsi/csi-snapshotter:v1.2.2"
-        #- name: ROOK_CSI_ATTACHER_IMAGE
-        #  value: "quay.io/k8scsi/csi-attacher:v1.2.0"
-        # kubelet directory path, if kubelet configured to use other than /var/lib/kubelet path.
-        #- name: ROOK_CSI_KUBELET_DIR_PATH
-        #  value: "/var/lib/kubelet"
-        # (Optional) Ceph Provisioner NodeAffinity.
-        # - name: CSI_PROVISIONER_NODE_AFFINITY
-        #   value: "role=storage-node; storage=rook, ceph"
-        # (Optional) CEPH CSI provisioner tolerations list. Put here list of taints you want to tolerate in YAML format.
-        #  CSI provisioner would be best to start on the same nodes as other ceph daemons.
-        # - name: CSI_PROVISIONER_TOLERATIONS
-        #   value: |
-        #     - effect: NoSchedule
-        #       key: node-role.kubernetes.io/controlplane
-        #       operator: Exists
-        #     - effect: NoExecute
-        #       key: node-role.kubernetes.io/etcd
-        #       operator: Exists
-        # (Optional) Ceph CSI plugin NodeAffinity.
-        # - name: CSI_PLUGIN_NODE_AFFINITY
-        #   value: "role=storage-node; storage=rook, ceph"
-        # (Optional) CEPH CSI plugin tolerations list. Put here list of taints you want to tolerate in YAML format.
-        # CSI plugins need to be started on all the nodes where the clients need to mount the storage.
-        # - name: CSI_PLUGIN_TOLERATIONS
-        #   value: |
-        #     - effect: NoSchedule
-        #       key: node-role.kubernetes.io/controlplane
-        #       operator: Exists
-        #     - effect: NoExecute
-        #       key: node-role.kubernetes.io/etcd
-        #       operator: Exists
-        # Configure CSI cephfs grpc and liveness metrics port
-        #- name: CSI_CEPHFS_GRPC_METRICS_PORT
-        #  value: "9091"
-        #- name: CSI_CEPHFS_LIVENESS_METRICS_PORT
-        #  value: "9081"
-        # Configure CSI rbd grpc and liveness metrics port
-        #- name: CSI_RBD_GRPC_METRICS_PORT
-        #  value: "9090"
-        #- name: CSI_RBD_LIVENESS_METRICS_PORT
-        #  value: "9080"
-
         # Time to wait until the node controller will move Rook pods to other
         # nodes after detecting an unreachable node.
         # Pods affected by this setting are:
@@ -1937,4 +2061,5 @@ spec:
         emptyDir: {}
       - name: default-config-dir
         emptyDir: {}
+
 `

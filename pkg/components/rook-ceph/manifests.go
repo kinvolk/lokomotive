@@ -14,7 +14,8 @@
 
 package rookceph
 
-// CephCluster resource definition was taken from https://github.com/rook/rook/blob/release-1.0/cluster/examples/kubernetes/ceph/cluster.yaml
+// CephCluster resource definition was taken from:
+// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/cluster.yaml
 const cephCluster = `
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
@@ -23,19 +24,27 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   cephVersion:
-    image: ceph/ceph:v14.2.1-20190430
-    allowUnsupported: true
+    image: ceph/ceph:v14.2.8
+    allowUnsupported: false
   dataDirHostPath: /var/lib/rook
+  skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
   mon:
     count: {{ .MonitorCount }}
     allowMultiplePerNode: false
   dashboard:
     enabled: true
+    ssl: true
+  monitoring:
+    enabled: false
+    rulesNamespace: {{ .Namespace }}
   network:
-    hostNetwork: false
-  # RBD is required for block device. At the moment we only need object storage so this can be skipped.
   rbdMirroring:
     workers: 0
+  crashCollector:
+    disable: false
+  cleanupPolicy:
+    deleteDataDirOnHosts: ""
   placement:
     all:
       {{- if .NodeSelectors }}
@@ -57,7 +66,10 @@ spec:
       {{- if .TolerationsRaw }}
       tolerations: {{ .TolerationsRaw }}
       {{- end }}
-  storage:
+  annotations:
+  resources:
+  removeOSDsIfOutAndSafeToRemove: false
+  storage: # cluster level storage configuration and selection
     useAllNodes: true
     useAllDevices: true
     config:
@@ -66,7 +78,9 @@ spec:
       {{- end }}
       storeType: bluestore
       osdsPerDevice: "1" # this value can be overridden at the node or device level
-    # directories:
-    # - path: /var/lib/rook
-    #   # /dev/md/node-local-storage/rook
+  disruptionManagement:
+    managePodBudgets: false
+    osdMaintenanceTimeout: 30
+    manageMachineDisruptionBudgets: false
+    machineDisruptionBudgetNamespace: openshift-machine-api
 `
