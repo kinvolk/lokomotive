@@ -211,6 +211,8 @@ func (ex *Executor) execute(verbose bool, args ...string) error {
 		wg.Add(1)
 
 		go tailFile(p, done, &wg)
+	} else {
+		fmt.Printf("\nYou can find the logs in %q\n", p)
 	}
 
 	wg.Wait()
