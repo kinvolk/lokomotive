@@ -1,7 +1,7 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: restricted
+  name: zz-minimal
   annotations:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
     seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
@@ -56,7 +56,7 @@ rules:
   resources: ['podsecuritypolicies']
   verbs:     ['use']
   resourceNames:
-  - restricted
+  - zz-minimal
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
