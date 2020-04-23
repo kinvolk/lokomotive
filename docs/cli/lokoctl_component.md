@@ -24,6 +24,7 @@ Manage components
 
 * [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
 * [lokoctl component apply](lokoctl_component_apply.md)	 - Deploy or update a component
+* [lokoctl component delete](lokoctl_component_delete.md)	 - Delete an installed component
 * [lokoctl component list](lokoctl_component_list.md)	 - List all available components
 * [lokoctl component render-manifest](lokoctl_component_render-manifest.md)	 - Print the manifests for a component
 

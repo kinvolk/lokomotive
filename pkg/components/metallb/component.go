@@ -129,6 +129,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
+		Name:      name,
 		Namespace: "metallb-system",
 	}
 }
