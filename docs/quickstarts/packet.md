@@ -70,99 +70,91 @@ application to verify the cluster behaves as expected.
 
 ### Step 1: Install lokoctl
 
-lokoctl is a command-line interface for Lokomotive.
+`lokoctl` is the command-line interface for managing Lokomotive clusters.
 
-To install `lokoctl`, follow the instructions in the [lokoctl installation](../installer/lokoctl.md)
-guide.
-
-### Step 2: Set up a working directory
-
-It's better to start fresh in a new working directory, as the state of the cluster is stored in this
-directory.
-
-This also makes the cleanup task easier.
+Download the latest `lokoctl` binary for your platform:
 
 ```console
-mkdir -p lokomotive-infra/mycluster
-cd lokomotive-infra/mycluster
+export os=linux  # For macOS, use `os=darwin`.
+
+export release=$(curl -s https://api.github.com/repos/kinvolk/lokomotive/releases | jq -r '.[0].name' | tr -d v)
+curl -LO "https://github.com/kinvolk/lokomotive/releases/download/v${release}/lokoctl_${release}_${os}_amd64.tar.gz"
 ```
 
-### Step 3: Set up credentials from environment variables
-
-#### Packet
-
-* Log in to your Packet account and obtain the Project ID from the `Project Settings` tab.
-* Obtain an API key from the `User Settings` menu.
-* Set the environment variable `PACKET_AUTH_TOKEN` with the API key.
+Extract the binary and copy it to a place under your `$PATH`:
 
 ```console
-export PACKET_AUTH_TOKEN=<PACKET_API_KEY>
+tar zxvf lokoctl_${release}_${os}_amd64.tar.gz
+sudo cp lokoctl_${release}_${os}_amd64/lokoctl /usr/local/bin
+rm -rf lokoctl_${release}_${os}_amd64*
 ```
-#### AWS
 
-Lokomotive requires AWS credentials for configuring Route53 DNS. To manually configure DNS entries
-refer the DNS configuration settings for Packet(Add link).
+### Step 2: Create a cluster configuration
+
+Create a directory for the cluster-related files and navigate to it:
 
 ```console
-export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+mkdir lokomotive-demo && cd lokomotive-demo
 ```
 
-### Step 4: Define cluster configuration
+Create a file named `cluster.lokocfg` with the following contents:
 
-To create a Lokomotive cluster, we need to define a configuration.
+```hcl
+cluster "packet" {
+  asset_dir        = "./assets"
+  cluster_name     = "lokomotive-demo"
 
-A [production-ready configuration](../../examples/packet-production) is already provided for ease of
-use. Copy the example configuration to the working directory and modify accordingly.
+  dns {
+    zone     = "example.com"
+    provider = "route53"
+  }
 
-The provided configuration installs the Lokomotive cluster and the following components:
+  facility = "ams1"
+  project_id = "89273817-4f44-4b41-9f0c-cb00bf538542"
 
-* [metrics-server](../configuration-reference/components/metrics-server.md)
-* [openebs-operator](../configuration-reference/components/openebs-operator.md)
-* [contour](../configuration-reference/components/contour.md)
-* [metallb](../configuration-reference/components/metallb.md)
-* [cert-manager](../configuration-reference/components/cert-manager.md)
-* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-update-operator.md)
-* [openebs-storage-class](../configuration-reference/components/openebs-storage-class.md)
-* [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
+  ssh_pubkeys       = ["ssh-rsa AAAA..."]
+  management_cidrs  = ["0.0.0.0/0"]
+  node_private_cidr = "10.0.0.0/8"
 
-You can configure the components as per your requirements.
+  controller_count = 1
 
-Create a variables file named `lokocfg.vars` in working directory to set values for variables
-defined in the configuration file.
+  worker_pool "pool-1" {
+    count       = 2
+  }
+}
+
+# A demo application.
+component "httpbin" {
+  ingress_host = "httpbin.example.com"
+}
+```
+
+Replace the parameters above using the following information:
+
+- `dns.zone` - a Route 53 zone name. A subdomain will be created under this zone in the following
+  format: `<cluster_name>.<zone>`
+- `project_id` - the Packet project ID to deploy the cluster in.
+- `ssh_pubkeys` - A list of strings representing the *contents* of the public SSH keys which should
+  be authorized on cluster nodes.
+
+The rest of the parameters may be left as-is. For more information about the configuration options
+see the [configuration reference](../configuration-reference/platforms/packet.md).
+
+### Step 3: Deploy the cluster
+
+>NOTE: If you have the AWS CLI installed and configured for an AWS account, you can skip setting
+>the `AWS_*` variables below. `lokoctl` follows the standard AWS authentication methods, which
+>means it will use the `default` AWS CLI profile if no explicit credentials are specified.
+>Similarly, environment variables such as `AWS_PROFILE` can be used to instruct `lokoctl` to use a
+>specific AWS CLI profile for AWS authentication.
+
+Set up your Packet and AWS credentials in your shell:
 
 ```console
-#lokocfg.vars
-
-packet_project_id = "PACKET_PROJECT_ID"
-ssh_public_keys = ["ssh-rsa AAAAB3Nz...", "ssh-rsa AAAAB3Nz...", ...]
-
-state_s3_bucket = "name-of-the-s3-bucket-to-store-the-cluster-state"
-lock_dynamodb_table = "name-of-the-dynamodb-table-for-state-locking"
-
-dns_zone = "dns-zone-name"
-route53_zone_id = "zone-id-of-the-dns-zone"
-
-management_cidrs = "public-ip-address-cidr-to-access-the-cluster"
-node_private_cidr = "private-subnet-assigned-by-packet-to-the-project"
-
-cert_manager_email = "email-address-used-for-cert-manager-component"
-grafana_admin_password = "password-for-grafana"
+export PACKET_AUTH_TOKEN=k84jfL83kJF849B776Nle4L3980fake
+export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7FAKE
+export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYFAKE
 ```
-
-**NOTE**: You can separate component configurations from cluster configuration in separate
-configuration files if doing so fits your needs.
-
-Example:
-```console
-$ ls lokomotive-infra/mycluster
-cluster.lokocfg  metallb.lokocfg  cert-manager.lokocfg lokocfg.vars
-```
-
-For advanced cluster configurations and more information refer to the [Packet configuration
-guide](../configuration-reference/platforms/packet.md).
-
-### Step 5: Create Lokomotive cluster
 
 Add a private key corresponding to one of the public keys specified in `ssh_pubkeys` to your `ssh-agent`:
 
@@ -171,38 +163,25 @@ ssh-add ~/.ssh/id_rsa
 ssh-add -L
 ```
 
-Run the following command to create the cluster:
+Deploy the cluster:
 
 ```console
-lokoctl cluster apply
+lokoctl cluster apply -v
 ```
 
-Once the command finishes, your Lokomotive cluster details are stored in the path you've specified
-under `asset_dir`.
+The deployment process typically takes about 15 minutes. Upon successful completion, an output
+similar to the following is shown:
 
-## Verification
-
-A successful installation results in the output:
-
-```console
-module.packet-mycluster.null_resource.bootkube-start: Still creating... [4m10s elapsed]
-module.packet-mycluster.null_resource.bootkube-start: Still creating... [4m20s elapsed]
-module.packet-mycluster.null_resource.bootkube-start: Creation complete after 4m25s [id=1122239320434737682]
-
-Apply complete! Resources: 74 added, 0 changed, 0 destroyed.
-
-Your configurations are stored in /home/imran/lokoctl-assets/mycluster
+```
+Your configurations are stored in ./assets
 
 Now checking health and readiness of the cluster nodes ...
 
-Node                                          Ready    Reason          Message
-
-mycluster-controller-0                        True     KubeletReady    kubelet is posting ready status
-mycluster-controller-1                        True     KubeletReady    kubelet is posting ready status
-mycluster-controller-2                        True     KubeletReady    kubelet is posting ready status
-mycluster-worker-pool-1-worker-0              True     KubeletReady    kubelet is posting ready status
-mycluster-worker-pool-1-worker-1              True     KubeletReady    kubelet is posting ready status
-mycluster-worker-pool-1-worker-2              True     KubeletReady    kubelet is posting ready status
+Node                             Ready    Reason          Message                            
+                                                                                             
+lokomotive-demo-controller-0       True     KubeletReady    kubelet is posting ready status    
+lokomotive-demo-pool-1-worker-0    True     KubeletReady    kubelet is posting ready status    
+lokomotive-demo-pool-1-worker-1    True     KubeletReady    kubelet is posting ready status    
 
 Success - cluster is healthy and nodes are ready!
 ```
