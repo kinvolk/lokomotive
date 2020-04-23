@@ -186,86 +186,126 @@ lokomotive-demo-pool-1-worker-1    True     KubeletReady    kubelet is posting r
 Success - cluster is healthy and nodes are ready!
 ```
 
-Use the generated `kubeconfig` file to access the Kubernetes cluster and list nodes.
+## Verification
+
+Use the generated `kubeconfig` file to access the cluster:
 
 ```console
-export KUBECONFIG=./lokomotive-assets/cluster-assets/auth/kubeconfig
+export KUBECONFIG=$(pwd)/assets/cluster-assets/auth/kubeconfig
 kubectl get nodes
+```
+
+Sample output:
+
+```
+NAME                            STATUS   ROLES    AGE   VERSION
+lokomotive-demo-controller-0      Ready    <none>   33m   v1.17.4
+lokomotive-demo-pool-1-worker-0   Ready    <none>   33m   v1.17.4
+lokomotive-demo-pool-1-worker-1   Ready    <none>   33m   v1.17.4
+```
+
+Verify all pods are ready:
+
+```console
+kubectl get pods -A
+```
+
+Verify you can access httpbin:
+
+```console
+kubectl -n httpbin port-forward svc/httpbin 8080
+
+# In a new terminal.
+curl http://localhost:8080/get
+```
+
+Sample output:
+
+```
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Host": "localhost:8080", 
+    "User-Agent": "curl/7.70.0"
+  }, 
+  "origin": "127.0.0.1", 
+  "url": "http://localhost:8080/get"
+}
 ```
 
 ## Using the cluster
 
-At this point you have access to the Kubernetes cluster and can use it!
-If you don't have Kubernetes experience you can check out the [Kubernetes
-Basics official
-documentation](https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/)
-to learn about its usage.
+At this point you should have access to a Lokomotive cluster and can use it to deploy applications.
 
-**Note**: Lokomotive sets up a pretty restrictive Pod Security Policy that
-disallows running containers as root by default, check the [Pod Security Policy
-documentation](../concepts/securing-lokomotive-cluster.md#cluster-wide-pod-security-policy)
-for more details.
+If you don't have any Kubernetes experience, you can check out the [Kubernetes
+Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/) tutorial.
+
+>NOTE: Lokomotive uses a relatively restrictive Pod Security Policy by default. This policy
+>disallows running containers as root. Refer to the
+>[Pod Security Policy documentation](../concepts/securing-lokomotive-cluster.md#cluster-wide-pod-security-policy)
+>for more details.
 
 ## Cleanup
 
-To destroy the Lokomotive cluster, execute the following command:
+To destroy the cluster, execute the following command:
 
 ```console
-lokoctl cluster destroy --confirm
+lokoctl cluster destroy -v
 ```
 
-You can safely delete the working directory created for this quickstart guide if you no longer
-require it.
+Confirm you want to destroy the cluster by typing `yes` and hitting **Enter**.
+
+You can now safely delete the directory created for this guide if you no longer need it.
 
 ## Troubleshooting
 
-### Stuck at copy controller secrets
+### Stuck at "copy controller secrets"
 
-If there is an execution error or no progress beyond the output provided below:
-
-```console
+```
 ...
-module.packet-mycluster.null_resource.copy-controller-secrets: Still creating... (8m30s elapsed)
-module.packet-mycluster.null_resource.copy-controller-secrets: Still creating... (8m40s elapsed)
+module.packet-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m30s elapsed)
+module.packet-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m40s elapsed)
 ...
 ```
 
-The error probably happens because the `ssh_pubkeys` provided in the configuration is missing in the
-`ssh-agent`.
+In case the deployment process seems to hang at the `copy-controller-secrets` phase for a long
+time, check the following:
 
-To rectify the error, you need to:
-
-1. Follow the steps [to add the SSH key to the
-   ssh-agent](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent).
-2. Retry [Step 5](#step-5-create-lokomotive-cluster).
+- Verify the correct private SSH key was added to `ssh-agent`.
+- Verify that you can SSH into the created controller node from the machine running `lokoctl`.
 
 ### Packet provisioning failed
 
-For failed machine provisioning on Packet end, retry [Step 5](#step-5-create-lokomotive-cluster).
+Sometimes the provisioning of servers on Packet may fail, in which case the following error is
+shown:
 
-### Insufficient availability of nodes types on Packet
+```
+Error: provisioning time limit exceeded; the Packet team will investigate
+```
 
-In the event of failed Packet provisioning due to machines of type `controller_type` or
-`workers_type` not available.  You can check the Packet API [capacity
-endpoint](https://www.packet.com/developers/api/capacity/) to get the current capacity and decide on
-changing the facility or the machine type.
+In this case, retrying the deployment by re-running `lokoctl cluster apply -v` may help.
+
+### Insufficient capacity on Packet
+
+Sometimes there may not be enough hardware available at a given Packet facility for a given machine
+type, in which case the following error is shown:
+
+```
+The facility ams1 has no provisionable t1.small.x86 servers matching your criteria
+```
+
+In this case, either select a different node type and/or Packet facility, or wait for a while until
+more capacity becomes available. You can check the current capacity status on the Packet
+[API](https://www.packet.com/developers/api/capacity/).
 
 ### Permission issues
 
-  * If the failure is due to insufficient permissions on Packet, check the permission on the Packet
-    console.
-  * This generally happens if user is using `Project Level API Key` and not `User Level API Key`.
+If the deployment fails due to insufficient permissions on Packet, verify your Packet API key has
+permissions to the right Packet project.
 
-### Failed installation of components that require disk storage
-
-For components that require disk storage such as [Openebs storage
-class](../configuration-reference/components/openebs-storage-class.md), [Prometheus
-Operator](../configuration-reference/components/prometheus-operator.md) machine types with spare disks
-should be used.
-
-## Conclusion
-
-After walking through this guide, you've learned how to set up a Lokomotive cluster on Packet.
+If the deployment fails due to insufficient permissions on AWS, ensure the IAM user associated with
+the AWS API credentials has permissions to create records on Route 53.
 
 ## Next steps
 
