@@ -57,6 +57,10 @@ prometheus:
     labels:
       release: prometheus-operator
 {{ end }}
+global:
+  podSecurityPolicy:
+    enabled: true
+    useAppArmor: false
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
