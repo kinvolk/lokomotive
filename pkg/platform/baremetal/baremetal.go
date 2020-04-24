@@ -111,6 +111,16 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	return createTerraformConfigFile(c, terraformRootDir)
 }
 
+func (c *config) Render() (string, error) {
+
+	return "", nil
+}
+
+func (c *config) Validate() hcl.Diagnostics {
+
+	return hcl.Diagnostics{}
+}
+
 func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	tmplName := "cluster.tf"
 	t := template.New(tmplName)

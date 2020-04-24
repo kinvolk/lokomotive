@@ -168,6 +168,16 @@ func (c *config) Destroy(ex *terraform.Executor) error {
 	return ex.Destroy()
 }
 
+func (c *config) Render() (string, error) {
+
+	return "", nil
+}
+
+func (c *config) Validate() hcl.Diagnostics {
+
+	return hcl.Diagnostics{}
+}
+
 func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	tmplName := "cluster.tf"
 	t := template.New(tmplName)

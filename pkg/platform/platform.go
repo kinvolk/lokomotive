@@ -23,6 +23,10 @@ import (
 
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
+	// Render renders the terraform template
+	Render() (string, error)
+	// Validate validates the user configuration.
+	Validate() hcl.Diagnostics
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error

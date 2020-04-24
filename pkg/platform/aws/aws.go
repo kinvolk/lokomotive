@@ -140,6 +140,16 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	return createTerraformConfigFile(c, terraformRootDir)
 }
 
+func (c *config) Render() (string, error) {
+
+	return "", nil
+}
+
+func (c *config) Validate() hcl.Diagnostics {
+
+	return hcl.Diagnostics{}
+}
+
 func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	workerpoolCfgList := []map[string]string{}
 	tmplName := "cluster.tf"
