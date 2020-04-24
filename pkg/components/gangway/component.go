@@ -40,40 +40,96 @@ metadata:
   namespace: gangway
 data:
   gangway.yaml: |
-    # The cluster name
+    # The address to listen on. Defaults to 0.0.0.0 to listen on all interfaces.
+    # Env var: GANGWAY_HOST
+    # host: 0.0.0.0
+
+    # The port to listen on. Defaults to 8080.
+    # Env var: GANGWAY_PORT
+    # port: 8080
+
+    # Should Gangway serve TLS vs. plain HTTP? Default: false
+    # Env var: GANGWAY_SERVE_TLS
+    # serveTLS: false
+
+    # The public cert file (including root and intermediates) to use when serving
+    # TLS.
+    # Env var: GANGWAY_CERT_FILE
+    # certFile: /etc/gangway/tls/tls.crt
+
+    # The private key file when serving TLS.
+    # Env var: GANGWAY_KEY_FILE
+    # keyFile: /etc/gangway/tls/tls.key
+
+    # The cluster name. Used in UI and kubectl config instructions.
+    # Env var: GANGWAY_CLUSTER_NAME
     clusterName: {{ .ClusterName }}
 
-    # This is the API server URL that you want users to use and configure in
-    # their Kubectl. For the Heptio AWS quickstart this'll be an ELB name.
-    apiServerURL: {{ .APIServerURL }}
-
-    # The URL to send authorize requests to
+    # OAuth2 URL to start authorization flow.
+    # Env var: GANGWAY_AUTHORIZE_URL
     authorizeURL: {{ .AuthorizeURL }}
 
-    # URL to get a token from
+    # OAuth2 URL to obtain access tokens.
+    # Env var: GANGWAY_TOKEN_URL
     tokenURL: {{ .TokenURL }}
 
-    # API client ID as indicated by the identity provider
-    clientID: {{ .ClientID }}
-
-    # API client secret as indicated by the identity provider
-    clientSecret: {{ .ClientSecret }}
-
-    # Where to redirect back to. This should be a URL
-    # Where gangway is reachable
-    redirectURL: {{ .RedirectURL }}
+    # Endpoint that provides user profile information [optional]. Not all providers
+    # will require this.
+    # Env var: GANGWAY_AUDIENCE
+    audience: "https://${DNS_NAME}/userinfo"
 
     # Used to specify the scope of the requested Oauth authorization.
     scopes: ["openid", "profile", "email", "offline_access", "groups"]
 
-    # The JWT claim to use as the Kubnernetes username
+    # Where to redirect back to. This should be a URL where gangway is reachable.
+    # Typically this also needs to be registered as part of the oauth application
+    # with the oAuth provider.
+    # Env var: GANGWAY_REDIRECT_URL
+    redirectURL: {{ .RedirectURL }}
+
+    # API client ID as indicated by the identity provider
+    # Env var: GANGWAY_CLIENT_ID
+    clientID: {{ .ClientID }}
+
+    # API client secret as indicated by the identity provider
+    # Env var: GANGWAY_CLIENT_SECRET
+    clientSecret: {{ .ClientSecret }}
+
+    # Some identity providers accept an empty client secret, this
+    # is not generally considered a good idea. If you have to use an
+    # empty secret and accept the risks that come with that then you can
+    # set this to true.
+    #allowEmptyClientSecret: false
+
+    # The JWT claim to use as the username. This is used in UI.
+    # Default is "nickname". This is combined with the clusterName
+    # for the "user" portion of the kubeconfig.
+    # Env var: GANGWAY_USERNAME_CLAIM
     usernameClaim: "email"
 
     # The JWT claim to use as the email claim
     emailClaim: "email"
 
-    # Where to load the custom Lokomotive HTML templates from.
-    # Requires the initContainer below to download the theme.
+    # The API server endpoint used to configure kubectl
+    # Env var: GANGWAY_APISERVER_URL
+    apiServerURL: {{ .APIServerURL }}
+
+    # The path to find the CA bundle for the API server. Used to configure kubectl.
+    # This is typically mounted into the default location for workloads running on
+    # a Kubernetes cluster and doesn't need to be set.
+    # Env var: GANGWAY_CLUSTER_CA_PATH
+    # cluster_ca_path: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+
+    # The path to a root CA to trust for self signed certificates at the Oauth2 URLs
+    # Env var: GANGWAY_TRUSTED_CA_PATH
+    #trustedCAPath: /cacerts/rootca.crt
+
+    # The path gangway uses to create urls (defaults to "")
+    # Env var: GANGWAY_HTTP_PATH
+    #httpPath: "https://${GANGWAY_HTTP_PATH}"
+
+    # The path to find custom HTML templates
+    # Env var: GANGWAY_CUSTOM_HTTP_TEMPLATES_DIR
     customHTMLTemplatesDir: "/theme"
 `
 
@@ -120,7 +176,7 @@ spec:
             - name: GANGWAY_SESSION_SECURITY_KEY
               valueFrom:
                 secretKeyRef:
-                  name: gangway-session-key
+                  name: gangway-key
                   key: sessionkey
           ports:
             - name: http
@@ -165,7 +221,7 @@ const serviceManifest = `
 kind: Service
 apiVersion: v1
 metadata:
-  name: gangway-svc
+  name: gangwaysvc
   namespace: gangway
   labels:
     app: gangway
@@ -199,7 +255,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: gangway-svc
+          serviceName: gangwaysvc
           servicePort: http
 `
 
@@ -207,7 +263,7 @@ const secretTmpl = `
 apiVersion: v1
 kind: Secret
 metadata:
-  name: gangway-session-key
+  name: gangway-key
   namespace: gangway
 type: Opaque
 data:
