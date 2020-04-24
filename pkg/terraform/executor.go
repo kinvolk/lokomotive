@@ -96,6 +96,20 @@ type Executor struct {
 	logger        *log.Entry
 }
 
+func InitializeExecutor(assetDir string, verbose bool) (*Executor, error) {
+	conf := Config{
+		WorkingDir: GetTerraformRootDir(assetDir),
+		Verbose:    verbose,
+	}
+
+	ex, err := NewExecutor(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return ex, nil
+}
+
 // NewExecutor initializes a new Executor.
 func NewExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
