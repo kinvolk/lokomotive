@@ -15,7 +15,7 @@
 package aws
 
 var terraformConfigTmpl = `
-module "aws-{{.Config.ClusterName}}" {
+module "aws-{{.ClusterName}}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes"
 
   providers = {
@@ -26,78 +26,78 @@ module "aws-{{.Config.ClusterName}}" {
     tls      = tls.default
   }
 
-  cluster_name = "{{.Config.ClusterName}}"
-  tags         = {{.Tags}}
-  dns_zone     = "{{.Config.DNSZone}}"
-  dns_zone_id  = "{{.Config.DNSZoneID}}"
-  {{- if .Config.ClusterDomainSuffix }}
-  cluster_domain_suffix = "{{.Config.ClusterDomainSuffix}}"
+  cluster_name = "{{.ClusterName}}"
+  tags         = {{.TagsRaw}}
+  dns_zone     = "{{.DNSZone}}"
+  dns_zone_id  = "{{.DNSZoneID}}"
+  {{- if .ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{.ClusterDomainSuffix}}"
   {{- end }}
 
-  {{- if .Config.ExposeNodePorts }}
-  expose_nodeports = {{.Config.ExposeNodePorts}}
+  {{- if .ExposeNodePorts }}
+  expose_nodeports = {{.ExposeNodePorts}}
   {{- end }}
 
-  ssh_keys  = {{$.SSHPublicKeys}}
+  ssh_keys  = {{$.SSHPubKeysRaw}}
   asset_dir = "../cluster-assets"
 
- {{- if .Config.ControllerCount}}
-  controller_count = {{.Config.ControllerCount}}
+ {{- if .ControllerCount}}
+  controller_count = {{.ControllerCount}}
  {{- end }}
 
- {{- if .Config.ControllerType}}
-  controller_type  = "{{.Config.ControllerType}}"
+ {{- if .ControllerType}}
+  controller_type  = "{{.ControllerType}}"
  {{- end }}
 
 	# Do not allow creation of workers apart from using worker pools.
   worker_count = 0
 
-  {{- if .Config.NetworkMTU }}
-  network_mtu = {{.Config.NetworkMTU}}
+  {{- if .NetworkMTU }}
+  network_mtu = {{.NetworkMTU}}
   {{- end }}
-  enable_reporting = {{.Config.EnableReporting}}
-  {{- if .Config.PodCIDR }}
-  pod_cidr = "{{.Config.PodCIDR}}"
+  enable_reporting = {{.EnableReporting}}
+  {{- if .PodCIDR }}
+  pod_cidr = "{{.PodCIDR}}"
   {{- end }}
-  {{- if .Config.ServiceCIDR }}
-  service_cidr = "{{.Config.ServiceCIDR}}"
+  {{- if .ServiceCIDR }}
+  service_cidr = "{{.ServiceCIDR}}"
   {{- end }}
-  {{- if .Config.HostCIDR }}
-  host_cidr = "{{.Config.HostCIDR}}"
+  {{- if .HostCIDR }}
+  host_cidr = "{{.HostCIDR}}"
   {{- end }}
 
- {{- if .Config.OSName }}
-  os_name = "{{.Config.OSName}}"
+ {{- if .OSName }}
+  os_name = "{{.OSName}}"
  {{- end }}
- {{- if .Config.OSChannel }}
-  os_channel = "{{.Config.OSChannel}}"
+ {{- if .OSChannel }}
+  os_channel = "{{.OSChannel}}"
  {{- end }}
- {{- if .Config.OSVersion }}
-  os_version = "{{.Config.OSVersion}}"
- {{- end }}
-
- {{- if ne .ControllerCLCSnippets "null" }}
-  controller_clc_snippets = {{.ControllerCLCSnippets}}
+ {{- if .OSVersion }}
+  os_version = "{{.OSVersion}}"
  {{- end }}
 
-  enable_aggregation = {{.Config.EnableAggregation}}
+ {{- if ne .ControllerCLCSnippetsRaw "null" }}
+  controller_clc_snippets = {{.ControllerCLCSnippetsRaw}}
+ {{- end }}
 
-  {{- if .Config.DiskSize }}
-  disk_size = {{.Config.DiskSize}}
+  enable_aggregation = {{.EnableAggregation}}
+
+  {{- if .DiskSize }}
+  disk_size = {{.DiskSize}}
   {{- end }}
-  {{- if .Config.DiskType }}
-  disk_type = "{{.Config.DiskType}}"
+  {{- if .DiskType }}
+  disk_type = "{{.DiskType}}"
   {{- end }}
-  {{- if .Config.DiskIOPS }}
-  disk_iops = {{.Config.DiskIOPS}}
+  {{- if .DiskIOPS }}
+  disk_iops = {{.DiskIOPS}}
   {{- end }}
 
-  {{- if .Config.CertsValidityPeriodHours }}
-  certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
+  {{- if .CertsValidityPeriodHours }}
+  certs_validity_period_hours = {{.CertsValidityPeriodHours}}
   {{- end }}
 }
 
-{{ range $index, $pool := .Config.WorkerPools }}
+{{ range $index, $pool := .WorkerPools }}
 module "worker-pool-{{ $index }}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes/workers"
 
@@ -105,20 +105,20 @@ module "worker-pool-{{ $index }}" {
     aws      = aws.default
   }
 
-  vpc_id                = module.aws-{{ $.Config.ClusterName }}.vpc_id
-  subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
-  security_groups       = module.aws-{{ $.Config.ClusterName }}.worker_security_groups
-  kubeconfig            = module.aws-{{ $.Config.ClusterName }}.kubeconfig
+  vpc_id                = module.aws-{{ $.ClusterName }}.vpc_id
+  subnet_ids            = flatten([module.aws-{{ $.ClusterName }}.subnet_ids])
+  security_groups       = module.aws-{{ $.ClusterName }}.worker_security_groups
+  kubeconfig            = module.aws-{{ $.ClusterName }}.kubeconfig
 
-  {{- if $.Config.ServiceCIDR }}
-  service_cidr          = "{{ $.Config.ServiceCIDR }}"
+  {{- if $.ServiceCIDR }}
+  service_cidr          = "{{ $.ServiceCIDR }}"
   {{- end }}
 
-  {{- if $.Config.ClusterDomainSuffix }}
-  cluster_domain_suffix = "{{ $.Config.ClusterDomainSuffix }}"
+  {{- if $.ClusterDomainSuffix }}
+  cluster_domain_suffix = "{{ $.ClusterDomainSuffix }}"
   {{- end }}
 
-  ssh_keys              = {{ index (index $.WorkerpoolCfg $index) "ssh_pub_keys" }}
+  ssh_keys              = {{ index (index $.WorkerPoolsListRaw $index) "ssh_pub_keys" }}
   name                  = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
   os_name               = "flatcar"
@@ -150,15 +150,15 @@ module "worker-pool-{{ $index }}" {
   spot_price            = "{{ $pool.SpotPrice }}"
   {{- end }}
   {{- if $pool.TargetGroups }}
-  target_groups         = "{{ index (index $.WorkerpoolCfg $index) "target_groups" }}"
+  target_groups         = "{{ index (index $.WorkerPoolsListRaw $index) "target_groups" }}"
   {{- end }}
 
-  {{- if ne (index (index $.WorkerpoolCfg $index) "clc_snippets") "null" }}
-  clc_snippets          = {{ index (index $.WorkerpoolCfg $index) "clc snippets" }}
+  {{- if ne (index (index $.WorkerPoolsListRaw $index) "clc_snippets") "null" }}
+  clc_snippets          = {{ index (index $.WorkerPoolsListRaw $index) "clc snippets" }}
   {{- end }}
 
   {{- if $pool.Tags }}
-  tags                  = {{ index (index $.WorkerpoolCfg $index) "tags" }}
+  tags                  = {{ index (index $.WorkerPoolsListRaw $index) "tags" }}
   {{- end }}
 }
 {{- end }}
@@ -167,9 +167,9 @@ provider "aws" {
   version = "2.48.0"
   alias   = "default"
 
-  region                  = "{{.Config.Region}}"
-  {{- if .Config.CredsPath }}
-  shared_credentials_file = "{{.Config.CredsPath}}"
+  region                  = "{{.Region}}"
+  {{- if .CredsPath }}
+  shared_credentials_file = "{{.CredsPath}}"
   {{- end }}
 }
 
@@ -206,25 +206,25 @@ output "initialized" {
 
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
-  value = module.aws-{{.Config.ClusterName}}.pod-checkpointer_values
+  value = module.aws-{{.ClusterName}}.pod-checkpointer_values
 }
 
 output "kube-apiserver_values" {
-  value     = module.aws-{{.Config.ClusterName}}.kube-apiserver_values
+  value     = module.aws-{{.ClusterName}}.kube-apiserver_values
   sensitive = true
 }
 
 output "kubernetes_values" {
-  value     = module.aws-{{.Config.ClusterName}}.kubernetes_values
+  value     = module.aws-{{.ClusterName}}.kubernetes_values
   sensitive = true
 }
 
 output "kubelet_values" {
-  value     = module.aws-{{.Config.ClusterName}}.kubelet_values
+  value     = module.aws-{{.ClusterName}}.kubelet_values
   sensitive = true
 }
 
 output "calico_values" {
-  value = module.aws-{{.Config.ClusterName}}.calico_values
+  value = module.aws-{{.ClusterName}}.calico_values
 }
 `

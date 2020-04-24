@@ -75,6 +75,13 @@ type config struct {
 	EnableReporting          bool              `hcl:"enable_reporting,optional"`
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
+	// Raw fields that will store the strings after unmarshalling of
+	// SSHPubKeys, ControllerCLCSnippets, Tags and unmarshalling of
+	// some fields in WorkerPools
+	TagsRaw                  string
+	SSHPubKeysRaw            string
+	ControllerCLCSnippetsRaw string
+	WorkerPoolsListRaw       []map[string]string
 }
 
 // init registers aws as a platform
@@ -190,23 +197,12 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		workerpoolCfgList = append(workerpoolCfgList, output)
 	}
 
-	terraformCfg := struct {
-		Config                config
-		Tags                  string
-		SSHPublicKeys         string
-		ControllerCLCSnippets string
-		WorkerCLCSnippets     string
-		WorkerTargetGroups    string
-		WorkerpoolCfg         []map[string]string
-	}{
-		Config:                *cfg,
-		Tags:                  string(tags),
-		SSHPublicKeys:         string(keyListBytes),
-		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
-		WorkerpoolCfg:         workerpoolCfgList,
-	}
+	cfg.TagsRaw = string(tags)
+	cfg.SSHPubKeysRaw = string(keyListBytes)
+	cfg.ControllerCLCSnippetsRaw = string(controllerCLCSnippetsBytes)
+	cfg.WorkerPoolsListRaw = workerpoolCfgList
 
-	if err := t.Execute(f, terraformCfg); err != nil {
+	if err := t.Execute(f, cfg); err != nil {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
