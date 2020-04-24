@@ -237,12 +237,7 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 	// Get DNS entries (it forces the creation of the controller nodes).
 	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
 
-	// Add worker nodes to speed things up.
-	for _, w := range c.WorkerPools {
-		arguments = append(arguments, fmt.Sprintf("-target=module.worker-%v.packet_device.nodes", w.Name))
-	}
-
-	// Create controller and workers nodes.
+	// Create controller
 	if err := ex.Execute(arguments...); err != nil {
 		return errors.Wrap(err, "failed executing Terraform")
 	}
