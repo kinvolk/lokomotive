@@ -5,3 +5,9 @@ output "worker_nodes_hostname" {
 output "worker_nodes_public_ipv4" {
   value = packet_device.nodes.*.access_public_ipv4
 }
+
+# Dummy output used to create dependencies only
+# Not guaranteed that won't change
+output "device_ids" {
+  value = packet_device.nodes.*.id
+}
