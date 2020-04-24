@@ -89,8 +89,12 @@ type config struct {
 	ReservationIDsDefault    string            `hcl:"reservation_ids_default,optional"`
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	NodesDependOn            []string          // Not exposed to the user
-
-	WorkerPools []workerPool `hcl:"worker_pool,block"`
+	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
+	// Raw fields that will store the strings after unmarshalling of
+	// SSHPubKeys, ManagementCIDRs and Tags
+	SSHPubKeysRaw      string
+	ManagementCIDRsRaw string
+	TagsRaw            string
 }
 
 // init registers packet as a platform
@@ -153,7 +157,6 @@ func (c *config) Apply(ex *terraform.Executor) error {
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}
-
 	return c.terraformSmartApply(ex, dnsProvider)
 }
 
@@ -203,23 +206,11 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to marshal tags")
 	}
 
-	// Add explicit terraform dependencies for nodes with specific hw
-	// reservation UUIDs.
-	cfg.terraformAddDeps()
+	cfg.TagsRaw = string(tags)
+	cfg.SSHPubKeysRaw = string(keyListBytes)
+	cfg.ManagementCIDRsRaw = string(managementCIDRs)
 
-	terraformCfg := struct {
-		Config          config
-		Tags            string
-		SSHPublicKeys   string
-		ManagementCIDRs string
-	}{
-		Config:          *cfg,
-		Tags:            string(tags),
-		SSHPublicKeys:   string(keyListBytes),
-		ManagementCIDRs: string(managementCIDRs),
-	}
-
-	if err := t.Execute(f, terraformCfg); err != nil {
+	if err := t.Execute(f, cfg); err != nil {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
