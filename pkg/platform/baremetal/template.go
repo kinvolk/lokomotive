@@ -34,24 +34,24 @@ module "bare-metal-{{.ClusterName}}" {
   # configuration
   cached_install     = "{{.CachedInstall}}"
   k8s_domain_name    = "{{.K8sDomainName}}"
-  ssh_keys           = {{.SSHPublicKeys}}
+  ssh_keys           = {{.SSHPubKeysRaw}}
   asset_dir          = "../cluster-assets"
 
   # machines
-  controller_names   = {{.ControllerNames}}
-  controller_macs    = {{.ControllerMacs}}
-  controller_domains = {{.ControllerDomains}}
-  worker_names       = {{.WorkerNames}}
-  worker_macs        = {{.WorkerMacs}}
-  worker_domains     = {{.WorkerDomains}}
+  controller_names   = {{.ControllerNamesRaw}}
+  controller_macs    = {{.ControllerMacsRaw}}
+  controller_domains = {{.ControllerDomainsRaw}}
+  worker_names       = {{.WorkerNamesRaw}}
+  worker_macs        = {{.WorkerMacsRaw}}
+  worker_domains     = {{.WorkerDomainsRaw}}
 }
 
 provider "matchbox" {
   version     = "~> 0.3"
   endpoint    = "{{.MatchboxEndpoint}}"
-  client_cert = file("{{.MatchboxClientCert}}")
-  client_key  = file("{{.MatchboxClientKey}}")
-  ca          = file("{{.MatchboxCA}}")
+  client_cert = file("{{.MatchboxClientCertPath}}")
+  client_key  = file("{{.MatchboxClientKeyPath}}")
+  ca          = file("{{.MatchboxCAPath}}")
 }
 
 provider "ct" {

@@ -48,6 +48,15 @@ type config struct {
 	WorkerNames            []string `hcl:"worker_names"`
 	WorkerMacs             []string `hcl:"worker_macs"`
 	WorkerDomains          []string `hcl:"worker_domains"`
+
+	ControllerDomainsRaw string
+	ControllerMacsRaw    string
+	ControllerNamesRaw   string
+	K8sDomainNameRaw     string
+	SSHPubKeysRaw        string
+	WorkerNamesRaw       string
+	WorkerMacsRaw        string
+	WorkerDomainsRaw     string
 }
 
 // init registers bare-metal as a platform
@@ -152,45 +161,15 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
 	}
 
-	terraformCfg := struct {
-		CachedInstall        string
-		ClusterName          string
-		ControllerDomains    string
-		ControllerMacs       string
-		ControllerNames      string
-		K8sDomainName        string
-		MatchboxClientCert   string
-		MatchboxClientKey    string
-		MatchboxCA           string
-		MatchboxEndpoint     string
-		MatchboxHTTPEndpoint string
-		OSChannel            string
-		OSVersion            string
-		SSHPublicKeys        string
-		WorkerNames          string
-		WorkerMacs           string
-		WorkerDomains        string
-	}{
-		CachedInstall:        cfg.CachedInstall,
-		ClusterName:          cfg.ClusterName,
-		ControllerDomains:    string(controllerDomains),
-		ControllerMacs:       string(controllerMacs),
-		ControllerNames:      string(controllerNames),
-		K8sDomainName:        cfg.K8sDomainName,
-		MatchboxCA:           cfg.MatchboxCAPath,
-		MatchboxClientCert:   cfg.MatchboxClientCertPath,
-		MatchboxClientKey:    cfg.MatchboxClientKeyPath,
-		MatchboxEndpoint:     cfg.MatchboxEndpoint,
-		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
-		OSChannel:            cfg.OSChannel,
-		OSVersion:            cfg.OSVersion,
-		SSHPublicKeys:        string(keyListBytes),
-		WorkerNames:          string(workerNames),
-		WorkerMacs:           string(workerMacs),
-		WorkerDomains:        string(workerDomains),
-	}
+	cfg.ControllerDomainsRaw = string(controllerDomains)
+	cfg.ControllerMacsRaw = string(controllerMacs)
+	cfg.ControllerNamesRaw = string(controllerNames)
+	cfg.SSHPubKeysRaw = string(keyListBytes)
+	cfg.WorkerNamesRaw = string(workerNames)
+	cfg.WorkerMacsRaw = string(workerMacs)
+	cfg.WorkerDomainsRaw = string(workerDomains)
 
-	if err := t.Execute(f, terraformCfg); err != nil {
+	if err := t.Execute(f, cfg); err != nil {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
