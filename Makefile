@@ -36,7 +36,7 @@ build-in-docker:
 
 .PHONY: build-test
 build-test:
-	go test -run=nonexistent -mod=$(MOD) -tags=$(ALL_BUILD_TAGS) -covermode=atomic -buildmode=exe -v ./...
+	go test -run=nonexistent -mod=$(MOD) -tags=$(ALL_BUILD_TAGS) -covermode=atomic -buildmode=exe -v ./... > /dev/null
 
 .PHONY: all
 all: build build-test test lint
