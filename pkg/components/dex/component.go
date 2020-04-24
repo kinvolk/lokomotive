@@ -114,7 +114,7 @@ spec:
       serviceAccountName: dex
       initContainers:
       - name: download-theme
-        image: alpine/git:1.0.7
+        image: alpine/git:v2.24.2
         command:
         - git
         - clone
@@ -124,7 +124,7 @@ spec:
         - name: theme
           mountPath: /theme/
       containers:
-      - image: quay.io/dexidp/dex:v2.21.0
+      - image: quay.io/dexidp/dex:v2.23.0
         name: dex
         command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
         ports:
