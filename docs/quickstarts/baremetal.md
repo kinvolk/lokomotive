@@ -193,6 +193,13 @@ guide](../configuration-reference/platform/baremetal.md).
 
 ### Step 5: Create Lokomotive Cluster
 
+Add a private key corresponding to one of the public keys specified in `ssh_pubkeys` to your `ssh-agent`:
+
+```bash
+ssh-add ~/.ssh/id_rsa
+ssh-add -L
+```
+
 Run the following command to create the cluster:
 
 ```console

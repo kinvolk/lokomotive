@@ -134,6 +134,13 @@ guide](../configuration-reference/platforms/packet.md).
 
 ### Step 5: Create Lokomotive cluster
 
+Add a private key corresponding to one of the public keys specified in `ssh_pubkeys` to your `ssh-agent`:
+
+```bash
+ssh-add ~/.ssh/id_rsa
+ssh-add -L
+```
+
 Run the following command to create the cluster:
 
 ```console
