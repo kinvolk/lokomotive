@@ -114,7 +114,7 @@ spec:
       serviceAccountName: dex
       initContainers:
       - name: download-theme
-        image: alpine/git:1.0.7
+        image: alpine/git:v2.24.2
         command:
         - git
         - clone
