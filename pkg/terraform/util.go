@@ -31,7 +31,7 @@ const backendFileName = "backend.tf"
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
 func Configure(assetDir, renderedBackend string) error {
-	if err := PrepareTerraformDirectoryAndModules(assetDir); err != nil {
+	if err := prepareTerraformDirectoryAndModules(assetDir); err != nil {
 		return errors.Wrapf(err, "Failed to create required terraform directory")
 	}
 
@@ -40,22 +40,22 @@ func Configure(assetDir, renderedBackend string) error {
 		return nil
 	}
 
-	if err := CreateTerraformBackendFile(assetDir, renderedBackend); err != nil {
+	if err := createTerraformBackendFile(assetDir, renderedBackend); err != nil {
 		return errors.Wrapf(err, "Failed to create backend configuration file")
 	}
 
 	return nil
 }
 
-// PrepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
-func PrepareTerraformDirectoryAndModules(assetDir string) error {
+// prepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
+func prepareTerraformDirectoryAndModules(assetDir string) error {
 	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
-	if err := PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
+	if err := prepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
 	}
 
 	terraformRootDir := filepath.Join(assetDir, "terraform")
-	if err := PrepareTerraformRootDir(terraformRootDir); err != nil {
+	if err := prepareTerraformRootDir(terraformRootDir); err != nil {
 		return err
 	}
 
@@ -67,8 +67,8 @@ func GetTerraformRootDir(assetDir string) string {
 	return filepath.Join(assetDir, "terraform")
 }
 
-// CreateTerraformBackendFile creates the Terraform backend configuration file.
-func CreateTerraformBackendFile(assetDir, data string) error {
+// createTerraformBackendFile creates the Terraform backend configuration file.
+func createTerraformBackendFile(assetDir, data string) error {
 	backendString := fmt.Sprintf("terraform {%s}\n", data)
 	terraformRootDir := GetTerraformRootDir(assetDir)
 	path := filepath.Join(terraformRootDir, backendFileName)
@@ -89,10 +89,10 @@ func CreateTerraformBackendFile(assetDir, data string) error {
 	return nil
 }
 
-// PrepareTerraformRootDir creates a directory named path including all
+// prepareTerraformRootDir creates a directory named path including all
 // required parents.
 // An error is returned if the directory already exists.
-func PrepareTerraformRootDir(path string) error {
+func prepareTerraformRootDir(path string) error {
 	pathExists, err := util.PathExists(path)
 	if err != nil {
 		return errors.Wrapf(err, "failed to stat path %q: %v", path, err)
@@ -106,7 +106,7 @@ func PrepareTerraformRootDir(path string) error {
 	return nil
 }
 
-// PrepareLokomotiveTerraformModuleAt creates a directory named path
+// prepareLokomotiveTerraformModuleAt creates a directory named path
 // including all required parents and puts the Lokomotive Kubernetes
 // terraform module sources into path.
 // An error is returned if the directory already exists.
@@ -114,7 +114,7 @@ func PrepareTerraformRootDir(path string) error {
 // The terraform sources are loaded either from data embedded in the
 // lokoctl binary or from the filesystem, depending on whether the
 // LOKOCTL_USE_FS_ASSETS environment variable was specified.
-func PrepareLokomotiveTerraformModuleAt(path string) error {
+func prepareLokomotiveTerraformModuleAt(path string) error {
 	walk := walkers.CopyingWalker(path, 0755)
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
 		return errors.Wrap(err, "failed to walk assets")
