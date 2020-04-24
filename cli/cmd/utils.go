@@ -30,7 +30,7 @@ import (
 )
 
 // getConfiguredBackend loads a backend from the given configuration file.
-func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
+func getConfiguredBackend(lokoConfig *config.HCLConfig) (backend.Backend, hcl.Diagnostics) {
 	if lokoConfig.ClusterConfig.Backend == nil {
 		// No backend defined and no configuration error
 		return nil, hcl.Diagnostics{}
@@ -140,7 +140,7 @@ func doesKubeconfigExist(*cobra.Command, []string) error {
 	return err
 }
 
-func getLokoConfig() (*config.Config, hcl.Diagnostics) {
+func getLokoConfig() (*config.HCLConfig, hcl.Diagnostics) {
 	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
 

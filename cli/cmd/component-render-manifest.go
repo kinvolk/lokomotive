@@ -62,7 +62,7 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 	}
 }
 
-func renderComponentManifests(lokoConfig *config.Config, componentNames ...string) error {
+func renderComponentManifests(lokoConfig *config.HCLConfig, componentNames ...string) error {
 	for _, componentName := range componentNames {
 		contextLogger := log.WithFields(log.Fields{
 			"component": componentName,
