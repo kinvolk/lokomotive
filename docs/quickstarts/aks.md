@@ -6,7 +6,7 @@
 * [Requirements](#requirements)
 * [Step 1: Install lokoctl](#step-1-install-lokoctl)
 * [Step 2: Set up a working directory](#step-2-set-up-a-working-directory)
-* [Step 3: Set up Azure credentials from environment variables](#step-3-set-up-azure-credentials-from-environment-variables)
+* [Step 3: Set up Azure API credentials](#step-3-set-up-azure-api-credentials)
 * [Step 4: Prepare AKS credentials](#step-4-prepare-aks-credentials)
 * [Step 5: Define cluster configuration](#step-5-define-cluster-configuration)
 * [Step 6: Create Lokomotive cluster](#step-6-create-lokomotive-cluster)
@@ -50,16 +50,16 @@ mkdir -p lokomotive-infra/myakscluster
 cd lokomotive-infra/myakscluster
 ```
 
-### Step 3: Set up Azure credentials from environment variables
+### Step 3: Set up Azure API credentials
 
-To create an AKS resource in Azure, you need to authenticate to it first. Follow
+To create an AKS resource in Azure, you need to be authenticatied to Azure API. Follow
 [Authenticating to Azure](https://www.terraform.io/docs/providers/azurerm/index.html#authenticating-to-azure)
-to set up environment variables required for creating AKS cluster.
+to set up environment variables required for authentication.
 
 ### Step 4: Prepare AKS credentials
 
 An AKS cluster requires a set of service principal credentials to run, as it talks to Azure API to create Load Balancers,
-Disks and other objects. Depending on your level of privileges in your Azure tenant, there are different ways to provide them.
+Disks and other objects. Depending on your level of privileges in Azure, there are different ways to provide them.
 
 #### Azure AD Application Creator (full automation)
 
@@ -73,16 +73,19 @@ service principal and credentials. Those credentials will be automatically used 
 If you are a user with full administrative access to your subscription, then you need to ask your administrator to create
 Azure AD application for you and provide you a Service Principal Client ID and a Client secret, which will be used by AKS cluster.
 
+You can then provide them to the configuration using either `LOKOMOTIVE_AKS_CLIENT_ID` and `LOKOMOTIVE_AKS_CLIENT_SECRET` environment
+variables or via `client_id` and `client_secret` parameters. See [AKS attribute reference](../configuration-reference/platforms/aks.md#attribute-reference) for more details.
+
 #### Resource group collaborator
 
 If your Azure user has only access to a single Resource Group, you must set the `manage_resource_group` property to `false`,
-as otherwise `lokoctl` will try to create Resource Group for you.
+as otherwise `lokoctl` will try to create a Resource Group for you.
 
 You also need Service Principal credentials, as explained in [#subscription-collabolator](#subscription-collabolator).
 
 ### Step 5: Define cluster configuration
 
-To create a Lokomotive cluster, we need to define a configuration.
+To create a Lokomotive cluster, you need to define a configuration.
 
 A [production-ready configuration](../../examples/aks-production) is already provided for ease of
 use. Copy the example configuration to the working directory and modify accordingly.
