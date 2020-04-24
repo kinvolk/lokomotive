@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kinvolk/lokomotive/pkg/install"
-
+	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 	"github.com/pkg/errors"
 )
 
@@ -49,12 +49,12 @@ func Configure(assetDir, renderedBackend string) error {
 // PrepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
 func PrepareTerraformDirectoryAndModules(assetDir string) error {
 	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
-	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
+	if err := PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
 		return err
 	}
 
 	terraformRootDir := filepath.Join(assetDir, "terraform")
-	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
+	if err := PrepareTerraformRootDir(terraformRootDir); err != nil {
 		return err
 	}
 
@@ -83,6 +83,34 @@ func CreateTerraformBackendFile(assetDir, data string) error {
 
 	if err = f.Sync(); err != nil {
 		return errors.Wrapf(err, "failed to flush data to file %q", path)
+	}
+
+	return nil
+}
+
+// PrepareTerraformRootDir creates a directory named path including all
+// required parents.
+// An error is returned if the directory already exists.
+func PrepareTerraformRootDir(path string) error {
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return fmt.Errorf("failed to create terraform assets directory at '%s', got: %w", path, err)
+	}
+
+	return nil
+}
+
+// PrepareLokomotiveTerraformModuleAt creates a directory named path
+// including all required parents and puts the Lokomotive Kubernetes
+// terraform module sources into path.
+// An error is returned if the directory already exists.
+//
+// The terraform sources are loaded either from data embedded in the
+// lokoctl binary or from the filesystem, depending on whether the
+// LOKOCTL_USE_FS_ASSETS environment variable was specified.
+func PrepareLokomotiveTerraformModuleAt(path string) error {
+	walk := walkers.CopyingWalker(path, 0755)
+	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
+		return errors.Wrap(err, "failed to walk assets")
 	}
 
 	return nil
