@@ -42,7 +42,7 @@ func GetComponentBody(configHCL string, name string) (*hcl.Body, hcl.Diagnostics
 		return nil, diags
 	}
 
-	c := &config.Config{
+	c := &config.HCL{
 		ClusterConfig: &clusterConfig,
 	}
 

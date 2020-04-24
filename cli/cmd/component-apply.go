@@ -68,7 +68,7 @@ func runApply(cmd *cobra.Command, args []string) {
 	}
 }
 
-func applyComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
+func applyComponents(lokoConfig *config.HCL, kubeconfig string, componentNames ...string) error {
 	for _, componentName := range componentNames {
 		fmt.Printf("Applying component '%s'...\n", componentName)
 

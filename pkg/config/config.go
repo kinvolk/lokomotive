@@ -58,7 +58,10 @@ type ClusterConfig struct {
 	Variables  []variable  `hcl:"variable,block"`
 }
 
-type Config struct {
+// HCL represents the HCL configuration provided by
+// the user and evaluation context in case any variables or functions
+// are used in the Lokocfg file.
+type HCL struct {
 	ClusterConfig *ClusterConfig
 	EvalContext   *hcl.EvalContext
 }
@@ -82,7 +85,7 @@ func loadLokocfgPaths(configPath string) ([]string, error) {
 	return lokocfgPaths, nil
 }
 
-func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) {
+func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCL, hcl.Diagnostics) {
 	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
@@ -160,7 +163,7 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) 
 		},
 	}
 
-	return &Config{
+	return &HCL{
 		ClusterConfig: &clusterConfig,
 		EvalContext:   &evalContext,
 	}, nil
@@ -199,7 +202,7 @@ func evalFuncFile() function.Function {
 
 // LoadComponentConfigBody returns nil if no component with the given
 // name is found in the configuration
-func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
+func (c *HCL) LoadComponentConfigBody(componentName string) *hcl.Body {
 	for _, component := range c.ClusterConfig.Components {
 		if componentName == component.Name {
 			return &component.Config

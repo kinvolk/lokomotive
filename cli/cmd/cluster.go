@@ -45,7 +45,7 @@ func init() {
 
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
+func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.HCL, string) {
 	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {
 		ctxLogger.Fatal(diags)
