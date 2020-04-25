@@ -26,7 +26,8 @@ module "aws-{{.Config.ClusterName}}" {
     tls      = tls.default
   }
 
-  cluster_name = "{{.Config.ClusterName}}"
+  {{.PlatformConfig}}
+
   tags         = {{.Tags}}
   dns_zone     = "{{.Config.DNSZone}}"
   dns_zone_id  = "{{.Config.DNSZoneID}}"

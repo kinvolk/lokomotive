@@ -15,11 +15,39 @@
 package platform
 
 import (
+	"bytes"
 	"fmt"
+
+	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
+
+// Config holds configuration parameters that all platforms share.
+type Config struct {
+	ClusterName string `hcl:"cluster_name"`
+}
+
+var configTmpl = `
+  cluster_name = "{{.Config.ClusterName}}"
+`
+
+// RenderConfig renders the shared configuration parameters of `config`
+// into a string.
+func RenderConfig(config interface{}) (string, error) {
+	tmpl, err := template.New("config").Parse(configTmpl)
+	if err != nil {
+		return "", err
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, config); err != nil {
+		return "", err
+	}
+
+	return buf.String(), err
+}
 
 // Platform describes single environment, where cluster can be installed
 type Platform interface {

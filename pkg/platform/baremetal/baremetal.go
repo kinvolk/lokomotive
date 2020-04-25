@@ -30,9 +30,10 @@ import (
 )
 
 type config struct {
+	platform.Config `hcl:",remain"`
+
 	AssetDir               string   `hcl:"asset_dir"`
 	CachedInstall          string   `hcl:"cached_install,optional"`
-	ClusterName            string   `hcl:"cluster_name"`
 	ControllerDomains      []string `hcl:"controller_domains"`
 	ControllerMacs         []string `hcl:"controller_macs"`
 	ControllerNames        []string `hcl:"controller_names"`
@@ -152,7 +153,13 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
 	}
 
+	platformConfig, err := platform.RenderConfig(cfg)
+	if err != nil {
+		return errors.Wrapf(err, "failed to render platform config")
+	}
+
 	terraformCfg := struct {
+		PlatformConfig       string
 		CachedInstall        string
 		ClusterName          string
 		ControllerDomains    string
@@ -171,6 +178,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerMacs           string
 		WorkerDomains        string
 	}{
+		PlatformConfig:       platformConfig,
 		CachedInstall:        cfg.CachedInstall,
 		ClusterName:          cfg.ClusterName,
 		ControllerDomains:    string(controllerDomains),

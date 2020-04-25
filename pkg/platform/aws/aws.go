@@ -48,8 +48,9 @@ type workerPool struct {
 }
 
 type config struct {
+	platform.Config `hcl:",remain"`
+
 	AssetDir                 string            `hcl:"asset_dir"`
-	ClusterName              string            `hcl:"cluster_name"`
 	Tags                     map[string]string `hcl:"tags,optional"`
 	OSName                   string            `hcl:"os_name,optional"`
 	OSChannel                string            `hcl:"os_channel,optional"`
@@ -190,7 +191,13 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		workerpoolCfgList = append(workerpoolCfgList, output)
 	}
 
+	platformConfig, err := platform.RenderConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to render platform config: %w", err)
+	}
+
 	terraformCfg := struct {
+		PlatformConfig        string
 		Config                config
 		Tags                  string
 		SSHPublicKeys         string
@@ -199,6 +206,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		WorkerTargetGroups    string
 		WorkerpoolCfg         []map[string]string
 	}{
+		PlatformConfig:        platformConfig,
 		Config:                *cfg,
 		Tags:                  string(tags),
 		SSHPublicKeys:         string(keyListBytes),

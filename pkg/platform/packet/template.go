@@ -26,12 +26,13 @@ module "packet-{{.Config.ClusterName}}" {
     packet   = packet.default
   }
 
+  {{.PlatformConfig}}
+
   dns_zone    = "{{.Config.DNS.Zone}}"
 
   ssh_keys  = {{.SSHPublicKeys}}
   asset_dir = "../cluster-assets"
 
-  cluster_name = "{{.Config.ClusterName}}"
   tags         = {{.Tags}}
   project_id   = "{{.Config.ProjectID}}"
   facility     = "{{.Config.Facility}}"

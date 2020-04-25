@@ -167,7 +167,6 @@ func TestTerraformAddDeps(t *testing.T) {
 	var cases []testCase
 
 	base := config{
-		ClusterName: "c",
 		WorkerPools: []workerPool{
 			{
 				Name: "1",

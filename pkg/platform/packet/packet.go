@@ -63,9 +63,10 @@ type workerPool struct {
 }
 
 type config struct {
+	platform.Config `hcl:",remain"`
+
 	AssetDir                 string            `hcl:"asset_dir"`
 	AuthToken                string            `hcl:"auth_token,optional"`
-	ClusterName              string            `hcl:"cluster_name"`
 	Tags                     map[string]string `hcl:"tags,optional"`
 	ControllerCount          int               `hcl:"controller_count"`
 	ControllerType           string            `hcl:"controller_type,optional"`
@@ -207,12 +208,19 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	// reservation UUIDs.
 	cfg.terraformAddDeps()
 
+	platformConfig, err := platform.RenderConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to render platform config: %w", err)
+	}
+
 	terraformCfg := struct {
+		PlatformConfig  string
 		Config          config
 		Tags            string
 		SSHPublicKeys   string
 		ManagementCIDRs string
 	}{
+		PlatformConfig:  platformConfig,
 		Config:          *cfg,
 		Tags:            string(tags),
 		SSHPublicKeys:   string(keyListBytes),
