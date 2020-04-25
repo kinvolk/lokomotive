@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 package cmd
 
 import (
@@ -40,25 +39,8 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	ex, p, _, _ := initialize(ctxLogger)
-
-	if !clusterExists(ctxLogger, ex) {
-		ctxLogger.Println("Cluster already destroyed, nothing to do")
-
-		return
-	}
-
-	if !confirm {
-		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
-		if !confirmation {
-			ctxLogger.Println("Cluster destroy canceled")
-			return
-		}
-	}
-
-	if err := p.Destroy(ex); err != nil {
-		ctxLogger.Fatalf("error destroying cluster: %v", err)
-	}
+	l, options := initialize(ctxLogger)
+	l.Destroy(options)
 
 	ctxLogger.Println("Cluster destroyed successfully")
 	ctxLogger.Println("You can safely remove the assets directory now")
