@@ -11,17 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 package cmd
 
 import (
-	"github.com/kinvolk/lokomotive/pkg/backend/local"
-	"github.com/kinvolk/lokomotive/pkg/config"
-	"github.com/kinvolk/lokomotive/pkg/platform"
-	"github.com/kinvolk/lokomotive/pkg/terraform"
-	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/lokomotive"
+	"github.com/spf13/viper"
 )
 
 var clusterCmd = &cobra.Command{
@@ -33,53 +31,41 @@ func init() {
 	RootCmd.AddCommand(clusterCmd)
 }
 
-// initialize does common initialization actions between cluster operations
-// and returns created objects to the caller for further use.
-func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.HCLConfig, string) {
-	lokoConfig, diags := getLokoConfig()
-	if len(diags) > 0 {
-		ctxLogger.Fatal(diags)
+func initialize(ctxLogger *logrus.Entry) (lokomotive.Manager, *lokomotive.Options) {
+	// get lokocfg files and lokocfg vars path
+	lokocfgPath := viper.GetString("lokocfg")
+	variablesPath := viper.GetString("lokocfg-vars")
+	// HCLLoader loads the user configuration in lokocfg files into concrete
+	// LokomotiveConfig struct which is to be passed around for further operations
+	hclLoader := &config.HCLLoader{
+		ConfigPath:    lokocfgPath,
+		VariablesPath: variablesPath,
 	}
 
-	p, diags := getConfiguredPlatform()
+	cfg, diags := hclLoader.Load()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			ctxLogger.Error(diagnostic.Error())
 		}
 
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
+		ctxLogger.Fatal("Errors found while loading configuration")
 	}
 
-	if p == nil {
-		ctxLogger.Fatal("No cluster configured")
+	options := &lokomotive.Options{
+		Verbose:         verbose,
+		SkipComponents:  skipComponents,
+		UpgradeKubelets: upgradeKubelets,
+		Confirm:         confirm,
 	}
 
-	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
-	b, diags := getConfiguredBackend(lokoConfig)
+	lokomotive, diags := lokomotive.NewLokomotive(ctxLogger, cfg, options)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			ctxLogger.Error(diagnostic.Error())
 		}
 
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
+		ctxLogger.Fatal("Errors found while initializing Lokomotive")
 	}
 
-	// Use a local backend if no backend is configured.
-	if b == nil {
-		b = local.NewLocalBackend()
-	}
-
-	assetDir, err := homedir.Expand(p.GetAssetDir())
-	if err != nil {
-		ctxLogger.Fatalf("Error expanding path: %v", err)
-	}
-
-	// Validate backend configuration.
-	if err = b.Validate(); err != nil {
-		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
-	}
-
-	ex := initializeTerraform(ctxLogger, p, b)
-
-	return ex, p, lokoConfig, assetDir
+	return lokomotive, options
 }
