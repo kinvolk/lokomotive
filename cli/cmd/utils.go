@@ -16,12 +16,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/mitchellh/go-homedir"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -89,58 +85,6 @@ func getAssetDir() (string, error) {
 	return cfg.GetAssetDir(), nil
 }
 
-// expandKubeconfigPath tries to expand ~ in the given kubeconfig path.
-// However, if that fails, it just returns original path as the best effort.
-func expandKubeconfigPath(path string) string {
-	if expandedPath, err := homedir.Expand(path); err == nil {
-		return expandedPath
-	}
-
-	// homedir.Expand is too restrictive for the ~ prefix,
-	// i.e., it errors on "~somepath" which is a valid path,
-	// so just return the original path.
-	return path
-}
-
-// getKubeconfig finds the kubeconfig to be used. Precedence takes a specified
-// flag or environment variable. Then the asset directory of the cluster is searched
-// and finally the global default value is used. This cannot be done in Viper
-// because we need the other values from Viper to find the asset directory.
-func getKubeconfig() (string, error) {
-	kubeconfig := viper.GetString("kubeconfig")
-	if kubeconfig != "" {
-		return expandKubeconfigPath(kubeconfig), nil
-	}
-
-	assetDir, err := getAssetDir()
-	if err != nil {
-		return "", err
-	}
-
-	if assetDir != "" {
-		return expandKubeconfigPath(assetsKubeconfig(assetDir)), nil
-	}
-
-	return expandKubeconfigPath("~/.kube/config"), nil
-}
-
-func assetsKubeconfig(assetDir string) string {
-	return filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
-}
-
-// doesKubeconfigExist checks if the kubeconfig provided by user exists
-func doesKubeconfigExist(*cobra.Command, []string) error {
-	var err error
-	kubeconfig, err := getKubeconfig()
-	if err != nil {
-		return err
-	}
-	if _, err = os.Stat(kubeconfig); os.IsNotExist(err) {
-		return fmt.Errorf("Kubeconfig %q not found", kubeconfig)
-	}
-	return err
-}
-
 func getLokoConfig() (*config.HCLConfig, hcl.Diagnostics) {
 	lokocfgFiles, diags := config.LoadHCLFiles(viper.GetString("lokocfg"), "lokocfg")
 	if diags.HasErrors() {
@@ -167,15 +111,4 @@ func getLokoConfig() (*config.HCLConfig, hcl.Diagnostics) {
 	}
 
 	return config.ParseHCLFiles(lokocfgFiles, varFiles)
-}
-
-// askForConfirmation asks the user to confirm an action.
-// It prints the message and then asks the user to type "yes" or "no".
-// If the user types "yes" the function returns true, otherwise it returns
-// false.
-func askForConfirmation(message string) bool {
-	var input string
-	fmt.Printf("%s [type \"yes\" to continue]: ", message)
-	fmt.Scanln(&input)
-	return input == "yes"
 }
