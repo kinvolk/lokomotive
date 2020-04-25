@@ -27,23 +27,25 @@ import (
 )
 
 const backendFileName = "backend.tf"
+const clusterFileName = "cluster.tf"
 
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
-func Configure(assetDir, renderedBackend string) error {
+func Configure(assetDir, renderedBackend, renderedPlatform string) error {
 	if err := prepareTerraformDirectoryAndModules(assetDir); err != nil {
 		return errors.Wrapf(err, "Failed to create required terraform directory")
 	}
 
 	// Create backend file only if the backend rendered string isn't empty.
-	if len(strings.TrimSpace(renderedBackend)) <= 0 {
-		return nil
+	if len(strings.TrimSpace(renderedBackend)) > 0 {
+		if err := createTerraformBackendFile(assetDir, renderedBackend); err != nil {
+			return errors.Wrapf(err, "Failed to create backend configuration file")
+		}
 	}
 
-	if err := createTerraformBackendFile(assetDir, renderedBackend); err != nil {
-		return errors.Wrapf(err, "Failed to create backend configuration file")
+	if err := createTerraformClusterFile(assetDir, renderedPlatform); err != nil {
+		return errors.Wrapf(err, "Failed to create cluster configuration file")
 	}
-
 	return nil
 }
 
@@ -87,6 +89,35 @@ func createTerraformBackendFile(assetDir, data string) error {
 	}
 
 	return nil
+}
+
+// createTerraformClusterFile creates the Terraform cluster configuration file.
+func createTerraformClusterFile(assetDir, data string) error {
+	var err error
+
+	terraformRootDir := GetTerraformRootDir(assetDir)
+	path := filepath.Join(terraformRootDir, clusterFileName)
+
+	f, err := os.Create(path)
+	if err != nil {
+		return errors.Wrapf(err, "failed to create file %q", path)
+	}
+
+	defer func() {
+		if ferr := f.Close(); ferr != nil {
+			err = ferr
+		}
+	}()
+
+	if _, err = f.WriteString(data); err != nil {
+		return errors.Wrapf(err, "failed to write to cluster file %q", path)
+	}
+
+	if err = f.Sync(); err != nil {
+		return errors.Wrapf(err, "failed to flush data to file %q", path)
+	}
+
+	return err
 }
 
 // prepareTerraformRootDir creates a directory named path including all
