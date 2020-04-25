@@ -31,7 +31,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/go-version v1.2.0
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/hashicorp/hcl/v2 v2.3.0
+	github.com/hashicorp/hcl/v2 v2.4.0
 	github.com/hpcloud/tail v1.0.0
 	github.com/huandu/xstrings v1.3.0 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
@@ -61,7 +61,7 @@ require (
 	github.com/spf13/viper v1.6.2
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
-	github.com/zclconf/go-cty v1.3.1
+	github.com/zclconf/go-cty v1.4.0
 	go.opencensus.io v0.22.3 // indirect
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
