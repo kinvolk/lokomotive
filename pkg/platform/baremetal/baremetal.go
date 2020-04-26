@@ -21,7 +21,6 @@ import (
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
@@ -62,13 +61,6 @@ type config struct {
 // init registers bare-metal as a platform
 func init() {
 	platform.Register("bare-metal", NewConfig())
-}
-
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
 // GetAssetDir returns asset directory path

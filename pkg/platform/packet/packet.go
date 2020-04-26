@@ -25,7 +25,6 @@ import (
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
@@ -102,18 +101,6 @@ func init() {
 	platform.Register("packet", NewConfig())
 }
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-
-	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
-		return diags
-	}
-
-	return c.checkValidConfig()
-}
-
 func NewConfig() *config {
 	return &config{
 		EnableAggregation: true,
@@ -157,6 +144,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}
+
 	return c.terraformSmartApply(ex, dnsProvider)
 }
 

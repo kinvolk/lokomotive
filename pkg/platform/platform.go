@@ -27,7 +27,6 @@ type Platform interface {
 	Render() (string, error)
 	// Validate validates the user configuration.
 	Validate() hcl.Diagnostics
-	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
 	Initialize(*terraform.Executor) error
