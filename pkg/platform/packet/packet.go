@@ -100,7 +100,18 @@ func init() {
 
 func NewConfig() *config {
 	return &config{
-		EnableAggregation: true,
+		ControllerCount:          1,
+		ControllerType:           "baremetal_0",
+		OSArch:                   "amd64",
+		OSChannel:                "stable",
+		OSVersion:                "current",
+		NetworkMTU:               1480,
+		PodCIDR:                  "10.2.0.0/16",
+		ServiceCIDR:              "10.3.0.0/16",
+		ClusterDomainSuffix:      "cluster.local",
+		EnableReporting:          false,
+		CertsValidityPeriodHours: 8760,
+		EnableAggregation:        true,
 	}
 }
 
@@ -109,12 +120,7 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (c *config) Apply(ex *terraform.Executor) error {
-	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
-		return fmt.Errorf("cannot find the Packet authentication token:\n" +
-			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
-	}
-
+func (c *config) setExpandedAssetDir() error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
@@ -122,12 +128,56 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	c.AssetDir = assetDir
 
+	return nil
+}
+
+func (c *config) Apply(ex *terraform.Executor) error {
+	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
+		return fmt.Errorf("cannot find the Packet authentication token:\n" +
+			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
+	}
+
 	dnsProvider, err := dns.ParseDNS(&c.DNS)
 	if err != nil {
 		return errors.Wrap(err, "parsing DNS configuration failed")
 	}
 
 	return c.terraformSmartApply(ex, dnsProvider)
+}
+
+// terraformSmartApply applies cluster configuration.
+func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNSProvider) error {
+	// If the provider isn't manual, apply everything in a single step.
+	if dnsProvider != dns.DNSManual {
+		return ex.Apply()
+	}
+
+	arguments := []string{"apply", "-auto-approve"}
+
+	// Get DNS entries (it forces the creation of the controller nodes).
+	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
+
+	// Create controller
+	if err := ex.Execute(arguments...); err != nil {
+		return errors.Wrap(err, "failed executing Terraform")
+	}
+
+	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
+		return errors.Wrap(err, "failed to configure DNS entries")
+	}
+
+	// Finish deployment.
+	return ex.Apply()
+}
+
+func (c *config) GetExpectedNodes() int {
+	workers := 0
+
+	for _, wp := range c.WorkerPools {
+		workers += wp.Count
+	}
+
+	return c.ControllerCount + workers
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -158,6 +208,9 @@ func (c *config) Render() (string, error) {
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to marshal tags")
 	}
+	// Add explicit terraform dependencies for nodes with specific hw
+	// reservation UUIDs.
+	cfg.terraformAddDeps()
 
 	c.TagsRaw = string(tags)
 	c.SSHPubKeysRaw = string(keyListBytes)
@@ -167,35 +220,196 @@ func (c *config) Render() (string, error) {
 }
 
 func (c *config) Validate() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
 
-	return hcl.Diagnostics{}
+	if err := c.setExpandedAssetDir(); err != nil {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("error expanding 'asset_dir' path: %v", err),
+		})
+	}
+
+	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary: fmt.Sprintf("Cannot find the Packet authentication token:\n" +
+				"either specify 'auth_token' or use the PACKET_AUTH_TOKEN environment variable"),
+		})
+	}
+
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.Facility, "facility")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.ProjectID, "project_id")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.ClusterDomainSuffix, "cluster_domain_suffix")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.OSVersion, "os_version")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.AssetDir, "asset_dir")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.ClusterName, "cluster_name")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.NodePrivateCIDR, "node_private_cidr")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.ControllerType, "controller_type")...)
+
+	if c.CertsValidityPeriodHours <= 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("`certs_validity_period_hours` should be more than zero, got: %d", c.CertsValidityPeriodHours),
+		})
+	}
+
+	if c.ControllerCount < 1 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected 'controller_count' greater than 0, got: %d", c.ControllerCount),
+		})
+	}
+
+	if len(c.SSHPubKeys) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one public ssh-key in 'ssh_pubkeys', got: 0"),
+		})
+	}
+
+	if !util.IsFlatcarChannelSupported(c.OSChannel) {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("unsupported channel '%s'", c.OSChannel),
+		})
+	}
+
+	if c.NetworkMTU <= 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected 'network_mtu' to be greater than zero, got: %d", c.NetworkMTU),
+		})
+	}
+
+	if err := util.IsValidCIDR(c.PodCIDR); err != nil {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("invalid 'pod_cidr': %s", c.PodCIDR),
+		})
+	}
+
+	if err := util.IsValidCIDR(c.ServiceCIDR); err != nil {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("invalid 'service_cidr': %s", c.ServiceCIDR),
+		})
+	}
+
+	for _, cidr := range c.ManagementCIDRs {
+		if err := util.IsValidCIDR(cidr); err != nil {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("invalid management_cidr `%s`: %v", cidr, err),
+			})
+		}
+	}
+
+	if err := util.IsValidCIDR(c.NodePrivateCIDR); err != nil {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("invalid node_private_cidr `%s`: %v", c.NodePrivateCIDR, err),
+		})
+	}
+
+	if !util.IsValidOSArch(c.OSArch) {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("unsupported architecture, got: %s", c.OSArch),
+		})
+	}
+
+	if c.OSArch == "arm64" && c.IPXEScriptURL == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "if arch is `arm64`, `ipxe_script_url` cannot be empty",
+		})
+	}
+
+	for _, wp := range c.WorkerPools {
+		diagnostics = append(diagnostics, wp.checkValidWorkerPoolConfig()...)
+	}
+
+	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
+
+	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
+	diagnostics = append(diagnostics, c.checkReservationIDs()...)
+	
+
+	return diagnostics
 }
 
-// terraformSmartApply applies cluster configuration.
-func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNSProvider) error {
-	// If the provider isn't manual, apply everything in a single step.
-	if dnsProvider != dns.DNSManual {
-		return ex.Apply()
+// checkNotEmptyWorkers checks if the cluster has at least 1 node pool defined.
+func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if len(c.WorkerPools) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "At least one worker pool must be defined",
+			Detail:   "Make sure to define at least one worker pool block in your cluster block",
+		})
 	}
 
-	arguments := []string{"apply", "-auto-approve"}
-
-	// Get DNS entries (it forces the creation of the controller nodes).
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
-
-	// Create controller
-	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "failed executing Terraform")
-	}
-
-	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
-		return errors.Wrap(err, "failed to configure DNS entries")
-	}
-
-	// Finish deployment.
-	return ex.Apply()
+	return diagnostics
 }
 
+// checkWorkerPoolNamesUnique verifies that all worker pool names are unique.
+func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	dup := make(map[string]bool)
+
+	for _, w := range c.WorkerPools {
+		if !dup[w.Name] {
+			dup[w.Name] = true
+			continue
+		}
+
+		// It is duplicated.
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Worker pools name should be unique",
+			Detail:   fmt.Sprintf("Worker pool %q is duplicated", w.Name),
+		})
+	}
+
+	return diagnostics
+}
+
+// checkValidConfig validates worker pool configuration.
+func (wp *workerPool) checkValidWorkerPoolConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if wp.OSArch != "" && !util.IsValidOSArch(wp.OSArch) {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("unsupported architecture, got: %s", wp.OSArch),
+		})
+	}
+
+	if wp.OSArch == "arm64" && wp.IPXEScriptURL == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "if arch is `arm64`, `ipxe_script_url` cannot be empty",
+		})
+	}
+
+	if wp.Count < 1 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected 'count' in worker_pool '%s' greater than 0, got: %d", wp.Name, wp.Count),
+		})
+	}
+
+	if wp.OSChannel != "" && !util.IsFlatcarChannelSupported(wp.OSChannel) {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("unsupported channel '%s'", wp.OSChannel),
+		})
+	}
+
+	return diagnostics
+}
 // terraformAddDeps adds explicit dependencies to cluster nodes so nodes
 // with a specific hw reservation UUID are created before nodes that don't have
 // a specific hw reservation UUID.
@@ -289,65 +503,6 @@ func poolTarget(name, resource string) string {
 //nolint: unparam
 func clusterTarget(name, resource string) string {
 	return fmt.Sprintf("module.packet-%v.%v", name, resource)
-}
-
-func (c *config) GetExpectedNodes() int {
-	workers := 0
-
-	for _, wp := range c.WorkerPools {
-		workers += wp.Count
-	}
-
-	return c.ControllerCount + workers
-}
-
-// checkValidConfig validates cluster configuration.
-func (c *config) checkValidConfig() hcl.Diagnostics {
-	var diagnostics hcl.Diagnostics
-
-	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
-	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
-	diagnostics = append(diagnostics, c.checkReservationIDs()...)
-
-	return diagnostics
-}
-
-// checkNotEmptyWorkers checks if the cluster has at least 1 node pool defined.
-func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
-	var diagnostics hcl.Diagnostics
-
-	if len(c.WorkerPools) == 0 {
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "At least one worker pool must be defined",
-			Detail:   "Make sure to define at least one worker pool block in your cluster block",
-		})
-	}
-
-	return diagnostics
-}
-
-// checkWorkerPoolNamesUnique verifies that all worker pool names are unique.
-func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
-	var diagnostics hcl.Diagnostics
-
-	dup := make(map[string]bool)
-
-	for _, w := range c.WorkerPools {
-		if !dup[w.Name] {
-			dup[w.Name] = true
-			continue
-		}
-
-		// It is duplicated.
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "Worker pools name should be unique",
-			Detail:   fmt.Sprintf("Worker pool %q is duplicated", w.Name),
-		})
-	}
-
-	return diagnostics
 }
 
 // checkReservationIDs checks that reservations configured for controllers and

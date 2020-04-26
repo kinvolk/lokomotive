@@ -16,13 +16,15 @@ package baremetal
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
-	"github.com/kinvolk/lokomotive/pkg/util"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type config struct {
@@ -126,12 +128,68 @@ func (c *config) Render() (string, error) {
 	c.WorkerMacsRaw = string(workerMacs)
 	c.WorkerDomainsRaw = string(workerDomains)
 
-	return util.RenderTemplate(terraformConfigTmpl, c)
+	return utilpkg.RenderTemplate(terraformConfigTmpl, c)
 }
 
 func (c *config) Validate() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
 
-	return hcl.Diagnostics{}
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.AssetDir, "asset_dir")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.AssetDir, "asset_dir")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.MatchboxCAPath, "matchbox_ca_path")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.MatchboxClientCertPath, "matchbox_client_cert_path")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.MatchboxClientKeyPath, "matchbox_client_cert_key")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.MatchboxEndpoint, "matchbox_endpoint")...)
+	diagnostics = append(diagnostics, util.CheckIsEmptyField(c.MatchboxHTTPEndpoint, "matchbox_http_endpoint")...)
+
+	if len(c.SSHPubKeys) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one public ssh-key in 'ssh_pubkeys', got: 0"),
+		})
+	}
+
+	if len(c.ControllerNames) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one entry in 'controller_names', got: 0"),
+		})
+	}
+	if len(c.ControllerDomains) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one entry in 'controller_domains', got: 0"),
+		})
+	}
+
+	if len(c.ControllerMacs) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one entry in 'controller_macs', got: 0"),
+		})
+	}
+
+	if len(c.WorkerNames) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one entry in 'worker_names', got: 0"),
+		})
+	}
+	if len(c.WorkerDomains) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one entry in 'worker_domains', got: 0"),
+		})
+	}
+
+	if len(c.WorkerMacs) == 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("expected atleast one entry in 'worker_macs', got: 0"),
+		})
+	}
+
+	return diagnostics
 }
 
 func (c *config) GetExpectedNodes() int {
