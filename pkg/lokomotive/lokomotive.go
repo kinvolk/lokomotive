@@ -384,20 +384,6 @@ func (l *lokomotive) clusterExists() (bool, error) {
 	return len(o) != 0, nil
 }
 
-func verifyCluster(kubeconfigPath string, expectedNodes int) error {
-	client, err := k8sutil.NewClientset(kubeconfigPath)
-	if err != nil {
-		return fmt.Errorf("failed to set up clientset: %v", err)
-	}
-
-	cluster, err := NewCluster(client, expectedNodes)
-	if err != nil {
-		return fmt.Errorf("failed to set up cluster client: %v", err)
-	}
-
-	return Verify(cluster)
-}
-
 func (l *lokomotive) updateControlPlane(upgradeKubelets bool) error {
 	//Update control plane
 	releases := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"}

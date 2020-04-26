@@ -21,6 +21,9 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
@@ -85,6 +88,20 @@ func doesKubeconfigExist(assetDir string) error {
 	}
 
 	return err
+}
+
+func verifyCluster(kubeconfigPath string, expectedNodes int) error {
+	client, err := k8sutil.NewClientset(kubeconfigPath)
+	if err != nil {
+		return fmt.Errorf("failed to set up clientset: %v", err)
+	}
+
+	cluster, err := NewCluster(client, expectedNodes)
+	if err != nil {
+		return fmt.Errorf("failed to set up cluster client: %v", err)
+	}
+
+	return Verify(cluster)
 }
 
 func deleteNS(ns string, kubeconfig string) error {
