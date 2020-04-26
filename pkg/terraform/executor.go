@@ -102,7 +102,7 @@ func InitializeExecutor(assetDir string, verbose bool) (*Executor, error) {
 		Verbose:    verbose,
 	}
 
-	ex, err := NewExecutor(conf)
+	ex, err := newExecutor(conf)
 	if err != nil {
 		return nil, err
 	}
@@ -110,8 +110,8 @@ func InitializeExecutor(assetDir string, verbose bool) (*Executor, error) {
 	return ex, nil
 }
 
-// NewExecutor initializes a new Executor.
-func NewExecutor(conf Config) (*Executor, error) {
+// newExecutor initializes a new Executor.
+func newExecutor(conf Config) (*Executor, error) {
 	ex := new(Executor)
 	ex.executionPath = conf.WorkingDir
 	ex.verbose = conf.Verbose

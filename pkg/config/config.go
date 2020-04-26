@@ -85,9 +85,9 @@ func loadLokocfgPaths(path, extension string) ([]string, error) {
 	return paths, nil
 }
 
-// LoadHCLFiles loads all the hcl files present in the path provided into a
+// loadHCLFiles loads all the hcl files present in the path provided into a
 // map of file name and content in byte array
-func LoadHCLFiles(path, extension string) (map[string][]byte, hcl.Diagnostics) {
+func loadHCLFiles(path, extension string) (map[string][]byte, hcl.Diagnostics) {
 	files := make(map[string][]byte)
 	lokocfgPaths, err := loadLokocfgPaths(path, extension)
 	if err != nil {

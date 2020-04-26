@@ -34,7 +34,7 @@ type HCLLoader struct {
 // Load loads the HCL files provided by the user and parses them into an
 // instance of LokomoticeConfig
 func (c *HCLLoader) Load() (*lokomotiveconfig.LokomotiveConfig, hcl.Diagnostics) {
-	configFiles, diags := LoadHCLFiles(c.ConfigPath, "lokocfg")
+	configFiles, diags := loadHCLFiles(c.ConfigPath, "lokocfg")
 	if diags.HasErrors() {
 		return nil, diags
 	}
@@ -52,7 +52,7 @@ func (c *HCLLoader) Load() (*lokomotiveconfig.LokomotiveConfig, hcl.Diagnostics)
 	variablesFile := map[string][]byte{}
 
 	if exists {
-		variablesFile, diags = LoadHCLFiles(c.VariablesPath, "vars")
+		variablesFile, diags = loadHCLFiles(c.VariablesPath, "vars")
 		if diags.HasErrors() {
 			return nil, diags
 		}
