@@ -46,6 +46,11 @@ type lokomotive struct {
 
 // NewLokomotive returns the an new lokomotive Instance
 func NewLokomotive(ctxLogger *logrus.Entry, cfg *config.LokomotiveConfig, options *Options) (Manager, hcl.Diagnostics) {
+	//validate LokomotiveConfig
+	diags := cfg.Validate()
+	if diags.HasErrors() {
+		return nil, diags
+	}
 	// Initialize Terraform Executor
 	ex, err := terraform.InitializeExecutor(cfg.Platform.GetAssetDir(), options.Verbose)
 	if err != nil {

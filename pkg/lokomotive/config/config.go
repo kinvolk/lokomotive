@@ -15,6 +15,8 @@
 package config
 
 import (
+	"github.com/hashicorp/hcl/v2"
+
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -25,4 +27,14 @@ type LokomotiveConfig struct {
 	Platform   platform.Platform
 	Backend    backend.Backend
 	Components map[string]components.Component
+}
+
+func (l *LokomotiveConfig) Validate() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if l.Platform != nil {
+		diagnostics = append(diagnostics, l.Platform.Validate()...)
+	}
+
+	return diagnostics
 }
