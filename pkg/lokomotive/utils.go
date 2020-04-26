@@ -21,6 +21,7 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 // askForConfirmation asks the user to confirm an action.
@@ -84,4 +85,22 @@ func doesKubeconfigExist(assetDir string) error {
 	}
 
 	return err
+}
+
+func deleteNS(ns string, kubeconfig string) error {
+	cs, err := k8sutil.NewClientset(kubeconfig)
+	if err != nil {
+		return err
+	}
+	// Delete the manually created namespace which was not created by helm.
+	if err = cs.CoreV1().Namespaces().Delete(ns, &metav1.DeleteOptions{}); err != nil {
+		// Ignore error when the namespace does not exist.
+		if errors.IsNotFound(err) {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
 }

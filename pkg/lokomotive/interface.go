@@ -19,6 +19,7 @@ type Manager interface {
 	Apply(*Options)
 	Destroy(*Options)
 	ApplyComponents([]string)
+	DeleteComponents([]string, *Options)
 	RenderComponents([]string)
 	Health()
 }
@@ -29,4 +30,5 @@ type Options struct {
 	UpgradeKubelets bool
 	SkipComponents  bool
 	Verbose         bool
+	DeleteNamespace bool
 }

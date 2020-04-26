@@ -15,18 +15,10 @@
 package cmd
 
 import (
-	"fmt"
-	"strings"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"helm.sh/helm/v3/pkg/action"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 var componentDeleteCmd = &cobra.Command{
@@ -47,138 +39,20 @@ func init() {
 }
 
 func runDelete(cmd *cobra.Command, args []string) {
-	contextLogger := log.WithFields(log.Fields{
+	ctxLogger := log.WithFields(log.Fields{
 		"command": "lokoctl component delete",
 		"args":    args,
 	})
 
-	lokoCfg, diags := getLokoConfig()
-	if len(diags) > 0 {
-		contextLogger.Fatal(diags)
-	}
-
-	componentsToDelete := make([]string, len(args))
-	copy(componentsToDelete, args)
-
-	if len(args) == 0 {
-		componentsToDelete = make([]string, len(lokoCfg.ClusterConfig.Components))
-
-		for i, component := range lokoCfg.ClusterConfig.Components {
-			componentsToDelete[i] = component.Name
-		}
-	}
-
-	componentsObjects := make([]components.Component, len(componentsToDelete))
-
-	for i, componentName := range componentsToDelete {
-		compObj, err := components.Get(componentName)
+	l, options := initialize(ctxLogger)
+	for _, name := range args {
+		_, err := components.Get(name)
 		if err != nil {
-			contextLogger.Fatal(err)
-		}
-
-		componentsObjects[i] = compObj
-	}
-
-	if !askForConfirmation(
-		fmt.Sprintf(
-			"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
-			strings.Join(componentsToDelete, "\n\t"),
-		),
-	) {
-		contextLogger.Info("Components deletion cancelled.")
-		return
-	}
-
-	kubeconfig, err := getKubeconfig()
-	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
-	}
-
-	if err := deleteComponents(kubeconfig, componentsObjects...); err != nil {
-		contextLogger.Fatal(err)
-	}
-}
-
-func deleteComponents(kubeconfig string, componentObjects ...components.Component) error {
-	for _, compObj := range componentObjects {
-		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
-
-		if err := deleteHelmRelease(compObj, kubeconfig, deleteNamespace); err != nil {
-			return err
-		}
-
-		fmt.Printf("Successfully deleted component %q!\n", compObj.Metadata().Name)
-	}
-
-	// Add a line to distinguish between info logs and errors, if any.
-	fmt.Println()
-
-	return nil
-}
-
-// deleteComponent deletes a component.
-func deleteHelmRelease(c components.Component, kubeconfig string, deleteNSBool bool) error {
-	name := c.Metadata().Name
-	if name == "" {
-		// This should never fail in real user usage, if this does that means the component was not
-		// created with all the needed information.
-		panic(fmt.Errorf("component name is empty"))
-	}
-
-	ns := c.Metadata().Namespace
-	if ns == "" {
-		// This should never fail in real user usage, if this does that means the component was not
-		// created with all the needed information.
-		panic(fmt.Errorf("component %s namespace is empty", name))
-	}
-
-	cfg, err := util.HelmActionConfig(ns, kubeconfig)
-	if err != nil {
-		return fmt.Errorf("failed preparing helm client: %w", err)
-	}
-
-	history := action.NewHistory(cfg)
-	// Check if the component's release exists. If it does only then proceed to delete.
-	//
-	// Note: It is assumed that this call will return error only when the release does not exist.
-	// The error check is ignored to make `lokoctl component delete ..` idempotent.
-	// We rely on the fact that the 'component name' == 'release name'. Since component's name is
-	// hardcoded and unlikely to change release name won't change as well. And they will be
-	// consistent if installed by lokoctl. So it is highly unlikely that following call will return
-	// any other error than "release not found".
-	if _, err := history.Run(name); err == nil {
-		uninstall := action.NewUninstall(cfg)
-
-		// Ignore the err when we have deleted the release already or it does not exist for some reason.
-		if _, err := uninstall.Run(name); err != nil {
-			return err
+			ctxLogger.Fatalf("Unsupported component, got: %v", err)
 		}
 	}
 
-	if deleteNSBool {
-		if err := deleteNS(ns, kubeconfig); err != nil {
-			return err
-		}
-	}
+	options.DeleteNamespace = deleteNamespace
 
-	return nil
-}
-
-func deleteNS(ns string, kubeconfig string) error {
-	cs, err := k8sutil.NewClientset(kubeconfig)
-	if err != nil {
-		return err
-	}
-
-	// Delete the manually created namespace which was not created by helm.
-	if err = cs.CoreV1().Namespaces().Delete(ns, &metav1.DeleteOptions{}); err != nil {
-		// Ignore error when the namespace does not exist.
-		if errors.IsNotFound(err) {
-			return nil
-		}
-
-		return err
-	}
-
-	return nil
+	l.DeleteComponents(args, options)
 }

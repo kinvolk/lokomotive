@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/hashicorp/hcl/v2"
@@ -27,6 +28,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"sigs.k8s.io/yaml"
 
+	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive/config"
@@ -227,6 +229,52 @@ func (l *lokomotive) RenderComponents(args []string) {
 	}
 }
 
+func (l *lokomotive) DeleteComponents(args []string, options *Options) {
+	//TODO: This check brings UI logic in lokomotive package
+	// Ideally `askForConfirmation` should be part of the cmd package.
+	confirmationStr := fmt.Sprintf("The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
+		strings.Join(args, "\n\t"))
+
+	confirmation, err := askForConfirmation(confirmationStr)
+	if err != nil {
+		l.Logger.Fatalf("error reading input: %v", err)
+	}
+
+	if !confirmation {
+		l.Logger.Info("Components deletion cancelled.")
+		return
+	}
+
+	componentsToDelete := map[string]components.Component{}
+	// Delete all configured components if length of args is zero.
+	if len(args) == 0 {
+		componentsToDelete = l.Config.Components
+	}
+
+	// Create a map of all component objects to be deleted.
+	for _, name := range args {
+		c, err := components.Get(name)
+		if err != nil {
+			l.Logger.Fatalf("Unsupported component, got: %v", err)
+		}
+		componentsToDelete[name] = c
+	}
+
+	kubeconfig := getKubeconfig(l.Platform.GetAssetDir())
+
+	for name, component := range componentsToDelete {
+		l.Logger.Infof("Deleting component '%s'...\n", name)
+		if err := l.deleteHelmRelease(component, kubeconfig, options.DeleteNamespace); err != nil {
+			l.ContextLogger.Fatalf("Error deleting component '%s': %v", name, err)
+		}
+
+		l.ContextLogger.Infof("Successfully deleted component %q!\n", name)
+	}
+
+	// Add a line to distinguish between info logs and errors, if any.
+	l.ContextLogger.Println()
+
+}
 //nolint:funlen
 // Health gets the health of the Lokomotive cluster.
 func (l *lokomotive) Health() {
@@ -450,6 +498,53 @@ func (l *lokomotive) upgradeComponent(component string) error {
 	}
 
 	fmt.Println("Done.")
+
+	return nil
+}
+
+func (l *lokomotive) deleteHelmRelease(c components.Component, kubeconfig string, deleteNSBool bool) error {
+	name := c.Metadata().Name
+	if name == "" {
+		// This should never fail in real user usage, if this does that means the component was not
+		// created with all the needed information.
+		panic(fmt.Errorf("component name is empty"))
+	}
+
+	ns := c.Metadata().Namespace
+	if ns == "" {
+		// This should never fail in real user usage, if this does that means the component was not
+		// created with all the needed information.
+		panic(fmt.Errorf("component %s namespace is empty", name))
+	}
+
+	cfg, err := util.HelmActionConfig(ns, kubeconfig)
+	if err != nil {
+		return fmt.Errorf("failed preparing helm client: %w", err)
+	}
+
+	history := action.NewHistory(cfg)
+	// Check if the component's release exists. If it does only then proceed to delete.
+	//
+	// Note: It is assumed that this call will return error only when the release does not exist.
+	// The error check is ignored to make `lokoctl component delete ..` idempotent.
+	// We rely on the fact that the 'component name' == 'release name'. Since component's name is
+	// hardcoded and unlikely to change release name won't change as well. And they will be
+	// consistent if installed by lokoctl. So it is highly unlikely that following call will return
+	// any other error than "release not found".
+	if _, err := history.Run(name); err == nil {
+		uninstall := action.NewUninstall(cfg)
+
+		// Ignore the err when we have deleted the release already or it does not exist for some reason.
+		if _, err := uninstall.Run(name); err != nil {
+			return err
+		}
+	}
+
+	if deleteNSBool {
+		if err := deleteNS(ns, kubeconfig); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
