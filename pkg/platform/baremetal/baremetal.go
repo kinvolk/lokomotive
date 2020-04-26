@@ -16,12 +16,8 @@ package baremetal
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -78,30 +74,12 @@ func NewConfig() *config {
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
 
 	return ex.Apply()
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
-
 	return ex.Destroy()
-}
-
-func (c *config) Initialize(ex *terraform.Executor) error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
 }
 
 func (c *config) Render() (string, error) {
@@ -154,70 +132,6 @@ func (c *config) Render() (string, error) {
 func (c *config) Validate() hcl.Diagnostics {
 
 	return hcl.Diagnostics{}
-}
-
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
-	}
-
-	path := filepath.Join(terraformPath, tmplName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	workerDomains, err := json.Marshal(cfg.WorkerDomains)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
-	}
-
-	workerMacs, err := json.Marshal(cfg.WorkerMacs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerMacs)
-	}
-
-	workerNames, err := json.Marshal(cfg.WorkerNames)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerNames)
-	}
-
-	controllerDomains, err := json.Marshal(cfg.ControllerDomains)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerDomains)
-	}
-
-	controllerMacs, err := json.Marshal(cfg.ControllerMacs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerMacs)
-	}
-
-	controllerNames, err := json.Marshal(cfg.ControllerNames)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
-	}
-
-	cfg.ControllerDomainsRaw = string(controllerDomains)
-	cfg.ControllerMacsRaw = string(controllerMacs)
-	cfg.ControllerNamesRaw = string(controllerNames)
-	cfg.SSHPubKeysRaw = string(keyListBytes)
-	cfg.WorkerNamesRaw = string(workerNames)
-	cfg.WorkerMacsRaw = string(workerMacs)
-	cfg.WorkerDomainsRaw = string(workerDomains)
-
-	if err := t.Execute(f, cfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
 }
 
 func (c *config) GetExpectedNodes() int {

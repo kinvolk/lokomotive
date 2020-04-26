@@ -17,12 +17,8 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -102,30 +98,12 @@ func (c *config) GetAssetDir() string {
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
-
 	return ex.Apply()
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
 
 	return ex.Destroy()
-}
-
-func (c *config) Initialize(ex *terraform.Executor) error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
 }
 
 func (c *config) Render() (string, error) {
@@ -183,74 +161,6 @@ func (c *config) Render() (string, error) {
 func (c *config) Validate() hcl.Diagnostics {
 
 	return hcl.Diagnostics{}
-}
-
-func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
-	workerpoolCfgList := []map[string]string{}
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
-	}
-
-	path := filepath.Join(terraformRootDir, tmplName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
-	util.AppendTags(&cfg.Tags)
-
-	tags, err := json.Marshal(cfg.Tags)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
-	}
-
-	for _, workerpool := range cfg.WorkerPools {
-		input := map[string]interface{}{
-			"clc_snippets":  workerpool.CLCSnippets,
-			"target_groups": workerpool.TargetGroups,
-			"ssh_pub_keys":  workerpool.SSHPubKeys,
-			"tags":          workerpool.Tags,
-		}
-
-		output := map[string]string{}
-
-		util.AppendTags(&workerpool.Tags)
-
-		for k, v := range input {
-			bytes, err := json.Marshal(v)
-			if err != nil {
-				return fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
-			}
-
-			output[k] = string(bytes)
-		}
-
-		workerpoolCfgList = append(workerpoolCfgList, output)
-	}
-
-	cfg.TagsRaw = string(tags)
-	cfg.SSHPubKeysRaw = string(keyListBytes)
-	cfg.ControllerCLCSnippetsRaw = string(controllerCLCSnippetsBytes)
-	cfg.WorkerPoolsListRaw = workerpoolCfgList
-
-	if err := t.Execute(f, cfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
 }
 
 func (c *config) GetExpectedNodes() int {

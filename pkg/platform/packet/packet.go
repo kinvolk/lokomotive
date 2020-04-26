@@ -18,11 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
-	"strconv"
-	"strings"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
@@ -113,23 +109,12 @@ func (c *config) GetAssetDir() string {
 	return c.AssetDir
 }
 
-func (c *config) Initialize(ex *terraform.Executor) error {
+func (c *config) Apply(ex *terraform.Executor) error {
 	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
 		return fmt.Errorf("cannot find the Packet authentication token:\n" +
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
 	}
 
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
-}
-
-func (c *config) Apply(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
@@ -142,17 +127,10 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return errors.Wrap(err, "parsing DNS configuration failed")
 	}
 
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
-
 	return c.terraformSmartApply(ex, dnsProvider)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
 
 	return ex.Destroy()
 }
@@ -191,54 +169,6 @@ func (c *config) Render() (string, error) {
 func (c *config) Validate() hcl.Diagnostics {
 
 	return hcl.Diagnostics{}
-}
-
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
-	}
-
-	path := filepath.Join(terraformPath, tmplName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	managementCIDRs, err := json.Marshal(cfg.ManagementCIDRs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal management CIDRs")
-	}
-
-	// Packet does not accept tags as a key-value map but as an array of
-	// strings.
-	util.AppendTags(&cfg.Tags)
-	tagsList := []string{}
-	for k, v := range cfg.Tags {
-		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
-	}
-	sort.Strings(tagsList)
-	tags, err := json.Marshal(tagsList)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
-	}
-
-	cfg.TagsRaw = string(tags)
-	cfg.SSHPubKeysRaw = string(keyListBytes)
-	cfg.ManagementCIDRsRaw = string(managementCIDRs)
-
-	if err := t.Execute(f, cfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
 }
 
 // terraformSmartApply applies cluster configuration.

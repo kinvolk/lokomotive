@@ -29,7 +29,6 @@ type Platform interface {
 	Validate() hcl.Diagnostics
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
-	Initialize(*terraform.Executor) error
 	GetAssetDir() string
 	GetExpectedNodes() int
 }
