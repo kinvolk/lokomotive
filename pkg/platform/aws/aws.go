@@ -28,6 +28,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type workerPool struct {
@@ -128,8 +129,55 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 }
 
 func (c *config) Render() (string, error) {
+	keyListBytes, err := json.Marshal(c.SSHPubKeys)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to marshal SSH public keys")
+	}
 
-	return "", nil
+	controllerCLCSnippetsBytes, err := json.Marshal(c.ControllerCLCSnippets)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to marshal CLC snippets")
+	}
+
+	util.AppendTags(&c.Tags)
+
+	tags, err := json.Marshal(c.Tags)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to marshal tags")
+	}
+
+	workerpoolCfgList := []map[string]string{}
+
+	for _, workerpool := range c.WorkerPools {
+		input := map[string]interface{}{
+			"clc_snippets":  workerpool.CLCSnippets,
+			"target_groups": workerpool.TargetGroups,
+			"ssh_pub_keys":  workerpool.SSHPubKeys,
+			"tags":          workerpool.Tags,
+		}
+
+		output := map[string]string{}
+
+		util.AppendTags(&workerpool.Tags)
+
+		for k, v := range input {
+			bytes, err := json.Marshal(v)
+			if err != nil {
+				return "", fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
+			}
+
+			output[k] = string(bytes)
+		}
+
+		workerpoolCfgList = append(workerpoolCfgList, output)
+	}
+
+	c.TagsRaw = string(tags)
+	c.SSHPubKeysRaw = string(keyListBytes)
+	c.ControllerCLCSnippetsRaw = string(controllerCLCSnippetsBytes)
+	c.WorkerPoolsListRaw = workerpoolCfgList
+
+	return utilpkg.RenderTemplate(terraformConfigTmpl, c)
 }
 
 func (c *config) Validate() hcl.Diagnostics {

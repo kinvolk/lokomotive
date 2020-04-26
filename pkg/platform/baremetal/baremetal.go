@@ -26,6 +26,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type config struct {
@@ -104,8 +105,50 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 }
 
 func (c *config) Render() (string, error) {
+	keyListBytes, err := json.Marshal(c.SSHPubKeys)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to marshal SSH public keys")
+	}
 
-	return "", nil
+	workerDomains, err := json.Marshal(c.WorkerDomains)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.WorkerDomains)
+	}
+
+	workerMacs, err := json.Marshal(c.WorkerMacs)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.WorkerMacs)
+	}
+
+	workerNames, err := json.Marshal(c.WorkerNames)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.WorkerNames)
+	}
+
+	controllerDomains, err := json.Marshal(c.ControllerDomains)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.ControllerDomains)
+	}
+
+	controllerMacs, err := json.Marshal(c.ControllerMacs)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.ControllerMacs)
+	}
+
+	controllerNames, err := json.Marshal(c.ControllerNames)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse %q", c.ControllerNames)
+	}
+
+	c.ControllerDomainsRaw = string(controllerDomains)
+	c.ControllerMacsRaw = string(controllerMacs)
+	c.ControllerNamesRaw = string(controllerNames)
+	c.SSHPubKeysRaw = string(keyListBytes)
+	c.WorkerNamesRaw = string(workerNames)
+	c.WorkerMacsRaw = string(workerMacs)
+	c.WorkerDomainsRaw = string(workerDomains)
+
+	return util.RenderTemplate(terraformConfigTmpl, c)
 }
 
 func (c *config) Validate() hcl.Diagnostics {

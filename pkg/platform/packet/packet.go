@@ -32,6 +32,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	utilpkg "github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type nodeRole int
@@ -157,8 +158,34 @@ func (c *config) Destroy(ex *terraform.Executor) error {
 }
 
 func (c *config) Render() (string, error) {
+	keyListBytes, err := json.Marshal(c.SSHPubKeys)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to marshal SSH public keys")
+	}
 
-	return "", nil
+	managementCIDRs, err := json.Marshal(c.ManagementCIDRs)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to marshal management CIDRs")
+	}
+
+	// Packet does not accept tags as a key-value map but as an array of
+	// strings.
+	util.AppendTags(&c.Tags)
+	tagsList := []string{}
+	for k, v := range c.Tags {
+		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
+	}
+	sort.Strings(tagsList)
+	tags, err := json.Marshal(tagsList)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to marshal tags")
+	}
+
+	c.TagsRaw = string(tags)
+	c.SSHPubKeysRaw = string(keyListBytes)
+	c.ManagementCIDRsRaw = string(managementCIDRs)
+
+	return utilpkg.RenderTemplate(terraformConfigTmpl, c)
 }
 
 func (c *config) Validate() hcl.Diagnostics {
