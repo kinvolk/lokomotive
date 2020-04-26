@@ -21,7 +21,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -39,10 +38,10 @@ import (
 // lokomotive manages the Lokomotive cluster related operations such as Apply,
 // Destroy ,Health etc.
 type lokomotive struct {
-	ContextLogger *logrus.Entry
-	Platform      platform.Platform
-	Config        *config.LokomotiveConfig
-	Executor      *terraform.Executor
+	Logger   *logrus.Entry
+	Platform platform.Platform
+	Config   *config.LokomotiveConfig
+	Executor *terraform.Executor
 }
 
 // NewLokomotive returns the an new lokomotive Instance
@@ -59,63 +58,63 @@ func NewLokomotive(ctxLogger *logrus.Entry, cfg *config.LokomotiveConfig, option
 	}
 
 	return &lokomotive{
-		ContextLogger: ctxLogger,
-		Config:        cfg,
-		Platform:      cfg.Platform,
-		Executor:      ex,
+		Logger:   ctxLogger,
+		Config:   cfg,
+		Platform: cfg.Platform,
+		Executor: ex,
 	}, hcl.Diagnostics{}
 }
 
 // Apply creates the Lokomotive cluster
 func (l *lokomotive) Apply(options *Options) {
 	if l.Config.Platform == nil {
-		l.ContextLogger.Fatalf("This operation is not permitted as 'platform' block is not configured")
+		l.Logger.Fatalf("This operation is not permitted as 'platform' block is not configured")
 	}
 
 	assetDir := l.Config.Platform.GetAssetDir()
 	if err := l.initializeTerraform(assetDir); err != nil {
-		l.ContextLogger.Fatalf("Error intializing terraform: %v", err)
+		l.Logger.Fatalf("Error intializing terraform: %v", err)
 	}
 	// check if cluster exists
 	exists, err := l.clusterExists()
 	if err != nil {
-		l.ContextLogger.Fatalf("Error checking for existing cluster: %v", err)
+		l.Logger.Fatalf("Error checking for existing cluster: %v", err)
 	}
 	// If cluster exists, reconcile the cluster state upon confirmation
 	if exists && !options.Confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := l.Executor.Plan(); err != nil {
-			l.ContextLogger.Fatalf("failed to reconcile cluster state: %v", err)
+			l.Logger.Fatalf("failed to reconcile cluster state: %v", err)
 		}
 
 		confirmation, err := askForConfirmation("Do you want to proceed with cluster apply?")
 		if err != nil {
-			l.ContextLogger.Fatalf("error reading input: %v", err)
+			l.Logger.Fatalf("error reading input: %v", err)
 		}
 
 		if confirmation {
-			fmt.Println("Cluster apply cancelled")
+			l.Logger.Infoln("Cluster apply cancelled")
 			return
 		}
 	}
 
 	if err := l.Platform.Apply(l.Executor); err != nil {
-		l.ContextLogger.Fatalf("Error creating Lokomotive cluster: %v", err)
+		l.Logger.Fatalf("Error creating Lokomotive cluster: %v", err)
 	}
 	// Verify cluster creation
 	kubeconfigPath := assetsKubeconfig(assetDir)
 	if err := verifyCluster(kubeconfigPath, l.Platform.GetExpectedNodes()); err != nil {
-		l.ContextLogger.Fatalf("Error in verifying cluster: %v", err)
+		l.Logger.Fatalf("Error in verifying cluster: %v", err)
 	}
 
-	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
+	l.Logger.Infof("\nYour configurations are stored in %s\n", assetDir)
 
 	// Do controlplane upgrades only if cluster already exists.
 	if exists {
-		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
+		l.Logger.Infof("\nEnsuring that cluster controlplane is up to date.\n")
 
 		if err := l.updateControlPlane(options.UpgradeKubelets); err != nil {
-			l.ContextLogger.Fatalf("Error updating Lokomotive control plane: %v", err)
+			l.Logger.Fatalf("Error updating Lokomotive control plane: %v", err)
 		}
 	}
 
@@ -133,20 +132,20 @@ func (l *lokomotive) Apply(options *Options) {
 // Destroy destroys the Lokomotive cluster
 func (l *lokomotive) Destroy(options *Options) {
 	if l.Config.Platform == nil {
-		l.ContextLogger.Fatalf("this operation is not permitted as 'platform' block is not configured")
+		l.Logger.Fatalf("this operation is not permitted as 'platform' block is not configured")
 	}
 
 	if err := l.initializeTerraform(l.Platform.GetAssetDir()); err != nil {
-		l.ContextLogger.Fatalf("Error intializing terraform: %v", err)
+		l.Logger.Fatalf("Error intializing terraform: %v", err)
 	}
 
 	exists, err := l.clusterExists()
 	if err != nil {
-		l.ContextLogger.Fatalf("Error checking for existing cluster: %v", err)
+		l.Logger.Fatalf("Error checking for existing cluster: %v", err)
 	}
 
 	if !exists {
-		fmt.Println("Cluster already destroyed, nothing to do")
+		l.Logger.Infoln("Cluster already destroyed, nothing to do")
 
 		return
 	}
@@ -156,17 +155,17 @@ func (l *lokomotive) Destroy(options *Options) {
 
 		confirmation, err := askForConfirmation(warningStr)
 		if err != nil {
-			l.ContextLogger.Fatalf("error reading input: %v", err)
+			l.Logger.Fatalf("error reading input: %v", err)
 		}
 
 		if !confirmation {
-			fmt.Println("Cluster destroy canceled")
+			l.Logger.Infoln("Cluster destroy canceled")
 			return
 		}
 	}
 
 	if err := l.Platform.Destroy(l.Executor); err != nil {
-		l.ContextLogger.Fatalf("Error destroying Lokomotive cluster: %v", err)
+		l.Logger.Fatalf("Error destroying Lokomotive cluster: %v", err)
 	}
 }
 
@@ -177,7 +176,7 @@ func (l *lokomotive) ApplyComponents(args []string) {
 	for _, name := range args {
 		component, ok := l.Config.Components[name]
 		if !ok {
-			l.ContextLogger.Fatalf("could not find configuration for the `%s` component to apply", name)
+			l.Logger.Fatalf("could not find configuration for the `%s` component to apply", name)
 		}
 
 		componentsToApply[name] = component
@@ -191,10 +190,10 @@ func (l *lokomotive) ApplyComponents(args []string) {
 
 	for name, component := range componentsToApply {
 		if err := util.InstallComponent(name, component, kubeconfig); err != nil {
-			l.ContextLogger.Fatalf("Error installing component '%s' : %v", name, err)
+			l.Logger.Fatalf("Error installing component '%s' : %v", name, err)
 		}
 
-		fmt.Printf("Successfully applied component '%s' configuration!\n", name)
+		l.Logger.Infof("Successfully applied component '%s' configuration!\n", name)
 	}
 }
 
@@ -205,7 +204,7 @@ func (l *lokomotive) RenderComponents(args []string) {
 	for _, name := range args {
 		component, ok := l.Config.Components[name]
 		if !ok {
-			l.ContextLogger.Fatalf("could not find configuration for the `%s` component to render", name)
+			l.Logger.Fatalf("could not find configuration for the `%s` component to render", name)
 		}
 
 		componentsToRender[name] = component
@@ -218,7 +217,7 @@ func (l *lokomotive) RenderComponents(args []string) {
 	for name, component := range componentsToRender {
 		manifests, err := component.RenderManifests()
 		if err != nil {
-			l.ContextLogger.Fatalf("Error rendering component '%s' manifests: %v", name, err)
+			l.Logger.Fatalf("Error rendering component '%s' manifests: %v", name, err)
 		}
 
 		fmt.Printf("# manifests for component %s\n", name)
@@ -265,63 +264,63 @@ func (l *lokomotive) DeleteComponents(args []string, options *Options) {
 	for name, component := range componentsToDelete {
 		l.Logger.Infof("Deleting component '%s'...\n", name)
 		if err := l.deleteHelmRelease(component, kubeconfig, options.DeleteNamespace); err != nil {
-			l.ContextLogger.Fatalf("Error deleting component '%s': %v", name, err)
+			l.Logger.Fatalf("Error deleting component '%s': %v", name, err)
 		}
 
-		l.ContextLogger.Infof("Successfully deleted component %q!\n", name)
+		l.Logger.Infof("Successfully deleted component %q!\n", name)
 	}
 
 	// Add a line to distinguish between info logs and errors, if any.
-	l.ContextLogger.Println()
-
+	l.Logger.Println()
 }
+
 //nolint:funlen
 // Health gets the health of the Lokomotive cluster.
 func (l *lokomotive) Health() {
 	if l.Config.Platform == nil {
-		l.ContextLogger.Fatalf("this operation is not permitted as 'platform' block is not configured")
+		l.Logger.Fatalf("this operation is not permitted as 'platform' block is not configured")
 	}
 
 	assetDir := l.Platform.GetAssetDir()
 	if err := doesKubeconfigExist(assetDir); err != nil {
-		l.ContextLogger.Fatalf("Error finding kubeconfig: %v", err)
+		l.Logger.Fatalf("Error finding kubeconfig: %v", err)
 	}
 
 	exists, err := l.clusterExists()
 	if err != nil {
-		l.ContextLogger.Fatalf("Error checking for existing cluster: %v", err)
+		l.Logger.Fatalf("Error checking for existing cluster: %v", err)
 	}
 
 	if !exists {
-		l.ContextLogger.Fatalf("no cluster found")
+		l.Logger.Fatalf("no cluster found")
 	}
 
 	kubeconfig := getKubeconfig(assetDir)
 
 	client, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
-		l.ContextLogger.Fatalf("error in setting up Kubernetes client: %v", err)
+		l.Logger.Fatalf("error in setting up Kubernetes client: %v", err)
 	}
 
 	cluster, err := NewCluster(client, l.Platform.GetExpectedNodes())
 	if err != nil {
-		l.ContextLogger.Fatalf("error in creating new Lokomotive cluster client: %q", err)
+		l.Logger.Fatalf("error in creating new Lokomotive cluster client: %q", err)
 	}
 
 	ns, err := cluster.GetNodeStatus()
 	if err != nil {
-		l.ContextLogger.Fatalf("error getting node status: %q", err)
+		l.Logger.Fatalf("error getting node status: %q", err)
 	}
 
 	ns.PrettyPrint()
 
 	if !ns.Ready() {
-		l.ContextLogger.Fatalf("the cluster is not completely ready")
+		l.Logger.Fatalf("the cluster is not completely ready")
 	}
 
 	components, err := cluster.Health()
 	if err != nil {
-		l.ContextLogger.Fatalf("error in getting Lokomotive cluster health: %q", err)
+		l.Logger.Fatalf("error in getting Lokomotive cluster health: %q", err)
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
@@ -346,7 +345,7 @@ func (l *lokomotive) Health() {
 		}
 
 		if err := w.Flush(); err != nil {
-			l.ContextLogger.Fatalf(err.Error())
+			l.Logger.Fatalf(err.Error())
 		}
 	}
 }
@@ -469,7 +468,7 @@ func (l *lokomotive) upgradeComponent(component string) error {
 	}
 
 	if !exists {
-		fmt.Printf("controlplane component '%s' is missing, reinstalling...", component)
+		l.Logger.Infof("controlplane component '%s' is missing, reinstalling...", component)
 
 		install := action.NewInstall(actionConfig)
 		install.ReleaseName = component
