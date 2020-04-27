@@ -30,12 +30,12 @@ func TestOpenEBSOperatorDeployment(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
 	deployments := []string{
-		"openebs-provisioner",
-		"openebs-localpv-provisioner",
-		"openebs-admission-server",
-		"openebs-ndm-operator",
-		"openebs-snapshot-operator",
-		"maya-apiserver",
+		"openebs-operator-provisioner",
+		"openebs-operator-localpv-provisioner",
+		"openebs-operator-admission-server",
+		"openebs-operator-ndm-operator",
+		"openebs-operator-snapshot-operator",
+		"openebs-operator-apiserver",
 	}
 
 	for _, deployment := range deployments {

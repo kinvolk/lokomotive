@@ -15,14 +15,13 @@
 package openebsoperator
 
 import (
-	"bytes"
-	"html/template"
+	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 const name = "openebs-operator"
@@ -35,6 +34,53 @@ type component struct {
 	NDMSelectorLabel string `hcl:"ndm_selector_label,optional"`
 	NDMSelectorValue string `hcl:"ndm_selector_value,optional"`
 }
+
+const chartValuesTmpl = `
+rbac:
+  pspEnabled: true
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+apiserver:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+provisioner:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+localprovisioner:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+snapshotOperator:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+ndm:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+ndmOperator:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
+webhook:
+  nodeSelector:
+    "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
+{{- end }}
+`
 
 func newComponent() *component {
 	return &component{}
@@ -50,17 +96,22 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	tmpl, err := template.New("installer").Parse(operatorInstallerTmpl)
+	helmChart, err := util.LoadChartFromAssets("/components/openebs")
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("load chart from assets: %w", err)
 	}
-	var installerBuf bytes.Buffer
-	if err := tmpl.Execute(&installerBuf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+
+	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	if err != nil {
+		return nil, fmt.Errorf("render chart values template: %w", err)
 	}
-	return map[string]string{
-		"openebs-operator.yml": installerBuf.String(),
-	}, nil
+
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace, values)
+	if err != nil {
+		return nil, fmt.Errorf("render chart: %w", err)
+	}
+
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {
