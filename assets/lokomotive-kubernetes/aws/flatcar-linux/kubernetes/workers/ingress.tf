@@ -1,4 +1,24 @@
-# Target groups of instances for use with load balancers
+resource "aws_lb_listener" "ingress-http" {
+  load_balancer_arn = var.lb_arn
+  protocol          = "TCP"
+  port              = var.lb_http_port
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.workers-http.arn
+  }
+}
+
+resource "aws_lb_listener" "ingress-https" {
+  load_balancer_arn = var.lb_arn
+  protocol          = "TCP"
+  port              = var.lb_https_port
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.workers-https.arn
+  }
+}
 
 resource "aws_lb_target_group" "workers-http" {
   name        = "${var.cluster_name}-${var.pool_name}-workers-http"

@@ -49,6 +49,8 @@ variable "worker_disk_size" {}
 variable "worker_disk_type" {}
 variable "worker_disk_iops" {}
 variable "worker_spot_price" {}
+variable "lb_http_port" {}
+variable "lb_https_port" {}
 variable "target_groups" {}
 
 backend "s3" {
@@ -134,6 +136,10 @@ cluster "aws" {
 
     spot_price = var.worker_spot_price
 
+    lb_http_port = var.lb_http_port
+
+    lb_https_port = var.lb_https_port
+
     target_groups = var.target_groups
 
     clc_snippets = var.worker_clc_snippets
@@ -208,6 +214,8 @@ worker_pool "my-worker-pool" {
 | `worker_pool.disk_iops`       | IOPS of the EBS volume (e.g 100).                                                                                                                                                          | 0               | false    |
 | `worker_pool.spot_price`      | Spot price in USD for autoscaling group spot instances. Leave as empty string for autoscaling group to use on-demand instances. Switching in-place from spot to on-demand is not possible. | ""              | false    |
 | `worker_pool.target_groups`   | Additional target group ARNs to which worker instances should be added.                                                                                                                    | []              | false    |
+| `worker_pool.lb_http_port`    | Port the load balancer should listen on for HTTP connections.                                                                                                                              | 80              | false    |
+| `worker_pool.lb_https_port`    | Port the load balancer should listen on for HTTPS connections.                                                                                                                            | 443             | false    |
 | `worker_pool.clc_snippets`    | CWorker Flatcar Container Linux Config snippets.                                                                                                                                           | []              | false    |
 | `worker_pool.tags`            | Optional details to tag on AWS resources.                                                                                                                                                  | -               | false    |
 

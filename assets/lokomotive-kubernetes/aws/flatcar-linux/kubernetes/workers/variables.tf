@@ -130,3 +130,19 @@ variable "cluster_domain_suffix" {
   type        = string
   default     = "cluster.local"
 }
+
+variable "lb_arn" {
+  description = "ARN of the load balancer on which to create listeners for this worker pool"
+}
+
+variable "lb_http_port" {
+  description = "Port the load balancer should listen on for HTTP connections"
+  type        = number
+  default     = 80
+}
+
+variable "lb_https_port" {
+  description = "Port the load balancer should listen on for HTTPS connections"
+  type        = number
+  default     = 443
+}

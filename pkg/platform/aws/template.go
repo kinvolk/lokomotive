@@ -124,6 +124,14 @@ module "worker-pool-{{ $index }}" {
   instance_type         = "{{ $pool.InstanceType }}"
   {{- end }}
 
+  lb_arn = module.aws-{{ $.Config.ClusterName }}.nlb_arn
+  {{- if $pool.LBHTTPPort }}
+  lb_http_port = {{ $pool.LBHTTPPort }}
+  {{- end }}
+  {{- if $pool.LBHTTPSPort }}
+  lb_https_port = {{ $pool.LBHTTPSPort }}
+  {{- end }}
+
   {{- if $pool.OSChannel }}
   os_channel            = "{{ $pool.OSChannel }}"
   {{- end }}
