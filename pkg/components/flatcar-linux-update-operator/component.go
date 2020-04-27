@@ -45,6 +45,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
 	walk := walkers.DumpingWalker(ret, ".yaml")
+
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", name), walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}

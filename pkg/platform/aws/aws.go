@@ -181,6 +181,7 @@ func (c *config) Render() (string, error) {
 	return utilpkg.RenderTemplate(terraformConfigTmpl, c)
 }
 
+// nolint:funlen
 func (c *config) Validate() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 

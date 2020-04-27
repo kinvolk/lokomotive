@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package lokomotive
 
 import (
@@ -261,6 +262,7 @@ func (l *lokomotive) DeleteComponents(args []string, options *Options) {
 		if err != nil {
 			l.Logger.Fatalf("Unsupported component, got: %v", err)
 		}
+
 		componentsToDelete[name] = c
 	}
 
@@ -268,6 +270,7 @@ func (l *lokomotive) DeleteComponents(args []string, options *Options) {
 
 	for name, component := range componentsToDelete {
 		l.Logger.Infof("Deleting component '%s'...\n", name)
+
 		if err := l.deleteHelmRelease(component, kubeconfig, options.DeleteNamespace); err != nil {
 			l.Logger.Fatalf("Error deleting component '%s': %v", name, err)
 		}

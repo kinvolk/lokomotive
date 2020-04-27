@@ -181,7 +181,6 @@ func (c *config) GetExpectedNodes() int {
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-
 	return ex.Destroy()
 }
 
@@ -200,6 +199,7 @@ func (c *config) Render() (string, error) {
 	// strings.
 	util.AppendTags(&c.Tags)
 	tagsList := []string{}
+
 	for k, v := range c.Tags {
 		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
 	}
@@ -219,6 +219,7 @@ func (c *config) Render() (string, error) {
 	return utilpkg.RenderTemplate(terraformConfigTmpl, c)
 }
 
+//nolint:funlen
 func (c *config) Validate() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 

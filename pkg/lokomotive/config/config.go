@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package config holds the user provided HCL configuration in
+// the LokomotiveConfig.
 package config
 
 import (
@@ -29,6 +31,7 @@ type LokomotiveConfig struct {
 	Components map[string]components.Component
 }
 
+// Validate validates the LokomotiveConfig.
 func (l *LokomotiveConfig) Validate() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 

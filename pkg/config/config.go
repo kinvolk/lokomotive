@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package config provides go constructs for loading and parsing the
+// HCL configuration.
 package config
 
 import (
@@ -49,15 +51,17 @@ type backend struct {
 	Config hcl.Body `hcl:",remain"`
 }
 
-type ClusterConfig struct {
+type clusterConfig struct {
 	Cluster    *cluster    `hcl:"cluster,block"`
 	Backend    *backend    `hcl:"backend,block"`
 	Components []component `hcl:"component,block"`
 	Variables  []variable  `hcl:"variable,block"`
 }
 
+// HCLConfig represents the loaded HCL configuration without the knowledge
+// of the underlying structure.
 type HCLConfig struct {
-	ClusterConfig *ClusterConfig
+	ClusterConfig *clusterConfig
 	EvalContext   *hcl.EvalContext
 }
 
@@ -172,7 +176,7 @@ func ParseHCLFiles(lokocfgFiles, variablesFile map[string][]byte) (*HCLConfig, h
 		}
 	}
 
-	var cfg ClusterConfig
+	var cfg clusterConfig
 
 	diags = gohcl.DecodeBody(configBody, nil, &cfg)
 	if len(diags) > 0 {

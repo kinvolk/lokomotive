@@ -13,6 +13,7 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
 )
 
+//nolint:funlen
 func TestHCLLoaderParsePacketValidLokomotiveConfig(t *testing.T) {
 	cfg := `
 variable "ssh_public_keys" {}

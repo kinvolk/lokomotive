@@ -96,6 +96,7 @@ type Executor struct {
 	logger        *log.Entry
 }
 
+// InitializeExecutor initializes Terraform Executor in the provided asset directory.
 func InitializeExecutor(assetDir string, verbose bool) (*Executor, error) {
 	conf := Config{
 		WorkingDir: GetTerraformRootDir(assetDir),

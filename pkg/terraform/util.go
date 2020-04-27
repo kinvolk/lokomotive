@@ -128,12 +128,15 @@ func prepareTerraformRootDir(path string) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to stat path %q: %v", path, err)
 	}
+
 	if pathExists {
 		return nil
 	}
-	if err := os.MkdirAll(path, 0755); err != nil {
+
+	if err := os.MkdirAll(path, 0750); err != nil {
 		return errors.Wrapf(err, "failed to create terraform assets directory at: %s", path)
 	}
+
 	return nil
 }
 
@@ -146,9 +149,11 @@ func prepareTerraformRootDir(path string) error {
 // lokoctl binary or from the filesystem, depending on whether the
 // LOKOCTL_USE_FS_ASSETS environment variable was specified.
 func prepareLokomotiveTerraformModuleAt(path string) error {
-	walk := walkers.CopyingWalker(path, 0755)
+	walk := walkers.CopyingWalker(path, 0750)
+
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
 		return errors.Wrap(err, "failed to walk assets")
 	}
+
 	return nil
 }

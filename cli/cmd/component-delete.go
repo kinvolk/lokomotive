@@ -45,6 +45,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 	})
 
 	l, options := initialize(ctxLogger)
+
 	for _, name := range args {
 		_, err := components.Get(name)
 		if err != nil {

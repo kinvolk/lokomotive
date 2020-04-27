@@ -11,10 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// Package lokomotive provides the go constructs for managing the
+// Lokomotive cluster operations.
 package lokomotive
 
 // Manager interface provide methods that  manage the lifecycle
-// of a Lokomotive cluster
+// of a Lokomotive cluster.
 type Manager interface {
 	Apply(*Options)
 	Destroy(*Options)
@@ -24,7 +27,7 @@ type Manager interface {
 	Health()
 }
 
-// Options struct represents the CLI options
+// Options struct represents the CLI options.
 type Options struct {
 	Confirm         bool
 	UpgradeKubelets bool

@@ -85,10 +85,11 @@ ssh_public_keys="test-ssh-key"
 
 	config, diags := ParseHCLFiles(hclconfigMap, varconfigMap)
 	if diags.HasErrors() {
-		t.Error("Loading valid HCL configuration should not produce any errors:")
 		for _, diag := range diags {
-			t.Fatal(diag)
+			t.Error(diag)
 		}
+
+		t.Fatal("Loading valid HCL configuration should not produce any errors:")
 	}
 
 	if config.ClusterConfig == nil {
@@ -432,7 +433,6 @@ cluster "packet" {
 		t.Fatalf("Should use default value of variable and not throw error: %q", diags)
 	}
 
-	t.Log(config.ClusterConfig.Cluster.Config)
 	if config.ClusterConfig == nil {
 		t.Fatalf("Config should not be nil after loading invalid HCL configuration")
 	}

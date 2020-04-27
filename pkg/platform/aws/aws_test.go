@@ -14,7 +14,7 @@ func TestConfigNewconfig(t *testing.T) {
 	if c.ClusterDomainSuffix != "cluster.local" {
 		t.Fatalf("Expected default ClusterDomainSufix as `cluster.local`, got: %s", c.ClusterDomainSuffix)
 	}
-	//nolint:gomnd
+
 	if c.CertsValidityPeriodHours != 8760 {
 		t.Fatalf("Expected default CertsValidityPeriodHours as `8760`, got: %d", c.CertsValidityPeriodHours)
 	}
@@ -23,7 +23,6 @@ func TestConfigNewconfig(t *testing.T) {
 		t.Fatalf("Expected default EnableAggreation to be true, got: %t", c.EnableAggregation)
 	}
 
-	//nolint:gomnd
 	if c.ControllerCount != 1 {
 		t.Fatalf("Expected default ControllerCount to be 1, got: %d", c.ControllerCount)
 	}
@@ -36,7 +35,6 @@ func TestConfigNewconfig(t *testing.T) {
 		t.Fatalf("Expected default version as `current`, got: %s", c.OSVersion)
 	}
 
-	//nolint:gomnd
 	if c.NetworkMTU != 1480 {
 		t.Fatalf("Expected default NetworkMTU as `1480`, got: %d", c.NetworkMTU)
 	}
@@ -56,28 +54,24 @@ func TestConfigNewconfig(t *testing.T) {
 
 func TestConfigValidateSuccess(t *testing.T) {
 	a := &config{
-		AssetDir:            "test-asset-dir",
-		DNSZone:             "test-zone",
-		DNSZoneID:           "test-zone-id",
-		Region:              "eu-central-1",
-		OSVersion:           "current",
-		OSChannel:           "stable",
-		ClusterName:         "test",
-		SSHPubKeys:          []string{"ssh-key"},
-		PodCIDR:             "10.2.0.0/16",
-		ServiceCIDR:         "10.3.0.0/16",
-		HostCIDR:            "10.0.0.0/16",
-		ControllerType:      "t3.small",
-		ClusterDomainSuffix: "test.local",
-		//nolint:gomnd
-		ControllerCount: 3,
-		//nolint:gomnd
+		AssetDir:                 "test-asset-dir",
+		DNSZone:                  "test-zone",
+		DNSZoneID:                "test-zone-id",
+		Region:                   "eu-central-1",
+		OSVersion:                "current",
+		OSChannel:                "stable",
+		ClusterName:              "test",
+		SSHPubKeys:               []string{"ssh-key"},
+		PodCIDR:                  "10.2.0.0/16",
+		ServiceCIDR:              "10.3.0.0/16",
+		HostCIDR:                 "10.0.0.0/16",
+		ControllerType:           "t3.small",
+		ClusterDomainSuffix:      "test.local",
+		ControllerCount:          3,
 		CertsValidityPeriodHours: 1000,
-		//nolint:gomnd
-		NetworkMTU: 2000,
-		DiskType:   "eb2",
-		//nolint:gomnd
-		DiskSize: 40,
+		NetworkMTU:               2000,
+		DiskType:                 "eb2",
+		DiskSize:                 40,
 		WorkerPools: []workerPool{
 			{
 				Name:  "pool",
@@ -88,7 +82,6 @@ func TestConfigValidateSuccess(t *testing.T) {
 
 	diags := a.Validate()
 	if diags.HasErrors() {
-
 		for _, diag := range diags {
 			t.Error(diag)
 		}
@@ -123,7 +116,6 @@ func TestConfigValidateFail(t *testing.T) {
 
 	diags := p.Validate()
 	if !diags.HasErrors() {
-
 		t.Fatalf("Expected errors in validating configuration")
 	}
 }

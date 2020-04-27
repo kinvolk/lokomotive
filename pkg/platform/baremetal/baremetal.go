@@ -155,6 +155,7 @@ func (c *config) Validate() hcl.Diagnostics {
 			Summary:  fmt.Sprintf("expected atleast one entry in 'controller_names', got: 0"),
 		})
 	}
+
 	if len(c.ControllerDomains) == 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
@@ -175,6 +176,7 @@ func (c *config) Validate() hcl.Diagnostics {
 			Summary:  fmt.Sprintf("expected atleast one entry in 'worker_names', got: 0"),
 		})
 	}
+
 	if len(c.WorkerDomains) == 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,

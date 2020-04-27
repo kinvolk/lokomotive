@@ -20,6 +20,8 @@ func AppendTags(tags *map[string]string) {
 	}
 }
 
+// IsFlatcarChannelSupported checks whether the input is a valid
+// Flatcar channel.
 func IsFlatcarChannelSupported(c string) bool {
 	supported := false
 
@@ -33,12 +35,14 @@ func IsFlatcarChannelSupported(c string) bool {
 	return supported
 }
 
+//IsValidCIDR checks if the input cidr is a valid or not.
 func IsValidCIDR(cidr string) error {
 	_, _, err := net.ParseCIDR(cidr)
 
 	return err
 }
 
+// IsValidOSArch checks whether the input is a valid OS architecture.
 func IsValidOSArch(a string) bool {
 	valid := false
 
@@ -52,6 +56,7 @@ func IsValidOSArch(a string) bool {
 	return valid
 }
 
+// CheckIsEmptyField checks if the field is empty or not.
 func CheckIsEmptyField(data, nameOfField string) hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 

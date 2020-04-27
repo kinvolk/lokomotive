@@ -32,6 +32,7 @@ func TestEmptyConfig(t *testing.T) {
 
 func TestEmptyBody(t *testing.T) {
 	configHCL := `component "external-dns" {}`
+
 	_, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
 	if !diagnostics.HasErrors() {
 		t.Fatal("Empty config should return errors as there are required fields.")
@@ -71,14 +72,17 @@ func TestAwsConfigBySettingConfigFields(t *testing.T) {
     }
   }
   `
+
 	component, diagnostics := util.LoadComponentFromHCLString(configHCL, name)
 	if diagnostics.HasErrors() {
 		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
 	}
+
 	m, err := component.RenderManifests()
 	if err != nil {
 		t.Fatalf("Rendering manifests should not produce error as config fields were set, got: %s", err)
 	}
+
 	if len(m) <= 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
