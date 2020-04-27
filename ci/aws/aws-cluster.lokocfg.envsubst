@@ -16,7 +16,7 @@ cluster "aws" {
   os_channel       = var.os_channel
   ssh_pubkeys      = ["$PUB_KEY"]
 
-  worker_pool "$CLUSTER_ID-wp" {
+  worker_pool "wp" {
     count         = 2
     ssh_pubkeys   = ["$PUB_KEY"]
     disk_size     = 30
