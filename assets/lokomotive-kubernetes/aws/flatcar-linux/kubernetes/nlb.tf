@@ -38,7 +38,6 @@ resource "aws_lb_listener" "apiserver-https" {
 
 # Target group of controllers
 resource "aws_lb_target_group" "controllers" {
-  name        = "${var.cluster_name}-controllers"
   vpc_id      = aws_vpc.network.id
   target_type = "instance"
 
@@ -56,6 +55,10 @@ resource "aws_lb_target_group" "controllers" {
 
     # Interval between health checks required to be 10 or 30
     interval = 10
+  }
+
+  tags = {
+    ClusterName = var.cluster_name
   }
 }
 

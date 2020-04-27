@@ -21,7 +21,6 @@ resource "aws_lb_listener" "ingress-https" {
 }
 
 resource "aws_lb_target_group" "workers-http" {
-  name        = "${var.cluster_name}-${var.pool_name}-http"
   vpc_id      = var.vpc_id
   target_type = "instance"
 
@@ -41,10 +40,14 @@ resource "aws_lb_target_group" "workers-http" {
     # Interval between health checks required to be 10 or 30
     interval = 10
   }
+
+  tags = {
+    ClusterName = var.cluster_name
+    PoolName    = var.pool_name
+  }
 }
 
 resource "aws_lb_target_group" "workers-https" {
-  name        = "${var.cluster_name}-${var.pool_name}-https"
   vpc_id      = var.vpc_id
   target_type = "instance"
 
@@ -63,5 +66,10 @@ resource "aws_lb_target_group" "workers-https" {
 
     # Interval between health checks required to be 10 or 30
     interval = 10
+  }
+
+  tags = {
+    ClusterName = var.cluster_name
+    PoolName    = var.pool_name
   }
 }
