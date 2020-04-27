@@ -20,7 +20,7 @@
 {{- define "token" -}}
 {{ include (print $.Template.BasePath "/kube-apiserver-secret.yaml") . | sha256sum }}
 {{- end -}}
-{{- define "authHeader" }}
+{{- define "authHeader" -}}
 Bearer {{ template "token" . }}
 {{- end }}
 apiVersion: apps/v1
