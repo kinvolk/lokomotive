@@ -1,4 +1,9 @@
-variable "name" {
+variable "cluster_name" {
+  type        = string
+  description = "Cluster name (prepended to pool name)"
+}
+
+variable "pool_name" {
   type        = string
   description = "Unique name for the worker pool"
 }

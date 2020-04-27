@@ -1,7 +1,7 @@
 # Target groups of instances for use with load balancers
 
 resource "aws_lb_target_group" "workers-http" {
-  name        = "${var.name}-workers-http"
+  name        = "${var.cluster_name}-${var.pool_name}-workers-http"
   vpc_id      = var.vpc_id
   target_type = "instance"
 
@@ -24,7 +24,7 @@ resource "aws_lb_target_group" "workers-http" {
 }
 
 resource "aws_lb_target_group" "workers-https" {
-  name        = "${var.name}-workers-https"
+  name        = "${var.cluster_name}-${var.pool_name}-workers-https"
   vpc_id      = var.vpc_id
   target_type = "instance"
 

@@ -119,7 +119,8 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   ssh_keys              = {{ (index $.WorkerpoolCfg $index "ssh_pub_keys") }}
-  name                  = "{{ $pool.Name }}"
+  cluster_name          = "{{ $.Config.ClusterName }}"
+  pool_name             = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
   os_name               = "flatcar"
   {{- if $pool.InstanceType }}
