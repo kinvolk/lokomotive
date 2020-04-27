@@ -21,7 +21,7 @@ resource "aws_lb_listener" "ingress-https" {
 }
 
 resource "aws_lb_target_group" "workers-http" {
-  name        = "${var.cluster_name}-${var.pool_name}-workers-http"
+  name        = "${var.cluster_name}-${var.pool_name}-http"
   vpc_id      = var.vpc_id
   target_type = "instance"
 
@@ -44,7 +44,7 @@ resource "aws_lb_target_group" "workers-http" {
 }
 
 resource "aws_lb_target_group" "workers-https" {
-  name        = "${var.cluster_name}-${var.pool_name}-workers-https"
+  name        = "${var.cluster_name}-${var.pool_name}-https"
   vpc_id      = var.vpc_id
   target_type = "instance"
 
