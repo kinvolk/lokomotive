@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws packet
+// +build aws packet aks
 // +build e2e
 
 package contour

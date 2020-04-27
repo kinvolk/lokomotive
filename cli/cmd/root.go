@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/viper"
 
 	// Register platforms by adding an anonymous import.
+	_ "github.com/kinvolk/lokomotive/pkg/platform/aks"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/aws"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/baremetal"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/packet"

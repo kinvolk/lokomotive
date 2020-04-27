@@ -1,0 +1,118 @@
+variable "cert_manager_email" {
+  default = "$EMAIL"
+}
+variable "cluster_name" {
+  default = "$CLUSTER_ID"
+}
+
+variable "aws_zone_id" {
+  default = "$AWS_DNS_ZONE_ID"
+}
+
+variable "aws_access_key_id" {
+  default = "$AWS_ACCESS_KEY_ID"
+}
+
+variable "aws_secret_access_key" {
+  default = "$AWS_SECRET_ACCESS_KEY"
+}
+
+variable "aws_dns_zone" {
+  default = "$AWS_DNS_ZONE"
+}
+
+variable "resource_group_name" {
+  default = "$CLUSTER_ID"
+}
+
+variable "grafana_admin_password" {
+  default = "admin"
+}
+
+variable "asset_dir" {
+  default = "~/lokoctl-assets"
+}
+
+variable "workers_count" {
+  default = 2
+}
+
+variable "workers_type" {
+  default = "Standard_D2_v2"
+}
+
+variable "location" {
+  default = "Germany West Central"
+}
+
+variable "worker_labels" {
+  default = {
+    "testing.io" = "yes",
+    "roleofnode" = "testing",
+  }
+}
+
+cluster "aks" {
+  asset_dir    = pathexpand(var.asset_dir)
+  cluster_name = var.cluster_name
+
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  worker_pool "default" {
+    vm_size = var.workers_type
+    count   = var.workers_count
+    labels  = var.worker_labels
+  }
+
+  tags = {
+    "owner" = "LokomotiveCIAKS"
+  }
+}
+
+component "prometheus-operator" {
+  grafana_admin_password = var.grafana_admin_password
+  disable_webhooks       = true
+
+  monitor {
+    etcd                    = false
+    kube_controller_manager = false
+    kube_scheduler          = false
+    kube_proxy              = false
+    kubelet                 = false
+  }
+
+  coredns {
+    selector = {
+      "k8s-app" = "kube-dns",
+    }
+  }
+}
+
+component "contour" {
+  ingress_hosts = [
+    "httpbin.${var.cluster_name}.${var.aws_dns_zone}",
+  ]
+  service_monitor = true
+}
+
+component "cert-manager" {
+  email           = var.cert_manager_email
+  service_monitor = true
+}
+
+component "external-dns" {
+  policy   = "sync"
+  owner_id = var.cluster_name
+  aws {
+    zone_id               = var.aws_zone_id
+    aws_access_key_id     = var.aws_access_key_id
+    aws_secret_access_key = var.aws_secret_access_key
+  }
+
+  service_monitor = true
+}
+
+component "httpbin" {
+  ingress_host = "httpbin.${var.cluster_name}.${var.aws_dns_zone}"
+}

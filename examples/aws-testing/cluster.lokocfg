@@ -32,8 +32,8 @@ cluster "aws" {
   ssh_pubkeys      = var.ssh_public_keys
 
   worker_pool "my-wp-name" {
-    instance_type = var.workers_type
     count         = var.workers_count
+    instance_type = var.workers_type
     ssh_pubkeys   = var.ssh_public_keys
   }
 }

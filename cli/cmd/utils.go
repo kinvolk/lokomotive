@@ -85,7 +85,7 @@ func getAssetDir() (string, error) {
 		return "", nil
 	}
 
-	return cfg.GetAssetDir(), nil
+	return cfg.Meta().AssetDir, nil
 }
 
 // expandKubeconfigPath tries to expand ~ in the given kubeconfig path.

@@ -6,7 +6,7 @@ VERSION :=
 MOD ?= vendor
 DOCS_DIR ?= docs/cli
 
-ALL_BUILD_TAGS := "aws,packet,e2e,disruptivee2e,poste2e"
+ALL_BUILD_TAGS := "aws,packet,aks,e2e,disruptivee2e,poste2e"
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
@@ -88,12 +88,12 @@ endif
 
 .PHONY: run-e2e-tests
 run-e2e-tests:
-	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),e2e" -covermode=atomic -buildmode=exe -v ./test/...
+	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),e2e" -covermode=atomic -buildmode=exe -v -count=1 ./test/...
 	# Test if the metrics are actually being scraped
-	KUBECONFIG=${kubeconfig} PLATFORM=${platform} go test -mod=$(MOD) -tags="$(platform),poste2e" -covermode=atomic -buildmode=exe -v ./test/...
+	KUBECONFIG=${kubeconfig} PLATFORM=${platform} go test -mod=$(MOD) -tags="$(platform),poste2e" -covermode=atomic -buildmode=exe -v -count=1 ./test/...
 	# This is a test that should be run in the end to reduce the disruption to other tests because
 	# it will delete a node.
-	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),disruptivee2e" -covermode=atomic -buildmode=exe -v ./test/...
+	KUBECONFIG=${kubeconfig} go test -mod=$(MOD) -tags="$(platform),disruptivee2e" -covermode=atomic -buildmode=exe -v -count=1 ./test/...
 
 .PHONY: all
 all: build test

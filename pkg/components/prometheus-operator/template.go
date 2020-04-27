@@ -53,15 +53,24 @@ grafana:
   rbac:
     pspUseAppArmor: false
 kubeEtcd:
+  enabled: {{.Monitor.Etcd}}
   endpoints: {{.EtcdEndpoints}}
 prometheus-node-exporter:
   service: {}
-{{ if .PrometheusOperatorNodeSelector }}
+{{ if (or .PrometheusOperatorNodeSelector .DisableWebhooks) }}
 prometheusOperator:
+  {{- if .DisableWebhooks }}
+  tlsProxy:
+    enabled: false
+  admissionWebhooks:
+    enabled: false
+  {{- end }}
+  {{- if .PrometheusOperatorNodeSelector }}
   nodeSelector:
     {{ range $key, $value := .PrometheusOperatorNodeSelector }}
     {{ $key }}: {{ $value }}
     {{ end }}
+  {{- end }}
 {{ end }}
 prometheus:
   prometheusSpec:
@@ -86,6 +95,7 @@ prometheus:
               storage: 50Gi
 
 kubeControllerManager:
+  enabled: {{.Monitor.KubeControllerManager}}
   service:
     selector:
       k8s-app: kube-controller-manager
@@ -94,10 +104,12 @@ kubeControllerManager:
 coreDns:
   service:
     selector:
-      k8s-app: coredns
-      tier: control-plane
+      {{ range $k, $v := .CoreDNS.Selector }}
+      {{ $k }}: "{{ $v }}"
+      {{- end }}
 
 kubeScheduler:
+  enabled: {{.Monitor.KubeScheduler}}
   service:
     selector:
       k8s-app: kube-scheduler
@@ -108,4 +120,10 @@ kube-state-metrics:
     annotations:
       seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
       seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+
+kubeProxy:
+  enabled: {{.Monitor.KubeProxy}}
+
+kubelet:
+  enabled: {{.Monitor.Kubelet}}
 `
