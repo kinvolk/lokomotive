@@ -49,9 +49,6 @@ module "aws-{{.Config.ClusterName}}" {
   controller_type  = "{{.Config.ControllerType}}"
  {{- end }}
 
-	# Do not allow creation of workers apart from using worker pools.
-  worker_count = 0
-
   {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
   {{- end }}
