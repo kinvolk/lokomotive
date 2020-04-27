@@ -14,12 +14,6 @@
 6443
 {{- end -}}
 {{ end }}
-# Value of "token" is composed by injecting all values into kube-apiserver-secret.yaml template and
-# then calculating sha256 sum of it, so it will be different for each cluster and additionally will be
-# changed every time certificate or secret template changes.
-{{- define "token" -}}
-{{ include (print $.Template.BasePath "/kube-apiserver-secret.yaml") . | sha256sum }}
-{{- end -}}
 {{- define "authHeader" -}}
 Bearer {{ template "token" . }}
 {{- end }}
@@ -107,7 +101,7 @@ spec:
           --service-cluster-ip-range={{ .Values.apiserver.serviceCIDR }} \
           --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt \
           --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key \
-          --token-auth-file=/run/kube-apiserver/token-auth-file \
+          --token-auth-file=/etc/kubernetes/secrets/token-auth-file \
           {{ if .Values.apiserver.enableAggregation -}}
           --proxy-client-cert-file=/etc/kubernetes/secrets/aggregation-client.crt \
           --proxy-client-key-file=/etc/kubernetes/secrets/aggregation-client.key \
@@ -141,7 +135,7 @@ spec:
         - --storage-backend=etcd3
         - --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt
         - --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key
-        - --token-auth-file=/run/kube-apiserver/token-auth-file
+        - --token-auth-file=/etc/kubernetes/secrets/token-auth-file
         {{- if .Values.apiserver.enableAggregation }}
         - --proxy-client-cert-file=/etc/kubernetes/secrets/aggregation-client.crt
         - --proxy-client-key-file=/etc/kubernetes/secrets/aggregation-client.key
@@ -245,9 +239,6 @@ spec:
             server 1 $ADDRESS:{{ template "port" . }}
           EOF
           cat /run/kube-apiserver/haproxy.cfg
-          # "nobody" is just an arbitrary user, which has no RBAC roles assigned, so it only has
-          # access to /healthz endpoint.
-          echo "{{ template "token" . }},nobody,nobody" > /run/kube-apiserver/token-auth-file
         volumeMounts:
         - name: data
           mountPath: /run/kube-apiserver
