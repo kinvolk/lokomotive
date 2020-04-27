@@ -89,9 +89,9 @@ variable "container_images" {
   type        = map(string)
 
   default = {
-    calico                  = "calico/node:v3.13.1"
-    calico_cni              = "calico/cni:v3.13.1"
-    calico_controllers      = "calico/kube-controllers:v3.13.1"
+    calico                  = "calico/node:v3.13.3"
+    calico_cni              = "calico/cni:v3.13.3"
+    calico_controllers      = "calico/kube-controllers:v3.13.3"
     hyperkube               = "k8s.gcr.io/hyperkube:v1.18.2"
     coredns                 = "coredns/coredns:coredns-"
     pod_checkpointer        = "kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1"

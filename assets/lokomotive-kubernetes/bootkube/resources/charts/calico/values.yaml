@@ -1,8 +1,8 @@
 calico:
   networkMTU: 1500
-  image: calico/node:v3.13.1
-  cniImage: calico/cni:v3.13.1
-  controllersImage: calico/kube-controllers:v3.13.1
+  image: calico/node:v3.13.3
+  cniImage: calico/cni:v3.13.3
+  controllersImage: calico/kube-controllers:v3.13.3
   enableReporting: false
   networkIpAutodetectionMethod: first-found
   ipipEnabled: true
