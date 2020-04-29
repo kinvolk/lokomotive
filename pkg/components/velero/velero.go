@@ -24,6 +24,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/components/velero/aws"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
 )
 
@@ -36,8 +37,7 @@ func init() {
 
 // component represents component configuration data
 type component struct {
-	// Once we support more than one provider, this field should not be optional anymore
-	Provider string `hcl:"provider,optional"`
+	Provider string `hcl:"provider"`
 	// Namespace where velero resources should be installed. Defaults to 'velero'.
 	Namespace string `hcl:"namespace,optional"`
 	// Metrics specific configuration
@@ -45,6 +45,7 @@ type component struct {
 
 	// Azure specific parameters
 	Azure *azure.Configuration `hcl:"azure,block"`
+	AWS   *aws.Configuration   `hcl:"aws,block"`
 }
 
 // Metrics represents prometheus specific parameters
@@ -62,8 +63,6 @@ type provider interface {
 func newComponent() *component {
 	return &component{
 		Namespace: "velero",
-		// Once we have more than one provider supported, we should remove the default value
-		Provider: "azure",
 	}
 }
 
@@ -98,7 +97,7 @@ metrics:
     additionalLabels:
       release: prometheus-operator
 initContainers:
-- image: velero/velero-plugin-for-microsoft-azure:v1.0.0
+- image: velero/velero-plugin-for-microsoft-azure:v1.0.1
   imagePullPolicy: IfNotPresent
   name: velero-plugin-for-azure
   resources: {}
@@ -107,6 +106,16 @@ initContainers:
   volumeMounts:
   - mountPath: /target
     name: plugins
+- image: openebs/velero-plugin:v1.9.0
+  imagePullPolicy: IfNotPresent
+  name: velero-plugin-for-openebs
+  resources: {}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+  volumeMounts:
+  - mountPath: /target
+    name: plugins
+
 `
 
 // LoadConfig decodes given HCL and validates the configuration.
