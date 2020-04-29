@@ -52,7 +52,7 @@ metadata:
 
 	twoResources := map[string]string{
 		"templates/test-two-resources.yml": `
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: test-ingress
@@ -81,7 +81,7 @@ metadata:
 	twoResourcesManifest := []manifest{
 		{
 			kind:       "Ingress",
-			apiVersion: "extensions/v1beta1",
+			apiVersion: "networking.k8s.io/v1beta1",
 			namespace:  "test-namespace",
 			name:       "test-ingress",
 		},
