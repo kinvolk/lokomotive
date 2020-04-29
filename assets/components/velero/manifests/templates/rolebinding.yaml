@@ -1,6 +1,6 @@
 {{- if .Values.rbac.create }}
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: {{ include "velero.fullname" . }}-server
   labels:
@@ -14,7 +14,7 @@ subjects:
     namespace: {{ .Release.Namespace }}
     name: {{ include "velero.serverServiceAccount" . }}
 roleRef:
-  kind: ClusterRole
-  name: cluster-admin
+  kind: Role
+  name: {{ include "velero.fullname" . }}-server
   apiGroup: rbac.authorization.k8s.io
 {{- end }}

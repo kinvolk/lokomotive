@@ -1,6 +1,6 @@
 # This job is meant primarily for cleaning up on CI systems.
 # Using this on production systems, especially those that have multiple releases of Velero, will be destructive.
-{{- if .Values.cleanUpCRDs }}
+{{- if and .Values.installCDRs .Values.cleanUpCRDs  }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -34,6 +34,6 @@ spec:
               kubectl delete backupstoragelocation --all;
               kubectl delete volumesnapshotlocation --all;
               kubectl delete podvolumerestore --all;
-              kubectl delete crd -l helm.sh/chart={{ include "velero.chart" . }}
+              kubectl delete crd -l app.kubernetes.io/name=velero;
       restartPolicy: OnFailure
 {{- end }}

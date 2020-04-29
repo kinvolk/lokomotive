@@ -1,23 +1,26 @@
+{{- if .Values.installCRDs }}
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: deletebackuprequests.velero.io
+  name: volumesnapshotlocations.velero.io
   labels:
     app.kubernetes.io/name: "velero"
   annotations:
+    "helm.sh/hook": crd-install
     "helm.sh/hook-delete-policy": "before-hook-creation"
 spec:
   group: velero.io
   names:
-    kind: DeleteBackupRequest
-    listKind: DeleteBackupRequestList
-    plural: deletebackuprequests
-    singular: deletebackuprequest
+    kind: VolumeSnapshotLocation
+    listKind: VolumeSnapshotLocationList
+    plural: volumesnapshotlocations
+    singular: volumesnapshotlocation
   preserveUnknownFields: false
   scope: Namespaced
   validation:
     openAPIV3Schema:
-      description: DeleteBackupRequest is a request to delete one or more backups.
+      description: VolumeSnapshotLocation is a location where Velero stores volume
+        snapshots.
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation
@@ -32,30 +35,30 @@ spec:
         metadata:
           type: object
         spec:
-          description: DeleteBackupRequestSpec is the specification for which backups
-            to delete.
+          description: VolumeSnapshotLocationSpec defines the specification for a
+            Velero VolumeSnapshotLocation.
           properties:
-            backupName:
+            config:
+              additionalProperties:
+                type: string
+              description: Config is for provider-specific configuration fields.
+              type: object
+            provider:
+              description: Provider is the provider of the volume storage.
               type: string
           required:
-          - backupName
+          - provider
           type: object
         status:
-          description: DeleteBackupRequestStatus is the current status of a DeleteBackupRequest.
+          description: VolumeSnapshotLocationStatus describes the current status of
+            a Velero VolumeSnapshotLocation.
           properties:
-            errors:
-              description: Errors contains any errors that were encountered during
-                the deletion process.
-              items:
-                type: string
-              nullable: true
-              type: array
             phase:
-              description: Phase is the current state of the DeleteBackupRequest.
+              description: VolumeSnapshotLocationPhase is the lifecyle phase of a
+                Velero VolumeSnapshotLocation.
               enum:
-              - New
-              - InProgress
-              - Processed
+              - Available
+              - Unavailable
               type: string
           type: object
       type: object
@@ -64,3 +67,4 @@ spec:
   - name: v1
     served: true
     storage: true
+{{- end }}

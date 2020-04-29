@@ -1,3 +1,19 @@
+installCRDs: false
+
+# Set provider name and backup storage location bucket name
+configuration:
+  provider: aws
+  backupStorageLocation:
+    bucket: velero
+    config:
+      region: us-west-1
+      profile: test
+  volumeSnapshotLocation:
+    provider: aws
+    config:
+      bucket: velero
+      region: us-west-1
+
 # Set a service account so that the CRD clean up job has proper permissions to delete CRDs
 serviceAccount:
   server:
