@@ -35,6 +35,28 @@ component "contour" {
   # Optional arguments
   service_monitor = false
   ingress_hosts = ["*.example.lokomotive.org"]
+
+  node_affinity {
+    key      = "node-role.kubernetes.io/node"
+    operator = "Exists"
+  }
+
+  node_affinity {
+    key      = "network.lokomotive.io"
+    operator = "In"
+
+    # If the `operator` is set to `"In"`, `values` should be specified.
+    values = [
+      "foo",
+    ]
+  }
+
+  toleration {
+    key      = "network.lokomotive.io"
+    operator = "Equal"
+    value    = "contour"
+    effect   = "NoSchedule"
+  }
 }
 ```
 
@@ -48,6 +70,8 @@ Example:
 |------------------|---------------------------------------------------------------------------------------------|:-------:|:--------:|
 | `service_monitor`| Create ServiceMonitor for Prometheus to scrape Contour and Envoy metrics.                   | false   | false    |
 | `ingress_hosts`  | [ExternalDNS component](external-dns.md) creates DNS entries from the values provided.      | ""      | false    |
+| `node_affinity`  | Node affinity for deploying the operator pod and envoy daemonset.                           | -       | false    |
+| `toleration`     | Tolerations that the operator and envoy pods will tolerate.                                 | -       | false    |
 
 ## Applying
 

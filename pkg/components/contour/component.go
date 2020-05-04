@@ -49,6 +49,10 @@ type component struct {
 
 	// IngressHostsRaw is not accessible to the user
 	IngressHostsRaw string
+
+	NodeAffinity   []util.NodeAffinity `hcl:"node_affinity,block"`
+	Tolerations    []util.Toleration   `hcl:"toleration,block"`
+	TolerationsRaw string
 }
 
 func newComponent() *component {
@@ -82,14 +86,26 @@ func (c *component) RenderManifests() (map[string]string, error) {
 			return nil, errors.Wrap(err, "failed to walk assets")
 		}
 	}
+
 	// To store the comma separated string representation of IngressHosts
 	c.IngressHostsRaw = strings.Join(c.IngressHosts, ",")
-	// Parse envoy service template.
-	envoyServiceStr, err := util.RenderTemplate(envoyServiceTmpl, c)
+
+	// Generate YAML for the Rook operator deployment.
+	var err error
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
 	if err != nil {
-		return nil, errors.Wrap(err, "render template failed")
+		return nil, fmt.Errorf("failed to marshal operator tolerations: %w", err)
 	}
-	ret["02-service-envoy.yaml"] = envoyServiceStr
+
+	// Parse template with values
+	for k, v := range template {
+		rendered, err := util.RenderTemplate(v, c)
+		if err != nil {
+			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
+		}
+
+		ret[k] = rendered
+	}
 
 	return ret, nil
 }

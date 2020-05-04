@@ -30,12 +30,12 @@ component "rook" {
   # Optional arguments
   namespace = "rook-test"
 
-  node_selector {
+  node_affinity {
     key      = "node-role.kubernetes.io/node"
     operator = "Exists"
   }
 
-  node_selector {
+  node_affinity {
     key      = "storage.lokomotive.io"
     operator = "In"
 
@@ -69,7 +69,7 @@ Example:
 | Argument                     | Description                                                                                              | Default | Required |
 |------------------------------|----------------------------------------------------------------------------------------------------------|:-------:|:--------:|
 | `namespace`                  | Namespace to deploy the rook operator into.                                                              | rook    | false    |
-| `node_selector`              | Node selectors for deploying the operator pod.                                                           | -       | false    |
+| `node_affinity`              | Node affinity for deploying the operator pod.                                                            | -       | false    |
 | `toleration`                 | Tolerations that the operator's pods will tolerate.                                                      | -       | false    |
 | `agent_toleration_key`       | Toleration key for the rook agent pods.                                                                  | -       | false    |
 | `agent_toleration_effect`    | Toleration effect for the rook agent pods. Needs to be specified if `agent_toleration_key` is set.       | -       | false    |

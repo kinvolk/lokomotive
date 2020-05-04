@@ -1852,13 +1852,13 @@ spec:
       labels:
         app: rook-ceph-operator
     spec:
-      {{- if .NodeSelectors }}
+      {{- if .NodeAffinity }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                {{- range $item := .NodeSelectors }}
+                {{- range $item := .NodeAffinity }}
                 - key: {{ $item.Key }}
                   operator: {{ $item.Operator }}
                   {{- if $item.Values }}
