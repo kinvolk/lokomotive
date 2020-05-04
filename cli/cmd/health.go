@@ -23,7 +23,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
-	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
 
 var healthCmd = &cobra.Command{
@@ -64,7 +63,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("No cluster configured")
 	}
 
-	cluster, err := lokomotive.NewCluster(client, p.Meta().ExpectedNodes)
+	cluster, err := k8sutil.NewCluster(client, p.Meta().ExpectedNodes)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating new Lokomotive cluster: %q", err)
 	}

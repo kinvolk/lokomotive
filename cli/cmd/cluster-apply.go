@@ -23,7 +23,6 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/install"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
-	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
 
 var (
@@ -130,7 +129,7 @@ func verifyCluster(kubeconfigPath string, expectedNodes int) error {
 		return errors.Wrapf(err, "failed to set up clientset")
 	}
 
-	cluster, err := lokomotive.NewCluster(client, expectedNodes)
+	cluster, err := k8sutil.NewCluster(client, expectedNodes)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up cluster client")
 	}
