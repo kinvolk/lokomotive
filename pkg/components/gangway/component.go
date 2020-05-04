@@ -236,7 +236,7 @@ spec:
     app: gangway
 `
 
-const ingressTmpl = `apiVersion: extensions/v1beta1
+const ingressTmpl = `apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: gangway
