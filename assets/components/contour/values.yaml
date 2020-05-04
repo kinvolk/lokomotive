@@ -1,0 +1,12 @@
+monitoring:
+  enable: false
+
+ingressHosts:
+
+contour:
+  image: docker.io/projectcontour/contour
+  tag: v1.3.0
+
+envoy:
+  image: docker.io/envoyproxy/envoy
+  tag: v1.13.1

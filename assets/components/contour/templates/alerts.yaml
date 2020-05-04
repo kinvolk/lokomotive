@@ -1,3 +1,4 @@
+{{- if .Values.monitoring.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -24,3 +25,4 @@ spec:
       annotations:
         description: '{{ $labels.instance }}: Envoy pod is not available for last one minute.'
         summary: '{{ $labels.instance }}: Envoy deployment pods.'
+{{- end }}
