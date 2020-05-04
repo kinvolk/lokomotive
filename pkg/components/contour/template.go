@@ -84,6 +84,25 @@ spec:
                   app: contour
               topologyKey: kubernetes.io/hostname
             weight: 100
+        {{- if .NodeAffinity }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                {{- range $item := .NodeAffinity }}
+                - key: {{ $item.Key }}
+                  operator: {{ $item.Operator }}
+                  {{- if $item.Values }}
+                  values:
+                    {{- range $val := $item.Values }}
+                    - {{ $val }}
+                    {{- end }}
+                  {{- end }}
+                {{- end }}
+        {{- end}}
+      {{- if .TolerationsRaw }}
+      tolerations: {{ .TolerationsRaw }}
+      {{- end }}
       containers:
       - args:
         - serve
@@ -202,6 +221,26 @@ spec:
       labels:
         app: envoy
     spec:
+      {{- if .NodeAffinity }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                {{- range $item := .NodeAffinity }}
+                - key: {{ $item.Key }}
+                  operator: {{ $item.Operator }}
+                  {{- if $item.Values }}
+                  values:
+                    {{- range $val := $item.Values }}
+                    - {{ $val }}
+                    {{- end }}
+                  {{- end }}
+                {{- end }}
+      {{- end}}
+      {{- if .TolerationsRaw }}
+      tolerations: {{ .TolerationsRaw }}
+      {{- end }}
       containers:
       - command:
         - /bin/contour

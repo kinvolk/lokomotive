@@ -49,6 +49,10 @@ type component struct {
 
 	// IngressHostsRaw is not accessible to the user
 	IngressHostsRaw string
+
+	NodeAffinity   []util.NodeAffinity `hcl:"node_affinity,block"`
+	Tolerations    []util.Toleration   `hcl:"toleration,block"`
+	TolerationsRaw string
 }
 
 func newComponent() *component {
@@ -85,6 +89,13 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	// To store the comma separated string representation of IngressHosts
 	c.IngressHostsRaw = strings.Join(c.IngressHosts, ",")
+
+	// Generate YAML for the Rook operator deployment.
+	var err error
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal operator tolerations: %w", err)
+	}
 
 	// Parse template with values
 	for k, v := range template {
