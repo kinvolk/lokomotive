@@ -14,7 +14,8 @@
 
 package contour
 
-const envoyServiceTmpl = `
+var template = map[string]string{
+	"02-service-envoy.yaml": `
 ---
 apiVersion: v1
 kind: Service
@@ -44,4 +45,5 @@ spec:
   selector:
     app: envoy
   type: LoadBalancer
-`
+`,
+}

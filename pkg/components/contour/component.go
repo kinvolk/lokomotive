@@ -82,14 +82,19 @@ func (c *component) RenderManifests() (map[string]string, error) {
 			return nil, errors.Wrap(err, "failed to walk assets")
 		}
 	}
+
 	// To store the comma separated string representation of IngressHosts
 	c.IngressHostsRaw = strings.Join(c.IngressHosts, ",")
-	// Parse envoy service template.
-	envoyServiceStr, err := util.RenderTemplate(envoyServiceTmpl, c)
-	if err != nil {
-		return nil, errors.Wrap(err, "render template failed")
+
+	// Parse template with values
+	for k, v := range template {
+		rendered, err := util.RenderTemplate(v, c)
+		if err != nil {
+			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
+		}
+
+		ret[k] = rendered
 	}
-	ret["02-service-envoy.yaml"] = envoyServiceStr
 
 	return ret, nil
 }
