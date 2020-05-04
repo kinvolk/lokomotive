@@ -92,7 +92,7 @@ func createTerraformBackendFile(assetDir, data string) error {
 // required parents.
 // An error is returned if the directory already exists.
 func prepareTerraformRootDir(path string) error {
-	if err := os.MkdirAll(path, 0755); err != nil {
+	if err := os.MkdirAll(path, 0750); err != nil {
 		return fmt.Errorf("failed to create terraform assets directory at '%s', got: %w", path, err)
 	}
 
@@ -108,7 +108,7 @@ func prepareTerraformRootDir(path string) error {
 // lokoctl binary or from the filesystem, depending on whether the
 // LOKOCTL_USE_FS_ASSETS environment variable was specified.
 func prepareLokomotiveTerraformModuleAt(path string) error {
-	walk := walkers.CopyingWalker(path, 0755)
+	walk := walkers.CopyingWalker(path, 0750)
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
 		return errors.Wrap(err, "failed to walk assets")
 	}
