@@ -20,7 +20,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokomotive/pkg/lokomotive"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
 )
 
@@ -36,7 +36,7 @@ const (
 )
 
 // Verify health and readiness of the cluster.
-func Verify(cl *lokomotive.Cluster) error {
+func Verify(cl *k8sutil.Cluster) error {
 	fmt.Println("\nNow checking health and readiness of the cluster nodes ...")
 
 	// Wait for cluster to become available
@@ -45,7 +45,7 @@ func Verify(cl *lokomotive.Cluster) error {
 		return errors.Wrapf(err, "failed to ping cluster for readiness")
 	}
 
-	var ns *lokomotive.NodeStatus
+	var ns *k8sutil.NodeStatus
 	var nsErr error
 	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, func() (bool, error) {
 		// Store the original error because Retry would stop too early if we forward it
