@@ -46,3 +46,20 @@ func RenderTolerations(t []Toleration) (string, error) {
 
 	return string(b), nil
 }
+
+// NodeSelector is a type used when defining node selector for the pod spec.
+type NodeSelector map[string]string
+
+// Render renders NodeSelector into a json string.
+func (n *NodeSelector) Render() (string, error) {
+	if len(*n) == 0 {
+		return "", nil
+	}
+
+	b, err := json.Marshal(n)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}
