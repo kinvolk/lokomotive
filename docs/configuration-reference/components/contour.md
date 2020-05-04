@@ -35,6 +35,7 @@ component "contour" {
   # Optional arguments
   enable_monitoring = false
   ingress_hosts     = ["*.example.lokomotive.org"]
+  service_type      = "NodePort"
 
   node_affinity {
     key      = "node-role.kubernetes.io/node"
@@ -66,12 +67,13 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument            | Description                                                                                             | Default | Required |
-|---------------------|---------------------------------------------------------------------------------------------------------|:-------:|:--------:|
-| `enable_monitoring` | Create Prometheus Operator configs to scrape Contour and Envoy metrics. Also deploys Grafana Dashboard. | false   | false    |
-| `ingress_hosts`     | [ExternalDNS component](external-dns.md) creates DNS entries from the values provided.                  | ""      | false    |
-| `node_affinity`     | Node affinity for deploying the operator pod and envoy daemonset.                                       | -       | false    |
-| `toleration`        | Tolerations that the operator and envoy pods will tolerate.                                             | -       | false    |
+| Argument            | Description                                                                                             | Default        | Required |
+|---------------------|---------------------------------------------------------------------------------------------------------|:--------------:|:--------:|
+| `enable_monitoring` | Create Prometheus Operator configs to scrape Contour and Envoy metrics. Also deploys Grafana Dashboard. | false          | false    |
+| `ingress_hosts`     | [ExternalDNS component](external-dns.md) creates DNS entries from the values provided.                  | ""             | false    |
+| `node_affinity`     | Node affinity for deploying the operator pod and envoy daemonset.                                       | -              | false    |
+| `service_type`      | The type of Kubernetes service used to expose Envoy.                                                    | "LoadBalancer" | false    |
+| `toleration`        | Tolerations that the operator and envoy pods will tolerate.                                             | -              | false    |
 
 ## Applying
 

@@ -19,12 +19,17 @@ spec:
   externalTrafficPolicy: Local
   ports:
   - port: 80
+    {{- if eq .Values.envoy.serviceType "NodePort" }}
+    nodePort: 30080
+    {{- end }}
     name: http
     protocol: TCP
   - port: 443
+    {{- if eq .Values.envoy.serviceType "NodePort" }}
+    nodePort: 30443
+    {{- end }}
     name: https
     protocol: TCP
   selector:
     app: envoy
-  type: LoadBalancer
-
+  type: {{ .Values.envoy.serviceType }}

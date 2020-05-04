@@ -24,7 +24,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 )
 
-const name = "contour"
+const (
+	name                    = "contour"
+	serviceTypeNodePort     = "NodePort"
+	serviceTypeLoadBalancer = "LoadBalancer"
+)
 
 func init() {
 	components.Register(name, newComponent())
@@ -41,30 +45,44 @@ type component struct {
 	// This solution is a workaround for projectcontour/contour#403
 	// More details regarding this workaround and other solutions is captured in
 	// https://github.com/kinvolk/PROJECT-Lokomotive-Kubernetes/issues/474
-	IngressHosts []string `hcl:"ingress_hosts,optional"`
-
+	IngressHosts    []string            `hcl:"ingress_hosts,optional"`
 	NodeAffinity    []util.NodeAffinity `hcl:"node_affinity,block"`
 	NodeAffinityRaw string
-
-	Tolerations    []util.Toleration `hcl:"toleration,block"`
-	TolerationsRaw string
+	ServiceType     string            `hcl:"service_type,optional"`
+	Tolerations     []util.Toleration `hcl:"toleration,block"`
+	TolerationsRaw  string
 }
 
 func newComponent() *component {
-	return &component{}
+	return &component{
+		ServiceType: serviceTypeLoadBalancer,
+	}
 }
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
+	diagnostics := hcl.Diagnostics{}
+
 	if configBody == nil {
 		return hcl.Diagnostics{
 			components.HCLDiagConfigBodyNil,
 		}
 	}
-	if err := gohcl.DecodeBody(*configBody, evalContext, c); err != nil {
-		return err
+
+	d := gohcl.DecodeBody(*configBody, evalContext, c)
+	if d.HasErrors() {
+		diagnostics = append(diagnostics, d...)
+		return diagnostics
 	}
 
-	return nil
+	// Validate service type.
+	if c.ServiceType != serviceTypeNodePort && c.ServiceType != serviceTypeLoadBalancer {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Unknown service type %q", c.ServiceType),
+		})
+	}
+
+	return diagnostics
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
