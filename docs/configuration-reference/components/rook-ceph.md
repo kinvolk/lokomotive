@@ -30,11 +30,11 @@ component "rook-ceph" {
   namespace = "rook-test"
   monitor_count = 3
   metadata_device = "md127"
-  node_selector {
+  node_affinity {
     key      = "node-role.kubernetes.io/storage"
     operator = "Exists"
   }
-  node_selector {
+  node_affinity {
     key      = "storage.lokomotive.io"
     operator = "In"
 
@@ -66,7 +66,7 @@ Example:
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|:-------:|:--------:|
 | `namespace`         | Namespace to deploy the Ceph cluster into. Must be the same as the rook operator.                                                                  | rook    | false    |
 | `monitor_count`     | Number of Ceph monitors to deploy. An odd number like 3 or 5 is recommended which should also be sufficient for most cases.                        | 1       | false    |
-| `node_selector`     | Node selectors for deploying the Ceph cluster pods.                                                                                                | -       | false    |
+| `node_affinity`     | Node affinity for deploying the Ceph cluster pods.                                                                                                 | -       | false    |
 | `toleration`        | Tolerations that the Ceph cluster pods will tolerate.                                                                                              | -       | false    |
 | `metadata_device`   | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing with `/dev/`.   | -       | false    |
 

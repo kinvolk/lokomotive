@@ -30,7 +30,7 @@ func init() {
 
 type component struct {
 	Namespace                string              `hcl:"namespace,optional"`
-	NodeSelectors            []util.NodeSelector `hcl:"node_selector,block"`
+	NodeAffinity             []util.NodeAffinity `hcl:"node_affinity,block"`
 	Tolerations              []util.Toleration   `hcl:"toleration,block"`
 	TolerationsRaw           string
 	AgentTolerationKey       string `hcl:"agent_toleration_key,optional"`

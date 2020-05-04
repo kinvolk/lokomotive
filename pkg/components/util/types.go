@@ -16,7 +16,9 @@ package util
 
 import "encoding/json"
 
-type NodeSelector struct {
+// NodeAffinity is a struct that other components can use to define the HCL format of NodeAffinity
+// in Kubernetes PodSpec.
+type NodeAffinity struct {
 	Key      string   `hcl:"key",json:"key,omitempty"`
 	Operator string   `hcl:"operator",json:"operator,omitempty"`
 	Values   []string `hcl:"values,optional",json:"values,omitempty"`

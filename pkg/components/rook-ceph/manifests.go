@@ -47,12 +47,12 @@ spec:
     deleteDataDirOnHosts: ""
   placement:
     all:
-      {{- if .NodeSelectors }}
+      {{- if .NodeAffinity }}
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-              {{- range $item := .NodeSelectors }}
+              {{- range $item := .NodeAffinity }}
               - key: {{ $item.Key }}
                 operator: {{ $item.Operator }}
                 {{- if $item.Values }}

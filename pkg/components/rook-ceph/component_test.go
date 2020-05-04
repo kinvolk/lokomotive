@@ -39,12 +39,12 @@ component "rook-ceph" {
 
   monitor_count = 3
 
-  node_selector {
+  node_affinity {
     key      = "node-role.kubernetes.io/storage"
     operator = "Exists"
   }
 
-  node_selector {
+  node_affinity {
     key      = "storage.lokomotive.io"
     operator = "In"
 
