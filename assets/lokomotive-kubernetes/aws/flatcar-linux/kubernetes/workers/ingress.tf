@@ -25,13 +25,11 @@ resource "aws_lb_target_group" "workers-http" {
   target_type = "instance"
 
   protocol = "TCP"
-  port     = 80
+  port     = 30080
 
-  # HTTP health check for ingress
   health_check {
-    protocol = "HTTP"
-    port     = 10254
-    path     = "/healthz"
+    protocol = "TCP"
+    port     = 30080
 
     # NLBs required to use same healthy and unhealthy thresholds
     healthy_threshold   = 3
@@ -52,13 +50,11 @@ resource "aws_lb_target_group" "workers-https" {
   target_type = "instance"
 
   protocol = "TCP"
-  port     = 443
+  port     = 30443
 
-  # HTTP health check for ingress
   health_check {
-    protocol = "HTTP"
-    port     = 10254
-    path     = "/healthz"
+    protocol = "TCP"
+    port     = 30443
 
     # NLBs required to use same healthy and unhealthy thresholds
     healthy_threshold   = 3

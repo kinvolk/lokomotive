@@ -196,8 +196,8 @@ resource "aws_security_group_rule" "worker-http" {
 
   type        = "ingress"
   protocol    = "tcp"
-  from_port   = 80
-  to_port     = 80
+  from_port   = 30080
+  to_port     = 30080
   cidr_blocks = ["0.0.0.0/0"]
 }
 
@@ -206,8 +206,8 @@ resource "aws_security_group_rule" "worker-https" {
 
   type        = "ingress"
   protocol    = "tcp"
-  from_port   = 443
-  to_port     = 443
+  from_port   = 30443
+  to_port     = 30443
   cidr_blocks = ["0.0.0.0/0"]
 }
 
@@ -231,16 +231,6 @@ resource "aws_security_group_rule" "worker-kube-proxy" {
   from_port = 10249
   to_port   = 10249
   self      = true
-}
-
-resource "aws_security_group_rule" "ingress-health" {
-  security_group_id = aws_security_group.worker.id
-
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 10254
-  to_port     = 10254
-  cidr_blocks = ["0.0.0.0/0"]
 }
 
 # Allow apiserver to access kubelets for exec, log, port-forward
