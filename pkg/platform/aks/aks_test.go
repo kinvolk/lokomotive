@@ -1,7 +1,6 @@
 package aks
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -16,19 +15,8 @@ const (
 	testWorkerCount = 1
 )
 
-// createTerraformConfigFile()
-func TestCreateTerraformConfigFile(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
-	if err != nil {
-		t.Fatalf("creating tmp dir should succeed, got: %v", err)
-	}
-
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			t.Logf("failed to remove temp dir %q: %v", tmpDir, err)
-		}
-	}()
-
+// renderTerraformConfigFile()
+func TestRenderTerraformConfigFile(t *testing.T) {
 	c := &config{
 		WorkerPools: []workerPool{
 			{
@@ -39,35 +27,21 @@ func TestCreateTerraformConfigFile(t *testing.T) {
 		},
 	}
 
-	if err := createTerraformConfigFile(c, tmpDir); err != nil {
-		t.Fatalf("creating Terraform config files should succeed, got: %v", err)
+	renderedStr, err := c.Render()
+	if err != nil {
+		t.Fatalf("rendering Terraform config files should succeed, got: %v", err)
+	}
+
+	if renderedStr == "" {
+		t.Fatalf("rendered template string should not be empty")
 	}
 }
 
 func TestCreateTerraformConfigFileNoWorkerPools(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
-	if err != nil {
-		t.Fatalf("creating tmp dir should succeed, got: %v", err)
-	}
-
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			t.Logf("failed to remove temp dir %q: %v", tmpDir, err)
-		}
-	}()
-
 	c := &config{}
 
-	if err := createTerraformConfigFile(c, tmpDir); err == nil {
-		t.Fatalf("creating Terraform config files should fail if there is no worker pools defined")
-	}
-}
-
-func TestCreateTerraformConfigFileNonExistingPath(t *testing.T) {
-	c := &config{}
-
-	if err := createTerraformConfigFile(c, "/nonexisting"); err == nil {
-		t.Fatalf("creating Terraform config files in non-existing path should fail")
+	if _, err := c.Render(); err == nil {
+		t.Fatalf("rendering Terraform config files should fail if there is no worker pools defined")
 	}
 }
 

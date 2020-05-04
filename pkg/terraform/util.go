@@ -26,24 +26,58 @@ import (
 )
 
 const backendFileName = "backend.tf"
+const clusterFileName = "cluster.tf"
 
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
-func Configure(assetDir, renderedBackend string) error {
+func Configure(assetDir, renderedBackend, renderedPlatform string) error {
 	if err := prepareTerraformDirectoryAndModules(assetDir); err != nil {
-		return errors.Wrapf(err, "Failed to create required terraform directory")
+		return fmt.Errorf("failed to create required terraform directory: %w", err)
 	}
 
+	terraformRootDir := GetTerraformRootDir(assetDir)
 	// Create backend file only if the backend rendered string isn't empty.
-	if len(strings.TrimSpace(renderedBackend)) <= 0 {
-		return nil
+	if len(strings.TrimSpace(renderedBackend)) > 0 {
+		data := fmt.Sprintf("terraform {%s}\n", renderedBackend)
+		file := filepath.Join(terraformRootDir, backendFileName)
+
+		if err := createTerraformFile(file, data); err != nil {
+			return fmt.Errorf("failed to create backend configuration file: %w", err)
+		}
 	}
 
-	if err := createTerraformBackendFile(assetDir, renderedBackend); err != nil {
-		return errors.Wrapf(err, "Failed to create backend configuration file")
+	file := filepath.Join(terraformRootDir, clusterFileName)
+	if err := createTerraformFile(file, renderedPlatform); err != nil {
+		return fmt.Errorf("failed to create cluster configuration file: %w", err)
 	}
 
 	return nil
+}
+
+// createTerraformFile creates the terraform file with the contents provided.
+func createTerraformFile(path, data string) error {
+	var err error
+
+	f, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("failed to create file '%q', got: %w", path, err)
+	}
+
+	defer func() {
+		if ferr := f.Close(); ferr != nil {
+			err = ferr
+		}
+	}()
+
+	if _, err = f.WriteString(data); err != nil {
+		return fmt.Errorf("failed to write content to file '%q', got: %w", path, err)
+	}
+
+	if err = f.Sync(); err != nil {
+		return fmt.Errorf("failed to flush data to file '%q', got: %w", path, err)
+	}
+
+	return err
 }
 
 // prepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
@@ -64,28 +98,6 @@ func prepareTerraformDirectoryAndModules(assetDir string) error {
 // GetTerraformRootDir gets the Terraform directory path.
 func GetTerraformRootDir(assetDir string) string {
 	return filepath.Join(assetDir, "terraform")
-}
-
-// createTerraformBackendFile creates the Terraform backend configuration file.
-func createTerraformBackendFile(assetDir, data string) error {
-	backendString := fmt.Sprintf("terraform {%s}\n", data)
-	terraformRootDir := GetTerraformRootDir(assetDir)
-	path := filepath.Join(terraformRootDir, backendFileName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	if _, err = f.WriteString(backendString); err != nil {
-		return errors.Wrapf(err, "failed to write to backend file %q", path)
-	}
-
-	if err = f.Sync(); err != nil {
-		return errors.Wrapf(err, "failed to flush data to file %q", path)
-	}
-
-	return nil
 }
 
 // prepareTerraformRootDir creates a directory named path including all

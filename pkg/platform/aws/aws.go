@@ -17,14 +17,10 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
+	"github.com/kinvolk/lokomotive/internal/template"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
@@ -115,66 +111,34 @@ func (c *config) Meta() platform.Meta {
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Apply()
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Destroy()
 }
 
-func (c *config) Initialize() error {
-	assetDir, err := homedir.Expand(c.AssetDir)
+func (c *config) Render() (string, error) {
+	keyListBytes, err := json.Marshal(c.SSHPubKeys)
 	if err != nil {
-		return err
+		return "", fmt.Errorf("failed to marshal SSH public keys: %w", err)
 	}
 
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
+	controllerCLCSnippetsBytes, err := json.Marshal(c.ControllerCLCSnippets)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal CLC snippets: %w", err)
+	}
 
-	return createTerraformConfigFile(c, terraformRootDir)
-}
+	util.AppendTags(&c.Tags)
 
-func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
+	tags, err := json.Marshal(c.Tags)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal tags: %w", err)
+	}
+
 	workerpoolCfgList := []map[string]string{}
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
-	}
 
-	path := filepath.Join(terraformRootDir, tmplName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
-	util.AppendTags(&cfg.Tags)
-
-	tags, err := json.Marshal(cfg.Tags)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
-	}
-
-	for _, workerpool := range cfg.WorkerPools {
+	for _, workerpool := range c.WorkerPools {
 		input := map[string]interface{}{
 			"clc_snippets":  workerpool.CLCSnippets,
 			"target_groups": workerpool.TargetGroups,
@@ -189,7 +153,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		for k, v := range input {
 			bytes, err := json.Marshal(v)
 			if err != nil {
-				return fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
+				return "", fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
 			}
 
 			output[k] = string(bytes)
@@ -207,17 +171,14 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		WorkerTargetGroups    string
 		WorkerpoolCfg         []map[string]string
 	}{
-		Config:                *cfg,
+		Config:                *c,
 		Tags:                  string(tags),
 		SSHPublicKeys:         string(keyListBytes),
 		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
 		WorkerpoolCfg:         workerpoolCfgList,
 	}
 
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
+	return template.Render(terraformConfigTmpl, terraformCfg)
 }
 
 // checkValidConfig validates cluster configuration.

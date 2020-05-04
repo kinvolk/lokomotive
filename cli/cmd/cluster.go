@@ -107,9 +107,14 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 	if err != nil {
 		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
 	}
+	// Render platform configuration.
+	renderedPlatform, err := p.Render()
+	if err != nil {
+		ctxLogger.Fatalf("Failed to render platform configuration file: %v", err)
+	}
 
-	// Configure Terraform directory, module and backend.
-	if err := terraform.Configure(assetDir, renderedBackend); err != nil {
+	// Configure Terraform directory, module, backend and platform.
+	if err := terraform.Configure(assetDir, renderedBackend, renderedPlatform); err != nil {
 		ctxLogger.Fatalf("Failed to configure Terraform : %v", err)
 	}
 
@@ -121,10 +126,6 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 	ex, err := terraform.NewExecutor(conf)
 	if err != nil {
 		ctxLogger.Fatalf("Failed to create Terraform executor: %v", err)
-	}
-
-	if err := p.Initialize(); err != nil {
-		ctxLogger.Fatalf("Failed to initialize Platform: %v", err)
 	}
 
 	if err := ex.Init(); err != nil {

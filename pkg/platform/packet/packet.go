@@ -18,17 +18,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/dns"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
@@ -129,20 +128,19 @@ func (c *config) Meta() platform.Meta {
 	}
 }
 
-func (c *config) Initialize() error {
+func (c *config) checkAuthToken() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
 	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
-		return fmt.Errorf("cannot find the Packet authentication token:\n" +
-			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Worker pools name should be unique",
+			Detail: fmt.Sprintf("cannot find the Packet authentication token:\n" +
+				"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable"),
+		})
 	}
 
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
+	return diagnostics
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
@@ -158,62 +156,41 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return errors.Wrap(err, "parsing DNS configuration failed")
 	}
 
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return c.terraformSmartApply(ex, dnsProvider)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Destroy()
 }
 
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
+func (c *config) Render() (string, error) {
+	keyListBytes, err := json.Marshal(c.SSHPubKeys)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
+		return "", fmt.Errorf("failed to marshal SSH public keys: %w", err)
 	}
 
-	path := filepath.Join(terraformPath, tmplName)
-	f, err := os.Create(path)
+	managementCIDRs, err := json.Marshal(c.ManagementCIDRs)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	managementCIDRs, err := json.Marshal(cfg.ManagementCIDRs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal management CIDRs")
+		return "", fmt.Errorf("failed to marshal management CIDRs: %w", err)
 	}
 
 	// Packet does not accept tags as a key-value map but as an array of
 	// strings.
-	util.AppendTags(&cfg.Tags)
+	util.AppendTags(&c.Tags)
 	tagsList := []string{}
-	for k, v := range cfg.Tags {
+
+	for k, v := range c.Tags {
 		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
 	}
 	sort.Strings(tagsList)
 	tags, err := json.Marshal(tagsList)
 	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
+		return "", fmt.Errorf("failed to marshal tags: %w", err)
 	}
 
 	// Add explicit terraform dependencies for nodes with specific hw
 	// reservation UUIDs.
-	cfg.terraformAddDeps()
+	c.terraformAddDeps()
 
 	terraformCfg := struct {
 		Config          config
@@ -221,16 +198,13 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		SSHPublicKeys   string
 		ManagementCIDRs string
 	}{
-		Config:          *cfg,
+		Config:          *c,
 		Tags:            string(tags),
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
 	}
 
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
+	return template.Render(terraformConfigTmpl, terraformCfg)
 }
 
 // terraformSmartApply applies cluster configuration.
@@ -360,6 +334,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkReservationIDs()...)
+	diagnostics = append(diagnostics, c.checkAuthToken()...)
 
 	return diagnostics
 }

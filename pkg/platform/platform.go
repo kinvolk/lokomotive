@@ -26,8 +26,8 @@ type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
-	Initialize() error
 	Meta() Meta
+	Render() (string, error)
 }
 
 // Meta is a generic information format about the platform.

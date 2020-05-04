@@ -16,15 +16,12 @@ package baremetal
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"text/template"
+	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
@@ -79,80 +76,48 @@ func NewConfig() *config {
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Apply()
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Destroy()
 }
 
-func (c *config) Initialize() error {
-	assetDir, err := homedir.Expand(c.AssetDir)
+//nolint:funlen
+func (c *config) Render() (string, error) {
+	keyListBytes, err := json.Marshal(c.SSHPubKeys)
 	if err != nil {
-		return err
+		return "", fmt.Errorf("failed to marshal SSH public keys: %w", err)
 	}
 
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
-}
-
-func createTerraformConfigFile(cfg *config, terraformPath string) error {
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
+	workerDomains, err := json.Marshal(c.WorkerDomains)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
+		return "", fmt.Errorf("failed to parse '%q', got: %w", c.WorkerDomains, err)
 	}
 
-	path := filepath.Join(terraformPath, tmplName)
-	f, err := os.Create(path)
+	workerMacs, err := json.Marshal(c.WorkerMacs)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
+		return "", fmt.Errorf("failed to parse '%q', got: %w", c.WorkerMacs, err)
 	}
 
-	workerDomains, err := json.Marshal(cfg.WorkerDomains)
+	workerNames, err := json.Marshal(c.WorkerNames)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
+		return "", fmt.Errorf("failed to parse '%q', got: %w", c.WorkerNames, err)
 	}
 
-	workerMacs, err := json.Marshal(cfg.WorkerMacs)
+	controllerDomains, err := json.Marshal(c.ControllerDomains)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerMacs)
+		return "", fmt.Errorf("failed to parse '%q', got: %w", c.ControllerDomains, err)
 	}
 
-	workerNames, err := json.Marshal(cfg.WorkerNames)
+	controllerMacs, err := json.Marshal(c.ControllerMacs)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerNames)
+		return "", fmt.Errorf("failed to parse '%q', got: %w", c.ControllerMacs, err)
 	}
 
-	controllerDomains, err := json.Marshal(cfg.ControllerDomains)
+	controllerNames, err := json.Marshal(c.ControllerNames)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerDomains)
-	}
-
-	controllerMacs, err := json.Marshal(cfg.ControllerMacs)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerMacs)
-	}
-
-	controllerNames, err := json.Marshal(cfg.ControllerNames)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
+		return "", fmt.Errorf("failed to parse '%q', got: %w", c.ControllerNames, err)
 	}
 
 	terraformCfg := struct {
@@ -174,27 +139,24 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerMacs           string
 		WorkerDomains        string
 	}{
-		CachedInstall:        cfg.CachedInstall,
-		ClusterName:          cfg.ClusterName,
+		CachedInstall:        c.CachedInstall,
+		ClusterName:          c.ClusterName,
 		ControllerDomains:    string(controllerDomains),
 		ControllerMacs:       string(controllerMacs),
 		ControllerNames:      string(controllerNames),
-		K8sDomainName:        cfg.K8sDomainName,
-		MatchboxCA:           cfg.MatchboxCAPath,
-		MatchboxClientCert:   cfg.MatchboxClientCertPath,
-		MatchboxClientKey:    cfg.MatchboxClientKeyPath,
-		MatchboxEndpoint:     cfg.MatchboxEndpoint,
-		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
-		OSChannel:            cfg.OSChannel,
-		OSVersion:            cfg.OSVersion,
+		K8sDomainName:        c.K8sDomainName,
+		MatchboxCA:           c.MatchboxCAPath,
+		MatchboxClientCert:   c.MatchboxClientCertPath,
+		MatchboxClientKey:    c.MatchboxClientKeyPath,
+		MatchboxEndpoint:     c.MatchboxEndpoint,
+		MatchboxHTTPEndpoint: c.MatchboxHTTPEndpoint,
+		OSChannel:            c.OSChannel,
+		OSVersion:            c.OSVersion,
 		SSHPublicKeys:        string(keyListBytes),
 		WorkerNames:          string(workerNames),
 		WorkerMacs:           string(workerMacs),
 		WorkerDomains:        string(workerDomains),
 	}
 
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
+	return template.Render(terraformConfigTmpl, terraformCfg)
 }

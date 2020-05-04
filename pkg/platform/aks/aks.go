@@ -19,12 +19,10 @@ package aks
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
+	"github.com/kinvolk/lokomotive/internal/template"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
@@ -277,70 +275,32 @@ func (c *config) Meta() platform.Meta {
 
 // Apply creates AKS infrastructure via Terraform.
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Apply()
 }
 
 // Destroy destroys AKS infrastructure via Terraform.
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(); err != nil {
-		return err
-	}
-
 	return ex.Destroy()
 }
 
-// Initialize creates Terrafrom files required for AKS.
-func (c *config) Initialize() error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
+func (c *config) Render() (string, error) {
+	util.AppendTags(&c.Tags)
+
+	if c.ClientSecret == "" {
+		c.ClientSecret = os.Getenv(clientSecretEnv)
 	}
 
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
-}
-
-// createTerraformConfigFiles create Terraform config files in given directory.
-func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
-	t := template.Must(template.New("t").Parse(terraformConfigTmpl))
-
-	path := filepath.Join(terraformRootDir, "cluster.tf")
-
-	f, err := os.Create(path)
-	if err != nil {
-		return fmt.Errorf("failed to create file %q: %w", path, err)
+	if c.SubscriptionID == "" {
+		c.SubscriptionID = os.Getenv(subscriptionIDEnv)
 	}
 
-	util.AppendTags(&cfg.Tags)
-
-	if cfg.ClientSecret == "" {
-		cfg.ClientSecret = os.Getenv(clientSecretEnv)
+	if c.ClientID == "" {
+		c.ClientID = os.Getenv(clientIDEnv)
 	}
 
-	if cfg.SubscriptionID == "" {
-		cfg.SubscriptionID = os.Getenv(subscriptionIDEnv)
+	if c.TenantID == "" {
+		c.TenantID = os.Getenv(tenantIDEnv)
 	}
 
-	if cfg.ClientID == "" {
-		cfg.ClientID = os.Getenv(clientIDEnv)
-	}
-
-	if cfg.TenantID == "" {
-		cfg.TenantID = os.Getenv(tenantIDEnv)
-	}
-
-	if err := t.Execute(f, cfg); err != nil {
-		return fmt.Errorf("failed to write template to file %q: %w", path, err)
-	}
-
-	if err := f.Close(); err != nil {
-		return fmt.Errorf("failed closing file %q: %w", path, err)
-	}
-
-	return nil
+	return template.Render(terraformConfigTmpl, c)
 }
