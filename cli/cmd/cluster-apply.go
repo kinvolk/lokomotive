@@ -21,7 +21,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/kinvolk/lokomotive/pkg/install"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
@@ -134,5 +133,5 @@ func verifyCluster(kubeconfigPath string, expectedNodes int) error {
 		return errors.Wrapf(err, "failed to set up cluster client")
 	}
 
-	return install.Verify(cluster)
+	return cluster.Verify()
 }

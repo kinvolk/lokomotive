@@ -20,10 +20,24 @@ import (
 	"os"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
+)
+
+const (
+	// Max number of retries when waiting for cluster to become available.
+	clusterPingRetries = 18
+	// Number of seconds to wait between retires when waiting for cluster to become available.
+	clusterPingRetryInterval = 10
+	// Max number of retries when waiting for nodes to become ready.
+	nodeReadinessRetries = 18
+	// Number of seconds to wait between retires when waiting for nodes to become ready.
+	nodeReadinessRetryInterval = 10
 )
 
 type Cluster struct {
@@ -35,7 +49,8 @@ func NewCluster(client *kubernetes.Clientset, expectedNodes int) (*Cluster, erro
 	return &Cluster{KubeClient: client, ExpectedNodes: expectedNodes}, nil
 }
 
-func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
+// ComponentsStatus returns the status of Kubernetes cluster components.
+func (cl *Cluster) ComponentsStatus() ([]v1.ComponentStatus, error) {
 	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(context.TODO(), meta_v1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -75,6 +90,46 @@ func (cl *Cluster) GetNodeStatus() (*NodeStatus, error) {
 		nodeConditions: nodeConditions,
 		expectedNodes:  cl.ExpectedNodes,
 	}, nil
+}
+
+// Verify verifies health and readiness of the cluster.
+func (cl *Cluster) Verify() error {
+	fmt.Println("\nNow checking health and readiness of the cluster nodes ...")
+
+	// Wait for cluster to become available.
+	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.Ping)
+	if err != nil {
+		return fmt.Errorf("failed to ping cluster for readiness: %v", err)
+	}
+
+	var ns *NodeStatus
+
+	var nsErr error
+
+	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, func() (bool, error) {
+		// Store the original error because Retry would stop too early if we forward it
+		// and anyway overrides the error in case of timeout.
+		ns, nsErr = cl.GetNodeStatus()
+		if nsErr != nil {
+			// To continue retrying, we don't set the error here.
+			return false, nil
+		}
+		return ns.Ready(), nil // Retry if not ready
+	})
+
+	if nsErr != nil {
+		return fmt.Errorf("error determining node status within the allowed time: %v", nsErr)
+	}
+
+	if err != nil {
+		return fmt.Errorf("not all nodes became ready within the allowed time: %v", err)
+	}
+
+	ns.PrettyPrint()
+
+	fmt.Println("\nSuccess - cluster is healthy and nodes are ready!")
+
+	return nil
 }
 
 // Ready checks if all nodes are ready and returns false otherwise.

@@ -79,7 +79,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("The cluster is not completely ready.")
 	}
 
-	components, err := cluster.Health()
+	components, err := cluster.ComponentsStatus()
 	if err != nil {
 		contextLogger.Fatalf("Error in getting Lokomotive cluster health: %q", err)
 	}
