@@ -55,6 +55,7 @@ type component struct {
 	PrometheusMetricsRetention  string            `hcl:"prometheus_metrics_retention,optional"`
 	PrometheusExternalURL       string            `hcl:"prometheus_external_url,optional"`
 	PrometheusNodeSelector      map[string]string `hcl:"prometheus_node_selector,optional"`
+	PrometheusStorageSize       string            `hcl:"prometheus_storage_size,optional"`
 	WatchLabeledServiceMonitors bool              `hcl:"watch_labeled_service_monitors,optional"`
 	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
 
@@ -62,6 +63,9 @@ type component struct {
 	AlertManagerExternalURL  string            `hcl:"alertmanager_external_url,optional"`
 	AlertManagerConfig       string            `hcl:"alertmanager_config,optional"`
 	AlertManagerNodeSelector map[string]string `hcl:"alertmanager_node_selector,optional"`
+	AlertManagerStorageSize  string            `hcl:"alertmanager_storage_size,optional"`
+
+	StorageClass string `hcl:"storage_class,optional"`
 
 	DisableWebhooks bool `hcl:"disable_webhooks,optional"`
 
@@ -91,8 +95,10 @@ func newComponent() *component {
 
 	return &component{
 		PrometheusMetricsRetention:  "10d",
+		PrometheusStorageSize:       "50Gi",
 		AlertManagerRetention:       "120h",
 		AlertManagerConfig:          defaultAlertManagerConfig,
+		AlertManagerStorageSize:     "50Gi",
 		Namespace:                   "monitoring",
 		WatchLabeledServiceMonitors: true,
 		WatchLabeledPrometheusRules: true,

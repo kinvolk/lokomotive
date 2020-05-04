@@ -39,10 +39,13 @@ alertmanager:
         metadata:
           name: data
         spec:
+          {{ if .StorageClass }}
+          storageClassName: {{.StorageClass}}
+          {{ end }}
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 50Gi
+              storage: "{{.AlertManagerStorageSize}}"
 grafana:
   adminPassword: {{.GrafanaAdminPassword}}
   testFramework:
@@ -89,10 +92,13 @@ prometheus:
         metadata:
           name: data
         spec:
+          {{ if .StorageClass }}
+          storageClassName: {{.StorageClass}}
+          {{ end }}
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 50Gi
+              storage: "{{.PrometheusStorageSize}}"
 
 kubeControllerManager:
   enabled: {{.Monitor.KubeControllerManager}}
