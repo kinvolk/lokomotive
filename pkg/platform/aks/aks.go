@@ -277,7 +277,7 @@ func (c *config) Meta() platform.Meta {
 
 // Apply creates AKS infrastructure via Terraform.
 func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
+	if err := c.Initialize(); err != nil {
 		return err
 	}
 
@@ -286,7 +286,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 // Destroy destroys AKS infrastructure via Terraform.
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
+	if err := c.Initialize(); err != nil {
 		return err
 	}
 
@@ -294,7 +294,7 @@ func (c *config) Destroy(ex *terraform.Executor) error {
 }
 
 // Initialize creates Terrafrom files required for AKS.
-func (c *config) Initialize(ex *terraform.Executor) error {
+func (c *config) Initialize() error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err

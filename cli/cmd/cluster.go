@@ -123,7 +123,7 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 		ctxLogger.Fatalf("Failed to create Terraform executor: %v", err)
 	}
 
-	if err := p.Initialize(ex); err != nil {
+	if err := p.Initialize(); err != nil {
 		ctxLogger.Fatalf("Failed to initialize Platform: %v", err)
 	}
 

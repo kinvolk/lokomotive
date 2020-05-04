@@ -129,7 +129,7 @@ func (c *config) Meta() platform.Meta {
 	}
 }
 
-func (c *config) Initialize(ex *terraform.Executor) error {
+func (c *config) Initialize() error {
 	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
 		return fmt.Errorf("cannot find the Packet authentication token:\n" +
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
@@ -158,7 +158,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return errors.Wrap(err, "parsing DNS configuration failed")
 	}
 
-	if err := c.Initialize(ex); err != nil {
+	if err := c.Initialize(); err != nil {
 		return err
 	}
 
@@ -166,7 +166,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
+	if err := c.Initialize(); err != nil {
 		return err
 	}
 
