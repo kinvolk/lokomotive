@@ -20,9 +20,11 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/pkg/errors"
+
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/pkg/errors"
 )
 
 const name = "external-dns"
@@ -128,7 +130,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		c.AwsConfig.SecretAccessKey = secretAccessKey
 	}
 
-	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render chart values template")
 	}

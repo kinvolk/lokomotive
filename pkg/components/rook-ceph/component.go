@@ -19,9 +19,11 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/pkg/errors"
+
+	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/pkg/errors"
 )
 
 const name = "rook-ceph"
@@ -74,7 +76,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	// Parse template with values
 	for k, v := range template {
-		rendered, err := util.RenderTemplate(v, c)
+		rendered, err := internaltemplate.Render(v, c)
 		if err != nil {
 			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
 		}
