@@ -30,19 +30,8 @@ component "rook" {
   # Optional arguments
   namespace = "rook-test"
 
-  node_affinity {
-    key      = "node-role.kubernetes.io/node"
-    operator = "Exists"
-  }
-
-  node_affinity {
-    key      = "storage.lokomotive.io"
-    operator = "In"
-
-    # If the `operator` is set to `"In"`, `values` should be specified.
-    values = [
-      "foo",
-    ]
+  node_selector = {
+    "storage.lokomotive.io" = "ceph"
   }
 
   toleration {
@@ -69,7 +58,7 @@ Example:
 | Argument                     | Description                                                                                              | Default | Required |
 |------------------------------|----------------------------------------------------------------------------------------------------------|:-------:|:--------:|
 | `namespace`                  | Namespace to deploy the rook operator into.                                                              | rook    | false    |
-| `node_affinity`              | Node affinity for deploying the operator pod.                                                            | -       | false    |
+| `node_selector`              | A map with specific labels to run Rook pods selectively on a group of nodes.                             | -       | false    |
 | `toleration`                 | Tolerations that the operator's pods will tolerate.                                                      | -       | false    |
 | `agent_toleration_key`       | Toleration key for the rook agent pods.                                                                  | -       | false    |
 | `agent_toleration_effect`    | Toleration effect for the rook agent pods. Needs to be specified if `agent_toleration_key` is set.       | -       | false    |
@@ -90,4 +79,3 @@ To destroy the component:
 ```bash
 lokoctl component render-manifest rook | kubectl delete -f -
 ```
-
