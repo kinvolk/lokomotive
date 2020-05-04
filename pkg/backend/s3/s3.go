@@ -21,8 +21,8 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/backend"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 type s3 struct {
@@ -52,7 +52,7 @@ func NewS3Backend() *s3 {
 
 // Render renders the Go template with s3 backend configuration.
 func (s *s3) Render() (string, error) {
-	return util.RenderTemplate(backendConfigTmpl, s)
+	return template.Render(backendConfigTmpl, s)
 }
 
 // Validate validates the s3 backend configuration.

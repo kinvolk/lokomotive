@@ -25,8 +25,8 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
 
+	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 const name = "dex"
@@ -303,17 +303,17 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.StaticClientsRaw = staticClients
 
-	configMap, err := util.RenderTemplate(configMapTmpl, c)
+	configMap, err := internaltemplate.Render(configMapTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	ingressBuf, err := util.RenderTemplate(ingressTmpl, c)
+	ingressBuf, err := internaltemplate.Render(ingressTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	deployment, err := util.RenderTemplate(deploymentTmpl, c)
+	deployment, err := internaltemplate.Render(deploymentTmpl, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}

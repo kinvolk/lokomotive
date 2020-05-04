@@ -17,9 +17,11 @@ package metallb
 import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/pkg/errors"
+
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/pkg/errors"
 )
 
 const name = "metallb"
@@ -85,17 +87,17 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.ControllerTolerationsJSON = t
 
-	controllerStr, err := util.RenderTemplate(deploymentController, c)
+	controllerStr, err := template.Render(deploymentController, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render template failed")
 	}
 
-	speakerStr, err := util.RenderTemplate(daemonsetSpeaker, c)
+	speakerStr, err := template.Render(daemonsetSpeaker, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "render template failed")
 	}
 
-	configMapStr, err := util.RenderTemplate(configMap, c)
+	configMapStr, err := template.Render(configMap, c)
 	if err != nil {
 		return nil, errors.Wrap(err, "rendering ConfigMap template failed")
 	}

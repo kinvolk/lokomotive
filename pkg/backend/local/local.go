@@ -18,8 +18,8 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/backend"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 type local struct {
@@ -45,7 +45,7 @@ func NewLocalBackend() *local {
 
 // Render renders the Go template with local backend configuration.
 func (l *local) Render() (string, error) {
-	return util.RenderTemplate(backendConfigTmpl, l)
+	return template.Render(backendConfigTmpl, l)
 }
 
 // Validate validates the local backend configuration.
