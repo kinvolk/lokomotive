@@ -15,12 +15,11 @@
 package walkers
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 )
@@ -36,7 +35,7 @@ func DumpingWalker(contentsMap map[string]string, allowedExts ...string) assets.
 	}
 	return func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
 		if err != nil {
-			return errors.Wrapf(err, "error during walking at %q", fileName)
+			return fmt.Errorf("error during walking at %q, got: %w", fileName, err)
 		}
 
 		if extsMap != nil {
@@ -47,7 +46,7 @@ func DumpingWalker(contentsMap map[string]string, allowedExts ...string) assets.
 
 		contents, err := ioutil.ReadAll(r)
 		if err != nil {
-			return errors.Wrapf(err, "failed to read %q", fileName)
+			return fmt.Errorf("failed to read %q, got: %w", fileName, err)
 		}
 
 		contentsMap[fileName] = string(contents)

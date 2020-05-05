@@ -17,7 +17,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -125,12 +124,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 func verifyCluster(kubeconfigPath string, expectedNodes int) error {
 	client, err := k8sutil.NewClientset(kubeconfigPath)
 	if err != nil {
-		return errors.Wrapf(err, "failed to set up clientset")
+		return fmt.Errorf("failed to set up clientset: %w", err)
 	}
 
 	cluster, err := k8sutil.NewCluster(client, expectedNodes)
 	if err != nil {
-		return errors.Wrapf(err, "failed to set up cluster client")
+		return fmt.Errorf("failed to set up cluster client: %w", err)
 	}
 
 	return cluster.Verify()

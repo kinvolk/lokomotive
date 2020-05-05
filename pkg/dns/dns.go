@@ -22,7 +22,6 @@ import (
 	"sort"
 
 	"github.com/kinvolk/lokomotive/pkg/terraform"
-	"github.com/pkg/errors"
 )
 
 type DNSProvider int
@@ -112,13 +111,13 @@ func AskToConfigure(ex *terraform.Executor, cfg *Config) error {
 func readDNSEntries(ex *terraform.Executor) ([]dnsEntry, error) {
 	output, err := ex.ExecuteSync("output", "-json", "dns_entries")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get DNS entries")
+		return nil, fmt.Errorf("failed to get DNS entries: %w", err)
 	}
 
 	var entries []dnsEntry
 
 	if err := json.Unmarshal(output, &entries); err != nil {
-		return nil, errors.Wrap(err, "failed to parse DNS entries file")
+		return nil, fmt.Errorf("failed to parse DNS entries file: %w", err)
 	}
 
 	return entries, nil

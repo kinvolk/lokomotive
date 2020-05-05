@@ -19,7 +19,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -47,7 +46,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	walk := walkers.DumpingWalker(ret, ".yaml")
 
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", name), walk); err != nil {
-		return nil, errors.Wrap(err, "failed to walk assets")
+		return nil, fmt.Errorf("failed to walk assets: %w", err)
 	}
 
 	return ret, nil

@@ -45,7 +45,6 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/packethost/packngo v0.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
-	github.com/pkg/errors v0.9.1
 	github.com/projectcalico/libcalico-go v1.7.2-0.20200121214551-31188cbacff0
 	github.com/prometheus/alertmanager v0.20.0
 	github.com/prometheus/client_golang v1.5.0

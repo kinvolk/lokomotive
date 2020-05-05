@@ -22,7 +22,6 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/util/walkers"
-	"github.com/pkg/errors"
 )
 
 const backendFileName = "backend.tf"
@@ -105,7 +104,7 @@ func GetTerraformRootDir(assetDir string) string {
 // An error is returned if the directory already exists.
 func prepareTerraformRootDir(path string) error {
 	if err := os.MkdirAll(path, 0750); err != nil {
-		return fmt.Errorf("failed to create terraform assets directory at '%s', got: %w", path, err)
+		return fmt.Errorf("failed to create terraform assets directory at %q, got: %w", path, err)
 	}
 
 	return nil
@@ -122,7 +121,7 @@ func prepareTerraformRootDir(path string) error {
 func prepareLokomotiveTerraformModuleAt(path string) error {
 	walk := walkers.CopyingWalker(path, 0750)
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
-		return errors.Wrap(err, "failed to walk assets")
+		return fmt.Errorf("failed to walk assets: %w", err)
 	}
 
 	return nil

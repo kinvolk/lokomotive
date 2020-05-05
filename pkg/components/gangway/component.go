@@ -16,11 +16,11 @@ package dex
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 )
@@ -303,29 +303,29 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) RenderManifests() (map[string]string, error) {
 	tmpl, err := template.New("config-map").Parse(configMapTmpl)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("parse template failed: %w", err)
 	}
 	var configMapBuf bytes.Buffer
 	if err := tmpl.Execute(&configMapBuf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("execute template failed: %w", err)
 	}
 
 	tmpl, err = template.New("ingress").Parse(ingressTmpl)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("parse template failed: %w", err)
 	}
 	var ingressBuf bytes.Buffer
 	if err := tmpl.Execute(&ingressBuf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("execute template failed: %w", err)
 	}
 
 	tmpl, err = template.New("secret").Parse(secretTmpl)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("parse template failed: %w", err)
 	}
 	var secretBuf bytes.Buffer
 	if err := tmpl.Execute(&secretBuf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("execute template failed :%w", err)
 	}
 
 	return map[string]string{

@@ -18,12 +18,12 @@ import (
 	"bytes"
 	b64 "encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -293,29 +293,29 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	connectors, err := marshalToStr(c.Connectors)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal connectors")
+		return nil, fmt.Errorf("failed to marshal connectors: %w", err)
 	}
 	c.ConnectorsRaw = connectors
 
 	staticClients, err := marshalToStr(c.StaticClients)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal staticClients")
+		return nil, fmt.Errorf("failed to marshal staticClients: %w", err)
 	}
 	c.StaticClientsRaw = staticClients
 
 	configMap, err := internaltemplate.Render(configMapTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("execute template failed: %w", err)
 	}
 
 	ingressBuf, err := internaltemplate.Render(ingressTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("execute template failed: %w", err)
 	}
 
 	deployment, err := internaltemplate.Render(deploymentTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("execute template failed: %w", err)
 	}
 
 	manifests := map[string]string{
@@ -337,7 +337,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "can't create secret from gsuite json file")
+		return nil, fmt.Errorf("can't create secret from gsuite json file: %w", err)
 	}
 	manifests["secret.yml"] = secretManifest
 

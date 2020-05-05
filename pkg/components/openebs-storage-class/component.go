@@ -16,12 +16,12 @@ package openebsstorageclass
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 )
@@ -108,12 +108,12 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	scTmpl, err := template.New(name).Parse(storageClassTmpl)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("parse template failed: %w", err)
 	}
 
 	spTmpl, err := template.New(poolName).Parse(storagePoolTmpl)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("parse template failed: %w", err)
 	}
 
 	var manifestsMap = make(map[string]string)
@@ -123,14 +123,14 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		var spBuffer bytes.Buffer
 
 		if err := scTmpl.Execute(&scBuffer, sc); err != nil {
-			return nil, errors.Wrap(err, "execute template failed")
+			return nil, fmt.Errorf("execute template failed: %w", err)
 		}
 
 		filename := fmt.Sprintf("%s-%s.yml", name, sc.Name)
 		manifestsMap[filename] = scBuffer.String()
 
 		if err := spTmpl.Execute(&spBuffer, sc); err != nil {
-			return nil, errors.Wrap(err, "execute template failed")
+			return nil, fmt.Errorf("execute template failed: %w", err)
 		}
 
 		filename = fmt.Sprintf("%s-%s.yml", poolName, sc.Name)

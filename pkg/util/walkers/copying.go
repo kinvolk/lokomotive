@@ -20,21 +20,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
-
 	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
 func CopyingWalker(path string, newDirPerms os.FileMode) assets.WalkFunc {
 	return func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
 		if err != nil {
-			return errors.Wrapf(err, "error during walking at %q", fileName)
+			return fmt.Errorf("error during walking at %q, got: %w", fileName, err)
 		}
 
 		fileName = filepath.Join(path, fileName)
 
 		if err := os.MkdirAll(filepath.Dir(fileName), newDirPerms); err != nil {
-			return errors.Wrap(err, "failed to create dir")
+			return fmt.Errorf("failed to create dir: %w", err)
 		}
 
 		return writeFile(fileName, r)

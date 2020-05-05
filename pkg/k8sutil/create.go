@@ -24,7 +24,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
@@ -62,7 +61,7 @@ func LoadManifests(files map[string]string) ([]manifest, error) {
 		r := strings.NewReader(fileContent)
 		ms, err := parseManifests(r)
 		if err != nil {
-			return nil, errors.Wrapf(err, "error parsing file %s:", path)
+			return nil, fmt.Errorf("error parsing file %q, got: %w", path, err)
 		}
 		manifests = append(manifests, ms...)
 	}
@@ -113,7 +112,7 @@ func parseJSONManifest(data []byte) ([]manifest, error) {
 		} `json:"metadata"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, errors.Wrapf(err, "failed to parse manifest")
+		return nil, fmt.Errorf("failed to parse manifest: %w", err)
 	}
 
 	// We continue if the object we received was a *List kind. Otherwise if a
@@ -139,7 +138,7 @@ func parseJSONManifest(data []byte) ([]manifest, error) {
 		Items []json.RawMessage `json:"items"`
 	}
 	if err := json.Unmarshal(data, &mList); err != nil {
-		return nil, errors.Wrapf(err, "failed to parse manifest list")
+		return nil, fmt.Errorf("failed to parse manifest list: %w", err)
 	}
 	var manifests []manifest
 	for _, item := range mList.Items {

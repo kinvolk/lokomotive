@@ -25,7 +25,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/dns"
@@ -153,7 +152,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	dnsProvider, err := dns.ParseDNS(&c.DNS)
 	if err != nil {
-		return errors.Wrap(err, "parsing DNS configuration failed")
+		return fmt.Errorf("parsing DNS configuration failed: %w", err)
 	}
 
 	return c.terraformSmartApply(ex, dnsProvider)
@@ -221,11 +220,11 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNS
 
 	// Create controller
 	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "failed executing Terraform")
+		return fmt.Errorf("failed executing Terraform: %w", err)
 	}
 
 	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
-		return errors.Wrap(err, "failed to configure DNS entries")
+		return fmt.Errorf("failed to configure DNS entries: %w", err)
 	}
 
 	// Finish deployment.

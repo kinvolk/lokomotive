@@ -15,12 +15,12 @@
 package externaldns
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -110,7 +110,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
 	if err != nil {
-		return nil, errors.Wrap(err, "load chart from assets")
+		return nil, fmt.Errorf("load chart from assets: %w", err)
 	}
 
 	// Get the aws credentials from environment variable if not provided in the config.
@@ -132,12 +132,12 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart values template")
+		return nil, fmt.Errorf("render chart values template: %w", err)
 	}
 
 	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart")
+		return nil, fmt.Errorf("render chart")
 	}
 
 	return renderedFiles, nil

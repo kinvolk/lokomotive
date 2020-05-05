@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/packethost/packngo"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -301,23 +300,23 @@ func (c *component) validatePacket(diagnostics hcl.Diagnostics) hcl.Diagnostics 
 func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s", name))
 	if err != nil {
-		return nil, errors.Wrap(err, "load chart from assets")
+		return nil, fmt.Errorf("load chart from assets: %w", err)
 	}
 
 	if c.Provider == "packet" {
 		cl, err := packngo.NewClient()
 		if err != nil {
-			return nil, errors.Wrap(err, "create packet API client")
+			return nil, fmt.Errorf("create packet API client: %w", err)
 		}
 
 		devices, _, err := cl.Devices.List(c.Packet.ProjectID, nil)
 		if err != nil {
-			return nil, errors.Wrapf(err, "listing devices in project %q", c.Packet.ProjectID)
+			return nil, fmt.Errorf("listing devices in project %q, got: %w", c.Packet.ProjectID, err)
 		}
 
 		userData, err := getWorkerUserdata(c.ClusterName, c.Packet.Facility, devices)
 		if err != nil {
-			return nil, errors.Wrapf(err, "getting worker data for cluster %q", c.ClusterName)
+			return nil, fmt.Errorf("getting worker data for cluster %q, got: %w", c.ClusterName, err)
 		}
 
 		c.Packet.UserData = userData
@@ -326,7 +325,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart values template")
+		return nil, fmt.Errorf("render chart values template: %w", err)
 	}
 
 	return util.RenderChart(helmChart, name, c.Namespace, values)

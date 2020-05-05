@@ -15,11 +15,11 @@
 package s3
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -58,16 +58,17 @@ func (s *s3) Render() (string, error) {
 // Validate validates the s3 backend configuration.
 func (s *s3) Validate() error {
 	if s.Bucket == "" {
-		return errors.Errorf("no bucket specified")
+		return fmt.Errorf("no bucket specified")
 	}
 
 	if s.Key == "" {
-		return errors.Errorf("no key specified")
+		return fmt.Errorf("no key specified")
 	}
 
 	if s.AWSCredsPath == "" && os.Getenv("AWS_SHARED_CREDENTIALS_FILE") == "" {
 		if s.Region == "" && os.Getenv("AWS_DEFAULT_REGION") == "" {
-			return errors.Errorf("no region specified: use Region field in backend configuration or AWS_DEFAULT_REGION environment variable")
+			return fmt.Errorf("no region specified: use Region field in backend configuration" +
+				"or AWS_DEFAULT_REGION environment variable")
 		}
 	}
 

@@ -21,13 +21,10 @@ import (
 	"regexp"
 	"strings"
 
-	"sigs.k8s.io/yaml"
-
-	"github.com/pkg/errors"
-
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -40,7 +37,7 @@ import (
 func LoadChartFromAssets(location string) (*chart.Chart, error) {
 	tmpDir, err := ioutil.TempDir("", "lokoctl-chart-")
 	if err != nil {
-		return nil, errors.Wrap(err, "creating temporary dir")
+		return nil, fmt.Errorf("creating temporary dir: %w", err)
 	}
 	defer os.RemoveAll(tmpDir)
 
@@ -48,7 +45,7 @@ func LoadChartFromAssets(location string) (*chart.Chart, error) {
 	// current user but not others
 	walk := walkers.CopyingWalker(tmpDir, 0700)
 	if err := assets.Assets.WalkFiles(location, walk); err != nil {
-		return nil, errors.Wrap(err, "walking assets")
+		return nil, fmt.Errorf("walking assets: %w", err)
 	}
 
 	return loader.Load(tmpDir)
