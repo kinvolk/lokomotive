@@ -8,12 +8,13 @@ variable "os_channel" {
 }
 
 cluster "aws" {
-  asset_dir    = pathexpand(var.asset_dir)
-  cluster_name = "$CLUSTER_ID"
-  dns_zone     = "$AWS_DNS_ZONE"
-  dns_zone_id  = "$AWS_DNS_ZONE_ID"
-  os_channel   = var.os_channel
-  ssh_pubkeys  = ["$PUB_KEY"]
+  asset_dir        = pathexpand(var.asset_dir)
+  cluster_name     = "$CLUSTER_ID"
+  controller_count = 2
+  dns_zone         = "$AWS_DNS_ZONE"
+  dns_zone_id      = "$AWS_DNS_ZONE_ID"
+  os_channel       = var.os_channel
+  ssh_pubkeys      = ["$PUB_KEY"]
 
   worker_pool "$CLUSTER_ID-wp" {
     count         = 2
