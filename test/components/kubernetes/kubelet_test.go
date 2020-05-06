@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws packet
+// +build aws aws-edge packet
 // +build e2e
 
 package kubernetes
