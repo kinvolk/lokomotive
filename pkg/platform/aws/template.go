@@ -118,7 +118,7 @@ module "worker-pool-{{ $index }}" {
   cluster_domain_suffix = "{{ $.Config.ClusterDomainSuffix }}"
   {{- end }}
 
-  ssh_keys              = {{ index (index $.WorkerpoolCfg $index) "ssh_pub_keys" }}
+  ssh_keys              = {{ (index $.WorkerpoolCfg $index "ssh_pub_keys") }}
   name                  = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
   os_name               = "flatcar"
@@ -149,12 +149,13 @@ module "worker-pool-{{ $index }}" {
   {{- if $pool.SpotPrice }}
   spot_price            = "{{ $pool.SpotPrice }}"
   {{- end }}
-  {{- if $pool.TargetGroups }}
-  target_groups         = "{{ index (index $.WorkerpoolCfg $index) "target_groups" }}"
+
+	{{- if $pool.TargetGroups }}
+  target_groups         = {{ (index $.WorkerpoolCfg $index "target_groups") }}
   {{- end }}
 
-  {{- if ne (index (index $.WorkerpoolCfg $index) "clc_snippets") "null" }}
-  clc_snippets          = {{ index (index $.WorkerpoolCfg $index) "clc snippets" }}
+  {{- if $pool.CLCSnippets }}
+  clc_snippets          = {{ (index $.WorkerpoolCfg $index "clc_snippets") }}
   {{- end }}
 
   {{- if $pool.Tags }}
