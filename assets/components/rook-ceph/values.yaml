@@ -1,0 +1,167 @@
+# Default values for rook-ceph-operator
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  prefix: rook
+  repository: rook/ceph
+  tag: v1.3.2
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+nodeSelector: {}
+# Constraint rook-ceph-operator Deployment to nodes with label `disktype: ssd`.
+# For more info, see https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+#  disktype: ssd
+
+# Tolerations for the rook-ceph-operator to allow it to run on nodes with particular taints
+tolerations: []
+
+# Delay to use in node.kubernetes.io/unreachable toleration
+unreachableNodeTolerationSeconds: 5
+
+# Whether rook watches its current namespace for CRDs or the entire cluster, defaults to false
+currentNamespaceOnly: false
+
+# Interval at which to get the ceph status and update the cluster custom resource status
+cephStatusCheckInterval: "60s"
+
+mon:
+  healthCheckInterval: "45s"
+  monOutTimeout: "600s"
+
+## Annotations to be added to pod
+annotations: {}
+
+## LogLevel can be set to: TRACE, DEBUG, INFO, NOTICE, WARNING, ERROR or CRITICAL
+logLevel: INFO
+
+## If true, create & use RBAC resources
+##
+rbacEnable: true
+
+## If true, create & use PSP resources
+##
+pspEnable: true
+
+## Settings for whether to disable the drivers or other daemons if they are not
+## needed
+csi:
+  enableRbdDriver: true
+  enableCephfsDriver: true
+  enableGrpcMetrics: true
+  enableSnapshotter: true
+  # Set logging level for csi containers.
+  # Supported values from 0 to 5. 0 for general useful logs, 5 for trace level verbosity.
+  #logLevel: 0
+  # CSI CephFS plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
+  # Default value is RollingUpdate.
+  #rbdPluginUpdateStrategy: OnDelete
+  # CSI Rbd plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
+  # Default value is RollingUpdate.
+  #cephFSPluginUpdateStrategy: OnDelete
+  # Allow starting unsupported ceph-csi image
+  allowUnsupportedVersion: false
+
+  # Set provisonerTolerations and provisionerNodeAffinity for provisioner pod.
+  # The CSI provisioner would be best to start on the same nodes as other ceph daemons.
+  # provisionerTolerations:
+  #    - key: key
+  #      operator: Exists
+  #      effect: NoSchedule
+  # provisionerNodeAffinity: key1=value1,value2; key2=value3
+  # Set pluginTolerations and pluginNodeAffinity for plugin daemonset pods.
+  # The CSI plugins need to be started on all the nodes where the clients need to mount the storage.
+  # pluginTolerations:
+  #    - key: key
+  #      operator: Exists
+  #      effect: NoSchedule
+  # pluginNodeAffinity: key1=value1,value2; key2=value3
+  #cephfsGrpcMetricsPort: 9091
+  #cephfsLivenessMetricsPort: 9081
+  #rbdGrpcMetricsPort: 9090
+  # Enable Ceph Kernel clients on kernel < 4.17. If your kernel does not support quotas for CephFS
+  # you may want to disable this setting. However, this will cause an issue during upgrades
+  # with the FUSE client. See the upgrade guide: https://rook.io/docs/rook/v1.2/ceph-upgrade.html
+  forceCephFSKernelClient: true
+  #rbdLivenessMetricsPort: 9080
+  #kubeletDirPath: /var/lib/kubelet
+  #cephcsi:
+    #image: quay.io/cephcsi/cephcsi:v2.1.0
+  #registrar:
+    #image: quay.io/k8scsi/csi-node-driver-registrar:v1.2.0
+  #provisioner:
+    #image: quay.io/k8scsi/csi-provisioner:v1.4.0
+  #snapshotter:
+    #image: quay.io/k8scsi/csi-snapshotter:v1.2.2
+  #attacher:
+    #image: quay.io/k8scsi/csi-attacher:v2.1.0
+  #resizer:
+    #image: quay.io/k8scsi/csi-resizer:v0.4.0
+
+enableFlexDriver: false
+enableDiscoveryDaemon: true
+
+## if true, run rook operator on the host network
+# useOperatorHostNetwork: true
+
+## Rook Agent configuration
+## toleration: NoSchedule, PreferNoSchedule or NoExecute
+## tolerationKey: Set this to the specific key of the taint to tolerate
+## tolerations: Array of tolerations in YAML format which will be added to agent deployment
+## nodeAffinity: Set to labels of the node to match
+## flexVolumeDirPath: The path where the Rook agent discovers the flex volume plugins
+## libModulesDirPath: The path where the Rook agent can find kernel modules
+# agent:
+#   toleration: NoSchedule
+#   tolerationKey: key
+#   tolerations:
+#   - key: key
+#     operator: Exists
+#     effect: NoSchedule
+#   nodeAffinity: key1=value1,value2; key2=value3
+#   mountSecurityMode: Any
+## For information on FlexVolume path, please refer to https://rook.io/docs/rook/master/flexvolume.html
+#   flexVolumeDirPath: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/
+#   libModulesDirPath: /lib/modules
+#   mounts: mount1=/host/path:/container/path,/host/path2:/container/path2
+
+## Rook Discover configuration
+## toleration: NoSchedule, PreferNoSchedule or NoExecute
+## tolerationKey: Set this to the specific key of the taint to tolerate
+## tolerations: Array of tolerations in YAML format which will be added to agent deployment
+## nodeAffinity: Set to labels of the node to match
+# discover:
+#   toleration: NoSchedule
+#   tolerationKey: key
+#   tolerations:
+#   - key: key
+#     operator: Exists
+#     effect: NoSchedule
+#   nodeAffinity: key1=value1,value2; key2=value3
+
+# In some situations SELinux relabelling breaks (times out) on large filesystems, and doesn't work with cephfs ReadWriteMany volumes (last relabel wins).
+# Disable it here if you have similar issues.
+# For more details see https://github.com/rook/rook/issues/2417
+enableSelinuxRelabeling: true
+
+# Writing to the hostPath is required for the Ceph mon and osd pods. Given the restricted permissions in OpenShift with SELinux,
+# the pod must be running privileged in order to write to the hostPath volume, this must be set to true then.
+hostpathRequiresPrivileged: false
+
+# Disable automatic orchestration when new devices are discovered.
+disableDeviceHotplug: false
+
+# Blacklist certain disks according to the regex provided.
+discoverDaemonUdev:
+
+# imagePullSecrets option allow to pull docker images from private docker registry. Option will be passed to all service accounts.
+# imagePullSecrets:
+# - name: my-registry-secret

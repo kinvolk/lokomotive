@@ -15,11 +15,12 @@
 package rook
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/pkg/errors"
 )
 
 const name = "rook"
@@ -29,9 +30,11 @@ func init() {
 }
 
 type component struct {
-	Namespace                string              `hcl:"namespace,optional"`
-	NodeAffinity             []util.NodeAffinity `hcl:"node_affinity,block"`
-	Tolerations              []util.Toleration   `hcl:"toleration,block"`
+	Namespace                string            `hcl:"namespace,optional"`
+	NodeSelector             util.NodeSelector `hcl:"node_selector,optional"`
+	NodeSelectorRaw          string
+	RookNodeAffinity         string
+	Tolerations              []util.Toleration `hcl:"toleration,block"`
 	TolerationsRaw           string
 	AgentTolerationKey       string `hcl:"agent_toleration_key,optional"`
 	AgentTolerationEffect    string `hcl:"agent_toleration_effect,optional"`
@@ -54,35 +57,35 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	// Generate YAML for namespace.
-	namespaceStr, err := util.RenderTemplate(namespace, c)
+	helmChart, err := util.LoadChartFromAssets("/components/rook-ceph")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to render template")
+		return nil, fmt.Errorf("load chart from assets: %w", err)
 	}
 
-	// Generate YAML for RBAC resources.
-	rbacStr, err := util.RenderTemplate(rbac, c)
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to render template")
+		return nil, fmt.Errorf("rendering tolerations failed: %w", err)
+	}
+
+	c.NodeSelectorRaw, err = c.NodeSelector.Render()
+	if err != nil {
+		return nil, fmt.Errorf("rendering node selector failed: %w", err)
+	}
+
+	c.RookNodeAffinity = convertNodeSelector(c.NodeSelector)
+
+	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	if err != nil {
+		return nil, fmt.Errorf("rendering values template failed: %w", err)
 	}
 
 	// Generate YAML for the Rook operator deployment.
-	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace, values)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal operator tolerations")
+		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
 
-	deploymentStr, err := util.RenderTemplate(deploymentOperator, c)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to render template")
-	}
-
-	return map[string]string{
-		"namespace.yaml":           namespaceStr,
-		"crds.yaml":                crds,
-		"rbac.yaml":                rbacStr,
-		"deployment_operator.yaml": deploymentStr,
-	}, nil
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {
@@ -90,4 +93,16 @@ func (c *component) Metadata() components.Metadata {
 		Name:      name,
 		Namespace: c.Namespace,
 	}
+}
+
+// convertNodeSelector converts the key value pair in the map to the format:
+// key1=value1; key2=value2;
+func convertNodeSelector(m map[string]string) string {
+	var ret string
+
+	for k, v := range m {
+		ret += fmt.Sprintf("%s=%s; ", k, v)
+	}
+
+	return ret
 }

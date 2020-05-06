@@ -36,7 +36,7 @@ spec:
     enabled: true
     ssl: true
   monitoring:
-    enabled: false
+    enabled: true
     rulesNamespace: {{ .Namespace }}
   network:
   rbdMirroring:
