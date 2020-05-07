@@ -26,6 +26,8 @@ import (
 )
 
 const (
+	// Cloudflare represents DNS managed in Cloudflare.
+	Cloudflare = "cloudflare"
 	// Manual represents a manual DNS configuration.
 	Manual = "manual"
 	// Route53 represents DNS managed in Route 53.
@@ -51,6 +53,8 @@ func (c *Config) Validate() error {
 	case Manual:
 		return nil
 	case Route53:
+		return nil
+	case Cloudflare:
 		return nil
 	}
 
