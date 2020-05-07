@@ -1,0 +1,14 @@
+{{- if .Values.enableMonitoring }}
+# Taken from: https://grafana.com/grafana/dashboards/5336
+# Linked in: https://rook.io/docs/rook/v1.3/ceph-monitoring.html#grafana-dashboards
+# ceph-osd_rev3
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ceph-osd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "true"
+data:
+{{ (.Files.Glob "dashboards/ceph-osd.json").AsConfig | indent 2 }}
+{{- end }}
