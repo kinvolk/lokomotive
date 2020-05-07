@@ -89,4 +89,51 @@ spec:
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
 `,
+
+	"storage-class.yaml": `
+{{- if .StorageClass.Enable }}
+apiVersion: ceph.rook.io/v1
+kind: CephBlockPool
+metadata:
+  name: replicapool
+  namespace: {{ .Namespace }}
+spec:
+  failureDomain: host
+  replicated:
+    size: 3
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rook-ceph-block
+  annotations:
+    {{- if .StorageClass.Default }}
+    storageclass.kubernetes.io/is-default-class: "true"
+    {{- end }}
+provisioner: {{ .Namespace }}.rbd.csi.ceph.com
+parameters:
+  clusterID: {{ .Namespace }}
+  # Ceph pool into which the RBD image shall be created
+  pool: replicapool
+
+  # RBD image format. Defaults to "2".
+  imageFormat: "2"
+
+  # RBD image features. Available for imageFormat: "2". CSI RBD currently supports only 'layering' feature.
+  imageFeatures: layering
+
+  # The secrets contain Ceph admin credentials.
+  csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/provisioner-secret-namespace: {{ .Namespace }}
+  csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+  csi.storage.k8s.io/node-stage-secret-namespace: {{ .Namespace }}
+
+  # Specify the filesystem type of the volume. If not specified, csi-provisioner
+  # will set default as 'ext4'.
+  csi.storage.k8s.io/fstype: xfs
+
+# Delete the rbd volume when a PVC is deleted
+reclaimPolicy: Delete
+{{- end }}
+`,
 }

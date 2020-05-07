@@ -37,12 +37,20 @@ type component struct {
 	MetadataDevice string              `hcl:"metadata_device,optional"`
 	Tolerations    []util.Toleration   `hcl:"toleration,block"`
 	TolerationsRaw string
+	StorageClass   *StorageClass `hcl:"storage_class,block"`
+}
+
+// StorageClass provides struct to enable it or make it default.
+type StorageClass struct {
+	Enable  bool `hcl:"enable,optional"`
+	Default bool `hcl:"default,optional"`
 }
 
 func newComponent() *component {
 	return &component{
 		Namespace:    "rook",
 		MonitorCount: 1,
+		StorageClass: &StorageClass{},
 	}
 }
 
