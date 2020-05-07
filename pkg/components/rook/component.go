@@ -40,6 +40,7 @@ type component struct {
 	AgentTolerationEffect    string `hcl:"agent_toleration_effect,optional"`
 	DiscoverTolerationKey    string `hcl:"discover_toleration_key,optional"`
 	DiscoverTolerationEffect string `hcl:"discover_toleration_effect,optional"`
+	EnableMonitoring         bool   `hcl:"enable_monitoring,optional"`
 }
 
 func newComponent() *component {
