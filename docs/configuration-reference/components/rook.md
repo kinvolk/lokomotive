@@ -46,6 +46,8 @@ component "rook" {
 
   discover_toleration_key    = "storage.lokomotive.io"
   discover_toleration_effect = "NoSchedule"
+
+  enable_monitoring = true
 }
 ```
 
@@ -64,6 +66,7 @@ Example:
 | `agent_toleration_effect`    | Toleration effect for the rook agent pods. Needs to be specified if `agent_toleration_key` is set.       | -       | false    |
 | `discover_toleration_key`    | Toleration key for the rook discover pods.                                                               | -       | false    |
 | `discover_toleration_effect` | Toleration effect for the rook discover pods. Needs to be specified if `discover_toleration_key` is set. | -       | false    |
+| `enable_monitoring`          | Enable Monitoring for the Rook sub-systems. Make sure that the Prometheus Operator is installed.         | false   | false    |
 
 ## Applying
 
