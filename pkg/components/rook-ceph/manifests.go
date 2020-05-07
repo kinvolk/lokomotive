@@ -32,6 +32,10 @@ spec:
   mon:
     count: {{ .MonitorCount }}
     allowMultiplePerNode: false
+  mgr:
+    modules:
+    - name: pg_autoscaler
+      enabled: true
   dashboard:
     enabled: true
     ssl: true
