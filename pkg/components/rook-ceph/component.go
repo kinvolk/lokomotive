@@ -15,6 +15,8 @@
 package rookceph
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -60,14 +62,19 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "failed to render tolerations")
 	}
 
-	cephClusterStr, err := util.RenderTemplate(cephCluster, c)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to render template")
+	ret := make(map[string]string)
+
+	// Parse template with values
+	for k, v := range template {
+		rendered, err := util.RenderTemplate(v, c)
+		if err != nil {
+			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
+		}
+
+		ret[k] = rendered
 	}
 
-	return map[string]string{
-		"ceph-cluster.yaml": cephClusterStr,
-	}, nil
+	return ret, nil
 }
 
 func (c *component) Metadata() components.Metadata {

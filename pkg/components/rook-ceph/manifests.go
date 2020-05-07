@@ -16,7 +16,8 @@ package rookceph
 
 // CephCluster resource definition was taken from:
 // https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/cluster.yaml
-const cephCluster = `
+var template = map[string]string{
+	"ceph-cluster.yaml": `
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
 metadata:
@@ -87,4 +88,5 @@ spec:
     osdMaintenanceTimeout: 30
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
-`
+`,
+}
