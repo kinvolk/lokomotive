@@ -131,7 +131,9 @@ component "gangway" {
   redirect_url = "$GANGWAY_REDIRECT_URL"
 }
 
-component "rook" {}
+component "rook" {
+  enable_monitoring = true
+}
 
 component "flatcar-linux-update-operator" {}
 
