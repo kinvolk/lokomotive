@@ -1,0 +1,28 @@
+monitoring:
+  enable: false
+
+ingressHosts:
+
+contour:
+  image: docker.io/projectcontour/contour
+  tag: v1.3.0
+
+envoy:
+  image: docker.io/envoyproxy/envoy
+  tag: v1.13.1
+
+nodeAffinity: {}
+# nodeAffinity:
+#   requiredDuringSchedulingIgnoredDuringExecution:
+#     nodeSelectorTerms:
+#     - matchExpressions:
+#       - key: network.lokomotive.io
+#         operator: Exists
+
+
+tolerations: []
+# tolerations:
+# - effect: NoSchedule
+#   key: network.lokomotive.io
+#   operator: Equal
+#   value: contour
