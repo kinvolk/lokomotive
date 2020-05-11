@@ -161,6 +161,7 @@ storage:
             --insecure-options=image \
             --net=host \
             --dns=host \
+            --hosts-entry=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"
 passwd:
   users:
