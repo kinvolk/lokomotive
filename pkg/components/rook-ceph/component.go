@@ -15,6 +15,8 @@
 package rookceph
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -35,12 +37,20 @@ type component struct {
 	MetadataDevice string              `hcl:"metadata_device,optional"`
 	Tolerations    []util.Toleration   `hcl:"toleration,block"`
 	TolerationsRaw string
+	StorageClass   *StorageClass `hcl:"storage_class,block"`
+}
+
+// StorageClass provides struct to enable it or make it default.
+type StorageClass struct {
+	Enable  bool `hcl:"enable,optional"`
+	Default bool `hcl:"default,optional"`
 }
 
 func newComponent() *component {
 	return &component{
 		Namespace:    "rook",
 		MonitorCount: 1,
+		StorageClass: &StorageClass{},
 	}
 }
 
@@ -60,14 +70,19 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "failed to render tolerations")
 	}
 
-	cephClusterStr, err := util.RenderTemplate(cephCluster, c)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to render template")
+	ret := make(map[string]string)
+
+	// Parse template with values
+	for k, v := range template {
+		rendered, err := util.RenderTemplate(v, c)
+		if err != nil {
+			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
+		}
+
+		ret[k] = rendered
 	}
 
-	return map[string]string{
-		"ceph-cluster.yaml": cephClusterStr,
-	}, nil
+	return ret, nil
 }
 
 func (c *component) Metadata() components.Metadata {
