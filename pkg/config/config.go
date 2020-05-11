@@ -96,20 +96,22 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCL, hcl.Diagnostics) {
 		}
 	}
 
-	hclParser := hclparse.NewParser()
+	lokocfgBytes := make(map[string][]byte)
 
-	var hclFiles []*hcl.File
 	for _, f := range lokocfgPaths {
-		hclFile, diags := hclParser.ParseHCLFile(f)
-		if len(diags) > 0 {
-			return nil, diags
+		data, err := ioutil.ReadFile(filepath.Clean(f))
+		if err != nil {
+			return nil, hcl.Diagnostics{
+				&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  fmt.Sprintf("Can't read %q: %v", f, err),
+				},
+			}
 		}
-		hclFiles = append(hclFiles, hclFile)
+		lokocfgBytes[f] = data
 	}
 
-	configBody := hcl.MergeFiles(hclFiles)
-
-	exists, err := util.PathExists(lokocfgVarsPath)
+	useLokocfg, err := util.PathExists(lokocfgVarsPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
@@ -118,13 +120,44 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCL, hcl.Diagnostics) {
 			},
 		}
 	}
-	var userVals map[string]cty.Value
-	var diags hcl.Diagnostics
-	if exists {
-		userVals, diags = LoadValuesFile(lokocfgVarsPath)
+	lokocfgVarsBytes := []byte{}
+	if useLokocfg {
+		data, err := ioutil.ReadFile(filepath.Clean(lokocfgVarsPath))
+		if err != nil {
+			return nil, hcl.Diagnostics{
+				&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  fmt.Sprintf("Can't read %q: %v", lokocfgVarsPath, err),
+				},
+			}
+		}
+		lokocfgVarsBytes = data
+	}
+
+	return parseConfig(lokocfgBytes, lokocfgVarsBytes, lokocfgVarsPath)
+}
+
+// TODO: if common to pass them around, maybe consider creating a struct with fields lokocfgVars and
+// lokocfgVarsPath.
+func parseConfig(lokocfg map[string][]byte, lokocfgVars []byte, lokocfgVarsPath string) (*HCL, hcl.Diagnostics) {
+	var hclFiles []*hcl.File
+	for f, data := range lokocfg {
+		hclParser := hclparse.NewParser()
+		hclFile, diags := hclParser.ParseHCL(data, f)
 		if len(diags) > 0 {
 			return nil, diags
 		}
+		hclFiles = append(hclFiles, hclFile)
+	}
+
+	configBody := hcl.MergeFiles(hclFiles)
+
+	var userVals map[string]cty.Value
+	var diags hcl.Diagnostics
+
+	userVals, diags = LoadValuesFile(lokocfgVarsPath, lokocfgVars)
+	if len(diags) > 0 {
+		return nil, diags
 	}
 
 	var clusterConfig ClusterConfig

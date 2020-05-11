@@ -16,9 +16,9 @@ import (
 //
 // Adapted from
 // https://github.com/hashicorp/terraform/blob/d4ac68423c4998279f33404db46809d27a5c2362/configs/parser_values.go#L8-L23
-func LoadValuesFile(path string) (map[string]cty.Value, hcl.Diagnostics) {
+func LoadValuesFile(path string, data []byte) (map[string]cty.Value, hcl.Diagnostics) {
 	hclParser := hclparse.NewParser()
-	varsFile, diags := hclParser.ParseHCLFile(path)
+	varsFile, diags := hclParser.ParseHCL(data, path)
 	if diags != nil {
 		return nil, diags
 	}
