@@ -1,0 +1,14 @@
+{{- if .Values.enableMonitoring }}
+# Taken from: https://grafana.com/grafana/dashboards/2842
+# Linked in: https://rook.io/docs/rook/v1.3/ceph-monitoring.html#grafana-dashboards
+# ceph-cluster_rev11.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ceph-cluster
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "true"
+data:
+{{ (.Files.Glob "dashboards/ceph-cluster.json").AsConfig | indent 2 }}
+{{- end }}

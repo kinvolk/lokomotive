@@ -55,4 +55,6 @@ discover:
   {{- if .Tolerations }}
   tolerations: {{ .TolerationsRaw }}
   {{- end }}
+
+enableMonitoring: {{ .EnableMonitoring }}
 `

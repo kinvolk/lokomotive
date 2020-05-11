@@ -55,6 +55,12 @@ func testComponentAlerts(t *testing.T, v1api v1.API) {
 				"MetalLBSpeakerPodsAvailability",
 			},
 		},
+		{
+			ComponentName: "rook",
+			RuleGroup:     "ceph-mds-status",
+			platforms:     []testutil.Platform{testutil.PlatformPacket},
+			Alerts:        []string{"CephMdsMissingReplicas"},
+		},
 	}
 
 	for _, tc := range alertTestCases {
