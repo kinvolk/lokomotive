@@ -47,8 +47,8 @@ component "prometheus-operator" {
 }
 
 component "contour" {
-  ingress_hosts   = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
-  service_monitor = true
+  ingress_hosts     = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  enable_monitoring = true
 }
 
 component "metallb" {

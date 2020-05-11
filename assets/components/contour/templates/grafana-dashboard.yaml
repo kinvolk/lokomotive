@@ -1,0 +1,17 @@
+{{- if .Values.monitoring.enable }}
+# XXX: This file is copied from https://github.com/projectcontour/contour/blob/master/examples/grafana/02-grafana-configmap.yaml
+# The things that are changed in the file are commented with XXX above it.
+# Other things that are not commented and changed in the file are: `s| "datasource": "prometheus", | "datasource": "Prometheus", |g`.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: grafana
+    # XXX: This label makes this configmap to be discovered by grafana sidecar container
+    grafana_dashboard: "true"
+  name: grafana-dashs
+  # XXX: Changed it from default to install in projectcontour namespace
+  namespace: projectcontour
+data:
+{{ (.Files.Glob "dashboards/*.json").AsConfig | indent 2 }}
+{{- end }}

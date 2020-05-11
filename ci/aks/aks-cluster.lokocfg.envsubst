@@ -93,7 +93,7 @@ component "contour" {
   ingress_hosts = [
     "httpbin.${var.cluster_name}.${var.aws_dns_zone}",
   ]
-  service_monitor = true
+  enable_monitoring = true
 }
 
 component "cert-manager" {

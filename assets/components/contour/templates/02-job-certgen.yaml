@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
       - name: contour
-        image: docker.io/projectcontour/contour:v1.3.0
+        image: {{.Values.contour.image}}:{{.Values.contour.tag}}
         imagePullPolicy: Always
         command:
         - contour

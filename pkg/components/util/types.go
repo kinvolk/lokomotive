@@ -19,9 +19,24 @@ import "encoding/json"
 // NodeAffinity is a struct that other components can use to define the HCL format of NodeAffinity
 // in Kubernetes PodSpec.
 type NodeAffinity struct {
-	Key      string   `hcl:"key",json:"key,omitempty"`
-	Operator string   `hcl:"operator",json:"operator,omitempty"`
-	Values   []string `hcl:"values,optional",json:"values,omitempty"`
+	Key      string   `hcl:"key" json:"key,omitempty"`
+	Operator string   `hcl:"operator" json:"operator,omitempty"`
+	Values   []string `hcl:"values,optional" json:"values,omitempty"`
+}
+
+// RenderNodeAffinity takes a list of NodeAffinity.
+// It returns a json string and an error if any.
+func RenderNodeAffinity(n []NodeAffinity) (string, error) {
+	if len(n) == 0 {
+		return "", nil
+	}
+
+	b, err := json.Marshal(n)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
 }
 
 type Toleration struct {

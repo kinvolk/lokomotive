@@ -16,16 +16,12 @@ package contour
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/pkg/errors"
 
-	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
 const name = "contour"
@@ -38,7 +34,7 @@ func init() {
 // Values provided for IngressHosts is used as value for the annotation `external-dns.alpha.kubernetes.io/hostname`
 // This annotation is added to Envoy service.
 type component struct {
-	ServiceMonitor bool `hcl:"service_monitor,optional"`
+	EnableMonitoring bool `hcl:"enable_monitoring,optional"`
 	// IngressHosts field is added in order to make contour work with ExternalDNS component.
 	// Values provided for IngressHosts is used as value for the annotation `external-dns.alpha.kubernetes.io/hostname`.
 	// This annotation is added to Envoy Service, in order for ExternalDNS to create DNS entries.
@@ -47,11 +43,10 @@ type component struct {
 	// https://github.com/kinvolk/PROJECT-Lokomotive-Kubernetes/issues/474
 	IngressHosts []string `hcl:"ingress_hosts,optional"`
 
-	// IngressHostsRaw is not accessible to the user
-	IngressHostsRaw string
+	NodeAffinity    []util.NodeAffinity `hcl:"node_affinity,block"`
+	NodeAffinityRaw string
 
-	NodeAffinity   []util.NodeAffinity `hcl:"node_affinity,block"`
-	Tolerations    []util.Toleration   `hcl:"toleration,block"`
+	Tolerations    []util.Toleration `hcl:"toleration,block"`
 	TolerationsRaw string
 }
 
@@ -73,41 +68,33 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	ret := make(map[string]string)
-
-	walk := walkers.DumpingWalker(ret, ".yaml")
-	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/%s", name, name), walk); err != nil {
-		return nil, errors.Wrap(err, "failed to walk assets")
+	helmChart, err := util.LoadChartFromAssets("/components/contour")
+	if err != nil {
+		return nil, fmt.Errorf("load chart from assets: %w", err)
 	}
 
-	// Create service and service monitor for Prometheus to scrape metrics
-	if c.ServiceMonitor {
-		if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests-metrics", name), walk); err != nil {
-			return nil, errors.Wrap(err, "failed to walk assets")
-		}
-	}
-
-	// To store the comma separated string representation of IngressHosts
-	c.IngressHostsRaw = strings.Join(c.IngressHosts, ",")
-
-	// Generate YAML for the Rook operator deployment.
-	var err error
 	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal operator tolerations: %w", err)
 	}
 
-	// Parse template with values
-	for k, v := range template {
-		rendered, err := util.RenderTemplate(v, c)
-		if err != nil {
-			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
-		}
-
-		ret[k] = rendered
+	c.NodeAffinityRaw, err = util.RenderNodeAffinity(c.NodeAffinity)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal node affinity: %w", err)
 	}
 
-	return ret, nil
+	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	if err != nil {
+		return nil, fmt.Errorf("rendering values template failed: %w", err)
+	}
+
+	// Generate YAML for the Contour deployment.
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace, values)
+	if err != nil {
+		return nil, fmt.Errorf("rendering chart failed: %w", err)
+	}
+
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {

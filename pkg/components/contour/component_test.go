@@ -55,7 +55,7 @@ component "contour" {
 func TestRenderManifestWithServiceMonitor(t *testing.T) {
 	configHCL := `
 component "contour" {
-  service_monitor = true
+  enable_monitoring = true
 }
 `
 	testRenderManifest(t, configHCL)
