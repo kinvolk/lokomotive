@@ -26,6 +26,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -78,6 +79,7 @@ type config struct {
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -103,6 +105,10 @@ func NewConfig() *config {
 		Region:            "eu-central-1",
 		EnableAggregation: true,
 	}
+}
+
+func (c *config) clusterDomain() string {
+	return fmt.Sprintf("%s.%s", c.ClusterName, c.DNSZone)
 }
 
 // Meta is part of Platform interface and returns common information about the platform configuration.
@@ -171,6 +177,16 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
+	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
+	if cfg.OIDC != nil {
+		// Skipping the error checking here because its done in checkValidConfig().
+		oidcFlags, _ := cfg.OIDC.ToKubeAPIServerFlags(cfg.clusterDomain())
+		// TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
+		// append is not used for now because Initialize is called in cli/cmd/cluster.go
+		// and again in Apply which duplicates the values.
+		cfg.KubeAPIServerExtraFlags = oidcFlags
+	}
+
 	util.AppendTags(&cfg.Tags)
 
 	tags, err := json.Marshal(cfg.Tags)
@@ -231,6 +247,11 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkNameSizes()...)
+
+	if c.OIDC != nil {
+		_, diags := c.OIDC.ToKubeAPIServerFlags(c.clusterDomain())
+		diagnostics = append(diagnostics, diags...)
+	}
 
 	return diagnostics
 }

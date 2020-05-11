@@ -52,6 +52,10 @@ variable "worker_spot_price" {}
 variable "lb_http_port" {}
 variable "lb_https_port" {}
 variable "target_groups" {}
+variable "oidc_issuer_url" {}
+variable "oidc_client_id" {}
+variable "oidc_username_claim" {}
+variable "oidc_groups_claim" {}
 
 backend "s3" {
   bucket         = var.state_s3_bucket
@@ -116,6 +120,13 @@ cluster "aws" {
   cluster_domain_suffix = "cluster.local"
 
   enable_reporting = false
+
+  oidc {
+    issuer_url     = var.oidc_issuer_url
+    client_id      = var.oidc_client_id
+    username_claim = var.oidc_username_claim
+    groups_claim   = var.oidc_groups_claim
+  }
 
   worker_pool "my-worker-pool" {
     count = 2
@@ -186,6 +197,11 @@ worker_pool "my-worker-pool" {
 | `os_version`                  | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                       | "current"       | false    |
 | `dns_zone`                    | Route 53 DNS Zone.                                                                                                                                                                         | -               | true     |
 | `dns_zone_id`                 | Route 53 DNS Zone ID.                                                                                                                                                                      | -               | true     |
+| `oidc`                        | OIDC configuration block.                                                                                                                                                                  | -               | false    |
+| `oidc.issuer_url`             | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                                     | -               | false    |
+| `oidc.client_id`              | A client id that all tokens must be issued for.                                                                                                                                            | "gangway"       | false    |
+| `oidc.username_claim`         | JWT claim to use as the user name.                                                                                                                                                         | "email"         | false    |
+| `oidc.groups_claim`           | JWT claim to use as the user’s group.                                                                                                                                                      | "groups"        | false    |
 | `expose_nodeports`            | Expose node ports `30000-32767` in the security group, if set to `true`.                                                                                                                   | false           | false    |
 | `ssh_pubkeys`                 | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...".               | -               | true     |
 | `controller_count`            | Number of controller nodes.                                                                                                                                                                | 1               | false    |
