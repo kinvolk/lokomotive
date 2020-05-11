@@ -200,36 +200,21 @@ module "worker-{{ $pool.Name }}" {
   {{- end }}
 
 }
-{{ end }}
-
-{{- if .Config.DNS.Provider.Manual }}
-output "dns_entries" {
-  value = module.packet-{{.Config.ClusterName}}.dns_entries
-}
 {{- end }}
 
-{{- if .Config.DNS.Provider.Route53 }}
 module "dns" {
-  source = "../lokomotive-kubernetes/dns/route53"
+  source = "../lokomotive-kubernetes/dns/{{.Config.DNS.Provider}}"
 
-  providers = {
-    aws = aws.default
-  }
-
-  entries = module.packet-{{.Config.ClusterName}}.dns_entries
-  aws_zone_id = "{{.Config.DNS.Provider.Route53.ZoneID}}"
+  cluster_name             = "{{ .Config.ClusterName }}"
+  controllers_public_ipv4  = module.packet-{{.Config.ClusterName}}.controllers_public_ipv4
+  controllers_private_ipv4 = module.packet-{{.Config.ClusterName}}.controllers_private_ipv4
+  dns_zone                 = "{{ .Config.DNS.Zone }}"
 }
 
-provider "aws" {
-  version = "2.48.0"
-  alias   = "default"
-  # The Route 53 service doesn't need a specific region to operate, however
-  # the AWS Terraform provider needs it and the documentation suggests to use
-  # "us-east-1": https://docs.aws.amazon.com/general/latest/gr/r53.html.
-  region = "us-east-1"
-  {{- if .Config.DNS.Provider.Route53.AWSCredsPath }}
-  shared_credentials_file = "{{.Config.DNS.Provider.Route53.AWSCredsPath}}"
-  {{- end }}
+{{- if eq .Config.DNS.Provider "manual" }}
+
+output "dns_entries" {
+  value = module.dns.entries
 }
 {{- end }}
 

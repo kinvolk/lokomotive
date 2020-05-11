@@ -25,29 +25,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-type DNSProvider int
-
 const (
-	DNSNone DNSProvider = iota
-	DNSManual
-	DNSRoute53
+	// Manual represents a manual DNS configuration.
+	Manual = "manual"
+	// Route53 represents DNS managed in Route 53.
+	Route53 = "route53"
 )
 
-type route53Provider struct {
-	ZoneID       string `hcl:"zone_id,optional"`
-	AWSCredsPath string `hcl:"aws_creds_path,optional"`
-}
-
-type dnsProvider struct {
-	Route53 *route53Provider `hcl:"route53,block"`
-	Manual  *manualProvider  `hcl:"manual,block"`
-}
-
-type manualProvider struct{}
-
+// Config represents a Lokomotive DNS configuration.
 type Config struct {
-	Zone     string      `hcl:"zone"`
-	Provider dnsProvider `hcl:"provider,block"`
+	Provider string `hcl:"provider"`
+	Zone     string `hcl:"zone"`
 }
 
 type dnsEntry struct {
@@ -57,34 +45,27 @@ type dnsEntry struct {
 	Records   []string `json:"records"`
 }
 
-// ParseDNS checks that the DNS provider configuration is correct and returns
-// the configured provider.
-func ParseDNS(config *Config) (DNSProvider, error) {
-	// Check that only one provider is specified.
-	if config.Provider.Manual != nil && config.Provider.Route53 != nil {
-		return DNSNone, fmt.Errorf("multiple DNS providers specified")
+// Validate ensures the specified DNS provider is valid.
+func (c *Config) Validate() error {
+	switch c.Provider {
+	case Manual:
+		return nil
+	case Route53:
+		return nil
 	}
 
-	if config.Provider.Manual != nil {
-		return DNSManual, nil
-	}
-
-	if config.Provider.Route53 != nil {
-		return DNSRoute53, nil
-	}
-
-	return DNSNone, fmt.Errorf("no DNS provider specified")
+	return fmt.Errorf("invalid DNS provider %q", c.Provider)
 }
 
 // AskToConfigure reads the required DNS entries from a Terraform output,
 // asks the user to configure them and checks if the configuration is correct.
-func AskToConfigure(ex *terraform.Executor, cfg *Config) error {
+func (c *Config) AskToConfigure(ex *terraform.Executor) error {
 	dnsEntries, err := readDNSEntries(ex)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Please configure the following DNS entries at the DNS provider which hosts %q:\n", cfg.Zone)
+	fmt.Printf("Please configure the following DNS entries at the DNS provider which hosts %q:\n", c.Zone)
 	prettyPrintDNSEntries(dnsEntries)
 
 	for {

@@ -143,6 +143,10 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
 	}
 
+	if err := c.DNS.Validate(); err != nil {
+		return errors.Wrap(err, "parsing DNS configuration failed")
+	}
+
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
@@ -161,16 +165,11 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	c.AssetDir = assetDir
 
-	dnsProvider, err := dns.ParseDNS(&c.DNS)
-	if err != nil {
-		return errors.Wrap(err, "parsing DNS configuration failed")
-	}
-
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}
 
-	return c.terraformSmartApply(ex, dnsProvider)
+	return c.terraformSmartApply(ex, c.DNS)
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -250,24 +249,37 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 }
 
 // terraformSmartApply applies cluster configuration.
-func (c *config) terraformSmartApply(ex *terraform.Executor, dnsProvider dns.DNSProvider) error {
+func (c *config) terraformSmartApply(ex *terraform.Executor, dc dns.Config) error {
 	// If the provider isn't manual, apply everything in a single step.
-	if dnsProvider != dns.DNSManual {
+	if dc.Provider != dns.Manual {
 		return ex.Apply()
 	}
 
 	arguments := []string{"apply", "-auto-approve"}
 
-	// Get DNS entries (it forces the creation of the controller nodes).
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.null_resource.dns_entries", c.ClusterName))
-
-	// Create controller
+	// Create controllers. We need the controllers' IP addresses before we can
+	// apply the 'dns' module.
+	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.packet_device.controllers", c.ClusterName))
 	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "failed executing Terraform")
+		return errors.Wrap(err, "creating controllers")
 	}
 
-	if err := dns.AskToConfigure(ex, &c.DNS); err != nil {
-		return errors.Wrap(err, "failed to configure DNS entries")
+	// Apply 'dns' module.
+	arguments = append(arguments, "-target=module.dns")
+	if err := ex.Execute(arguments...); err != nil {
+		return errors.Wrap(err, "applying 'dns' module")
+	}
+
+	// Run `terraform refresh`. This is required in order to make the outputs from the previous
+	// apply operations available.
+	// TODO: Likely caused by https://github.com/hashicorp/terraform/issues/23158.
+	if err := ex.Execute("refresh"); err != nil {
+		return errors.Wrap(err, "refreshing")
+	}
+
+	// Prompt user to configure DNS.
+	if err := dc.AskToConfigure(ex); err != nil {
+		return errors.Wrap(err, "prompting for manual DNS configuration")
 	}
 
 	// Finish deployment.

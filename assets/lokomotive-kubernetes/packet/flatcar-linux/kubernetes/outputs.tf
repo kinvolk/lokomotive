@@ -6,10 +6,6 @@ output "kubeconfig" {
   value = module.bootkube.kubeconfig-kubelet
 }
 
-output "dns_entries" {
-  value = local.dns_entries
-}
-
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
   value = module.bootkube.pod-checkpointer_values
@@ -35,4 +31,12 @@ output "calico_values" {
 # Not guaranteed that won't change
 output "device_ids" {
   value = packet_device.controllers.*.id
+}
+
+output "controllers_public_ipv4" {
+  value = packet_device.controllers.*.access_public_ipv4
+}
+
+output "controllers_private_ipv4" {
+  value = packet_device.controllers.*.access_private_ipv4
 }
