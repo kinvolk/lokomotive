@@ -42,6 +42,10 @@ spec:
               value: node
             - name: DATASTORE_TYPE
               value: kubernetes
+            # This is disabled until the HostEndpoints created by this controller are better
+            # parameterised. See https://github.com/projectcalico/calico/issues/3566.
+            # - name: AUTO_HOST_ENDPOINTS
+            #   value: "enabled"
           readinessProbe:
             exec:
               command:
