@@ -66,39 +66,27 @@ type HCL struct {
 	EvalContext   *hcl.EvalContext
 }
 
-// loadLokocfgPaths loads the files that match the pattern dictated
-// by the file extension. If a directory is passed, then all matching
-// files are collected. If a single file is passed that that file is
-// returned.
-func loadLokocfgPaths(path, extension string) ([]string, error) {
-	var paths []string
-
-	isDir, err := util.PathIsDir(path)
+func loadLokocfgPaths(configPath string) ([]string, error) {
+	isDir, err := util.PathIsDir(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to stat file path %q: %w", path, err)
+		return nil, fmt.Errorf("failed to stat config path %q: %w", configPath, err)
 	}
-
+	var lokocfgPaths []string
 	if isDir {
-		globPattern := filepath.Join(path, fmt.Sprintf("*.%s", extension))
-
-		hclFiles, err := filepath.Glob(globPattern)
+		globPattern := filepath.Join(configPath, "*.lokocfg")
+		configFiles, err := filepath.Glob(globPattern)
 		if err != nil {
 			return nil, fmt.Errorf("bad filepath glob pattern %q: %w", globPattern, err)
 		}
-
-		paths = append(paths, hclFiles...)
+		lokocfgPaths = append(lokocfgPaths, configFiles...)
 	} else {
-		paths = append(paths, path)
+		lokocfgPaths = append(lokocfgPaths, configPath)
 	}
-
-	return paths, nil
+	return lokocfgPaths, nil
 }
 
-// LoadHCLFiles loads all the hcl files present in the path provided into a
-// map of file name and content in byte array.
-func LoadHCLFiles(path, extension string) (map[string][]byte, hcl.Diagnostics) {
-	files := make(map[string][]byte)
-	lokocfgPaths, err := loadLokocfgPaths(path, extension)
+func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*HCL, hcl.Diagnostics) {
+	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
@@ -108,108 +96,61 @@ func LoadHCLFiles(path, extension string) (map[string][]byte, hcl.Diagnostics) {
 		}
 	}
 
-	for _, path := range lokocfgPaths {
-		data, err := loadHCLFile(path)
-		if err != nil {
-			return nil, hcl.Diagnostics{
-				&hcl.Diagnostic{
-					Severity: hcl.DiagError,
-					Summary:  err.Error(),
-				},
-			}
-		}
-
-		files[path] = data
-	}
-
-	return files, nil
-}
-
-// loadHCLfile loads the hcl file provided by the path and returns
-// the contents of the file as a slice of bytes.
-func loadHCLFile(path string) ([]byte, error) {
-	data, err := ioutil.ReadFile(filepath.Clean(path))
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-// getHCLFiles takes a map of file name and its contents and returns
-// a slice of HCL File instance.
-func getHCLFiles(files map[string][]byte) ([]*hcl.File, hcl.Diagnostics) {
-	var diagnostics hcl.Diagnostics
-
-	hclFiles := []*hcl.File{}
-
 	hclParser := hclparse.NewParser()
 
-	for path, content := range files {
-		f, diags := hclParser.ParseHCL(content, path)
-		diagnostics = append(diagnostics, diags...)
-		hclFiles = append(hclFiles, f)
+	var hclFiles []*hcl.File
+	for _, f := range lokocfgPaths {
+		hclFile, diags := hclParser.ParseHCLFile(f)
+		if len(diags) > 0 {
+			return nil, diags
+		}
+		hclFiles = append(hclFiles, hclFile)
 	}
 
-	return hclFiles, diagnostics
-}
+	configBody := hcl.MergeFiles(hclFiles)
 
-// parseVariables parses the variables used in the HCL configuration.
-func parseVariables(userVals map[string]cty.Value, cfg ClusterConfig) (map[string]cty.Value, hcl.Diagnostics) {
-	var diagnostics hcl.Diagnostics
+	exists, err := util.PathExists(lokocfgVarsPath)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("could not stat %q: %v", lokocfgVarsPath, err),
+			},
+		}
+	}
+	var userVals map[string]cty.Value
+	var diags hcl.Diagnostics
+	if exists {
+		userVals, diags = LoadValuesFile(lokocfgVarsPath)
+		if len(diags) > 0 {
+			return nil, diags
+		}
+	}
+
+	var clusterConfig ClusterConfig
+	diags = gohcl.DecodeBody(configBody, nil, &clusterConfig)
+	if len(diags) > 0 {
+		return nil, diags
+	}
 
 	variables := map[string]cty.Value{}
-
-	for _, v := range cfg.Variables {
+	for _, v := range clusterConfig.Variables {
 		if userVal, ok := userVals[v.Name]; ok {
 			variables[v.Name] = userVal
 			continue
 		}
-
 		if len(v.Default) == 0 {
 			continue
 		}
-
 		defaultValue, hasDefaultValue := v.Default["default"]
 		if !hasDefaultValue {
 			continue
 		}
 		defaultVal, diags := defaultValue.Expr.Value(nil)
-		diagnostics = append(diagnostics, diags...)
-
+		if len(diags) > 0 {
+			return nil, diags
+		}
 		variables[v.Name] = defaultVal
-	}
-
-	return variables, diagnostics
-}
-
-// ParseHCLFiles parses the HCL files into an instance of HCL struct.
-func ParseHCLFiles(configFiles, variableFiles map[string][]byte) (*HCL, hcl.Diagnostics) {
-	var diagnostics hcl.Diagnostics
-
-	configHCLFiles, diags := getHCLFiles(configFiles)
-	diagnostics = append(diagnostics, diags...)
-
-	configBody := hcl.MergeFiles(configHCLFiles)
-
-	var clusterConfig ClusterConfig
-
-	diags = gohcl.DecodeBody(configBody, nil, &clusterConfig)
-	diagnostics = append(diagnostics, diags...)
-
-	varHCLFiles, diags := getHCLFiles(variableFiles)
-	diagnostics = append(diagnostics, diags...)
-
-	var userVals map[string]cty.Value
-
-	userVals, diags = LoadValues(varHCLFiles)
-	diagnostics = append(diagnostics, diags...)
-
-	variables, diags := parseVariables(userVals, clusterConfig)
-	diagnostics = append(diagnostics, diags...)
-
-	if diagnostics.HasErrors() {
-		return nil, diagnostics
 	}
 
 	evalContext := hcl.EvalContext{

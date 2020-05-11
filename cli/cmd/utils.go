@@ -27,7 +27,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
-	"github.com/kinvolk/lokomotive/pkg/util"
 )
 
 // getConfiguredBackend loads a backend from the given configuration file.
@@ -142,31 +141,7 @@ func doesKubeconfigExist(*cobra.Command, []string) error {
 }
 
 func getLokoConfig() (*config.HCL, hcl.Diagnostics) {
-	lokocfgFiles, diags := config.LoadHCLFiles(viper.GetString("lokocfg"), "lokocfg")
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
-	exists, err := util.PathExists(viper.GetString("lokocfg-vars"))
-	if err != nil {
-		diag := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("error checking variables file path : %v", err),
-		}
-
-		return nil, hcl.Diagnostics{diag}
-	}
-
-	varFiles := map[string][]byte{}
-
-	if exists {
-		varFiles, diags = config.LoadHCLFiles(viper.GetString("lokocfg-vars"), "vars")
-		if diags.HasErrors() {
-			return nil, diags
-		}
-	}
-
-	return config.ParseHCLFiles(lokocfgFiles, varFiles)
+	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
 
 // askForConfirmation asks the user to confirm an action.

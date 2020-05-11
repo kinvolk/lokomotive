@@ -6,19 +6,27 @@ package config
 
 import (
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 )
 
-// LoadValues reads the list of hcl.File and parses it as a
+// LoadValuesFile reads the file at the given path and parses it as a
 // "values file" (flat key.value HCL config) for later use in the
 // `EvalContext`.
 //
 // Adapted from
 // https://github.com/hashicorp/terraform/blob/d4ac68423c4998279f33404db46809d27a5c2362/configs/parser_values.go#L8-L23
-func LoadValues(files []*hcl.File) (map[string]cty.Value, hcl.Diagnostics) {
-	var diags hcl.Diagnostics
+func LoadValuesFile(path string) (map[string]cty.Value, hcl.Diagnostics) {
+	hclParser := hclparse.NewParser()
+	varsFile, diags := hclParser.ParseHCLFile(path)
+	if diags != nil {
+		return nil, diags
+	}
 
-	body := hcl.MergeFiles(files)
+	body := varsFile.Body
+	if body == nil {
+		return nil, diags
+	}
 
 	vars := make(map[string]cty.Value)
 	attrs, attrsDiags := body.JustAttributes()
