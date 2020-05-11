@@ -33,4 +33,9 @@ cluster "packet" {
     os_channel      = "alpha"
     node_type       = "c2.large.arm"
   }
+
+  # Adds oidc flags to API server with default values.
+  # Acts as a smoke test to check if API server is functional after addition
+  # of extra flags.
+  oidc {}
 }

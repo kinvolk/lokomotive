@@ -30,6 +30,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/dns"
+	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -89,6 +90,7 @@ type config struct {
 	ReservationIDsDefault    string            `hcl:"reservation_ids_default,optional"`
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
@@ -116,6 +118,10 @@ func NewConfig() *config {
 	return &config{
 		EnableAggregation: true,
 	}
+}
+
+func (c *config) clusterDomain() string {
+	return fmt.Sprintf("%s.%s", c.ClusterName, c.DNS.Zone)
 }
 
 // Meta is part of Platform interface and returns common information about the platform configuration.
@@ -199,7 +205,15 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
-
+	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
+	if cfg.OIDC != nil {
+		// Skipping the error checking here because its done in checkValidConfig().
+		oidcFlags, _ := cfg.OIDC.ToKubeAPIServerFlags(cfg.clusterDomain())
+		//TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
+		// append is not used for now because Initialize is called in cli/cmd/cluster.go
+		// and again in Apply which duplicates the values.
+		cfg.KubeAPIServerExtraFlags = oidcFlags
+	}
 	// Packet does not accept tags as a key-value map but as an array of
 	// strings.
 	util.AppendTags(&cfg.Tags)
@@ -362,6 +376,11 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkReservationIDs()...)
+
+	if c.OIDC != nil {
+		_, diags := c.OIDC.ToKubeAPIServerFlags(c.clusterDomain())
+		diagnostics = append(diagnostics, diags...)
+	}
 
 	return diagnostics
 }
