@@ -162,7 +162,7 @@ block in the cluster configuration.
 Example:
 
 The default for node_type is `baremetal_0`. If you wish to change the default, then you
-define the variable  and use it to refer in the cluster configuration.
+define the variable and use it to refer in the cluster configuration.
 
 ```tf
 variable "custom_default_worker_type" {
