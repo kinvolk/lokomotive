@@ -22,7 +22,10 @@ monitoring:
 {{- end }}
 
 {{- if .IngressHosts }}
-ingressHosts: {{ .IngressHosts }}
+ingressHosts:
+  {{- range .IngressHosts}}
+  - "{{ . }}"
+  {{- end }}
 {{- end }}
 
 {{- if .NodeAffinity }}
