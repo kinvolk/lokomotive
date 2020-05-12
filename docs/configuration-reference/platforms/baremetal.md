@@ -46,6 +46,10 @@ variable "management_cidrs" {}
 variable "node_private_cidr" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
+variable "oidc_issuer_url" {}
+variable "oidc_client_id" {}
+variable "oidc_username_claim" {}
+variable "oidc_groups_claim" {}
 
 cluster "bare-metal" {
   asset_dir = var.asset_dir
@@ -83,6 +87,13 @@ cluster "bare-metal" {
   os_version = "current"
 
   os_channel = "flatcar-stable"
+
+  oidc {
+    issuer_url     = var.oidc_issuer_url
+    client_id      = var.oidc_client_id
+    username_claim = var.oidc_username_claim
+    groups_claim   = var.oidc_groups_claim
+  }
 }
 ```
 
@@ -128,9 +139,14 @@ os_version = var.custom_default_os_version
 | `worker_names`              | Ordered list of worker names. Example: ["node2", "node3"]                                                                                                                    | -                | true     |
 | `worker_macs`               | Ordered list of worker identifying MAC addresses. Example ["52:54:00:b2:2f:86", "52:54:00:c3:61:77"]                                                                         | -                | true     |
 | `worker_domains`            | Ordered list of worker FQDNs. Example ["node2.example.com", "node3.example.com"]                                                                                             | -                | true     |
-| `ssh_pubkeys`               | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...". | -               | true     |
+| `ssh_pubkeys`               | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...". | -                | true     |
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                         | "current"        | false    |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                         | "flatcar-stable" | false    |
+| `oidc`                      | OIDC configuration block.                                                                                                                                                    | -                | false    |
+| `oidc.issuer_url`           | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                       | -                | false    |
+| `oidc.client_id`            | A client id that all tokens must be issued for.                                                                                                                              | "gangway"        | false    |
+| `oidc.username_claim`       | JWT claim to use as the user name.                                                                                                                                           | "email"          | false    |
+| `oidc.groups_claim`         | JWT claim to use as the user’s group.                                                                                                                                        | "groups"         | false    |
 
 ## Applying
 
