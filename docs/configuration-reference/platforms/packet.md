@@ -84,15 +84,8 @@ cluster "packet" {
   project_id = var.packet_project_id
 
   dns {
-    zone = var.dns_zone
-
-    provider {
-      route53 {
-        zone_id = var.route53_zone_id
-      }
-    }
-
-    # manual {}
+    zone     = var.dns_zone
+    provider = "route53"
   }
 
   ssh_pubkeys = var.ssh_public_keys
@@ -197,12 +190,8 @@ node_type = var.custom_default_worker_type
 | `controller_count`                    | Number of controller nodes.                                                                                                                                                   | 1               | false    |
 | `controller_type`                     | Packet instance type for controllers.                                                                                                                                         | "baremetal_0"   | false    |
 | `dns`                                 | DNS configuration block.                                                                                                                                                      | -               | true     |
-| `dns.zone`                            | DNS Zone.                                                                                                                                                                     | -               | true     |
-| `dns.provider`                        | DNS Provider configuration block. Route 53 or Manual.                                                                                                                         | -               | true     |
-| `dns.provider.route53`                | Route 53 DNS Configuration.                                                                                                                                                   | -               | false    |
-| `dns.provider.route53.zone_id`        | Route 53 DNS Zone ID.                                                                                                                                                         | -               | true     |
-| `dns.provider.route53.aws_creds_path` | AWS credentials for managing Route 53 DNS.                                                                                                                                    | -               | false    |
-| `dns.provider.manual`                 | Manual DNS configuration.                                                                                                                                                     | -               | false    |
+| `dns.zone`                            | A DNS zone to use for the cluster. The following format is used for cluster-related DNS records: `<record>.<cluster_name>.<dns_zone>`                                         | -               | true     |
+| `dns.provider`                        | DNS provider to use for the cluster. Valid values: `cloudflare`, `route53`, `manual`.                                                                                         | -               | true     |
 | `oidc`                                | OIDC configuration block.                                                                                                                                                     | -               | false    |
 | `oidc.issuer_url`                     | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                        | -               | false    |
 | `oidc.client_id`                      | A client id that all tokens must be issued for.                                                                                                                               | "gangway"       | false    |
