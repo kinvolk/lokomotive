@@ -29,12 +29,6 @@ variable "controller_count" {
   description = "Number of controllers (i.e. masters)"
 }
 
-variable "worker_count" {
-  type        = number
-  default     = 1
-  description = "Number of workers"
-}
-
 variable "controller_type" {
   type = string
   # When doing the upgrades of controlplane on t3.small instance type when
@@ -45,12 +39,6 @@ variable "controller_type" {
   # give plenty of usable memory for etcd and kube-apiserver.
   default     = "t3.medium"
   description = "EC2 instance type for controllers"
-}
-
-variable "worker_type" {
-  type        = string
-  default     = "t3.small"
-  description = "EC2 instance type for workers"
 }
 
 variable "os_name" {
@@ -89,27 +77,9 @@ variable "disk_iops" {
   description = "IOPS of the EBS volume (e.g. 100)"
 }
 
-variable "worker_price" {
-  type        = string
-  default     = ""
-  description = "Spot price in USD for autoscaling group spot instances. Leave as default empty string for autoscaling group to use on-demand instances. Note, switching in-place from spot to on-demand is not possible: https://github.com/terraform-providers/terraform-provider-aws/issues/4320"
-}
-
-variable "worker_target_groups" {
-  type        = list(string)
-  description = "Additional target group ARNs to which worker instances should be added"
-  default     = []
-}
-
 variable "controller_clc_snippets" {
   type        = list(string)
   description = "Controller Container Linux Config snippets"
-  default     = []
-}
-
-variable "worker_clc_snippets" {
-  type        = list(string)
-  description = "Worker Container Linux Config snippets"
   default     = []
 }
 

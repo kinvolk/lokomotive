@@ -45,6 +45,8 @@ type workerPool struct {
 	TargetGroups []string          `hcl:"target_groups,optional"`
 	CLCSnippets  []string          `hcl:"clc_snippets,optional"`
 	Tags         map[string]string `hcl:"tags,optional"`
+	LBHTTPPort   int               `hcl:"lb_http_port,optional"`
+	LBHTTPSPort  int               `hcl:"lb_https_port,optional"`
 }
 
 type config struct {

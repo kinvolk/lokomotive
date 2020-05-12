@@ -36,33 +36,8 @@ resource "aws_lb_listener" "apiserver-https" {
   }
 }
 
-# Forward HTTP ingress traffic to workers
-resource "aws_lb_listener" "ingress-http" {
-  load_balancer_arn = aws_lb.nlb.arn
-  protocol          = "TCP"
-  port              = 80
-
-  default_action {
-    type             = "forward"
-    target_group_arn = module.workers.target_group_http
-  }
-}
-
-# Forward HTTPS ingress traffic to workers
-resource "aws_lb_listener" "ingress-https" {
-  load_balancer_arn = aws_lb.nlb.arn
-  protocol          = "TCP"
-  port              = 443
-
-  default_action {
-    type             = "forward"
-    target_group_arn = module.workers.target_group_https
-  }
-}
-
 # Target group of controllers
 resource "aws_lb_target_group" "controllers" {
-  name        = "${var.cluster_name}-controllers"
   vpc_id      = aws_vpc.network.id
   target_type = "instance"
 
@@ -80,6 +55,10 @@ resource "aws_lb_target_group" "controllers" {
 
     # Interval between health checks required to be 10 or 30
     interval = 10
+  }
+
+  tags = {
+    ClusterName = var.cluster_name
   }
 }
 

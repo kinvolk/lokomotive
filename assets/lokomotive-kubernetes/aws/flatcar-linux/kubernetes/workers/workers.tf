@@ -1,6 +1,6 @@
 # Workers AutoScaling Group
 resource "aws_autoscaling_group" "workers" {
-  name = "${var.name}-worker"
+  name = "${var.cluster_name}-${var.pool_name}-workers"
 
   # count
   desired_capacity          = var.worker_count
@@ -37,7 +37,7 @@ resource "aws_autoscaling_group" "workers" {
     [
       {
         key                 = "Name"
-        value               = "${var.name}-worker"
+        value               = "${var.cluster_name}-${var.pool_name}-worker"
         propagate_at_launch = true
       },
     ],
@@ -54,6 +54,7 @@ resource "aws_autoscaling_group" "workers" {
 
 # Worker template
 resource "aws_launch_configuration" "worker" {
+  name_prefix       = "${var.cluster_name}-${var.pool_name}-"
   image_id          = local.ami_id
   instance_type     = var.instance_type
   spot_price        = var.spot_price

@@ -1,4 +1,9 @@
-variable "name" {
+variable "cluster_name" {
+  type        = string
+  description = "Cluster name (prepended to pool name)"
+}
+
+variable "pool_name" {
   type        = string
   description = "Unique name for the worker pool"
 }
@@ -124,4 +129,20 @@ variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = string
   default     = "cluster.local"
+}
+
+variable "lb_arn" {
+  description = "ARN of the load balancer on which to create listeners for this worker pool"
+}
+
+variable "lb_http_port" {
+  description = "Port the load balancer should listen on for HTTP connections"
+  type        = number
+  default     = 80
+}
+
+variable "lb_https_port" {
+  description = "Port the load balancer should listen on for HTTPS connections"
+  type        = number
+  default     = 443
 }

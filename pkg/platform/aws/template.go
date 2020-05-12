@@ -49,9 +49,6 @@ module "aws-{{.Config.ClusterName}}" {
   controller_type  = "{{.Config.ControllerType}}"
  {{- end }}
 
-	# Do not allow creation of workers apart from using worker pools.
-  worker_count = 0
-
   {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
   {{- end }}
@@ -119,11 +116,20 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   ssh_keys              = {{ (index $.WorkerpoolCfg $index "ssh_pub_keys") }}
-  name                  = "{{ $pool.Name }}"
+  cluster_name          = "{{ $.Config.ClusterName }}"
+  pool_name             = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
   os_name               = "flatcar"
   {{- if $pool.InstanceType }}
   instance_type         = "{{ $pool.InstanceType }}"
+  {{- end }}
+
+  lb_arn = module.aws-{{ $.Config.ClusterName }}.nlb_arn
+  {{- if $pool.LBHTTPPort }}
+  lb_http_port = {{ $pool.LBHTTPPort }}
+  {{- end }}
+  {{- if $pool.LBHTTPSPort }}
+  lb_https_port = {{ $pool.LBHTTPSPort }}
   {{- end }}
 
   {{- if $pool.OSChannel }}

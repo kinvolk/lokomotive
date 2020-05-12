@@ -17,55 +17,92 @@ package contour
 import (
 	"testing"
 
-	"github.com/hashicorp/hcl/v2"
-
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
-func testRenderManifest(t *testing.T, configHCL string) {
-	body, diagnostics := util.GetComponentBody(configHCL, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
-	}
-
-	component := newComponent()
-	diagnostics = component.LoadConfig(body, &hcl.EvalContext{})
-	if diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
-	}
-
-	m, err := component.RenderManifests()
-	if err != nil {
-		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
-	}
-	if len(m) <= 0 {
-		t.Fatalf("Rendered manifests shouldn't be empty")
-	}
-}
-
-func TestRenderManifestWithIngressHosts(t *testing.T) {
-	configHCL := `
+//nolint:funlen
+func TestRenderManifest(t *testing.T) {
+	tests := []struct {
+		desc    string
+		hcl     string
+		wantErr bool
+	}{
+		{
+			desc: "With ingress hosts",
+			hcl: `
 component "contour" {
   ingress_hosts = ["test.domain.com"]
 }
-`
-	testRenderManifest(t, configHCL)
-}
-
-func TestRenderManifestWithIngressHostsWildcard(t *testing.T) {
-	configHCL := `
+			`,
+		},
+		{
+			desc: "With ingress hosts wildcard",
+			hcl: `
 component "contour" {
   ingress_hosts = ["*.domain.com"]
 }
-`
-	testRenderManifest(t, configHCL)
-}
-
-func TestRenderManifestWithServiceMonitor(t *testing.T) {
-	configHCL := `
+		`,
+		},
+		{
+			desc: "With monitoring",
+			hcl: `
 component "contour" {
   enable_monitoring = true
 }
-`
-	testRenderManifest(t, configHCL)
+			`,
+		},
+		{
+			desc: "With service type",
+			hcl: `
+component "contour" {
+  service_type = "NodePort"
+}
+			`,
+		},
+		{
+			desc: "Wrong service type",
+			hcl: `
+component "contour" {
+  service_type = "stuff"
+}
+			`,
+			wantErr: true,
+		},
+		{
+			desc: "Non-existent field",
+			hcl: `
+component "contour" {
+  stuff = 3
+}
+			`,
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		b, d := util.GetComponentBody(tc.hcl, name)
+		if d != nil {
+			t.Errorf("%s - Error getting component body: %v", tc.desc, d)
+		}
+
+		c := newComponent()
+		d = c.LoadConfig(b, nil)
+
+		if !tc.wantErr && d.HasErrors() {
+			t.Errorf("%s - Valid config should not return error, got: %s", tc.desc, d)
+		}
+
+		if tc.wantErr && !d.HasErrors() {
+			t.Errorf("%s - Wrong config should have returned an error", tc.desc)
+		}
+
+		m, err := c.RenderManifests()
+		if err != nil {
+			t.Errorf("%s - Rendering manifests with valid config should succeed, got: %s", tc.desc, err)
+		}
+
+		if len(m) == 0 {
+			t.Errorf("%s - Rendered manifests shouldn't be empty", tc.desc)
+		}
+	}
 }

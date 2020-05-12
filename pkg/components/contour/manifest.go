@@ -28,6 +28,9 @@ ingressHosts:
   {{- end }}
 {{- end }}
 
+envoy:
+  serviceType: {{ .ServiceType }}
+
 {{- if .NodeAffinity }}
 nodeAffinity:
   requiredDuringSchedulingIgnoredDuringExecution:
