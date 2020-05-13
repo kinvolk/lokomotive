@@ -139,3 +139,8 @@ variable "expose_on_all_interfaces" {
   type        = bool
   default     = false
 }
+
+variable "disable_self_hosted_kubelet" {
+  description = "Disable the self hosted kubelet installed by default"
+  type        = bool
+}

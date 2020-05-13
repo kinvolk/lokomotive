@@ -80,7 +80,7 @@ output "kubernetes_values" {
 }
 
 output "kubelet_values" {
-  value = data.template_file.kubelet.rendered
+  value = join("", data.template_file.kubelet.*.rendered)
 }
 
 output "calico_values" {
