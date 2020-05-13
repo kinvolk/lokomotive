@@ -14,4 +14,7 @@ module "bootkube" {
   enable_aggregation    = var.enable_aggregation
 
   certs_validity_period_hours = var.certs_validity_period_hours
+
+  # Disable the self hosted kubelet.
+  disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
 }

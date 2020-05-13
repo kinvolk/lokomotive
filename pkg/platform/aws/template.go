@@ -92,6 +92,8 @@ module "aws-{{.Config.ClusterName}}" {
   {{- if .Config.CertsValidityPeriodHours }}
   certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
   {{- end }}
+
+  disable_self_hosted_kubelet = {{ .Config.DisableSelfHostedKubelet }}
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
