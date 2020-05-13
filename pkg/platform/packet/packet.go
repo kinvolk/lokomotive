@@ -89,6 +89,7 @@ type config struct {
 	ReservationIDsDefault    string            `hcl:"reservation_ids_default,optional"`
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	NodesDependOn            []string          // Not exposed to the user
+	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
 
 	WorkerPools []workerPool `hcl:"worker_pool,block"`
 }
