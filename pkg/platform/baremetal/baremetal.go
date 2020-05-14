@@ -30,24 +30,25 @@ import (
 )
 
 type config struct {
-	AssetDir               string   `hcl:"asset_dir"`
-	CachedInstall          string   `hcl:"cached_install,optional"`
-	ClusterName            string   `hcl:"cluster_name"`
-	ControllerDomains      []string `hcl:"controller_domains"`
-	ControllerMacs         []string `hcl:"controller_macs"`
-	ControllerNames        []string `hcl:"controller_names"`
-	K8sDomainName          string   `hcl:"k8s_domain_name"`
-	MatchboxCAPath         string   `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath string   `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath  string   `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint       string   `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint   string   `hcl:"matchbox_http_endpoint"`
-	OSChannel              string   `hcl:"os_channel,optional"`
-	OSVersion              string   `hcl:"os_version,optional"`
-	SSHPubKeys             []string `hcl:"ssh_pubkeys"`
-	WorkerNames            []string `hcl:"worker_names"`
-	WorkerMacs             []string `hcl:"worker_macs"`
-	WorkerDomains          []string `hcl:"worker_domains"`
+	AssetDir                 string   `hcl:"asset_dir"`
+	CachedInstall            string   `hcl:"cached_install,optional"`
+	ClusterName              string   `hcl:"cluster_name"`
+	ControllerDomains        []string `hcl:"controller_domains"`
+	ControllerMacs           []string `hcl:"controller_macs"`
+	ControllerNames          []string `hcl:"controller_names"`
+	DisableSelfHostedKubelet bool     `hcl:"disable_self_hosted_kubelet,optional"`
+	K8sDomainName            string   `hcl:"k8s_domain_name"`
+	MatchboxCAPath           string   `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath   string   `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath    string   `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint         string   `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint     string   `hcl:"matchbox_http_endpoint"`
+	OSChannel                string   `hcl:"os_channel,optional"`
+	OSVersion                string   `hcl:"os_version,optional"`
+	SSHPubKeys               []string `hcl:"ssh_pubkeys"`
+	WorkerNames              []string `hcl:"worker_names"`
+	WorkerMacs               []string `hcl:"worker_macs"`
+	WorkerDomains            []string `hcl:"worker_domains"`
 }
 
 // init registers bare-metal as a platform
@@ -156,41 +157,43 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 
 	terraformCfg := struct {
-		CachedInstall        string
-		ClusterName          string
-		ControllerDomains    string
-		ControllerMacs       string
-		ControllerNames      string
-		K8sDomainName        string
-		MatchboxClientCert   string
-		MatchboxClientKey    string
-		MatchboxCA           string
-		MatchboxEndpoint     string
-		MatchboxHTTPEndpoint string
-		OSChannel            string
-		OSVersion            string
-		SSHPublicKeys        string
-		WorkerNames          string
-		WorkerMacs           string
-		WorkerDomains        string
+		CachedInstall            string
+		ClusterName              string
+		ControllerDomains        string
+		ControllerMacs           string
+		ControllerNames          string
+		K8sDomainName            string
+		MatchboxClientCert       string
+		MatchboxClientKey        string
+		MatchboxCA               string
+		MatchboxEndpoint         string
+		MatchboxHTTPEndpoint     string
+		OSChannel                string
+		OSVersion                string
+		SSHPublicKeys            string
+		WorkerNames              string
+		WorkerMacs               string
+		WorkerDomains            string
+		DisableSelfHostedKubelet bool
 	}{
-		CachedInstall:        cfg.CachedInstall,
-		ClusterName:          cfg.ClusterName,
-		ControllerDomains:    string(controllerDomains),
-		ControllerMacs:       string(controllerMacs),
-		ControllerNames:      string(controllerNames),
-		K8sDomainName:        cfg.K8sDomainName,
-		MatchboxCA:           cfg.MatchboxCAPath,
-		MatchboxClientCert:   cfg.MatchboxClientCertPath,
-		MatchboxClientKey:    cfg.MatchboxClientKeyPath,
-		MatchboxEndpoint:     cfg.MatchboxEndpoint,
-		MatchboxHTTPEndpoint: cfg.MatchboxHTTPEndpoint,
-		OSChannel:            cfg.OSChannel,
-		OSVersion:            cfg.OSVersion,
-		SSHPublicKeys:        string(keyListBytes),
-		WorkerNames:          string(workerNames),
-		WorkerMacs:           string(workerMacs),
-		WorkerDomains:        string(workerDomains),
+		CachedInstall:            cfg.CachedInstall,
+		ClusterName:              cfg.ClusterName,
+		ControllerDomains:        string(controllerDomains),
+		ControllerMacs:           string(controllerMacs),
+		ControllerNames:          string(controllerNames),
+		K8sDomainName:            cfg.K8sDomainName,
+		MatchboxCA:               cfg.MatchboxCAPath,
+		MatchboxClientCert:       cfg.MatchboxClientCertPath,
+		MatchboxClientKey:        cfg.MatchboxClientKeyPath,
+		MatchboxEndpoint:         cfg.MatchboxEndpoint,
+		MatchboxHTTPEndpoint:     cfg.MatchboxHTTPEndpoint,
+		OSChannel:                cfg.OSChannel,
+		OSVersion:                cfg.OSVersion,
+		SSHPublicKeys:            string(keyListBytes),
+		WorkerNames:              string(workerNames),
+		WorkerMacs:               string(workerMacs),
+		WorkerDomains:            string(workerDomains),
+		DisableSelfHostedKubelet: cfg.DisableSelfHostedKubelet,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
