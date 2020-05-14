@@ -42,7 +42,7 @@ type Config struct {
 
 type dnsEntry struct {
 	Name      string   `json:"name"`
-	Ttl       int      `json:"ttl"`
+	TTL       int      `json:"ttl"`
 	EntryType string   `json:"type"`
 	Records   []string `json:"records"`
 }
@@ -115,7 +115,7 @@ func prettyPrintDNSEntries(entries []dnsEntry) {
 	for _, entry := range entries {
 		fmt.Printf("Name: %s\n", entry.Name)
 		fmt.Printf("Type: %s\n", entry.EntryType)
-		fmt.Printf("Ttl: %d\n", entry.Ttl)
+		fmt.Printf("TTL: %d\n", entry.TTL)
 		fmt.Printf("Records:\n")
 		for _, record := range entry.Records {
 			fmt.Printf("- %s\n", record)
