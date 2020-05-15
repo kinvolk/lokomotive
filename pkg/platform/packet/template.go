@@ -98,6 +98,8 @@ module "packet-{{.Config.ClusterName}}" {
     {{- end }}
   ]
   {{- end }}
+
+  disable_self_hosted_kubelet = {{ .Config.DisableSelfHostedKubelet }}
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}

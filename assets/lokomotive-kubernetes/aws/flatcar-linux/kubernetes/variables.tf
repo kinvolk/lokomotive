@@ -151,6 +151,11 @@ variable "enable_aggregation" {
   default     = true
 }
 
+variable "disable_self_hosted_kubelet" {
+  description = "Disable the self hosted kubelet installed by default"
+  type        = bool
+}
+
 # Certificates
 
 variable "certs_validity_period_hours" {

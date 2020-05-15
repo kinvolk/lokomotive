@@ -31,6 +31,9 @@ module "bare-metal-{{.ClusterName}}" {
   os_channel             = "{{.OSChannel}}"
   os_version             = "{{.OSVersion}}"
 
+  # Disable self hosted kubelet
+  disable_self_hosted_kubelet = {{ .DisableSelfHostedKubelet }}
+
   # configuration
   cached_install     = "{{.CachedInstall}}"
   k8s_domain_name    = "{{.K8sDomainName}}"

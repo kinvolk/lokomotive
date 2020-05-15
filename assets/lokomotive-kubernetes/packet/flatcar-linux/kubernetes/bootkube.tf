@@ -24,4 +24,7 @@ module "bootkube" {
   container_arch = var.os_arch
 
   expose_on_all_interfaces = true
+
+  # Disable the self hosted kubelet.
+  disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
 }
