@@ -80,7 +80,6 @@ systemd:
         RestartSec=5
         [Install]
         WantedBy=multi-user.target
-
 storage:
   files:
     - path: /etc/kubernetes/kubelet.env
@@ -107,4 +106,3 @@ passwd:
   users:
     - name: core
       ssh_authorized_keys: ${ssh_keys}
-
