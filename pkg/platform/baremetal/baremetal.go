@@ -31,26 +31,27 @@ import (
 )
 
 type config struct {
-	AssetDir                 string       `hcl:"asset_dir"`
-	CachedInstall            string       `hcl:"cached_install,optional"`
-	ClusterName              string       `hcl:"cluster_name"`
-	ControllerDomains        []string     `hcl:"controller_domains"`
-	ControllerMacs           []string     `hcl:"controller_macs"`
-	ControllerNames          []string     `hcl:"controller_names"`
-	DisableSelfHostedKubelet bool         `hcl:"disable_self_hosted_kubelet,optional"`
-	K8sDomainName            string       `hcl:"k8s_domain_name"`
-	MatchboxCAPath           string       `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath   string       `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath    string       `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint         string       `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint     string       `hcl:"matchbox_http_endpoint"`
-	OSChannel                string       `hcl:"os_channel,optional"`
-	OSVersion                string       `hcl:"os_version,optional"`
-	SSHPubKeys               []string     `hcl:"ssh_pubkeys"`
-	WorkerNames              []string     `hcl:"worker_names"`
-	WorkerMacs               []string     `hcl:"worker_macs"`
-	WorkerDomains            []string     `hcl:"worker_domains"`
-	OIDC                     *oidc.Config `hcl:"oidc,block"`
+	AssetDir                 string            `hcl:"asset_dir"`
+	CachedInstall            string            `hcl:"cached_install,optional"`
+	ClusterName              string            `hcl:"cluster_name"`
+	ControllerDomains        []string          `hcl:"controller_domains"`
+	ControllerMacs           []string          `hcl:"controller_macs"`
+	ControllerNames          []string          `hcl:"controller_names"`
+	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	K8sDomainName            string            `hcl:"k8s_domain_name"`
+	MatchboxCAPath           string            `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath   string            `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath    string            `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint         string            `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint     string            `hcl:"matchbox_http_endpoint"`
+	OSChannel                string            `hcl:"os_channel,optional"`
+	OSVersion                string            `hcl:"os_version,optional"`
+	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
+	WorkerNames              []string          `hcl:"worker_names"`
+	WorkerMacs               []string          `hcl:"worker_macs"`
+	WorkerDomains            []string          `hcl:"worker_domains"`
+	Labels                   map[string]string `hcl:"labels,optional"`
+	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -194,6 +195,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerDomains            string
 		DisableSelfHostedKubelet bool
 		KubeAPIServerExtraFlags  []string
+		Labels                   map[string]string
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -214,6 +216,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerDomains:            string(workerDomains),
 		DisableSelfHostedKubelet: cfg.DisableSelfHostedKubelet,
 		KubeAPIServerExtraFlags:  cfg.KubeAPIServerExtraFlags,
+		Labels:                   cfg.Labels,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

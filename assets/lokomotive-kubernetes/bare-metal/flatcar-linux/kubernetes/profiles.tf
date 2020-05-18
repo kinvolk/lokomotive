@@ -224,6 +224,7 @@ data "template_file" "worker-configs" {
     cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
     cluster_domain_suffix  = var.cluster_domain_suffix
     ssh_keys               = jsonencode(var.ssh_keys)
+    kubelet_labels         = join(",", [for k, v in merge({ "node.kubernetes.io/node" = "" }, var.labels) : "${k}=${v}"])
   }
 }
 
