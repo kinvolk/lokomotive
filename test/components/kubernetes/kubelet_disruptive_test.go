@@ -29,6 +29,10 @@ import (
 )
 
 func TestSelfHostedKubeletLabels(t *testing.T) {
+	t.Skip("This test will always fail, as Flatcar currently ships version of runc, which has a race " +
+		"condition bug, which makes self-hosted kubelet to hang when the pod is removed. " +
+		"It should be re-enabled once the fix reaches Flatcar stable channel.")
+
 	client := testutil.CreateKubeClient(t)
 
 	// List all the nodes and then delete a node that is not controller.
