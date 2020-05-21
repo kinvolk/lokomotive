@@ -98,7 +98,7 @@ variable "container_images" {
     kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.18.2"
     kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.18.2"
     kube_scheduler          = "k8s.gcr.io/kube-scheduler:v1.18.2"
-    kube_proxy              = "k8s.gcr.io/kube-proxy:v1.17.4"
+    kube_proxy              = "k8s.gcr.io/kube-proxy:v1.18.2"
   }
 }
 
