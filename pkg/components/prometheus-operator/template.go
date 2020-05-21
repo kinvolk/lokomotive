@@ -48,6 +48,7 @@ alertmanager:
               storage: "{{.AlertManagerStorageSize}}"
 grafana:
   adminPassword: {{.GrafanaAdminPassword}}
+  plugins: "grafana-piechart-panel"
   testFramework:
     enabled: false
   sidecar:
