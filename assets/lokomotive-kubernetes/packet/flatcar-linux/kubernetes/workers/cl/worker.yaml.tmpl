@@ -19,6 +19,8 @@ systemd:
       enable: true
     - name: locksmithd.service
       mask: true
+    - name: coreos-metadata-sshkeys@core.service
+      mask: true
     - name: wait-for-dns.service
       enable: true
       contents: |
