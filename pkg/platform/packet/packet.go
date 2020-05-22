@@ -60,6 +60,8 @@ type workerPool struct {
 	SetupRaidHDD          bool              `hcl:"setup_raid_hdd,optional"`
 	SetupRaidSSD          bool              `hcl:"setup_raid_ssd,optional"`
 	SetupRaidSSDFS        bool              `hcl:"setup_raid_ssd_fs,optional"`
+	CLCSnippets           []string          `hcl:"clc_snippets,optional"`
+	Tags                  map[string]string `hcl:"tags,optional"`
 	NodesDependOn         []string          // Not exposed to the user
 }
 
@@ -226,7 +228,13 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to marshal tags")
 	}
-
+	// Append lokoctl-version tag to all worker pools.
+	for i := range cfg.WorkerPools {
+		// Using index as we are using []workerPool which creates a copy of the slice
+		// Hence when the template is rendered worker pool Tags is empty.
+		// TODO: Add tests for validating the worker pool configuration.
+		util.AppendTags(&cfg.WorkerPools[i].Tags)
+	}
 	// Add explicit terraform dependencies for nodes with specific hw
 	// reservation UUIDs.
 	cfg.terraformAddDeps()

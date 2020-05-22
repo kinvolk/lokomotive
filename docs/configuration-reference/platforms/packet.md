@@ -49,6 +49,7 @@ variable "oidc_issuer_url" {}
 variable "oidc_client_id" {}
 variable "oidc_username_claim" {}
 variable "oidc_groups_claim" {}
+variable "worker_clc_snippets" {}
 
 backend "s3" {
   bucket         = var.state_s3_bucket
@@ -131,6 +132,12 @@ cluster "packet" {
 
   worker_pool "worker-pool-1" {
     count = var.workers_count
+
+    clc_snippets = var.worker_clc_snippets
+
+    tags = {
+      pool = "storage"
+    }
 
     ipxe_script_url = ""
 
@@ -221,6 +228,8 @@ node_type = var.custom_default_worker_type
 | `certs_validity_period_hours`         | Validity of all the certificates in hours.                                                                                                                                    | 8760            | false    |
 | `worker_pool`                         | Configuration block for worker pools. There can be more than one.                                                                                                             | -               | true     |
 | `worker_pool.count`                   | Number of workers in the worker pool. Can be changed afterwards to add or delete workers.                                                                                     | 1               | true     |
+| `worker_pool.clc_snippets`            | Flatcar Container Linux Config snippets for nodes in the worker pool.                                                                                                         | []              | false    |
+| `worker_pool.tags`                    | List of tags that will be propagated to nodes in the worker pool.                                                                                                             | -               | false    |
 | `worker_pool.disable_bgp`             | Disable BGP on nodes. Nodes won't be able to connect to Packet BGP peers.                                                                                                     | false           | false    |
 | `worker_pool.ipxe_script_url`         | Boot via iPXE. Required for arm64.                                                                                                                                            | -               | false    |
 | `worker_pool.os_arch`                 | Flatcar Container Linux architecture to install (amd64, arm64).                                                                                                               | "amd64"         | false    |
