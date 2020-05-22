@@ -189,7 +189,7 @@ cluster "bare-metal" {
 ```
 
 For advanced cluster configurations and more information refer to the [Bare Metal configuration
-guide](../configuration-reference/platform/baremetal.md).
+guide](../configuration-reference/platforms/baremetal.md).
 
 ### Step 5: Create Lokomotive Cluster
 
