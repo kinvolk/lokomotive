@@ -308,7 +308,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(ceph_pool_bytes_used)",
+          "expr": "count(ceph_pool_stored)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
