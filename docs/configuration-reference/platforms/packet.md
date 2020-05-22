@@ -35,6 +35,7 @@ variable "cluster_name" {}
 variable "controllers_count" {}
 variable "workers_count" {}
 variable "controller_type" {}
+variable "controller_clc_snippets" {}
 variable "workers_type" {}
 variable "dns_zone" {}
 variable "route53_zone_id" {}
@@ -70,6 +71,8 @@ cluster "packet" {
   controller_count = var.controllers_count
 
   controller_type = "t1.small.x86"
+
+  controller_clc_snippets = var.controller_clc.snippets
 
   facility = var.facility
 
@@ -189,6 +192,7 @@ node_type = var.custom_default_worker_type
 | `tags`                                | List of tags that will be propagated to master nodes.                                                                                                                         | -               | false    |
 | `controller_count`                    | Number of controller nodes.                                                                                                                                                   | 1               | false    |
 | `controller_type`                     | Packet instance type for controllers.                                                                                                                                         | "t1.small.x86"  | false    |
+| `controller_clc_snippets`             | Controller Flatcar Container Linux Config snippets.                                                                                                                           | []              | false    |
 | `dns`                                 | DNS configuration block.                                                                                                                                                      | -               | true     |
 | `dns.zone`                            | A DNS zone to use for the cluster. The following format is used for cluster-related DNS records: `<record>.<cluster_name>.<dns_zone>`                                         | -               | true     |
 | `dns.provider`                        | DNS provider to use for the cluster. Valid values: `cloudflare`, `route53`, `manual`.                                                                                         | -               | true     |

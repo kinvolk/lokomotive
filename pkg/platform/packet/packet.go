@@ -70,6 +70,7 @@ type config struct {
 	Tags                     map[string]string `hcl:"tags,optional"`
 	ControllerCount          int               `hcl:"controller_count"`
 	ControllerType           string            `hcl:"controller_type,optional"`
+	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
 	DNS                      dns.Config        `hcl:"dns,block"`
 	Facility                 string            `hcl:"facility"`
 	ProjectID                string            `hcl:"project_id"`
