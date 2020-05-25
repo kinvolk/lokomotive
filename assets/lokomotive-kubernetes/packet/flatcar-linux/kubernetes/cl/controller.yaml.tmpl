@@ -267,10 +267,12 @@ storage:
           :OUTPUT ACCEPT [0:0]
           -A INPUT -i lo -j ACCEPT
           -A INPUT -p tcp --dport 22 -j ACCEPT
-          -A INPUT -p tcp --dport 179 -j ACCEPT
-          -A INPUT -p tcp --dport 2379 -j ACCEPT
-          -A INPUT -p tcp --dport 2380 -j ACCEPT
-          -A INPUT -p tcp --dport 2381 -j ACCEPT
+          # Use 10.0.0.0/8 as this is Packet private network CIDR.
+          # It will be closed more tightly via Calico, which rules are easy to update.
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 179 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 2379 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 2380 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 2381 -j ACCEPT
           -A INPUT -p tcp --dport 6443 -j ACCEPT
           # With single controller node setup, the traffic from nodes to kube-apiserver may flow via either port 6443 or 7443.
           # This is because --advertise-address flag of kube-apiserver defines which IP address will be added as an endpoint
@@ -287,10 +289,10 @@ storage:
           #
           # That's why we need both port 6443 and 7443 to be opened on controller node.
           %{~ if controller_count == "1" ~}
-          -A INPUT -p tcp --dport 7443 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 7443 -j ACCEPT
           %{~ endif }
-          -A INPUT -p tcp --dport 10250 -j ACCEPT
-          -A INPUT -p tcp --dport 10256 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 10250 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 10256 -j ACCEPT
           -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
           COMMIT
     - path: /var/lib/ip6tables/rules-save

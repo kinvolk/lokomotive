@@ -316,9 +316,11 @@ storage:
           :OUTPUT ACCEPT [0:0]
           -A INPUT -i lo -j ACCEPT
           -A INPUT -p tcp --dport 22 -j ACCEPT
-          -A INPUT -p tcp --dport 179 -j ACCEPT
-          -A INPUT -p tcp --dport 10250 -j ACCEPT
-          -A INPUT -p tcp --dport 10256 -j ACCEPT
+          # Use 10.0.0.0/8 as this is Packet private network CIDR.
+          # It will be closed more tightly via Calico, which rules are easy to update.
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 179 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 10250 -j ACCEPT
+          -A INPUT -s 10.0.0.0/8 -p tcp --dport 10256 -j ACCEPT
           -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
           COMMIT
     - path: /var/lib/ip6tables/rules-save
