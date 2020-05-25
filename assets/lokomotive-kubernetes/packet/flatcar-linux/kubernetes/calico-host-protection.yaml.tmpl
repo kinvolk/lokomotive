@@ -3,7 +3,7 @@ clusterCIDRs:
 - ${cidr}
 %{ endfor ~}
 managementCIDRs:
-%{ for cidr in management_cidrs ~}
+%{~ for cidr in management_cidrs }
 - ${cidr}
 %{~ endfor }
 hostEndpoints:
