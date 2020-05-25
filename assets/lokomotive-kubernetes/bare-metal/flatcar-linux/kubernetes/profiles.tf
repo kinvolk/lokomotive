@@ -206,26 +206,18 @@ resource "matchbox_profile" "workers" {
 }
 
 data "ct_config" "worker-ignitions" {
-  count        = length(var.worker_names)
-  content      = data.template_file.worker-configs[count.index].rendered
-  pretty_print = false
-
-  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  snippets = local.clc_map[var.worker_names[count.index]]
-}
-
-data "template_file" "worker-configs" {
   count = length(var.worker_names)
-
-  template = file("${path.module}/cl/worker.yaml.tmpl")
-
-  vars = {
+  content = templatefile("${path.module}/cl/worker.yaml.tmpl", {
     domain_name            = var.worker_domains[count.index]
     cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
     cluster_domain_suffix  = var.cluster_domain_suffix
     ssh_keys               = jsonencode(var.ssh_keys)
-    kubelet_labels         = join(",", [for k, v in merge({ "node.kubernetes.io/node" = "" }, var.labels) : "${k}=${v}"])
-  }
+    kubelet_labels         = merge({ "node.kubernetes.io/node" = "" }, var.labels),
+  })
+  pretty_print = false
+
+  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
+  snippets = local.clc_map[var.worker_names[count.index]]
 }
 
 locals {
