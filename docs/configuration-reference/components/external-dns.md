@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -79,10 +79,10 @@ To apply the ExternalDNS component:
 ```bash
 lokoctl component apply external-dns
 ```
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest external-dns | kubectl delete -f -
+lokoctl component delete external-dns --delete-namespace
 ```

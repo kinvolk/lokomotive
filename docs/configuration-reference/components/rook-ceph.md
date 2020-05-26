@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -88,12 +88,12 @@ lokoctl component apply rook-ceph
 Once the Ceph cluster is ready, an object store can be deployed to start writing to Ceph.
 More information is available at [configuring Ceph object store CRD](https://rook.io/docs/rook/v1.2/ceph-object-store-crd.html)
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest rook-ceph | kubectl delete -f -
+lokoctl component delete rook-ceph
 ```
 
 After removing the component from the cluster, make sure to delete `/var/lib/rook` from the host

@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -85,10 +85,10 @@ lokoctl component apply contour
 
 This component is installed in the `projectcontour` namespace.
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest contour | kubectl delete -f -
+lokoctl component delete contour --delete-namespace
 ```

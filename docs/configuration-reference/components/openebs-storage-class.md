@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -75,10 +75,10 @@ To apply the OpenEBS storage class component:
 ```bash
 lokoctl component apply openebs-storage-class
 ```
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest openebs-storage-class | kubectl delete -f -
+lokoctl component delete openebs-storage-class
 ```

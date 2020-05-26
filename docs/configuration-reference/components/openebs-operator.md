@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -76,10 +76,10 @@ This component only concerns with the installation of openebs-operator. To confi
 class and storage pool claim, check out the [openebs-storage-class](openebs-storage-class.md)
 component.
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest openebs-operator | kubectl delete -f -
+lokoctl component delete openebs-operator --delete-namespace
 ```

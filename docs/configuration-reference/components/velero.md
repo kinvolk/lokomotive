@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -112,10 +112,10 @@ You can find how to install it in the [official documentation](https://velero.io
 
 To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.2.0/examples/)
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest velero | kubectl delete -f -
+lokoctl component delete velero --delete-namespace
 ```

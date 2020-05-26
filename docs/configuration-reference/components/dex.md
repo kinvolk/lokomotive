@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -209,10 +209,10 @@ Admin SDK lets administrators of enterprise domains to view and manage resources
 etc. To enable it [click
 here](https://console.developers.google.com/apis/library/admin.googleapis.com/).
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest dex | kubectl delete -f -
+lokoctl component delete dex --delete-namespace
 ```

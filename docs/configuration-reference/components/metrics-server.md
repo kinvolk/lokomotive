@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -42,11 +42,11 @@ To apply the Metrics server component:
 lokoctl component apply metrics-server
 ```
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest metrics-server | kubectl delete -f -
+lokoctl component delete metrics-server
 ```
 

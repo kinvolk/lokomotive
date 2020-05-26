@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -149,10 +149,10 @@ here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/us
 and [the API Reference can be found
 here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#servicemonitor).
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest prometheus-operator | kubectl delete -f -
+lokoctl component delete prometheus-operator --delete-namespace
 ```
