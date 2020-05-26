@@ -241,10 +241,14 @@ kind: Ingress
 metadata:
   name: gangway
   namespace: gangway
+  labels:
+    app.kubernetes.io/managed-by: Helm
   annotations:
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
     kubernetes.io/ingress.class: contour
+    meta.helm.sh/release-name: gangway
+    meta.helm.sh/release-namespace: gangway
 spec:
   tls:
   - secretName: gangway
