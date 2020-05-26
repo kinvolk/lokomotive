@@ -96,7 +96,7 @@ metadata:
   namespace: httpbin
   annotations:
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
     kubernetes.io/ingress.class: contour
 spec:
   tls:
@@ -117,11 +117,14 @@ func init() {
 }
 
 type component struct {
-	IngressHost string `hcl:"ingress_host,attr"`
+	IngressHost              string `hcl:"ingress_host,attr"`
+	CertManagerClusterIssuer string `hcl:"certmanager_cluster_issuer,optional"`
 }
 
 func newComponent() *component {
-	return &component{}
+	return &component{
+		CertManagerClusterIssuer: "letsencrypt-production",
+	}
 }
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {

@@ -185,7 +185,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: contour
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
 spec:
   tls:
     - hosts:
@@ -245,11 +245,12 @@ type staticClient struct {
 }
 
 type component struct {
-	IngressHost          string         `hcl:"ingress_host,attr"`
-	IssuerHost           string         `hcl:"issuer_host,attr"`
-	Connectors           []connector    `hcl:"connector,block"`
-	StaticClients        []staticClient `hcl:"static_client,block"`
-	GSuiteJSONConfigPath string         `hcl:"gsuite_json_config_path,optional"`
+	IngressHost              string         `hcl:"ingress_host,attr"`
+	IssuerHost               string         `hcl:"issuer_host,attr"`
+	Connectors               []connector    `hcl:"connector,block"`
+	StaticClients            []staticClient `hcl:"static_client,block"`
+	GSuiteJSONConfigPath     string         `hcl:"gsuite_json_config_path,optional"`
+	CertManagerClusterIssuer string         `hcl:"certmanager_cluster_issuer,optional"`
 
 	// Those are fields not accessible by user
 	ConnectorsRaw    string
@@ -257,7 +258,9 @@ type component struct {
 }
 
 func newComponent() *component {
-	return &component{}
+	return &component{
+		CertManagerClusterIssuer: "letsencrypt-production",
+	}
 }
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {

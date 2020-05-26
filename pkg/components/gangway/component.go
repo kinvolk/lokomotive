@@ -243,7 +243,7 @@ metadata:
   namespace: gangway
   annotations:
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
     kubernetes.io/ingress.class: contour
 spec:
   tls:
@@ -275,19 +275,22 @@ func init() {
 }
 
 type component struct {
-	ClusterName  string `hcl:"cluster_name,attr"`
-	IngressHost  string `hcl:"ingress_host,attr"`
-	SessionKey   string `hcl:"session_key,attr"`
-	APIServerURL string `hcl:"api_server_url,attr"`
-	AuthorizeURL string `hcl:"authorize_url,attr"`
-	TokenURL     string `hcl:"token_url,attr"`
-	ClientID     string `hcl:"client_id,attr"`
-	ClientSecret string `hcl:"client_secret,attr"`
-	RedirectURL  string `hcl:"redirect_url,attr"`
+	ClusterName              string `hcl:"cluster_name,attr"`
+	IngressHost              string `hcl:"ingress_host,attr"`
+	SessionKey               string `hcl:"session_key,attr"`
+	APIServerURL             string `hcl:"api_server_url,attr"`
+	AuthorizeURL             string `hcl:"authorize_url,attr"`
+	TokenURL                 string `hcl:"token_url,attr"`
+	ClientID                 string `hcl:"client_id,attr"`
+	ClientSecret             string `hcl:"client_secret,attr"`
+	RedirectURL              string `hcl:"redirect_url,attr"`
+	CertManagerClusterIssuer string `hcl:"certmanager_cluster_issuer,optional"`
 }
 
 func newComponent() *component {
-	return &component{}
+	return &component{
+		CertManagerClusterIssuer: "letsencrypt-production",
+	}
 }
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
