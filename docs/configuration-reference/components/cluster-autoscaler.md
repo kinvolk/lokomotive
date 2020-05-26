@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -95,10 +95,10 @@ lokoctl component apply cluster-autoscaler
 ```
 By default, the cluster Autoscaler pods run in the `kube-system` namespace
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest cluster-autoscaler | kubectl delete -f -
+lokoctl component delete cluster-autoscaler
 ```

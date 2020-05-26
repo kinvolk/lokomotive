@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -52,10 +52,10 @@ To apply the cert-manager component:
 ```bash
 lokoctl component apply cert-manager
 ```
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest cert-manager | kubectl delete -f -
+lokoctl component delete cert-manager --delete-namespace
 ```

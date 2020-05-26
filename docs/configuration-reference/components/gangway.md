@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -95,11 +95,11 @@ To apply the Gangway component:
 ```bash
 lokoctl component apply gangway
 ```
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest gangway | kubectl delete -f -
+lokoctl component delete gangway --delete-namespace
 ```
 

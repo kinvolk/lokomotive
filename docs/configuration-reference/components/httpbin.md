@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -46,10 +46,10 @@ To apply the httpbin component:
 lokoctl component apply httpbin
 ```
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest httpbin | kubectl delete -f -
+lokoctl component delete httpbin --delete-namespace
 ```

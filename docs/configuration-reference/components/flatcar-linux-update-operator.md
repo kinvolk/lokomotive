@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -56,10 +56,10 @@ lokoctl component apply flatcar-linux-update-operator
 
 This component is installed in the `reboot-coordinator` namespace.
 
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest flatcar-linux-update-operator | kubectl delete -f -
+lokoctl component delete flatcar-linux-update-operator --delete-namespace
 ```

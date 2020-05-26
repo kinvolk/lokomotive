@@ -7,7 +7,7 @@
 * [Configuration](#configuration)
 * [Attribute reference](#attribute-reference)
 * [Applying](#applying)
-* [Destroying](#destroying)
+* [Deleting](#deleting)
 
 ## Introduction
 
@@ -75,10 +75,10 @@ To apply the Rook component:
 ```bash
 lokoctl component apply rook
 ```
-## Destroying
+## Deleting
 
 To destroy the component:
 
 ```bash
-lokoctl component render-manifest rook | kubectl delete -f -
+lokoctl component delete rook --delete-namespace
 ```
