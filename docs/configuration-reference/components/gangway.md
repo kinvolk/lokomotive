@@ -80,6 +80,7 @@ Example:
 |------------------|-----------------------------------------------------------------------------------------------|:-------:|:--------:|
 | `cluster_name`   | The name of the cluster.                                                                      | -       | true     |
 | `ingress_host`   | Used as the `hosts` domain in the ingress resource for gangway that is automatically created. | -       | true     |
+| `certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`. | `letsencrypt-production` | false |
 | `sesion_key`     | Gangway session key.                                                                          | -       | true     |
 | `api_server_url` | URL of Kubernetes API server.                                                                 | -       | true     |
 | `authorize_url`  | Auth endpoint of Dex.                                                                         | -       | true     |

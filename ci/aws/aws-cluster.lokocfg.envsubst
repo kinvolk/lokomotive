@@ -76,6 +76,8 @@ component "dex" {
 
   issuer_host = "$ISSUER_HOST"
 
+  certmanager_cluster_issuer = "letsencrypt-staging"
+
   connector "github" {
     id   = "github"
     name = "GitHub"
@@ -110,6 +112,8 @@ component "gangway" {
 
   ingress_host = "$GANGWAY_INGRESS_HOST"
 
+  certmanager_cluster_issuer = "letsencrypt-staging"
+
   session_key = "$GANGWAY_SESSION_KEY"
 
   api_server_url = "$API_SERVER_URL"
@@ -132,4 +136,6 @@ component "flatcar-linux-update-operator" {}
 
 component "httpbin" {
   ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
+
+  certmanager_cluster_issuer = "letsencrypt-staging"
 }
