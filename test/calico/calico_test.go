@@ -18,6 +18,7 @@
 package calico
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -62,7 +63,7 @@ func TestHostEndpointObjectsExistForPublicInterfacesOnAllNodes(t *testing.T) { /
 
 	request := client.Get()
 	request.RequestURI("apis/crd.projectcalico.org/v1/hostendpoints")
-	response, err := request.DoRaw()
+	response, err := request.DoRaw(context.TODO())
 	if err != nil {
 		t.Fatalf("failed getting HostEndpoint objects: %v", err)
 	}
@@ -82,7 +83,7 @@ func TestHostEndpointObjectsExistForPublicInterfacesOnAllNodes(t *testing.T) { /
 
 	cs := util.CreateKubeClient(t)
 
-	nodes, err := cs.CoreV1().Nodes().List(metav1.ListOptions{})
+	nodes, err := cs.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("failed getting list of nodes in the cluster: %v", err)
 	}

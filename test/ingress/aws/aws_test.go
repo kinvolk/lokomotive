@@ -18,6 +18,7 @@
 package aws
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -38,7 +39,7 @@ const (
 func TestAWSIngress(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
-	i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get("httpbin", metav1.GetOptions{})
+	i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get(context.TODO(), "httpbin", metav1.GetOptions{})
 	if err != nil {
 		t.Fatalf("getting httpbin ingress: %v", err)
 	}
