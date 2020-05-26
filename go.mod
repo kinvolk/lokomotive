@@ -79,7 +79,7 @@ replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.
 //
 // https://github.com/helm/helm/pull/7405
 // https://github.com/helm/helm/pull/7431
-replace helm.sh/helm/v3 => github.com/kinvolk/helm/v3 v3.2.2-0.20200526111452-3f2eed654ebf
+replace helm.sh/helm/v3 => github.com/kinvolk/helm/v3 v3.2.2-0.20200526121938-305e0b796fc9
 
 // This module has been renamed, which causes confusion now.
 // https://github.com/kubernetes/kubernetes/issues/88183

@@ -39,6 +39,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
@@ -167,7 +168,16 @@ func (c *Client) Build(reader io.Reader, validate bool) (ResourceList, error) {
 // resource updates, creations, and deletions that were attempted. These can be
 // used for cleanup or other logging purposes.
 func (c *Client) Update(original, target ResourceList, force bool) (*Result, error) {
-	updateErrors := []string{}
+	return c.update(target, original, force, false, 0)
+}
+
+// Like Update but using the recreate strategy on updating a resource
+func (c *Client) UpdateRecreate(original, target ResourceList, force bool, timeout time.Duration) (*Result, error) {
+	return c.update(target, original, force, true, timeout)
+}
+
+func (c *Client) update(target ResourceList, original ResourceList, force bool, recreate bool, timeout time.Duration) (*Result, error) {
+	var updateErrors []string
 	res := &Result{}
 
 	c.Log("checking %d resources for changes", len(target))
@@ -201,7 +211,7 @@ func (c *Client) Update(original, target ResourceList, force bool) (*Result, err
 			return errors.Errorf("no %s with the name %q found", kind, info.Name)
 		}
 
-		if err := updateResource(c, info, originalInfo.Object, force); err != nil {
+		if err := updateResource(c, info, originalInfo.Object, force, recreate, timeout); err != nil {
 			c.Log("error updating the resource %q:\n\t %v", info.Name, err)
 			updateErrors = append(updateErrors, err.Error())
 		}
@@ -415,7 +425,7 @@ func createPatch(target *resource.Info, current runtime.Object) ([]byte, types.P
 	return patch, types.StrategicMergePatchType, err
 }
 
-func updateResource(c *Client, target *resource.Info, currentObj runtime.Object, force bool) error {
+func updateResource(c *Client, target *resource.Info, currentObj runtime.Object, force bool, recreate bool, timeout time.Duration) error {
 	var (
 		obj    runtime.Object
 		helper = resource.NewHelper(target.Client, target.Mapping)
@@ -437,23 +447,59 @@ func updateResource(c *Client, target *resource.Info, currentObj runtime.Object,
 		return nil
 	}
 
-	// if --force is applied, attempt to replace the existing resource with the new object.
-	if force {
+	// update strategies:
+	// default              PATCH
+	// --force              PUT
+	// --recreate           PATCH, on failure DELETE, POST
+	// --recreate --force   DELETE, POST
+	switch {
+	case recreate && force:
+		err = c.deleteAndCreate(helper, target, timeout)
+		if err != nil {
+			return errors.Wrapf(err, "failed to recreate %q with kind %s", target.Name, kind)
+		}
+	case recreate:
+		obj, err = helper.Patch(target.Namespace, target.Name, patchType, patch, nil)
+		if err != nil {
+			if apierrors.IsConflict(err) || apierrors.IsInvalid(err) {
+				err = c.deleteAndCreate(helper, target, timeout)
+			}
+			return errors.Wrapf(err, "failed to recreate %q with kind %s", target.Name, kind)
+		}
+	case force:
 		obj, err = helper.Replace(target.Namespace, target.Name, true, target.Object)
 		if err != nil {
-			return errors.Wrap(err, "failed to replace object")
+			return errors.Wrapf(err, "failed to replace %q with kind %s", target.Name, kind)
 		}
-		c.Log("Replaced %q with kind %s for kind %s", target.Name, currentObj.GetObjectKind().GroupVersionKind().Kind, kind)
-	} else {
-		// send patch to server
+		c.Log("Replaced %q with kind %s for kind %s\n", target.Name, currentObj.GetObjectKind().GroupVersionKind().Kind, kind)
+	default:
 		obj, err = helper.Patch(target.Namespace, target.Name, patchType, patch, nil)
 		if err != nil {
 			return errors.Wrapf(err, "cannot patch %q with kind %s", target.Name, kind)
 		}
 	}
 
-	target.Refresh(obj, true)
+	if obj != nil {
+		return target.Refresh(obj, true)
+	}
 	return nil
+}
+
+func (c *Client) deleteAndCreate(helper *resource.Helper, target *resource.Info, timeout time.Duration) error {
+	if err := deleteResource(target); err != nil {
+		return err
+	}
+
+	if err := wait.PollImmediate(1*time.Second, timeout, func() (bool, error) {
+		if _, err := helper.Get(target.Namespace, target.Name, false); !apierrors.IsNotFound(err) {
+			return false, err
+		}
+		return true, nil
+	}); err != nil {
+		return err
+	}
+
+	return createResource(target)
 }
 
 func (c *Client) watchUntilReady(timeout time.Duration, info *resource.Info) error {

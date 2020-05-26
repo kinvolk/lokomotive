@@ -464,7 +464,7 @@ gopkg.in/ini.v1
 gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
-# helm.sh/helm/v3 v3.1.2 => github.com/kinvolk/helm/v3 v3.2.2-0.20200526111452-3f2eed654ebf
+# helm.sh/helm/v3 v3.1.2 => github.com/kinvolk/helm/v3 v3.2.2-0.20200526121938-305e0b796fc9
 helm.sh/helm/v3/internal/experimental/registry
 helm.sh/helm/v3/internal/fileutil
 helm.sh/helm/v3/internal/ignore

@@ -386,8 +386,8 @@ github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfV
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 h1:iQTw/8FWTuc7uiaSepXwyf3o52HaUYcV+Tu66S3F5GA=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
-github.com/kinvolk/helm/v3 v3.2.2-0.20200526111452-3f2eed654ebf h1:kqoSGX/4KR+apnny9FMy0RzVxetxQp3cRGD1V2HKlSA=
-github.com/kinvolk/helm/v3 v3.2.2-0.20200526111452-3f2eed654ebf/go.mod h1:ZaXz/vzktgwjyGGFbUWtIQkscfE7WYoRGP2szqAFHR0=
+github.com/kinvolk/helm/v3 v3.2.2-0.20200526121938-305e0b796fc9 h1:H4xQRtlNDq2/8X85oTy4mON+8ir8cP7jUH+jkQVL0jI=
+github.com/kinvolk/helm/v3 v3.2.2-0.20200526121938-305e0b796fc9/go.mod h1:ZaXz/vzktgwjyGGFbUWtIQkscfE7WYoRGP2szqAFHR0=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
