@@ -91,6 +91,8 @@ cluster "aws" {
 
   dns_zone_id = route53_zone_id
 
+  enable_csi = true
+
   expose_nodeports = false
 
   ssh_pubkeys = var.ssh_public_keys
@@ -202,6 +204,7 @@ worker_pool "my-worker-pool" {
 | `oidc.client_id`              | A client id that all tokens must be issued for.                                                                                                                                            | "gangway"       | false    |
 | `oidc.username_claim`         | JWT claim to use as the user name.                                                                                                                                                         | "email"         | false    |
 | `oidc.groups_claim`           | JWT claim to use as the user’s group.                                                                                                                                                      | "groups"        | false    |
+| `enable_csi`     | Set up IAM role needed for dynamic volumes provisioning to work on AWS                                                                                                                     | false           | false    |
 | `expose_nodeports`            | Expose node ports `30000-32767` in the security group, if set to `true`.                                                                                                                   | false           | false    |
 | `ssh_pubkeys`                 | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...".               | -               | true     |
 | `controller_count`            | Number of controller nodes.                                                                                                                                                                | 1               | false    |
