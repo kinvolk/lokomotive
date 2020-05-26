@@ -105,6 +105,7 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 
 	upgrade := action.NewUpgrade(actionConfig)
 	upgrade.Wait = wait
+	upgrade.RecreateResources = true
 
 	if _, err := upgrade.Run(name, chart, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("updating chart failed: %w", err)
