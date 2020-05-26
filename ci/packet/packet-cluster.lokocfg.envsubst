@@ -83,6 +83,8 @@ component "dex" {
 
   issuer_host = "$ISSUER_HOST"
 
+  certmanager_cluster_issuer = "letsencrypt-staging"
+
   connector "github" {
     id = "github"
     name = "GitHub"
@@ -116,6 +118,8 @@ component "gangway" {
   cluster_name = "$CLUSTER_ID"
 
   ingress_host = "$GANGWAY_INGRESS_HOST"
+
+  certmanager_cluster_issuer = "letsencrypt-staging"
 
   session_key = "$GANGWAY_SESSION_KEY"
 
@@ -155,4 +159,6 @@ component "cluster-autoscaler" {
 
 component "httpbin" {
   ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
+
+  certmanager_cluster_issuer = "letsencrypt-staging"
 }
