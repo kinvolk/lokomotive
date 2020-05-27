@@ -30,4 +30,11 @@ module "bootkube" {
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
   # Extra flags to API server.
   kube_apiserver_extra_flags = var.kube_apiserver_extra_flags
+
+  # Block access to Packet metadata service.
+  #
+  # https://www.packet.com/developers/docs/servers/key-features/metadata/
+  #
+  # metadata.packet.net should always resolve to 192.80.8.124.
+  blocked_metadata_cidrs = ["192.80.8.124"]
 }
