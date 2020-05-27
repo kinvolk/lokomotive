@@ -132,37 +132,37 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Avilable - {{ `{{ pool }}` }}",
+          "legendFormat": "Available - {{ pool }}",
           "metric": "ceph_pool_available_bytes",
           "refId": "A",
           "step": 60
         },
         {
-          "expr": "ceph_pool_bytes_used{pool_id=~\"^$pool$\"}",
+          "expr": "ceph_pool_stored{pool_id=~\"^$pool$\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Used - {{ `{{ pool }}` }}",
+          "legendFormat": "Used - {{ pool }}",
           "metric": "ceph_pool",
           "refId": "B",
           "step": 60
         },
         {
-          "expr": "ceph_pool_bytes_used{pool_id=~\"^$pool$\"} + ceph_pool_max_avail{pool_id=~\"^$pool$\"}",
+          "expr": "ceph_pool_stored{pool_id=~\"^$pool$\"} + ceph_pool_max_avail{pool_id=~\"^$pool$\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Total - {{ `{{ pool }}` }}",
+          "legendFormat": "Total - {{ pool }}",
           "metric": "ceph_pool",
           "refId": "C",
           "step": 60
         },
         {
-          "expr": "ceph_pool_raw_bytes_used{pool_id=~\"^$pool$\"}",
+          "expr": "ceph_pool_stored_raw{pool_id=~\"^$pool$\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Raw - {{ `{{ pool }}` }}",
+          "legendFormat": "Raw - {{ pool }}",
           "metric": "ceph_pool",
           "refId": "D",
           "step": 60
@@ -275,7 +275,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "ceph_pool_bytes_used{pool_id=\"$pool\"} / (ceph_pool_bytes_used{pool_id=\"$pool\"} + ceph_pool_max_avail{pool_id=\"$pool\"})",
+          "expr": "ceph_pool_stored{pool_id=\"$pool\"} / (ceph_pool_stored{pool_id=\"$pool\"} + ceph_pool_max_avail{pool_id=\"$pool\"})",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
@@ -355,7 +355,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Objects - {{ `{{ pool }}` }}",
+          "legendFormat": "Objects - {{ pool }}",
           "refId": "A",
           "step": 60
         },
@@ -364,7 +364,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Dirty Objects - {{ `{{ pool }}` }}",
+          "legendFormat": "Dirty Objects - {{ pool }}",
           "refId": "B",
           "step": 60
         },
@@ -373,7 +373,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Quota Objects - {{ `{{ pool }}` }}",
+          "legendFormat": "Quota Objects - {{ pool }}",
           "refId": "C"
         }
       ],
@@ -467,7 +467,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Read - {{ `{{ pool }}` }}",
+          "legendFormat": "Read - {{ pool }}",
           "refId": "B",
           "step": 60
         },
@@ -476,7 +476,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Write - {{ `{{ pool }}` }}",
+          "legendFormat": "Write - {{ pool }}",
           "refId": "A",
           "step": 60
         }
@@ -571,7 +571,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Read Bytes - {{ `{{ pool }}` }}",
+          "legendFormat": "Read Bytes - {{ pool }}",
           "refId": "A",
           "step": 60
         },
@@ -580,7 +580,7 @@
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Written Bytes - {{ `{{ pool }}` }}",
+          "legendFormat": "Written Bytes - {{ pool }}",
           "refId": "B",
           "step": 60
         }
