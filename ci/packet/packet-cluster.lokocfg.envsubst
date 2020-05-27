@@ -13,7 +13,7 @@ cluster "packet" {
     }
   }
 
-  facility    = "$PACKET_LOCATION"
+  facility = "$PACKET_LOCATION"
 
   project_id = "$PACKET_PROJECT_ID"
 
@@ -24,8 +24,13 @@ cluster "packet" {
   worker_pool "pool-1" {
     count     = 2
     node_type = "c2.medium.x86"
-    labels = "testing.io=yes,roleofnode=testing"
+    labels    = "testing.io=yes,roleofnode=testing"
   }
+
+  # Adds oidc flags to API server with default values.
+  # Acts as a smoke test to check if API server is functional after addition
+  # of extra flags.
+  oidc {}
 }
 
 component "openebs-operator" {}
@@ -70,8 +75,8 @@ component "external-dns"{
   policy   = "sync"
   owner_id = "$CLUSTER_ID"
   aws {
-    zone_id = "$AWS_DNS_ZONE_ID"
-    aws_access_key_id = "$AWS_ACCESS_KEY_ID"
+    zone_id               = "$AWS_DNS_ZONE_ID"
+    aws_access_key_id     = "$AWS_ACCESS_KEY_ID"
     aws_secret_access_key = "$AWS_SECRET_ACCESS_KEY"
   }
 
@@ -86,13 +91,13 @@ component "dex" {
   certmanager_cluster_issuer = "letsencrypt-staging"
 
   connector "github" {
-    id = "github"
+    id   = "github"
     name = "GitHub"
 
     config {
-      client_id = "$GITHUB_CLIENT_ID"
+      client_id     = "$GITHUB_CLIENT_ID"
       client_secret = "$GITHUB_CLIENT_SECRET"
-      redirect_uri = "$REDIRECT_URI"
+      redirect_uri  = "$REDIRECT_URI"
 
       team_name_field = "slug"
 
@@ -151,7 +156,7 @@ component "cluster-autoscaler" {
 
   packet {
     project_id = "$PACKET_PROJECT_ID"
-    facility = "$PACKET_LOCATION"
+    facility   = "$PACKET_LOCATION"
   }
 
   service_monitor = true

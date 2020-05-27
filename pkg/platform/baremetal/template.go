@@ -47,6 +47,14 @@ module "bare-metal-{{.ClusterName}}" {
   worker_names       = {{.WorkerNames}}
   worker_macs        = {{.WorkerMacs}}
   worker_domains     = {{.WorkerDomains}}
+
+  {{- if .KubeAPIServerExtraFlags }}
+  kube_apiserver_extra_flags = [
+    {{- range .KubeAPIServerExtraFlags }}
+    "{{ . }}",
+    {{- end }}
+  ]
+  {{- end }}
 }
 
 provider "matchbox" {

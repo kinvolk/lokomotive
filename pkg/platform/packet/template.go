@@ -100,6 +100,14 @@ module "packet-{{.Config.ClusterName}}" {
   {{- end }}
 
   disable_self_hosted_kubelet = {{ .Config.DisableSelfHostedKubelet }}
+
+  {{- if .Config.KubeAPIServerExtraFlags }}
+  kube_apiserver_extra_flags = [
+    {{- range .Config.KubeAPIServerExtraFlags }}
+    "{{ . }}",
+    {{- end }}
+  ]
+  {{- end }}
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}

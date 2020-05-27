@@ -26,6 +26,11 @@ cluster "aws" {
       "deployment" = "ci"
     }
   }
+
+  # Adds oidc flags to API server with default values.
+  # Acts as a smoke test to check if API server is functional after addition
+  # of extra flags.
+  oidc {}
 }
 
 component "openebs-operator" {}

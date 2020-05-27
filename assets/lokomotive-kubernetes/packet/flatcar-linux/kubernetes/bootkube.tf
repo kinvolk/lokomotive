@@ -27,4 +27,6 @@ module "bootkube" {
 
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
+  # Extra flags to API server.  
+  kube_apiserver_extra_flags = var.kube_apiserver_extra_flags
 }

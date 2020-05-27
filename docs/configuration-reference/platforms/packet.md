@@ -44,6 +44,10 @@ variable "management_cidrs" {}
 variable "node_private_cidr" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
+variable "oidc_issuer_url" {}
+variable "oidc_client_id" {}
+variable "oidc_username_claim" {}
+variable "oidc_groups_claim" {}
 
 backend "s3" {
   bucket         = var.state_s3_bucket
@@ -122,6 +126,13 @@ cluster "packet" {
 
   certs_validity_period_hours = 8760
 
+  oidc {
+    issuer_url     = var.oidc_issuer_url
+    client_id      = var.oidc_client_id
+    username_claim = var.oidc_username_claim
+    groups_claim   = var.oidc_groups_claim
+  }
+
   worker_pool "worker-pool-1" {
     count = var.workers_count
 
@@ -192,6 +203,11 @@ node_type = var.custom_default_worker_type
 | `dns.provider.route53.zone_id`        | Route 53 DNS Zone ID.                                                                                                                                                         | -               | true     |
 | `dns.provider.route53.aws_creds_path` | AWS credentials for managing Route 53 DNS.                                                                                                                                    | -               | false    |
 | `dns.provider.manual`                 | Manual DNS configuration.                                                                                                                                                     | -               | false    |
+| `oidc`                                | OIDC configuration block.                                                                                                                                                     | -               | false    |
+| `oidc.issuer_url`                     | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                        | -               | false    |
+| `oidc.client_id`                      | A client id that all tokens must be issued for.                                                                                                                               | "gangway"       | false    |
+| `oidc.username_claim`                 | JWT claim to use as the user name.                                                                                                                                            | "email"         | false    |
+| `oidc.groups_claim`                   | JWT claim to use as the user’s group.                                                                                                                                         | "groups"        | false    |
 | `facility`                            | Packet facility to use for deploying the cluster.                                                                                                                             | -               | false    |
 | `project_id`                          | Packet project ID.                                                                                                                                                            | -               | true     |
 | `ssh_pubkeys`                         | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...".  | -               | true     |

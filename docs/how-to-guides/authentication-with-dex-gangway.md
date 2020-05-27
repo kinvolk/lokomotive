@@ -113,9 +113,9 @@ variable "gangway_session_key" {
 component "dex" {
   # NOTE: This name should match with the contour component configuration
   # `ingress_hosts`
-  ingress_host = "dex.YOUR.CLUSTER.DOMAIN.NAME"
+  ingress_host = "dex.<CLUSTER_NAME>.<DOMAIN.NAME>"
 
-  issuer_host = "https://dex.YOUR.CLUSTER.DOMAIN.NAME"
+  issuer_host = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>"
 
   # GitHub connector configuration.
   connector "github" {
@@ -128,7 +128,7 @@ component "dex" {
       client_secret = var.github_client_secret
 
       # The authorization callback URL as configured with GitHub.
-      redirect_uri = "https://dex.YOUR.CLUSTER.DOMAIN.NAME/callback"
+      redirect_uri = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/callback"
 
       # Can be 'name', 'slug' or 'both'.
       # See https://github.com/dexidp/dex/blob/master/Documentation/connectors/github.md
@@ -158,17 +158,17 @@ component "dex" {
 component "gangway" {
   cluster_name = "YOUR-CLUSTER-NAME"
 
-  ingress_host = "gangway.YOUR.CLUSTER.DOMAIN.NAME"
+  ingress_host = "gangway.<CLUSTER_NAME>.<DOMAIN_NAME>"
 
   session_key = var.gangway_session_key
 
-  api_server_url = "https://YOUR.CLUSTER.DOMAIN.NAME:6443"
+  api_server_url = "https://<CLUSTER_NAME>.<DOMAIN_NAME>:6443"
 
   # Dex 'auth' endpoint.
-  authorize_url = "https://dex.YOUR.CLUSTER.DOMAIN.NAME/auth"
+  authorize_url = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/auth"
 
   # Dex 'token' endpoint.
-  token_url = "https://dex.YOUR.CLUSTER.DOMAIN.NAME/token"
+  token_url = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/token"
 
   # The static client id and secret.
   client_id     = var.dex_static_client_gangway_id
@@ -191,7 +191,7 @@ HomePage URL must match the `issuer_host` in Dex configuration.
 
 Set **Authorization Callback URL** to the value of the `redirect_uri` in the Dex configuration.
 
-![Registering OAuth application ](github-oauth-app-register.png?raw=true "Register a new OAuth
+![Registering OAuth application ](../images/github-oauth-app-register.png?raw=true "Register a new OAuth
 application")
 
 After registering the application, take note of the ClientID and ClientSecret.
@@ -207,7 +207,7 @@ dex_static_client_gangway_id="gangway"
 
 # A random secret key (create one with `openssl rand -base64 32`)
 gangway_session_key="PMXEGiQ7fScPxuKS/DAimsCHueeWxT7HBL6I16sZzHE="
-gangway_redirect_url = "https://gangway.YOUR.CLUSTER.DOMAIN.NAME>/callback"
+gangway_redirect_url = "https://gangway.<CLUSTER_NAME>.<DOMAIN_NAME>>/callback"
 
 # GitHub OAuth application client ID and secret.
 github_client_id = "87a2e79c21e7ed32re51"
@@ -228,17 +228,17 @@ Issuing an HTTPS request to the discovery endpoint verifies the successful insta
 of Dex.
 
 ```bash
-$ curl https://dex.YOUR.CLUSTER.DOMAIN.NAME/.well-known/openid-configuration
+$ curl https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/.well-known/openid-configuration
 
 {
-  "issuer": "https://dex.YOUR.CLUSTER.DOMAIN.NAME",
+  "issuer": "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>",
   .
   .
   .
 }
 ```
 
-To verify the Gangway installation, open the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME` on your browser.
+To verify the Gangway installation, open the URL `https://gangway.<CLUSTER_NAME>.<DOMAIN_NAME>` on your browser.
 
 ### Step 5: Configure the API server to use Dex as an OIDC authenticator
 
@@ -250,62 +250,38 @@ Configuring an API server to use the OpenID Connect authentication plugin requir
 
 * Dex is accessible to both your browser and the Kubernetes API server.
 
-To reconfigure the API server with specific flags, edit the `kube-apiserver` DaemonSet as follows:
+To reconfigure the API server with specific flags, add following snippet to your cluster configuration:
 
-```bash
-kubectl -n kube-system edit daemonset kube-apiserver
+```hcl
+cluster "aws" {
+  ...
+
+  oidc {
+    issuer_url     = https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>
+    client_id      = gangway
+    username_claim = email
+    groups_claim   = groups
+  }
+}
 ```
-
-Add the following CLI arguments to the API server pod:
-
-```bash
---oidc-issuer-url=https://dex.YOUR.CLUSTER.DOMAIN.NAME
---oidc-client-id=gangway
---oidc-username-claim=email
---oidc-groups-claim=groups
-```
-
 Set the argument values according to the following table
 
-| Argument | Value |
-| ------------- | -------- |
-| `--oidc-issuer-url`| Value of `issuer_host` in the Dex configuration. |
-| `--oidc-client-id` | The client ID obtained from GitHub in step 2. |
+| Argument     | Value                                            |
+|--------------|--------------------------------------------------|
+| `issuer_url` | Value of `issuer_host` in the Dex configuration. |
+| `client_id`  | The client ID obtained from GitHub in step 2.    |
 
-Example:
-
-```bash
-    containers:
-    - command:
-      .
-      .
-      .
-      - exec /hyperkube \
-        kube-apiserver \
-        --advertise-address=$(POD_IP) \
-        --allow-privileged=true \
-        --anonymous-auth=false \
-        --authorization-mode=RBAC \
-        .
-        .
-        .
-        --oidc-issuer-url=https://dex.YOUR.CLUSTER.DOMAIN.NAME \
-        --oidc-client-id=gangway \
-        --oidc-username-claim=email \
-        --oidc-groups-claim=groups
-```
-
-It may take a few moments for the API server pods to restart. You can check the status by running the following command:
+To apply configured changes, execute:
 
 ```bash
-kubectl get pods -n kube-system
+lokoctl cluster apply
 ```
 
 ## Step 6: Authenticate with Gangway (for users)
 
-Sign in to Gangway using the URL `https://gangway.YOUR.CLUSTER.DOMAIN.NAME`.
+Sign in to Gangway using the URL `https://gangway.<CLUSTER_NAME>.<DOMAIN_NAME>`.
 You should be able to authenticate via GitHub.
-Upon successful authentication, you should be redirected to https://gangway.YOUR.CLUSTER.DOMAIN.NAME/commandline.
+Upon successful authentication, you should be redirected to https://gangway.<CLUSTER_NAME>.<DOMAIN_NAME>/commandline.
 
 Gangway provides further instructions for configuring `kubectl` to gain access to the cluster.
 
@@ -334,7 +310,7 @@ Check the following:
 
 * Check the ExternalDNS component logs for the created DNS entries matching the contour component.
 
-* If the DNS entries are already created, ensure that `dex.YOUR.CLUSTER.DOMAIN.NAME` and `gangway.YOUR.CLUSTER.DOMAIN.NAME` matches
+* If the DNS entries are already created, ensure that `dex.<CLUSTER_NAME>.<DOMAIN_NAME>` and `gangway.<CLUSTER_NAME>.<DOMAIN_NAME>` matches
 the field `ingress_hosts` in contour configuration.
 
 * Verify the configuration in `auth.lokocfg`.

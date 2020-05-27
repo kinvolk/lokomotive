@@ -4,6 +4,10 @@ variable "ssh_public_keys" {}
 variable "grafana_admin_password" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
+variable "oidc_issuer_url" {}
+variable "oidc_client_id" {}
+variable "oidc_username_claim" {}
+variable "oidc_groups_claim" {}
 
 variable "asset_dir" {
   default = "./lokomotive-assets"
@@ -47,6 +51,13 @@ cluster "aws" {
   dns_zone         = var.dns_zone
   dns_zone_id      = var.route53_zone_id
   ssh_pubkeys      = var.ssh_public_keys
+
+  oidc {
+    issuer_url     = var.oidc_issuer_url
+    client_id      = var.oidc_client_id
+    username_claim = var.oidc_username_claim
+    groups_claim   = var.oidc_groups_claim
+  }
 
   worker_pool "my-wp-name" {
     count         = var.workers_count

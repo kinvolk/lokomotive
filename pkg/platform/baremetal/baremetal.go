@@ -25,30 +25,33 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
 type config struct {
-	AssetDir                 string   `hcl:"asset_dir"`
-	CachedInstall            string   `hcl:"cached_install,optional"`
-	ClusterName              string   `hcl:"cluster_name"`
-	ControllerDomains        []string `hcl:"controller_domains"`
-	ControllerMacs           []string `hcl:"controller_macs"`
-	ControllerNames          []string `hcl:"controller_names"`
-	DisableSelfHostedKubelet bool     `hcl:"disable_self_hosted_kubelet,optional"`
-	K8sDomainName            string   `hcl:"k8s_domain_name"`
-	MatchboxCAPath           string   `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath   string   `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath    string   `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint         string   `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint     string   `hcl:"matchbox_http_endpoint"`
-	OSChannel                string   `hcl:"os_channel,optional"`
-	OSVersion                string   `hcl:"os_version,optional"`
-	SSHPubKeys               []string `hcl:"ssh_pubkeys"`
-	WorkerNames              []string `hcl:"worker_names"`
-	WorkerMacs               []string `hcl:"worker_macs"`
-	WorkerDomains            []string `hcl:"worker_domains"`
+	AssetDir                 string       `hcl:"asset_dir"`
+	CachedInstall            string       `hcl:"cached_install,optional"`
+	ClusterName              string       `hcl:"cluster_name"`
+	ControllerDomains        []string     `hcl:"controller_domains"`
+	ControllerMacs           []string     `hcl:"controller_macs"`
+	ControllerNames          []string     `hcl:"controller_names"`
+	DisableSelfHostedKubelet bool         `hcl:"disable_self_hosted_kubelet,optional"`
+	K8sDomainName            string       `hcl:"k8s_domain_name"`
+	MatchboxCAPath           string       `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath   string       `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath    string       `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint         string       `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint     string       `hcl:"matchbox_http_endpoint"`
+	OSChannel                string       `hcl:"os_channel,optional"`
+	OSVersion                string       `hcl:"os_version,optional"`
+	SSHPubKeys               []string     `hcl:"ssh_pubkeys"`
+	WorkerNames              []string     `hcl:"worker_names"`
+	WorkerMacs               []string     `hcl:"worker_macs"`
+	WorkerDomains            []string     `hcl:"worker_domains"`
+	OIDC                     *oidc.Config `hcl:"oidc,block"`
+	KubeAPIServerExtraFlags  []string
 }
 
 // init registers bare-metal as a platform
@@ -60,7 +63,12 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
+
+	if diags := gohcl.DecodeBody(*configBody, evalContext, c); diags.HasErrors() {
+		return diags
+	}
+
+	return c.checkValidConfig()
 }
 
 // Meta is part of Platform interface and returns common information about the platform configuration.
@@ -121,6 +129,16 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	defer f.Close()
 
+	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
+	if cfg.OIDC != nil {
+		// Skipping the error checking here because its done in checkValidConfig().
+		oidcFlags, _ := cfg.OIDC.ToKubeAPIServerFlags(cfg.K8sDomainName)
+		//TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
+		// append is not used for now because Initialize is called in cli/cmd/cluster.go
+		// and again in Apply which duplicates the values.
+		cfg.KubeAPIServerExtraFlags = oidcFlags
+	}
+
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal SSH public keys")
@@ -175,6 +193,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerMacs               string
 		WorkerDomains            string
 		DisableSelfHostedKubelet bool
+		KubeAPIServerExtraFlags  []string
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -194,10 +213,23 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerMacs:               string(workerMacs),
 		WorkerDomains:            string(workerDomains),
 		DisableSelfHostedKubelet: cfg.DisableSelfHostedKubelet,
+		KubeAPIServerExtraFlags:  cfg.KubeAPIServerExtraFlags,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
 		return errors.Wrapf(err, "failed to write template to file: %q", path)
 	}
 	return nil
+}
+
+// checkValidConfig validates cluster configuration.
+func (c *config) checkValidConfig() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	if c.OIDC != nil {
+		_, diags := c.OIDC.ToKubeAPIServerFlags(c.K8sDomainName)
+		diagnostics = append(diagnostics, diags...)
+	}
+
+	return diagnostics
 }

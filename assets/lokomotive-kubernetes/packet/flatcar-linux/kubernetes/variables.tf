@@ -186,3 +186,9 @@ variable "nodes_depend_on" {
   type        = list(any)
   default     = null
 }
+
+variable "kube_apiserver_extra_flags" {
+  description = "Extra flags passed to self-hosted kube-apiserver."
+  type        = list(string)
+  default     = []
+}
