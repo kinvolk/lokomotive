@@ -1,0 +1,53 @@
+{{- if .Values.calico.blockedMetadataCIDRs }}
+# This GNP will block outgoing traffic to cloud metadata services, whose
+# CIDRs can be specified in calico.blockedMetadataCIDRs. If, for example,
+# a node running on an AWS EC2 instance has an IAM role attached to it,
+# any pod running on this node can obtain the credentials for this role,
+# which could be exploited.
+#
+# With this GNP, all pods will be blocked from accessing the metadata services
+# by default.
+#
+# The specific CIDRs are defined per platform.
+#
+# This GNP can be hole-punched using a NetworkPolicy object selecting specific
+# pods. This is useful, for example, to allow the AWS Cloud Controller Manager (CCM)
+# or the AWS EBS CSI driver to use an EC2 IAM role to get credentials to talk to AWS API.
+#
+# Example NetworkPolicy to allow all egress traffic, which overrides this GNP
+# for selected pods:
+#
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: allow-metadata-access
+# spec:
+#   podSelector:
+#     matchLabels:
+#       foo: foo
+#   policyTypes:
+#   - Egress
+#   egress:
+#   - to:
+#     - ipBlock:
+#         cidr: 0.0.0.0/0
+#
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: block-metadata-access
+spec:
+  # This selector selects all pods, but not HostEndpoints, so host network
+  # will be still allowed to talk to metadata endpoints, which is required
+  # by OEM integration in Flatcar, for example coreos-metadata service.
+  selector: !has(host-endpoint)
+  types:
+  - Egress
+  egress:
+  - action: Allow
+    destination:
+      notNets:
+      {{- range $cidr := .Values.calico.blockedMetadataCIDRs }}
+      - {{ $cidr }}
+      {{- end }}
+{{- end }}

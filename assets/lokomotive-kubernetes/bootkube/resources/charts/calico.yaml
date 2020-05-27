@@ -10,3 +10,9 @@ calico:
   ipipReadiness: "${ipip_readiness}"
   podCIDR: ${pod_cidr}
   networkEncapsulation: "${network_encapsulation}"
+  %{~ if length(blocked_metadata_cidrs) > 0 ~}
+  blockedMetadataCIDRs:
+  %{~ for cidr in blocked_metadata_cidrs ~}
+  - ${cidr}
+  %{~ endfor ~}
+  %{~ endif ~}
