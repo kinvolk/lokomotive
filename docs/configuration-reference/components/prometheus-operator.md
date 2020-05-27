@@ -49,6 +49,7 @@ component "prometheus-operator" {
   alertmanager_node_selector = {
     "kubernetes.io/hostname" = "worker3"
   }
+}
 ```
 
 Create `alertmanager-config.yaml` file if necessary. Visit the [alertmanager
