@@ -121,6 +121,8 @@ module "worker-{{ $pool.Name }}" {
     packet   = packet.default
   }
 
+  dns_zone = "{{$.Config.DNS.Zone}}"
+
   ssh_keys  = {{$.SSHPublicKeys}}
 
   cluster_name = "{{$.Config.ClusterName}}"

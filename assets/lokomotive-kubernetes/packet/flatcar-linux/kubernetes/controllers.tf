@@ -53,6 +53,8 @@ data "ct_config" "controller-ignitions" {
     k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix = var.cluster_domain_suffix
     controller_count      = var.controller_count
+    dns_zone              = var.dns_zone
+    cluster_name          = var.cluster_name
 
     # we need to prepend a prefix 'docker://' for arm64, because arm64 images
     # on quay prevent us from downloading ACI correctly.
