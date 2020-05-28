@@ -76,7 +76,6 @@ grafana:
 
 kubeEtcd:
   enabled: {{.Monitor.Etcd}}
-  endpoints: {{.EtcdEndpoints}}
 prometheus-node-exporter:
   service: {}
 {{ if (or .PrometheusOperatorNodeSelector .DisableWebhooks) }}

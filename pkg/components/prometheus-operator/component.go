@@ -55,8 +55,7 @@ type Grafana struct {
 type component struct {
 	Grafana *Grafana `hcl:"grafana,block"`
 
-	Namespace     string   `hcl:"namespace,optional"`
-	EtcdEndpoints []string `hcl:"etcd_endpoints,optional"`
+	Namespace string `hcl:"namespace,optional"`
 
 	PrometheusOperatorNodeSelector map[string]string `hcl:"prometheus_operator_node_selector,optional"`
 
