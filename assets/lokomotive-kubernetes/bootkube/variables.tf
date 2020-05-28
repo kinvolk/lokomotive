@@ -100,7 +100,7 @@ variable "container_images" {
     calico_controllers      = "calico/kube-controllers:v3.14.1"
     hyperkube               = "k8s.gcr.io/hyperkube:v1.18.3"
     coredns                 = "coredns/coredns:coredns-"
-    pod_checkpointer        = "kinvolk/pod-checkpointer:83e25e5968391b9eb342042c435d1b3eeddb2be1"
+    pod_checkpointer        = "kinvolk/pod-checkpointer:d1c58443fe7d7d33aa5bf7d80d65d299be6e5847"
     kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.18.3"
     kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.18.3"
     kube_scheduler          = "k8s.gcr.io/kube-scheduler:v1.18.3"
