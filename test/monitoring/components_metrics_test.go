@@ -71,6 +71,11 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			platforms:     selfHostedPlatforms,
 		},
 		{
+			componentName: "etcd",
+			query:         "etcd_server_has_leader",
+			platforms:     selfHostedPlatforms,
+		},
+		{
 			componentName: "metallb",
 			query:         "metallb_bgp_session_up",
 			platforms:     []testutil.Platform{testutil.PlatformPacket},
