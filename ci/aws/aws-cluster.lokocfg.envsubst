@@ -47,9 +47,7 @@ component "openebs-storage-class" {
   }
 }
 
-component "prometheus-operator" {
-  grafana_admin_password = "admin"
-}
+component "prometheus-operator" {}
 
 component "contour" {
   ingress_hosts     = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]

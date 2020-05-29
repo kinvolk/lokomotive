@@ -25,10 +25,6 @@ variable "resource_group_name" {
   default = "$CLUSTER_ID"
 }
 
-variable "grafana_admin_password" {
-  default = "admin"
-}
-
 variable "asset_dir" {
   default = "~/lokoctl-assets"
 }
@@ -71,8 +67,7 @@ cluster "aks" {
 }
 
 component "prometheus-operator" {
-  grafana_admin_password = var.grafana_admin_password
-  disable_webhooks       = true
+  disable_webhooks = true
 
   monitor {
     etcd                    = false
