@@ -1,7 +1,6 @@
 variable "dns_zone" {}
 variable "route53_zone_id" {}
 variable "ssh_public_keys" {}
-variable "grafana_admin_password" {}
 
 variable "asset_dir" {
   default = "./lokomotive-assets"
@@ -51,6 +50,4 @@ component "openebs-storage-class" {
   }
 }
 
-component "prometheus-operator" {
-  grafana_admin_password = var.grafana_admin_password
-}
+component "prometheus-operator" {}

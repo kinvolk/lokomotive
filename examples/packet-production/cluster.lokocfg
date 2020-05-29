@@ -5,7 +5,6 @@ variable "ssh_public_keys" {}
 variable "management_cidrs" {}
 variable "node_private_cidr" {}
 variable "cert_manager_email" {}
-variable "grafana_admin_password" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
 variable "metallb_address_pool" {}
@@ -107,8 +106,6 @@ component "cert-manager" {
 
 component "openebs-storage-class" {}
 
-component "prometheus-operator" {
-  grafana_admin_password = var.grafana_admin_password
-}
+component "prometheus-operator" {}
 
 component "flatcar-linux-update-operator" {}

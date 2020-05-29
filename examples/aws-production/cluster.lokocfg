@@ -1,7 +1,6 @@
 variable "dns_zone" {}
 variable "route53_zone_id" {}
 variable "ssh_public_keys" {}
-variable "grafana_admin_password" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
 variable "oidc_issuer_url" {}
@@ -74,6 +73,4 @@ component "openebs-operator" {}
 
 component "openebs-storage-class" {}
 
-component "prometheus-operator" {
-  grafana_admin_password = var.grafana_admin_password
-}
+component "prometheus-operator" {}

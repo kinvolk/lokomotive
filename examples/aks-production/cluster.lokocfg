@@ -1,6 +1,5 @@
 variable "subscription_id" {}
 variable "tenant_id" {}
-variable "grafana_admin_password" {}
 variable "resource_group_name" {}
 variable "cert_manager_email" {}
 variable "state_s3_bucket" {}
@@ -67,7 +66,6 @@ cluster "aks" {
 }
 
 component "prometheus-operator" {
-  grafana_admin_password = var.grafana_admin_password
   disable_webhooks       = true
 
   monitor {
