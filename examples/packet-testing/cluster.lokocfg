@@ -3,7 +3,6 @@ variable "route53_zone_id" {}
 variable "packet_project_id" {}
 variable "ssh_public_keys" {}
 variable "cert_manager_email" {}
-variable "grafana_admin_password" {}
 variable "metallb_address_pool" {}
 
 variable "asset_dir" {
@@ -90,8 +89,6 @@ component "openebs-storage-class" {
   }
 }
 
-component "prometheus-operator" {
-  grafana_admin_password = var.grafana_admin_password
-}
+component "prometheus-operator" {}
 
 component "flatcar-linux-update-operator" {}

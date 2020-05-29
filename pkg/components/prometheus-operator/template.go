@@ -46,8 +46,8 @@ alertmanager:
           resources:
             requests:
               storage: "{{.AlertManagerStorageSize}}"
+
 grafana:
-  adminPassword: {{.GrafanaAdminPassword}}
   plugins: "grafana-piechart-panel"
   testFramework:
     enabled: false
@@ -56,6 +56,24 @@ grafana:
       searchNamespace: ALL
   rbac:
     pspUseAppArmor: false
+  {{ if .Grafana}}
+  adminPassword: {{.Grafana.AdminPassword}}
+  {{ if .Grafana.Ingress }}
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: {{.Grafana.Ingress.Class}}
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: {{.Grafana.Ingress.CertManagerClusterIssuer}}
+    hosts:
+    - {{ .Grafana.Ingress.Host }}
+    tls:
+    - hosts:
+      - {{ .Grafana.Ingress.Host }}
+      secretName: {{ .Grafana.Ingress.Host }}-tls
+  {{ end }}
+  {{ end }}
+
 kubeEtcd:
   enabled: {{.Monitor.Etcd}}
   endpoints: {{.EtcdEndpoints}}

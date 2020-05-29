@@ -22,6 +22,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/types"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -45,10 +46,17 @@ type CoreDNS struct {
 	Selector map[string]string `hcl:"selector,optional"`
 }
 
+// Grafana object collects sub component grafana related information.
+type Grafana struct {
+	AdminPassword string         `hcl:"admin_password,optional"`
+	Ingress       *types.Ingress `hcl:"ingress,block"`
+}
+
 type component struct {
-	GrafanaAdminPassword string   `hcl:"grafana_admin_password,attr"`
-	Namespace            string   `hcl:"namespace,optional"`
-	EtcdEndpoints        []string `hcl:"etcd_endpoints,optional"`
+	Grafana *Grafana `hcl:"grafana,block"`
+
+	Namespace     string   `hcl:"namespace,optional"`
+	EtcdEndpoints []string `hcl:"etcd_endpoints,optional"`
 
 	PrometheusOperatorNodeSelector map[string]string `hcl:"prometheus_operator_node_selector,optional"`
 
@@ -120,11 +128,20 @@ func newComponent() *component {
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
-		return hcl.Diagnostics{
-			components.HCLDiagConfigBodyNil,
-		}
+		// return empty struct instead of hcl.Diagnostics{components.HCLDiagConfigBodyNil}
+		// since all the component values are optional
+		return hcl.Diagnostics{}
 	}
-	return gohcl.DecodeBody(*configBody, evalContext, c)
+
+	if err := gohcl.DecodeBody(*configBody, evalContext, c); err != nil {
+		return err
+	}
+
+	if c.Grafana != nil && c.Grafana.Ingress != nil {
+		c.Grafana.Ingress.SetDefaults()
+	}
+
+	return nil
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
