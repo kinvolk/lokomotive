@@ -8,6 +8,7 @@ module "bootkube" {
   etcd_servers         = local.etcd_fqdn
   asset_dir            = var.asset_dir
   network_mtu          = var.network_mtu
+  etcd_endpoints       = local.etcd_endpoints
 
   # Select private Packet NIC by using the can-reach Calico autodetection option with the first
   # host in our private CIDR.
@@ -27,6 +28,6 @@ module "bootkube" {
 
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
-  # Extra flags to API server.  
+  # Extra flags to API server.
   kube_apiserver_extra_flags = var.kube_apiserver_extra_flags
 }

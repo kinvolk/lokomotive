@@ -26,6 +26,12 @@ variable "etcd_servers" {
   type        = list(string)
 }
 
+variable "etcd_endpoints" {
+  description = "List of Private IPv4 addresses of the controller nodes running etcd."
+  type = list(string)
+  default = []
+}
+
 variable "asset_dir" {
   description = "Path to a directory where generated assets should be placed (contains secrets)"
   type        = string
