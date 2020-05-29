@@ -42,14 +42,13 @@ systemd:
         [Unit]
         Description=Wait for DNS entries
         Wants=systemd-resolved.service
-        Before=kubelet.service
+        Before=kubelet.service etcd-member.service bootkube.service
         [Service]
         Type=oneshot
         RemainAfterExit=true
-        ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done'
+        ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done; /opt/wait-for-dns ${dns_zone} ${cluster_name}-private 3600'
         [Install]
-        RequiredBy=kubelet.service
-        RequiredBy=etcd-member.service
+        RequiredBy=kubelet.service etcd-member.service bootkube.service
     - name: create-etcd-config.service
       # This service will extract value of private interface from the env var file `/run/metadata/flatcar`.
       # And then assign it to the variables that which will be stored in file `/etc/kubernetes/etcd.config`,
@@ -323,6 +322,64 @@ storage:
           kind: KubeletConfiguration
           cgroupDriver: "$${docker_cgroup_driver}"
           EOF
+    - path: /opt/wait-for-dns
+      filesystem: root
+      mode: 0544
+      contents:
+        inline: |
+          #!/bin/bash
+          # TODO: Workaround for https://github.com/flatcar-linux/Flatcar/issues/123.
+          function dig {
+              docker run -i --rm quay.io/kinvolk/alpine-dig:3.9.6 dig "$@" 2>/dev/null
+          }
+          if [[ $# -ne 3 ]]; then
+              echo "Usage: $0 <zone> <record> <max_attempts>"
+              exit 1
+          fi
+          zone=$1
+          record=$2
+          max_attempts=$3
+          echo "Figuring out the nameservers for $zone"
+          nameservers=""
+          counter=0
+          while [[ $counter -lt $max_attempts ]]; do
+              out=$(dig +short +timeout=2 "$zone" ns)
+              ret=$?
+              if [[ $ret -eq 0 && "$out" != "" ]]; then
+                  nameservers=$out
+                  break
+              fi
+              echo "Failed with exit code $ret: $out"
+              sleep 1
+              counter=$((counter+1))
+          done
+          if [[ "$nameservers" == "" ]]; then
+              echo "Could not resolve nameservers for $zone"
+              exit 1
+          fi
+          for ns in $nameservers; do
+              echo "Polling $ns for $record.$zone..."
+              counter=0
+              ok=false
+              while [[ $counter -lt $max_attempts ]]; do
+                  out=$(dig +short +timeout=2 @"$ns" "$record"."$zone" a)
+                  ret=$?
+                  if [[ $ret -eq 0 && "$out" != "" ]]; then
+                      echo "Looks good!"
+                      ok=true
+                      break
+                  fi
+                  echo "Not available yet"
+                  sleep 1
+                  counter=$((counter+1))
+              done
+              if ! $ok; then
+                  echo "$record.$zone didn't become available within the allowed time"
+                  exit 1
+              fi
+          done
+          echo "$record.$zone is available on all nameservers"
+          exit 0
 passwd:
   users:
   - name: core

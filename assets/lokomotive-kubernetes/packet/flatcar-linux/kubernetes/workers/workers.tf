@@ -65,6 +65,8 @@ data "ct_config" "ignitions" {
       setup_raid_hdd        = var.setup_raid_hdd
       setup_raid_ssd        = var.setup_raid_ssd
       setup_raid_ssd_fs     = var.setup_raid_ssd_fs
+      cluster_name          = var.cluster_name
+      dns_zone              = var.dns_zone
     }
   )
   platform = "packet"

@@ -3,12 +3,12 @@ module "bootkube" {
   cluster_name = var.cluster_name
 
   # Cannot use cyclic dependencies on controllers or their DNS records
-  api_servers          = [local.api_fqdn]
-  api_servers_external = [local.api_external_fqdn]
-  etcd_servers         = local.etcd_fqdn
+  api_servers          = [format("%s-private.%s", var.cluster_name, var.dns_zone)]
+  api_servers_external = [format("%s.%s", var.cluster_name, var.dns_zone)]
+  etcd_servers         = [for i, d in packet_device.controllers : format("%s-etcd%d.%s", var.cluster_name, i, var.dns_zone)]
   asset_dir            = var.asset_dir
   network_mtu          = var.network_mtu
-  etcd_endpoints       = local.etcd_endpoints
+  etcd_endpoints       = packet_device.controllers.*.access_private_ipv4
 
   # Select private Packet NIC by using the can-reach Calico autodetection option with the first
   # host in our private CIDR.

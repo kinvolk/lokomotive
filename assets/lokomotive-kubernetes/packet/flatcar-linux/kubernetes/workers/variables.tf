@@ -175,3 +175,8 @@ variable "nodes_depend_on" {
   type        = list(any)
   default     = null
 }
+
+variable "dns_zone" {
+  type        = string
+  description = "DNS Zone (e.g. example.com)"
+}

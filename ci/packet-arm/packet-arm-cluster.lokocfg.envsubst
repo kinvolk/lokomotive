@@ -4,13 +4,8 @@ cluster "packet" {
   controller_count = 1
 
   dns {
-    zone = "$AWS_DNS_ZONE"
-
-    provider {
-      route53 {
-        zone_id = "$AWS_DNS_ZONE_ID"
-      }
-    }
+    provider = "route53"
+    zone     = "$AWS_DNS_ZONE"
   }
 
   facility = "$PACKET_LOCATION"
