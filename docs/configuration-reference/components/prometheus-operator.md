@@ -29,8 +29,16 @@ Prometheus Operator component configuration example:
 
 ```tf
 component "prometheus-operator" {
-  namespace              = "monitoring"
-  grafana_admin_password = "foobar"
+  namespace = "monitoring"
+
+  grafana {
+    admin_password = "foobar"
+    ingress {
+      host                       = "grafana.mydomain.net"
+      class                      = "contour"
+      certmanager_cluster_issuer = "letsencrypt-production"
+    }
+  }
 
   etcd_endpoints = [
     "10.88.181.1",
@@ -85,8 +93,11 @@ Example:
 
 | Argument | Description | Default | Required |
 |--------	|--------------|:-------:|:--------:|
-| `namespace` | Namespace to deploy the Prometheus Operator. | - | true |
-| `grafana_admin_password` | Password for `admin` user in Grafana.  | - | true |
+| `namespace` | Namespace to deploy the Prometheus Operator. | `monitoring` | false |
+| `grafana.admin_password` | Password for `admin` user in Grafana. If not provided it is auto generated and stored in secret `prometheus-operator-grafana`.  | - | false |
+| `grafana.ingress.host` | Ingress URL host to expose Grafana over the internet. **NOTE:** When running on Packet, a DNS entry pointing at the ingress controller needs to be created.  | - | true |
+| `grafana.ingress.class` | Ingress class to use for Grafana ingress. | `contour` | false |
+| `grafana.ingress.certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`.  | `letsencrypt-production` | false |
 | `etcd_endpoints` | List of endpoints where etcd can be reachable from Kubernetes. | [] | false |
 | `prometheus_operator_node_selector` | Node selector to specify nodes where the Prometheus Operator pods should be deployed. | {} | false |
 | `prometheus_metrics_retention` | Time duration Prometheus shall retain data for. Must match the regular expression `[0-9]+(ms\|s\|m\|h\|d\|w\|y)` (milliseconds, seconds, minutes, hours, days, weeks and years). | `10d` | false |
