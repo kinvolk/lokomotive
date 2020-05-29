@@ -34,10 +34,10 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument           | Description                                                                                     Default      | Required |
-|--------------------|-----------------------------------------------------------------------------------------------|:------------:|:--------:|
-| `ingress_host`     | Used as the `hosts` domain in the ingress resource for httpbin that is automatically created. | -            | true     |
-| `certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`. | `letsencrypt-production` | false |
+| Argument                     | Description                                                                                                                                   |  Default                 | Required |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|:------------------------:|:--------:|
+| `ingress_host`               | Used as the `hosts` domain in the ingress resource for httpbin that is automatically created.                                                 | -                        | true     |
+| `certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`. | `letsencrypt-production` | false    |
 
 ## Applying
 
