@@ -56,7 +56,6 @@ grafana:
       searchNamespace: ALL
   rbac:
     pspUseAppArmor: false
-  {{ if .Grafana}}
   adminPassword: {{.Grafana.AdminPassword}}
   {{ if .Grafana.Ingress }}
   ingress:
@@ -74,7 +73,6 @@ grafana:
   grafana.ini:
     server:
       root_url: https://{{ .Grafana.Ingress.Host }}
-  {{ end }}
   {{ end }}
 
 kubeEtcd:

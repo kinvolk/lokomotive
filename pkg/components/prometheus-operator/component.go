@@ -122,6 +122,14 @@ func newComponent() *component {
 				"tier":    "control-plane",
 			},
 		},
+		Grafana: &Grafana{
+			// This is done in order to make sure that Grafana admin user password is generated if
+			// user does not provide one.
+			// If this block is not provided here and user also does not specify any grafana related
+			// config then admin password is set to "prom-operator".
+			// See: https://github.com/kinvolk/lokomotive/pull/507#issuecomment-636049574
+			AdminPassword: "",
+		},
 	}
 }
 
