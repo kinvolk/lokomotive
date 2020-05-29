@@ -17,46 +17,80 @@ package prometheus
 import (
 	"testing"
 
-	"github.com/hashicorp/hcl/v2"
-
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
-func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
-	emptyConfig := hcl.EmptyBody()
-	evalContext := hcl.EvalContext{}
-	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
-	if !diagnostics.HasErrors() {
-		t.Fatalf("Empty config should return error")
-	}
-}
-
+// nolint:funlen
 func TestRenderManifest(t *testing.T) {
-	configHCL := `
+	tests := []struct {
+		desc    string
+		hcl     string
+		wantErr bool
+	}{
+		{
+			desc: "essential values only",
+			hcl: `
 component "prometheus-operator" {
-  grafana_admin_password = "foo"
-  namespace              = "monitoring"
-}
-`
-
-	component := newComponent()
-
-	body, diagnostics := util.GetComponentBody(configHCL, name)
-	if diagnostics != nil {
-		t.Fatalf("Error getting component body: %v", diagnostics)
+  grafana {
+    admin_password = "foobar"
+  }
+  namespace = "monitoring"
+}`,
+		},
+		{
+			desc: "no values",
+			hcl:  `component "prometheus-operator" {}`,
+		},
+		{
+			desc: "ingress and host given",
+			hcl: `
+component "prometheus-operator" {
+  grafana {
+    ingress {
+	  host = "foobar"
+	}
+  }
+}`,
+		},
+		{
+			desc: "ingress and no host given",
+			hcl: `
+component "prometheus-operator" {
+  grafana {
+    ingress {}
+  }
+}`,
+			wantErr: true,
+		},
 	}
 
-	diagnostics = component.LoadConfig(body, &hcl.EvalContext{})
-	if diagnostics.HasErrors() {
-		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
-	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			b, d := util.GetComponentBody(tc.hcl, name)
+			if d != nil {
+				t.Fatalf("error getting component body: %v", d)
+			}
 
-	m, err := component.RenderManifests()
-	if err != nil {
-		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
-	}
-	if len(m) <= 0 {
-		t.Fatalf("Rendered manifests shouldn't be empty")
+			c := newComponent()
+			d = c.LoadConfig(b, nil)
+
+			if !tc.wantErr && d.HasErrors() {
+				t.Fatalf("valid config should not return error, got: %s", d)
+			}
+
+			if tc.wantErr && !d.HasErrors() {
+				t.Fatal("wrong config should have returned an error")
+			}
+
+			m, err := c.RenderManifests()
+			if err != nil {
+				t.Fatalf("rendering manifests with valid config should succeed, got: %s", err)
+			}
+
+			if len(m) == 0 {
+				t.Fatal("rendered manifests shouldn't be empty")
+			}
+		})
 	}
 }
