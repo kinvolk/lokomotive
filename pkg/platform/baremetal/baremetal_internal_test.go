@@ -12,29 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aws_edge packet baremetal
-// +build e2e
-
-package kubernetes
+package baremetal
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
-	"time"
-
-	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-const retryInterval = time.Second * 5
+// createTerraformConfigFile() test.
+func TestCreateTerraformConfigFile(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
+	if err != nil {
+		t.Fatalf("creating tmp dir should succeed, got: %v", err)
+	}
 
-const timeout = time.Minute * 5
+	t.Cleanup(func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("failed to remove temp dir %q: %v", tmpDir, err)
+		}
+	})
 
-func TestSelfHostedKubeletPods(t *testing.T) {
-	t.Parallel()
+	c := &config{}
 
-	client := testutil.CreateKubeClient(t)
-
-	namespace := "kube-system"
-	daemonset := "kubelet"
-
-	testutil.WaitForDaemonSet(t, client, namespace, daemonset, retryInterval, timeout)
+	if err := createTerraformConfigFile(c, tmpDir); err != nil {
+		t.Fatalf("creating Terraform config files should succeed, got: %v", err)
+	}
 }

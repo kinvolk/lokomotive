@@ -35,4 +35,9 @@ cluster "bare-metal" {
   # Acts as a smoke test to check if API server is functional after addition
   # of extra flags.
   oidc {}
+
+  labels = {
+    "testing.io" = "yes",
+    "roleofnode" = "testing",
+  }
 }

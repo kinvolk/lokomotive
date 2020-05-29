@@ -59,6 +59,12 @@ variable "clc_snippets" {
   default     = {}
 }
 
+variable "labels" {
+  type        = map(string)
+  description = "Map of labels for worker nodes."
+  default     = {}
+}
+
 # configuration
 
 variable "k8s_domain_name" {

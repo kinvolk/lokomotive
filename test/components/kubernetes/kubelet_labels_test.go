@@ -12,29 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aws_edge packet baremetal
+// +build packet baremetal
 // +build e2e
 
-package kubernetes
+package kubernetes //nolint:testpackage
 
 import (
 	"testing"
-	"time"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-const retryInterval = time.Second * 5
-
-const timeout = time.Minute * 5
-
-func TestSelfHostedKubeletPods(t *testing.T) {
-	t.Parallel()
-
+func TestNodeHasLabels(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
-	namespace := "kube-system"
-	daemonset := "kubelet"
+	nodes, err := client.CoreV1().Nodes().List(metav1.ListOptions{
+		LabelSelector: "testing.io=yes,roleofnode=testing",
+	})
+	if err != nil {
+		t.Errorf("could not list nodes: %v", err)
+	}
 
-	testutil.WaitForDaemonSet(t, client, namespace, daemonset, retryInterval, timeout)
+	if len(nodes.Items) == 0 {
+		t.Fatalf("no worker nodes found")
+	}
 }

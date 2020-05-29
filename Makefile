@@ -6,7 +6,7 @@ VERSION :=
 MOD ?= vendor
 DOCS_DIR ?= docs/cli
 
-ALL_BUILD_TAGS := "aws,packet,aks,e2e,disruptivee2e,poste2e"
+ALL_BUILD_TAGS := "aws,packet,aks,e2e,baremetal,disruptivee2e,poste2e"
 
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)

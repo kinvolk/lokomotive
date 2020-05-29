@@ -72,6 +72,10 @@ cluster "bare-metal" {
 
   k8s_domain_name = var.domain_name
 
+  labels = {
+    "testlabel" = ""
+  }
+
   controller_domains = var.controller_domains
 
   controller_macs = var.controller_macs
@@ -131,6 +135,7 @@ os_version = var.custom_default_os_version
 | `controller_macs`           | Ordered list of controller identifying MAC addresses. Example: ["52:54:00:a1:9c:ae"]                                                                                         | -                | true     |
 | `controller_names`          | Ordered list of controller names. Example: ["node1"]                                                                                                                         | -                | true     |
 | `k8s_domain_name`           | Controller DNS name which resolves to a controller instance. Workers and kubeconfig's will communicate with this endpoint. Example: "cluster.example.com"                    | -                | true     |
+| `labels`                    | Map of extra Kubernetes Node labels for worker nodes.                                                                                                                        | -                | false    |
 | `matchbox_ca_path`          | Path to the CA to verify and authenticate client certificates.                                                                                                               | -                | true     |
 | `matchbox_client_cert_path` | Path to the server TLS certificate file.                                                                                                                                     | -                | true     |
 | `matchbox_client_key_path`  | Path to the server TLS key file.                                                                                                                                             | -                | true     |

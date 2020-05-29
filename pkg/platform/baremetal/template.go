@@ -55,6 +55,14 @@ module "bare-metal-{{.ClusterName}}" {
     {{- end }}
   ]
   {{- end }}
+
+  {{- if .Labels}}
+  labels = {
+  {{- range $key, $value := .Labels}}
+    "{{$key}}" = "{{$value}}",
+  {{- end}}
+	}
+  {{- end}}
 }
 
 provider "matchbox" {

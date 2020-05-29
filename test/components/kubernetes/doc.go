@@ -15,26 +15,6 @@
 // +build aws aws_edge packet baremetal
 // +build e2e
 
+// Package kubernetes contains e2e tests related to core Kubernetes
+// services, like kubelet etc.
 package kubernetes
-
-import (
-	"testing"
-	"time"
-
-	testutil "github.com/kinvolk/lokomotive/test/components/util"
-)
-
-const retryInterval = time.Second * 5
-
-const timeout = time.Minute * 5
-
-func TestSelfHostedKubeletPods(t *testing.T) {
-	t.Parallel()
-
-	client := testutil.CreateKubeClient(t)
-
-	namespace := "kube-system"
-	daemonset := "kubelet"
-
-	testutil.WaitForDaemonSet(t, client, namespace, daemonset, retryInterval, timeout)
-}
