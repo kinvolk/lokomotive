@@ -59,12 +59,6 @@ resource "template_dir" "pod-checkpointer" {
   destination_dir = "${var.asset_dir}/charts/kube-system/pod-checkpointer"
 }
 
-# Populate kubernetes chart values file named kubernetes.yaml.
-resource "local_file" "kubernetes" {
-  content  = data.template_file.kubernetes.rendered
-  filename = "${var.asset_dir}/charts/kube-system/kubernetes.yaml"
-}
-
 # Populate kubernetes control plane chart.
 # TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
 # The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
@@ -73,11 +67,10 @@ resource "template_dir" "kubernetes" {
   destination_dir = "${var.asset_dir}/charts/kube-system/kubernetes"
 }
 
-# Render kubernetes.yaml for kubernetes chart.
-data "template_file" "kubernetes" {
-  template = "${file("${path.module}/resources/charts/kubernetes.yaml")}"
-
-  vars = {
+# Populate kubernetes chart values file named kubernetes.yaml.
+resource "local_file" "kubernetes" {
+  filename = "${var.asset_dir}/charts/kube-system/kubernetes.yaml"
+  content  = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
     hyperkube_image               = var.container_images["hyperkube"]
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
@@ -94,7 +87,8 @@ data "template_file" "kubernetes" {
     ca_key                        = base64encode(tls_private_key.kube-ca.private_key_pem)
     server                        = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
     serviceaccount_key            = base64encode(tls_private_key.service-account.private_key_pem)
-  }
+    etcd_endpoints                = var.etcd_endpoints
+  })
 }
 
 locals {

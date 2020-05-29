@@ -76,7 +76,7 @@ output "kube-apiserver_values" {
 }
 
 output "kubernetes_values" {
-  value = data.template_file.kubernetes.rendered
+  value = local_file.kubernetes.content
 }
 
 output "kubelet_values" {

@@ -1,0 +1,44 @@
+{{- if .Values.etcd.endpoints }}
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: etcd
+  labels:
+    generatedby: bootkube
+    # These labels are to make sure that the Prometheus Operator ServiceMonitor picks this
+    # endpoints correctly.
+    app: prometheus-operator-kube-etcd
+    release: prometheus-operator
+  namespace: kube-system
+subsets:
+- addresses:
+  {{- range .Values.etcd.endpoints }}
+  - ip: {{ . }}
+  {{- end }}
+  ports:
+  - name: http-metrics
+    port: 2381
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  labels:
+    jobLabel: kube-etcd
+    generatedby: bootkube
+    # These labels are to make sure that the Prometheus Operator ServiceMonitor picks this
+    # endpoints correctly.
+    app: prometheus-operator-kube-etcd
+    release: prometheus-operator
+  namespace: kube-system
+spec:
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 2381
+    protocol: TCP
+    targetPort: 2381
+  type: ClusterIP
+
+{{- end }}

@@ -22,3 +22,12 @@ coredns:
   controlPlaneReplicas: ${control_plane_replicas}
   image: ${coredns_image}
   clusterIP: ${cluster_dns_service_ip}
+etcd:
+  %{~ if length(etcd_endpoints) > 0 ~}
+  endpoints:
+  %{~ for f in etcd_endpoints ~}
+  - ${f}
+  %{~ endfor ~}
+  %{~ else ~}
+  endpoints: []
+  %{~ endif ~}
