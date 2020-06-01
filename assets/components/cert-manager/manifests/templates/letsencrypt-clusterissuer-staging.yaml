@@ -10,7 +10,6 @@ spec:
     {{- if .Values.email }}
     email: {{ .Values.email }}
     {{- end}}
-    email: {{ .Values.email }}
     # Name of a secret used to store the ACME account private key
     privateKeySecretRef:
       name: letsencrypt-staging
