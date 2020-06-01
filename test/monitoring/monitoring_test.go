@@ -66,6 +66,10 @@ func TestPrometheus(t *testing.T) {
 			Name: "ScrapeTargetReachability",
 			Func: testScrapeTargetRechability,
 		},
+		{
+			Name: "TestGrafanaDefaultPassword",
+			Func: testGrafanaDefaultPassword,
+		},
 	}
 
 	// Invoke the test functions passing them the test object and the prometheus client.
