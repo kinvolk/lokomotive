@@ -21,5 +21,5 @@ fi
 
 # filter text between "## ${CURRENT_TAG}" and the next tag in CHANGELOG.md
 awk "/## ${CURRENT_TAG}/{flag=1;next}/## v[[:digit:]]+.[[:digit:]]+.[[:digit:]]+/{flag=0}flag" CHANGELOG.md |
-    sed '1{/^[[:space:]]*$/d}' | # trim first line if empy
+    sed '1{/^[[:space:]]*$/d}' | # trim first line if empty
     sed '${/^$/d;}' # trim last line if empty
