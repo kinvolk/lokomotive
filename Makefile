@@ -49,7 +49,7 @@ update-assets:
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed, so
 # we rely on defaults.
 build-slim:
-	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build \
+	CGO_ENABLED=0 GO111MODULE=on go build \
 		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
 		-buildmode=exe \
@@ -105,7 +105,7 @@ install: update-assets install-slim
 # Once we change CI code to build outside GOPATH, GO111MODULE can be removed,
 # so we rely on defaults.
 install-slim:
-	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install \
+	CGO_ENABLED=0 GO111MODULE=on go install \
 		-mod=$(MOD) \
 		-ldflags $(LDFLAGS) \
 		-buildmode=exe \
