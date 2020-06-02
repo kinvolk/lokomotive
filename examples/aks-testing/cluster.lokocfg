@@ -49,7 +49,7 @@ cluster "aks" {
 }
 
 component "prometheus-operator" {
-  disable_webhooks       = true
+  disable_webhooks = true
 
   monitor {
     etcd                    = false

@@ -43,16 +43,11 @@ cluster "packet" {
   controller_count = var.controllers_count
 
   dns {
-    zone = var.dns_zone
-
-    provider {
-      route53 {
-        zone_id = var.route53_zone_id
-      }
-    }
+    provider = "route53"
+    zone     = var.dns_zone
   }
 
-  facility    = var.facility
+  facility = var.facility
 
   project_id = var.packet_project_id
 

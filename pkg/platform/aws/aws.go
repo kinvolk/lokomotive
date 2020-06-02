@@ -268,7 +268,7 @@ func (c *config) checkNameSizes() hcl.Diagnostics {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Cluster name too long",
-			Detail:   fmt.Sprintf("Maximum lenth is %d", maxNameLen),
+			Detail:   fmt.Sprintf("Maximum length is %d", maxNameLen),
 		})
 	}
 
@@ -277,7 +277,7 @@ func (c *config) checkNameSizes() hcl.Diagnostics {
 			diagnostics = append(diagnostics, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Worker pool name too long",
-				Detail:   fmt.Sprintf("Maximum lenth is %d", maxNameLen),
+				Detail:   fmt.Sprintf("Maximum length is %d", maxNameLen),
 			})
 		}
 	}
