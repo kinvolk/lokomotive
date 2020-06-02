@@ -63,7 +63,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := ex.Plan(); err != nil {
-			ctxLogger.Fatalf("Failed to reconsile cluster state: %v", err)
+			ctxLogger.Fatalf("Failed to reconcile cluster state: %v", err)
 		}
 
 		if !askForConfirmation("Do you want to proceed with cluster apply?") {
