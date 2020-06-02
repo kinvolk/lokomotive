@@ -7,6 +7,11 @@ git clone git@github.com:kinvolk/lokomotive.git
 cd lokomotive
 ```
 
+## Requirements
+
+- Minimum Go version **1.4**
+- [golangci-lint](https://github.com/golangci/golangci-lint) installed locally
+
 ## Build the code
 
 ```bash

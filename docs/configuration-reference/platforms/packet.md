@@ -69,7 +69,7 @@ cluster "packet" {
 
   controller_count = var.controllers_count
 
-  controller_type = "baremetal_0"
+  controller_type = "t1.small.x86"
 
   facility = var.facility
 
@@ -161,7 +161,7 @@ block in the cluster configuration.
 
 Example:
 
-The default for node_type is `baremetal_0`. If you wish to change the default, then you
+The default for node_type is `t1.small.x86`. If you wish to change the default, then you
 define the variable and use it to refer in the cluster configuration.
 
 ```tf
@@ -188,7 +188,7 @@ node_type = var.custom_default_worker_type
 | `cluster_name`                        | Name of the cluster.                                                                                                                                                          | -               | true     |
 | `tags`                                | List of tags that will be propagated to master nodes.                                                                                                                         | -               | false    |
 | `controller_count`                    | Number of controller nodes.                                                                                                                                                   | 1               | false    |
-| `controller_type`                     | Packet instance type for controllers.                                                                                                                                         | "baremetal_0"   | false    |
+| `controller_type`                     | Packet instance type for controllers.                                                                                                                                         | "t1.small.x86"   | false    |
 | `dns`                                 | DNS configuration block.                                                                                                                                                      | -               | true     |
 | `dns.zone`                            | A DNS zone to use for the cluster. The following format is used for cluster-related DNS records: `<record>.<cluster_name>.<dns_zone>`                                         | -               | true     |
 | `dns.provider`                        | DNS provider to use for the cluster. Valid values: `cloudflare`, `route53`, `manual`.                                                                                         | -               | true     |
@@ -222,7 +222,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.os_arch`                 | Flatcar Container Linux architecture to install (amd64, arm64).                                                                                                               | "amd64"         | false    |
 | `worker_pool.os_channel`              | Flatcar Container Linux channel to install from (stable, beta, alpha, edge).                                                                                                  | "stable"        | false    |
 | `worker_pool.os_version`              | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                          | "current"       | false    |
-| `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                        | "baremetal_0"   | false    |
+| `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                        | "t1.small.x86"   | false    |
 | `worker_pool.labels`                  | Custom labels to assign to worker nodes.                                                                                                                                      | -               | false    |
 | `worker_pool.taints`                  | Taints to assign to worker nodes.                                                                                                                                             | -               | false    |
 | `worker_pool.reservation_ids`         | Block with Packet hardware reservation IDs for worker nodes. Each key must have the format `worker-${index}` and the value is the reservation UUID. Can't be combined with `reservation_ids_default`. Example: `reservation_ids = { worker-0 = "<reservation_id>" }`.                                                | -               | false    |
