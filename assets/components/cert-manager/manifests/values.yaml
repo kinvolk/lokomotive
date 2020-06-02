@@ -1,23 +1,23 @@
 affinity: {}
 cainjector:
   affinity: {}
-  deploymentAnnotations: {}
   enabled: true
   extraArgs: []
   image:
     pullPolicy: IfNotPresent
     repository: quay.io/jetstack/cert-manager-cainjector
   nodeSelector: {}
-  podAnnotations: {}
   replicaCount: 1
   resources: {}
   securityContext: {}
+  serviceAccount:
+    create: true
   strategy: {}
   tolerations: []
 clusterResourceNamespace: ""
-deploymentAnnotations: {}
 extraArgs: []
 extraEnv: []
+featureGates: ""
 global:
   imagePullSecrets: []
   leaderElection:
@@ -33,8 +33,8 @@ image:
   pullPolicy: IfNotPresent
   repository: quay.io/jetstack/cert-manager-controller
 ingressShim: {}
+installCRDs: false
 nodeSelector: {}
-podAnnotations: {}
 podLabels: {}
 prometheus:
   enabled: true
@@ -50,27 +50,23 @@ replicaCount: 1
 resources: {}
 securityContext: {}
 serviceAccount:
-  annotations: {}
   create: true
-  name: null
 strategy: {}
 tolerations: []
 volumeMounts: []
 volumes: []
 webhook:
   affinity: {}
-  deploymentAnnotations: {}
   extraArgs: []
   image:
     pullPolicy: IfNotPresent
     repository: quay.io/jetstack/cert-manager-webhook
-  injectAPIServerCA: true
   nodeSelector: {}
-  podAnnotations: {}
   replicaCount: 1
   resources: {}
   securePort: 10250
   securityContext: {}
-  serviceName: cert-manager-webhook
+  serviceAccount:
+    create: true
   strategy: {}
   tolerations: []

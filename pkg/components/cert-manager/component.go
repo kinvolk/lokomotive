@@ -61,6 +61,7 @@ global:
   podSecurityPolicy:
     enabled: true
     useAppArmor: false
+installCRDs: true
 `
 
 func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
