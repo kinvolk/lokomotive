@@ -38,14 +38,14 @@ component "openebs-operator" {}
 component "openebs-storage-class" {
   storage-class "openebs-test-sc" {
     replica_count = 1
-    default = true
+    default       = true
   }
 }
 
 component "prometheus-operator" {}
 
 component "contour" {
-  ingress_hosts     = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE","gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
+  ingress_hosts     = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]
   enable_monitoring = true
 }
 
@@ -64,7 +64,7 @@ component "cert-manager" {
   service_monitor = true
 }
 
-component "external-dns"{
+component "external-dns" {
   policy   = "sync"
   owner_id = "$CLUSTER_ID"
   aws {
