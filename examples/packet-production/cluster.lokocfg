@@ -59,7 +59,7 @@ cluster "packet" {
 
   dns {
     provider = "route53"
-    zone      = var.dns_zone
+    zone     = var.dns_zone
   }
 
   oidc {
@@ -69,7 +69,7 @@ cluster "packet" {
     groups_claim   = var.oidc_groups_claim
   }
 
-  facility    = var.facility
+  facility = var.facility
 
   project_id = var.packet_project_id
 
