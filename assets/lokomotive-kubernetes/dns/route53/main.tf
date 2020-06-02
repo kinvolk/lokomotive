@@ -1,10 +1,3 @@
-provider "aws" {
-  # The Route 53 service doesn't need a specific region to operate, however
-  # the AWS Terraform provider needs it and the documentation suggests to use
-  # "us-east-1": https://docs.aws.amazon.com/general/latest/gr/r53.html.
-  region = "us-east-1"
-}
-
 data "aws_route53_zone" "selected" {
   name = "${var.dns_zone}."
 }
