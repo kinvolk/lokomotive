@@ -55,6 +55,87 @@ func TestCheckWorkerPoolNamesUniqueNotDup(t *testing.T) {
 	}
 }
 
+//nolint: funlen
+func TestValidateOSVersion(t *testing.T) {
+	type testCase struct {
+		// Config to test
+		cfg config
+		// Expected output after running test
+		hasError bool
+	}
+
+	cases := []testCase{
+		{
+			cfg: config{
+				ClusterName: "c",
+				WorkerPools: []workerPool{
+					{
+						Name:      "1",
+						OSVersion: "current",
+					},
+				},
+			},
+			hasError: true,
+		},
+		{
+			cfg: config{
+				ClusterName: "c",
+				OSVersion:   "current",
+				WorkerPools: []workerPool{
+					{
+						Name: "2",
+					},
+				},
+			},
+			hasError: true,
+		},
+		{
+			cfg: config{
+				ClusterName: "c",
+				WorkerPools: []workerPool{
+					{
+						Name: "3",
+					},
+				},
+			},
+			hasError: false,
+		},
+		{
+			cfg: config{
+				ClusterName: "c",
+				WorkerPools: []workerPool{
+					{
+						Name:          "4",
+						OSVersion:     "current",
+						IPXEScriptURL: "https://demo.version",
+					},
+				},
+			},
+			hasError: false,
+		},
+		{
+			cfg: config{
+				ClusterName:   "c",
+				OSVersion:     "current",
+				IPXEScriptURL: "https://demo.version",
+				WorkerPools: []workerPool{
+					{
+						Name: "5",
+					},
+				},
+			},
+			hasError: false,
+		},
+	}
+
+	for tcIdx, tc := range cases {
+		output := tc.cfg.validateOSVersion()
+		if output.HasErrors() != tc.hasError {
+			t.Errorf("In test %v, expected %v, got %v", tcIdx+1, tc.hasError, output.HasErrors())
+		}
+	}
+}
+
 func TestCheckResFormatPrefixValidInput(t *testing.T) {
 	r := map[string]string{"worker-2": "", "worker-3": ""}
 
