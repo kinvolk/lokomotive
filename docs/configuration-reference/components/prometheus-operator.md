@@ -33,6 +33,9 @@ component "prometheus-operator" {
 
   grafana {
     admin_password = "foobar"
+    secret_env = { # This might contain sensitive information, declare a variable and define this in `lokocfg.vars`.
+      "KEY" = "VERY_SECRET"
+    }
     ingress {
       host                       = "grafana.mydomain.net"
       class                      = "contour"
@@ -116,6 +119,7 @@ Example:
 |--------	|--------------|:-------:|:--------:|
 | `namespace` | Namespace to deploy the Prometheus Operator. | `monitoring` | false |
 | `grafana.admin_password` | Password for `admin` user in Grafana. If not provided it is auto generated and stored in secret `prometheus-operator-grafana`.  | - | false |
+| `grafana.secret_env` | Sensitive environment variables passed to Grafana pod and stored as secret. Read more on manipulating `grafana.ini` using env var [here](https://grafana.com/docs/grafana/latest/installation/configuration/#configure-with-environment-variables). | - | false |
 | `grafana.ingress.host` | Ingress URL host to expose Grafana over the internet. **NOTE:** When running on Packet, a DNS entry pointing at the ingress controller needs to be created.  | - | true |
 | `grafana.ingress.class` | Ingress class to use for Grafana ingress. | `contour` | false |
 | `grafana.ingress.certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`.  | `letsencrypt-production` | false |

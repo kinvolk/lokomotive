@@ -57,6 +57,12 @@ grafana:
   rbac:
     pspUseAppArmor: false
   adminPassword: {{.Grafana.AdminPassword}}
+  {{- if .Grafana.SecretEnv }}
+  envRenderSecret:
+    {{ range $key, $value := .Grafana.SecretEnv }}
+    {{ $key }}: {{ $value }}
+    {{ end }}
+  {{- end }}
   {{ if .Grafana.Ingress }}
   ingress:
     enabled: true
