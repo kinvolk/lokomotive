@@ -71,6 +71,9 @@ grafana:
     - hosts:
       - {{ .Grafana.Ingress.Host }}
       secretName: {{ .Grafana.Ingress.Host }}-tls
+  grafana.ini:
+    server:
+      root_url: https://{{ .Grafana.Ingress.Host }}
   {{ end }}
   {{ end }}
 
