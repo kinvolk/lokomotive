@@ -57,6 +57,9 @@ cluster "packet" {
   cluster_name     = var.cluster_name
   controller_count = var.controllers_count
 
+  //os_channel       = "stable"
+
+
   dns {
     provider = "route53"
     zone     = var.dns_zone
@@ -80,6 +83,8 @@ cluster "packet" {
   worker_pool "pool-1" {
     count     = var.workers_count
     node_type = var.workers_type
+
+    //os_channel = "stable"
   }
 }
 

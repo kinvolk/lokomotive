@@ -51,6 +51,9 @@ cluster "aws" {
   dns_zone_id      = var.route53_zone_id
   ssh_pubkeys      = var.ssh_public_keys
 
+  //os_channel       = "stable"
+  //os_version       = "current"
+
   oidc {
     issuer_url     = var.oidc_issuer_url
     client_id      = var.oidc_client_id
@@ -62,6 +65,9 @@ cluster "aws" {
     count         = var.workers_count
     instance_type = var.workers_type
     ssh_pubkeys   = var.ssh_public_keys
+
+    //os_channel    = "stable"
+    //os_version    = "current"
   }
 }
 
