@@ -18,4 +18,9 @@ module "bootkube" {
 
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
+
+  # Block access to AWS metadata for all pods.
+  #
+  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
+  blocked_metadata_cidrs = ["169.254.169.254"]
 }

@@ -156,3 +156,9 @@ variable "kube_apiserver_extra_flags" {
   type        = list(string)
   default     = []
 }
+
+variable "blocked_metadata_cidrs" {
+  description = "List of platform metadata CIDRs to block access to for all pods"
+  type        = list(string)
+  default     = []
+}
