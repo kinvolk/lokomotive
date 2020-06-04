@@ -1,0 +1,9 @@
+# A dummy service object, to prevent helm for complaining while installing only the CRDs.
+# See https://github.com/helm/helm/issues/4670 for more details.
+apiVersion: v1
+kind: Service
+metadata:
+  name: google
+spec:
+  type: ExternalName
+  externalName: google.com

@@ -31,6 +31,7 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/components/openebs-operator"
 	_ "github.com/kinvolk/lokomotive/pkg/components/openebs-storage-class"
 	_ "github.com/kinvolk/lokomotive/pkg/components/prometheus-operator"
+	_ "github.com/kinvolk/lokomotive/pkg/components/prometheus-operator-crds"
 	_ "github.com/kinvolk/lokomotive/pkg/components/rook"
 	_ "github.com/kinvolk/lokomotive/pkg/components/rook-ceph"
 	_ "github.com/kinvolk/lokomotive/pkg/components/velero"
