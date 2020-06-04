@@ -28,6 +28,8 @@ cluster "packet" {
   oidc {}
 }
 
+component "prometheus-operator-crds" {}
+
 component "openebs-operator" {}
 
 # openebs-storage-class component should always be the last to be installed

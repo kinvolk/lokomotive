@@ -22,6 +22,7 @@ instances.
   [OpenEBS](openebs-operator.md) or one of the
   [built-in](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
   plugins.
+* [prometheus-operator-crds](prometheus-operator-crds.md) component installed.
 
 ## Configuration
 

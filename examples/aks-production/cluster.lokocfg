@@ -65,6 +65,8 @@ cluster "aks" {
   }
 }
 
+component "prometheus-operator-crds" {}
+
 component "prometheus-operator" {
   disable_webhooks = true
 

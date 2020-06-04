@@ -43,6 +43,8 @@ cluster "aws" {
   }
 }
 
+component "prometheus-operator-crds" {}
+
 component "metrics-server" {}
 
 component "flatcar-linux-update-operator" {}

@@ -66,6 +66,8 @@ cluster "packet" {
   }
 }
 
+component "prometheus-operator-crds" {}
+
 component "metrics-server" {}
 
 component "openebs-operator" {}
