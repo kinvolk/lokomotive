@@ -6,13 +6,56 @@ DNS records on your behalf.
 
 ## Supported providers
 
-- [AWS Route 53](https://aws.amazon.com/route53/) - supported with AWS and Packet clusters
-- [Cloudflare](https://www.cloudflare.com/dns/) - supported with Packet clusters
-- Manual - supported with Packet clusters
+### [AWS Route 53](https://aws.amazon.com/route53/)
 
->NOTE: The *manual* DNS provider is a special provider. When using this option, no DNS records are
->provisioned automatically. Instead, the user is prompted to configure the necessary DNS records on
->their own.
+The AWS Route 53 DNS provider is supported with AWS and Packet clusters.
+
+#### IAM permissions
+
+The AWS Route 53 DNS provider requires the following IAM permissions:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "route53:GetChange",
+                "route53:GetHostedZone",
+                "route53:ChangeResourceRecordSets",
+                "route53:ListResourceRecordSets",
+                "route53:ListTagsForResource"
+            ],
+            "Resource": [
+                "arn:aws:route53:::change/*",
+                "arn:aws:route53:::hostedzone/<HOSTED_ZONE_ID>"
+            ]
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": "route53:ListHostedZones",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+### [Cloudflare](https://www.cloudflare.com/dns/)
+
+The Cloudflare DNS provider is supported with Packet clusters.
+
+### Manual
+
+The Manual DNS provider is supported with Packet clusters.
+
+This is a special provider. When used, no DNS records are provisioned
+automatically. Instead, the user is prompted to configure the necessary DNS
+records on their own.
+
+## Records
 
 The records on which Lokomotive relies are mostly DNS **A records**. They are constructed based on
 the DNS zone provided by the user and the configured cluster name in the following format:
