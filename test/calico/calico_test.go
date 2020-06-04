@@ -18,37 +18,63 @@
 package calico
 
 import (
-	"context"
+	"encoding/json"
 	"testing"
 
-	"github.com/projectcalico/libcalico-go/lib/apiconfig"
-	client "github.com/projectcalico/libcalico-go/lib/clientv3"
-	"github.com/projectcalico/libcalico-go/lib/options"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured/unstructuredscheme"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func TestHostEndpoints(t *testing.T) {
-	// Build Calico client.
-	cac := apiconfig.NewCalicoAPIConfig()
-	cac.Spec.DatastoreType = apiconfig.Kubernetes
-	cac.Spec.Kubeconfig = util.KubeconfigPath(t)
-
-	c, err := client.New(*cac)
+func TestHostEndpoints(t *testing.T) { //nolint:funlen
+	// Build rest client so we can do the equivalent of 'kubectl get --raw'.
+	config, err := clientcmd.BuildConfigFromFlags("", util.KubeconfigPath(t))
 	if err != nil {
-		t.Fatalf("failed creating Calico client: %v", err)
+		t.Fatalf("failed building rest client config: %v", err)
 	}
 
-	// Build list of nodes which has associated HostEndpoint object.
-	hostEndpointList, err := c.HostEndpoints().List(context.TODO(), options.ListOptions{})
+	config.GroupVersion = &schema.GroupVersion{}
+	config.NegotiatedSerializer = unstructuredscheme.NewUnstructuredNegotiatedSerializer()
+
+	client, err := rest.RESTClientFor(config)
 	if err != nil {
-		t.Fatalf("failed getting hostendpoint objects: %v", err)
+		t.Fatalf("failed building rest client: %v", err)
 	}
 
+	// This is minimal version of the Calico HostEndpoint CRD object which we need to deserialize
+	// from raw JSON.
+	//
+	// Upstream struct:
+	// https://github.com/projectcalico/libcalico-go/blob/release-v3.14/lib/apis/v3/hostendpoint.go
+	hostEndpoints := struct {
+		Items []struct {
+			Spec struct {
+				Node string
+			}
+		}
+	}{}
+
+	request := client.Get()
+	request.RequestURI("apis/crd.projectcalico.org/v1/hostendpoints")
+	response, err := request.DoRaw()
+	if err != nil {
+		t.Fatalf("failed getting HostEndpoint objects: %v", err)
+	}
+
+	if err := json.Unmarshal(response, &hostEndpoints); err != nil {
+		t.Fatalf("failed unmarshalling response: %v\n\n%s", err, string(response))
+	}
+
+	// Collect all received host endpoints into a map, so we can quickly look up if a
+	// specific object exists. We combine Node name and interface name to ensure that
+	// HostEndpoint objects are created for all nodes and for right interfaces.
 	endpoints := map[string]struct{}{}
 
-	for _, v := range hostEndpointList.Items {
+	for _, v := range hostEndpoints.Items {
 		endpoints[v.Spec.Node] = struct{}{}
 	}
 
