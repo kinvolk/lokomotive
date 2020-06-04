@@ -84,7 +84,7 @@ The provided configuration installs the Lokomotive cluster and the following com
 
 * [metrics-server](../configuration-reference/components/metrics-server.md)
 * [openebs-operator](../configuration-reference/components/openebs-operator.md)
-* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-upate-operator.md)
+* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-update-operator.md)
 * [openebs-storage-class](../configuration-reference/components/openebs-storage-class.md)
 * [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
 
