@@ -22,5 +22,5 @@ module "bootkube" {
   # Block access to AWS metadata for all pods.
   #
   # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
-  blocked_metadata_cidrs = ["169.254.169.254"]
+  blocked_metadata_cidrs = ["169.254.169.254/32"]
 }

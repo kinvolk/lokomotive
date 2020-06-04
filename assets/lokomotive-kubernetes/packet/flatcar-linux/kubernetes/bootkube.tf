@@ -36,5 +36,5 @@ module "bootkube" {
   # https://www.packet.com/developers/docs/servers/key-features/metadata/
   #
   # metadata.packet.net should always resolve to 192.80.8.124.
-  blocked_metadata_cidrs = ["192.80.8.124"]
+  blocked_metadata_cidrs = ["192.80.8.124/32"]
 }
