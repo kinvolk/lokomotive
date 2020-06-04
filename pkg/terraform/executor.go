@@ -296,6 +296,8 @@ func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
 	cmd.Stdout = wPipe
 	cmd.Stderr = wPipe
 
+	// Initialize the signal handler.
+	h := signalHandler(ex.logger)
 	// Start Terraform.
 	err := cmd.Start()
 	if err != nil {
@@ -319,6 +321,10 @@ func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
 			ioutil.WriteFile(ex.failPath(cmd.Process.Pid), []byte(err.Error()), 0660)
 		}
 
+		// Once the process is finished whether successfully or terminated by an
+		// interrupt, we stop listening for the interrupt and close the channel.
+		h.stop()
+
 		// Close descriptors.
 		wPipe.Close()
 		logFile.Close()
@@ -330,8 +336,15 @@ func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
 
 // ExecuteSync is like Execute, but synchronous.
 func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
+	// Initialize the signal handler.
+	h := signalHandler(ex.logger)
+
 	cmd := ex.generateCommand(args...)
-	return cmd.Output()
+	output, err := cmd.Output()
+
+	h.stop()
+
+	return output, err
 }
 
 // Plan runs 'terraform plan'.
