@@ -329,6 +329,9 @@ const (
 	// PlatformAWS is for AWS
 	PlatformAWS = "aws"
 
+	// PlatformAWSEdge is for AWS with FCL Edge.
+	PlatformAWSEdge = "aws_edge"
+
 	// PlatformPacket is for Packet
 	PlatformPacket = "packet"
 
