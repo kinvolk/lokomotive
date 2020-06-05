@@ -388,6 +388,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkReservationIDs()...)
+	diagnostics = append(diagnostics, c.validateOSVersion()...)
 
 	if c.OIDC != nil {
 		_, diags := c.OIDC.ToKubeAPIServerFlags(c.clusterDomain())
@@ -446,6 +447,32 @@ func (c *config) checkReservationIDs() hcl.Diagnostics {
 	for _, w := range c.WorkerPools {
 		d := checkEachReservation(w.ReservationIDs, w.ReservationIDsDefault, w.Name, worker)
 		diagnostics = append(diagnostics, d...)
+	}
+
+	return diagnostics
+}
+
+// validateOSVersion ensures os_version is used only with ipxe_script_url.
+func (c *config) validateOSVersion() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	// Ensure os_version is used only with ipxe_script_url.
+	if c.OSVersion != "" && c.IPXEScriptURL == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "os_version is unexpected",
+			Detail:   "os_version may only be specified with ipxe_script_url",
+		})
+	}
+
+	for _, w := range c.WorkerPools {
+		if w.OSVersion != "" && w.IPXEScriptURL == "" {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "os_version is unexpected",
+				Detail:   fmt.Sprintf("os_version may only be specified with ipxe_script_url for worker pool %q", w.Name),
+			})
+		}
 	}
 
 	return diagnostics
