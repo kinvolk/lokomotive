@@ -43,8 +43,8 @@ var deleteNamespace bool
 func init() {
 	componentCmd.AddCommand(componentDeleteCmd)
 	pf := componentDeleteCmd.PersistentFlags()
-	pf.BoolVarP(&deleteNamespace, "delete-namespace", "", false, "Delete namespace with component.")
-	pf.BoolVarP(&confirm, "confirm", "", false, "Delete component without asking for confirmation.")
+	pf.BoolVarP(&deleteNamespace, "delete-namespace", "", false, "Delete namespace with component")
+	pf.BoolVarP(&confirm, "confirm", "", false, "Delete component without asking for confirmation")
 }
 
 func runDelete(cmd *cobra.Command, args []string) {
