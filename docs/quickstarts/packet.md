@@ -309,8 +309,9 @@ the AWS API credentials has permissions to create records on Route 53.
 
 ## Next steps
 
-You can now start deploying your workloads on the cluster.
+In this guide you used port forwarding to communicate with a sample application on the cluster.
+However, in real-world cases you may want to expose your applications to the internet.
+[This](../how-to-guides/ingress-with-contour-metallb.md) guide explains how to use MetalLB and
+Contour to expose applications on Packet clusters to the internet.
 
-For more information on installing supported Lokomotive components, you can visit the [component
-configuration references](../configuration-reference/components).
 [releases]: https://github.com/kinvolk/lokomotive/releases
