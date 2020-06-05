@@ -80,16 +80,14 @@ func runDelete(cmd *cobra.Command, args []string) {
 		componentsObjects[i] = compObj
 	}
 
-	if !confirm {
-		if !askForConfirmation(
-			fmt.Sprintf(
-				"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
-				strings.Join(componentsToDelete, "\n\t"),
-			),
-		) {
-			contextLogger.Info("Components deletion cancelled.")
-			return
-		}
+	if !confirm && !askForConfirmation(
+		fmt.Sprintf(
+			"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
+			strings.Join(componentsToDelete, "\n\t"),
+		),
+	) {
+		contextLogger.Info("Components deletion cancelled.")
+		return
 	}
 
 	kubeconfig, err := getKubeconfig()
