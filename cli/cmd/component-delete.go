@@ -44,6 +44,7 @@ func init() {
 	componentCmd.AddCommand(componentDeleteCmd)
 	pf := componentDeleteCmd.PersistentFlags()
 	pf.BoolVarP(&deleteNamespace, "delete-namespace", "", false, "Delete namespace with component.")
+	pf.BoolVarP(&confirm, "confirm", "", false, "Delete component without asking for confirmation.")
 }
 
 func runDelete(cmd *cobra.Command, args []string) {
@@ -79,14 +80,16 @@ func runDelete(cmd *cobra.Command, args []string) {
 		componentsObjects[i] = compObj
 	}
 
-	if !askForConfirmation(
-		fmt.Sprintf(
-			"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
-			strings.Join(componentsToDelete, "\n\t"),
-		),
-	) {
-		contextLogger.Info("Components deletion cancelled.")
-		return
+	if !confirm {
+		if !askForConfirmation(
+			fmt.Sprintf(
+				"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
+				strings.Join(componentsToDelete, "\n\t"),
+			),
+		) {
+			contextLogger.Info("Components deletion cancelled.")
+			return
+		}
 	}
 
 	kubeconfig, err := getKubeconfig()

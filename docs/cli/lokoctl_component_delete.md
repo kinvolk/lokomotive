@@ -14,6 +14,7 @@ lokoctl component delete [flags]
 ### Options
 
 ```
+      --confirm            Delete component without asking for confirmation.
       --delete-namespace   Delete namespace with component.
   -h, --help               help for delete
 ```
