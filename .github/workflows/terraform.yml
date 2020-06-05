@@ -1,0 +1,31 @@
+name: 'Lokomotive Unit Tests'
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+jobs:
+  terraform:
+    name: 'Lokomotive Unit Tests'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Build
+      run: make
+
+    - name: Terraform Format
+      run: |
+        set -e
+        for i in $(./lokoctl template) ; do
+          echo "Checking $i"
+          ./lokoctl template $i > test.tf
+          terraform fmt -check -diff
+          rm -f test.tf
+        done

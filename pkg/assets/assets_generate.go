@@ -25,6 +25,7 @@ func main() {
 	dirs := map[string]string{
 		"/lokomotive-kubernetes": "../../assets/lokomotive-kubernetes",
 		"/components":            "../../assets/components",
+		"/examples":              "../../examples",
 	}
 	err := assets.Generate("generated_assets.go", "assets", "vfsgenAssets", dirs)
 	if err != nil {
