@@ -60,21 +60,21 @@ To create a fully functioning OIDC authentication infrastructure, we need the fo
 
 * [cert-manager](https://cert-manager.io/docs/) deployed on the cluster.
 
-  Installation instructions for [cert-manager](../configuration-reference/cert-manager) Lokomotive component.
+  Installation instructions for [cert-manager](../configuration-reference/components/cert-manager.md) Lokomotive component.
 
 * [MetalLB](https://metallb.universe.tf/) deployed on the cluster.
 
   **NOTE**: Required only for the bare metal and Packet providers.
 
-   Installation instructions for [MetalLB](../configuration-reference/metallb) component.
+   Installation instructions for [MetalLB](../configuration-reference/components/metallb.md) component.
 
 * [Contour](https://projectcontour.io/) deployed on the cluster.
 
-  Installation instructions for [Contour](../configuration-reference/contour) component.
+  Installation instructions for [Contour](../configuration-reference/components/contour.md) component.
 
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) deployed on the cluster.
 
-   Installation instructions for [ExternalDNS](../configuration-reference/externaldns) component.
+   Installation instructions for [ExternalDNS](../configuration-reference/components/external-dns.md) component.
 
 ## Steps
 
@@ -334,7 +334,7 @@ Verify you've configured RBAC correctly in step 7.
 ## Additional resources
 
 To configure authentication with Google as an identity provider,visit the [Dex component
-documentation](todo-dex-documentation-link) for configuration changes.
+documentation](../../configuration-reference/components/dex.md) for configuration changes.
 
 For more information about OpenID Connect, see [OpenID Connect](https://openid.net/connect)
 website.

@@ -19,7 +19,7 @@ instances.
 
 * A Lokomotive cluster with a
   [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) plugin, e.g.
-  [OpenEBS](openebs.md) or one of the
+  [OpenEBS](openebs-operator.md) or one of the
   [built-in](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
   plugins.
 
