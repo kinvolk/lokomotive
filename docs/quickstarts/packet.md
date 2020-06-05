@@ -92,7 +92,7 @@ The provided configuration installs the Lokomotive cluster and the following com
 * [contour](../configuration-reference/components/contour.md)
 * [metallb](../configuration-reference/components/metallb.md)
 * [cert-manager](../configuration-reference/components/cert-manager.md)
-* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-upate-operator.md)
+* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-update-operator.md)
 * [openebs-storage-class](../configuration-reference/components/openebs-storage-class.md)
 * [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
 

@@ -53,7 +53,7 @@ component for automatic management of DNS entries for Ingress resources.
 ### Node management
 
 Lokomotive provides the
-[cluster-autoscaler](../configuration-reference/components/cluster-autoscaler) component for adjusting
+[cluster-autoscaler](../configuration-reference/components/cluster-autoscaler.md) component for adjusting
 the size of Lokomotive cluster.
 
 ### Update
