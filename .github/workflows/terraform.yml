@@ -1,0 +1,30 @@
+name: 'Lokomotive Unit Tests'
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+jobs:
+  terraform:
+    name: 'Lokomotive Unit Tests'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Format
+      run: |
+        set -e
+        for i in $(find examples -name '*.lokocfg') ; do
+          echo "Checking $i"
+          pushd $(dirname $i)
+          cp $(basename $i) $(basename $i).tf
+          terraform fmt -check -diff
+          rm -f $(basename $i).tf
+          popd
+        done
