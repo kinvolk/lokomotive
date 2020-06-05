@@ -81,6 +81,31 @@ information.
     - name: 'null'
 ```
 
+**NOTE**: Ensure the file `alertmanager_config.yaml` is added to `.gitignore` to avoid any accidental exposure
+of sensitive data. Alternatively you can store the alertmanager configuration in `lokocfg.vars` as below:
+
+```hcl
+#lokocfg.vars
+alertmanager_config = <<EOF
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by:
+      - job
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: 'null'
+    receivers:
+    - name: 'null'
+EOF
+```
+
 ## Attribute reference
 
 Table of all the arguments accepted by the component.
