@@ -37,17 +37,34 @@ application to verify the cluster behaves as expected.
 
 ## Requirements
 
-* Basic understanding of Kubernetes concepts.
-* Packet account, Project ID and auth token (sometimes also referred to as [User Level API
-  key](https://www.packet.com/developers/docs/API/getting-started/)).
-* AWS account and IAM credentials (optional for Route53 DNS configuration).
-* AWS Route53 DNS Zone (registered Domain Name or delegated subdomain).
-* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) v0.5.0
-  installed locally.
-* Local BGP enabled. More information on how to enable Local BGP for the Packet Project is found in
-  the [Packet support document](https://support.packet.com/kb/articles/bgp).
-* An SSH key pair for management access.
-* `kubectl` installed locally to access the Kubernetes cluster.
+* A Packet account with a project created and
+  [local BGP](https://www.packet.com/developers/docs/network/advanced/local-and-global-bgp/)
+  enabled.
+* A Packet project ID.
+* A Packet
+  [user level API key](https://www.packet.com/developers/docs/API/getting-started/)
+  with access to the relevant project.
+* An AWS account.
+* An AWS
+  [access key ID and secret](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+  of a user with
+  [permissions](https://github.com/kinvolk/lokomotive/blob/master/docs/concepts/dns.md#aws-route-53)
+  to edit Route 53 records.
+* An AWS Route 53 zone (can be a subdomain).
+* An SSH key pair for accessing the cluster nodes.
+* Terraform `v0.12.x`
+  [installed](https://learn.hashicorp.com/terraform/getting-started/install.html#install-terraform).
+* The `ct` Terraform provider `v0.5.0`
+  [installed](https://github.com/poseidon/terraform-provider-ct/blob/v0.5.0/README.md#install).
+* `kubectl` [installed](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+
+>NOTE: The `kubectl` version used to interact with a Kubernetes cluster needs to be compatible with
+>the version of the Kubernetes control plane. Ideally you should install a `kubectl` binary whose
+>version is identical to the Kubernetes control plane included with a Lokomotive release. However,
+>some degree of version "skew" is tolerated - see the Kubernetes
+>[version skew policy](https://kubernetes.io/docs/setup/release/version-skew-policy/) document for
+>more information. You can determine the version of the Kubernetes control plane included with a
+>Lokomotive release by looking at the [release notes][releases].
 
 ## Steps
 
@@ -277,3 +294,4 @@ You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component
 configuration references](../configuration-reference/components).
+[releases]: https://github.com/kinvolk/lokomotive/releases
