@@ -101,7 +101,7 @@ cluster "aws" {
 
   region = var.region
 
-  enable_aggreation = true
+  enable_aggregation = true
 
   disk_size = var.disk_size
 
