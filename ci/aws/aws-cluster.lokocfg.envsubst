@@ -16,6 +16,21 @@ cluster "aws" {
   os_channel       = var.os_channel
   ssh_pubkeys      = ["$PUB_KEY"]
 
+  controller_clc_snippets = [
+    <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+  ]
   worker_pool "wp" {
     count         = 2
     ssh_pubkeys   = ["$PUB_KEY"]
@@ -25,6 +40,21 @@ cluster "aws" {
     tags = {
       "deployment" = "ci"
     }
+    clc_snippets = [
+      <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+    ]
   }
 
   # Adds oidc flags to API server with default values.

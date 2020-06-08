@@ -3,6 +3,21 @@ cluster "packet" {
   cluster_name     = "$CLUSTER_ID"
   controller_count = 1
 
+  controller_clc_snippets = [
+    <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+  ]
   dns {
     provider = "route53"
     zone     = "$AWS_DNS_ZONE"
@@ -20,6 +35,21 @@ cluster "packet" {
     count     = 2
     node_type = "c2.medium.x86"
     labels    = "testing.io=yes,roleofnode=testing"
+    clc_snippets = [
+      <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+    ]
   }
 
   # Adds oidc flags to API server with default values.
