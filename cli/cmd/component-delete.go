@@ -96,20 +96,20 @@ func runDelete(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	if err := deleteComponents(kubeconfig, componentsObjects...); err != nil {
+	if err := deleteComponents(kubeconfig, contextLogger, componentsObjects...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
 
-func deleteComponents(kubeconfig string, componentObjects ...components.Component) error {
+func deleteComponents(kubeconfig string, ctxLogger *log.Entry, componentObjects ...components.Component) error {
 	for _, compObj := range componentObjects {
-		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
+		ctxLogger.Infof("Deleting component '%s'...\n", compObj.Metadata().Name)
 
-		if err := deleteHelmRelease(compObj, kubeconfig, deleteNamespace); err != nil {
+		if err := deleteHelmRelease(compObj, kubeconfig, ctxLogger, deleteNamespace); err != nil {
 			return err
 		}
 
-		fmt.Printf("Successfully deleted component %q!\n", compObj.Metadata().Name)
+		ctxLogger.Infof("Successfully deleted component %q!\n", compObj.Metadata().Name)
 	}
 
 	// Add a line to distinguish between info logs and errors, if any.
@@ -119,19 +119,19 @@ func deleteComponents(kubeconfig string, componentObjects ...components.Componen
 }
 
 // deleteComponent deletes a component.
-func deleteHelmRelease(c components.Component, kubeconfig string, deleteNSBool bool) error {
+func deleteHelmRelease(c components.Component, kubeconfig string, ctxLogger *log.Entry, deleteNSBool bool) error {
 	name := c.Metadata().Name
 	if name == "" {
 		// This should never fail in real user usage, if this does that means the component was not
 		// created with all the needed information.
-		panic(fmt.Errorf("component name is empty"))
+		ctxLogger.Fatal("component name is empty")
 	}
 
 	ns := c.Metadata().Namespace
 	if ns == "" {
 		// This should never fail in real user usage, if this does that means the component was not
 		// created with all the needed information.
-		panic(fmt.Errorf("component %s namespace is empty", name))
+		ctxLogger.Fatalf("component %s namespace is empty", name)
 	}
 
 	cfg, err := util.HelmActionConfig(ns, kubeconfig)

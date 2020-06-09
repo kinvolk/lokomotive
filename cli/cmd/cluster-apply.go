@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -77,7 +75,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("error applying cluster: %v", err)
 	}
 
-	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
+	ctxLogger.Infof("\nYour configurations are stored in %s\n", assetDir)
 
 	kubeconfigPath := assetsKubeconfig(assetDir)
 	if err := verifyCluster(kubeconfigPath, p.Meta().ExpectedNodes); err != nil {
@@ -86,7 +84,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
 	if exists && !p.Meta().Managed {
-		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
+		ctxLogger.Infof("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
 			kubeconfigPath: kubeconfigPath,
@@ -118,7 +116,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	ctxLogger.Println("Applying component configuration")
 
 	if len(componentsToApply) > 0 {
-		if err := applyComponents(lokoConfig, kubeconfigPath, componentsToApply...); err != nil {
+		if err := applyComponents(lokoConfig, kubeconfigPath, ctxLogger, componentsToApply...); err != nil {
 			ctxLogger.Fatalf("Applying component configuration failed: %v", err)
 		}
 	}

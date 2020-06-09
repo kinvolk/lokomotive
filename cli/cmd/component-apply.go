@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -63,14 +61,18 @@ func runApply(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
+	if err := applyComponents(lokoConfig, kubeconfig, contextLogger, componentsToApply...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
 
-func applyComponents(lokoConfig *config.Config, kubeconfig string, componentNames ...string) error {
+func applyComponents(lokoConfig *config.Config,
+	kubeconfig string,
+	ctxLogger *log.Entry,
+	componentNames ...string,
+) error {
 	for _, componentName := range componentNames {
-		fmt.Printf("Applying component '%s'...\n", componentName)
+		ctxLogger.Infof("Applying component '%s'...\n", componentName)
 
 		component, err := components.Get(componentName)
 		if err != nil {
@@ -80,7 +82,7 @@ func applyComponents(lokoConfig *config.Config, kubeconfig string, componentName
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
 
 		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
-			fmt.Printf("%v\n", diags)
+			ctxLogger.Infof("%v\n", diags)
 			return diags
 		}
 
@@ -88,7 +90,7 @@ func applyComponents(lokoConfig *config.Config, kubeconfig string, componentName
 			return err
 		}
 
-		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
+		ctxLogger.Infof("Successfully applied component '%s' configuration!\n", componentName)
 	}
 	return nil
 }
