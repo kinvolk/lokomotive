@@ -18,6 +18,7 @@
 package calico_test
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -79,7 +80,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 		t.Fatalf("failed to unmarshal pod manifest: %v", err)
 	}
 
-	ns, err := nsclient.Create(ns)
+	ns, err := nsclient.Create(context.TODO(), ns, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("failed creating Namespace: %v", err)
 	}
@@ -103,7 +104,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 
 	podsclient := client.Pods(ns.ObjectMeta.Name)
 
-	p, err = podsclient.Create(p)
+	p, err = podsclient.Create(context.TODO(), p, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("failed creating Pod: %v", err)
 	}
@@ -111,7 +112,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 	phase := corev1.PodUnknown
 
 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
-		p, err := podsclient.Get(p.ObjectMeta.Name, metav1.GetOptions{})
+		p, err := podsclient.Get(context.TODO(), p.ObjectMeta.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -132,7 +133,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 	}
 
 	t.Cleanup(func() {
-		if err := nsclient.Delete(ns.ObjectMeta.Name, &metav1.DeleteOptions{}); err != nil {
+		if err := nsclient.Delete(context.TODO(), ns.ObjectMeta.Name, metav1.DeleteOptions{}); err != nil {
 			t.Logf("failed removing Namespace: %v", err)
 		}
 	})

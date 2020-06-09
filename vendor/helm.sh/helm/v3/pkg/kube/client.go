@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -30,14 +29,17 @@ import (
 	"github.com/pkg/errors"
 	batch "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
@@ -50,11 +52,17 @@ import (
 // ErrNoObjectsVisited indicates that during a visit operation, no matching objects were found.
 var ErrNoObjectsVisited = errors.New("no objects visited")
 
+var metadataAccessor = meta.NewAccessor()
+
 // Client represents a client capable of communicating with the Kubernetes API.
 type Client struct {
 	Factory Factory
 	Log     func(string, ...interface{})
+	// Namespace allows to bypass the kubeconfig file for the choice of the namespace
+	Namespace string
 }
+
+var addToScheme sync.Once
 
 // New creates a new Client.
 func New(getter genericclioptions.RESTClientGetter) *Client {
@@ -62,10 +70,15 @@ func New(getter genericclioptions.RESTClientGetter) *Client {
 		getter = genericclioptions.NewConfigFlags(true)
 	}
 	// Add CRDs to the scheme. They are missing by default.
-	if err := apiextv1beta1.AddToScheme(scheme.Scheme); err != nil {
-		// This should never happen.
-		panic(err)
-	}
+	addToScheme.Do(func() {
+		if err := apiextv1.AddToScheme(scheme.Scheme); err != nil {
+			// This should never happen.
+			panic(err)
+		}
+		if err := apiextv1beta1.AddToScheme(scheme.Scheme); err != nil {
+			panic(err)
+		}
+	})
 	return &Client{
 		Factory: cmdutil.NewFactory(getter),
 		Log:     nopLogger,
@@ -76,10 +89,17 @@ var nopLogger = func(_ string, _ ...interface{}) {}
 
 // IsReachable tests connectivity to the cluster
 func (c *Client) IsReachable() error {
-	client, _ := c.Factory.KubernetesClientSet()
-	_, err := client.ServerVersion()
-	if err != nil {
+	client, err := c.Factory.KubernetesClientSet()
+	if err == genericclioptions.ErrEmptyConfig {
+		// re-replace kubernetes ErrEmptyConfig error with a friendy error
+		// moar workarounds for Kubernetes API breaking.
 		return errors.New("Kubernetes cluster unreachable")
+	}
+	if err != nil {
+		return errors.Wrap(err, "Kubernetes cluster unreachable")
+	}
+	if _, err := client.ServerVersion(); err != nil {
+		return errors.Wrap(err, "Kubernetes cluster unreachable")
 	}
 	return nil
 }
@@ -108,6 +128,9 @@ func (c *Client) Wait(resources ResourceList, timeout time.Duration) error {
 }
 
 func (c *Client) namespace() string {
+	if c.Namespace != "" {
+		return c.Namespace
+	}
 	if ns, _, err := c.Factory.ToRawKubeConfigLoader().Namespace(); err == nil {
 		return ns
 	}
@@ -145,7 +168,16 @@ func (c *Client) Build(reader io.Reader, validate bool) (ResourceList, error) {
 // resource updates, creations, and deletions that were attempted. These can be
 // used for cleanup or other logging purposes.
 func (c *Client) Update(original, target ResourceList, force bool) (*Result, error) {
-	updateErrors := []string{}
+	return c.update(target, original, force, false, 0)
+}
+
+// Like Update but using the recreate strategy on updating a resource
+func (c *Client) UpdateRecreate(original, target ResourceList, force bool, timeout time.Duration) (*Result, error) {
+	return c.update(target, original, force, true, timeout)
+}
+
+func (c *Client) update(target ResourceList, original ResourceList, force bool, recreate bool, timeout time.Duration) (*Result, error) {
+	var updateErrors []string
 	res := &Result{}
 
 	c.Log("checking %d resources for changes", len(target))
@@ -179,7 +211,7 @@ func (c *Client) Update(original, target ResourceList, force bool) (*Result, err
 			return errors.Errorf("no %s with the name %q found", kind, info.Name)
 		}
 
-		if err := updateResource(c, info, originalInfo.Object, force); err != nil {
+		if err := updateResource(c, info, originalInfo.Object, force, recreate, timeout); err != nil {
 			c.Log("error updating the resource %q:\n\t %v", info.Name, err)
 			updateErrors = append(updateErrors, err.Error())
 		}
@@ -198,6 +230,19 @@ func (c *Client) Update(original, target ResourceList, force bool) (*Result, err
 
 	for _, info := range original.Difference(target) {
 		c.Log("Deleting %q in %s...", info.Name, info.Namespace)
+
+		if err := info.Get(); err != nil {
+			c.Log("Unable to get obj %q, err: %s", info.Name, err)
+		}
+		annotations, err := metadataAccessor.Annotations(info.Object)
+		if err != nil {
+			c.Log("Unable to get annotations on %q, err: %s", info.Name, err)
+		}
+		if annotations != nil && annotations[ResourcePolicyAnno] == KeepPolicy {
+			c.Log("Skipping delete of %q due to annotation [%s=%s]", info.Name, ResourcePolicyAnno, KeepPolicy)
+			continue
+		}
+
 		res.Deleted = append(res.Deleted, info)
 		if err := deleteResource(info); err != nil {
 			if apierrors.IsNotFound(err) {
@@ -218,12 +263,17 @@ func (c *Client) Update(original, target ResourceList, force bool) (*Result, err
 func (c *Client) Delete(resources ResourceList) (*Result, []error) {
 	var errs []error
 	res := &Result{}
+	mtx := sync.Mutex{}
 	err := perform(resources, func(info *resource.Info) error {
 		c.Log("Starting delete for %q %s", info.Name, info.Mapping.GroupVersionKind.Kind)
 		if err := c.skipIfNotFound(deleteResource(info)); err != nil {
+			mtx.Lock()
+			defer mtx.Unlock()
 			// Collect the error and continue on
 			errs = append(errs, err)
 		} else {
+			mtx.Lock()
+			defer mtx.Unlock()
 			res.Deleted = append(res.Deleted, info)
 		}
 		return nil
@@ -311,7 +361,7 @@ func batchPerform(infos ResourceList, fn func(*resource.Info) error, errs chan<-
 }
 
 func createResource(info *resource.Info) error {
-	obj, err := resource.NewHelper(info.Client, info.Mapping).Create(info.Namespace, true, info.Object, nil)
+	obj, err := resource.NewHelper(info.Client, info.Mapping).Create(info.Namespace, true, info.Object)
 	if err != nil {
 		return err
 	}
@@ -355,7 +405,12 @@ func createPatch(target *resource.Info, current runtime.Object) ([]byte, types.P
 	// returned from ConvertToVersion. Anything that's unstructured should
 	// use the jsonpatch.CreateMergePatch. Strategic Merge Patch is not supported
 	// on objects like CRDs.
-	if _, ok := versionedObject.(runtime.Unstructured); ok {
+	_, isUnstructured := versionedObject.(runtime.Unstructured)
+
+	// On newer K8s versions, CRDs aren't unstructured but has this dedicated type
+	_, isCRD := versionedObject.(*apiextv1beta1.CustomResourceDefinition)
+
+	if isUnstructured || isCRD {
 		// fall back to generic JSON merge patch
 		patch, err := jsonpatch.CreateMergePatch(oldData, newData)
 		return patch, types.MergePatchType, err
@@ -370,7 +425,7 @@ func createPatch(target *resource.Info, current runtime.Object) ([]byte, types.P
 	return patch, types.StrategicMergePatchType, err
 }
 
-func updateResource(c *Client, target *resource.Info, currentObj runtime.Object, force bool) error {
+func updateResource(c *Client, target *resource.Info, currentObj runtime.Object, force bool, recreate bool, timeout time.Duration) error {
 	var (
 		obj    runtime.Object
 		helper = resource.NewHelper(target.Client, target.Mapping)
@@ -392,23 +447,59 @@ func updateResource(c *Client, target *resource.Info, currentObj runtime.Object,
 		return nil
 	}
 
-	// if --force is applied, attempt to replace the existing resource with the new object.
-	if force {
+	// update strategies:
+	// default              PATCH
+	// --force              PUT
+	// --recreate           PATCH, on failure DELETE, POST
+	// --recreate --force   DELETE, POST
+	switch {
+	case recreate && force:
+		err = c.deleteAndCreate(helper, target, timeout)
+		if err != nil {
+			return errors.Wrapf(err, "failed to recreate %q with kind %s", target.Name, kind)
+		}
+	case recreate:
+		obj, err = helper.Patch(target.Namespace, target.Name, patchType, patch, nil)
+		if err != nil {
+			if apierrors.IsConflict(err) || apierrors.IsInvalid(err) {
+				err = c.deleteAndCreate(helper, target, timeout)
+			}
+			return errors.Wrapf(err, "failed to recreate %q with kind %s", target.Name, kind)
+		}
+	case force:
 		obj, err = helper.Replace(target.Namespace, target.Name, true, target.Object)
 		if err != nil {
-			return errors.Wrap(err, "failed to replace object")
+			return errors.Wrapf(err, "failed to replace %q with kind %s", target.Name, kind)
 		}
-		log.Printf("Replaced %q with kind %s for kind %s\n", target.Name, currentObj.GetObjectKind().GroupVersionKind().Kind, kind)
-	} else {
-		// send patch to server
+		c.Log("Replaced %q with kind %s for kind %s\n", target.Name, currentObj.GetObjectKind().GroupVersionKind().Kind, kind)
+	default:
 		obj, err = helper.Patch(target.Namespace, target.Name, patchType, patch, nil)
 		if err != nil {
 			return errors.Wrapf(err, "cannot patch %q with kind %s", target.Name, kind)
 		}
 	}
 
-	target.Refresh(obj, true)
+	if obj != nil {
+		return target.Refresh(obj, true)
+	}
 	return nil
+}
+
+func (c *Client) deleteAndCreate(helper *resource.Helper, target *resource.Info, timeout time.Duration) error {
+	if err := deleteResource(target); err != nil {
+		return err
+	}
+
+	if err := wait.PollImmediate(1*time.Second, timeout, func() (bool, error) {
+		if _, err := helper.Get(target.Namespace, target.Name, false); !apierrors.IsNotFound(err) {
+			return false, err
+		}
+		return true, nil
+	}); err != nil {
+		return err
+	}
+
+	return createResource(target)
 }
 
 func (c *Client) watchUntilReady(timeout time.Duration, info *resource.Info) error {
@@ -530,9 +621,12 @@ func scrubValidationError(err error) error {
 // WaitAndGetCompletedPodPhase waits up to a timeout until a pod enters a completed phase
 // and returns said phase (PodSucceeded or PodFailed qualify).
 func (c *Client) WaitAndGetCompletedPodPhase(name string, timeout time.Duration) (v1.PodPhase, error) {
-	client, _ := c.Factory.KubernetesClientSet()
+	client, err := c.Factory.KubernetesClientSet()
+	if err != nil {
+		return v1.PodUnknown, err
+	}
 	to := int64(timeout)
-	watcher, err := client.CoreV1().Pods(c.namespace()).Watch(metav1.ListOptions{
+	watcher, err := client.CoreV1().Pods(c.namespace()).Watch(context.Background(), metav1.ListOptions{
 		FieldSelector:  fmt.Sprintf("metadata.name=%s", name),
 		TimeoutSeconds: &to,
 	})

@@ -182,10 +182,14 @@ kind: Ingress
 metadata:
   name: dex
   namespace: dex
+  labels:
+    app.kubernetes.io/managed-by: Helm
   annotations:
     kubernetes.io/ingress.class: contour
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
+    meta.helm.sh/release-name: dex
+    meta.helm.sh/release-namespace: dex
 spec:
   tls:
     - hosts:

@@ -15,6 +15,7 @@
 package util
 
 import (
+	"context"
 	"fmt"
 
 	"helm.sh/helm/v3/pkg/action"
@@ -47,11 +48,11 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 	}
 
 	// Ensure the namespace in which we create release and resources exists.
-	_, err = cs.CoreV1().Namespaces().Create(&v1.Namespace{
+	_, err = cs.CoreV1().Namespaces().Create(context.TODO(), &v1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: ns,
 		},
-	})
+	}, metav1.CreateOptions{})
 	if err != nil && !errors.IsAlreadyExists(err) {
 		return err
 	}
@@ -104,6 +105,7 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 
 	upgrade := action.NewUpgrade(actionConfig)
 	upgrade.Wait = wait
+	upgrade.RecreateResources = true
 
 	if _, err := upgrade.Run(name, chart, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("updating chart failed: %w", err)

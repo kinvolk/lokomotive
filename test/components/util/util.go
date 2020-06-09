@@ -16,6 +16,7 @@ package util
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -74,7 +75,7 @@ func CreateKubeClient(t *testing.T) *kubernetes.Clientset {
 
 func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
 	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
-		ds, err := client.AppsV1().StatefulSets(ns).Get(name, metav1.GetOptions{})
+		ds, err := client.AppsV1().StatefulSets(ns).Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				t.Logf("waiting for statefulset %s to be available", name)
@@ -98,7 +99,7 @@ func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name stri
 
 func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string, retryInterval, timeout time.Duration) {
 	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
-		ds, err := client.AppsV1().DaemonSets(ns).Get(name, metav1.GetOptions{})
+		ds, err := client.AppsV1().DaemonSets(ns).Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				t.Logf("waiting for daemonset %s to be available", name)
@@ -131,7 +132,7 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 
 	// Check the readiness of the Deployment
 	if err = wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
-		deploy, err = client.AppsV1().Deployments(ns).Get(name, metav1.GetOptions{})
+		deploy, err = client.AppsV1().Deployments(ns).Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				t.Logf("waiting for deployment %s to be available", name)
@@ -163,7 +164,7 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 	// Check the readiness of the pods
 	labelSet := labels.Set(deploy.Labels)
 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
-		pods, err := client.CoreV1().Pods(ns).List(metav1.ListOptions{LabelSelector: labelSet.String()})
+		pods, err := client.CoreV1().Pods(ns).List(context.TODO(), metav1.ListOptions{LabelSelector: labelSet.String()})
 		if err != nil {
 			return false, err
 		}

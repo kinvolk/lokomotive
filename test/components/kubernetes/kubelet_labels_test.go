@@ -18,6 +18,7 @@
 package kubernetes //nolint:testpackage
 
 import (
+	"context"
 	"testing"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,7 +29,7 @@ import (
 func TestNodeHasLabels(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
-	nodes, err := client.CoreV1().Nodes().List(metav1.ListOptions{
+	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{
 		LabelSelector: "testing.io=yes,roleofnode=testing",
 	})
 	if err != nil {

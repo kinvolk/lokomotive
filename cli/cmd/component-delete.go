@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -172,7 +173,7 @@ func deleteNS(ns string, kubeconfig string) error {
 	}
 
 	// Delete the manually created namespace which was not created by helm.
-	if err = cs.CoreV1().Namespaces().Delete(ns, &metav1.DeleteOptions{}); err != nil {
+	if err = cs.CoreV1().Namespaces().Delete(context.TODO(), ns, metav1.DeleteOptions{}); err != nil {
 		// Ignore error when the namespace does not exist.
 		if errors.IsNotFound(err) {
 			return nil

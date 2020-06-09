@@ -18,6 +18,7 @@
 package kubernetes
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -36,7 +37,7 @@ func TestSelfHostedKubeletLabels(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
 	// List all the nodes and then delete a node that is not controller.
-	nodes, err := client.CoreV1().Nodes().List(metav1.ListOptions{
+	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{
 		LabelSelector: "node.kubernetes.io/node=",
 	})
 	if err != nil {
@@ -48,7 +49,7 @@ func TestSelfHostedKubeletLabels(t *testing.T) {
 	chosenNode := nodes.Items[0].Name
 
 	// Delete the chosen node.
-	if err = client.CoreV1().Nodes().Delete(chosenNode, &metav1.DeleteOptions{}); err != nil {
+	if err = client.CoreV1().Nodes().Delete(context.TODO(), chosenNode, metav1.DeleteOptions{}); err != nil {
 		t.Errorf("could not delete the node %s: %v", chosenNode, err)
 	}
 
@@ -56,7 +57,7 @@ func TestSelfHostedKubeletLabels(t *testing.T) {
 	timeout := time.Minute * 5
 	// Wait for the node to come up.
 	if err = wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
-		node, err := client.CoreV1().Nodes().Get(chosenNode, metav1.GetOptions{})
+		node, err := client.CoreV1().Nodes().Get(context.TODO(), chosenNode, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				t.Logf("waiting for node %s to be available", chosenNode)

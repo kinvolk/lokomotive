@@ -94,10 +94,14 @@ kind: Ingress
 metadata:
   name: httpbin
   namespace: httpbin
+  labels:
+    app.kubernetes.io/managed-by: Helm
   annotations:
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
     kubernetes.io/ingress.class: contour
+    meta.helm.sh/release-name: httpbin
+    meta.helm.sh/release-namespace: httpbin
 spec:
   tls:
   - secretName: {{ .IngressHost }}-tls

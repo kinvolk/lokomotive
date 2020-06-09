@@ -18,6 +18,7 @@
 package system // nolint:testpackage
 
 import (
+	"context"
 	"crypto/sha512"
 	"fmt"
 	"os"
@@ -114,7 +115,7 @@ func TestNoExtraSSHKeysOnNodes(t *testing.T) {
 		fmt.Sprintf("sha512sum --status -c <(echo %s /home/core/.ssh/authorized_keys) && exec tail -f /dev/null", sum), //nolint:lll
 	}
 
-	ds, err := client.AppsV1().DaemonSets(namespace).Create(ds)
+	ds, err := client.AppsV1().DaemonSets(namespace).Create(context.TODO(), ds, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("failed to create DaemonSet: %v", err)
 	}
@@ -122,7 +123,8 @@ func TestNoExtraSSHKeysOnNodes(t *testing.T) {
 	testutil.WaitForDaemonSet(t, client, namespace, ds.ObjectMeta.Name, time.Second*5, time.Minute*5)
 
 	t.Cleanup(func() {
-		if err := client.AppsV1().DaemonSets(namespace).Delete(ds.ObjectMeta.Name, &metav1.DeleteOptions{}); err != nil {
+		if err := client.AppsV1().DaemonSets(namespace).Delete(
+			context.TODO(), ds.ObjectMeta.Name, metav1.DeleteOptions{}); err != nil {
 			t.Logf("failed to remove DaemonSet: %v", err)
 		}
 	})

@@ -15,6 +15,7 @@
 package lokomotive
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -35,7 +36,7 @@ func NewCluster(client *kubernetes.Clientset, expectedNodes int) (*Cluster, erro
 }
 
 func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
-	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(meta_v1.ListOptions{})
+	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(context.TODO(), meta_v1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ type NodeStatus struct {
 
 // GetNodeStatus returns the status for all running nodes or an error.
 func (cl *Cluster) GetNodeStatus() (*NodeStatus, error) {
-	n, err := cl.KubeClient.CoreV1().Nodes().List(meta_v1.ListOptions{})
+	n, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (ns *NodeStatus) PrettyPrint() {
 
 // Ping Cluster to know when its endpoint can be used
 func (cl *Cluster) Ping() (bool, error) {
-	_, err := cl.KubeClient.CoreV1().Nodes().List(meta_v1.ListOptions{})
+	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
 	if err != nil {
 		return false, nil
 	}
