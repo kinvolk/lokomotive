@@ -89,7 +89,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 	platform := os.Getenv("PLATFORM")
 
 	switch platform {
-	case testutil.PlatformPacket, testutil.PlatformPacketARM:
+	case testutil.PlatformPacket, testutil.PlatformPacketARM, "packet-arm":
 		metadataAddress = "https://metadata.packet.net/metadata"
 	case testutil.PlatformAWS, testutil.PlatformAWSEdge:
 		metadataAddress = "http://169.254.169.254/latest/meta-data"
