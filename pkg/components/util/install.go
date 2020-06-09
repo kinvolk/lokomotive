@@ -30,7 +30,9 @@ import (
 )
 
 // InstallComponent installs given component using given kubeconfig as a Helm release using a Helm client.
-func InstallComponent(name string, c components.Component, kubeconfig string) error {
+func InstallComponent(c components.Component, kubeconfig string) error {
+	name := c.Metadata().Name
+
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return err
@@ -57,7 +59,7 @@ func InstallComponent(name string, c components.Component, kubeconfig string) er
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
 
-	chart, err := chartFromComponent(name, c)
+	chart, err := chartFromComponent(c)
 	if err != nil {
 		return err
 	}
