@@ -27,7 +27,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
-	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
@@ -316,7 +315,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		return fmt.Errorf("failed to create file %q: %w", path, err)
 	}
 
-	util.AppendTags(&cfg.Tags)
+	platform.AppendVersionTag(&cfg.Tags)
 
 	if cfg.ClientSecret == "" {
 		cfg.ClientSecret = os.Getenv(clientSecretEnv)
