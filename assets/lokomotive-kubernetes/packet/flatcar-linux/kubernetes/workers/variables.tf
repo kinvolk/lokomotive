@@ -24,7 +24,7 @@ variable "worker_count" {
 
 variable "type" {
   type        = string
-  default     = "baremetal_0"
+  default     = "t1.small.x86"
   description = "Packet instance type for workers, can be changed afterwards to recreate the nodes"
 }
 

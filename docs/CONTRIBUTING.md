@@ -1,5 +1,16 @@
 # Contribution Guidelines
 
+## Contents
+
+- [Setup developer environment](#setup-developer-environment)
+- [Build the code](#build-the-code)
+- [Build with docker](#build-with-docker)
+- [Update assets](#update-assets)
+- [Authoring PRs](#authoring-prs)
+  - [Commit Format](#commit-format)
+- [Updating dependencies](#updating-dependencies)
+- [Testing and linting requirements](#testing-and-linting-requirements)
+
 ## Setup developer environment
 
 ```bash
@@ -130,3 +141,8 @@ directory, e.g.: `cli/components`.
 
 In order to update dependencies managed with Go modules, run `make update`,
 which will ensure that all steps needed for an update are taken (tidy and vendoring).
+
+## Testing and linting requirements
+
+- Minimum Go version **1.14**
+- [golangci-lint](https://github.com/golangci/golangci-lint) installed locally
