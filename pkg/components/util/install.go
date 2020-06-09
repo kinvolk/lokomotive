@@ -29,13 +29,8 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-// InstallComponent installs given component using given kubeconfig.
+// InstallComponent installs given component using given kubeconfig as a Helm release using a Helm client.
 func InstallComponent(name string, c components.Component, kubeconfig string) error {
-	return InstallAsRelease(name, c, kubeconfig)
-}
-
-// InstallAsRelease installs a component as a Helm release using a Helm client.
-func InstallAsRelease(name string, c components.Component, kubeconfig string) error {
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return err
