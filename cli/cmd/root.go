@@ -60,7 +60,10 @@ func init() {
 			`used: 1. cluster asset dir when a lokocfg file is present in the `+
 			`current directory 2. KUBECONFIG environment variable 3. `+
 			`"~/.kube/config"`)
-	viper.BindPFlag(kubeconfigFlag, RootCmd.PersistentFlags().Lookup(kubeconfigFlag))
+
+	if err := viper.BindPFlag(kubeconfigFlag, RootCmd.PersistentFlags().Lookup(kubeconfigFlag)); err != nil {
+		panic("failed registering kubeconfig flag")
+	}
 
 	RootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
 	viper.BindPFlag("lokocfg", RootCmd.PersistentFlags().Lookup("lokocfg"))
