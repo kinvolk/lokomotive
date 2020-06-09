@@ -29,6 +29,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
+const (
+	kubeconfigEnvVariable = "KUBECONFIG"
+	defaultKubeconfigPath = "~/.kube/config"
+)
+
 // getConfiguredBackend loads a backend from the given configuration file.
 func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
 	if lokoConfig.RootConfig.Backend == nil {
@@ -101,10 +106,13 @@ func expandKubeconfigPath(path string) string {
 	return path
 }
 
-// getKubeconfig finds the kubeconfig to be used. Precedence takes a specified
-// flag or environment variable. Then the asset directory of the cluster is searched
-// and finally the global default value is used. This cannot be done in Viper
-// because we need the other values from Viper to find the asset directory.
+// getKubeconfig finds the kubeconfig to be used. The precedence is the following:
+// - --kubeconfig-file flag OR KUBECONFIG_FILE environent variable (the latter
+// is a side-effect of cobra/viper and should NOT be documented because it's
+// confusing).
+// - Asset directory from cluster configuration.
+// - KUBECONFIG environment variable.
+// - ~/.kube/config path, which is the default for kubectl.
 func getKubeconfig() (string, error) {
 	kubeconfig := viper.GetString(kubeconfigFlag)
 	if kubeconfig != "" {
@@ -116,11 +124,18 @@ func getKubeconfig() (string, error) {
 		return "", err
 	}
 
-	if assetDir != "" {
-		return expandKubeconfigPath(assetsKubeconfig(assetDir)), nil
+	paths := []string{
+		assetDir,
+		os.Getenv(kubeconfigEnvVariable),
 	}
 
-	return expandKubeconfigPath("~/.kube/config"), nil
+	for _, path := range paths {
+		if path != "" {
+			return expandKubeconfigPath(path), nil
+		}
+	}
+
+	return expandKubeconfigPath(defaultKubeconfigPath), nil
 }
 
 func assetsKubeconfig(assetDir string) string {

@@ -56,7 +56,10 @@ func init() {
 	RootCmd.PersistentFlags().String(
 		kubeconfigFlag,
 		"", // Special empty default, use getKubeconfig()
-		"Path to kubeconfig file, taken from the asset dir if not given and finally falls back to ~/.kube/config")
+		`Path to a kubeconfig file. If empty, the following precedence order is `+
+			`used: 1. cluster asset dir when a lokocfg file is present in the `+
+			`current directory 2. KUBECONFIG environment variable 3. `+
+			`"~/.kube/config"`)
 	viper.BindPFlag(kubeconfigFlag, RootCmd.PersistentFlags().Lookup(kubeconfigFlag))
 
 	RootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
