@@ -43,6 +43,10 @@ func Execute() {
 	}
 }
 
+const (
+	kubeconfigFlag = "kubeconfig-file"
+)
+
 func init() {
 	cobra.OnInitialize(cobraInit)
 
@@ -50,10 +54,10 @@ func init() {
 
 	// Add kubeconfig flag.
 	RootCmd.PersistentFlags().String(
-		"kubeconfig",
+		kubeconfigFlag,
 		"", // Special empty default, use getKubeconfig()
-		"Path to kubeconfig file, taken from the asset dir if not given, and finally falls back to ~/.kube/config")
-	viper.BindPFlag("kubeconfig", RootCmd.PersistentFlags().Lookup("kubeconfig"))
+		"Path to kubeconfig file, taken from the asset dir if not given and finally falls back to ~/.kube/config")
+	viper.BindPFlag(kubeconfigFlag, RootCmd.PersistentFlags().Lookup(kubeconfigFlag))
 
 	RootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
 	viper.BindPFlag("lokocfg", RootCmd.PersistentFlags().Lookup("lokocfg"))

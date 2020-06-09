@@ -9,10 +9,10 @@ Manage Lokomotive clusters
 ### Options
 
 ```
-  -h, --help                  help for lokoctl
-      --kubeconfig string     Path to kubeconfig file, taken from the asset dir if not given, and finally falls back to ~/.kube/config
-      --lokocfg string        Path to lokocfg directory or file (default "./")
-      --lokocfg-vars string   Path to lokocfg.vars file (default "./lokocfg.vars")
+  -h, --help                     help for lokoctl
+      --kubeconfig-file string   Path to kubeconfig file, taken from the asset dir if not given and finally falls back to ~/.kube/config
+      --lokocfg string           Path to lokocfg directory or file (default "./")
+      --lokocfg-vars string      Path to lokocfg.vars file (default "./lokocfg.vars")
 ```
 
 ### SEE ALSO

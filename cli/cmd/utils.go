@@ -106,7 +106,7 @@ func expandKubeconfigPath(path string) string {
 // and finally the global default value is used. This cannot be done in Viper
 // because we need the other values from Viper to find the asset directory.
 func getKubeconfig() (string, error) {
-	kubeconfig := viper.GetString("kubeconfig")
+	kubeconfig := viper.GetString(kubeconfigFlag)
 	if kubeconfig != "" {
 		return expandKubeconfigPath(kubeconfig), nil
 	}
