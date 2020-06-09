@@ -232,7 +232,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		// Using index as we are using []workerPool which creates a copy of the slice
 		// Hence when the template is rendered worker pool Tags is empty.
 		// TODO: Add tests for validating the worker pool configuration.
-		util.AppendTags(&cfg.WorkerPools[i].Tags)
+		platform.AppendVersionTag(&cfg.WorkerPools[i].Tags)
 	}
 	// Add explicit terraform dependencies for nodes with specific hw
 	// reservation UUIDs.
