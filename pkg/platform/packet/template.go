@@ -84,6 +84,16 @@ module "packet-{{.Config.ClusterName}}" {
   }
   {{- end }}
 
+  {{- if .Config.ControllerCLCSnippets}}
+  controller_clc_snippets = [
+	{{- range $clc_snippet := .Config.ControllerCLCSnippets}}
+    <<EOF
+{{ $clc_snippet }}
+EOF
+    ,
+  {{- end }}
+  ]
+  {{- end }}
   {{- if .Config.ReservationIDsDefault }}
   reservation_ids_default = "{{.Config.ReservationIDsDefault}}"
   {{- end }}
@@ -125,8 +135,27 @@ module "worker-{{ $pool.Name }}" {
 
   ssh_keys  = {{$.SSHPublicKeys}}
 
+  {{- if $pool.CLCSnippets}}
+  clc_snippets = [
+	{{- range $clc_snippet := $pool.CLCSnippets}}
+    <<EOF
+{{ $clc_snippet }}
+EOF
+    ,
+  {{- end}}
+  ]
+  {{- end }}
+
   cluster_name = "{{$.Config.ClusterName}}"
-  tags         = {{$.Tags}}
+
+  {{- if $pool.Tags }}
+  tags = [
+      {{- range $key, $value := $pool.Tags }}
+      "{{ $key }}:{{ $value }}",
+      {{- end }}
+	]
+  {{- end }}
+
   project_id   = "{{$.Config.ProjectID}}"
   facility     = "{{$.Config.Facility}}"
   {{- if $.Config.ClusterDomainSuffix }}
