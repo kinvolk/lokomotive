@@ -28,7 +28,6 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
-	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
@@ -187,7 +186,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 		cfg.KubeAPIServerExtraFlags = oidcFlags
 	}
 
-	util.AppendTags(&cfg.Tags)
+	platform.AppendVersionTag(&cfg.Tags)
 
 	tags, err := json.Marshal(cfg.Tags)
 	if err != nil {
@@ -204,7 +203,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 
 		output := map[string]string{}
 
-		util.AppendTags(&workerpool.Tags)
+		platform.AppendVersionTag(&workerpool.Tags)
 
 		for k, v := range input {
 			bytes, err := json.Marshal(v)

@@ -19,6 +19,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
 // Platform describes single environment, where cluster can be installed
@@ -60,4 +61,19 @@ func GetPlatform(name string) (Platform, error) {
 		return nil, fmt.Errorf("no platform with name %q found", name)
 	}
 	return platform, nil
+}
+
+// AppendVersionTag appends the lokoctl-version tag to a given tags map.
+func AppendVersionTag(tags *map[string]string) {
+	if tags == nil {
+		return
+	}
+
+	if *tags == nil {
+		*tags = make(map[string]string)
+	}
+
+	if version.Version != "" {
+		(*tags)["lokoctl-version"] = version.Version
+	}
 }

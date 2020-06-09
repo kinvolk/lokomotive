@@ -32,7 +32,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/dns"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
-	"github.com/kinvolk/lokomotive/pkg/platform/util"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
@@ -218,7 +217,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 	// Packet does not accept tags as a key-value map but as an array of
 	// strings.
-	util.AppendTags(&cfg.Tags)
+	platform.AppendVersionTag(&cfg.Tags)
 	tagsList := []string{}
 	for k, v := range cfg.Tags {
 		tagsList = append(tagsList, fmt.Sprintf("%s:%s", k, v))
