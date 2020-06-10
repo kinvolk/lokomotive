@@ -114,28 +114,47 @@ func expandKubeconfigPath(path string) string {
 // - KUBECONFIG environment variable.
 // - ~/.kube/config path, which is the default for kubectl.
 func getKubeconfig() (string, error) {
-	kubeconfig := viper.GetString(kubeconfigFlag)
-	if kubeconfig != "" {
-		return expandKubeconfigPath(kubeconfig), nil
+	assetKubeconfig, err := assetsKubeconfigPath()
+	if err != nil {
+		return "", fmt.Errorf("reading kubeconfig path from configuration failed: %w", err)
 	}
 
+	paths := []string{
+		viper.GetString(kubeconfigFlag),
+		assetKubeconfig,
+		os.Getenv(kubeconfigEnvVariable),
+		defaultKubeconfigPath,
+	}
+
+	return expandKubeconfigPath(pickString(paths...)), nil
+}
+
+// pickString returns first non-empty string.
+func pickString(options ...string) string {
+	for _, option := range options {
+		if option != "" {
+			return option
+		}
+	}
+
+	return ""
+}
+
+// assetsKubeconfigPath reads the lokocfg configuration and returns
+// the kubeconfig path defined in it.
+//
+// If no configuration is defined, empty string is returned.
+func assetsKubeconfigPath() (string, error) {
 	assetDir, err := getAssetDir()
 	if err != nil {
 		return "", err
 	}
 
-	paths := []string{
-		assetDir,
-		os.Getenv(kubeconfigEnvVariable),
+	if assetDir != "" {
+		return assetsKubeconfig(assetDir), nil
 	}
 
-	for _, path := range paths {
-		if path != "" {
-			return expandKubeconfigPath(path), nil
-		}
-	}
-
-	return expandKubeconfigPath(defaultKubeconfigPath), nil
+	return "", nil
 }
 
 func assetsKubeconfig(assetDir string) string {
