@@ -15,6 +15,7 @@ cluster "aws" {
   dns_zone_id      = "$AWS_DNS_ZONE_ID"
   os_channel       = var.os_channel
   ssh_pubkeys      = ["$PUB_KEY"]
+  enable_csi       = true
 
   controller_clc_snippets = [
     <<EOF
@@ -172,3 +173,5 @@ component "httpbin" {
 
   certmanager_cluster_issuer = "letsencrypt-staging"
 }
+
+component "aws-ebs-csi-driver" {}
