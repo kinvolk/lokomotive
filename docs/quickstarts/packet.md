@@ -18,7 +18,7 @@ This guide shows how to create a Lokomotive cluster on [Packet](https://www.pack
 end of this guide, you'll have a basic Lokomotive cluster running on Packet with a demo application
 deployed.
 
-The guide uses `t1.small.x86` as the Packet device type for all created nodes. This is also the
+The guide uses `c3.small.x86` as the Packet device type for all created nodes. This is also the
 default device type.
 
 Lokomotive runs on top of [Flatcar Container Linux](https://www.flatcar-linux.org/). This guide
@@ -289,7 +289,7 @@ Sometimes there may not be enough hardware available at a given Packet facility 
 type, in which case the following error is shown:
 
 ```
-The facility ams1 has no provisionable t1.small.x86 servers matching your criteria
+The facility ams1 has no provisionable c3.small.x86 servers matching your criteria
 ```
 
 In this case, either select a different node type and/or Packet facility, or wait for a while until

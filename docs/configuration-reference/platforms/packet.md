@@ -71,7 +71,7 @@ cluster "packet" {
 
   controller_count = var.controllers_count
 
-  controller_type = "t1.small.x86"
+  controller_type = "c3.small.x86"
 
   controller_clc_snippets = var.controller_clc.snippets
 
@@ -171,9 +171,8 @@ block in the cluster configuration.
 
 Example:
 
-The default for node_type is `baremetal_0` (which is Packet's internal name for
-`t1.small.x86`). If you wish to change the default, then you define the
-variable and use it to refer in the cluster configuration.
+The default for node_type is `c3.small.x86`. If you wish to change the default, then you
+define the variable and use it to refer in the cluster configuration.
 
 ```tf
 variable "custom_default_worker_type" {
@@ -199,7 +198,7 @@ node_type = var.custom_default_worker_type
 | `cluster_name`                        | Name of the cluster.                                                                                                                                                                                                                                                              |        -        |    string    |   true   |
 | `tags`                                | List of tags that will be propagated to master nodes.                                                                                                                                                                                                                             |        -        | map(string)  |  false   |
 | `controller_count`                    | Number of controller nodes.                                                                                                                                                                                                                                                       |        1        |    number    |  false   |
-| `controller_type`                     | Packet instance type for controllers.                                                                                                                                                                                                                                             |  "baremetal_0"  |    string    |  false   |
+| `controller_type`                     | Packet instance type for controllers.                                                                                                                                                                                                                                             |  "c3.small.x86" |    string    |  false   |
 | `controller_clc_snippets`             | Controller Flatcar Container Linux Config snippets.                                                                                                                                                                                                                               |       []        | list(string) |  false   |
 | `dns`                                 | DNS configuration block.                                                                                                                                                                                                                                                          |        -        |    object    |   true   |
 | `dns.zone`                            | A DNS zone to use for the cluster. The following format is used for cluster-related DNS records: `<record>.<cluster_name>.<dns_zone>`                                                                                                                                             |        -        |    string    |   true   |
@@ -236,7 +235,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.os_arch`                 | Flatcar Container Linux architecture to install (amd64, arm64).                                                                                                                                                                                                                   |     "amd64"     |    string    |  false   |
 | `worker_pool.os_channel`              | Flatcar Container Linux channel to install from (stable, beta, alpha, edge).                                                                                                                                                                                                      |    "stable"     |    string    |  false   |
 | `worker_pool.os_version`              | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                                                                                                              |    "current"    |    string    |  false   |
-| `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                                                                                                                            |  "baremetal_0"  |    string    |  false   |
+| `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                                                                                                                            |  "c3.small.x86" |    string    |  false   |
 | `worker_pool.labels`                  | Custom labels to assign to worker nodes.                                                                                                                                                                                                                                          |        -        |    string    |  false   |
 | `worker_pool.taints`                  | Taints to assign to worker nodes.                                                                                                                                                                                                                                                 |        -        |    string    |  false   |
 | `worker_pool.reservation_ids`         | Block with Packet hardware reservation IDs for worker nodes. Each key must have the format `worker-${index}` and the value is the reservation UUID. Can't be combined with `reservation_ids_default`. Example: `reservation_ids = { worker-0 = "<reservation_id>" }`.             |        -        | map(string)  |  false   |

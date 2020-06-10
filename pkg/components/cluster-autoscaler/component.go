@@ -131,7 +131,7 @@ func newComponent() *component {
 	switch c.Provider {
 	case "packet":
 		c.Packet = &packetConfiguration{
-			WorkerType:    "t1.small.x86",
+			WorkerType:    "c3.small.x86",
 			WorkerChannel: "stable",
 		}
 	}

@@ -2,6 +2,7 @@ cluster "packet" {
   asset_dir        = pathexpand("~/lokoctl-assets")
   cluster_name     = "$CLUSTER_ID"
   controller_count = 1
+  controller_type  = "t1.small.x86"
 
   controller_clc_snippets = [
     <<EOF
