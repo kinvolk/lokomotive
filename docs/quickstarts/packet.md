@@ -21,6 +21,9 @@ deployed.
 The guide uses `c3.small.x86` as the Packet device type for all created nodes. This is also the
 default device type.
 
+>NOTE: Visit the Packet [website](https://www.packet.com/cloud/servers/) to see all available device
+>types as well as their pricing.
+
 Lokomotive runs on top of [Flatcar Container Linux](https://www.flatcar-linux.org/). This guide
 uses the `stable` channel.
 
