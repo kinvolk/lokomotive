@@ -29,7 +29,6 @@ data "ct_config" "controller-install-ignitions" {
   content = templatefile("${path.module}/cl/controller-install.yaml.tmpl", {
     os_channel           = var.os_channel
     os_version           = var.os_version
-    os_arch              = var.os_arch
     flatcar_linux_oem    = "packet"
     ssh_keys             = jsonencode(var.ssh_keys)
     postinstall_ignition = data.ct_config.controller-ignitions[count.index].rendered
