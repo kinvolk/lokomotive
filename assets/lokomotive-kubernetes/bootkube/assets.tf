@@ -4,7 +4,6 @@ resource "template_dir" "bootstrap-manifests" {
   destination_dir = "${var.asset_dir}/bootstrap-manifests"
 
   vars = {
-    hyperkube_image               = var.container_images["hyperkube"]
     kube_apiserver_image          = var.container_images["kube_apiserver"]
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
@@ -20,7 +19,6 @@ resource "local_file" "kube-apiserver" {
   filename = "${var.asset_dir}/charts/kube-system/kube-apiserver.yaml"
   content = templatefile("${path.module}/resources/charts/kube-apiserver.yaml", {
     kube_apiserver_image     = var.container_images["kube_apiserver"]
-    pod_checkpointer_image   = var.container_images["pod_checkpointer"]
     etcd_servers             = join(",", formatlist("https://%s:2379", var.etcd_servers))
     cloud_provider           = var.cloud_provider
     service_cidr             = var.service_cidr
@@ -71,7 +69,6 @@ resource "template_dir" "kubernetes" {
 resource "local_file" "kubernetes" {
   filename = "${var.asset_dir}/charts/kube-system/kubernetes.yaml"
   content  = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
-    hyperkube_image               = var.container_images["hyperkube"]
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
     kube_proxy_image              = var.container_images["kube_proxy"]
