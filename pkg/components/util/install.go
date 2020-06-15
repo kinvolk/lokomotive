@@ -31,7 +31,7 @@ import (
 )
 
 func ensureNamespaceExists(name string, kubeconfigPath string) error {
-	cs, err := k8sutil.NewClientset(kubeconfigPath)
+	cs, err := k8sutil.NewClientsetFromFile(kubeconfigPath)
 	if err != nil {
 		return fmt.Errorf("creating clientset: %w", err)
 	}

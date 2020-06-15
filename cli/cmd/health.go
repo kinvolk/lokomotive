@@ -47,7 +47,8 @@ func runHealth(cmd *cobra.Command, args []string) {
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
-	client, err := k8sutil.NewClientset(kubeconfig)
+
+	client, err := k8sutil.NewClientsetFromFile(kubeconfig)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}

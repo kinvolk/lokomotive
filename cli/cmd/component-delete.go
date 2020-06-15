@@ -167,7 +167,7 @@ func deleteHelmRelease(c components.Component, kubeconfig string, deleteNSBool b
 }
 
 func deleteNS(ns string, kubeconfig string) error {
-	cs, err := k8sutil.NewClientset(kubeconfig)
+	cs, err := k8sutil.NewClientsetFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
