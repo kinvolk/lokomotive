@@ -219,12 +219,14 @@ provider "tls" {
 # Used when checking, if we should ask user for confirmation, when
 # applying changes to the cluster.
 output "initialized" {
-  value = true
+  value     = true
+  sensitive = true
 }
 
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
-  value = module.aws-{{.Config.ClusterName}}.pod-checkpointer_values
+  value     = module.aws-{{.Config.ClusterName}}.pod-checkpointer_values
+  sensitive = true
 }
 
 output "kube-apiserver_values" {
@@ -243,6 +245,7 @@ output "kubelet_values" {
 }
 
 output "calico_values" {
-  value = module.aws-{{.Config.ClusterName}}.calico_values
+  value     = module.aws-{{.Config.ClusterName}}.calico_values
+  sensitive = true
 }
 `
