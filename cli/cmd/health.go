@@ -48,7 +48,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	client, err := k8sutil.NewClientsetFromFile(kubeconfig)
+	cs, err := k8sutil.NewClientsetFromFile(kubeconfig)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}
@@ -65,7 +65,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("No cluster configured")
 	}
 
-	cluster, err := lokomotive.NewCluster(client, p.Meta().ExpectedNodes)
+	cluster, err := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating new Lokomotive cluster: %q", err)
 	}
