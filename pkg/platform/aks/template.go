@@ -44,7 +44,7 @@ locals {
   application_name          = "{{ .ApplicationName }}"
   location                  = "{{ .Location }}"
   resource_group_name       = {{ template "resource_group_name" . }}
-  kubernetes_version        = "1.16.7"
+  kubernetes_version        = "{{ .KubernetesVersion }}"
   cluster_name              = "{{ .ClusterName }}"
   default_node_pool_name    = "{{ (index .WorkerPools 0).Name }}"
   default_node_pool_vm_size = "{{ (index .WorkerPools 0).VMSize }}"

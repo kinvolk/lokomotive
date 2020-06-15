@@ -63,6 +63,8 @@ type config struct {
 	ManageResourceGroup bool   `hcl:"manage_resource_group,optional"`
 
 	WorkerPools []workerPool `hcl:"worker_pool,block"`
+
+	KubernetesVersion string
 }
 
 const (
@@ -73,6 +75,8 @@ const (
 	clientSecretEnv   = "LOKOMOTIVE_AKS_CLIENT_SECRET" // #nosec G101
 	subscriptionIDEnv = "LOKOMOTIVE_AKS_SUBSCRIPTION_ID"
 	tenantIDEnv       = "LOKOMOTIVE_AKS_TENANT_ID"
+
+	kubernetesVersion = "1.16.7"
 )
 
 // init registers AKS as a platform.
@@ -80,6 +84,7 @@ func init() { //nolint:gochecknoinits
 	c := &config{
 		Location:            "West Europe",
 		ManageResourceGroup: true,
+		KubernetesVersion:   kubernetesVersion,
 	}
 
 	platform.Register(name, c)
