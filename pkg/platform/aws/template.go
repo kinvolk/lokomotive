@@ -167,7 +167,7 @@ module "worker-pool-{{ $index }}" {
   spot_price            = "{{ $pool.SpotPrice }}"
   {{- end }}
 
-	{{- if $pool.TargetGroups }}
+  {{- if $pool.TargetGroups }}
   target_groups         = {{ (index $.WorkerpoolCfg $index "target_groups") }}
   {{- end }}
 
