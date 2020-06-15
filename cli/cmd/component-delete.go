@@ -17,6 +17,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -167,7 +168,12 @@ func deleteHelmRelease(c components.Component, kubeconfig string, deleteNSBool b
 }
 
 func deleteNS(ns string, kubeconfig string) error {
-	cs, err := k8sutil.NewClientsetFromFile(kubeconfig)
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		return fmt.Errorf("failed to read kubeconfig file: %v", err)
+	}
+
+	cs, err := k8sutil.NewClientset(kubeconfigContent)
 	if err != nil {
 		return err
 	}

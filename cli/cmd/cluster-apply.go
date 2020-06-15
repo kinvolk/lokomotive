@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -125,7 +126,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 }
 
 func verifyCluster(kubeconfigPath string, expectedNodes int) error {
-	cs, err := k8sutil.NewClientsetFromFile(kubeconfigPath)
+	kubeconfig, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
+	if err != nil {
+		return errors.Wrapf(err, "failed to read kubeconfig file")
+	}
+
+	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up clientset")
 	}
