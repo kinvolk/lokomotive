@@ -84,6 +84,22 @@ resource "local_file" "kubernetes" {
   })
 }
 
+# Populate bootstrap-secrets chart values file named bootstrap-secrets.yaml.
+resource "local_file" "bootstrap-secrets" {
+  count = var.enable_tls_bootstrap == true ? 1 : 0
+
+  filename = "${var.asset_dir}/charts/kube-system/bootstrap-secrets.yaml"
+  content = templatefile("${path.module}/resources/charts/bootstrap-secrets.yaml", {
+    bootstrap_tokens = [
+      for token in var.bootstrap_tokens :
+      {
+        token_id     = token.token_id
+        token_secret = token.token_secret
+      }
+    ]
+  })
+}
+
 locals {
   kubelet = var.disable_self_hosted_kubelet == false ? 1 : 0
 }
