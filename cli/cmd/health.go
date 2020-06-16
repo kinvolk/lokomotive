@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"text/tabwriter"
 
@@ -48,12 +47,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
-	if err != nil {
-		contextLogger.Fatalf("Failed to read kubeconfig file: %v", err)
-	}
-
-	cs, err := k8sutil.NewClientset(kubeconfigContent)
+	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}

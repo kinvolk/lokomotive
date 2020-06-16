@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -92,17 +93,20 @@ func getAssetDir() (string, error) {
 	return cfg.Meta().AssetDir, nil
 }
 
-// expandKubeconfigPath tries to expand ~ in the given kubeconfig path.
-// However, if that fails, it just returns original path as the best effort.
-func expandKubeconfigPath(path string) string {
+func getKubeconfig() ([]byte, error) {
+	path, err := getKubeconfigPath()
+	if err != nil {
+		return nil, fmt.Errorf("failed getting kubeconfig path: %w", err)
+	}
+
 	if expandedPath, err := homedir.Expand(path); err == nil {
-		return expandedPath
+		path = expandedPath
 	}
 
 	// homedir.Expand is too restrictive for the ~ prefix,
 	// i.e., it errors on "~somepath" which is a valid path,
-	// so just return the original path.
-	return path
+	// so just read from the original path.
+	return ioutil.ReadFile(path) // #nosec G304
 }
 
 // getKubeconfig finds the kubeconfig to be used. The precedence is the following:
@@ -112,7 +116,7 @@ func expandKubeconfigPath(path string) string {
 // - Asset directory from cluster configuration.
 // - KUBECONFIG environment variable.
 // - ~/.kube/config path, which is the default for kubectl.
-func getKubeconfig() (string, error) {
+func getKubeconfigPath() (string, error) {
 	assetKubeconfig, err := assetsKubeconfigPath()
 	if err != nil {
 		return "", fmt.Errorf("reading kubeconfig path from configuration failed: %w", err)
@@ -125,18 +129,13 @@ func getKubeconfig() (string, error) {
 		defaultKubeconfigPath,
 	}
 
-	return expandKubeconfigPath(pickString(paths...)), nil
-}
-
-// pickString returns first non-empty string.
-func pickString(options ...string) string {
-	for _, option := range options {
-		if option != "" {
-			return option
+	for _, path := range paths {
+		if path != "" {
+			return path, nil
 		}
 	}
 
-	return ""
+	return "", nil
 }
 
 // assetsKubeconfigPath reads the lokocfg configuration and returns

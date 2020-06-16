@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -80,14 +79,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
-	kubeconfigPath := assetsKubeconfig(assetDir)
-
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
+	kubeconfig, err := getKubeconfig()
 	if err != nil {
-		ctxLogger.Fatalf("Failed to read kubeconfig file: %q: %v", kubeconfigPath, err)
+		ctxLogger.Fatalf("Failed to get kubeconfig: %v", err)
 	}
 
-	if err := verifyCluster(kubeconfigContent, p.Meta().ExpectedNodes); err != nil {
+	if err := verifyCluster(kubeconfig, p.Meta().ExpectedNodes); err != nil {
 		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 
@@ -96,7 +93,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
-			kubeconfig: kubeconfigContent,
+			kubeconfig: kubeconfig,
 			assetDir:   assetDir,
 			ctxLogger:  *ctxLogger,
 			ex:         *ex,
@@ -125,7 +122,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	ctxLogger.Println("Applying component configuration")
 
 	if len(componentsToApply) > 0 {
-		if err := applyComponents(lokoConfig, kubeconfigContent, componentsToApply...); err != nil {
+		if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
 			ctxLogger.Fatalf("Applying component configuration failed: %v", err)
 		}
 	}

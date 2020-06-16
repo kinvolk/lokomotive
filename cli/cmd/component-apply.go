@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -64,12 +63,7 @@ func runApply(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
-	if err != nil {
-		contextLogger.Fatalf("Failed to read kubeconfig file: %q: %v", kubeconfig, err)
-	}
-
-	if err := applyComponents(lokoConfig, kubeconfigContent, componentsToApply...); err != nil {
+	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
