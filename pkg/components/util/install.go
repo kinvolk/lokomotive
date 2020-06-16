@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	v1 "k8s.io/api/core/v1"
@@ -29,32 +30,36 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-// InstallComponent installs given component using given kubeconfig.
-func InstallComponent(name string, c components.Component, kubeconfig string) error {
-	return InstallAsRelease(name, c, kubeconfig)
-}
-
-// InstallAsRelease installs a component as a Helm release using a Helm client.
-func InstallAsRelease(name string, c components.Component, kubeconfig string) error {
-	cs, err := k8sutil.NewClientset(kubeconfig)
+func ensureNamespaceExists(name string, kubeconfigPath string) error {
+	cs, err := k8sutil.NewClientset(kubeconfigPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("creating clientset: %w", err)
 	}
 
-	// Get the namespace in which the component should be created.
-	ns := c.Metadata().Namespace
-	if ns == "" {
-		return fmt.Errorf("component %s namespace is empty", name)
+	if name == "" {
+		return fmt.Errorf("namespace name can't be empty")
 	}
 
 	// Ensure the namespace in which we create release and resources exists.
 	_, err = cs.CoreV1().Namespaces().Create(context.TODO(), &v1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: ns,
+			Name: name,
 		},
 	}, metav1.CreateOptions{})
 	if err != nil && !errors.IsAlreadyExists(err) {
 		return err
+	}
+
+	return nil
+}
+
+// InstallComponent installs given component using given kubeconfig as a Helm release using a Helm client.
+func InstallComponent(c components.Component, kubeconfig string) error {
+	name := c.Metadata().Name
+	ns := c.Metadata().Namespace
+
+	if err := ensureNamespaceExists(ns, kubeconfig); err != nil {
+		return fmt.Errorf("failed ensuring that namespace %q for component %q exists: %w", ns, name, err)
 	}
 
 	actionConfig, err := HelmActionConfig(ns, kubeconfig)
@@ -62,7 +67,7 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
 
-	chart, err := chartFromComponent(name, c)
+	chart, err := chartFromComponent(c)
 	if err != nil {
 		return err
 	}
@@ -78,37 +83,59 @@ func InstallAsRelease(name string, c components.Component, kubeconfig string) er
 
 	wait := c.Metadata().Helm.Wait
 
-	if !exists {
-		install := action.NewInstall(actionConfig)
-		install.ReleaseName = name
-		install.Namespace = ns
-
-		// Currently, we install components one-by-one, in the order how they are
-		// defined in the configuration and we do not support any dependencies between
-		// the components.
-		//
-		// If it is critical for component to have it's dependencies ready before it is
-		// installed, all dependencies should set Wait field to 'true' in components.HelmMetadata
-		// struct.
-		//
-		// The example of such dependency is between prometheus-operator and openebs-storage-class, where
-		// both openebs-operator and openebs-storage-class components must be fully functional, before
-		// prometheus-operator is deployed, otherwise it won't pick the default storage class.
-		install.Wait = wait
-
-		if _, err := install.Run(chart, map[string]interface{}{}); err != nil {
-			return fmt.Errorf("installing component '%s' as chart failed: %w", name, err)
-		}
-
-		return nil
+	helmAction := &helmAction{
+		releaseName:  name,
+		chart:        chart,
+		actionConfig: actionConfig,
+		wait:         wait,
 	}
 
-	upgrade := action.NewUpgrade(actionConfig)
-	upgrade.Wait = wait
+	if !exists {
+		return install(helmAction, ns)
+	}
+
+	return upgrade(helmAction)
+}
+
+type helmAction struct {
+	releaseName  string
+	chart        *chart.Chart
+	actionConfig *action.Configuration
+	wait         bool
+}
+
+func install(helmAction *helmAction, namespace string) error {
+	install := action.NewInstall(helmAction.actionConfig)
+	install.ReleaseName = helmAction.releaseName
+	install.Namespace = namespace
+
+	// Currently, we install components one-by-one, in the order how they are
+	// defined in the configuration and we do not support any dependencies between
+	// the components.
+	//
+	// If it is critical for component to have it's dependencies ready before it is
+	// installed, all dependencies should set Wait field to 'true' in components.HelmMetadata
+	// struct.
+	//
+	// The example of such dependency is between prometheus-operator and openebs-storage-class, where
+	// both openebs-operator and openebs-storage-class components must be fully functional, before
+	// prometheus-operator is deployed, otherwise it won't pick the default storage class.
+	install.Wait = helmAction.wait
+
+	if _, err := install.Run(helmAction.chart, map[string]interface{}{}); err != nil {
+		return fmt.Errorf("installing release failed: %w", err)
+	}
+
+	return nil
+}
+
+func upgrade(helmAction *helmAction) error {
+	upgrade := action.NewUpgrade(helmAction.actionConfig)
+	upgrade.Wait = helmAction.wait
 	upgrade.RecreateResources = true
 
-	if _, err := upgrade.Run(name, chart, map[string]interface{}{}); err != nil {
-		return fmt.Errorf("updating chart failed: %w", err)
+	if _, err := upgrade.Run(helmAction.releaseName, helmAction.chart, map[string]interface{}{}); err != nil {
+		return fmt.Errorf("upgrading release failed: %w", err)
 	}
 
 	return nil

@@ -153,13 +153,13 @@ func filterOutUnusedFiles(files map[string]string) map[string]string {
 
 // chartFromComponent creates Helm chart object in memory for given component and makes
 // sure it is valid.
-func chartFromComponent(name string, c components.Component) (*chart.Chart, error) {
+func chartFromComponent(c components.Component) (*chart.Chart, error) {
 	m, err := c.RenderManifests()
 	if err != nil {
 		return nil, fmt.Errorf("rendering manifests failed: %w", err)
 	}
 
-	ch, err := chartFromManifests(name, m)
+	ch, err := chartFromManifests(c.Metadata().Name, m)
 	if err != nil {
 		return nil, fmt.Errorf("creating chart from manifests failed: %w", err)
 	}
