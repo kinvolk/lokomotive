@@ -81,13 +81,14 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
 	kubeconfigPath := assetsKubeconfig(assetDir)
-	if err := verifyCluster(kubeconfigPath, p.Meta().ExpectedNodes); err != nil {
-		ctxLogger.Fatalf("Verify cluster: %v", err)
-	}
 
 	kubeconfigContent, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
 	if err != nil {
 		ctxLogger.Fatalf("Failed to read kubeconfig file: %q: %v", kubeconfigPath, err)
+	}
+
+	if err := verifyCluster(kubeconfigContent, p.Meta().ExpectedNodes); err != nil {
+		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
@@ -130,12 +131,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	}
 }
 
-func verifyCluster(kubeconfigPath string, expectedNodes int) error {
-	kubeconfig, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
-	if err != nil {
-		return errors.Wrapf(err, "failed to read kubeconfig file")
-	}
-
+func verifyCluster(kubeconfig []byte, expectedNodes int) error {
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set up clientset")
