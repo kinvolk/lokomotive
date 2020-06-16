@@ -189,3 +189,75 @@ func ReleaseExists(actionConfig action.Configuration, name string) (bool, error)
 
 	return err != driver.ErrReleaseNotFound, nil
 }
+
+// UninstallComponent uninstalls a component and optionally removes it's namespace.
+func UninstallComponent(c components.Component, kubeconfig string, deleteNSBool bool) error {
+	name := c.Metadata().Name
+	if name == "" {
+		// This should never fail in real user usage, if this does that means the component was not
+		// created with all the needed information.
+		panic(fmt.Errorf("component name is empty"))
+	}
+
+	ns := c.Metadata().Namespace
+	if ns == "" {
+		// This should never fail in real user usage, if this does that means the component was not
+		// created with all the needed information.
+		panic(fmt.Errorf("component %s namespace is empty", name))
+	}
+
+	cfg, err := HelmActionConfig(ns, kubeconfig)
+	if err != nil {
+		return fmt.Errorf("failed preparing helm client: %w", err)
+	}
+
+	history := action.NewHistory(cfg)
+	// Check if the component's release exists. If it does only then proceed to delete.
+	//
+	// Note: It is assumed that this call will return error only when the release does not exist.
+	// The error check is ignored to make `lokoctl component delete ..` idempotent.
+	// We rely on the fact that the 'component name' == 'release name'. Since component's name is
+	// hardcoded and unlikely to change release name won't change as well. And they will be
+	// consistent if installed by lokoctl. So it is highly unlikely that following call will return
+	// any other error than "release not found".
+	if _, err := history.Run(name); err == nil {
+		uninstall := action.NewUninstall(cfg)
+
+		// Ignore the err when we have deleted the release already or it does not exist for some reason.
+		if _, err := uninstall.Run(name); err != nil {
+			return err
+		}
+	}
+
+	if deleteNSBool {
+		if err := deleteNS(ns, kubeconfig); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func deleteNS(ns string, kubeconfig string) error {
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		return fmt.Errorf("failed to read kubeconfig file: %v", err)
+	}
+
+	cs, err := k8sutil.NewClientset(kubeconfigContent)
+	if err != nil {
+		return err
+	}
+
+	// Delete the manually created namespace which was not created by helm.
+	if err = cs.CoreV1().Namespaces().Delete(context.TODO(), ns, metav1.DeleteOptions{}); err != nil {
+		// Ignore error when the namespace does not exist.
+		if errors.IsNotFound(err) {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
+}
