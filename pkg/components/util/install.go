@@ -151,13 +151,28 @@ func upgrade(helmAction *helmAction) error {
 func HelmActionConfig(ns string, kubeconfig string) (*action.Configuration, error) {
 	actionConfig := &action.Configuration{}
 
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		return nil, fmt.Errorf("failed to read kubeconfig file %q: %v", kubeconfig, err)
+	}
+
+	getter, err := k8sutil.NewGetter(kubeconfigContent)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Kubernetes client getter: %v", err)
+	}
+
 	// TODO: Add some logging implementation? We currently just pass an empty function for logging.
-	kubeConfig := kube.GetConfig(kubeconfig, "", ns)
 	logF := func(format string, v ...interface{}) {}
 
-	if err := actionConfig.Init(kubeConfig, ns, "secret", logF); err != nil {
+	if err := actionConfig.Init(getter, ns, "secret", logF); err != nil {
 		return nil, fmt.Errorf("failed initializing helm: %w", err)
 	}
+
+	kc := kube.New(getter)
+	kc.Log = logF
+	kc.Namespace = ns
+
+	actionConfig.KubeClient = kc
 
 	return actionConfig, nil
 }
