@@ -21,7 +21,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -159,19 +158,6 @@ func assetsKubeconfigPath() (string, error) {
 
 func assetsKubeconfig(assetDir string) string {
 	return filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
-}
-
-// doesKubeconfigExist checks if the kubeconfig provided by user exists
-func doesKubeconfigExist(*cobra.Command, []string) error {
-	var err error
-	kubeconfig, err := getKubeconfig()
-	if err != nil {
-		return err
-	}
-	if _, err = os.Stat(kubeconfig); os.IsNotExist(err) {
-		return fmt.Errorf("Kubeconfig %q not found", kubeconfig)
-	}
-	return err
 }
 
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {

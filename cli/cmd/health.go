@@ -28,10 +28,9 @@ import (
 )
 
 var healthCmd = &cobra.Command{
-	Use:               "health",
-	Short:             "Get the health of a cluster",
-	Run:               runHealth,
-	PersistentPreRunE: doesKubeconfigExist,
+	Use:   "health",
+	Short: "Get the health of a cluster",
+	Run:   runHealth,
 }
 
 func init() {
