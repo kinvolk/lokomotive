@@ -15,11 +15,18 @@ spec:
     - --advertise-address=$(POD_IP)
     - --allow-privileged=true
     - --anonymous-auth=false
+    %{~ if enable_tls_bootstrap ~}
+    - --authorization-mode=Node,RBAC
+    %{~ else ~}
     - --authorization-mode=RBAC
+    %{~ endif ~}
     - --bind-address=0.0.0.0
     - --client-ca-file=/etc/kubernetes/secrets/ca.crt
     - --cloud-provider=${cloud_provider}
     - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
+    %{~ if enable_tls_bootstrap ~}
+    - --enable-bootstrap-token-auth=true
+    %{~ endif ~}
     - --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt
     - --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt
     - --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key

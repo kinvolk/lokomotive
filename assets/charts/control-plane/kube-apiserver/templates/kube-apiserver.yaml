@@ -83,11 +83,18 @@ spec:
           --advertise-address=$(POD_IP) \
           --allow-privileged=true \
           --anonymous-auth=false \
+          {{- if .Values.apiserver.enableTLSBootstrap }}
+          --authorization-mode=Node,RBAC \
+          {{- else }}
           --authorization-mode=RBAC \
+          {{- end }}
           --bind-address=$(cat /run/kube-apiserver/address) \
           --client-ca-file=/etc/kubernetes/secrets/ca.crt \
           --cloud-provider={{ .Values.apiserver.cloudProvider }} \
           --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy \
+          {{- if .Values.apiserver.enableTLSBootstrap }}
+          --enable-bootstrap-token-auth=true \
+          {{- end }}
           --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt \
           --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt \
           --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key \
@@ -119,11 +126,18 @@ spec:
         - --advertise-address=$(POD_IP)
         - --allow-privileged=true
         - --anonymous-auth=false
+        {{- if .Values.apiserver.enableTLSBootstrap }}
+        - --authorization-mode=Node,RBAC
+        {{- else }}
         - --authorization-mode=RBAC
+        {{- end }}
         - --bind-address=0.0.0.0
         - --client-ca-file=/etc/kubernetes/secrets/ca.crt
         - --cloud-provider={{ .Values.apiserver.cloudProvider }}
         - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
+        {{- if .Values.apiserver.enableTLSBootstrap }}
+        - --enable-bootstrap-token-auth=true
+        {{- end }}
         - --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt
         - --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt
         - --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key

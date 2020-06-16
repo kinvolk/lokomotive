@@ -6,6 +6,7 @@ resource "local_file" "bootstrap-apiserver" {
     etcd_servers         = join(",", formatlist("https://%s:2379", var.etcd_servers))
     service_cidr         = var.service_cidr
     trusted_certs_dir    = var.trusted_certs_dir
+    enable_tls_bootstrap = var.enable_tls_bootstrap
   })
 }
 
@@ -49,6 +50,7 @@ resource "local_file" "kube-apiserver" {
     replicas                 = length(var.etcd_servers)
     expose_on_all_interfaces = var.expose_on_all_interfaces
     extra_flags              = var.kube_apiserver_extra_flags
+    enable_tls_bootstrap     = var.enable_tls_bootstrap
   })
 }
 
