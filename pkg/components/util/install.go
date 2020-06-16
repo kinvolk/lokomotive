@@ -191,7 +191,7 @@ func ReleaseExists(actionConfig action.Configuration, name string) (bool, error)
 }
 
 // UninstallComponent uninstalls a component and optionally removes it's namespace.
-func UninstallComponent(c components.Component, kubeconfig string, deleteNSBool bool) error {
+func UninstallComponent(c components.Component, kubeconfig []byte, deleteNSBool bool) error {
 	name := c.Metadata().Name
 	if name == "" {
 		// This should never fail in real user usage, if this does that means the component was not
@@ -206,12 +206,7 @@ func UninstallComponent(c components.Component, kubeconfig string, deleteNSBool 
 		panic(fmt.Errorf("component %s namespace is empty", name))
 	}
 
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
-	if err != nil {
-		return fmt.Errorf("failed to read kubeconfig file %q: %v", kubeconfig, err)
-	}
-
-	cfg, err := HelmActionConfig(ns, kubeconfigContent)
+	cfg, err := HelmActionConfig(ns, kubeconfig)
 	if err != nil {
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
@@ -243,13 +238,8 @@ func UninstallComponent(c components.Component, kubeconfig string, deleteNSBool 
 	return nil
 }
 
-func deleteNS(ns string, kubeconfig string) error {
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
-	if err != nil {
-		return fmt.Errorf("failed to read kubeconfig file: %v", err)
-	}
-
-	cs, err := k8sutil.NewClientset(kubeconfigContent)
+func deleteNS(ns string, kubeconfig []byte) error {
+	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return err
 	}

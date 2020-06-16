@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -91,12 +92,17 @@ func runDelete(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	if err := deleteComponents(kubeconfig, componentsObjects...); err != nil {
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		contextLogger.Fatalf("Failed to read kubeconfig file: %q: %v", kubeconfig, err)
+	}
+
+	if err := deleteComponents(kubeconfigContent, componentsObjects...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
 
-func deleteComponents(kubeconfig string, componentObjects ...components.Component) error {
+func deleteComponents(kubeconfig []byte, componentObjects ...components.Component) error {
 	for _, compObj := range componentObjects {
 		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
 
