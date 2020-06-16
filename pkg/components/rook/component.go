@@ -19,6 +19,8 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
@@ -75,7 +77,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	c.RookNodeAffinity = convertNodeSelector(c.NodeSelector)
 
-	values, err := util.RenderTemplate(chartValuesTmpl, c)
+	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
 		return nil, fmt.Errorf("rendering values template failed: %w", err)
 	}

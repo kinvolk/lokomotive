@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package util
+// Package template contains the utility functions that help in rendering
+// the go templates.
+package template
 
 import (
 	"bytes"
 	"text/template"
 )
 
-// RenderTemplate applies a parsed template to the specified data object
+// Render applies a parsed template to the specified data object
 // and returns the output as string or an error.
-func RenderTemplate(tmpl string, obj interface{}) (string, error) {
+func Render(tmpl string, obj interface{}) (string, error) {
 	t, err := template.New("render").Parse(tmpl)
 	if err != nil {
 		return "", err
