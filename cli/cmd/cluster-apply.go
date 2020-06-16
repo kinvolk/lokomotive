@@ -85,15 +85,20 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
+	if err != nil {
+		ctxLogger.Fatalf("Failed to read kubeconfig file: %q: %v", kubeconfigPath, err)
+	}
+
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
 	if exists && !p.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
-			kubeconfigPath: kubeconfigPath,
-			assetDir:       assetDir,
-			ctxLogger:      *ctxLogger,
-			ex:             *ex,
+			kubeconfig: kubeconfigContent,
+			assetDir:   assetDir,
+			ctxLogger:  *ctxLogger,
+			ex:         *ex,
 		}
 
 		releases := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"}

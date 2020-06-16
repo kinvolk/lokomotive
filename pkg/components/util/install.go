@@ -68,7 +68,12 @@ func InstallComponent(c components.Component, kubeconfig string) error {
 		return fmt.Errorf("failed ensuring that namespace %q for component %q exists: %w", ns, name, err)
 	}
 
-	actionConfig, err := HelmActionConfig(ns, kubeconfig)
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		return fmt.Errorf("failed to read kubeconfig file %q: %v", kubeconfig, err)
+	}
+
+	actionConfig, err := HelmActionConfig(ns, kubeconfigContent)
 	if err != nil {
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
@@ -148,15 +153,10 @@ func upgrade(helmAction *helmAction) error {
 }
 
 // HelmActionConfig creates initialized Helm action configuration.
-func HelmActionConfig(ns string, kubeconfig string) (*action.Configuration, error) {
+func HelmActionConfig(ns string, kubeconfig []byte) (*action.Configuration, error) {
 	actionConfig := &action.Configuration{}
 
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
-	if err != nil {
-		return nil, fmt.Errorf("failed to read kubeconfig file %q: %v", kubeconfig, err)
-	}
-
-	getter, err := k8sutil.NewGetter(kubeconfigContent)
+	getter, err := k8sutil.NewGetter(kubeconfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Kubernetes client getter: %v", err)
 	}
@@ -206,7 +206,12 @@ func UninstallComponent(c components.Component, kubeconfig string, deleteNSBool 
 		panic(fmt.Errorf("component %s namespace is empty", name))
 	}
 
-	cfg, err := HelmActionConfig(ns, kubeconfig)
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		return fmt.Errorf("failed to read kubeconfig file %q: %v", kubeconfig, err)
+	}
+
+	cfg, err := HelmActionConfig(ns, kubeconfigContent)
 	if err != nil {
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
