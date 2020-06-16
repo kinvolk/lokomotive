@@ -21,13 +21,6 @@ monitoring:
   enable: {{ .EnableMonitoring }}
 {{- end }}
 
-{{- if .IngressHosts }}
-ingressHosts:
-  {{- range .IngressHosts}}
-  - "{{ . }}"
-  {{- end }}
-{{- end }}
-
 envoy:
   serviceType: {{ .ServiceType }}
 

@@ -15,10 +15,11 @@
 package externaldns
 
 import (
-	"github.com/hashicorp/hcl/v2"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"os"
 	"testing"
+
+	"github.com/hashicorp/hcl/v2"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 func TestEmptyConfig(t *testing.T) {

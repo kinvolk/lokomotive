@@ -35,23 +35,14 @@ func init() {
 	components.Register(name, newComponent())
 }
 
-// IngressHosts field is added in order to make contour work with ExternalDNS component.
-// Values provided for IngressHosts is used as value for the annotation `external-dns.alpha.kubernetes.io/hostname`
 // This annotation is added to Envoy service.
 type component struct {
-	EnableMonitoring bool `hcl:"enable_monitoring,optional"`
-	// IngressHosts field is added in order to make contour work with ExternalDNS component.
-	// Values provided for IngressHosts is used as value for the annotation `external-dns.alpha.kubernetes.io/hostname`.
-	// This annotation is added to Envoy Service, in order for ExternalDNS to create DNS entries.
-	// This solution is a workaround for projectcontour/contour#403
-	// More details regarding this workaround and other solutions is captured in
-	// https://github.com/kinvolk/PROJECT-Lokomotive-Kubernetes/issues/474
-	IngressHosts    []string            `hcl:"ingress_hosts,optional"`
-	NodeAffinity    []util.NodeAffinity `hcl:"node_affinity,block"`
-	NodeAffinityRaw string
-	ServiceType     string            `hcl:"service_type,optional"`
-	Tolerations     []util.Toleration `hcl:"toleration,block"`
-	TolerationsRaw  string
+	EnableMonitoring bool                `hcl:"enable_monitoring,optional"`
+	NodeAffinity     []util.NodeAffinity `hcl:"node_affinity,block"`
+	NodeAffinityRaw  string
+	ServiceType      string            `hcl:"service_type,optional"`
+	Tolerations      []util.Toleration `hcl:"toleration,block"`
+	TolerationsRaw   string
 }
 
 func newComponent() *component {

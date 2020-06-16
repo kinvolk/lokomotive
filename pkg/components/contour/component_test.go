@@ -28,22 +28,6 @@ func TestRenderManifest(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			desc: "With ingress hosts",
-			hcl: `
-component "contour" {
-  ingress_hosts = ["test.domain.com"]
-}
-			`,
-		},
-		{
-			desc: "With ingress hosts wildcard",
-			hcl: `
-component "contour" {
-  ingress_hosts = ["*.domain.com"]
-}
-		`,
-		},
-		{
 			desc: "With monitoring",
 			hcl: `
 component "contour" {

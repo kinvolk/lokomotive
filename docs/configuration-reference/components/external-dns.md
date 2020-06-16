@@ -50,9 +50,6 @@ component "external-dns" {
 }
 ```
 
-ExternalDNS manages DNS entries for the values in the field `ingress_hosts` of the [Contour
-component](contour.md#attribute-reference).
-
 ## Attribute reference
 
 Table of all the arguments accepted by the component.
