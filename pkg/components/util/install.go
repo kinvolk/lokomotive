@@ -17,7 +17,6 @@ package util
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -31,12 +30,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-func ensureNamespaceExists(name string, kubeconfigPath string) error {
-	kubeconfig, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
-	if err != nil {
-		return fmt.Errorf("reading kubeconfig file: %w", err)
-	}
-
+func ensureNamespaceExists(name string, kubeconfig []byte) error {
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return fmt.Errorf("creating clientset: %w", err)
@@ -60,7 +54,7 @@ func ensureNamespaceExists(name string, kubeconfigPath string) error {
 }
 
 // InstallComponent installs given component using given kubeconfig as a Helm release using a Helm client.
-func InstallComponent(c components.Component, kubeconfig string) error {
+func InstallComponent(c components.Component, kubeconfig []byte) error {
 	name := c.Metadata().Name
 	ns := c.Metadata().Namespace
 
@@ -68,12 +62,7 @@ func InstallComponent(c components.Component, kubeconfig string) error {
 		return fmt.Errorf("failed ensuring that namespace %q for component %q exists: %w", ns, name, err)
 	}
 
-	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
-	if err != nil {
-		return fmt.Errorf("failed to read kubeconfig file %q: %v", kubeconfig, err)
-	}
-
-	actionConfig, err := HelmActionConfig(ns, kubeconfigContent)
+	actionConfig, err := HelmActionConfig(ns, kubeconfig)
 	if err != nil {
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}

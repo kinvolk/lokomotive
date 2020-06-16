@@ -125,7 +125,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	ctxLogger.Println("Applying component configuration")
 
 	if len(componentsToApply) > 0 {
-		if err := applyComponents(lokoConfig, kubeconfigPath, componentsToApply...); err != nil {
+		if err := applyComponents(lokoConfig, kubeconfigContent, componentsToApply...); err != nil {
 			ctxLogger.Fatalf("Applying component configuration failed: %v", err)
 		}
 	}

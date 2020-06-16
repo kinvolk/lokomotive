@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -45,6 +46,19 @@ func KubeconfigPath(t *testing.T) string {
 	}
 
 	return kubeconfig
+}
+
+// Kubeconfig returns content of kubeconfig file defined with KUBECONFIG
+// environment variable.
+func Kubeconfig(t *testing.T) []byte {
+	path := KubeconfigPath(t)
+
+	k, err := ioutil.ReadFile(path) // #nosec:G304
+	if err != nil {
+		t.Fatalf("reading KUBECONFIG file from %q failed: %v", path, err)
+	}
+
+	return k
 }
 
 // buildKubeConfig reads the environment variable KUBECONFIG and then builds the rest client config

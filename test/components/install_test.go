@@ -50,7 +50,8 @@ component "flatcar-linux-update-operator" {}
 		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
 	}
 
-	k := testutil.KubeconfigPath(t)
+	k := testutil.Kubeconfig(t)
+
 	if err := util.InstallComponent(c, k); err != nil {
 		t.Fatalf("Installing component as release should succeed, got: %v", err)
 	}
