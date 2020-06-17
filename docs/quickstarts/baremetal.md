@@ -125,7 +125,7 @@ cluster "bare-metal" {
   asset_dir = "./lokomotive-assets"
 
   # Cluster name.
-  cluster_name = baremetalcluster
+  cluster_name = "baremetalcluster"
 
   # SSH Public keys.
   ssh_pubkeys = [
