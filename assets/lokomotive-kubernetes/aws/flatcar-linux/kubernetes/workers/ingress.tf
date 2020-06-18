@@ -5,7 +5,7 @@ resource "aws_lb_listener" "ingress-http" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.workers-http.arn
+    target_group_arn = aws_lb_target_group.workers_http.arn
   }
 }
 
@@ -16,11 +16,11 @@ resource "aws_lb_listener" "ingress-https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.workers-https.arn
+    target_group_arn = aws_lb_target_group.workers_https.arn
   }
 }
 
-resource "aws_lb_target_group" "workers-http" {
+resource "aws_lb_target_group" "workers_http" {
   vpc_id      = var.vpc_id
   target_type = "instance"
 
@@ -45,7 +45,7 @@ resource "aws_lb_target_group" "workers-http" {
   }
 }
 
-resource "aws_lb_target_group" "workers-https" {
+resource "aws_lb_target_group" "workers_https" {
   vpc_id      = var.vpc_id
   target_type = "instance"
 
