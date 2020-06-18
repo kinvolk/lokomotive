@@ -1,6 +1,6 @@
 # Workers AutoScaling Group
 resource "aws_autoscaling_group" "workers" {
-  name = "${var.cluster_name}-${var.pool_name}-workers"
+  name = "${var.pool_name}-worker"
 
   # count
   desired_capacity          = var.worker_count
