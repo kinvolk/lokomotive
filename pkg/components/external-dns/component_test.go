@@ -51,8 +51,9 @@ func TestDefaultValues(t *testing.T) {
 	if c.Metrics {
 		t.Fatal("Default Metrics value should be false.")
 	}
-	if len(c.Sources) != 1 || c.Sources[0] != "service" {
-		t.Fatal("Default sources should be service only.")
+
+	if len(c.Sources) != 1 || c.Sources[0] != "ingress" {
+		t.Fatal("Default sources should be ingress only.")
 	}
 	if c.Policy != "upsert-only" {
 		t.Fatal("Default policy should be upsert-only.")
@@ -66,7 +67,7 @@ func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
 	c := newComponent()
 	config := `
  component "external-dns" {
-   sources = ["service"]
+   sources = ["ingress"]
    metrics =  false
    policy = "upsert-only"
    owner_id = "test-owner"
@@ -96,7 +97,7 @@ func TestAwsConfigBySettingEnvVariables(t *testing.T) {
 	c := newComponent()
 	config := `
   component "external-dns" {
-    sources = ["service"]
+    sources = ["ingress"]
     metrics =  false
     policy = "upsert-only"
     owner_id = "test-owner"
@@ -133,7 +134,7 @@ func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
 	c := newComponent()
 	config := `
   component "external-dns" {
-    sources = ["service"]
+    sources = ["ingress"]
     metrics =  false
     policy = "upsert-only"
     owner_id = "test-owner"
@@ -169,7 +170,7 @@ func TestAwsConfigBySettingConfigFields(t *testing.T) {
 	c := newComponent()
 	config := `
   component "external-dns" {
-    sources = ["service"]
+    sources = ["ingress"]
     metrics =  false
     policy = "upsert-only"
     owner_id = "test-owner"

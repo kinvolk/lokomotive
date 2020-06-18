@@ -87,7 +87,7 @@ type component struct {
 func newComponent() *component {
 	return &component{
 		Namespace: "external-dns",
-		Sources:   []string{"service"},
+		Sources:   []string{"ingress"},
 		AwsConfig: AwsConfig{
 			ZoneType: "public",
 		},
