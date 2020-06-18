@@ -32,7 +32,8 @@ storage:
         id: 500
 EOF
   ]
-  worker_pool "wp" {
+
+  worker_pool "$CLUSTER_ID-wp" {
     count         = 2
     ssh_pubkeys   = ["$PUB_KEY"]
     disk_size     = 30
