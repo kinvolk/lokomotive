@@ -110,6 +110,7 @@ metadata:
     {{- if .StorageClass.Default }}
     storageclass.kubernetes.io/is-default-class: "true"
     {{- end }}
+allowVolumeExpansion: true
 provisioner: {{ .Namespace }}.rbd.csi.ceph.com
 parameters:
   clusterID: {{ .Namespace }}
@@ -127,6 +128,8 @@ parameters:
   csi.storage.k8s.io/provisioner-secret-namespace: {{ .Namespace }}
   csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
   csi.storage.k8s.io/node-stage-secret-namespace: {{ .Namespace }}
+  csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/controller-expand-secret-namespace: {{ .Namespace }}
 
   # Specify the filesystem type of the volume. If not specified, csi-provisioner
   # will set default as 'ext4'.
