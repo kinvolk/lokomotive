@@ -29,6 +29,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
+const (
+	kubeconfigEnvVariable = "KUBECONFIG"
+	defaultKubeconfigPath = "~/.kube/config"
+)
+
 // getConfiguredBackend loads a backend from the given configuration file.
 func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
 	if lokoConfig.RootConfig.Backend == nil {
@@ -101,26 +106,55 @@ func expandKubeconfigPath(path string) string {
 	return path
 }
 
-// getKubeconfig finds the kubeconfig to be used. Precedence takes a specified
-// flag or environment variable. Then the asset directory of the cluster is searched
-// and finally the global default value is used. This cannot be done in Viper
-// because we need the other values from Viper to find the asset directory.
+// getKubeconfig finds the kubeconfig to be used. The precedence is the following:
+// - --kubeconfig-file flag OR KUBECONFIG_FILE environent variable (the latter
+// is a side-effect of cobra/viper and should NOT be documented because it's
+// confusing).
+// - Asset directory from cluster configuration.
+// - KUBECONFIG environment variable.
+// - ~/.kube/config path, which is the default for kubectl.
 func getKubeconfig() (string, error) {
-	kubeconfig := viper.GetString("kubeconfig")
-	if kubeconfig != "" {
-		return expandKubeconfigPath(kubeconfig), nil
+	assetKubeconfig, err := assetsKubeconfigPath()
+	if err != nil {
+		return "", fmt.Errorf("reading kubeconfig path from configuration failed: %w", err)
 	}
 
+	paths := []string{
+		viper.GetString(kubeconfigFlag),
+		assetKubeconfig,
+		os.Getenv(kubeconfigEnvVariable),
+		defaultKubeconfigPath,
+	}
+
+	return expandKubeconfigPath(pickString(paths...)), nil
+}
+
+// pickString returns first non-empty string.
+func pickString(options ...string) string {
+	for _, option := range options {
+		if option != "" {
+			return option
+		}
+	}
+
+	return ""
+}
+
+// assetsKubeconfigPath reads the lokocfg configuration and returns
+// the kubeconfig path defined in it.
+//
+// If no configuration is defined, empty string is returned.
+func assetsKubeconfigPath() (string, error) {
 	assetDir, err := getAssetDir()
 	if err != nil {
 		return "", err
 	}
 
 	if assetDir != "" {
-		return expandKubeconfigPath(assetsKubeconfig(assetDir)), nil
+		return assetsKubeconfig(assetDir), nil
 	}
 
-	return expandKubeconfigPath("~/.kube/config"), nil
+	return "", nil
 }
 
 func assetsKubeconfig(assetDir string) string {
