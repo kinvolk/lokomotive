@@ -79,7 +79,13 @@ component "openebs-storage-class" {
   }
 }
 
-component "prometheus-operator" {}
+component "prometheus-operator" {
+  grafana {
+    secret_env = {
+      "LOKOMOTIVE_VERY_SECRET_PASSWORD" = "VERY_VERY_SECRET"
+    }
+  }
+}
 
 component "contour" {
   ingress_hosts     = ["dex.$CLUSTER_ID.$AWS_DNS_ZONE", "gangway.$CLUSTER_ID.$AWS_DNS_ZONE"]

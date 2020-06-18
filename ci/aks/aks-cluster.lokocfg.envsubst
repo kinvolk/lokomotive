@@ -82,6 +82,12 @@ component "prometheus-operator" {
       "k8s-app" = "kube-dns",
     }
   }
+
+  grafana {
+    secret_env = {
+      "LOKOMOTIVE_VERY_SECRET_PASSWORD" = "VERY_VERY_SECRET"
+    }
+  }
 }
 
 component "contour" {

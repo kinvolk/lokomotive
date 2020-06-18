@@ -18,27 +18,38 @@
 package prometheusoperator
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
+
+	v1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/remotecommand"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 const (
-	retryInterval = time.Second * 5
-	timeout       = time.Minute * 10
+	retryInterval     = time.Second * 5
+	timeout           = time.Minute * 10
+	namespace         = "monitoring"
+	grafanaDeployment = "prometheus-operator-grafana"
 )
 
 func TestPrometheusOperatorDeployment(t *testing.T) {
-	namespace := "monitoring"
-
 	client := testutil.CreateKubeClient(t)
 
 	deployments := []string{
 		"prometheus-operator-operator",
 		"prometheus-operator-kube-state-metrics",
-		"prometheus-operator-grafana",
+		grafanaDeployment,
 	}
 
 	for _, deployment := range deployments {
@@ -66,4 +77,89 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 	}
 
 	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", retryInterval, timeout)
+}
+
+// nolint:funlen
+func TestGrafanaLoadsEnvVars(t *testing.T) {
+	kubeconfig := testutil.KubeconfigPath(t)
+
+	t.Logf("using KUBECONFIG=%s", kubeconfig)
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		t.Fatalf("failed building rest client: %v", err)
+	}
+
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		t.Fatalf("failed creating new clientset: %v", err)
+	}
+
+	// We will wait until the Grafana Pods are up and running so we don't have to reimplement wait logic again.
+	testutil.WaitForDeployment(t, client, namespace, grafanaDeployment, retryInterval, timeout)
+
+	// Get grafana deployment object so that we can get the corresponding pod.
+	deploy, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), grafanaDeployment, metav1.GetOptions{})
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			t.Fatalf("deployment %s not found", grafanaDeployment)
+		}
+
+		t.Fatalf("error looking up for deployment %s: %v", grafanaDeployment, err)
+	}
+
+	podList, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: metav1.FormatLabelSelector(deploy.Spec.Selector),
+	})
+	if err != nil {
+		t.Fatalf("could not list pods for the deployment %q: %v", grafanaDeployment, err)
+	}
+
+	if len(podList.Items) == 0 {
+		t.Fatalf("grafana pods not found")
+	}
+
+	// Exec into the pod.
+	pod := podList.Items[0]
+	containerName := "grafana"
+	searchEnvVar := "LOKOMOTIVE_VERY_SECRET_PASSWORD"
+
+	req := client.CoreV1().RESTClient().Post().
+		Resource("pods").
+		Name(pod.Name).
+		Namespace(namespace).
+		SubResource("exec").Param("container", containerName)
+
+	req.VersionedParams(&v1.PodExecOptions{
+		Command:   []string{"env"},
+		Stdin:     false,
+		Stdout:    true,
+		Stderr:    true,
+		TTY:       true,
+		Container: containerName,
+	}, scheme.ParameterCodec)
+
+	exec, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
+	if err != nil {
+		t.Fatalf("could not exec: %v", err)
+	}
+
+	var stdout, stderr bytes.Buffer
+
+	if err = exec.Stream(remotecommand.StreamOptions{
+		Stdout: &stdout,
+		Stderr: &stderr,
+	}); err != nil {
+		t.Fatalf("exec stream failed: %v", err)
+	}
+
+	containerErr := strings.TrimSpace(stderr.String())
+	if len(containerErr) > 0 {
+		t.Fatalf("error from container: %v", containerErr)
+	}
+
+	containerOutput := strings.TrimSpace(stdout.String())
+	if !strings.Contains(containerOutput, searchEnvVar) {
+		t.Fatalf("required env var %q not found in following env vars:\n\n%s\n", searchEnvVar, containerOutput)
+	}
 }
