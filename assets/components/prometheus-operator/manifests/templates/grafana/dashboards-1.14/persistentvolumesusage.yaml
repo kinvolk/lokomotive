@@ -36,7 +36,7 @@ data:
         "links": [
 
         ],
-        "refresh": "",
+        "refresh": "1h",
         "rows": [
             {
                 "collapse": false,
@@ -533,7 +533,7 @@ data:
             ]
         },
         "time": {
-            "from": "now-7d",
+            "from": "now-2d",
             "to": "now"
         },
         "timepicker": {
