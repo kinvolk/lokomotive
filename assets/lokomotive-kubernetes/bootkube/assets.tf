@@ -1,18 +1,30 @@
-# Self-hosted Kubernetes bootstrap-manifests
-resource "template_dir" "bootstrap-manifests" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/bootstrap-manifests"
-  destination_dir = "${var.asset_dir}/bootstrap-manifests"
+resource "local_file" "bootstrap-apiserver" {
+  filename = "${var.asset_dir}/bootstrap-manifests/bootstrap-apiserver.yaml"
+  content = templatefile("${path.module}/resources/bootstrap-manifests/bootstrap-apiserver.yaml", {
+    kube_apiserver_image = var.container_images["kube_apiserver"]
+    cloud_provider       = var.cloud_provider
+    etcd_servers         = join(",", formatlist("https://%s:2379", var.etcd_servers))
+    service_cidr         = var.service_cidr
+    trusted_certs_dir    = var.trusted_certs_dir
+  })
+}
 
-  vars = {
-    kube_apiserver_image          = var.container_images["kube_apiserver"]
+resource "local_file" "bootstrap-controller-manager" {
+  filename = "${var.asset_dir}/bootstrap-manifests/bootstrap-controller-manager.yaml"
+  content = templatefile("${path.module}/resources/bootstrap-manifests/bootstrap-controller-manager.yaml", {
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
-    kube_scheduler_image          = var.container_images["kube_scheduler"]
-    etcd_servers                  = join(",", formatlist("https://%s:2379", var.etcd_servers))
-    cloud_provider                = var.cloud_provider
     pod_cidr                      = var.pod_cidr
     service_cidr                  = var.service_cidr
+    cloud_provider                = var.cloud_provider
     trusted_certs_dir             = var.trusted_certs_dir
-  }
+  })
+}
+
+resource "local_file" "bootstrap-scheduler" {
+  filename = "${var.asset_dir}/bootstrap-manifests/bootstrap-scheduler.yaml"
+  content = templatefile("${path.module}/resources/bootstrap-manifests/bootstrap-scheduler.yaml", {
+    kube_scheduler_image = var.container_images["kube_scheduler"]
+  })
 }
 
 resource "local_file" "kube-apiserver" {
