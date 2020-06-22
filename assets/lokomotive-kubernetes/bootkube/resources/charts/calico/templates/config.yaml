@@ -1,16 +1,21 @@
-apiVersion: v1
 kind: ConfigMap
+apiVersion: v1
 metadata:
   name: calico-config
   namespace: kube-system
 data:
-  # Disable Typha for now.
+  # Typha is disabled.
   typha_service_name: "none"
-  # Calico backend to use
+  # Configure the backend to use.
   calico_backend: "bird"
-  # Calico MTU
+  # Configure the MTU to use for workload interfaces and tunnels.
+  # - If Wireguard is enabled, set to your network MTU - 60
+  # - Otherwise, if VXLAN or BPF mode is enabled, set to your network MTU - 50
+  # - Otherwise, if IPIP is enabled, set to your network MTU - 20
+  # - Otherwise, if not using any encapsulation, set to your network MTU.
   veth_mtu: "{{ .Values.calico.networkMTU }}"
-  # The CNI network configuration to install on each node.
+  # The CNI network configuration to install on each node. The special
+  # values in this config will be automatically populated.
   cni_network_config: |-
     {
       "name": "k8s-pod-network",
