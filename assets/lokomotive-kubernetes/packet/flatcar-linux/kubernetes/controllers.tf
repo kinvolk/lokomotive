@@ -54,11 +54,6 @@ data "ct_config" "controller-ignitions" {
     controller_count      = var.controller_count
     dns_zone              = var.dns_zone
     cluster_name          = var.cluster_name
-
-    # we need to prepend a prefix 'docker://' for arm64, because arm64 images
-    # on quay prevent us from downloading ACI correctly.
-    # So it's workaround to download arm64 images until quay images could be fixed.
-    image_arch_url_prefix = var.os_arch == "arm64" ? "docker://" : ""
   })
   snippets = var.controller_clc_snippets
 }
