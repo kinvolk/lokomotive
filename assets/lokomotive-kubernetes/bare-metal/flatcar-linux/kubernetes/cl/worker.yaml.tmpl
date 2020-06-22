@@ -92,7 +92,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.18.3
+          KUBELET_IMAGE_TAG=v1.18.4
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="${join(",", [for k, v in kubelet_labels : "${k}=${v}"])}"
     - path: /etc/hostname
