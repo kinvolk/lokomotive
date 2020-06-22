@@ -76,18 +76,19 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument         | Description                                                                                   | Default | Required |
-|------------------|-----------------------------------------------------------------------------------------------|:-------:|:--------:|
-| `cluster_name`   | The name of the cluster.                                                                      | -       | true     |
-| `ingress_host`   | Used as the `hosts` domain in the ingress resource for gangway that is automatically created. | -       | true     |
-| `certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`. | `letsencrypt-production` | false |
-| `sesion_key`     | Gangway session key.                                                                          | -       | true     |
-| `api_server_url` | URL of Kubernetes API server.                                                                 | -       | true     |
-| `authorize_url`  | Auth endpoint of Dex.                                                                         | -       | true     |
-| `token_url`      | Token endpoint of Dex.                                                                        | -       | true     |
-| `client_id`      | Static client ID.                                                                             | -       | true     |
-| `client_secret`  | Static client secret.                                                                         | -       | true     |
-| `redirect_url`   | Gangway's redirect URL, i.e. OIDC callback endpoint.                                          | -       | true     |
+| Argument                     | Description                                                                                                                                   |         Default          |  Type  | Required |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|:------------------------:|:------:|:--------:|
+| `cluster_name`               | The name of the cluster.                                                                                                                      |            -             | string |   true   |
+| `ingress_host`               | Used as the `hosts` domain in the ingress resource for gangway that is automatically created.                                                 |            -             | string |   true   |
+| `certmanager_cluster_issuer` | `ClusterIssuer` to be used by cert-manager while issuing TLS certificates. Supported values: `letsencrypt-production`, `letsencrypt-staging`. | `letsencrypt-production` | string |  false   |
+| `sesion_key`                 | Gangway session key.                                                                                                                          |            -             | string |   true   |
+| `api_server_url`             | URL of Kubernetes API server.                                                                                                                 |            -             | string |   true   |
+| `authorize_url`              | Auth endpoint of Dex.                                                                                                                         |            -             | string |   true   |
+| `token_url`                  | Token endpoint of Dex.                                                                                                                        |            -             | string |   true   |
+| `client_id`                  | Static client ID.                                                                                                                             |            -             | string |   true   |
+| `client_secret`              | Static client secret.                                                                                                                         |            -             | string |   true   |
+| `redirect_url`               | Gangway's redirect URL, i.e. OIDC callback endpoint.                                                                                          |            -             | string |   true   |
+
 
 ## Applying
 

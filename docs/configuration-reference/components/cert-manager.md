@@ -39,11 +39,13 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument    | Description                                                  | Default      | Required |
-|-------------|--------------------------------------------------------------|:------------:|:--------:|
-| `email`     | Email used for certificates to receive expiry notifications. | -            | true     |
-| `namespace` | Namespace to deploy the cert-manager into.                   | cert-manager | false    |
-| `webhooks`  | Controls if webhooks should be deployed.                     | true         | false    |
+| Argument          | Description                                                    |   Default    |  Type  | Required |
+|-------------------|----------------------------------------------------------------|:------------:|:------:|:--------:|
+| `email`           | Email used for certificates to receive expiry notifications.   |      -       | string |   true   |
+| `namespace`       | Namespace to deploy the cert-manager into.                     | cert-manager | string |  false   |
+| `webhooks`        | Controls if webhooks should be deployed.                       |     true     |  bool  |  false   |
+| `service_monitor` | Specifies how metrics can be retrieved from a set of services. |    false     |  bool  |  false   |
+
 
 ## Applying
 

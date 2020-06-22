@@ -59,10 +59,11 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument             | Description              | Default | Required |
-|----------------------|------------------------- |:-------:|:--------:|
-| `ndm_selector_label` | Name of the node label.  | -       | false    |
-| `ndm_selector_value` | Value of the node label  | -       | false    |
+| Argument             | Description             | Default |  Type  | Required |
+|----------------------|-------------------------|:-------:|:------:|:--------:|
+| `ndm_selector_label` | Name of the node label. |    -    | string |  false   |
+| `ndm_selector_value` | Value of the node label |    -    | string |  false   |
+
 
 ## Applying
 
