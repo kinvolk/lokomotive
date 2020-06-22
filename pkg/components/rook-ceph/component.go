@@ -40,6 +40,7 @@ type component struct {
 	Tolerations    []util.Toleration   `hcl:"toleration,block"`
 	TolerationsRaw string
 	StorageClass   *StorageClass `hcl:"storage_class,block"`
+	EnableToolbox  bool          `hcl:"enable_toolbox,optional"`
 }
 
 // StorageClass provides struct to enable it or make it default.
