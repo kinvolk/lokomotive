@@ -98,6 +98,7 @@ variable "container_images" {
     calico                  = "calico/node:v3.15.0"
     calico_cni              = "calico/cni:v3.15.0"
     calico_controllers      = "calico/kube-controllers:v3.15.0"
+    flexvol_driver_image    = "calico/pod2daemon-flexvol:v3.15.0"
     hyperkube               = "k8s.gcr.io/hyperkube:v1.18.3"
     coredns                 = "coredns/coredns:coredns-"
     pod_checkpointer        = "kinvolk/pod-checkpointer:d1c58443fe7d7d33aa5bf7d80d65d299be6e5847"
