@@ -72,5 +72,5 @@ component "cert-manager" {
 }
 
 component "contour" {
-  service_monitor = true
+  enable_monitoring = true
 }

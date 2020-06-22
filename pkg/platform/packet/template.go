@@ -86,7 +86,7 @@ module "packet-{{.Config.ClusterName}}" {
 
   {{- if .Config.ControllerCLCSnippets}}
   controller_clc_snippets = [
-	{{- range $clc_snippet := .Config.ControllerCLCSnippets}}
+  {{- range $clc_snippet := .Config.ControllerCLCSnippets}}
     <<EOF
 {{ $clc_snippet }}
 EOF
@@ -137,7 +137,7 @@ module "worker-{{ $pool.Name }}" {
 
   {{- if $pool.CLCSnippets}}
   clc_snippets = [
-	{{- range $clc_snippet := $pool.CLCSnippets}}
+  {{- range $clc_snippet := $pool.CLCSnippets}}
     <<EOF
 {{ $clc_snippet }}
 EOF
@@ -153,7 +153,7 @@ EOF
       {{- range $key, $value := $pool.Tags }}
       "{{ $key }}:{{ $value }}",
       {{- end }}
-	]
+  ]
   {{- end }}
 
   project_id   = "{{$.Config.ProjectID}}"

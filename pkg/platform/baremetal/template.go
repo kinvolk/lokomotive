@@ -61,7 +61,7 @@ module "bare-metal-{{.ClusterName}}" {
   {{- range $key, $value := .Labels}}
     "{{$key}}" = "{{$value}}",
   {{- end}}
-	}
+  }
   {{- end}}
 }
 
