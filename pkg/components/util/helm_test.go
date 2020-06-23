@@ -15,16 +15,19 @@
 package util
 
 import (
-	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
 func TestRenderChartBadValues(t *testing.T) {
 	c := "cert-manager"
 	values := "malformed\t"
 
-	helmChart, err := LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", c))
+	p := filepath.Join(assets.ComponentsSource, c)
+	helmChart, err := LoadChartFromAssets(p)
 	if err != nil {
 		t.Fatalf("Loading chart from assets should succeed, got: %v", err)
 	}

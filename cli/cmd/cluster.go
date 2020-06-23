@@ -155,7 +155,7 @@ type controlplaneUpdater struct {
 }
 
 func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, error) {
-	helmChart, err := loader.Load(filepath.Join(c.assetDir, "/lokomotive-kubernetes/bootkube/resources/charts", name))
+	helmChart, err := loader.Load(filepath.Join(c.assetDir, "cluster-assets", "charts", "kube-system", name))
 	if err != nil {
 		return nil, fmt.Errorf("loading chart from assets failed: %w", err)
 	}

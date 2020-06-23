@@ -2,10 +2,10 @@
 ./.git
 ./lokoctl
 *.png
-./assets/components/rook-ceph
-./assets/components/prometheus-operator/manifests
-./assets/components/velero
-./assets/components/cluster-autoscaler
-./assets/components/contour/crds
-./assets/components/openebs/README.md
-./assets/lokomotive-kubernetes/bootkube/resources/charts/calico/crds
+./assets/charts/components/rook
+./assets/charts/components/prometheus-operator
+./assets/charts/components/velero
+./assets/charts/components/cluster-autoscaler
+./assets/charts/components/contour/crds
+./assets/charts/components/openebs-operator/README.md
+./assets/charts/control-plane/calico/crds

@@ -29,6 +29,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
+	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/dns"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -152,6 +153,32 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
+	}
+
+	// Extract control plane chart files to cluster assets directory.
+	for _, c := range platform.CommonControlPlaneCharts {
+		src := filepath.Join(assets.ControlPlaneSource, c)
+		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", c)
+		if err := assets.Extract(src, dst); err != nil {
+			return errors.Wrapf(err, "Failed to extract charts")
+		}
+	}
+
+	// Extract host protection chart.
+	src := filepath.Join(assets.ControlPlaneSource, "calico-host-protection")
+	dst := filepath.Join(assetDir,
+		"cluster-assets", "charts", "kube-system", "calico-host-protection")
+	if err := assets.Extract(src, dst); err != nil {
+		return errors.Wrapf(err, "Failed to extract host protection chart")
+	}
+
+	// Extract self-hosted kubelet chart only when enabled in config.
+	if !c.DisableSelfHostedKubelet {
+		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
+		dst = filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
+		if err := assets.Extract(src, dst); err != nil {
+			return errors.Wrapf(err, "Failed to extract kubelet chart")
+		}
 	}
 
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)

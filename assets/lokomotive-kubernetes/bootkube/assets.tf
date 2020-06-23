@@ -52,29 +52,11 @@ resource "local_file" "kube-apiserver" {
   })
 }
 
-resource "template_dir" "kube-apiserver" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kube-apiserver"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kube-apiserver"
-}
-
 resource "local_file" "pod-checkpointer" {
   filename = "${var.asset_dir}/charts/kube-system/pod-checkpointer.yaml"
   content = templatefile("${path.module}/resources/charts/pod-checkpointer.yaml", {
     pod_checkpointer_image = var.container_images["pod_checkpointer"]
   })
-}
-
-resource "template_dir" "pod-checkpointer" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/pod-checkpointer"
-  destination_dir = "${var.asset_dir}/charts/kube-system/pod-checkpointer"
-}
-
-# Populate kubernetes control plane chart.
-# TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
-# The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
-resource "template_dir" "kubernetes" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kubernetes"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kubernetes"
 }
 
 # Populate kubernetes chart values file named kubernetes.yaml.
@@ -123,16 +105,6 @@ resource "local_file" "kubelet" {
 
   content  = data.template_file.kubelet[0].rendered
   filename = "${var.asset_dir}/charts/kube-system/kubelet.yaml"
-}
-
-# Populate kubelet chart.
-# TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
-# The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
-resource "template_dir" "kubelet" {
-  count = local.kubelet
-
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kubelet"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kubelet"
 }
 
 # Generated kubeconfig for Kubelets

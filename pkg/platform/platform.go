@@ -22,6 +22,15 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
+// CommonControlPlaneCharts defines a list of control plane Helm charts to be deployed for all
+// platforms.
+var CommonControlPlaneCharts = []string{
+	"calico",
+	"kube-apiserver",
+	"kubernetes",
+	"pod-checkpointer",
+}
+
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
