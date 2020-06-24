@@ -1,0 +1,10 @@
+./vendor
+./.git
+./lokoctl
+*.png
+./assets/components/rook-ceph
+./assets/components/prometheus-operator/manifests
+./assets/components/velero
+./assets/components/cluster-autoscaler
+./assets/components/contour/crds
+./assets/components/openebs/README.md
