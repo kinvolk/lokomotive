@@ -25,7 +25,7 @@ This is a patch release to fix AKS platform deployments.
 * AKS platform is now being tested for every pull request and `master` branch changes in the CI.
 * Added script for finding available component updates in upstream repositories ([#375](https://github.com/kinvolk/lokomotive/pull/375)).
 
-## v0.2.0
+## v0.2.0 - 2020-06-19
 
 We're happy to announce Lokomotive v0.2.0 (Bernina Express).
 
@@ -308,7 +308,7 @@ Apiserver, mounted using HostPath.
 - Remove vars from assets that were unused by tmpl file ([#620](https://github.com/kinvolk/lokomotive/pull/620)).
 - keys: iago's key is kinvolk.io, not gmail 🤓 ([#616](https://github.com/kinvolk/lokomotive/pull/616)).
 
-## v0.1.0
+## v0.1.0 - 2020-03-18
 
 Initial release.
 
