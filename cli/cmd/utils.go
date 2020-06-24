@@ -107,7 +107,7 @@ func expandKubeconfigPath(path string) string {
 }
 
 // getKubeconfig finds the kubeconfig to be used. The precedence is the following:
-// - --kubeconfig-file flag OR KUBECONFIG_FILE environent variable (the latter
+// - --kubeconfig-file flag OR KUBECONFIG_FILE environment variable (the latter
 // is a side-effect of cobra/viper and should NOT be documented because it's
 // confusing).
 // - Asset directory from cluster configuration.
