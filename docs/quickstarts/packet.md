@@ -27,6 +27,10 @@ uses the `stable` channel.
 The guide uses [Amazon Route 53](https://aws.amazon.com/route53/) as a DNS provider. For more
 information on how Lokomotive handles DNS, refer to [this](../concepts/dns.md) document.
 
+Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
+or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
+stores Terraform state locally.
+
 [Lokomotive components](../concepts/components.md) complement the "stock" Kubernetes functionality
 by adding features such as load balancing, persistent storage and monitoring to a cluster. To keep
 this guide short you will deploy a single component - `httpbin` - which serves as a demo
