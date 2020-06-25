@@ -337,7 +337,7 @@ const (
 	PlatformPacket = "packet"
 
 	// PlatformPacketARM is for Packet on ARM
-	PlatformPacketARM = "packet-arm"
+	PlatformPacketARM = "packet_arm"
 
 	// PlatformBaremetal is for Baremetal
 	PlatformBaremetal = "baremetal"
