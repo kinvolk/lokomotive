@@ -1,13 +1,15 @@
 calico:
   networkMTU: 1500
-  image: calico/node:v3.14.1
-  cniImage: calico/cni:v3.14.1
-  controllersImage: calico/kube-controllers:v3.14.1
+  image: calico/node:v3.15.0
+  cniImage: calico/cni:v3.15.0
+  controllersImage: calico/kube-controllers:v3.15.0
+  flexvolDriverImage: calico/pod2daemon-flexvol:v3.15.0
   enableReporting: false
   networkIpAutodetectionMethod: first-found
   ipipEnabled: true
   vxlanEnabled: false
-  ipipReadiness: "- --bird-ready"
+  # Add something like `- --bird-ready` with correct indentation
+  ipipReadiness: ""
   podCIDR: 10.2.0.0/16
   networkEncapsulation: "ipipMode: Always"
   blockedMetadataCIDRs: []

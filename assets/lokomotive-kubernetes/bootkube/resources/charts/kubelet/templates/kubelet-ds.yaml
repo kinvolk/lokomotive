@@ -37,7 +37,7 @@ spec:
           --client-ca-file=/etc/kubernetes/ca.crt \
           --cluster_dns={{ .Values.clusterDNS }} \
           --cluster_domain={{ .Values.clusterDomain }} \
-          --cni-conf-dir=/etc/kubernetes/cni/net.d \
+          --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
@@ -104,6 +104,8 @@ spec:
           mountPath: /usr/sbin/iscsiadm
         - name: modules
           mountPath: /lib/modules
+        - name: etc-cni-netd
+          mountPath: /etc/cni/net.d
       hostNetwork: true
       hostPID: true
       # Tolerate all the taints. This ensures that the pod runs on all the nodes.
@@ -114,6 +116,9 @@ spec:
       - name: coreos-var-lib-cni
         hostPath:
           path: /var/lib/cni
+      - name: etc-cni-netd
+        hostPath:
+          path: /etc/cni/net.d
       - name: coreos-var-lib-calico
         hostPath:
           path: /var/lib/calico

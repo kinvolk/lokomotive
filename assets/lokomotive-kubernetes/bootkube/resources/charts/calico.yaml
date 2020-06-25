@@ -3,11 +3,11 @@ calico:
   image: ${calico_image}
   cniImage: ${calico_cni_image}
   controllersImage: ${calico_controllers_image}
+  flexvolDriverImage: ${flexvol_driver_image}
   enableReporting: ${enable_reporting}
   networkIpAutodetectionMethod: ${network_ip_autodetection_method}
   ipipEnabled: ${ipip_enabled}
   vxlanEnabled: ${vxlan_enabled}
-  ipipReadiness: "${ipip_readiness}"
   podCIDR: ${pod_cidr}
   networkEncapsulation: "${network_encapsulation}"
   %{~ if length(blocked_metadata_cidrs) > 0 ~}

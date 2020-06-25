@@ -1,4 +1,4 @@
-# Extracted from https://docs.projectcalico.org/manifests/calico.yaml
+# See https://github.com/projectcalico/kube-controllers
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,8 +20,6 @@ spec:
       namespace: kube-system
       labels:
         k8s-app: calico-kube-controllers
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       nodeSelector:
         kubernetes.io/os: linux
@@ -35,7 +33,7 @@ spec:
       priorityClassName: system-cluster-critical
       containers:
         - name: calico-kube-controllers
-          image:  {{ .Values.calico.controllersImage }}
+          image: {{ .Values.calico.controllersImage }}
           env:
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
@@ -61,6 +59,8 @@ metadata:
   name: calico-kube-controllers
   namespace: kube-system
 ---
+# Include a clusterrole for the kube-controllers component,
+# and bind it to the calico-kube-controllers serviceaccount.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -115,14 +115,6 @@ rules:
       - get
       - create
       - update
-  # Allow using PSP
-  - apiGroups: ["policy"]
-    resources:
-      - podsecuritypolicies
-    verbs:
-      - use
-    resourceNames:
-      - calico-kube-controllers
   # KubeControllersConfiguration is where it gets its config
   - apiGroups: ["crd.projectcalico.org"]
     resources:
@@ -149,4 +141,3 @@ subjects:
 - kind: ServiceAccount
   name: calico-kube-controllers
   namespace: kube-system
-

@@ -72,6 +72,8 @@ systemd:
           --mount volume=opt-cni-bin,target=/opt/cni/bin \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log \
+          --volume etc-cni-netd,kind=host,source=/etc/cni/net.d \
+          --mount volume=etc-cni-netd,target=/etc/cni/net.d \
           --volume iscsiconf,kind=host,source=/etc/iscsi/ \
           --mount volume=iscsiconf,target=/etc/iscsi/ \
           --volume iscsiadm,kind=host,source=/usr/sbin/iscsiadm \
@@ -79,7 +81,7 @@ systemd:
           --insecure-options=image"
         ExecStartPre=/bin/mkdir -p /opt/cni/bin
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
+        ExecStartPre=/bin/mkdir -p /etc/cni/net.d
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
         ExecStartPre=/bin/mkdir -p /var/lib/cni
@@ -95,7 +97,7 @@ systemd:
           --client-ca-file=/etc/kubernetes/ca.crt \
           --cluster_dns=${cluster_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
-          --cni-conf-dir=/etc/kubernetes/cni/net.d \
+          --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
           --exit-on-lock-contention \
           --hostname-override=${domain_name} \
