@@ -91,9 +91,11 @@ spec:
           --bind-address=$(cat /run/kube-apiserver/address) \
           --client-ca-file=/etc/kubernetes/secrets/ca.crt \
           --cloud-provider={{ .Values.apiserver.cloudProvider }} \
-          --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy \
           {{- if .Values.apiserver.enableTLSBootstrap }}
+          --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy,NodeRestriction \
           --enable-bootstrap-token-auth=true \
+          {{- else }}
+          --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy \
           {{- end }}
           --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt \
           --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt \
@@ -134,9 +136,11 @@ spec:
         - --bind-address=0.0.0.0
         - --client-ca-file=/etc/kubernetes/secrets/ca.crt
         - --cloud-provider={{ .Values.apiserver.cloudProvider }}
-        - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
         {{- if .Values.apiserver.enableTLSBootstrap }}
+        - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy,NodeRestriction
         - --enable-bootstrap-token-auth=true
+        {{- else }}
+        - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
         {{- end }}
         - --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt
         - --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt
