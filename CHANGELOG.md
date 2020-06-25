@@ -1,4 +1,31 @@
-## v0.2.0
+## v0.2.1 - 2020-06-24
+
+This is a patch release to fix AKS platform deployments.
+
+### Changes in v0.2.1
+
+#### Kubernetes updates
+
+* Updated Kubernetes version on AKS platform to 1.16.9 ([#626](https://github.com/kinvolk/lokomotive/pull/626)). This fixes deploying AKS clusters, as the previously used version is not available anymore.
+
+#### Security
+
+* Updated `golang.org/x/text` dependency to v0.3.3 ([#648](https://github.com/kinvolk/lokomotive/pull/648)) to address [CVE-2020-14040](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-14040).
+
+#### Bugfixes
+
+* Fixes [example](https://github.com/kinvolk/lokomotive/tree/master/examples) configuration for AKS platform ([#626](https://github.com/kinvolk/lokomotive/pull/626)). Contour component configuration syntax changed and those files had not been updated.
+
+#### Misc
+
+* Bootkube Docker images are now pulled using Docker protocol, as quay.io plans to deprecate pulling images using ACI ([#656](https://github.com/kinvolk/lokomotive/pull/656).
+
+#### Development
+
+* AKS platform is now being tested for every pull request and `master` branch changes in the CI.
+* Added script for finding available component updates in upstream repositories ([#375](https://github.com/kinvolk/lokomotive/pull/375)).
+
+## v0.2.0 - 2020-06-19
 
 We're happy to announce Lokomotive v0.2.0 (Bernina Express).
 
@@ -281,7 +308,7 @@ Apiserver, mounted using HostPath.
 - Remove vars from assets that were unused by tmpl file ([#620](https://github.com/kinvolk/lokomotive/pull/620)).
 - keys: iago's key is kinvolk.io, not gmail 🤓 ([#616](https://github.com/kinvolk/lokomotive/pull/616)).
 
-## v0.1.0
+## v0.1.0 - 2020-03-18
 
 Initial release.
 
