@@ -39,7 +39,7 @@ build-test:
 	go test -run=nonexistent -mod=$(MOD) -tags=$(ALL_BUILD_TAGS) -covermode=atomic -buildmode=exe -v ./... > /dev/null
 
 .PHONY: all
-all: build build-test test lint
+all: build build-test test lint codespell
 
 .PHONY: update-assets
 update-assets:
@@ -154,3 +154,10 @@ docs:
 build-and-publish-release: SHELL:=/bin/bash
 build-and-publish-release:
 	goreleaser --release-notes <(./scripts/print-version-changelog.sh)
+
+.PHONY: codespell
+codespell: CODESPELL_SKIP := $(shell cat .codespell.skip | tr \\n ',')
+codespell: CODESPELL_BIN := codespell
+codespell:
+	which $(CODESPELL_BIN) >/dev/null 2>&1 || (echo "$(CODESPELL_BIN) binary not found, skipping spell checking"; exit 0)
+	$(CODESPELL_BIN) --skip $(CODESPELL_SKIP) --ignore-words .codespell.ignorewords --check-filenames --check-hidden
