@@ -66,3 +66,5 @@ func Generate(fileName string, packageName string, variableName string, dirs map
 		VariableName: variableName,
 	})
 }
+
+// test
