@@ -220,6 +220,7 @@ resource "local_file" "kubeconfig" {
 # Used when checking, if we should ask user for confirmation when
 # applying changes to the cluster.
 output "initialized" {
-  value = true
+  value     = true
+  sensitive = true
 }
 `
