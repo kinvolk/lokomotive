@@ -50,3 +50,5 @@ data "aws_ami" "flatcar" {
     values = ["Flatcar-${local.channel}-${local.ver}*"]
   }
 }
+
+# test
