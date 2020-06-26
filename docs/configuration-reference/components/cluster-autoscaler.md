@@ -70,21 +70,23 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument                     | Description                                                                              | Default        | Required |
-|------------------------------|------------------------------------------------------------------------------------------|:---------------|:--------:|
-| `cluster_name`               | Name of the  cluster.                                                                    | -              | true     |
-| `worker_pool`                | Name of the worker pool.                                                                 | -              | true     |
-| `namespace`                  | Namespace where the Cluster Autoscaler will be installed.                                | "kube-system"  | false    |
-| `min_workers`                | Minimum number of workers in the worker pool.                                            | 1              | false    |
-| `max_workers`                | Maximum number of workers in the worker pool.                                            | 4              | false    |
-| `scale_down_unneeded_time`   | How long a node should be unneeded before it is eligible for scale down.                 | "10m"          | false    |
-| `scale_down_delay_after_add` | How long scale down should wait after a scale up.                                        | "10m"          | false    |
-| `scale_down_unready_time`    | How long an unready node should be unneeded before it is eligible for scale down.        | "20m"          | false    |
-| `provider`                   | Supported provider, currently Packet.                                                    | "packet"       | false    |
-| `packet.project_id`          | Packet Project ID where the cluster is running.                                          | -              | true     |
-| `packet.facility`            | Packet Facility where the cluster is running.                                            | -              | true     |
-| `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "t1.small.x86" | false    |
-| `packet_worker_channel`      | Flatcar Container Linux channel to be used in workers spawned by the Cluster Autoscaler. | "stable"       | false    |
+| Argument                     | Description                                                                              | Default        |  Type  | Required |
+|------------------------------|------------------------------------------------------------------------------------------|:---------------|:------:|:--------:|
+| `cluster_name`               | Name of the  cluster.                                                                    | -              | string |   true   |
+| `worker_pool`                | Name of the worker pool.                                                                 | -              | string |   true   |
+| `namespace`                  | Namespace where the Cluster Autoscaler will be installed.                                | "kube-system"  | string |  false   |
+| `min_workers`                | Minimum number of workers in the worker pool.                                            | 1              | number |  false   |
+| `max_workers`                | Maximum number of workers in the worker pool.                                            | 4              | number |  false   |
+| `scale_down_unneeded_time`   | How long a node should be unneeded before it is eligible for scale down.                 | "10m"          | string |  false   |
+| `scale_down_delay_after_add` | How long scale down should wait after a scale up.                                        | "10m"          | string |  false   |
+| `scale_down_unready_time`    | How long an unready node should be unneeded before it is eligible for scale down.        | "20m"          | string |  false   |
+| `provider`                   | Supported provider, currently Packet.                                                    | "packet"       | string |  false   |
+| `service_monitor`            | Specifies how metrics can be retrieved from a set of services.                           | false          |  bool  |  false   |
+| `packet.project_id`          | Packet Project ID where the cluster is running.                                          | -              | string |   true   |
+| `packet.facility`            | Packet Facility where the cluster is running.                                            | -              | string |   true   |
+| `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "t1.small.x86" | string |  false   |
+| `packet_worker_channel`      | Flatcar Container Linux channel to be used in workers spawned by the Cluster Autoscaler. | "stable"       | string |  false   |
+
 
 ## Applying
 

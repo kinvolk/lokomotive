@@ -36,8 +36,9 @@ backend "local" {
 
 Default backend is local.
 
-| Argument                    | Description                                                  | Default | Required |
-|-----------------------------|--------------------------------------------------------------|:-------:|:--------:|
-| `backend.local`             | Local backend configuration block.                           | -       | false    |
-| `backend.local.path`        | Location where Lokomotive stores the cluster state.          | -       | false    |
+| Argument             | Description                                         | Default |  Type  | Required |
+|----------------------|-----------------------------------------------------|:-------:|:------:|:--------:|
+| `backend.local`      | Local backend configuration block.                  |    -    | object |  false   |
+| `backend.local.path` | Location where Lokomotive stores the cluster state. |    -    | string |  false   |
+
 

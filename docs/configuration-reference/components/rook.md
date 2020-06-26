@@ -57,16 +57,17 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument                     | Description                                                                                              | Default | Required |
-|------------------------------|----------------------------------------------------------------------------------------------------------|:-------:|:--------:|
-| `namespace`                  | Namespace to deploy the rook operator into.                                                              | rook    | false    |
-| `node_selector`              | A map with specific labels to run Rook pods selectively on a group of nodes.                             | -       | false    |
-| `toleration`                 | Tolerations that the operator's pods will tolerate.                                                      | -       | false    |
-| `agent_toleration_key`       | Toleration key for the rook agent pods.                                                                  | -       | false    |
-| `agent_toleration_effect`    | Toleration effect for the rook agent pods. Needs to be specified if `agent_toleration_key` is set.       | -       | false    |
-| `discover_toleration_key`    | Toleration key for the rook discover pods.                                                               | -       | false    |
-| `discover_toleration_effect` | Toleration effect for the rook discover pods. Needs to be specified if `discover_toleration_key` is set. | -       | false    |
-| `enable_monitoring`          | Enable Monitoring for the Rook sub-systems. Make sure that the Prometheus Operator is installed.         | false   | false    |
+| Argument                     | Description                                                                                              | Default | Type                                                                                                           | Required |
+|------------------------------|----------------------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
+| `namespace`                  | Namespace to deploy the rook operator into.                                                              | "rook"  | string                                                                                                         |  false   |
+| `node_selector`              | A map with specific labels to run Rook pods selectively on a group of nodes.                             |    -    | map(string)                                                                                                    |  false   |
+| `toleration`                 | Tolerations that the operator's pods will tolerate.                                                      |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
+| `agent_toleration_key`       | Toleration key for the rook agent pods.                                                                  |    -    | string                                                                                                         |  false   |
+| `agent_toleration_effect`    | Toleration effect for the rook agent pods. Needs to be specified if `agent_toleration_key` is set.       |    -    | string                                                                                                         |  false   |
+| `discover_toleration_key`    | Toleration key for the rook discover pods.                                                               |    -    | string                                                                                                         |  false   |
+| `discover_toleration_effect` | Toleration effect for the rook discover pods. Needs to be specified if `discover_toleration_key` is set. |    -    | string                                                                                                         |  false   |
+| `enable_monitoring`          | Enable Monitoring for the Rook sub-systems. Make sure that the Prometheus Operator is installed.         |  false  | bool                                                                                                           |  false   |
+
 
 ## Applying
 

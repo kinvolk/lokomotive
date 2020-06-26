@@ -67,15 +67,17 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument                | Description                                                                                                                                        | Default | Required |
-|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|:-------:|:--------:|
-| `namespace`             | Namespace to deploy the Ceph cluster into. Must be the same as the rook operator.                                                                  | rook    | false    |
-| `monitor_count`         | Number of Ceph monitors to deploy. An odd number like 3 or 5 is recommended which should also be sufficient for most cases.                        | 1       | false    |
-| `node_affinity`         | Node affinity for deploying the Ceph cluster pods.                                                                                                 | -       | false    |
-| `toleration`            | Tolerations that the Ceph cluster pods will tolerate.                                                                                              | -       | false    |
-| `metadata_device`       | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing with `/dev/`.   | -       | false    |
-| `storage_class.enable`  | Install Storage Class config.                                                                                                                      | false   | false    |
-| `storage_class.default` | Make this Storage Class as a default one.                                                                                                          | false   | false    |
+
+| Argument                | Description                                                                                                                                      | Default | Type                                                                                                           | Required |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
+| `namespace`             | Namespace to deploy the Ceph cluster into. Must be the same as the rook operator.                                                                | "rook"  | string                                                                                                         |  false   |
+| `monitor_count`         | Number of Ceph monitors to deploy. An odd number like 3 or 5 is recommended which should also be sufficient for most cases.                      |    1    | number                                                                                                         |  false   |
+| `node_affinity`         | Node affinity for deploying the Ceph cluster pods.                                                                                               |    -    | list(object({key = string, operator = string, values = list(string)}))                                         |  false   |
+| `toleration`            | Tolerations that the Ceph cluster pods will tolerate.                                                                                            |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
+| `metadata_device`       | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing with `/dev/`. |    -    | string                                                                                                         |  false   |
+| `storage_class.enable`  | Install Storage Class config.                                                                                                                    |  false  | bool                                                                                                           |  false   |
+| `storage_class.default` | Make this Storage Class as a default one.                                                                                                        |  false  | bool                                                                                                           |  false   |
+
 
 ## Applying
 

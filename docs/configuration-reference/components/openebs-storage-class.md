@@ -62,11 +62,12 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument        | Description                                                                                                                   | Default | Required |
-|-----------------|-------------------------------------------------------------------------------------------------------------------------------|:-------:|:--------:|
-| `replica_count` | Defines the number of cStor volume replicas.                                                                                  | 3       | false    |
-| `default`       | Indicates whether the storage class is default or not.                                                                        | false   | false    |
-| `disks`         | List of selected unclaimed BlockDevice CRs which are unmounted and do not contain a filesystem in each participating node.    | -       | false    |
+| Argument        | Description                                                                                                                | Default |     Type     | Required |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------|:-------:|:------------:|:--------:|
+| `replica_count` | Defines the number of cStor volume replicas.                                                                               |    3    |    number    |  false   |
+| `default`       | Indicates whether the storage class is default or not.                                                                     |  false  |     bool     |  false   |
+| `disks`         | List of selected unclaimed BlockDevice CRs which are unmounted and do not contain a filesystem in each participating node. |    -    | list(string) |  false   |
+
 
 ## Applying
 

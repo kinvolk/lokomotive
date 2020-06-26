@@ -49,7 +49,6 @@ MetalLB component configuration example:
 
 ```tf
 component "metallb" {
-  # Optional arguments.
   address_pools = {
     default = ["147.63.8.20/32"]
     special_addresses = ["147.85.47.16/29", "147.85.47.24/29"]
@@ -84,14 +83,15 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-| Argument                    | Description                                                                                | Default | Required |
-|-----------------------------|--------------------------------------------------------------------------------------------|:-------:|:--------:|
-| `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  | -       | true     |
-| `controller_node_selectors` | A map with specific labels to run MetalLB controller pods selectively on a group of nodes. | -       | false    |
-| `speaker_node_selectors`    | A map with specific labels to run MetalLB speaker pods selectively on a group of nodes.    | -       | false    |
-| `controller_toleration`     | Specify one or more tolerations for controller pods.                                       | -       | false    |
-| `speaker_toleration`        | Specify one or more tolerations for speaker pods.                                          | -       | false    |
-| `service_monitor`           | Create ServiceMonitor for Prometheus to scrape MetalLB metrics.                            | false   | false    |
+| Argument                    | Description                                                                                | Default | Type                                                                                                           | Required |
+|-----------------------------|--------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
+| `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  |    -    | object({default = list(string), special_addresses = list(string)})                                             |   true   |
+| `controller_node_selectors` | A map with specific labels to run MetalLB controller pods selectively on a group of nodes. |    -    | map(string)                                                                                                    |  false   |
+| `speaker_node_selectors`    | A map with specific labels to run MetalLB speaker pods selectively on a group of nodes.    |    -    | map(string)                                                                                                    |  false   |
+| `controller_toleration`     | Specify one or more tolerations for controller pods.                                       |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
+| `speaker_toleration`        | Specify one or more tolerations for speaker pods.                                          |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
+| `service_monitor`           | Create ServiceMonitor for Prometheus to scrape MetalLB metrics.                            |  false  | bool                                                                                                           |  false   |
+
 
 ## Applying
 
