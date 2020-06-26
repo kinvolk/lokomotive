@@ -32,8 +32,5 @@ release:
   # publishing.
   draft: true
 
-  # Mark release as prerelease for now.
-  prerelease: true
-
 archives:
 - wrap_in_directory: true
