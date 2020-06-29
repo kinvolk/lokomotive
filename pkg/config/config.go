@@ -205,3 +205,5 @@ func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
 	}
 	return nil
 }
+
+// test
