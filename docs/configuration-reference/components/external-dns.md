@@ -43,15 +43,12 @@ component "external-dns" {
   }
 
   # Optional arguments.
-  sources = ["service"]
+  sources = ["ingress"]
   namespace = "external-dns"
   policy = "upsert-only"
   metrics = false
 }
 ```
-
-ExternalDNS manages DNS entries for the values in the field `ingress_hosts` of the [Contour
-component](contour.md#attribute-reference).
 
 ## Attribute reference
 
@@ -61,7 +58,7 @@ Example:
 
 | Argument                    | Description                                                                                                                                            |    Default     |     Type     | Required |
 |-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------:|:------------:|:--------:|
-| `sources`                   | Kubernetes resources type to be observed for new DNS entries by ExternalDNS.                                                                           |  ["service"]   | list(string) |  false   |
+| `sources`                   | Kubernetes resources type to be observed for new DNS entries by ExternalDNS.                                                                           |  ["ingress"]   | list(string) |  false   |
 | `namespace`                 | Namespace to install ExternalDNS.                                                                                                                      | "external-dns" |    string    |  false   |
 | `policy`                    | Modify how DNS records are sychronized between sources and providers (options: sync, upsert-only).                                                     | "upsert-only"  |    string    |  false   |
 | `metrics`                   | Enable metrics collection by Prometheus. Needs [Prometheus Operator component](prometheus-operator.md) installed.                                      |     false      |     bool     |  false   |

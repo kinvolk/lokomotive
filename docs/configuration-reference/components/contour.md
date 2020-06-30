@@ -30,7 +30,6 @@ Contour component configuration example:
 component "contour" {
   # Optional arguments
   enable_monitoring = false
-  ingress_hosts     = ["*.example.lokomotive.org"]
   service_type      = "NodePort"
 
   node_affinity {
@@ -66,7 +65,6 @@ Example:
 | Argument            | Description                                                                                             |    Default     | Type                                                                                                           | Required |
 |---------------------|---------------------------------------------------------------------------------------------------------|:--------------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
 | `enable_monitoring` | Create Prometheus Operator configs to scrape Contour and Envoy metrics. Also deploys Grafana Dashboard. |     false      | bool                                                                                                           |  false   |
-| `ingress_hosts`     | [ExternalDNS component](external-dns.md) creates DNS entries from the values provided.                  |       ""       | list(string)                                                                                                   |  false   |
 | `node_affinity`     | Node affinity for deploying the operator pod and envoy daemonset.                                       |       -        | list(object({key = string, operator = string, values = list(string)}))                                         |  false   |
 | `service_type`      | The type of Kubernetes service used to expose Envoy. Set as "NodePort" on the **AWS** platform.         | "LoadBalancer" | string                                                                                                         |  false   |
 | `toleration`        | Tolerations that the operator and envoy pods will tolerate.                                             |       -        | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |

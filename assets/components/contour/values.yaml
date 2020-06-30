@@ -1,8 +1,6 @@
 monitoring:
   enable: false
 
-ingressHosts:
-
 contour:
   image: docker.io/projectcontour/contour
   tag: v1.5.0

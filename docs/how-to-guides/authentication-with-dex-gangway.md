@@ -111,8 +111,7 @@ variable "gangway_session_key" {
 
 # Dex component configuration.
 component "dex" {
-  # NOTE: This name should match with the contour component configuration
-  # `ingress_hosts`
+
   ingress_host = "dex.<CLUSTER_NAME>.<DOMAIN.NAME>"
 
   issuer_host = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>"
@@ -309,9 +308,6 @@ In this guide you've learned how use Dex and Gangway to leverage existing identi
 Check the following:
 
 * Check the ExternalDNS component logs for the created DNS entries matching the contour component.
-
-* If the DNS entries are already created, ensure that `dex.<CLUSTER_NAME>.<DOMAIN_NAME>` and `gangway.<CLUSTER_NAME>.<DOMAIN_NAME>` matches
-the field `ingress_hosts` in contour configuration.
 
 * Verify the configuration in `auth.lokocfg`.
 

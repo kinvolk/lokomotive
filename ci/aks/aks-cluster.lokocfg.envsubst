@@ -91,9 +91,6 @@ component "prometheus-operator" {
 }
 
 component "contour" {
-  ingress_hosts = [
-    "httpbin.${var.cluster_name}.${var.aws_dns_zone}",
-  ]
   enable_monitoring = true
 }
 
