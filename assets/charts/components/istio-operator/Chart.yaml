@@ -1,0 +1,11 @@
+apiVersion: v2
+name: istio-operator
+version: 1.6.0
+description: Helm chart for deploying Istio operator
+keywords:
+- istio
+- operator
+sources:
+- http://github.com/istio/istio/operator
+engine: gotpl
+icon: https://istio.io/favicons/android-192x192.png
