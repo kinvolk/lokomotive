@@ -1,7 +1,7 @@
 TAG := `git describe --tags --always`
 VERSION :=
 # MOD can either be "readonly" or "vendor".
-# The default is "vendor" which uses checked out modules for building.
+# The defalut is "vendor" which uses checked out modules for building.
 # Use make MOD=readonly to build with sources from the Go module cache instead.
 MOD ?= vendor
 DOCS_DIR ?= docs/cli
