@@ -201,12 +201,6 @@ func chartFromManifests(name string, manifests map[string]string) (*chart.Chart,
 				continue
 			}
 
-			// Drop Namespace resource as we take care of its creation at another level and we don't want resources to collide.
-			// TODO: Remove only the namespace in which the chart is installed.
-			if pm.Kind() == "Namespace" {
-				continue
-			}
-
 			manifestsRaw = fmt.Sprintf("%s\n---\n%s", manifestsRaw, pm.Raw())
 		}
 

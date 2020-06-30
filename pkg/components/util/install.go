@@ -64,10 +64,6 @@ func InstallComponent(c components.Component, kubeconfig string) error {
 	name := c.Metadata().Name
 	ns := c.Metadata().Namespace
 
-	if err := ensureNamespaceExists(ns, kubeconfig); err != nil {
-		return fmt.Errorf("failed ensuring that namespace %q for component %q exists: %w", ns, name, err)
-	}
-
 	actionConfig, err := HelmActionConfig(ns, kubeconfig)
 	if err != nil {
 		return fmt.Errorf("failed preparing helm client: %w", err)
@@ -114,6 +110,7 @@ func install(helmAction *helmAction, namespace string) error {
 	install := action.NewInstall(helmAction.actionConfig)
 	install.ReleaseName = helmAction.releaseName
 	install.Namespace = namespace
+	install.CreateNamespace = true
 
 	// Currently, we install components one-by-one, in the order how they are
 	// defined in the configuration and we do not support any dependencies between

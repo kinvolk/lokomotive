@@ -80,30 +80,6 @@ func TestChartFromManifests(t *testing.T) {
 	}
 }
 
-func TestChartFromManifestsRemoveNamespace(t *testing.T) {
-	manifests := map[string]string{
-		"namespace.yaml": `
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: foo
-`,
-	}
-
-	chart, err := chartFromManifests("foo", manifests)
-	if err != nil {
-		t.Fatalf("Chart should be created, got: %v", err)
-	}
-
-	if len(chart.Manifests) != 1 { //nolint:gomnd
-		t.Fatalf("Manifest file with the namespace should still be added, as it may contain other objects")
-	}
-
-	if len(chart.Manifests[0].Data) != 0 {
-		t.Fatalf("Namespace object should be removed from chart")
-	}
-}
-
 func TestChartFromManifestsRemoveNamespaceRetainObject(t *testing.T) {
 	manifests := map[string]string{
 		"objects.yaml": `
