@@ -27,8 +27,9 @@ Rook-Ceph component configuration example:
 ```tf
 component "rook-ceph" {
   # Optional arguments
-  namespace = "rook-test"
-  monitor_count = 3
+  namespace       = "rook-test"
+  monitor_count   = 3
+  enable_toolbox  = true
   metadata_device = "md127"
   node_affinity {
     key      = "node-role.kubernetes.io/storage"
@@ -51,10 +52,11 @@ component "rook-ceph" {
   }
 
   storage_class {
-    enable = true
+    enable  = true
     default = true
   }
 }
+
 ```
 
 The Ceph cluster needs to be deployed in the same namespace as the Rook operator at the moment.
@@ -67,17 +69,16 @@ Table of all the arguments accepted by the component.
 
 Example:
 
-
 | Argument                | Description                                                                                                                                      | Default | Type                                                                                                           | Required |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
 | `namespace`             | Namespace to deploy the Ceph cluster into. Must be the same as the rook operator.                                                                | "rook"  | string                                                                                                         |  false   |
 | `monitor_count`         | Number of Ceph monitors to deploy. An odd number like 3 or 5 is recommended which should also be sufficient for most cases.                      |    1    | number                                                                                                         |  false   |
+| `enable_toolbox`        | Deploy the [toolbox pod](https://rook.io/docs/rook/master/ceph-toolbox.html) to debug and manage the Ceph cluster.                               | false   | bool                                                                                                           |  false   |
 | `node_affinity`         | Node affinity for deploying the Ceph cluster pods.                                                                                               |    -    | list(object({key = string, operator = string, values = list(string)}))                                         |  false   |
 | `toleration`            | Tolerations that the Ceph cluster pods will tolerate.                                                                                            |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
 | `metadata_device`       | Name of the device to store the metadata on each storage machine. **Note**: Provide just the name of the device and skip prefixing with `/dev/`. |    -    | string                                                                                                         |  false   |
 | `storage_class.enable`  | Install Storage Class config.                                                                                                                    |  false  | bool                                                                                                           |  false   |
 | `storage_class.default` | Make this Storage Class as a default one.                                                                                                        |  false  | bool                                                                                                           |  false   |
-
 
 ## Applying
 
