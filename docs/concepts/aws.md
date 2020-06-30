@@ -42,3 +42,8 @@ I0408 05:35:22.865279       1 log.go:172] http: TLS handshake error from 127.0.0
 Those logs are harmless and are caused by AWS ELBs opening TCP connections to `kube-apiserver` to probe for availability, without performing a full TLS handshake. Unfortunately, AWS ELBs do not support TLS for probe requests at the time of writing.
 
 There is ongoing [upstream](https://github.com/kubernetes/kubernetes/pull/91277) work to resolve this issue.
+
+## Flatcar Linux Customization
+
+Flatcar Container Linux deployments on AWS can be customized with Container Linux Configs.
+For more information, see [Flatcar Container Linux Customization](/docs/concepts/flatcar-container-linux.md#Customization).

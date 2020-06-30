@@ -61,3 +61,37 @@ Kubelet mount points on Flatcar Container Linux:
 | /etc/resolv.conf           | /etc/resolv.conf           |           |
 | /opt/cni/bin               | /opt/cni/bin               |           |
 
+### Customization
+
+Flatcar Container Linux can be customized via [Container Linux Configs](https://docs.flatcar-linux.org/container-linux-config-transpiler/doc/examples/) (CLC)
+that are interpreted by [Ignition](https://docs.flatcar-linux.org/ignition/what-is-ignition/) (see some [examples](https://github.com/coreos/container-linux-config-transpiler/blob/master/doc/examples.md)).
+
+Lokomotive supports defining CLC snippets for clusters running on Packet and AWS.
+CLC snippets can be defined both for controllers and for workers with `controller_clc_snippets` in the
+controller definition, and `clc_snippets` for the worker pool definition.
+
+An example CLC snippet:
+
+```hcl
+  controller_clc_snippets = [
+    file("./snippet/controller-snippet.yaml"),
+  ]
+```
+
+`clc_snippets` and `controller_clc_snippets` also accept inline text:
+
+```hcl
+  clc_snippets = [
+  <<EOF
+systemd:
+  units:
+  - name: helloworld.service
+    dropins:
+      - name: 10-helloworld.conf
+        contents: |
+          [Install]
+          WantedBy=multi-user.target
+EOF
+        ,
+  ]
+```

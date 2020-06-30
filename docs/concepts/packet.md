@@ -28,3 +28,8 @@ spec:
     - ipBlock:
         cidr: 0.0.0.0/0
 ```
+
+## Flatcar Linux Customization
+
+Flatcar Container Linux deployments on Packet can be customized with Container Linux Configs.
+For more information, see [Flatcar Container Linux Customization](/docs/concepts/flatcar-container-linux.md#Customization).
