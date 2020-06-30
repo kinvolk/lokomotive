@@ -1,0 +1,15 @@
+---
+# XXX: Lokomotive specific config
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Values.istioNamespace}}
+---
+# XXX: Lokomotive specific config
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  namespace: {{.Values.istioNamespace}}
+  name: istiocontrolplane
+spec:
+  profile: {{ .Values.istioOperator.profile }}

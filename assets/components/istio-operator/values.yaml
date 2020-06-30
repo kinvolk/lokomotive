@@ -1,0 +1,8 @@
+hub: docker.io/istio
+tag: 1.6.3
+operatorNamespace: istio-operator
+istioNamespace: istio-system
+
+# XXX: Lokomotive specific changes
+istioOperator:
+  profile: minimal
