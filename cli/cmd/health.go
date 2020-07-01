@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"text/tabwriter"
 
@@ -47,7 +48,13 @@ func runHealth(cmd *cobra.Command, args []string) {
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
-	client, err := k8sutil.NewClientset(kubeconfig)
+
+	kubeconfigContent, err := ioutil.ReadFile(kubeconfig) // #nosec G304
+	if err != nil {
+		contextLogger.Fatalf("Failed to read kubeconfig file: %v", err)
+	}
+
+	cs, err := k8sutil.NewClientset(kubeconfigContent)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}
@@ -64,7 +71,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("No cluster configured")
 	}
 
-	cluster, err := lokomotive.NewCluster(client, p.Meta().ExpectedNodes)
+	cluster, err := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
 	if err != nil {
 		contextLogger.Fatalf("Error in creating new Lokomotive cluster: %q", err)
 	}

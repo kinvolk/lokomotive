@@ -17,6 +17,7 @@ package util
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -31,7 +32,12 @@ import (
 )
 
 func ensureNamespaceExists(name string, kubeconfigPath string) error {
-	cs, err := k8sutil.NewClientset(kubeconfigPath)
+	kubeconfig, err := ioutil.ReadFile(kubeconfigPath) // #nosec G304
+	if err != nil {
+		return fmt.Errorf("reading kubeconfig file: %w", err)
+	}
+
+	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
 		return fmt.Errorf("creating clientset: %w", err)
 	}

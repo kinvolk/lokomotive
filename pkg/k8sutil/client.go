@@ -15,21 +15,25 @@
 package k8sutil
 
 import (
+	"fmt"
+
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func NewClientset(kubeconfigPath string) (*kubernetes.Clientset, error) {
-	c, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+// NewClientset creates new Kubernetes Client set object from the contents
+// of the given kubeconfig file.
+func NewClientset(data []byte) (*kubernetes.Clientset, error) {
+	c, err := clientcmd.NewClientConfigFromBytes(data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("creating client config failed: %w", err)
 	}
 
-	apiclientset, err := kubernetes.NewForConfig(c)
+	restConfig, err := c.ClientConfig()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("converting client config to rest client config failed: %w", err)
 	}
 
-	return apiclientset, nil
+	return kubernetes.NewForConfig(restConfig)
 }
