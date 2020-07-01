@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// test
+
 package version
 
 // This variable is used by the "version" command and is set during build.
