@@ -22,22 +22,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// NewClientsetFromFile creates a new Kubernetes Client set object from the given
-// kubeconfig file path.
-func NewClientsetFromFile(kubeconfigPath string) (*kubernetes.Clientset, error) {
-	c, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
-	if err != nil {
-		return nil, err
-	}
-
-	apiclientset, err := kubernetes.NewForConfig(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return apiclientset, nil
-}
-
 // NewClientset creates new Kubernetes Client set object from the contents
 // of the given kubeconfig file.
 func NewClientset(data []byte) (*kubernetes.Clientset, error) {
