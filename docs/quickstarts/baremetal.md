@@ -188,6 +188,10 @@ cluster "bare-metal" {
 
 ```
 
+Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
+or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
+stores Terraform state locally.
+
 For advanced cluster configurations and more information refer to the [Bare Metal configuration
 guide](../configuration-reference/platforms/baremetal.md).
 

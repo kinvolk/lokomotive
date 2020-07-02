@@ -90,6 +90,10 @@ The provided configuration installs the Lokomotive cluster and the following com
 
 You can configure the components as per your requirements.
 
+Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
+or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
+stores Terraform state locally.
+
 Create a variables file named `lokocfg.vars` in the working directory to set values for variables
 defined in the configuration file.
 
