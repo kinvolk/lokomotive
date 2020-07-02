@@ -45,7 +45,7 @@ component "external-dns" {
   # Optional arguments.
   sources = ["ingress"]
   namespace = "external-dns"
-  policy = "upsert-only"
+  policy = "sync"
   metrics = false
 }
 ```
@@ -60,7 +60,7 @@ Example:
 |-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------:|:------------:|:--------:|
 | `sources`                   | Kubernetes resources type to be observed for new DNS entries by ExternalDNS.                                                                           |  ["ingress"]   | list(string) |  false   |
 | `namespace`                 | Namespace to install ExternalDNS.                                                                                                                      | "external-dns" |    string    |  false   |
-| `policy`                    | Modify how DNS records are sychronized between sources and providers (options: sync, upsert-only).                                                     | "upsert-only"  |    string    |  false   |
+| `policy`                    | Modify how DNS records are sychronized between sources and providers (options: sync, upsert-only).                                                     | "sync"  |    string    |  false   |
 | `metrics`                   | Enable metrics collection by Prometheus. Needs [Prometheus Operator component](prometheus-operator.md) installed.                                      |     false      |     bool     |  false   |
 | `owner_id`                  | A name that identifies this instance of ExternalDNS. Set it to a unique value across the DNS zone that doesn't change for the lifetime of the cluster. |       -        |    string    |   true   |
 | `aws`                       | Configuration block for AWS Route53 DNS provider.                                                                                                      |       -        |    object    |   true   |

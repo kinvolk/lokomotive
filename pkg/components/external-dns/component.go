@@ -91,7 +91,7 @@ func newComponent() *component {
 		AwsConfig: AwsConfig{
 			ZoneType: "public",
 		},
-		Policy:         "upsert-only",
+		Policy:         "sync",
 		Metrics:        false,
 		ServiceMonitor: false,
 	}

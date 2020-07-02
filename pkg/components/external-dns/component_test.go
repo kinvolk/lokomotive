@@ -55,8 +55,9 @@ func TestDefaultValues(t *testing.T) {
 	if len(c.Sources) != 1 || c.Sources[0] != "ingress" {
 		t.Fatal("Default sources should be ingress only.")
 	}
-	if c.Policy != "upsert-only" {
-		t.Fatal("Default policy should be upsert-only.")
+
+	if c.Policy != "sync" {
+		t.Fatal("Default policy should be sync.")
 	}
 	if c.AwsConfig.ZoneType != "public" {
 		t.Fatal("Default zone type in AWS should be public.")
@@ -69,7 +70,7 @@ func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
  component "external-dns" {
    sources = ["ingress"]
    metrics =  false
-   policy = "upsert-only"
+   policy = "sync"
    owner_id = "test-owner"
    aws {
      zone_id = "TESTZONEID"
@@ -99,7 +100,7 @@ func TestAwsConfigBySettingEnvVariables(t *testing.T) {
   component "external-dns" {
     sources = ["ingress"]
     metrics =  false
-    policy = "upsert-only"
+    policy = "sync"
     owner_id = "test-owner"
     aws {
       zone_id = "TESTZONEID"
@@ -136,7 +137,7 @@ func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
   component "external-dns" {
     sources = ["ingress"]
     metrics =  false
-    policy = "upsert-only"
+    policy = "sync"
     owner_id = "test-owner"
     aws {
       zone_id = "TESTZONEID"
@@ -172,7 +173,7 @@ func TestAwsConfigBySettingConfigFields(t *testing.T) {
   component "external-dns" {
     sources = ["ingress"]
     metrics =  false
-    policy = "upsert-only"
+    policy = "sync"
     owner_id = "test-owner"
     aws {
       zone_id = "TESTZONEID"
