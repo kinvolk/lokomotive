@@ -4,7 +4,8 @@ terraform {
   required_version = ">= 0.12.0"
 
   required_providers {
-    ct       = "= 0.5.0"
-    packet   = "~> 2.7.3"
+    aws      = "2.48.0"
+    ct       = "0.5.0"
+    template = "~> 2.1"
   }
 }

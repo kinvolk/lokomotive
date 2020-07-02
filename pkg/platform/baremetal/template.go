@@ -18,13 +18,6 @@ var terraformConfigTmpl = `
 module "bare-metal-{{.ClusterName}}" {
   source = "../lokomotive-kubernetes/bare-metal/flatcar-linux/kubernetes"
 
-  providers = {
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-  }
-
   # bare-metal
   cluster_name           = "{{.ClusterName}}"
   matchbox_http_endpoint = "{{.MatchboxHTTPEndpoint}}"
@@ -79,22 +72,18 @@ provider "ct" {
 
 provider "local" {
   version = "1.4.0"
-  alias   = "default"
 }
 
 provider "null" {
   version = "~> 2.1"
-  alias   = "default"
 }
 
 provider "template" {
   version = "~> 2.1"
-  alias   = "default"
 }
 
 provider "tls" {
   version = "~> 2.0"
-  alias   = "default"
 }
 
 # Stub output, which indicates, that Terraform run at least once.

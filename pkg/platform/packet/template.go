@@ -18,14 +18,6 @@ var terraformConfigTmpl = `
 module "packet-{{.Config.ClusterName}}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
 
-  providers = {
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-    packet   = packet.default
-  }
-
   dns_zone    = "{{.Config.DNS.Zone}}"
 
   ssh_keys  = {{.SSHPublicKeys}}
@@ -123,13 +115,6 @@ EOF
 {{ range $index, $pool := .Config.WorkerPools }}
 module "worker-{{ $pool.Name }}" {
   source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
-
-  providers = {
-    local    = local.default
-    template = template.default
-    tls      = tls.default
-    packet   = packet.default
-  }
 
   dns_zone = "{{$.Config.DNS.Zone}}"
 
@@ -236,12 +221,6 @@ EOF
 module "dns" {
   source = "../lokomotive-kubernetes/dns/{{.Config.DNS.Provider}}"
 
-  {{ if eq .Config.DNS.Provider "route53" -}}
-  providers = {
-    aws = aws.default
-  }
-
-  {{ end -}}
   cluster_name             = "{{ .Config.ClusterName }}"
   controllers_public_ipv4  = module.packet-{{.Config.ClusterName}}.controllers_public_ipv4
   controllers_private_ipv4 = module.packet-{{.Config.ClusterName}}.controllers_private_ipv4
@@ -258,7 +237,6 @@ output "dns_entries" {
 {{- if eq .Config.DNS.Provider "route53" }}
 provider "aws" {
   version = "2.48.0"
-  alias   = "default"
   # The Route 53 service doesn't need a specific region to operate, however
   # the AWS Terraform provider needs it and the documentation suggests to use
   # "us-east-1": https://docs.aws.amazon.com/general/latest/gr/r53.html.
@@ -272,27 +250,22 @@ provider "ct" {
 
 provider "local" {
   version = "1.4.0"
-  alias   = "default"
 }
 
 provider "null" {
   version = "~> 2.1"
-  alias   = "default"
 }
 
 provider "template" {
   version = "~> 2.1"
-  alias   = "default"
 }
 
 provider "tls" {
   version = "~> 2.0"
-  alias   = "default"
 }
 
 provider "packet" {
   version = "~> 2.7.3"
-  alias = "default"
 
   {{- if .Config.AuthToken }}
   auth_token = "{{.Config.AuthToken}}"

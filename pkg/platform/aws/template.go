@@ -18,14 +18,6 @@ var terraformConfigTmpl = `
 module "aws-{{.Config.ClusterName}}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes"
 
-  providers = {
-    aws      = aws.default
-    local    = local.default
-    null     = null.default
-    template = template.default
-    tls      = tls.default
-  }
-
   cluster_name = "{{.Config.ClusterName}}"
   tags         = {{.Tags}}
   dns_zone     = "{{.Config.DNSZone}}"
@@ -109,10 +101,6 @@ module "aws-{{.Config.ClusterName}}" {
 module "worker-pool-{{ $index }}" {
   source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes/workers"
 
-  providers = {
-    aws      = aws.default
-  }
-
   vpc_id                = module.aws-{{ $.Config.ClusterName }}.vpc_id
   subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
   security_groups       = module.aws-{{ $.Config.ClusterName }}.worker_security_groups
@@ -183,7 +171,6 @@ module "worker-pool-{{ $index }}" {
 
 provider "aws" {
   version = "2.48.0"
-  alias   = "default"
 
   region                  = "{{.Config.Region}}"
   {{- if .Config.CredsPath }}
@@ -197,22 +184,18 @@ provider "ct" {
 
 provider "local" {
   version = "1.4.0"
-  alias   = "default"
 }
 
 provider "null" {
   version = "~> 2.1"
-  alias   = "default"
 }
 
 provider "template" {
   version = "~> 2.1"
-  alias   = "default"
 }
 
 provider "tls" {
   version = "~> 2.0"
-  alias   = "default"
 }
 
 # Stub output, which indicates, that Terraform run at least once.
