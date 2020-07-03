@@ -90,6 +90,11 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			query:         "certmanager_controller_sync_call_count",
 			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
 		},
+		{
+			componentName: "experimental-istio-operator",
+			query:         "pilot_k8s_reg_events",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
+		},
 	}
 
 	for _, tc := range testCases {
