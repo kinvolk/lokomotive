@@ -103,7 +103,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	rendered := map[string]string{
-		"namespace.yaml":                                    namespace,
 		"service-account-controller.yaml":                   serviceAccountController,
 		"service-account-speaker.yaml":                      serviceAccountSpeaker,
 		"clusterrole-metallb-system-controller.yaml":        clusterRoleMetallbSystemController,

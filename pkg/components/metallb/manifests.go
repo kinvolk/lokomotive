@@ -14,15 +14,6 @@
 
 package metallb
 
-const namespace = `
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: metallb-system
-  labels:
-    app: metallb
-`
-
 const serviceAccountController = `
 apiVersion: v1
 kind: ServiceAccount

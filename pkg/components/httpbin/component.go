@@ -27,14 +27,6 @@ import (
 
 const name = "httpbin"
 
-const namespaceManifest = `apiVersion: v1
-kind: Namespace
-metadata:
-  name: httpbin
-  labels:
-    name: httpbin
-`
-
 const deploymentManifest = `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -150,7 +142,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 	return map[string]string{
-		"namespace.yml":  namespaceManifest,
 		"deployment.yml": deploymentManifest,
 		"service.yml":    serviceManifest,
 		"ingress.yml":    buf.String(),

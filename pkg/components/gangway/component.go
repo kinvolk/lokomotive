@@ -27,12 +27,6 @@ import (
 
 const name = "gangway"
 
-const namespaceManifest = `apiVersion: v1
-kind: Namespace
-metadata:
-  name: gangway
-`
-
 const configMapTmpl = `apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -336,7 +330,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	return map[string]string{
-		"namespace.yml":  namespaceManifest,
 		"config-map.yml": configMapBuf.String(),
 		"deployment.yml": deploymentManifest,
 		"service.yml":    serviceManifest,

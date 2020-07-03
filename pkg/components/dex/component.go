@@ -31,14 +31,6 @@ import (
 
 const name = "dex"
 
-const namespaceManifest = `apiVersion: v1
-kind: Namespace
-metadata:
-  name: dex
-  labels:
-    name: dex
-`
-
 const serviceManifest = `apiVersion: v1
 kind: Service
 metadata:
@@ -326,7 +318,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	manifests := map[string]string{
-		"namespace.yml":            namespaceManifest,
 		"service.yml":              serviceManifest,
 		"service-account.yml":      serviceAccountManifest,
 		"cluster-role.yml":         clusterRoleManifest,
