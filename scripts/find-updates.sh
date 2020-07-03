@@ -135,7 +135,9 @@ current_version=$(grep version assets/components/openebs/Chart.yaml | cut -d":" 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 
-helm fetch --untar --untardir ./ stable/openebs
+helm repo add openebs https://openebs.github.io/charts >/dev/null 2>&1
+helm repo update >/dev/null 2>&1
+helm fetch --untar --untardir ./ openebs/openebs
 version=$(grep version "${tmpdir}/openebs/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "openebs" "${current_version}" "${version}"

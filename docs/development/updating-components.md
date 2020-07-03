@@ -81,10 +81,12 @@ Run the following commands in the root of this repository:
 ```bash
 cd assets/components
 rm -rf openebs
-helm fetch --untar --untardir ./ stable/openebs
+helm repo add openebs https://openebs.github.io/charts
+helm repo update
+helm fetch --untar --untardir ./ openebs/openebs
 git checkout openebs/crds/storagepoolclaims.yaml
 ```
 
-- Installation instructions: https://docs.openebs.io/docs/next/installation.html.
-- More information about the chart: https://github.com/helm/charts/tree/master/stable/openebs.
+- Installation instructions: https://openebs.github.io/charts/.
+- More information about the chart: https://github.com/openebs/charts.
 - Code repository: https://github.com/openebs/openebs.
