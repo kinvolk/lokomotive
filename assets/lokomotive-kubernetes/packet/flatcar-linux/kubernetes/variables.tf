@@ -42,8 +42,7 @@ variable "controller_count" {
 
 variable "controller_type" {
   type        = string
-  # This is Packet's internal name for "t1.small.x86"
-  default     = "baremetal_0"
+  default     = "c3.small.x86"
   description = "Packet instance type for controllers"
 }
 

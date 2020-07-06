@@ -58,7 +58,7 @@ component "cluster-autoscaler" {
     facility = "sjc1"
 
     # Optional arguments
-    worker_type = "t1.small.x86"
+    worker_type = "c3.small.x86"
     worker_channel = "stable"
   }
 }
@@ -84,7 +84,7 @@ Example:
 | `service_monitor`            | Specifies how metrics can be retrieved from a set of services.                           | false          |  bool  |  false   |
 | `packet.project_id`          | Packet Project ID where the cluster is running.                                          | -              | string |   true   |
 | `packet.facility`            | Packet Facility where the cluster is running.                                            | -              | string |   true   |
-| `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "t1.small.x86" | string |  false   |
+| `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "c3.small.x86" | string |  false   |
 | `packet_worker_channel`      | Flatcar Container Linux channel to be used in workers spawned by the Cluster Autoscaler. | "stable"       | string |  false   |
 
 
