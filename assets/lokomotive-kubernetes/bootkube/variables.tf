@@ -163,3 +163,8 @@ variable "blocked_metadata_cidrs" {
   type        = list(string)
   default     = []
 }
+
+variable "node_private_cidr" {
+  description = "Private IP CIDR range for nodes"
+  type        = string
+}

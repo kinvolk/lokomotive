@@ -23,4 +23,5 @@ module "bootkube" {
   #
   # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
   blocked_metadata_cidrs = ["169.254.169.254/32"]
+  node_private_cidr = var.host_cidr
 }

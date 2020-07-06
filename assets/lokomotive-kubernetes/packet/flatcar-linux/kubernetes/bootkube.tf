@@ -37,4 +37,5 @@ module "bootkube" {
   #
   # metadata.packet.net should always resolve to 192.80.8.124.
   blocked_metadata_cidrs = ["192.80.8.124/32"]
+  node_private_cidr = var.node_private_cidr
 }

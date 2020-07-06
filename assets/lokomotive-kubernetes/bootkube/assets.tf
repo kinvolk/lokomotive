@@ -85,6 +85,7 @@ resource "local_file" "kubernetes" {
     server                        = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
     serviceaccount_key            = base64encode(tls_private_key.service-account.private_key_pem)
     etcd_endpoints                = var.etcd_endpoints
+    node_private_cidr             = var.node_private_cidr
   })
 }
 
