@@ -1,0 +1,211 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-deny-all-egress
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-deny-all-ingress
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-api-ingress-from-all-pods
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    ports:
+    - port: 6443
+      protocol: TCP
+    - port: 7443
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-metrics-ingress-from-selected-pods
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          lokomotive.kinvolk.io/scrape-metrics: "true"
+      podSelector:
+        matchLabels:
+          lokomotive.kinvolk.io/scrape-metrics: "true"
+    ports:
+    - port: 10251
+      protocol: TCP
+    - port: 10259
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-egress-to-coredns
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: coredns
+          tier: control-plane
+    ports:
+    - port: 53
+      protocol: TCP
+    - port: 53
+      protocol: UDP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-egress-to-kubelet
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kubelet
+          tier: node
+    ports:
+    - port: 10250
+      protocol: TCP
+    - port: 10255
+      protocol: UDP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-egress-to-kube-proxy
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-proxy
+          tier: node
+    ports:
+    - port: 10249
+      protocol: TCP
+    - port: 10256
+      protocol: UDP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-egress-to-kube-controller-manager
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-controller-manager
+          tier: control-plane
+    ports:
+    - port: 10252
+      protocol: TCP
+    - port: 10257
+      protocol: UDP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-egress-to-kube-scheduler
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-scheduler
+          tier: control-plane
+    ports:
+    - port: 10251
+      protocol: TCP
+    - port: 10259
+      protocol: UDP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kube-apiserver-allow-egress-to-pod-checkpointer
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: kube-apiserver
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: pod-checkpointer
+          tier: control-plane
+
