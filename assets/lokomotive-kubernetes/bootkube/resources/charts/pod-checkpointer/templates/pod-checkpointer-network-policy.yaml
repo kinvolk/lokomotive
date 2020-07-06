@@ -1,0 +1,94 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pod-checkpointer-deny-all-egress
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: pod-checkpointer
+      tier: control-plane
+  policyTypes:
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pod-checkpointer-deny-all-ingress
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: pod-checkpointer
+      tier: control-plane
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pod-checkpointer-allow-healthcheck-ingress-from-control-plane-pods
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: pod-checkpointer
+      tier: control-plane
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          lokomotive.kinvolk.io/name: kube-system
+      podSelector:
+        matchExpressions:
+        - {key: tier, operator: In, values: [node, control-plane]}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pod-checkpointer-allow-egress-to-apiserver
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: pod-checkpointer
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-apiserver
+          tier: control-plane
+    ports:
+    - port: 6443
+      protocol: TCP
+    - port: 7443
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pod-checkpointer-allow-egress-to-coredns
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: pod-checkpointer
+      tier: control-plane
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: coredns
+          tier: control-plane
+    ports:
+    - port: 53
+      protocol: TCP
+    - port: 53
+      protocol: UDP
