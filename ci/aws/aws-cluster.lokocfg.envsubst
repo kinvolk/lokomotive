@@ -127,6 +127,8 @@ component "prometheus-operator" {
   }
 }
 
+component "experimental-linkerd" {}
+
 component "contour" {
   enable_monitoring = true
   service_type      = "NodePort"
