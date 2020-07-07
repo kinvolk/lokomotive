@@ -99,7 +99,7 @@ data "template_file" "kubelet" {
   template = "${file("${path.module}/resources/charts/kubelet.yaml")}"
 
   vars = {
-    hyperkube_image        = var.container_images["hyperkube"]
+    kubelet_image          = "${var.container_images["kubelet_image"]}-${var.container_arch}"
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
   }
