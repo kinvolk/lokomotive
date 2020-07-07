@@ -60,8 +60,8 @@ metadata:
   generateName: metadata-access-test-
 `
 
-	retryInterval = 1 * time.Second
-	timeout       = 5 * time.Minute
+	retryInterval = 5 * time.Second
+	timeout       = 9 * time.Minute
 )
 
 func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
@@ -104,9 +104,17 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 
 	podsclient := client.Pods(ns.ObjectMeta.Name)
 
-	p, err = podsclient.Create(context.TODO(), p, metav1.CreateOptions{})
-	if err != nil {
-		t.Fatalf("failed creating Pod: %v", err)
+	// Retry pod creation. This might fail if Linkerd is not ready yet and some requests might fail.
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+		p, err = podsclient.Create(context.TODO(), p, metav1.CreateOptions{})
+		if err != nil {
+			t.Logf("retrying pod creation, failed with: %v", err)
+			return false, nil
+		}
+
+		return true, nil
+	}); err != nil {
+		t.Fatalf("error while trying to create the pod: %v", err)
 	}
 
 	phase := corev1.PodUnknown
