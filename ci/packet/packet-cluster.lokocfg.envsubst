@@ -81,6 +81,10 @@ component "prometheus-operator" {
   }
 }
 
+component "linkerd" {
+  controller_replicas = 2
+}
+
 component "contour" {
   enable_monitoring = true
 }
