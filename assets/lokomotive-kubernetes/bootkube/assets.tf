@@ -80,7 +80,7 @@ resource "template_dir" "kubernetes" {
 # Populate kubernetes chart values file named kubernetes.yaml.
 resource "local_file" "kubernetes" {
   filename = "${var.asset_dir}/charts/kube-system/kubernetes.yaml"
-  content  = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
+  content = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
     kube_proxy_image              = var.container_images["kube_proxy"]
