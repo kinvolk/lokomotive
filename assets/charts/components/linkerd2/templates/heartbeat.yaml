@@ -1,0 +1,50 @@
+{{ if not .Values.disableHeartBeat -}}
+---
+###
+### Heartbeat
+###
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: linkerd-heartbeat
+  namespace: {{.Values.global.namespace}}
+  labels:
+    app.kubernetes.io/name: heartbeat
+    app.kubernetes.io/part-of: Linkerd
+    app.kubernetes.io/version: {{default .Values.global.linkerdVersion .Values.global.controllerImageVersion}}
+    {{.Values.global.controllerComponentLabel}}: heartbeat
+    {{.Values.global.controllerNamespaceLabel}}: {{.Values.global.namespace}}
+  annotations:
+    {{.Values.global.createdByAnnotation}}: {{default (printf "linkerd/helm %s" .Values.global.linkerdVersion) .Values.global.cliVersion}}
+spec:
+  schedule: "{{.Values.heartbeatSchedule}}"
+  successfulJobsHistoryLimit: 0
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{.Values.global.controllerComponentLabel}}: heartbeat
+            {{.Values.global.workloadNamespaceLabel}}: {{.Values.global.namespace}}
+          annotations:
+            {{.Values.global.createdByAnnotation}}: {{default (printf "linkerd/helm %s" .Values.global.linkerdVersion) .Values.global.cliVersion}}
+        spec:
+          {{- include "linkerd.node-selector" . | nindent 10 }}
+          serviceAccountName: linkerd-heartbeat
+          restartPolicy: Never
+          containers:
+          - name: heartbeat
+            image: {{.Values.controllerImage}}:{{default .Values.global.linkerdVersion .Values.global.controllerImageVersion}}
+            imagePullPolicy: {{.Values.global.imagePullPolicy}}
+            args:
+            - "heartbeat"
+            - "-prometheus-url=http://linkerd-prometheus.{{.Values.global.namespace}}.svc.{{.Values.global.clusterDomain}}:9090"
+            - "-controller-namespace={{.Values.global.namespace}}"
+            - "-log-level={{.Values.controllerLogLevel}}"
+            {{- if .Values.heartbeatResources -}}
+            {{- include "partials.resources" .Values.heartbeatResources | nindent 12 }}
+            {{- end }}
+            securityContext:
+              runAsUser: {{.Values.controllerUID}}
+{{- end }}

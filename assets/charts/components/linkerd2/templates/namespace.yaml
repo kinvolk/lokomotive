@@ -1,0 +1,17 @@
+{{- if (.Values.installNamespace) -}}
+---
+###
+### Linkerd Namespace
+###
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: {{ .Values.global.namespace }}
+  annotations:
+    {{.Values.global.proxyInjectAnnotation}}: {{.Values.global.proxyInjectDisabled}}
+  labels:
+    {{.Values.global.linkerdNamespaceLabel}}: "true"
+    config.linkerd.io/admission-webhooks: disabled
+    {{.Values.global.controllerNamespaceLabel}}: {{.Values.global.namespace}}
+{{ end -}}
