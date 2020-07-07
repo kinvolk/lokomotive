@@ -1,0 +1,61 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:controller:cloud-controller-manager
+  namespace: kube-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - persistentvolumes
+  - nodes
+  - nodes/status
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:controller:shared-informers
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:controller:cloud-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: shared-informers
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:controller:pvl-controller
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:controller:cloud-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: pvl-controller
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:controller:cloud-node-controller
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:controller:cloud-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: cloud-node-controller
+  namespace: kube-system

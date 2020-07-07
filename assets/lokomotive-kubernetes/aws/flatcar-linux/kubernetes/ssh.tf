@@ -79,6 +79,7 @@ resource "null_resource" "bootkube-start" {
     module.bootkube,
     aws_route53_record.apiserver,
     null_resource.copy-controller-secrets,
+    local_file.cloud_controller_manager,
   ]
 
   connection {

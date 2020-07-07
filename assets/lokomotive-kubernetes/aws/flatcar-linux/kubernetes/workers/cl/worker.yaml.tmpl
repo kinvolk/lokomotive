@@ -1,6 +1,18 @@
 ---
 systemd:
   units:
+    - name: set-hostname.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Set the hostname programmitcally for the AWS-preferred format
+        After=network.target
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/sh -c 'hostnamectl set-hostname $(curl -s http://169.254.169.254/latest/meta-data/hostname)'
+        [Install]
+        RequiredBy=kubelet.service
     - name: docker.service
       enable: true
     - name: iscsid.service
@@ -27,6 +39,7 @@ systemd:
         [Unit]
         Description=Kubelet via Hyperkube
         Wants=rpc-statd.service
+        Wants=set-hostname.service
         [Service]
         EnvironmentFile=/etc/kubernetes/kubelet.env
         Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
