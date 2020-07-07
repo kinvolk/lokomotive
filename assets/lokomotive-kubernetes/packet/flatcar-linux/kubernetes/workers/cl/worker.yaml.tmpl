@@ -280,7 +280,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://quay.io/poseidon/kubelet
-          KUBELET_IMAGE_TAG=v1.18.4-${os_arch}
+          KUBELET_IMAGE_TAG=v1.18.5-${os_arch}
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/node,${node_labels}"
           BGP_NODE_LABELS="${bgp_node_labels}"
@@ -304,7 +304,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://quay.io/poseidon/kubelet:v1.18.4-${os_arch} \
+            docker://quay.io/poseidon/kubelet:v1.18.5-${os_arch} \
             --net=host \
             --dns=host \
             -- \

@@ -1,3 +1,3 @@
-image: quay.io/poseidon/kubelet:v1.18.4
+image: quay.io/poseidon/kubelet:v1.18.5
 clusterDNS: 10.0.0.10
 clusterDomain: cluster.local
