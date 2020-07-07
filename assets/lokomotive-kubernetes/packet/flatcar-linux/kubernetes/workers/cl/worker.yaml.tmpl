@@ -359,10 +359,6 @@ storage:
       contents:
         inline: |
           #!/bin/bash
-          # TODO: Workaround for https://github.com/flatcar-linux/Flatcar/issues/123.
-          function dig {
-              docker run -i --rm quay.io/kinvolk/alpine-dig:3.9.6 dig "$@" 2>/dev/null
-          }
           if [[ $# -ne 3 ]]; then
               echo "Usage: $0 <zone> <record> <max_attempts>"
               exit 1
