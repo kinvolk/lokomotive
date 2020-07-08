@@ -102,16 +102,16 @@ prometheusOperator:
 {{ end }}
 prometheus:
   prometheusSpec:
-    externalUrl: {{.PrometheusExternalURL}}
-    {{ if .PrometheusNodeSelector }}
+    externalUrl: {{.Prometheus.ExternalURL}}
+    {{ if .Prometheus.NodeSelector }}
     nodeSelector:
-      {{ range $key, $value := .PrometheusNodeSelector }}
+      {{ range $key, $value := .Prometheus.NodeSelector }}
       {{ $key }}: {{ $value }}
       {{ end }}
     {{ end }}
-    retention: {{.PrometheusMetricsRetention}}
-    serviceMonitorSelectorNilUsesHelmValues: {{.WatchLabeledServiceMonitors}}
-    ruleSelectorNilUsesHelmValues: {{.WatchLabeledPrometheusRules}}
+    retention: {{.Prometheus.MetricsRetention}}
+    serviceMonitorSelectorNilUsesHelmValues: {{.Prometheus.WatchLabeledServiceMonitors}}
+    ruleSelectorNilUsesHelmValues: {{.Prometheus.WatchLabeledPrometheusRules}}
     storageSpec:
       volumeClaimTemplate:
         metadata:
@@ -123,7 +123,7 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: "{{.PrometheusStorageSize}}"
+              storage: "{{.Prometheus.StorageSize}}"
 
 kubeControllerManager:
   enabled: {{.Monitor.KubeControllerManager}}
