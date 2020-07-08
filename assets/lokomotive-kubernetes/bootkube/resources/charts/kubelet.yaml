@@ -1,3 +1,3 @@
-image: ${hyperkube_image}
+image: ${kubelet_image}
 clusterDNS: ${cluster_dns_service_ip}
 clusterDomain: ${cluster_domain_suffix}

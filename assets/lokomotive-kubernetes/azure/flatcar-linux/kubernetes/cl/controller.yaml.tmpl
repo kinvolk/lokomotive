@@ -49,7 +49,7 @@ systemd:
       enable: true
       contents: |
         [Unit]
-        Description=Kubelet via Hyperkube
+        Description=Kubelet
         Wants=rpc-statd.service
         [Service]
         EnvironmentFile=/etc/kubernetes/kubelet.env
@@ -125,8 +125,8 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
-          KUBELET_IMAGE_TAG=v1.18.3
+          KUBELET_IMAGE_URL=docker://quay.io/poseidon/kubelet
+          KUBELET_IMAGE_TAG=v1.18.5
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/master,node.kubernetes.io/controller=true"
           NODE_TAINTS="node-role.kubernetes.io/master=:NoSchedule"

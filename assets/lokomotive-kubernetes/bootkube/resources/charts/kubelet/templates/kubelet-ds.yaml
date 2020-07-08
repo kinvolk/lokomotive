@@ -29,7 +29,7 @@ spec:
         # this kubelet as well.
         args:
         - |
-          echo "./hyperkube kubelet \
+          echo "/usr/local/bin/kubelet \
           --node-ip=$(HOST_IP)  \
           --anonymous-auth=false \
           --authentication-token-webhook \
@@ -90,7 +90,7 @@ spec:
         - name: logs
           mountPath: /var/log/pods
           # This is mounted from host to make sure that the kubelet showcases OS as Flatcar and not
-          # Debian from the hyperkube image.
+          # Debian from the kubelet image.
         - name: os-release
           mountPath: /etc/os-release
           readOnly: true
