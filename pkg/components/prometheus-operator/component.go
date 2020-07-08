@@ -57,11 +57,11 @@ type Grafana struct {
 // Prometheus object collects sub component Prometheus related information.
 type Prometheus struct {
 	MetricsRetention            string            `hcl:"metrics_retention,optional"`
-	ExternalURL                 string            `hcl:"external_url,optional"`
 	NodeSelector                map[string]string `hcl:"node_selector,optional"`
 	StorageSize                 string            `hcl:"storage_size,optional"`
 	WatchLabeledServiceMonitors bool              `hcl:"watch_labeled_service_monitors,optional"`
 	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
+	Ingress                     *types.Ingress    `hcl:"ingress,block"`
 }
 
 type component struct {
@@ -155,6 +155,10 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 	if c.Grafana != nil && c.Grafana.Ingress != nil {
 		c.Grafana.Ingress.SetDefaults()
+	}
+
+	if c.Prometheus != nil && c.Prometheus.Ingress != nil {
+		c.Prometheus.Ingress.SetDefaults()
 	}
 
 	return nil

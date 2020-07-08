@@ -101,8 +101,24 @@ prometheusOperator:
   {{- end }}
 {{ end }}
 prometheus:
+  {{ if .Prometheus.Ingress }}
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: {{.Prometheus.Ingress.Class}}
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: {{.Prometheus.Ingress.CertManagerClusterIssuer}}
+    hosts:
+    - {{ .Prometheus.Ingress.Host }}
+    tls:
+    - hosts:
+      - {{ .Prometheus.Ingress.Host }}
+      secretName: {{ .Prometheus.Ingress.Host }}-tls
+  {{ end }}
   prometheusSpec:
-    externalUrl: {{.Prometheus.ExternalURL}}
+    {{ if .Prometheus.Ingress }}
+    externalUrl: {{.Prometheus.Ingress.Host}}
+    {{ end }}
     {{ if .Prometheus.NodeSelector }}
     nodeSelector:
       {{ range $key, $value := .Prometheus.NodeSelector }}
