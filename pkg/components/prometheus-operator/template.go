@@ -48,7 +48,9 @@ alertmanager:
               storage: "{{.AlertManagerStorageSize}}"
 
 grafana:
-  plugins: "grafana-piechart-panel"
+  plugins:
+  - grafana-piechart-panel
+  - mtanda-histogram-panel
   testFramework:
     enabled: false
   sidecar:
