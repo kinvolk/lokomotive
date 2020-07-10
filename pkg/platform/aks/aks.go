@@ -76,7 +76,7 @@ const (
 	subscriptionIDEnv = "LOKOMOTIVE_AKS_SUBSCRIPTION_ID"
 	tenantIDEnv       = "LOKOMOTIVE_AKS_TENANT_ID"
 
-	kubernetesVersion = "1.16.9"
+	kubernetesVersion = "1.16.10"
 )
 
 // init registers AKS as a platform.
