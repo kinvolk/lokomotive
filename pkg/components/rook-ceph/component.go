@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -65,7 +66,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	// Generate YAML for Ceph cluster.
 	var err error
 	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
@@ -85,7 +86,11 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		ret[k] = rendered
 	}
 
-	return ret, nil
+	helmChart, err := util.ChartFromComponent(name, ret)
+	if err != nil {
+		return nil, err
+	}
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 
 func (c *component) Metadata() components.Metadata {

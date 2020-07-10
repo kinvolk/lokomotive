@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -53,7 +54,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	// Here are `nodeSelectors` and `tolerations` that are set by upstream. To make sure that we
 	// don't miss them out we set them manually here. We cannot make these changes in the template
 	// because we have parameterized these fields.
@@ -126,7 +127,11 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		rendered["grafana-alertmanager-rule.yaml"] = metallbPrometheusRule
 	}
 
-	return rendered, nil
+	helmChart, err := util.ChartFromComponent(name, rendered)
+	if err != nil {
+		return nil, err
+	}
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 
 func (c *component) Metadata() components.Metadata {

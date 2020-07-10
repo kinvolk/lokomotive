@@ -21,8 +21,10 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 const name = "gangway"
@@ -307,7 +309,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	tmpl, err := template.New("config-map").Parse(configMapTmpl)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse template failed")
@@ -335,14 +337,20 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
 
-	return map[string]string{
+	manifests := map[string]string{
 		"namespace.yml":  namespaceManifest,
 		"config-map.yml": configMapBuf.String(),
 		"deployment.yml": deploymentManifest,
 		"service.yml":    serviceManifest,
 		"ingress.yml":    ingressBuf.String(),
 		"secret.yml":     secretBuf.String(),
-	}, nil
+	}
+
+	helmChart, err := util.ChartFromComponent(name, manifests)
+	if err != nil {
+		return nil, err
+	}
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 
 func (c *component) Metadata() components.Metadata {

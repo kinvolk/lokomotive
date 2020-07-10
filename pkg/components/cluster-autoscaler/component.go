@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/packethost/packngo"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -298,7 +299,7 @@ func (c *component) validatePacket(diagnostics hcl.Diagnostics) hcl.Diagnostics 
 	return diagnostics
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s", name))
 	if err != nil {
 		return nil, errors.Wrap(err, "load chart from assets")
@@ -329,7 +330,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	return util.RenderChart(helmChart, name, c.Namespace, values)
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Namespace, values)
 }
 
 func (c *component) Metadata() components.Metadata {

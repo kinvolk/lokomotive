@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -107,7 +108,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 // RenderManifests renders the helm chart templates with values provided.
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
 	if err != nil {
 		return nil, errors.Wrap(err, "load chart from assets")
@@ -135,12 +136,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, errors.Wrap(err, "render chart values template")
 	}
 
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
-	if err != nil {
-		return nil, errors.Wrap(err, "render chart")
-	}
-
-	return renderedFiles, nil
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Namespace, values)
 }
 
 func (c *component) Metadata() components.Metadata {

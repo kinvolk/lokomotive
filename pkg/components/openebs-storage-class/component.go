@@ -22,8 +22,10 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 const (
@@ -104,7 +106,7 @@ func (c *component) validateConfig() error {
 	return nil
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 
 	scTmpl, err := template.New(name).Parse(storageClassTmpl)
 	if err != nil {
@@ -137,7 +139,11 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		manifestsMap[filename] = spBuffer.String()
 	}
 
-	return manifestsMap, nil
+	helmChart, err := util.ChartFromComponent(c.Metadata().Name, manifestsMap)
+	if err != nil {
+		return nil, err
+	}
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 
 func (c *component) Metadata() components.Metadata {

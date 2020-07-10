@@ -85,7 +85,7 @@ component "contour" {
 			t.Errorf("%s - Rendering manifests with valid config should succeed, got: %s", tc.desc, err)
 		}
 
-		if len(m) == 0 {
+		if len(m.Chart.Raw) == 0 {
 			t.Errorf("%s - Rendered manifests shouldn't be empty", tc.desc)
 		}
 	}

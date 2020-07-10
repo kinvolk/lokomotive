@@ -43,18 +43,11 @@ func TestStorageClassEmptyConfig(t *testing.T) {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
 	}
 
-	if len(m) == 0 {
+	if len(m.Chart.Raw) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 
-	storageClassFound := false
-	for _, v := range m {
-		storageClassFound = strings.Contains(v, "storageclass.kubernetes.io/is-default-class: \"true\"")
-		if storageClassFound {
-			break
-		}
-	}
-
+	storageClassFound := strings.Contains(util.ReleaseToString(m), "storageclass.kubernetes.io/is-default-class: \"true\"")
 	if !storageClassFound {
 		t.Fatalf("Empty config should apply default storage class")
 	}
@@ -82,18 +75,11 @@ func TestStorageClassEnabled(t *testing.T) {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
 	}
 
-	if len(m) == 0 {
+	if len(m.Chart.Raw) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 
-	storageClassFound := false
-	for _, v := range m {
-		storageClassFound = strings.Contains(v, "storageclass.kubernetes.io/is-default-class: \"true\"")
-		if storageClassFound {
-			break
-		}
-	}
-
+	storageClassFound := strings.Contains(util.ReleaseToString(m), "storageclass.kubernetes.io/is-default-class: \"true\"")
 	if !storageClassFound {
 		t.Fatalf("Default storage class should be set")
 	}
@@ -121,18 +107,11 @@ func TestStorageClassDisabled(t *testing.T) {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
 	}
 
-	if len(m) == 0 {
+	if len(m.Chart.Raw) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 
-	storageClassFound := true
-	for _, v := range m {
-		storageClassFound = strings.Contains(v, "storageclass.kubernetes.io/is-default-class: \"true\"")
-		if storageClassFound {
-			break
-		}
-	}
-
+	storageClassFound := strings.Contains(util.ReleaseToString(m), "storageclass.kubernetes.io/is-default-class: \"true\"")
 	if storageClassFound {
 		t.Fatalf("Default storage class should not be set")
 	}

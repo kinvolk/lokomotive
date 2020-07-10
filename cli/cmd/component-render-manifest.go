@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
@@ -82,15 +83,12 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 			return diags
 		}
 
-		manifests, err := component.RenderManifests()
+		rel, err := component.RenderManifests()
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("# manifests for component %s\n", componentName)
-		for filename, manifest := range manifests {
-			fmt.Printf("\n---\n# %s\n%s", filename, manifest)
-		}
+		fmt.Println(util.ReleaseToString(rel))
 	}
 	return nil
 }

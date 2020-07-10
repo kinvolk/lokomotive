@@ -20,9 +20,11 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
@@ -42,14 +44,18 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	ret := make(map[string]string)
 	walk := walkers.DumpingWalker(ret, ".yaml")
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", componentName), walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}
 
-	return ret, nil
+	helmChart, err := util.ChartFromComponent(componentName, ret)
+	if err != nil {
+		return nil, err
+	}
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 
 func (c *component) Metadata() components.Metadata {

@@ -19,6 +19,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -59,7 +60,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	helmChart, err := util.LoadChartFromAssets("/components/rook-ceph")
 	if err != nil {
 		return nil, fmt.Errorf("load chart from assets: %w", err)
@@ -83,12 +84,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	// Generate YAML for the Rook operator deployment.
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace, values)
-	if err != nil {
-		return nil, fmt.Errorf("rendering chart failed: %w", err)
-	}
-
-	return renderedFiles, nil
+	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, values)
 }
 
 func (c *component) Metadata() components.Metadata {

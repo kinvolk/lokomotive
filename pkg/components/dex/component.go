@@ -24,9 +24,11 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/release"
 
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 const name = "dex"
@@ -287,7 +289,7 @@ func marshalToStr(obj interface{}) (string, error) {
 	return string(b), nil
 }
 
-func (c *component) RenderManifests() (map[string]string, error) {
+func (c *component) RenderManifests() (*release.Release, error) {
 	// Add the default path to google's connector, this is the default path
 	// where the user given google suite json file will be available via a
 	// secret volume, this value is also hardcoded in the deployment yaml
@@ -339,7 +341,11 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	// If gsuite file path is not configured, don't create a secret object and return early.
 	// This is also referenced in deploymentTmpl to remove secret reference there.
 	if c.GSuiteJSONConfigPath == "" {
-		return manifests, nil
+		helmChart, err := util.ChartFromComponent(name, manifests)
+		if err != nil {
+			return nil, err
+		}
+		return util.RenderChart(helmChart, name, c.Metadata().Namespace, "")
 	}
 
 	secretManifest, err := createSecretManifest(c.GSuiteJSONConfigPath)
@@ -348,7 +354,11 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	manifests["secret.yml"] = secretManifest
 
-	return manifests, nil
+	helmChart, err := util.ChartFromComponent(name, manifests)
+	if err != nil {
+		return nil, err
+	}
+	return util.RenderChart(helmChart, name, c.Metadata().Namespace, "")
 }
 
 func createSecretManifest(path string) (string, error) {

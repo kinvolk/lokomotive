@@ -28,9 +28,9 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/release"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
-	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
@@ -56,7 +56,7 @@ func LoadChartFromAssets(location string) (*chart.Chart, error) {
 
 // RenderChart renders a Helm chart with the given name, namespace and values
 // and either returns a map of manifest files or an error.
-func RenderChart(helmChart *chart.Chart, name, namespace, values string) (map[string]string, error) {
+func RenderChart(helmChart *chart.Chart, name, namespace, values string) (*release.Release, error) {
 	actionConfig := new(action.Configuration)
 
 	install := action.NewInstall(actionConfig)
@@ -76,24 +76,7 @@ func RenderChart(helmChart *chart.Chart, name, namespace, values string) (map[st
 		return nil, fmt.Errorf("failed decoding values: %w", err)
 	}
 
-	template, err := install.Run(helmChart, result)
-	if err != nil {
-		return nil, fmt.Errorf("installing chart failed: %w", err)
-	}
-
-	ret := SplitManifests(template.Manifest)
-
-	// Include hooks
-	for _, m := range template.Hooks {
-		ret[m.Path] = m.Manifest
-	}
-
-	// CRD are not rendered, so do this manually
-	for _, crd := range helmChart.CRDs() {
-		ret[crd.Name] = string(crd.Data)
-	}
-
-	return filterOutUnusedFiles(ret), nil
+	return install.Run(helmChart, result)
 }
 
 var sep = regexp.MustCompile("(?:^|\\s*\n)---\\s*")
@@ -151,15 +134,10 @@ func filterOutUnusedFiles(files map[string]string) map[string]string {
 	return ret
 }
 
-// chartFromComponent creates Helm chart object in memory for given component and makes
+// ChartFromComponent creates Helm chart object in memory for given component and makes
 // sure it is valid.
-func chartFromComponent(c components.Component) (*chart.Chart, error) {
-	m, err := c.RenderManifests()
-	if err != nil {
-		return nil, fmt.Errorf("rendering manifests failed: %w", err)
-	}
-
-	ch, err := chartFromManifests(c.Metadata().Name, m)
+func ChartFromComponent(name string, m map[string]string) (*chart.Chart, error) {
+	ch, err := chartFromManifests(name, m)
 	if err != nil {
 		return nil, fmt.Errorf("creating chart from manifests failed: %w", err)
 	}

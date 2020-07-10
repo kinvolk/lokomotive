@@ -15,13 +15,16 @@
 package util
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -73,16 +76,9 @@ func InstallComponent(c components.Component, kubeconfig string) error {
 		return fmt.Errorf("failed preparing helm client: %w", err)
 	}
 
-	chart, err := chartFromComponent(c)
-	if err != nil {
-		return err
-	}
+	rel, err := c.RenderManifests()
 
-	if err := chart.Validate(); err != nil {
-		return fmt.Errorf("chart is invalid: %w", err)
-	}
-
-	exists, err := ReleaseExists(*actionConfig, name)
+	exists, err := ReleaseExists(*actionConfig, rel.Name)
 	if err != nil {
 		return fmt.Errorf("failed checking if component is installed: %w", err)
 	}
@@ -91,7 +87,7 @@ func InstallComponent(c components.Component, kubeconfig string) error {
 
 	helmAction := &helmAction{
 		releaseName:  name,
-		chart:        chart,
+		chart:        rel.Chart,
 		actionConfig: actionConfig,
 		wait:         wait,
 	}
@@ -173,4 +169,10 @@ func ReleaseExists(actionConfig action.Configuration, name string) (bool, error)
 	}
 
 	return err != driver.ErrReleaseNotFound, nil
+}
+
+func ReleaseToString(rel *release.Release) string {
+	var manifests bytes.Buffer
+	fmt.Fprintln(&manifests, strings.TrimSpace(rel.Manifest))
+	return manifests.String()
 }
