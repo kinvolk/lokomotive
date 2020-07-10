@@ -131,6 +131,7 @@ func (c *component) RenderManifests() (*release.Release, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 

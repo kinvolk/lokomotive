@@ -26,6 +26,7 @@ import (
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/yaml"
+	k8syaml "sigs.k8s.io/yaml"
 )
 
 // Adapted from https://github.com/kubernetes-incubator/bootkube/blob/83d32756c6b02c26cab1de3f03b57f06ae4339a7/pkg/bootkube/create.go
@@ -87,11 +88,7 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 			continue
 		}
 
-		jsonManifest, err := yaml.ToJSON(yamlManifest)
-		if err != nil {
-			return nil, fmt.Errorf("invalid manifest: %w", err)
-		}
-		m, err := parseJSONManifest(jsonManifest)
+		m, err := parseYAMLManifest(yamlManifest)
 		if err != nil {
 			return nil, fmt.Errorf("parse manifest: %w", err)
 		}
@@ -99,20 +96,21 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 	}
 }
 
-// parseJSONManifest parses a single JSON Kubernetes resource.
-func parseJSONManifest(data []byte) ([]manifest, error) {
+// parseYAMLManifest parses a single YAML Kubernetes resource.
+func parseYAMLManifest(data []byte) ([]manifest, error) {
 	if string(data) == "null" {
 		return nil, nil
 	}
 	var m struct {
-		APIVersion string `json:"apiVersion"`
-		Kind       string `json:"kind"`
+		APIVersion string `yaml:"apiVersion"`
+		Kind       string `yaml:"kind"`
 		Metadata   struct {
-			Name      string `json:"name"`
-			Namespace string `json:"namespace"`
-		} `json:"metadata"`
+			Name      string `yaml:"name"`
+			Namespace string `yaml:"namespace"`
+		} `yaml:"metadata"`
 	}
-	if err := json.Unmarshal(data, &m); err != nil {
+
+	if err := k8syaml.Unmarshal(data, &m); err != nil {
 		return nil, errors.Wrapf(err, "failed to parse manifest")
 	}
 
@@ -130,22 +128,24 @@ func parseJSONManifest(data []byte) ([]manifest, error) {
 
 	// We parse the list of items and extract one object at a time
 	var mList struct {
-		APIVersion string `json:"apiVersion"`
-		Kind       string `json:"kind"`
+		APIVersion string `yaml:"apiVersion"`
+		Kind       string `yaml:"kind"`
 		Metadata   struct {
-			Name      string `json:"name"`
-			Namespace string `json:"namespace"`
-		} `json:"metadata"`
-		Items []json.RawMessage `json:"items"`
+			Name      string `yaml:"name"`
+			Namespace string `yaml:"namespace"`
+		} `yaml:"metadata"`
+		Items []json.RawMessage `yaml:"items"`
 	}
-	if err := json.Unmarshal(data, &mList); err != nil {
+
+	if err := k8syaml.Unmarshal(data, &mList); err != nil {
 		return nil, errors.Wrapf(err, "failed to parse manifest list")
 	}
+
 	var manifests []manifest
 	for _, item := range mList.Items {
 		// make a recursive call, since this is a single object it will be
 		// parsed and returned to us
-		mn, err := parseJSONManifest(item)
+		mn, err := parseYAMLManifest(item)
 		if err != nil {
 			return nil, err
 		}
