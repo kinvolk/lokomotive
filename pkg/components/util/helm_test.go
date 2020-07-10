@@ -95,11 +95,11 @@ metadata:
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
 
-	if len(chart.Manifests) != 1 { //nolint:gomnd
+	if len(chart.Raw) != 1 { //nolint:gomnd
 		t.Fatalf("Manifest file with the namespace should still be added, as it may contain other objects")
 	}
 
-	if len(chart.Manifests[0].Data) != 0 {
+	if len(chart.Raw[0].Data) != 0 {
 		t.Fatalf("Namespace object should be removed from chart")
 	}
 }
@@ -124,7 +124,7 @@ metadata:
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
 
-	if len(chart.Manifests[0].Data) == 0 {
+	if len(chart.Raw[0].Data) == 0 {
 		t.Fatalf("Other objects should be retained in the file containing Namespace object")
 	}
 }
@@ -143,11 +143,11 @@ metadata:
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
 
-	if len(chart.Manifests) != 1 { //nolint:gomnd
+	if len(chart.Raw) != 1 { //nolint:gomnd
 		t.Fatalf("Manifest file with the CRDs should still be added, as it may contain other objects")
 	}
 
-	if len(chart.Manifests[0].Data) != 0 {
+	if len(chart.Raw[0].Data) != 0 {
 		t.Fatalf("CRD object should be removed from the manifests file")
 	}
 

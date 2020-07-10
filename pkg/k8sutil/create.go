@@ -102,12 +102,12 @@ func parseYAMLManifest(data []byte) ([]manifest, error) {
 		return nil, nil
 	}
 	var m struct {
-		APIVersion string `yaml:"apiVersion"`
-		Kind       string `yaml:"kind"`
+		APIVersion string `yaml:"apiVersion,omitempty"`
+		Kind       string `yaml:"kind,omitempty"`
 		Metadata   struct {
-			Name      string `yaml:"name"`
-			Namespace string `yaml:"namespace"`
-		} `yaml:"metadata"`
+			Name      string `yaml:"name,omitempty"`
+			Namespace string `yaml:"namespace,omitempty"`
+		} `yaml:"metadata,omitempty"`
 	}
 
 	if err := k8syaml.Unmarshal(data, &m); err != nil {
@@ -128,12 +128,12 @@ func parseYAMLManifest(data []byte) ([]manifest, error) {
 
 	// We parse the list of items and extract one object at a time
 	var mList struct {
-		APIVersion string `yaml:"apiVersion"`
-		Kind       string `yaml:"kind"`
+		APIVersion string `yaml:"apiVersion,omitempty"`
+		Kind       string `yaml:"kind,omitempty"`
 		Metadata   struct {
-			Name      string `yaml:"name"`
-			Namespace string `yaml:"namespace"`
-		} `yaml:"metadata"`
+			Name      string `yaml:"name,omitempty"`
+			Namespace string `yaml:"namespace,omitempty"`
+		} `yaml:"metadata,omitempty"`
 		Items []json.RawMessage `yaml:"items"`
 	}
 

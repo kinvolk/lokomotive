@@ -88,7 +88,7 @@ component "prometheus-operator" {
 				t.Fatalf("rendering manifests with valid config should succeed, got: %s", err)
 			}
 
-			if len(m) == 0 {
+			if len(m.Chart.Raw) == 0 {
 				t.Fatal("rendered manifests shouldn't be empty")
 			}
 		})

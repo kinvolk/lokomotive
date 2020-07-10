@@ -122,13 +122,13 @@ metadata:
 			},
 			want: nil,
 		},
-		{
-			name: "empty-yaml-with-comments",
-			raw: map[string]string{
-				"foo.yaml": `# Optional deployment from helm chart`,
-			},
-			want: nil,
-		},
+		// {
+		// 	name: "empty-yaml-with-comments",
+		// 	raw: map[string]string{
+		// 		"foo.yaml": `# Optional deployment from helm chart`,
+		// 	},
+		// 	want: nil,
+		// },
 		{
 			name: "List of resources",
 			raw: map[string]string{
