@@ -289,6 +289,7 @@ func marshalToStr(obj interface{}) (string, error) {
 	return string(b), nil
 }
 
+// nolint:funlen
 func (c *component) RenderManifests() (*release.Release, error) {
 	// Add the default path to google's connector, this is the default path
 	// where the user given google suite json file will be available via a
@@ -345,6 +346,7 @@ func (c *component) RenderManifests() (*release.Release, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return util.RenderChart(helmChart, name, c.Metadata().Namespace, "")
 	}
 
@@ -358,6 +360,7 @@ func (c *component) RenderManifests() (*release.Release, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return util.RenderChart(helmChart, name, c.Metadata().Namespace, "")
 }
 

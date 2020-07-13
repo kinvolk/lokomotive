@@ -151,6 +151,7 @@ func (c *component) RenderManifests() (*release.Release, error) {
 	if err := tmpl.Execute(&buf, c); err != nil {
 		return nil, errors.Wrap(err, "execute template failed")
 	}
+
 	manifests := map[string]string{
 		"namespace.yml":  namespaceManifest,
 		"deployment.yml": deploymentManifest,
@@ -162,6 +163,7 @@ func (c *component) RenderManifests() (*release.Release, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 

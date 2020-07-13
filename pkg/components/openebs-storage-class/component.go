@@ -107,7 +107,6 @@ func (c *component) validateConfig() error {
 }
 
 func (c *component) RenderManifests() (*release.Release, error) {
-
 	scTmpl, err := template.New(name).Parse(storageClassTmpl)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse template failed")
@@ -143,6 +142,7 @@ func (c *component) RenderManifests() (*release.Release, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return util.RenderChart(helmChart, c.Metadata().Name, c.Metadata().Namespace, "")
 }
 

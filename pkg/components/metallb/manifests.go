@@ -818,6 +818,7 @@ data:
     }
 `
 
+// nolint: lll
 const metallbPrometheusRule = `
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule

@@ -54,6 +54,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
+// nolint:funlen
 func (c *component) RenderManifests() (*release.Release, error) {
 	// Here are `nodeSelectors` and `tolerations` that are set by upstream. To make sure that we
 	// don't miss them out we set them manually here. We cannot make these changes in the template

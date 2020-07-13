@@ -77,6 +77,9 @@ func InstallComponent(c components.Component, kubeconfig string) error {
 	}
 
 	rel, err := c.RenderManifests()
+	if err != nil {
+		return fmt.Errorf("failed rendering manifests: %w", err)
+	}
 
 	exists, err := ReleaseExists(*actionConfig, rel.Name)
 	if err != nil {
@@ -171,8 +174,11 @@ func ReleaseExists(actionConfig action.Configuration, name string) (bool, error)
 	return err != driver.ErrReleaseNotFound, nil
 }
 
+// ReleaseToString renders a helm release into yaml files.
 func ReleaseToString(rel *release.Release) string {
 	var manifests bytes.Buffer
+
 	fmt.Fprintln(&manifests, strings.TrimSpace(rel.Manifest))
+
 	return manifests.String()
 }

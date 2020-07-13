@@ -50,7 +50,7 @@ func testRenderManifest(t *testing.T, configHCL string) {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
 	}
 
-	if len(m.Chart.Raw) <= 0 {
+	if len(m.Chart.Raw) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 }

@@ -95,7 +95,7 @@ metadata:
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
 
-	if len(chart.Raw) != 1 { //nolint:gomnd
+	if len(chart.Raw) != 1 {
 		t.Fatalf("Manifest file with the namespace should still be added, as it may contain other objects")
 	}
 
@@ -143,7 +143,7 @@ metadata:
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
 
-	if len(chart.Raw) != 1 { //nolint:gomnd
+	if len(chart.Raw) != 1 {
 		t.Fatalf("Manifest file with the CRDs should still be added, as it may contain other objects")
 	}
 
@@ -151,7 +151,7 @@ metadata:
 		t.Fatalf("CRD object should be removed from the manifests file")
 	}
 
-	if len(chart.Files) != 1 { //nolint:gomnd
+	if len(chart.Files) != 1 {
 		t.Fatalf("CRD object should be added to Files field")
 	}
 
