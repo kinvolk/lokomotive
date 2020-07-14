@@ -125,6 +125,12 @@ prometheus:
       {{ $key }}: {{ $value }}
       {{ end }}
     {{ end }}
+    {{ if .Prometheus.ExternalLabels }}
+    externalLabels:
+      {{ range $key, $value := .Prometheus.ExternalLabels}}
+      {{ $key }}: {{ $value }}
+      {{ end }}
+    {{ end }}
     retention: {{.Prometheus.MetricsRetention}}
     serviceMonitorSelectorNilUsesHelmValues: {{.Prometheus.WatchLabeledServiceMonitors}}
     ruleSelectorNilUsesHelmValues: {{.Prometheus.WatchLabeledPrometheusRules}}

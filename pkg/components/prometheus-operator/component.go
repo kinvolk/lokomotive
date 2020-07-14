@@ -62,6 +62,7 @@ type Prometheus struct {
 	WatchLabeledServiceMonitors bool              `hcl:"watch_labeled_service_monitors,optional"`
 	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
 	Ingress                     *types.Ingress    `hcl:"ingress,block"`
+	ExternalLabels              map[string]string `hcl:"external_labels,optional"`
 }
 
 type component struct {
