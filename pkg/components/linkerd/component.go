@@ -41,12 +41,14 @@ type component struct {
 	Cert               string
 	Key                string
 	Expiry             string
-	ControllerReplicas int `hcl:"controller_replicas,optional"`
+	ControllerReplicas int  `hcl:"controller_replicas,optional"`
+	EnableMonitoring   bool `hcl:"enable_monitoring,optional"`
 }
 
 func newComponent() *component {
 	return &component{
 		ControllerReplicas: 1,
+		EnableMonitoring:   false,
 	}
 }
 

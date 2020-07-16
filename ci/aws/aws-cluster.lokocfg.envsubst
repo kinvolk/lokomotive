@@ -93,7 +93,9 @@ component "prometheus-operator" {
   }
 }
 
-component "linkerd" {}
+component "linkerd" {
+  enable_monitoring = true
+}
 
 component "contour" {
   enable_monitoring = true
