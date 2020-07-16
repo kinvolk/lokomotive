@@ -16,6 +16,7 @@
 package linkerd
 
 const chartValuesTmpl = `
+enableMonitoring: {{.EnableMonitoring}}
 global:
   identityTrustAnchorsPEM: |
 {{ .Cert.CA }}
