@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	name = "linkerd"
+	name = "experimental-linkerd"
 )
 
 // nolint:gochecknoinits
@@ -56,9 +56,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	diagnostics := hcl.Diagnostics{}
 
 	if configBody == nil {
-		return hcl.Diagnostics{
-			components.HCLDiagConfigBodyNil,
-		}
+		return hcl.Diagnostics{}
 	}
 
 	d := gohcl.DecodeBody(*configBody, evalContext, c)
