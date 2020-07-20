@@ -35,12 +35,14 @@ func init() {
 }
 
 type component struct {
-	Profile string `hcl:"profile,optional"`
+	Profile          string `hcl:"profile,optional"`
+	EnableMonitoring bool   `hcl:"enable_monitoring,optional"`
 }
 
 func newComponent() *component {
 	return &component{
-		Profile: "minimal",
+		Profile:          "minimal",
+		EnableMonitoring: false,
 	}
 }
 

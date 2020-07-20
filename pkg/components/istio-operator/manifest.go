@@ -18,4 +18,5 @@ package istiooperator
 const chartValuesTmpl = `
 istioOperator:
   profile: {{.Profile}}
+enableMonitoring: {{.EnableMonitoring}}
 `
