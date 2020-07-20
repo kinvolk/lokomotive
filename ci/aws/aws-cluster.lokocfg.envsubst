@@ -85,6 +85,12 @@ component "prometheus-operator" {
       "LOKOMOTIVE_VERY_SECRET_PASSWORD" = "VERY_VERY_SECRET"
     }
   }
+  prometheus {
+    ingress {
+      host                       = "prometheus.$CLUSTER_ID.$AWS_DNS_ZONE"
+      certmanager_cluster_issuer = "letsencrypt-staging"
+    }
+  }
 }
 
 component "contour" {

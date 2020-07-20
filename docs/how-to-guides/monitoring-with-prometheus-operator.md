@@ -9,10 +9,12 @@
   * [Install Prometheus Operator](#install-prometheus-operator)
 * [Accessing Prometheus, Alertmanager and Grafana](#accessing-prometheus-operator-sub-components)
   * [Accessing Prometheus](#accessing-prometheus)
-  * [Accessing Alertmanager](#accessing-alertmanager)
-  * [Accessing Grafana](#accessing-grafana)
     * [Using port forward](#using-port-forward)
     * [Using Ingress](#using-ingress)
+  * [Accessing Alertmanager](#accessing-alertmanager)
+  * [Accessing Grafana](#accessing-grafana)
+    * [Using port forward](#using-port-forward-1)
+    * [Using Ingress](#using-ingress-1)
 * [Additional resources](#additional-resources)
 
 ## Introduction
@@ -68,6 +70,8 @@ kubectl -n monitoring get pods
 
 ### Accessing Prometheus
 
+#### Using port forward
+
 Execute the following command to forward port `9090` locally to the Prometheus pod:
 
 ```bash
@@ -75,6 +79,26 @@ kubectl -n monitoring port-forward svc/prometheus-operator-prometheus 9090
 ```
 
 Open the following URL: [http://localhost:9090](http://localhost:9090).
+
+#### Using Ingress
+
+**NOTE**: NOT RECOMMENDED IN PRODUCTION. Prometheus does not support any authentication out of the box, it has to be enabled at the Ingress layer which is not supported in Lokomotive Ingress at the moment. Therefore, adding following config exposes Prometheus to the outside world and anyone can access it.
+
+To expose Prometheus to the internet using Ingress, provide the `host` field. The configuration for Prometheus in the `prometheus-operator` component should look like the following:
+
+```tf
+component "prometheus-operator" {
+  prometheus {
+    ingress {
+      host = "prometheus.<cluster name>.<DNS zone>"
+    }
+  }
+}
+```
+
+> **NOTE**: On Packet, you either need to create a DNS entry for `prometheus.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
+
+Open the following URL: `https://prometheus.<cluster name>.<DNS zone>`.
 
 ### Accessing Alertmanager
 

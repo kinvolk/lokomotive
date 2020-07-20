@@ -37,38 +37,60 @@ const (
 )
 
 func TestAWSIngress(t *testing.T) {
-	client := testutil.CreateKubeClient(t)
-
-	i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get(context.TODO(), "httpbin", metav1.GetOptions{})
-	if err != nil {
-		t.Fatalf("getting httpbin ingress: %v", err)
+	testCases := []struct {
+		Component string
+		Namespace string
+		Ingress   string
+	}{
+		{
+			Component: "httpbin",
+			Namespace: "httpbin",
+			Ingress:   "httpbin",
+		},
+		{
+			Component: "promtheus-operator",
+			Namespace: "monitoring",
+			Ingress:   "prometheus-operator-prometheus",
+		},
 	}
 
-	h := i.Spec.Rules[0].Host
-	c := getHTTPClient()
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.Ingress, func(t *testing.T) {
+			client := testutil.CreateKubeClient(t)
 
-	err = retryutil.Retry(retryIntervalSeconds*time.Second, maxRetries, func() (bool, error) {
-		resp, err := c.Get(fmt.Sprintf("https://%s/get", h))
-		if err != nil {
-			t.Logf("got an HTTP error: %v", err)
-			return false, nil
-		}
-
-		defer func() {
-			if err := resp.Body.Close(); err != nil {
-				t.Logf("closing HTTP response body: %v", err)
+			i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get(context.TODO(), "httpbin", metav1.GetOptions{})
+			if err != nil {
+				t.Fatalf("getting httpbin ingress: %v", err)
 			}
-		}()
 
-		if resp.StatusCode != http.StatusOK {
-			t.Logf("got a non-OK HTTP status: %d", resp.StatusCode)
-			return false, nil
-		}
+			h := i.Spec.Rules[0].Host
+			c := getHTTPClient()
 
-		return true, nil
-	})
-	if err != nil {
-		t.Fatal("could not get a successful HTTP response in time")
+			err = retryutil.Retry(retryIntervalSeconds*time.Second, maxRetries, func() (bool, error) {
+				resp, err := c.Get(fmt.Sprintf("https://%s/get", h))
+				if err != nil {
+					t.Logf("got an HTTP error: %v", err)
+					return false, nil
+				}
+
+				defer func() {
+					if err := resp.Body.Close(); err != nil {
+						t.Logf("closing HTTP response body: %v", err)
+					}
+				}()
+
+				if resp.StatusCode != http.StatusOK {
+					t.Logf("got a non-OK HTTP status: %d", resp.StatusCode)
+					return false, nil
+				}
+
+				return true, nil
+			})
+			if err != nil {
+				t.Fatal("could not get a successful HTTP response in time")
+			}
+		})
 	}
 }
 

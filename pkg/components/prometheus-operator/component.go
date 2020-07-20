@@ -54,6 +54,17 @@ type Grafana struct {
 	Ingress       *types.Ingress    `hcl:"ingress,block"`
 }
 
+// Prometheus object collects sub component Prometheus related information.
+type Prometheus struct {
+	MetricsRetention            string            `hcl:"metrics_retention,optional"`
+	NodeSelector                map[string]string `hcl:"node_selector,optional"`
+	StorageSize                 string            `hcl:"storage_size,optional"`
+	WatchLabeledServiceMonitors bool              `hcl:"watch_labeled_service_monitors,optional"`
+	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
+	Ingress                     *types.Ingress    `hcl:"ingress,block"`
+	ExternalLabels              map[string]string `hcl:"external_labels,optional"`
+}
+
 type component struct {
 	Grafana *Grafana `hcl:"grafana,block"`
 
@@ -61,12 +72,7 @@ type component struct {
 
 	PrometheusOperatorNodeSelector map[string]string `hcl:"prometheus_operator_node_selector,optional"`
 
-	PrometheusMetricsRetention  string            `hcl:"prometheus_metrics_retention,optional"`
-	PrometheusExternalURL       string            `hcl:"prometheus_external_url,optional"`
-	PrometheusNodeSelector      map[string]string `hcl:"prometheus_node_selector,optional"`
-	PrometheusStorageSize       string            `hcl:"prometheus_storage_size,optional"`
-	WatchLabeledServiceMonitors bool              `hcl:"watch_labeled_service_monitors,optional"`
-	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
+	Prometheus *Prometheus `hcl:"prometheus,block"`
 
 	AlertManagerRetention    string            `hcl:"alertmanager_retention,optional"`
 	AlertManagerExternalURL  string            `hcl:"alertmanager_external_url,optional"`
@@ -103,14 +109,16 @@ func newComponent() *component {
 `
 
 	return &component{
-		PrometheusMetricsRetention:  "10d",
-		PrometheusStorageSize:       "50Gi",
-		AlertManagerRetention:       "120h",
-		AlertManagerConfig:          defaultAlertManagerConfig,
-		AlertManagerStorageSize:     "50Gi",
-		Namespace:                   "monitoring",
-		WatchLabeledServiceMonitors: true,
-		WatchLabeledPrometheusRules: true,
+		Prometheus: &Prometheus{
+			MetricsRetention:            "10d",
+			StorageSize:                 "50Gi",
+			WatchLabeledServiceMonitors: true,
+			WatchLabeledPrometheusRules: true,
+		},
+		AlertManagerRetention:   "120h",
+		AlertManagerConfig:      defaultAlertManagerConfig,
+		AlertManagerStorageSize: "50Gi",
+		Namespace:               "monitoring",
 		Monitor: &Monitor{
 			Etcd:                  true,
 			KubeControllerManager: true,
@@ -148,6 +156,10 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 	if c.Grafana != nil && c.Grafana.Ingress != nil {
 		c.Grafana.Ingress.SetDefaults()
+	}
+
+	if c.Prometheus != nil && c.Prometheus.Ingress != nil {
+		c.Prometheus.Ingress.SetDefaults()
 	}
 
 	return nil

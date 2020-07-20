@@ -101,17 +101,39 @@ prometheusOperator:
   {{- end }}
 {{ end }}
 prometheus:
+  {{ if .Prometheus.Ingress }}
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: {{.Prometheus.Ingress.Class}}
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: {{.Prometheus.Ingress.CertManagerClusterIssuer}}
+    hosts:
+    - {{ .Prometheus.Ingress.Host }}
+    tls:
+    - hosts:
+      - {{ .Prometheus.Ingress.Host }}
+      secretName: {{ .Prometheus.Ingress.Host }}-tls
+  {{ end }}
   prometheusSpec:
-    externalUrl: {{.PrometheusExternalURL}}
-    {{ if .PrometheusNodeSelector }}
+    {{ if .Prometheus.Ingress }}
+    externalUrl: {{.Prometheus.Ingress.Host}}
+    {{ end }}
+    {{ if .Prometheus.NodeSelector }}
     nodeSelector:
-      {{ range $key, $value := .PrometheusNodeSelector }}
+      {{ range $key, $value := .Prometheus.NodeSelector }}
       {{ $key }}: {{ $value }}
       {{ end }}
     {{ end }}
-    retention: {{.PrometheusMetricsRetention}}
-    serviceMonitorSelectorNilUsesHelmValues: {{.WatchLabeledServiceMonitors}}
-    ruleSelectorNilUsesHelmValues: {{.WatchLabeledPrometheusRules}}
+    {{ if .Prometheus.ExternalLabels }}
+    externalLabels:
+      {{ range $key, $value := .Prometheus.ExternalLabels}}
+      {{ $key }}: {{ $value }}
+      {{ end }}
+    {{ end }}
+    retention: {{.Prometheus.MetricsRetention}}
+    serviceMonitorSelectorNilUsesHelmValues: {{.Prometheus.WatchLabeledServiceMonitors}}
+    ruleSelectorNilUsesHelmValues: {{.Prometheus.WatchLabeledPrometheusRules}}
     storageSpec:
       volumeClaimTemplate:
         metadata:
@@ -123,7 +145,7 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: "{{.PrometheusStorageSize}}"
+              storage: "{{.Prometheus.StorageSize}}"
 
 kubeControllerManager:
   enabled: {{.Monitor.KubeControllerManager}}
