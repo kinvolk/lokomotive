@@ -40,3 +40,20 @@ func AppendNamespaceLabel(namespace string, labels map[string]string) map[string
 
 	return final
 }
+
+// MergeMaps merges two maps[string]string, with the values in first map
+// overriding the same keys in the second map.
+func MergeMaps(m1, m2 map[string]string) map[string]string {
+	final := map[string]string{}
+
+	for k, v := range m2 {
+		final[k] = v
+	}
+
+	// m1 is merged last so as to not override any values from m2
+	for k, v := range m1 {
+		final[k] = v
+	}
+
+	return final
+}

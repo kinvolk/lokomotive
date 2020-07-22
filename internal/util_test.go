@@ -65,3 +65,36 @@ func TestApppendNamespaceLabelEmptyMap(t *testing.T) {
 		t.Errorf("expected %s key to have the value %s", internal.NamespaceLabelKey, namespace)
 	}
 }
+
+func TestMergeMapsSuccess(t *testing.T) {
+	m1 := map[string]string{
+		"test": "good",
+		"one":  "two",
+	}
+
+	m2 := map[string]string{
+		"test": "bad",
+	}
+
+	final := internal.MergeMaps(m1, m2)
+
+	if len(final) != 2 {
+		t.Errorf("expected length of map after merging to be %d, got: %d", len(m1), len(final))
+	}
+
+	if final["test"] != "good" {
+		t.Errorf("expected value of key `test` as %s, got: %s", m1["test"], final["test"])
+	}
+}
+
+func TestMergeMapsNil(t *testing.T) {
+	var m1 map[string]string
+
+	var m2 map[string]string
+
+	final := internal.MergeMaps(m1, m2)
+
+	if final == nil {
+		t.Errorf("expected map to be empty but not nil, got: %v", final)
+	}
+}

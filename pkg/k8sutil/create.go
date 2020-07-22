@@ -19,13 +19,20 @@ package k8sutil
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
 
 	"github.com/pkg/errors"
+	v1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
+	corev1typed "k8s.io/client-go/kubernetes/typed/core/v1"
+
+	"github.com/kinvolk/lokomotive/internal"
 )
 
 // Namespace struct for holding the Lokomotive specific metadata.
@@ -164,4 +171,55 @@ func parseJSONManifest(data []byte) ([]manifest, error) {
 		manifests = append(manifests, mn...)
 	}
 	return manifests, nil
+}
+
+// CreateOrUpdateNamespace creates the release namespace or updates the namespace
+// if it already exists.
+func CreateOrUpdateNamespace(ns Namespace, nsclient corev1typed.NamespaceInterface) error {
+	if ns.Name == "" {
+		return fmt.Errorf("namespace name can't be empty")
+	}
+
+	namespace, err := nsclient.Get(context.TODO(), ns.Name, metav1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return createNamespace(ns, nsclient)
+		}
+
+		return fmt.Errorf("getting namespace %q: %w", ns.Name, err)
+	}
+	// Namespace exists, hence updating the namespace.
+	return updateNamespace(namespace, ns, nsclient)
+}
+
+// updateNamespace updates an existing namespace.
+func updateNamespace(namespace *v1.Namespace, ns Namespace, nsclient corev1typed.NamespaceInterface) error {
+	// Merge new labels and annotations with existing ones.
+	updatedLabels := internal.MergeMaps(ns.Labels, namespace.ObjectMeta.Labels)
+	updatedAnnotations := internal.MergeMaps(ns.Annotations, namespace.ObjectMeta.Annotations)
+
+	namespace.ObjectMeta.Labels = updatedLabels
+	namespace.ObjectMeta.Annotations = updatedAnnotations
+
+	if _, err := nsclient.Update(context.TODO(), namespace, metav1.UpdateOptions{}); err != nil {
+		return fmt.Errorf("updating namespace %q: %w", ns.Name, err)
+	}
+
+	return nil
+}
+
+// createNamespace creates the namespace.
+func createNamespace(ns Namespace, nsclient corev1typed.NamespaceInterface) error {
+	_, err := nsclient.Create(context.TODO(), &v1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        ns.Name,
+			Labels:      ns.Labels,
+			Annotations: ns.Annotations,
+		},
+	}, metav1.CreateOptions{})
+	if err != nil {
+		return fmt.Errorf("creating namespace %q: %w", ns.Name, err)
+	}
+
+	return nil
 }
