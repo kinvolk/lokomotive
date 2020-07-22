@@ -23,6 +23,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
@@ -54,7 +55,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      componentName,
-		Namespace: "reboot-coordinator",
+		Name: componentName,
+		Namespace: k8sutil.Namespace{
+			Name: "reboot-coordinator",
+		},
 	}
 }

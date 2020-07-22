@@ -23,6 +23,7 @@ import (
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const name = "openebs-operator"
@@ -107,7 +108,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, fmt.Errorf("render chart values template: %w", err)
 	}
 
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace, values)
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, values)
 	if err != nil {
 		return nil, fmt.Errorf("render chart: %w", err)
 	}
@@ -117,7 +118,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      name,
-		Namespace: "openebs",
+		Name: name,
+		Namespace: k8sutil.Namespace{
+			Name: "openebs",
+		},
 	}
 }

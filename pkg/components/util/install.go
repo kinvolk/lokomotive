@@ -56,7 +56,7 @@ func ensureNamespaceExists(name string, kubeconfig []byte) error {
 // InstallComponent installs given component using given kubeconfig as a Helm release using a Helm client.
 func InstallComponent(c components.Component, kubeconfig []byte) error {
 	name := c.Metadata().Name
-	ns := c.Metadata().Namespace
+	ns := c.Metadata().Namespace.Name
 
 	if err := ensureNamespaceExists(ns, kubeconfig); err != nil {
 		return fmt.Errorf("failed ensuring that namespace %q for component %q exists: %w", ns, name, err)
@@ -188,7 +188,7 @@ func UninstallComponent(c components.Component, kubeconfig []byte, deleteNSBool 
 		panic(fmt.Errorf("component name is empty"))
 	}
 
-	ns := c.Metadata().Namespace
+	ns := c.Metadata().Namespace.Name
 	if ns == "" {
 		// This should never fail in real user usage, if this does that means the component was not
 		// created with all the needed information.

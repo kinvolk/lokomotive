@@ -202,7 +202,7 @@ func chartFromManifests(metadata components.Metadata, manifests map[string]strin
 			}
 
 			// Drop Namespace resource as we take care of its creation at another level and we don't want resources to collide.
-			if pm.Kind() == "Namespace" && pm.Name() == metadata.Namespace {
+			if pm.Kind() == "Namespace" && pm.Name() == metadata.Namespace.Name {
 				continue
 			}
 
