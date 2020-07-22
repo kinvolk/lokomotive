@@ -21,6 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/kinvolk/lokomotive/internal"
 	"github.com/kinvolk/lokomotive/pkg/install"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
@@ -88,6 +89,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		ctxLogger.Fatalf("Verify cluster: %v", err)
 	}
 
+	// Update all the pre installed namespaces with lokomotive specific label.
+	// `lokomotive.kinvolk.io/name: <namespace_name>`.
+	if err := updateInstalledNamespaces(kubeconfig); err != nil {
+		ctxLogger.Fatalf("Updating installed namespace: %v", err)
+	}
+
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
 	if exists && !p.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
@@ -140,4 +147,33 @@ func verifyCluster(kubeconfig []byte, expectedNodes int) error {
 	}
 
 	return install.Verify(cluster)
+}
+
+func updateInstalledNamespaces(kubeconfig []byte) error {
+	cs, err := k8sutil.NewClientset(kubeconfig)
+	if err != nil {
+		return fmt.Errorf("create clientset: %v", err)
+	}
+
+	nsclient := cs.CoreV1().Namespaces()
+
+	namespaces, err := k8sutil.ListNamespaces(nsclient)
+	if err != nil {
+		return fmt.Errorf("getting list of namespaces: %v", err)
+	}
+
+	for _, ns := range namespaces.Items {
+		ns := k8sutil.Namespace{
+			Name: ns.ObjectMeta.Name,
+			Labels: map[string]string{
+				internal.NamespaceLabelKey: ns.ObjectMeta.Name,
+			},
+		}
+
+		if err := k8sutil.CreateOrUpdateNamespace(ns, nsclient); err != nil {
+			return fmt.Errorf("namespace %q with labels: %v", ns, err)
+		}
+	}
+
+	return nil
 }

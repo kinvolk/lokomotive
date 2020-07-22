@@ -223,3 +223,8 @@ func createNamespace(ns Namespace, nsclient corev1typed.NamespaceInterface) erro
 
 	return nil
 }
+
+// ListNamespaces lists the namespaces present in the cluster.
+func ListNamespaces(nsclient corev1typed.NamespaceInterface) (*v1.NamespaceList, error) {
+	return nsclient.List(context.TODO(), metav1.ListOptions{})
+}
