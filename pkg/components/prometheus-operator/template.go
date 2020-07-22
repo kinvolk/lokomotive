@@ -117,7 +117,7 @@ prometheus:
   {{ end }}
   prometheusSpec:
     {{ if .Prometheus.Ingress }}
-    externalUrl: {{.Prometheus.Ingress.Host}}
+    externalUrl: https://{{.Prometheus.Ingress.Host}}
     {{ end }}
     {{ if .Prometheus.NodeSelector }}
     nodeSelector:
