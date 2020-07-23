@@ -95,6 +95,11 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			query:         "pilot_k8s_reg_events",
 			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
 		},
+		{
+			componentName: "linkerd",
+			query:         "tcp_read_bytes_total",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS},
+		},
 	}
 
 	for _, tc := range testCases {

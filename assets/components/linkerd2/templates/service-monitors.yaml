@@ -1,0 +1,123 @@
+{{ if .Values.enableMonitoring }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-web
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: web
+  endpoints:
+  - targetPort: 9994
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-sp-validator
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: sp-validator
+  endpoints:
+  - targetPort: 9997
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-controller-api
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: controller
+  endpoints:
+  - targetPort: 9995
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-identity
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: identity
+  endpoints:
+  - targetPort: 9990
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-proxy-injector
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: proxy-injector
+  endpoints:
+  - targetPort: 9995
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-tap
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: tap
+  endpoints:
+  - targetPort: 9998
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-dst
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: destination
+  endpoints:
+  - targetPort: 9996
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: linkerd
+    release: prometheus-operator
+  name: linkerd-proxies
+  namespace: {{.Values.global.namespace}}
+spec:
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-ns: linkerd
+  endpoints:
+  - targetPort: 4191
+---
+{{end}}

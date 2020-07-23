@@ -28,6 +28,7 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/components/gangway"
 	_ "github.com/kinvolk/lokomotive/pkg/components/httpbin"
 	_ "github.com/kinvolk/lokomotive/pkg/components/istio-operator"
+	_ "github.com/kinvolk/lokomotive/pkg/components/linkerd"
 	_ "github.com/kinvolk/lokomotive/pkg/components/metallb"
 	_ "github.com/kinvolk/lokomotive/pkg/components/metrics-server"
 	_ "github.com/kinvolk/lokomotive/pkg/components/openebs-operator"
