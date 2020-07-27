@@ -376,7 +376,11 @@ storage:
                   nameservers=$out
                   break
               fi
-              echo "Failed with exit code $ret: $out"
+              if [[ "$out" = "" ]]; then
+                 echo "No nameservers found for $zone"
+              else
+                 echo "dig failed with exit code $ret: $out"
+              fi
               sleep 1
               counter=$((counter+1))
           done
