@@ -8,6 +8,8 @@ Lokomotive is fully self-hosted and includes [Lokomotive
 Components](docs/concepts/components.md) adding essential functionality for production
 not shipped with upstream Kubernetes.
 
+<img src="docs/images/lokomotive-example.gif" alt="Example gif showing `lokoctl cluster apply --confirm`" width="700"/>
+
 ## Features
 
 <a href="https://landscape.cncf.io/selected=lokomotive"><img src="https://raw.githubusercontent.com/cncf/artwork/1c1a10d9cc7de24235e07c8831923874331ef233/projects/kubernetes/certified-kubernetes/versionless/color/certified-kubernetes-color.svg" align="right" width="100px"></a>
