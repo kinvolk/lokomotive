@@ -23,6 +23,10 @@ instances.
   [built-in](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
   plugins.
 
+* An ingress controller such as [Contour](contour.md) for HTTP ingress.
+
+* The [cert-manager component](cert-manager.md) is required for enabling HTTPS.
+
 ## Configuration
 
 Prometheus Operator component configuration example:
