@@ -1,3 +1,449 @@
+## v0.3.0 - 2020-07-31
+
+We're happy to announce the release of Lokomotive v0.3.0 (Coast Starlight).
+
+This release packs new features and bugfixes. Some of the highlights are:
+
+* Kubernetes 1.18.6
+* For Lokomotive clusters running on top of AKS, Kubernetes 1.16.10 is installed.
+* [Component updates](#component-updates)
+
+### Changes in v0.3.0
+
+#### Kubernetes updates
+
+- Update Kubernetes to
+[v1.18.6](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.18.md#v1186)
+([#726](https://github.com/kinvolk/lokomotive/pull/726)).
+
+#### Platform updates
+
+##### Packet
+- Update default machine type from `t1.small.x86` to `c3.small.x86`, since
+    `t1.small.x86` are EOL and no longer available in new Packet projects
+    ([#612](https://github.com/kinvolk/lokomotive/pull/612)).
+
+  **WARNING**: If you haven't explicitly defined the controller_type and/or
+  worker_pool.node_type configuration options, upgrading to this release will
+  replace your controller and/or worker nodes with c3.small.x86 machines thereby
+  losing all your cluster data. To avoid this, set these configuration options
+  to the desired values.
+
+  Make sure that the below attributes are explicitly defined in your cluster
+  configuration. This only applies to machine type `t1.small.x86`.
+
+  ```hcl
+  cluster "packet" {
+    .
+    .
+    controller_type = "t1.small.x86"
+    .
+    .
+    worker_pool "pool-name" {
+      .
+      node_type = "t1.small.x86"
+      .
+    }
+  }
+  ```
+##### AKS
+
+- Update Kubernetes version to 1.16.10
+    ([#712](https://github.com/kinvolk/lokomotive/pull/712)).
+
+#### Component updates
+
+- openebs: update to 1.11.0 ([#673](https://github.com/kinvolk/lokomotive/pull/673)).
+
+- calico: update to
+  [v3.15.0](https://docs.projectcalico.org/release-notes/#v3150)
+  ([#652](https://github.com/kinvolk/lokomotive/pull/652)).
+
+#### UX
+
+- prometheus-operator: Organize Prometheus related attributes under a
+  `prometheus` block in the configuration
+  ([#710](https://github.com/kinvolk/lokomotive/pull/710)).
+
+- Use `prometheus.ingress.host` to expose Prometheus instead of
+    `prometheus_external_url`
+    ([#710](https://github.com/kinvolk/lokomotive/pull/710)).
+
+- contour: Remove `ingress_hosts` from contour configuration
+    ([#635](https://github.com/kinvolk/lokomotive/pull/635)).
+
+#### Features
+
+- Add `enable_toolbox` attribute to [rook-ceph
+component](https://github.com/kinvolk/lokomotive/blob/v0.3.0/docs/configuration-reference/components/rook-ceph)
+([#649](https://github.com/kinvolk/lokomotive/pull/649)). This allows managing
+and configuring Ceph using toolbox pod.
+
+- Add Prometheus feature `external_labels` for federated clusters to Prometheus
+    operator component. This helps to identify metrics queried from
+    different clusters.
+    ([#710](https://github.com/kinvolk/lokomotive/pull/710)).
+
+#### Docs
+
+- Add `Type` column to Attribute reference table in [configuration
+ references](https://github.com/kinvolk/lokomotive/blob/v0.3.0/docs/configuration-reference)
+ ([#651](https://github.com/kinvolk/lokomotive/pull/651)).
+
+- Update contour configuration reference for usage with AWS
+   ([#674](https://github.com/kinvolk/lokomotive/pull/674)).
+
+- Add documentation related to the usage of `clc_snippets` for Packet and AWS
+    ([#657](https://github.com/kinvolk/lokomotive/pull/657)).
+
+- Improve documentation on using remote
+    [backends](https://github.com/kinvolk/lokomotive/blob/v0.3.0/docs/configuration-reference/backend/s3.md)
+    ([#670](https://github.com/kinvolk/lokomotive/pull/670)).
+
+- How to guide for setting up monitoring on Lokomotive
+    ([#480](https://github.com/kinvolk/lokomotive/pull/480)).
+
+- Add `codespell` section in [development
+    documentation](https://github.com/kinvolk/lokomotive/blob/v0.3.0/docs/development/README.md)
+    ([#700](https://github.com/kinvolk/lokomotive/pull/700)).
+
+- Include a demo GIF in the readme
+    ([#636](https://github.com/kinvolk/lokomotive/pull/636)).
+
+#### Bugfixes
+
+- Remove contour ingress workaround (due to an [upstream issue](https://github.com/projectcontour/contour/issues/403))
+  for ExternalDNS ([#635](https://github.com/kinvolk/lokomotive/pull/635)).
+
+#### Development
+
+- Do not show Helm release values in terraform output
+    ([#627](https://github.com/kinvolk/lokomotive/pull/627)).
+
+- Remove Terraform provider aliases from platforms code
+    ([#617](https://github.com/kinvolk/lokomotive/pull/617)).
+
+
+#### Miscellaneous
+
+- Following flatcar-linux/Flatcar#123, Flatcar 2513.1.0 for ARM contains the dig
+    binary so the workaround is no longer needed
+    ([#703](https://github.com/kinvolk/lokomotive/pull/703)).
+
+- Improve error message for `wait-for-dns` output
+    ([#735](https://github.com/kinvolk/lokomotive/pull/735)).
+
+- Add `codespell` to enable spell check on all PRs ([#661](https://github.com/kinvolk/lokomotive/pull/661)).
+
+### Upgrading from v0.2.1
+
+#### Configuration syntax changes
+
+There have been some minor changes to the configurations of following components:
+* contour
+* prometheus-operator.
+
+Please make sure new the configuration structure is in place before the upgrade.
+
+##### Contour component
+
+Optional `ingress_hosts` attribute is now removed.
+
+old:
+
+```hcl
+component "contour" {
+  .
+  .
+  ingress_hosts = ["*.example.lokomotive-k8s.net"]
+}
+```
+
+new:
+
+```hcl
+component "contour" {
+  .
+  .
+}
+
+```
+
+##### Prometheus-operator component
+
+* Prometheus specific attributes are now under a `prometheus` block.
+* A new optional `prometheus.ingress` sub-block is introduced to expose
+Prometheus over ingress.
+* Attribute `external_url` is now removed and now configured under
+    `prometheus.ingress.host`. Remove URL scheme (e.g. `https://`) and URI (e.g.
+    `/prometheus`) when configuring. URI is no longer supported and protocol is
+    always HTTPS.
+
+old:
+
+```hcl
+component "prometheus-operator" {
+  .
+  .
+  prometheus_metrics_retention = "14d"
+  prometheus_external_url      = "https://prometheus.example.lokomotive-k8s.net"
+  prometheus_storage_size      = "50GiB"
+  prometheus_node_selector = {
+    "kubernetes.io/hostname" = "worker3"
+  }
+  .
+  .
+}
+```
+
+new:
+
+```hcl
+component "prometheus-operator" {
+  .
+  .
+  prometheus {
+    metrics_retention = "14d"
+    storage_size      = "50GiB"
+    node_selector = {
+      "kubernetes.io/hostname" = "worker3"
+    }
+
+    ingress {
+      host                       = "prometheus.example.lokomotive-k8s.net"
+    }
+    .
+    .
+  }
+  .
+  .
+}
+```
+
+Check out the new syntax in the [Prometheus Operator configuration
+reference](https://github.com/kinvolk/lokomotive/blob/v0.3.0/docs/configuration-reference/components/prometheus-operator.md)
+for details.
+
+##### Upgrade steps
+
+Go to your cluster's directory and run the following command.
+
+```
+lokoctl cluster apply
+```
+
+The update process typically takes about 10 minutes.
+After the update, running `lokoctl health` should result in an output similar to the following.
+
+```
+Node                     Ready    Reason          Message
+
+lokomotive-controller-0  True     KubeletReady    kubelet is posting ready status
+lokomotive-1-worker-0    True     KubeletReady    kubelet is posting ready status
+lokomotive-1-worker-1    True     KubeletReady    kubelet is posting ready status
+lokomotive-1-worker-2    True     KubeletReady    kubelet is posting ready status
+Name      Status    Message              Error
+
+etcd-0    True      {"health":"true"}
+```
+
+##### Post upgrade steps
+
+##### Openebs
+
+OpenEBS control plane components and data plane components work independently.
+Even after the OpenEBS Control Plane components have been upgraded to 1.11.0,
+the Storage Pools and Volumes (both jiva and cStor) will continue to work with
+older versions.
+
+>Upgrade functionality is still under active development. It is highly
+>recommended to schedule a downtime for the application using the OpenEBS PV
+>while performing this upgrade. Also, make sure you have taken a backup of the
+>data before starting the below upgrade procedure. - [Openebs
+documentation](https://github.com/openebs/openebs/blob/master/k8s/upgrades/README.md#step-3-upgrade-the-openebs-pools-and-volumes)
+
+
+###### Upgrade cStor Pools
+
+* Extract the SPC name using `kubectl get spc`:
+
+```bash
+NAME                          AGE
+cstor-pool-openebs-replica1   24h
+```
+
+The Job spec for upgrade cstor pools is:
+
+```yaml
+#This is an example YAML for upgrading cstor SPC.
+#Some of the values below needs to be changed to
+#match your openebs installation. The fields are
+#indicated with VERIFY
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  #VERIFY that you have provided a unique name for this upgrade job.
+  #The name can be any valid K8s string for name. This example uses
+  #the following convention: cstor-spc-<flattened-from-to-versions>
+  name: cstor-spc-1001120
+
+  #VERIFY the value of namespace is same as the namespace where openebs components
+  # are installed. You can verify using the command:
+  # `kubectl get pods -n <openebs-namespace> -l openebs.io/component-name=maya-apiserver`
+  # The above command should return status of the openebs-apiserver.
+  namespace: openebs
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      #VERIFY the value of serviceAccountName is pointing to service account
+      # created within openebs namespace. Use the non-default account.
+      # by running `kubectl get sa -n <openebs-namespace>`
+      serviceAccountName: openebs-operator
+      containers:
+      - name:  upgrade
+        args:
+        - "cstor-spc"
+
+        # --from-version is the current version of the pool
+        - "--from-version=1.10.0"
+
+        # --to-version is the version desired upgrade version
+        - "--to-version=1.11.0"
+
+        # Bulk upgrade is supported from 1.9
+        # To make use of it, please provide the list of SPCs
+        # as mentioned below
+        - "cstor-pool-name"
+        # For upgrades older than 1.9.0, use
+        # '--spc-name=<spc_name> format as
+        # below commented line
+        # - "--spc-name=cstor-sparse-pool"
+
+        #Following are optional parameters
+        #Log Level
+        - "--v=4"
+        #DO NOT CHANGE BELOW PARAMETERS
+        env:
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        tty: true
+
+        # the image version should be same as the --to-version mentioned above
+        # in the args of the job
+        image: quay.io/openebs/m-upgrade:1.11.0
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
+```
+
+Apply the Job manifest using `kubectl`. Check the logs of the pod started by the Job:
+
+```bash
+$ kubectl get logs -n openebs cstor-spc-1001120-dc7kx
+..
+..
+..
+I0728 15:15:41.321450       1 spc_upgrade.go:102] Upgrade Successful for spc cstor-pool-openebs-replica1
+I0728 15:15:41.321473       1 cstor_spc.go:120] Successfully upgraded storagePoolClaim{cstor-pool-openebs-replica1} from 1.10.0 to 1.11.0
+```
+
+###### Upgrade cStor volumes
+
+Extract the PV name using kubectl get pv:
+
+```bash
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                                             STORAGECLASS       REASON   AGE
+pvc-b69260c4-5cc1-4461-b762-851fa53629d9   50Gi       RWO            Delete           Bound    monitoring/data-alertmanager-prometheus-operator-alertmanager-0   openebs-replica1            24h
+pvc-da29e4fe-1841-4da9-a8f6-4e3c92943cbb   50Gi       RWO            Delete           Bound    monitoring/data-prometheus-prometheus-operator-prometheus-0       openebs-replica1            24h
+```
+
+Create a Kubernetes Job spec for upgrading the cstor volume. An example spec is
+as follows:
+
+```yaml
+#This is an example YAML for upgrading cstor volume.
+#Some of the values below needs to be changed to
+#match your openebs installation. The fields are
+#indicated with VERIFY
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  #VERIFY that you have provided a unique name for this upgrade job.
+  #The name can be any valid K8s string for name. This example uses
+  #the following convention: cstor-vol-<flattened-from-to-versions>
+  name: cstor-vol-1001120
+
+  #VERIFY the value of namespace is same as the namespace where openebs components
+  # are installed. You can verify using the command:
+  # `kubectl get pods -n <openebs-namespace> -l openebs.io/component-name=maya-apiserver`
+  # The above command should return status of the openebs-apiserver.
+  namespace: openebs
+
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      #VERIFY the value of serviceAccountName is pointing to service account
+      # created within openebs namespace. Use the non-default account.
+      # by running `kubectl get sa -n <openebs-namespace>`
+      serviceAccountName: openebs-operator
+      containers:
+      - name:  upgrade
+        args:
+        - "cstor-volume"
+
+        # --from-version is the current version of the volume
+        - "--from-version=1.10.0"
+
+        # --to-version is the version desired upgrade version
+        - "--to-version=1.11.0"
+
+        # Bulk upgrade is supported from 1.9
+        # To make use of it, please provide the list of PVs
+        # as mentioned below
+        - "pvc-b69260c4-5cc1-4461-b762-851fa53629d9"
+        - "pvc-da29e4fe-1841-4da9-a8f6-4e3c92943cbb"
+        # For upgrades older than 1.9.0, use
+        # '--pv-name=<pv_name> format as
+        # below commented line
+        # - "--pv-name=pvc-c630f6d5-afd2-11e9-8e79-42010a800065"
+
+        #Following are optional parameters
+        #Log Level
+        - "--v=4"
+        #DO NOT CHANGE BELOW PARAMETERS
+        env:
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        tty: true
+
+        # the image version should be same as the --to-version mentioned above
+        # in the args of the job
+        image: quay.io/openebs/m-upgrade:1.11.0
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
+---
+
+```
+
+Apply the Job manifest using `kubectl`. Check the logs of the pod started by the Job:
+
+```bash
+$ kubectl get logs -n openebs cstor-vol-1001120-8b2h9
+..
+..
+..
+I0728 15:19:48.496031       1 cstor_volume_upgrade.go:609] Upgrade Successful for cstor volume pvc-da29e4fe-1841-4da9-a8f6-4e3c92943cbb
+I0728 15:19:48.502876       1 cstor_volume.go:119] Successfully upgraded cstorVolume{pvc-da29e4fe-1841-4da9-a8f6-4e3c92943cbb} from 1.10.0 to 1.11.0
+```
+
 ## v0.2.1 - 2020-06-24
 
 This is a patch release to fix AKS platform deployments.
@@ -18,7 +464,7 @@ This is a patch release to fix AKS platform deployments.
 
 #### Misc
 
-* Bootkube Docker images are now pulled using Docker protocol, as quay.io plans to deprecate pulling images using ACI ([#656](https://github.com/kinvolk/lokomotive/pull/656)).
+* Bootkube Docker images are now pulled using Docker protocol, as quay.io plans to deprecate pulling images using ACI ([#656](https://github.com/kinvolk/lokomotive/pull/656).
 
 #### Development
 
