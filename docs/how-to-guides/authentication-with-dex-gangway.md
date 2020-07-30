@@ -330,7 +330,7 @@ Verify you've configured RBAC correctly in step 7.
 ## Additional resources
 
 To configure authentication with Google as an identity provider,visit the [Dex component
-documentation](../../configuration-reference/components/dex.md) for configuration changes.
+documentation](../configuration-reference/components/dex.md) for configuration changes.
 
 For more information about OpenID Connect, see [OpenID Connect](https://openid.net/connect)
 website.
