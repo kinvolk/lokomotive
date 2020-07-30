@@ -28,6 +28,14 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
+// Namespace struct for holding the Lokomotive specific metadata.
+// when installing cluster or components.
+type Namespace struct {
+	Name        string
+	Labels      map[string]string
+	Annotations map[string]string
+}
+
 // Adapted from https://github.com/kubernetes-incubator/bootkube/blob/83d32756c6b02c26cab1de3f03b57f06ae4339a7/pkg/bootkube/create.go
 
 type manifest struct {
