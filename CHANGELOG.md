@@ -18,7 +18,7 @@ This is a patch release to fix AKS platform deployments.
 
 #### Misc
 
-* Bootkube Docker images are now pulled using Docker protocol, as quay.io plans to deprecate pulling images using ACI ([#656](https://github.com/kinvolk/lokomotive/pull/656).
+* Bootkube Docker images are now pulled using Docker protocol, as quay.io plans to deprecate pulling images using ACI ([#656](https://github.com/kinvolk/lokomotive/pull/656)).
 
 #### Development
 
