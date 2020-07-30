@@ -15,13 +15,14 @@
 package certmanager
 
 import (
-	"fmt"
+	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
+	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
@@ -75,7 +76,8 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
+	p := filepath.Join(assets.ComponentsSource, name)
+	helmChart, err := util.LoadChartFromAssets(p)
 	if err != nil {
 		return nil, errors.Wrap(err, "load chart from assets")
 	}

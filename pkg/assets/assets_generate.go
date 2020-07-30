@@ -23,8 +23,12 @@ import (
 
 func main() {
 	dirs := map[string]string{
-		"/lokomotive-kubernetes": "../../assets/lokomotive-kubernetes",
-		"/components":            "../../assets/components",
+		assets.TerraformModulesSource: "../../assets/lokomotive-kubernetes",
+		assets.ControlPlaneSource:     "../../assets/charts/control-plane",
+		assets.ComponentsSource:       "../../assets/charts/components",
+		// This assets path is deprecated and should not be used for new components. It contains
+		// manifests for components which haven't yet been converted to Helm charts.
+		"/components": "../../assets/components",
 	}
 	err := assets.Generate("generated_assets.go", "assets", "vfsgenAssets", dirs)
 	if err != nil {

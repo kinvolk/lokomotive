@@ -15,7 +15,7 @@
 package flatcarlinuxupdateoperator
 
 import (
-	"fmt"
+	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -23,13 +23,12 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
-const componentName = "flatcar-linux-update-operator"
+const name = "flatcar-linux-update-operator"
 
 func init() {
-	components.Register(componentName, &component{})
+	components.Register(name, &component{})
 }
 
 type component struct{}
@@ -44,8 +43,9 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
-	walk := walkers.DumpingWalker(ret, ".yaml")
-	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", componentName), walk); err != nil {
+	walk := assets.DumpingWalker(ret, ".yaml")
+	p := filepath.Join("/components", name)
+	if err := assets.Assets.WalkFiles(p, walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}
 
@@ -54,7 +54,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      componentName,
+		Name:      name,
 		Namespace: "reboot-coordinator",
 	}
 }

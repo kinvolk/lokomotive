@@ -35,8 +35,8 @@ type variable struct {
 }
 
 type cluster struct {
-	Name   string   `hcl:"name,label"`
-	Config hcl.Body `hcl:",remain"`
+	Platform string   `hcl:"platform,label"`
+	Config   hcl.Body `hcl:",remain"`
 }
 
 type component struct {
@@ -80,8 +80,10 @@ func loadLokocfgPaths(configPath string) ([]string, error) {
 	return lokocfgPaths, nil
 }
 
-func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) {
-	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
+// Read reads HCL files at path and HCL variable files at varPath, constructs a
+// Config and returns a pointer to it.
+func Read(path, varPath string) (*Config, hcl.Diagnostics) {
+	lokocfgPaths, err := loadLokocfgPaths(path)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
@@ -104,19 +106,19 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) 
 
 	configBody := hcl.MergeFiles(hclFiles)
 
-	exists, err := util.PathExists(lokocfgVarsPath)
+	exists, err := util.PathExists(varPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
 				Severity: hcl.DiagError,
-				Summary:  fmt.Sprintf("could not stat %q: %v", lokocfgVarsPath, err),
+				Summary:  fmt.Sprintf("could not stat %q: %v", varPath, err),
 			},
 		}
 	}
 	var userVals map[string]cty.Value
 	var diags hcl.Diagnostics
 	if exists {
-		userVals, diags = LoadValuesFile(lokocfgVarsPath)
+		userVals, diags = LoadValuesFile(varPath)
 		if len(diags) > 0 {
 			return nil, diags
 		}

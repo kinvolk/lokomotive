@@ -61,37 +61,39 @@ func (c *Config) Validate() error {
 	return fmt.Errorf("invalid DNS provider %q", c.Provider)
 }
 
-// AskToConfigure reads the required DNS entries from a Terraform output,
-// asks the user to configure them and checks if the configuration is correct.
-func (c *Config) AskToConfigure(ex *terraform.Executor) error {
-	dnsEntries, err := readDNSEntries(ex)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Please configure the following DNS entries at the DNS provider which hosts %q:\n", c.Zone)
-	prettyPrintDNSEntries(dnsEntries)
-
-	for {
-		fmt.Printf("Press Enter to check the entries or type \"skip\" to continue the installation: ")
-
-		var input string
-		fmt.Scanln(&input)
-
-		if input == "skip" {
-			break
-		} else if input != "" {
-			continue
+// ManualConfigPrompt returns a callback function which prompts the user to configure DNS entries
+// manually and verifies the entries were created successfully.
+func ManualConfigPrompt(c *Config) func(*terraform.Executor) error {
+	return func(ex *terraform.Executor) error {
+		dnsEntries, err := readDNSEntries(ex)
+		if err != nil {
+			return err
 		}
 
-		if checkDNSEntries(dnsEntries) {
-			break
+		fmt.Printf("Please configure the following DNS entries at the DNS provider which hosts %q:\n", c.Zone)
+		prettyPrintDNSEntries(dnsEntries)
+
+		for {
+			fmt.Printf("Press Enter to check the entries or type \"skip\" to continue the installation: ")
+
+			var input string
+			fmt.Scanln(&input)
+
+			if input == "skip" {
+				break
+			} else if input != "" {
+				continue
+			}
+
+			if checkDNSEntries(dnsEntries) {
+				break
+			}
+
+			fmt.Println("Entries are not correctly configured, please verify.")
 		}
 
-		fmt.Println("Entries are not correctly configured, please verify.")
+		return nil
 	}
-
-	return nil
 }
 
 func readDNSEntries(ex *terraform.Executor) ([]dnsEntry, error) {

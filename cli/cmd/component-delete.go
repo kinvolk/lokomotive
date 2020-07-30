@@ -20,9 +20,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 var componentDeleteCmd = &cobra.Command{
@@ -49,18 +51,29 @@ func runDelete(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoCfg, diags := getLokoConfig()
+	// Read cluster config from HCL files.
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+	cc, diags := config.Read(cp, vp)
 	if len(diags) > 0 {
 		contextLogger.Fatal(diags)
 	}
+
+	if cc.RootConfig.Cluster == nil {
+		// No `cluster` block specified in the configuration.
+		contextLogger.Fatal("No cluster configured")
+	}
+
+	// Construct a Cluster.
+	c := createCluster(contextLogger, cc)
 
 	componentsToDelete := make([]string, len(args))
 	copy(componentsToDelete, args)
 
 	if len(args) == 0 {
-		componentsToDelete = make([]string, len(lokoCfg.RootConfig.Components))
+		componentsToDelete = make([]string, len(cc.RootConfig.Components))
 
-		for i, component := range lokoCfg.RootConfig.Components {
+		for i, component := range cc.RootConfig.Components {
 			componentsToDelete[i] = component.Name
 		}
 	}
@@ -86,12 +99,9 @@ func runDelete(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	kubeconfig, err := getKubeconfig()
-	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
-	}
+	kubeconfig := kubeconfigPath(c.AssetDir())
 
-	if err := deleteComponents(kubeconfig, componentsObjects...); err != nil {
+	if err := deleteComponents([]byte(kubeconfig), componentsObjects...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }

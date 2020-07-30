@@ -1,18 +1,30 @@
-# Self-hosted Kubernetes bootstrap-manifests
-resource "template_dir" "bootstrap-manifests" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/bootstrap-manifests"
-  destination_dir = "${var.asset_dir}/bootstrap-manifests"
+resource "local_file" "bootstrap-apiserver" {
+  filename = "${var.asset_dir}/bootstrap-manifests/bootstrap-apiserver.yaml"
+  content = templatefile("${path.module}/resources/bootstrap-manifests/bootstrap-apiserver.yaml", {
+    kube_apiserver_image = var.container_images["kube_apiserver"]
+    cloud_provider       = var.cloud_provider
+    etcd_servers         = join(",", formatlist("https://%s:2379", var.etcd_servers))
+    service_cidr         = var.service_cidr
+    trusted_certs_dir    = var.trusted_certs_dir
+  })
+}
 
-  vars = {
-    kube_apiserver_image          = var.container_images["kube_apiserver"]
+resource "local_file" "bootstrap-controller-manager" {
+  filename = "${var.asset_dir}/bootstrap-manifests/bootstrap-controller-manager.yaml"
+  content = templatefile("${path.module}/resources/bootstrap-manifests/bootstrap-controller-manager.yaml", {
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
-    kube_scheduler_image          = var.container_images["kube_scheduler"]
-    etcd_servers                  = join(",", formatlist("https://%s:2379", var.etcd_servers))
-    cloud_provider                = var.cloud_provider
     pod_cidr                      = var.pod_cidr
     service_cidr                  = var.service_cidr
+    cloud_provider                = var.cloud_provider
     trusted_certs_dir             = var.trusted_certs_dir
-  }
+  })
+}
+
+resource "local_file" "bootstrap-scheduler" {
+  filename = "${var.asset_dir}/bootstrap-manifests/bootstrap-scheduler.yaml"
+  content = templatefile("${path.module}/resources/bootstrap-manifests/bootstrap-scheduler.yaml", {
+    kube_scheduler_image = var.container_images["kube_scheduler"]
+  })
 }
 
 resource "local_file" "kube-apiserver" {
@@ -40,11 +52,6 @@ resource "local_file" "kube-apiserver" {
   })
 }
 
-resource "template_dir" "kube-apiserver" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kube-apiserver"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kube-apiserver"
-}
-
 resource "local_file" "pod-checkpointer" {
   filename = "${var.asset_dir}/charts/kube-system/pod-checkpointer.yaml"
   content = templatefile("${path.module}/resources/charts/pod-checkpointer.yaml", {
@@ -52,23 +59,10 @@ resource "local_file" "pod-checkpointer" {
   })
 }
 
-resource "template_dir" "pod-checkpointer" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/pod-checkpointer"
-  destination_dir = "${var.asset_dir}/charts/kube-system/pod-checkpointer"
-}
-
-# Populate kubernetes control plane chart.
-# TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
-# The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
-resource "template_dir" "kubernetes" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kubernetes"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kubernetes"
-}
-
 # Populate kubernetes chart values file named kubernetes.yaml.
 resource "local_file" "kubernetes" {
   filename = "${var.asset_dir}/charts/kube-system/kubernetes.yaml"
-  content  = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
+  content = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
     kube_proxy_image              = var.container_images["kube_proxy"]
@@ -111,16 +105,6 @@ resource "local_file" "kubelet" {
 
   content  = data.template_file.kubelet[0].rendered
   filename = "${var.asset_dir}/charts/kube-system/kubelet.yaml"
-}
-
-# Populate kubelet chart.
-# TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
-# The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
-resource "template_dir" "kubelet" {
-  count = local.kubelet
-
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/kubelet"
-  destination_dir = "${var.asset_dir}/charts/kube-system/kubelet"
 }
 
 # Generated kubeconfig for Kubelets

@@ -15,20 +15,17 @@
 package aws
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
-
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
+	"github.com/pkg/errors"
 )
 
 type workerPool struct {
@@ -49,7 +46,7 @@ type workerPool struct {
 	LBHTTPSPort  int               `hcl:"lb_https_port,optional"`
 }
 
-type config struct {
+type Config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
 	ClusterName              string            `hcl:"cluster_name"`
 	Tags                     map[string]string `hcl:"tags,optional"`
@@ -83,165 +80,95 @@ type config struct {
 	KubeAPIServerExtraFlags  []string
 }
 
-// init registers aws as a platform
-func init() {
-	platform.Register("aws", NewConfig())
-}
+// NewConfig creates a new Config and returns a pointer to it as well as any HCL diagnostics.
+func NewConfig(b *hcl.Body, ctx *hcl.EvalContext) (*Config, hcl.Diagnostics) {
+	diags := hcl.Diagnostics{}
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-
-	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
-		return diags
-	}
-
-	return c.checkValidConfig()
-}
-
-func NewConfig() *config {
-	return &config{
+	// Create config with default values.
+	c := &Config{
 		Region:            "eu-central-1",
 		EnableAggregation: true,
 	}
+
+	if b == nil {
+		return nil, hcl.Diagnostics{}
+	}
+
+	if d := gohcl.DecodeBody(*b, ctx, c); len(d) != 0 {
+		diags = append(diags, d...)
+		return nil, diags
+	}
+
+	if d := c.validate(); len(d) != 0 {
+		diags = append(diags, d...)
+		return nil, diags
+	}
+
+	return c, diags
 }
 
-func (c *config) clusterDomain() string {
-	return fmt.Sprintf("%s.%s", c.ClusterName, c.DNSZone)
+// Cluster implements the Cluster interface for Packet.
+type Cluster struct {
+	config *Config
+	// A string containing the rendered Terraform code of the root module.
+	rootModule string
 }
 
-// Meta is part of Platform interface and returns common information about the platform configuration.
-func (c *config) Meta() platform.Meta {
-	nodes := c.ControllerCount
-	for _, workerpool := range c.WorkerPools {
+func (c *Cluster) AssetDir() string {
+	return c.config.AssetDir
+}
+
+func (c *Cluster) ControlPlaneCharts() []string {
+	charts := platform.CommonControlPlaneCharts
+	if !c.config.DisableSelfHostedKubelet {
+		charts = append(charts, "kubelet")
+	}
+
+	return charts
+}
+
+func (c *Cluster) Managed() bool {
+	return false
+}
+
+func (c *Cluster) Nodes() int {
+	nodes := c.config.ControllerCount
+	for _, workerpool := range c.config.WorkerPools {
 		nodes += workerpool.Count
 	}
 
-	return platform.Meta{
-		AssetDir:      c.AssetDir,
-		ExpectedNodes: nodes,
+	return nodes
+}
+
+func (c *Cluster) TerraformExecutionPlan() []terraform.ExecutionStep {
+	return []terraform.ExecutionStep{
+		terraform.ExecutionStep{
+			Description: "Create infrastructure",
+			Args:        []string{"apply", "-auto-approve"},
+		},
 	}
 }
 
-func (c *config) Apply(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
-	}
-
-	return ex.Apply()
+func (c *Cluster) TerraformRootModule() string {
+	return c.rootModule
 }
 
-func (c *config) Destroy(ex *terraform.Executor) error {
-	if err := c.Initialize(ex); err != nil {
-		return err
+// NewCluster constructs a Cluster based on the provided config and returns a pointer to it.
+func NewCluster(c *Config) (*Cluster, error) {
+	rendered, err := renderRootModule(c)
+	if err != nil {
+		return nil, fmt.Errorf("rendering root module: %v", err)
 	}
 
-	return ex.Destroy()
+	return &Cluster{config: c, rootModule: rendered}, nil
 }
 
-func (c *config) Initialize(ex *terraform.Executor) error {
-	assetDir, err := homedir.Expand(c.AssetDir)
-	if err != nil {
-		return err
-	}
-
-	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
-
-	return createTerraformConfigFile(c, terraformRootDir)
+func (c *Config) clusterDomain() string {
+	return fmt.Sprintf("%s.%s", c.ClusterName, c.DNSZone)
 }
 
-func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
-	workerpoolCfgList := []map[string]string{}
-	tmplName := "cluster.tf"
-	t := template.New(tmplName)
-	t, err := t.Parse(terraformConfigTmpl)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse template")
-	}
-
-	path := filepath.Join(terraformRootDir, tmplName)
-	f, err := os.Create(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
-	}
-	defer f.Close()
-
-	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal SSH public keys")
-	}
-
-	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
-	}
-
-	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
-	if cfg.OIDC != nil {
-		// Skipping the error checking here because its done in checkValidConfig().
-		oidcFlags, _ := cfg.OIDC.ToKubeAPIServerFlags(cfg.clusterDomain())
-		// TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
-		// append is not used for now because Initialize is called in cli/cmd/cluster.go
-		// and again in Apply which duplicates the values.
-		cfg.KubeAPIServerExtraFlags = oidcFlags
-	}
-
-	platform.AppendVersionTag(&cfg.Tags)
-
-	tags, err := json.Marshal(cfg.Tags)
-	if err != nil {
-		return errors.Wrapf(err, "failed to marshal tags")
-	}
-
-	for _, workerpool := range cfg.WorkerPools {
-		input := map[string]interface{}{
-			"clc_snippets":  workerpool.CLCSnippets,
-			"target_groups": workerpool.TargetGroups,
-			"ssh_pub_keys":  workerpool.SSHPubKeys,
-			"tags":          workerpool.Tags,
-		}
-
-		output := map[string]string{}
-
-		platform.AppendVersionTag(&workerpool.Tags)
-
-		for k, v := range input {
-			bytes, err := json.Marshal(v)
-			if err != nil {
-				return fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
-			}
-
-			output[k] = string(bytes)
-		}
-
-		workerpoolCfgList = append(workerpoolCfgList, output)
-	}
-
-	terraformCfg := struct {
-		Config                config
-		Tags                  string
-		SSHPublicKeys         string
-		ControllerCLCSnippets string
-		WorkerCLCSnippets     string
-		WorkerTargetGroups    string
-		WorkerpoolCfg         []map[string]string
-	}{
-		Config:                *cfg,
-		Tags:                  string(tags),
-		SSHPublicKeys:         string(keyListBytes),
-		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
-		WorkerpoolCfg:         workerpoolCfgList,
-	}
-
-	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
-	}
-	return nil
-}
-
-// checkValidConfig validates cluster configuration.
-func (c *config) checkValidConfig() hcl.Diagnostics {
+// validate validates cluster configuration.
+func (c *Config) validate() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
@@ -258,7 +185,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 
 // checkNameSizes checks the size of names since AWS has a limit of 32
 // characters on resources.
-func (c *config) checkNameSizes() hcl.Diagnostics {
+func (c *Config) checkNameSizes() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
 	maxAWSResourceName := 32
@@ -286,7 +213,7 @@ func (c *config) checkNameSizes() hcl.Diagnostics {
 }
 
 // checkNotEmptyWorkers checks if the cluster has at least 1 node pool defined.
-func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
+func (c *Config) checkNotEmptyWorkers() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
 	if len(c.WorkerPools) == 0 {
@@ -301,7 +228,7 @@ func (c *config) checkNotEmptyWorkers() hcl.Diagnostics {
 }
 
 // checkWorkerPoolNamesUnique verifies that all worker pool names are unique.
-func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
+func (c *Config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
 	dup := make(map[string]bool)
@@ -321,4 +248,86 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 	}
 
 	return diagnostics
+}
+
+func renderRootModule(conf *Config) (string, error) {
+	t, err := template.New("rootModule").Parse(terraformConfigTmpl)
+	if err != nil {
+		return "", fmt.Errorf("parsing template: %v", err)
+	}
+
+	keyListBytes, err := json.Marshal(conf.SSHPubKeys)
+	if err != nil {
+		return "", fmt.Errorf("marshaling SSH public keys: %v", err)
+	}
+
+	controllerCLCSnippetsBytes, err := json.Marshal(conf.ControllerCLCSnippets)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to marshal CLC snippets")
+	}
+
+	// Configure OIDC flags and set them to KubeAPIServerExtraFlags.
+	if conf.OIDC != nil {
+		// Skipping the error checking here because it's done in validate().
+		oidcFlags, _ := conf.OIDC.ToKubeAPIServerFlags(conf.clusterDomain())
+		//TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
+		// append is not used for now because Initialize is called in cli/cmd/cluster.go
+		// and again in Apply which duplicates the values.
+		conf.KubeAPIServerExtraFlags = oidcFlags
+	}
+
+	platform.AppendVersionTag(&conf.Tags)
+
+	tags, err := json.Marshal(conf.Tags)
+	if err != nil {
+		return "", fmt.Errorf("marshaling tags: %v", err)
+	}
+
+	workerpoolCfgList := []map[string]string{}
+	for _, workerpool := range conf.WorkerPools {
+		input := map[string]interface{}{
+			"clc_snippets":  workerpool.CLCSnippets,
+			"target_groups": workerpool.TargetGroups,
+			"ssh_pub_keys":  workerpool.SSHPubKeys,
+			"tags":          workerpool.Tags,
+		}
+
+		output := map[string]string{}
+
+		platform.AppendVersionTag(&workerpool.Tags)
+
+		for k, v := range input {
+			bytes, err := json.Marshal(v)
+			if err != nil {
+				return "", fmt.Errorf("marshaling %q for worker pool %q failed: %w", k, workerpool.Name, err)
+			}
+
+			output[k] = string(bytes)
+		}
+
+		workerpoolCfgList = append(workerpoolCfgList, output)
+	}
+
+	terraformCfg := struct {
+		Config                Config
+		Tags                  string
+		SSHPublicKeys         string
+		ControllerCLCSnippets string
+		WorkerCLCSnippets     string
+		WorkerTargetGroups    string
+		WorkerpoolCfg         []map[string]string
+	}{
+		Config:                *conf,
+		Tags:                  string(tags),
+		SSHPublicKeys:         string(keyListBytes),
+		ControllerCLCSnippets: string(controllerCLCSnippetsBytes),
+		WorkerpoolCfg:         workerpoolCfgList,
+	}
+
+	var rendered bytes.Buffer
+	if err := t.Execute(&rendered, terraformCfg); err != nil {
+		return "", fmt.Errorf("rendering template: %v", err)
+	}
+
+	return rendered.String(), nil
 }

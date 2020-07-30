@@ -70,6 +70,25 @@ const (
 	ExecutionStatusFailure ExecutionStatus = "Failure"
 )
 
+// ExecutionStep represents a single Terraform operation.
+type ExecutionStep struct {
+	// A short string describing the step in a way that is meaningful to the user. When a step
+	// fails to execute, the description can be included in an error to let the user know exactly
+	// what failed. Examples: "Create DNS resources", "Deploy virtual machines".
+	Description string
+	// A list of arguments to be passed to the `terraform` command. Note that for "apply" commands
+	// the "-auto-approve" argument should always be included to avoid halting the Terraform
+	// execution with interactive prompts.
+	// Examples:
+	// - []string{"apply", "-target=module.foo", "-auto-approve"}
+	// - []string{"refresh"}
+	// - []string{"apply", "-auto-approve"}
+	Args []string
+	// A function which should be run prior to executing the Terraform command. If specified and
+	// the function returns an error, execution is halted.
+	PreExecutionHook func(*Executor) error
+}
+
 // Executor enables calling Terraform from Go, across platforms, with any
 // additional providers/provisioners that the currently executing binary
 // exposes.

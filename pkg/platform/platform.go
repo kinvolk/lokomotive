@@ -15,52 +15,53 @@
 package platform
 
 import (
-	"fmt"
-
-	"github.com/hashicorp/hcl/v2"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
-// Platform describes single environment, where cluster can be installed
-type Platform interface {
-	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
-	Apply(*terraform.Executor) error
-	Destroy(*terraform.Executor) error
-	Initialize(*terraform.Executor) error
-	Meta() Meta
+const (
+	// AKS represents an AKS cluster.
+	AKS = "aks"
+	// AWS represents an AWS cluster.
+	AWS = "aws"
+	// BareMetal represents a bare metal cluster.
+	BareMetal = "baremetal"
+	// Packet represents a Packet cluster.
+	Packet = "packet"
+)
+
+// CommonControlPlaneCharts defines a list of control plane Helm charts to be deployed for all
+// platforms.
+var CommonControlPlaneCharts = []string{
+	"calico",
+	"kube-apiserver",
+	"kubernetes",
+	"pod-checkpointer",
 }
 
-// Meta is a generic information format about the platform.
-type Meta struct {
-	AssetDir      string
-	ExpectedNodes int
-	Managed       bool
-}
-
-// platforms is a collection where all platforms gets automatically registered
-var platforms map[string]Platform
-
-// initialize package's global variable when package is imported
-func init() {
-	platforms = make(map[string]Platform)
-}
-
-// Register adds platform into internal map
-func Register(name string, p Platform) {
-	if _, exists := platforms[name]; exists {
-		panic(fmt.Sprintf("platform with name %q registered already", name))
-	}
-	platforms[name] = p
-}
-
-// GetPlatform returns platform based on the name
-func GetPlatform(name string) (Platform, error) {
-	platform, exists := platforms[name]
-	if !exists {
-		return nil, fmt.Errorf("no platform with name %q found", name)
-	}
-	return platform, nil
+// Cluster describes a Lokomotive cluster.
+type Cluster interface {
+	// AssetDir returns the path to the Lokomotive assets directory.
+	AssetDir() string
+	// ControlPlaneCharts returns a list of Helm charts which compose the k8s control plane.
+	ControlPlaneCharts() []string
+	// Managed returns true if the cluster uses a managed platform (e.g. AKS).
+	Managed() bool
+	// Nodes returns the total number of nodes for the cluster. This is the total number of nodes
+	// including all controller nodes and all worker nodes from all worker pools.
+	Nodes() int
+	// TerraformExecutionPlan returns a list of terraform.ExecutionStep representing steps which
+	// should be executed to get a working cluster on a platform. The execution plan is used during
+	// cluster creation only - when destroying a cluster, a simple `terraform destroy` is always
+	// executed.
+	//
+	// The commands specified in the Args field of each TerraformExecutionStep are passed as
+	// arguments to the `terraform` binary and are executed in order.
+	// `apply` operations should be followed by `-auto-approve` to skip interactive prompts.
+	TerraformExecutionPlan() []terraform.ExecutionStep
+	// TerraformRootModule returns a string representing the contens of the root Terraform module
+	// which should be used for cluster operations.
+	TerraformRootModule() string
 }
 
 // AppendVersionTag appends the lokoctl-version tag to a given tags map.
