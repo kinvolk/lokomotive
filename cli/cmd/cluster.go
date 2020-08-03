@@ -148,10 +148,10 @@ func clusterExists(ctxLogger *logrus.Entry, ex *terraform.Executor) bool {
 }
 
 type controlplaneUpdater struct {
-	kubeconfigPath string
-	assetDir       string
-	ctxLogger      logrus.Entry
-	ex             terraform.Executor
+	kubeconfig []byte
+	assetDir   string
+	ctxLogger  logrus.Entry
+	ex         terraform.Executor
 }
 
 func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, error) {
@@ -187,7 +187,7 @@ func (c controlplaneUpdater) upgradeComponent(component string) {
 		"component": component,
 	})
 
-	actionConfig, err := util.HelmActionConfig("kube-system", c.kubeconfigPath)
+	actionConfig, err := util.HelmActionConfig("kube-system", c.kubeconfig)
 	if err != nil {
 		ctxLogger.Fatalf("Failed initializing helm: %v", err)
 	}
