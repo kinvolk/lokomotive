@@ -49,7 +49,7 @@ component "prometheus-operator" {
 
   prometheus {
     metrics_retention = "14d"
-    storage_size      = "50GiB"
+    storage_size      = "50Gi"
     node_selector = {
       "kubernetes.io/hostname" = "worker3"
     }
