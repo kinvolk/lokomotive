@@ -34,6 +34,7 @@ import (
 const (
 	retryIntervalSeconds = 5
 	maxRetries           = 60
+	httpTimeout          = 4 * time.Second
 )
 
 func TestAWSIngress(t *testing.T) {
@@ -134,6 +135,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 	}
 
 	return &http.Client{
+		Timeout: httpTimeout,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs: rootCAs,
