@@ -58,6 +58,8 @@ func TestAWSIngress(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.Ingress, func(t *testing.T) {
+			t.Parallel()
+
 			client := testutil.CreateKubeClient(t)
 
 			i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get(context.TODO(), "httpbin", metav1.GetOptions{})
