@@ -1,4 +1,4 @@
-# Setting up monitoring on Lokomotive
+# Set up monitoring on Lokomotive
 
 ## Contents
 
@@ -7,12 +7,12 @@
 * [Steps: Deploy Prometheus Operator](#steps-deploy-prometheus-operator)
   * [Step 1: Configure Prometheus Operator](#step-1-configure-prometheus-operator)
   * [Step 2: Install Prometheus Operator](#step-2-install-prometheus-operator)
-* [Accessing Prometheus, Alertmanager and Grafana](#accessing-prometheus-operator-sub-components)
-  * [Accessing Prometheus](#accessing-prometheus)
+* [Access Prometheus, Alertmanager and Grafana](#access-prometheus-alertmanager-and-grafana)
+  * [Access Prometheus](#access-prometheus)
     * [Using port forward](#using-port-forward)
     * [Using Ingress](#using-ingress)
-  * [Accessing Alertmanager](#accessing-alertmanager)
-  * [Accessing Grafana](#accessing-grafana)
+  * [Access Alertmanager](#access-alertmanager)
+  * [Access Grafana](#access-grafana)
     * [Using port forward](#using-port-forward-1)
     * [Using Ingress](#using-ingress-1)
 * [Add custom Grafana dashboards](#add-custom-grafana-dashboards)
@@ -73,9 +73,9 @@ Verify the pods in the `monitoring` namespace are in the `Running` state (this m
 kubectl -n monitoring get pods
 ```
 
-## Accessing Prometheus, Alertmanager and Grafana
+## Access Prometheus, Alertmanager and Grafana
 
-### Accessing Prometheus
+### Access Prometheus
 
 #### Using port forward
 
@@ -107,7 +107,7 @@ component "prometheus-operator" {
 
 Open the following URL: `https://prometheus.<cluster name>.<DNS zone>`.
 
-### Accessing Alertmanager
+### Access Alertmanager
 
 Execute the following command to forward port `9093` locally to the Alertmanager pod:
 
@@ -117,7 +117,7 @@ kubectl -n monitoring port-forward svc/prometheus-operator-alertmanager 9093
 
 Open the following URL: [http://localhost:9093](http://localhost:9093).
 
-### Accessing Grafana
+### Access Grafana
 
 #### Using port forward
 
