@@ -95,7 +95,8 @@ func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name stri
 				t.Logf("waiting for statefulset %s to be available", name)
 				return false, nil
 			}
-			return false, err
+
+			return false, fmt.Errorf("getting StatefulSet %q: %w", name, err)
 		}
 
 		t.Logf("statefulset: %s, replicas: %d/%d", name, int(ds.Status.ReadyReplicas), replicas)
@@ -119,7 +120,8 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 				t.Logf("waiting for daemonset %s to be available", name)
 				return false, nil
 			}
-			return false, err
+
+			return false, fmt.Errorf("getting DaemonSet %q: %w", name, err)
 		}
 		replicas := ds.Status.DesiredNumberScheduled
 
@@ -152,7 +154,8 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 				t.Logf("waiting for deployment %s to be available", name)
 				return false, nil
 			}
-			return false, err
+
+			return false, fmt.Errorf("getting Deployment %q: %w", name, err)
 		}
 
 		replicas := int(deploy.Status.Replicas)
@@ -180,7 +183,7 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
 		pods, err := client.CoreV1().Pods(ns).List(context.TODO(), metav1.ListOptions{LabelSelector: labelSet.String()})
 		if err != nil {
-			return false, err
+			return false, fmt.Errorf("getting pods: %w", err)
 		}
 		pods = filterNonControllerPods(pods)
 		// go through each pod in the returned list and check the readiness status of it
