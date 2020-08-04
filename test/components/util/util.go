@@ -183,6 +183,11 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 			return false, err
 		}
 		pods = filterNonControllerPods(pods)
+
+		if len(pods.Items) == 0 {
+			t.Fatalf("checking containers status failed. No pods selected.")
+		}
+
 		// go through each pod in the returned list and check the readiness status of it
 		for _, pod := range pods.Items {
 			for _, cs := range pod.Status.ContainerStatuses {
