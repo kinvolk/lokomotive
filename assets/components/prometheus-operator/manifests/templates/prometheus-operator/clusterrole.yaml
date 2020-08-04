@@ -28,6 +28,7 @@ rules:
   - podmonitors
   - prometheusrules
   - podmonitors
+  - probes
   verbs:
   - '*'
 - apiGroups:
