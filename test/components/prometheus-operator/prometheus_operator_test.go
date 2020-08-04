@@ -38,7 +38,7 @@ import (
 
 const (
 	retryInterval     = time.Second * 5
-	timeout           = time.Minute * 10
+	timeout           = time.Minute * 9
 	namespace         = "monitoring"
 	grafanaDeployment = "prometheus-operator-grafana"
 )
