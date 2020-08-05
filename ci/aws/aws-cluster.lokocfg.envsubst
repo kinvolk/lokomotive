@@ -65,6 +65,8 @@ EOF
   oidc {}
 }
 
+component "metrics-server" {}
+
 component "openebs-operator" {}
 
 # openebs-storage-class component should always be the last to be installed
@@ -97,8 +99,6 @@ component "contour" {
   enable_monitoring = true
   service_type      = "NodePort"
 }
-
-component "metrics-server" {}
 
 component "cert-manager" {
   email           = "$EMAIL"

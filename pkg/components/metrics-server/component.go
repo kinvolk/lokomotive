@@ -93,5 +93,17 @@ func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Name:      name,
 		Namespace: c.Namespace,
+		Helm: components.HelmMetadata{
+			// metrics-server provides Kubernetes API Resource, so when it is unavailable, it may
+			// cause Kubernetes clients to fail creating the client objects, as the client discovery
+			// will be returning the following error:
+			//
+			// failed to create Kubernetes client: unable to retrieve the complete list of server APIs:
+			// metrics.k8s.io/v1beta1: the server is currently unable to handle the request
+			//
+			// Adding wait will ensure, that metrics API is available before proceeding with installation
+			// of other components.
+			Wait: true,
+		},
 	}
 }

@@ -34,6 +34,7 @@ import (
 const (
 	retryIntervalSeconds = 5
 	maxRetries           = 60
+	httpTimeout          = 4 * time.Second
 )
 
 func TestAWSIngress(t *testing.T) {
@@ -57,6 +58,8 @@ func TestAWSIngress(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.Ingress, func(t *testing.T) {
+			t.Parallel()
+
 			client := testutil.CreateKubeClient(t)
 
 			i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get(context.TODO(), "httpbin", metav1.GetOptions{})
@@ -134,6 +137,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 	}
 
 	return &http.Client{
+		Timeout: httpTimeout,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs: rootCAs,
