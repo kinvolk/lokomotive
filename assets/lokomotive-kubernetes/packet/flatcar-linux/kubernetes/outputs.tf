@@ -27,6 +27,10 @@ output "calico_values" {
   value = module.bootkube.calico_values
 }
 
+output "lokomotive_values" {
+  value = module.bootkube.lokomotive_values
+}
+
 # Dummy output used to create dependencies only
 # Not guaranteed that won't change
 output "device_ids" {

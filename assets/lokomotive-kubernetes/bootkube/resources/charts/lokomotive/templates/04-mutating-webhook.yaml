@@ -1,0 +1,22 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: admission-webhook-server
+  labels:
+    k8s-app: admission-webhook-server
+webhooks:
+  - name: mutating.kinvolk.io
+    clientConfig:
+      caBundle: "{{ .Values.webhook.servingCert }}"
+      service:
+        name: admission-webhook-server
+        namespace: lokomotive-system
+        path: /mutate
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["serviceaccounts"]
+    sideEffects: None
+    failurePolicy: Ignore
+    admissionReviewVersions: ["v1"]

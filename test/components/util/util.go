@@ -477,7 +477,8 @@ func TestNamespace(name string) string {
 
 // IsUserNamespace checks for user namespace.
 func IsUserNamespace(ns string) bool {
-	if ns == "kube-system" || ns == "kube-public" || ns == "kube-node-lease" || ns == "default" {
+	switch ns {
+	case "kube-system", "kube-public", "kube-node-lease", "default", "lokomotive-system":
 		return true
 	}
 

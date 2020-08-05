@@ -172,3 +172,9 @@ data "template_file" "kubeconfig-admin" {
     server       = format("https://%s:%s", local.api_servers_external[0], var.external_apiserver_port)
   }
 }
+
+# Add Lokomotive chart.
+resource "template_dir" "lokomotive" {
+  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/lokomotive"
+  destination_dir = "${var.asset_dir}/charts/lokomotive-system/lokomotive"
+}

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admission-webhook-server
+  labels:
+    k8s-app: admission-webhook-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: admission-webhook-server
+  template:
+    metadata:
+      labels:
+        k8s-app: admission-webhook-server
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: admission-webhook-server
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+          image: "quay.io/kinvolk/lokomotive-admission-webhook-server:v0.1.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - -logtostderr=true
+            - -stderrthreshold=WARNING
+            - -v=2
+          volumeMounts:
+            - name: admission-webhook-server
+              mountPath: /etc/certs
+              readOnly: true
+          resources:
+            limits:
+              cpu: 300m
+              memory: 50Mi
+            requests:
+              cpu: 300m
+              memory: 50Mi
+      serviceAccountName: admission-webhook-server
+      volumes:
+        - name: admission-webhook-server
+          secret:
+            secretName: admission-webhook-server
