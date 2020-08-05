@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/kinvolk/lokomotive/internal"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
@@ -34,6 +35,9 @@ import (
 func InstallComponent(c components.Component, kubeconfig []byte) error {
 	name := c.Metadata().Name
 	ns := c.Metadata().Namespace
+
+	// Append namespace label to the release namespace.
+	ns.Labels = internal.AppendNamespaceLabel(ns.Name, ns.Labels)
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
