@@ -59,6 +59,8 @@ EOF
   oidc {}
 }
 
+component "metrics-server" {}
+
 component "openebs-operator" {}
 
 # openebs-storage-class component should always be the last to be installed
@@ -92,8 +94,6 @@ component "metallb" {
 
   service_monitor = true
 }
-
-component "metrics-server" {}
 
 component "cert-manager" {
   email           = "$EMAIL"
