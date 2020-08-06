@@ -66,7 +66,7 @@ lint: build-slim build-test
 
 .PHONY: lint-docker
 lint-docker:
-	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.27.0 make lint
+	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.30.0 make lint
 
 GOFORMAT_FILES := $(shell find . -name '*.go' | grep -v '^./vendor')
 
