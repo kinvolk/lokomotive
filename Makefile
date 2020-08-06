@@ -160,3 +160,15 @@ codespell: CODESPELL_BIN := codespell
 codespell:
 	which $(CODESPELL_BIN) >/dev/null 2>&1 || (echo "$(CODESPELL_BIN) binary not found, skipping spell checking"; exit 0)
 	$(CODESPELL_BIN) --skip $(CODESPELL_SKIP) --ignore-words .codespell.ignorewords --check-filenames --check-hidden
+
+.PHONY: check-docs
+check-docs: docs
+	test -z "$$(git status --porcelain)" || (echo "Please run 'make docs' and commit the changes."; git status; exit 1)
+
+.PHONY: check-vendor
+check-vendor: vendor
+	test -z "$$(git status --porcelain)" || (echo "Please run 'make vendor' and commit the changes."; git status; exit 1)
+
+.PHONY: check-assets
+check-assets: update-assets
+	test -z "$$(git status --porcelain)" || (echo "Please run 'make update-assets' and commit the changes."; git --no-pager diff; exit 1)
