@@ -3,11 +3,11 @@ monitoring:
 
 contour:
   image: docker.io/projectcontour/contour
-  tag: v1.5.0
+  tag: v1.7.0
 
 envoy:
   image: docker.io/envoyproxy/envoy
-  tag: v1.14.1
+  tag: v1.15.0
   serviceType:
 
 nodeAffinity: {}

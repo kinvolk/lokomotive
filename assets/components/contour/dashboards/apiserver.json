@@ -286,11 +286,6 @@
           },
           {
             "selected": false,
-            "text": "IngressRoute",
-            "value": "IngressRoute"
-          },
-          {
-            "selected": false,
             "text": "Secret",
             "value": "Secret"
           },
