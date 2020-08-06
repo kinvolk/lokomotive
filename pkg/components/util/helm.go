@@ -159,7 +159,7 @@ func chartFromComponent(c components.Component) (*chart.Chart, error) {
 		return nil, fmt.Errorf("rendering manifests failed: %w", err)
 	}
 
-	ch, err := chartFromManifests(c.Metadata().Name, m)
+	ch, err := chartFromManifests(c.Metadata(), m)
 	if err != nil {
 		return nil, fmt.Errorf("creating chart from manifests failed: %w", err)
 	}
@@ -172,11 +172,11 @@ func chartFromComponent(c components.Component) (*chart.Chart, error) {
 }
 
 // chartFromManifests creates Helm chart object in memory from given manifests.
-func chartFromManifests(name string, manifests map[string]string) (*chart.Chart, error) {
+func chartFromManifests(metadata components.Metadata, manifests map[string]string) (*chart.Chart, error) {
 	ch := &chart.Chart{
 		Metadata: &chart.Metadata{
 			APIVersion: chart.APIVersionV2,
-			Name:       name,
+			Name:       metadata.Name,
 			// TODO Remove hardcode version, which is installed.
 			Version: "0.1.0",
 		},
@@ -202,8 +202,7 @@ func chartFromManifests(name string, manifests map[string]string) (*chart.Chart,
 			}
 
 			// Drop Namespace resource as we take care of its creation at another level and we don't want resources to collide.
-			// TODO: Remove only the namespace in which the chart is installed.
-			if pm.Kind() == "Namespace" {
+			if pm.Kind() == "Namespace" && pm.Name() == metadata.Namespace {
 				continue
 			}
 

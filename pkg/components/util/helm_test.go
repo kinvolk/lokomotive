@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/kinvolk/lokomotive/pkg/components"
 )
 
 func TestRenderChartBadValues(t *testing.T) {
@@ -36,19 +38,23 @@ func TestRenderChartBadValues(t *testing.T) {
 
 func TestChartFromManifests(t *testing.T) {
 	tc := []struct {
-		name      string
+		metadata  components.Metadata
 		manifests map[string]string
 		err       bool
 	}{
 		{
-			"foo",
+			components.Metadata{
+				Name: "foo",
+			},
 			map[string]string{
 				"foo.yaml": "bar",
 			},
 			true,
 		},
 		{
-			"foo",
+			components.Metadata{
+				Name: "foo",
+			},
 			map[string]string{
 				"foo.yaml": "---\nfoo: bar",
 			},
@@ -60,7 +66,7 @@ func TestChartFromManifests(t *testing.T) {
 		c := c
 
 		t.Run("", func(t *testing.T) {
-			chart, err := chartFromManifests(c.name, c.manifests)
+			chart, err := chartFromManifests(c.metadata, c.manifests)
 			if c.err && err == nil {
 				t.Fatalf("Expected error, got nil")
 			}
@@ -90,7 +96,12 @@ metadata:
 `,
 	}
 
-	chart, err := chartFromManifests("foo", manifests)
+	m := components.Metadata{
+		Name:      "foo",
+		Namespace: "foo",
+	}
+
+	chart, err := chartFromManifests(m, manifests)
 	if err != nil {
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
@@ -119,13 +130,43 @@ metadata:
 `,
 	}
 
-	chart, err := chartFromManifests("foo", manifests)
+	m := components.Metadata{
+		Name:      "foo",
+		Namespace: "foo",
+	}
+
+	chart, err := chartFromManifests(m, manifests)
 	if err != nil {
 		t.Fatalf("Chart should be created, got: %v", err)
 	}
 
 	if len(chart.Manifests[0].Data) == 0 {
 		t.Fatalf("Other objects should be retained in the file containing Namespace object")
+	}
+}
+
+func TestChartFromManifestsRemoveOnlyReleaseNamespace(t *testing.T) {
+	manifests := map[string]string{
+		"objects.yaml": `
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: foo
+`,
+	}
+
+	m := components.Metadata{
+		Name:      "foo",
+		Namespace: "bar",
+	}
+
+	chart, err := chartFromManifests(m, manifests)
+	if err != nil {
+		t.Fatalf("Chart should be created, got: %v", err)
+	}
+
+	if len(chart.Manifests[0].Data) == 0 {
+		t.Fatalf("Only Namespace object with matching namespace name should be filtered")
 	}
 }
 
@@ -138,7 +179,11 @@ metadata:
 `,
 	}
 
-	chart, err := chartFromManifests("foo", manifests)
+	m := components.Metadata{
+		Name: "foo",
+	}
+
+	chart, err := chartFromManifests(m, manifests)
 	if err != nil {
 		t.Fatalf("Chart should be created, got: %v", err)
 	}

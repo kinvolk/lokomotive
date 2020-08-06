@@ -55,6 +55,10 @@ func (m manifest) Raw() []byte {
 	return m.raw
 }
 
+func (m manifest) Name() string {
+	return m.name
+}
+
 // LoadManifests parses a map of Kubernetes manifests.
 func LoadManifests(files map[string]string) ([]manifest, error) {
 	var manifests []manifest
