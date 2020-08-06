@@ -1,20 +1,27 @@
-# Setting up monitoring on Lokomotive
+# Set up monitoring on Lokomotive
 
 ## Contents
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
-* [Deploy Prometheus Operator](#deploy-prometheus-operator)
-  * [Configure Prometheus Operator](#configure-prometheus-operator)
-  * [Install Prometheus Operator](#install-prometheus-operator)
-* [Accessing Prometheus, Alertmanager and Grafana](#accessing-prometheus-operator-sub-components)
-  * [Accessing Prometheus](#accessing-prometheus)
+* [Steps: Deploy Prometheus Operator](#steps-deploy-prometheus-operator)
+  * [Step 1: Configure Prometheus Operator](#step-1-configure-prometheus-operator)
+  * [Step 2: Install Prometheus Operator](#step-2-install-prometheus-operator)
+* [Access Prometheus, Alertmanager and Grafana](#access-prometheus-alertmanager-and-grafana)
+  * [Access Prometheus](#access-prometheus)
     * [Using port forward](#using-port-forward)
     * [Using Ingress](#using-ingress)
-  * [Accessing Alertmanager](#accessing-alertmanager)
-  * [Accessing Grafana](#accessing-grafana)
+  * [Access Alertmanager](#access-alertmanager)
+  * [Access Grafana](#access-grafana)
     * [Using port forward](#using-port-forward-1)
     * [Using Ingress](#using-ingress-1)
+* [Add custom Grafana dashboards](#add-custom-grafana-dashboards)
+* [Add new ServiceMonitors](#add-new-service-monitors)
+  * [Default Prometheus operator setting](#default-prometheus-operator-setting)
+  * [Custom Prometheus operator setting](#custom-prometheus-operator-setting)
+* [Add custom alerts for Alertmanager](#add-custom-alerts-for-alertmanager)
+  * [Default Prometheus operator setting](#default-prometheus-operator-setting-1)
+  * [Custom Prometheus operator setting](#custom-prometheus-operator-setting-1)
 * [Additional resources](#additional-resources)
 
 ## Introduction
@@ -26,10 +33,10 @@ This guide provides the steps for deploying a monitoring stack using the `promet
 * A Lokomotive cluster deployed on a supported provider and accessible via `kubectl`.
 
 <!---
-TODO: Once we have tutorials on how to deploy and configure Rook or OpenEBS, point the following to those tutorials.
+TODO: Once we have tutorials on how to deploy and configure OpenEBS, point the following to those tutorials.
 -->
 
-* A storage provider component (`rook` and `rook-ceph`, or `openebs-operator` and `openebs-storage-class`) deployed with a default storage class that can provision volumes for the [PVCs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) created by Alertmanager and Prometheus.
+* A storage provider component ([`rook` and `rook-ceph`](./rook-ceph-storage.md), or `openebs-operator` and `openebs-storage-class`) deployed with a default storage class that can provision volumes for the [PVCs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) created by Alertmanager and Prometheus.
 
 <!---
 TODO: Once we have a tutorial on how to deploy and configure Contour and cert-manager, point the following to that tutorial.
@@ -40,9 +47,9 @@ TODO: Once we have a tutorial on how to deploy and configure Contour and cert-ma
 > * [`cert-manager`](../configuration-reference/components/cert-manager.md)
 
 
-## Deploy Prometheus Operator
+## Steps: Deploy Prometheus Operator
 
-### Configure Prometheus Operator
+### Step 1: Configure Prometheus Operator
 
 Create a file named `monitoring.lokocfg` with the following contents:
 
@@ -50,9 +57,9 @@ Create a file named `monitoring.lokocfg` with the following contents:
 component "prometheus-operator" {}
 ```
 
-For information about all the available configuration options for the `prometheus-operator` component, visit the component's [configuration reference](../configuration-reference/components/prometheus-operator.md).
+For information about all the available configuration options for the `prometheus-operator` component, visit the component's [configuration reference](../configuration-reference/components/prometheus-operator.md). If you would like to add custom Alerts and Grafana dashboards then look at the section ["Add custom Grafana dashboards"](#add-custom-grafana-dashboards) and subsequent sections.
 
-### Install Prometheus Operator
+### Step 2: Install Prometheus Operator
 
 Execute the following command to deploy the `prometheus-operator` component:
 
@@ -66,9 +73,9 @@ Verify the pods in the `monitoring` namespace are in the `Running` state (this m
 kubectl -n monitoring get pods
 ```
 
-## Accessing Prometheus, Alertmanager and Grafana
+## Access Prometheus, Alertmanager and Grafana
 
-### Accessing Prometheus
+### Access Prometheus
 
 #### Using port forward
 
@@ -100,7 +107,7 @@ component "prometheus-operator" {
 
 Open the following URL: `https://prometheus.<cluster name>.<DNS zone>`.
 
-### Accessing Alertmanager
+### Access Alertmanager
 
 Execute the following command to forward port `9093` locally to the Alertmanager pod:
 
@@ -110,7 +117,7 @@ kubectl -n monitoring port-forward svc/prometheus-operator-alertmanager 9093
 
 Open the following URL: [http://localhost:9093](http://localhost:9093).
 
-### Accessing Grafana
+### Access Grafana
 
 #### Using port forward
 
@@ -152,6 +159,85 @@ kubectl -n monitoring get secret prometheus-operator-grafana -o jsonpath='{.data
 
 Open the following URL: `https://grafana.<cluster name>.<DNS zone>`. Enter the username `admin` and the password obtained from the previous step.
 
+## Add custom Grafana dashboards
+
+Create a ConfigMap with keys as the dashboard file names and values as JSON dashboard. See the following example:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: myapp
+  labels:
+    grafana_dashboard: "true"
+data:
+  grafana-dashboard1.json: |
+    {
+      "annotations": {
+[REDACTED]
+```
+
+Add the label `grafana_dashboard: "true"` so that grafana automatically picks up the dashboards in the ConfigMaps across the cluster.
+
+This can also be done by using the following two imperative commands:
+
+```bash
+kubectl -n myapp create cm grafana-dashboards \
+  --from-file=grafana-dashboard1.json \
+  --from-file=grafana-dashboard2.json \
+  --dry-run -o yaml | kubectl apply -f -
+
+kubectl -n myapp label cm grafana-dashboards grafana_dashboard=true
+```
+
+## Add new ServiceMonitors
+
+### Default Prometheus operator setting
+
+Create a ServiceMonitor with the required configuration and make sure to add the following label, so that the prometheus-operator will track it:
+
+```yaml
+metadata:
+  labels:
+    release: prometheus-operator
+```
+
+### Custom Prometheus operator setting
+
+Deploy the prometheus-operator with the following setting, and it watches all ServiceMonitors across the cluster:
+
+```tf
+watch_labeled_service_monitors = "false"
+```
+
+Then there is no need to add any label to ServiceMonitor, at all. Create a ServiceMonitor, and prometheus-operator tracks it.
+
+## Add custom alerts for Alertmanager
+
+### Default Prometheus operator setting
+
+Create a PrometheuRule object with the required configuration and make sure to add the following labels, so that prometheus-operator will track it:
+
+```yaml
+metadata:
+  labels:
+    release: prometheus-operator
+    app: prometheus-operator
+```
+
+### Custom Prometheus operator setting
+
+Deploy the prometheus-operator with the following setting, and it watches all PrometheusRules across the cluster:
+
+```tf
+watch_labeled_prometheus_rules = "false"
+```
+
+Then there is no need to add any label to PrometheusRule, at all. Create a PrometheusRule, and prometheus-operator tracks it.
+
 ## Additional resources
 
 - `prometheus-operator` component [configuration reference](../configuration-reference/components/prometheus-operator.md).
+- ServiceMonitor API docs https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#servicemonitor
+- PrometheusRule API docs https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusrule
