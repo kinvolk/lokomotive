@@ -81,6 +81,10 @@ component "prometheus-operator" {
 
 			if tc.wantErr && !d.HasErrors() {
 				t.Fatal("wrong config should have returned an error")
+			} else if tc.wantErr && d.HasErrors() {
+				// This means that test has passed and there is no need to go forward, we can safely
+				// return.
+				return
 			}
 
 			m, err := c.RenderManifests()
