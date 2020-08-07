@@ -15,6 +15,7 @@
 package util
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -31,6 +32,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	corev1typed "k8s.io/client-go/kubernetes/typed/core/v1"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/portforward"
@@ -87,14 +89,15 @@ func CreateKubeClient(t *testing.T) *kubernetes.Clientset {
 }
 
 func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
-	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
 		ds, err := client.AppsV1().StatefulSets(ns).Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				t.Logf("waiting for statefulset %s to be available", name)
 				return false, nil
 			}
-			return false, err
+
+			return false, fmt.Errorf("getting StatefulSet %q: %w", name, err)
 		}
 
 		t.Logf("statefulset: %s, replicas: %d/%d", name, int(ds.Status.ReadyReplicas), replicas)
@@ -111,14 +114,17 @@ func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name stri
 }
 
 func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string, retryInterval, timeout time.Duration) {
-	if err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
-		ds, err := client.AppsV1().DaemonSets(ns).Get(context.TODO(), name, metav1.GetOptions{})
+	var ds *appsv1.DaemonSet
+
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+		ds, err = client.AppsV1().DaemonSets(ns).Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				t.Logf("waiting for daemonset %s to be available", name)
 				return false, nil
 			}
-			return false, err
+
+			return false, fmt.Errorf("getting DaemonSet %q: %w", name, err)
 		}
 		replicas := ds.Status.DesiredNumberScheduled
 
@@ -135,6 +141,10 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 		}
 		return false, nil
 	}); err != nil {
+		if err := PrintPodsLogs(t, client.CoreV1().Pods(ns), ds.Spec.Selector); err != nil {
+			t.Logf("reading pod logs: %v", err)
+		}
+
 		t.Errorf("error while waiting for the daemonset: %v", err)
 	}
 }
@@ -151,7 +161,8 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 				t.Logf("waiting for deployment %s to be available", name)
 				return false, nil
 			}
-			return false, err
+
+			return false, fmt.Errorf("getting Deployment %q: %w", name, err)
 		}
 
 		replicas := int(deploy.Status.Replicas)
@@ -170,8 +181,11 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 		}
 		return false, nil
 	}); err != nil {
-		t.Errorf("error while waiting for the deployment: %v", err)
-		return
+		if err := PrintPodsLogs(t, client.CoreV1().Pods(ns), deploy.Spec.Selector); err != nil {
+			t.Logf("reading pod logs: %v", err)
+		}
+
+		t.Fatalf("error while waiting for the deployment: %v", err)
 	}
 
 	// Check the readiness of the pods
@@ -184,7 +198,7 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 		listOptions := metav1.ListOptions{LabelSelector: selector.String()}
 		pods, err := client.CoreV1().Pods(ns).List(context.TODO(), listOptions)
 		if err != nil {
-			return false, err
+			return false, fmt.Errorf("getting pods: %w", err)
 		}
 		pods = filterNonControllerPods(pods)
 
@@ -209,8 +223,57 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 		t.Logf("all pods for deployment %s, are in ready state", deploy.Name)
 		return true, nil
 	}); err != nil {
+		if err := PrintPodsLogs(t, client.CoreV1().Pods(ns), deploy.Spec.Selector); err != nil {
+			t.Logf("reading pod logs: %v", err)
+		}
+
 		t.Errorf("error while waiting for the pods: %v", err)
 	}
+}
+
+// PrintPodsLogs print logs from all pods and containers selected by given selector.
+func PrintPodsLogs(t *testing.T, p corev1typed.PodInterface, selector *metav1.LabelSelector) error {
+	s, err := metav1.LabelSelectorAsSelector(selector)
+	if err != nil {
+		return fmt.Errorf("converting label selector to map: %w", err)
+	}
+
+	pods, err := p.List(context.TODO(), metav1.ListOptions{LabelSelector: s.String()})
+	if err != nil {
+		return fmt.Errorf("listing pods: %w", err)
+	}
+
+	if len(pods.Items) == 0 {
+		return fmt.Errorf("no pods selected")
+	}
+
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			podLogOpts := corev1.PodLogOptions{
+				Container: container.Name,
+			}
+
+			req := p.GetLogs(pod.Name, &podLogOpts)
+
+			podLogs, err := req.Stream(context.TODO())
+			if err != nil {
+				return fmt.Errorf("opening stream: %w", err)
+			}
+
+			defer func() {
+				if err := podLogs.Close(); err != nil {
+					t.Logf("closing stream: %v\n", err)
+				}
+			}()
+
+			scanner := bufio.NewScanner(podLogs)
+			for scanner.Scan() {
+				t.Logf("%s/%s: %s", pod.Name, container.Name, scanner.Text())
+			}
+		}
+	}
+
+	return nil
 }
 
 func filterNonControllerPods(pods *corev1.PodList) *corev1.PodList {
