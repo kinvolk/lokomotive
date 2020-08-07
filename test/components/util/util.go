@@ -29,7 +29,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
@@ -176,13 +175,24 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 	}
 
 	// Check the readiness of the pods
-	labelSet := labels.Set(deploy.Labels)
+	selector, err := metav1.LabelSelectorAsSelector(deploy.Spec.Selector)
+	if err != nil {
+		t.Fatalf("converting label selector to map: %v", err)
+	}
+
 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
-		pods, err := client.CoreV1().Pods(ns).List(context.TODO(), metav1.ListOptions{LabelSelector: labelSet.String()})
+		listOptions := metav1.ListOptions{LabelSelector: selector.String()}
+		pods, err := client.CoreV1().Pods(ns).List(context.TODO(), listOptions)
 		if err != nil {
 			return false, err
 		}
 		pods = filterNonControllerPods(pods)
+
+		// Sanity check.
+		if len(pods.Items) == 0 {
+			t.Fatalf("checking containers status failed. No pods selected.")
+		}
+
 		// go through each pod in the returned list and check the readiness status of it
 		for _, pod := range pods.Items {
 			for _, cs := range pod.Status.ContainerStatuses {
