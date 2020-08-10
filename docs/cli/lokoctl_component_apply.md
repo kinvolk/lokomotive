@@ -1,4 +1,7 @@
-## lokoctl component apply
+---
+title: lokoctl component apply
+weight: 10
+---
 
 Deploy or update a component
 

@@ -1,4 +1,7 @@
-## lokoctl cluster
+---
+title: lokoctl cluster
+weight: 10
+---
 
 Manage a cluster
 

@@ -1,4 +1,7 @@
-## lokoctl cluster apply
+---
+title: lokoctl cluster apply
+weight: 10
+---
 
 Deploy or update a cluster
 

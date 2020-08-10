@@ -1,4 +1,7 @@
-## Release process
+---
+title: Release process
+weight: 10
+---
 
 This section shows how to perform a release of Lokomotive. Only parts of the
 procedure are automated; this is somewhat intentional (manual steps for sanity

@@ -1,4 +1,7 @@
-## lokoctl component delete
+---
+title: lokoctl component delete
+weight: 10
+---
 
 Delete an installed component
 

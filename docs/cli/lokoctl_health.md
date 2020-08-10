@@ -1,4 +1,7 @@
-## lokoctl health
+---
+title: lokoctl health
+weight: 10
+---
 
 Get the health of a cluster
 

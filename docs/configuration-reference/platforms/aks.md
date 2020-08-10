@@ -1,13 +1,7 @@
-# Lokomotive AKS configuration reference
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Destroying](#destroying)
+---
+title: Lokomotive AKS configuration reference
+weight: 10
+---
 
 ## Introduction
 

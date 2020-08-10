@@ -1,4 +1,7 @@
-## lokoctl component
+---
+title: lokoctl component
+weight: 10
+---
 
 Manage components
 

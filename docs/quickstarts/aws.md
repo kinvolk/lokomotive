@@ -1,19 +1,7 @@
-# Lokomotive AWS quickstart guide
-
-## Contents
-
-* [Introduction](#introduction)
-* [Requirements](#requirements)
-* [Step 1: Install lokoctl](#step-1-install-lokoctl)
-* [Step 2: Set up a working directory](#step-2-set-up-a-working-directory)
-* [Step 3: Set up credentials from environment variables](#step-3-set-up-credentials-from-environment-variables)
-* [Step 4: Define cluster configuration](#step-4-define-cluster-configuration)
-* [Step 5: Create Lokomotive cluster](#step-5-create-lokomotive-cluster)
-* [Verification](#verification)
-* [Cleanup](#cleanup)
-* [Troubleshooting](#troubleshooting)
-* [Conclusion](#conclusion)
-* [Next steps](#next-steps)
+---
+title: Lokomotive AWS quickstart guide
+weight: 10
+---
 
 ## Introduction
 

@@ -1,14 +1,7 @@
-# Lokomotive Packet configuration reference
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Destroying](#destroying)
-* [ARM support and hybrid clusters](#arm-support-and-hybrid-clusters)
+---
+title: Lokomotive Packet configuration reference
+weight: 10
+---
 
 ## Introduction
 

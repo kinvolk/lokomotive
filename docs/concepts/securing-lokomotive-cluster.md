@@ -1,4 +1,7 @@
-# Securing Lokomotive clusters
+---
+title: Securing Lokomotive clusters
+weight: 10
+---
 
 Lokomotive clusters are deployed with security as a top concern.
 

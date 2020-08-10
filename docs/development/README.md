@@ -1,11 +1,9 @@
-# Lokomotive developer docs
+---
+title: Developer docs
+weight: 10
+---
 
 This is a developer docs directory. Not meant for end users.
-
-## Contents
-
-- [How to update components?](./updating-components.md)
-- [Lokomotive coding style guide](./coding-style-guide.md)
 
 ## Spell checking
 

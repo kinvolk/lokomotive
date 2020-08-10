@@ -1,13 +1,7 @@
-# Flatcar Container Linux update operator configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: Flatcar Container Linux update operator configuration reference for Lokomotive
+weight: 10
+---
 
 ## Introduction
 

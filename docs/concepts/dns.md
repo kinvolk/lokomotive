@@ -1,4 +1,7 @@
-# DNS
+---
+title: DNS
+weight: 10
+---
 
 Lokomotive relies on DNS records for cluster bootstrap as well as routine operation. When choosing
 one of the [supported DNS providers](#supported-providers), Lokomotive can provision the necessary

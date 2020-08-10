@@ -1,4 +1,7 @@
-# Conformance tests
+---
+title: Conformance tests
+weight: 10
+---
 
 This document enumerates the steps required to run conformance tests for various platforms supported by Lokomotive.
 

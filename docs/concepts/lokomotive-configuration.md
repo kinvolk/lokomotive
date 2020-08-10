@@ -1,3 +1,8 @@
+---
+title: Configuration
+weight: 10
+---
+
 ## Overview
 
 Lokomotive uses a [HCL2](https://github.com/hashicorp/hcl) based configuration language to allow

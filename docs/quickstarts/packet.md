@@ -1,16 +1,7 @@
-# Lokomotive Packet quickstart guide
-
-## Contents
-
-* [Introduction](#introduction)
-* [Requirements](#requirements)
-* [Step 1: Install lokoctl](#step-1-install-lokoctl)
-* [Step 2: Create a cluster configuration](#step-2-create-a-cluster-configuration)
-* [Step 3: Deploy the cluster](#step-3-deploy-the-cluster)
-* [Verification](#verification)
-* [Cleanup](#cleanup)
-* [Troubleshooting](#troubleshooting)
-* [Next steps](#next-steps)
+---
+title: Lokomotive Packet quickstart guide
+weight: 10
+---
 
 ## Introduction
 

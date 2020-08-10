@@ -1,13 +1,7 @@
-# Lokomotive bare metal configuration reference
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Destroying](#destroying)
+---
+title: Lokomotive bare metal configuration reference
+weight: 10
+---
 
 ## Introduction
 

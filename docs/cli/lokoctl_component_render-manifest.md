@@ -1,4 +1,7 @@
-## lokoctl component render-manifest
+---
+title: lokoctl component render-manifest
+weight: 10
+---
 
 Print the manifests for a component
 

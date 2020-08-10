@@ -1,4 +1,7 @@
-## lokoctl component list
+---
+title: lokoctl component list
+weight: 10
+---
 
 List all available components
 

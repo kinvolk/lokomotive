@@ -1,4 +1,7 @@
-# How to update components?
+---
+title: How to update components?
+weight: 10
+---
 
 ## Introduction
 

@@ -1,14 +1,7 @@
-# Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Step 1: Configure MetalLB and Contour](#step-1-configure-metallb-and-contour)
-* [Step 2: Install MetalLB and Contour](#step-4-install-metallb-and-contour)
-* [Summary](#summary)
-* [Troubleshooting](#troubleshooting)
-* [Additional resources](#additional-resources)
+---
+title: Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet
+weight: 10
+---
 
 ## Introduction
 

@@ -1,21 +1,7 @@
-# Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Step 1: Configure Dex and Gangway](#step-1-configure-dex-and-gangway)
-* [Step 2: Register a new OAuth application](#step-2-register-a-new-oauth-application)
-* [Step 3: Create variables file](#step-3-create-variables-file)
-* [Step 4: Install Dex and Gangway](#step-4-install-dex-and-gangway)
-* [Step 5: Configure the API server to use Dex as an OIDC
-   authenticator](#step-5-configure-the-api-server-to-use-dex-as-an-oidc-authenticator)
-* [Step 6: Authenticate with Gangway (for users)](#step-6-authenticate-with-gangway-for-users)
-* [Step 7: Authorize users (for cluster
-   administrators)](#step-7-authorize-users-for-cluster-administrators)
-* [Summary](#summary)
-* [Troubleshooting](#troubleshooting)
-* [Additional resources](#additional-resources)
+---
+title: Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway
+weight: 10
+---
 
 ## Introduction
 

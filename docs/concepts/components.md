@@ -1,4 +1,7 @@
-# Lokomotive component
+---
+title: Lokomotive component
+weight: 10
+---
 
 A Lokomotive component is a Kubernetes workload which adds functionality to a Lokomotive cluster.
 Without components, a Lokomotive cluster is just a barebone Kubernetes cluster. In some cases (e.g.

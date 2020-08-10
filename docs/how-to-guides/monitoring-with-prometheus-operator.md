@@ -1,28 +1,7 @@
-# Set up monitoring on Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Steps: Deploy Prometheus Operator](#steps-deploy-prometheus-operator)
-  * [Step 1: Configure Prometheus Operator](#step-1-configure-prometheus-operator)
-  * [Step 2: Install Prometheus Operator](#step-2-install-prometheus-operator)
-* [Access Prometheus, Alertmanager and Grafana](#access-prometheus-alertmanager-and-grafana)
-  * [Access Prometheus](#access-prometheus)
-    * [Using port forward](#using-port-forward)
-    * [Using Ingress](#using-ingress)
-  * [Access Alertmanager](#access-alertmanager)
-  * [Access Grafana](#access-grafana)
-    * [Using port forward](#using-port-forward-1)
-    * [Using Ingress](#using-ingress-1)
-* [Add custom Grafana dashboards](#add-custom-grafana-dashboards)
-* [Add new ServiceMonitors](#add-new-service-monitors)
-  * [Default Prometheus operator setting](#default-prometheus-operator-setting)
-  * [Custom Prometheus operator setting](#custom-prometheus-operator-setting)
-* [Add custom alerts for Alertmanager](#add-custom-alerts-for-alertmanager)
-  * [Default Prometheus operator setting](#default-prometheus-operator-setting-1)
-  * [Custom Prometheus operator setting](#custom-prometheus-operator-setting-1)
-* [Additional resources](#additional-resources)
+---
+title: Set up monitoring on Lokomotive
+weight: 10
+---
 
 ## Introduction
 

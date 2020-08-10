@@ -1,4 +1,7 @@
-## lokoctl cluster destroy
+---
+title: lokoctl cluster destroy
+weight: 10
+---
 
 Destroy a cluster
 

@@ -1,25 +1,7 @@
-# Kubernetes storage with Rook Ceph on Packet cloud
-
-## Contents
-
-- [Introduction](#introduction)
-- [Learning objectives](#learning-objectives)
-- [Prerequisites](#prerequisites)
-- [Steps](#steps)
-  - [Step 1: Deploy storage worker pool](#step-1-deploy-storage-worker-pool)
-    - [Config](#config)
-    - [Deploy the worker pool](#deploy-the-worker-pool)
-  - [Step 2: Deploy `rook`](#step-2-deploy-rook)
-    - [Config](#config-1)
-    - [Deploy the component](#deploy-the-component)
-  - [Step 3: Deploy `rook-ceph`](#step-3-deploy-rook-ceph)
-    - [Config](#config-2)
-    - [Deploy the component](#deploy-the-component-1)
-- [Access the Ceph dashboard](#access-the-ceph-dashboard)
-- [Enable and access toolbox](#enable-and-access-toolbox)
-- [Enable monitoring](#enable-monitoring)
-- [Make default storage class](#make-default-storage-class)
-- [Additional resources](#additional-resources)
+---
+title: Kubernetes storage with Rook Ceph on Packet cloud
+weight: 10
+---
 
 ## Introduction
 

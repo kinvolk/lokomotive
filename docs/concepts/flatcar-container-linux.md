@@ -1,4 +1,7 @@
-# Flatcar Container Linux
+---
+title: Flatcar Container Linux
+weight: 10
+---
 
 Lokomotive uses [Flatcar Container Linux](https://www.flatcar-linux.org/) as the underlying operating system.
 

@@ -1,7 +1,10 @@
-# lokoctl
-
-lokoctl is a command line interface for Lokomotive, Kinvolk's open-source Kubernetes distribution
-which includes installers for various platforms and Lokomotive components.
+---
+title: lokoctl
+weight: 10
+description: >
+   lokoctl is a command line interface for Lokomotive, Kinvolk's open-source Kubernetes distribution which includes installers for various platforms
+   and Lokomotive components.
+---
 
 ## Installation
 

@@ -1,4 +1,7 @@
-# Packet
+---
+title: Packet
+weight: 10
+---
 
 Packet is one of the cloud platforms supported by Lokomotive. This document explains various architecture decisions specific to this platform.
 

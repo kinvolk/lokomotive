@@ -1,4 +1,7 @@
-## lokoctl
+---
+title: lokoctl
+weight: 10
+---
 
 Manage Lokomotive clusters
 

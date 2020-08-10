@@ -1,13 +1,7 @@
-# MetalLB configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: MetalLB configuration reference for LokomotiveLokomotive
+weight: 10
+---
 
 ## Introduction
 

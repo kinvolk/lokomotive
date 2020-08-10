@@ -1,4 +1,7 @@
-# Trusted keys
+---
+title: Trusted keys
+weight: 10
+---
 
 Each Lokomotive release is signed by a trusted signing key. Each key is held by
 a different developer.

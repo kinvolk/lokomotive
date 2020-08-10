@@ -1,4 +1,7 @@
-# AWS
+---
+title: AWS
+weight: 10
+---
 
 AWS is one of the cloud platforms supported by Lokomotive. This document explains various architecture decisions and details specific to this platform.
 

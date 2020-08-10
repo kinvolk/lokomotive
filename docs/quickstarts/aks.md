@@ -1,19 +1,7 @@
-# Lokomotive AKS quickstart guide
-
-## Contents
-
-* [Introduction](#introduction)
-* [Requirements](#requirements)
-* [Step 1: Install lokoctl](#step-1-install-lokoctl)
-* [Step 2: Set up a working directory](#step-2-set-up-a-working-directory)
-* [Step 3: Set up Azure API credentials](#step-3-set-up-azure-api-credentials)
-* [Step 4: Prepare AKS credentials](#step-4-prepare-aks-credentials)
-* [Step 5: Define cluster configuration](#step-5-define-cluster-configuration)
-* [Step 6: Create Lokomotive cluster](#step-6-create-lokomotive-cluster)
-* [Verification](#verification)
-* [Cleanup](#cleanup)
-* [Conclusion](#conclusion)
-* [Next steps](#next-steps)
+---
+title: Lokomotive AKS quickstart guide
+weight: 10
+---
 
 ## Introduction
 

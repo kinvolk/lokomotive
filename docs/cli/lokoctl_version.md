@@ -1,4 +1,7 @@
-## lokoctl version
+---
+title: lokoctl version
+weight: 10
+---
 
 Print version information
 
