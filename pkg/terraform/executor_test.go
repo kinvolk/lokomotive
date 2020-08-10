@@ -33,7 +33,7 @@ func executor(t *testing.T) *Executor {
 func TestExecuteCheckErrors(t *testing.T) {
 	ex := executor(t)
 
-	if err := ex.Execute("apply"); err == nil {
+	if err := ex.Apply(); err == nil {
 		t.Fatalf("Applying on empty directory should fail")
 	}
 }

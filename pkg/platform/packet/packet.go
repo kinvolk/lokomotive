@@ -263,35 +263,35 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dc dns.Config) erro
 		return ex.Apply()
 	}
 
-	arguments := []string{"apply", "-auto-approve"}
-
-	// Create controllers. We need the controllers' IP addresses before we can
-	// apply the 'dns' module.
-	arguments = append(arguments, fmt.Sprintf("-target=module.packet-%s.packet_device.controllers", c.ClusterName))
-	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "creating controllers")
+	steps := []terraform.ExecutionStep{
+		// We need the controllers' IP addresses before we can apply the 'dns' module.
+		{
+			Description: "create controllers",
+			Args: []string{
+				"apply",
+				"-auto-approve",
+				fmt.Sprintf("-target=module.packet-%s.packet_device.controllers", c.ClusterName),
+			},
+		},
+		{
+			Description: "construct DNS records",
+			Args:        []string{"apply", "-auto-approve", "-target=module.dns"},
+		},
+		// Run `terraform refresh`. This is required in order to make the outputs from the previous
+		// apply operations available.
+		// TODO: Likely caused by https://github.com/hashicorp/terraform/issues/23158.
+		{
+			Description: "refresh Terraform state",
+			Args:        []string{"refresh"},
+		},
+		{
+			Description:      "complete infrastructure creation",
+			Args:             []string{"apply", "-auto-approve"},
+			PreExecutionHook: c.DNS.ManualConfigPrompt(),
+		},
 	}
 
-	// Apply 'dns' module.
-	arguments = append(arguments, "-target=module.dns")
-	if err := ex.Execute(arguments...); err != nil {
-		return errors.Wrap(err, "applying 'dns' module")
-	}
-
-	// Run `terraform refresh`. This is required in order to make the outputs from the previous
-	// apply operations available.
-	// TODO: Likely caused by https://github.com/hashicorp/terraform/issues/23158.
-	if err := ex.Execute("refresh"); err != nil {
-		return errors.Wrap(err, "refreshing")
-	}
-
-	// Prompt user to configure DNS.
-	if err := dc.AskToConfigure(ex); err != nil {
-		return errors.Wrap(err, "prompting for manual DNS configuration")
-	}
-
-	// Finish deployment.
-	return ex.Apply()
+	return ex.Execute(steps...)
 }
 
 // terraformAddDeps adds explicit dependencies to cluster nodes so nodes
