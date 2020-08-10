@@ -24,7 +24,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
-	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
 const componentName = "flatcar-linux-update-operator"
@@ -45,7 +44,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
-	walk := walkers.DumpingWalker(ret, ".yaml")
+	walk := assets.DumpingWalker(ret, ".yaml")
 	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", componentName), walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}

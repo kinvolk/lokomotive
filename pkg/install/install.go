@@ -21,7 +21,6 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/util"
-	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
 // PrepareTerraformRootDir creates a directory named path including all
@@ -50,7 +49,7 @@ func PrepareTerraformRootDir(path string) error {
 // lokoctl binary or from the filesystem, depending on whether the
 // LOKOCTL_USE_FS_ASSETS environment variable was specified.
 func PrepareLokomotiveTerraformModuleAt(path string) error {
-	walk := walkers.CopyingWalker(path, 0755)
+	walk := assets.CopyingWalker(path, 0755)
 	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
 		return errors.Wrap(err, "failed to walk assets")
 	}
