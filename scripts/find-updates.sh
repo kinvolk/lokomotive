@@ -142,3 +142,59 @@ version=$(grep version "${tmpdir}/openebs/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "openebs" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
+
+###########################
+# prometheus operator
+cd "${workdir}"
+current_version=$(grep appVersion assets/components/prometheus-operator/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+get_latest_release prometheus-operator/prometheus-operator
+printf "${format}" "prometheus-operator" "${current_version}" "${version}"
+
+###########################
+# rook
+cd "${workdir}"
+current_version=$(grep version assets/components/rook-ceph/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+get_latest_release rook/rook
+printf "${format}" "rook" "${current_version}" "${version}"
+
+###########################
+# AWS EBS CSI Driver
+cd "${workdir}"
+current_version=$(grep appVersion assets/components/aws-ebs-csi-driver/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
+
+get_latest_release kubernetes-sigs/aws-ebs-csi-driver
+printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
+
+###########################
+# Velero
+cd "${workdir}"
+current_version=$(grep version assets/components/velero/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+tmpdir=$(mktemp -d)
+cd "${tmpdir}"
+
+helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts >/dev/null 2>&1
+helm repo update >/dev/null 2>&1
+helm fetch --untar --untardir ./ vmware-tanzu/velero
+version=$(grep version "${tmpdir}/velero/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
+
+printf "${format}" "velero" "${current_version}" "${version}"
+rm -rf "${tmpdir}"
+
+###########################
+# Cluster autoscaler
+cd "${workdir}"
+current_version=$(grep appVersion ./assets/components/cluster-autoscaler/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+tmpdir=$(mktemp -d)
+cd "${tmpdir}"
+
+# helm repo add autoscaler https://kubernetes.github.io/autoscaler >/dev/null 2>&1
+# helm repo update >/dev/null 2>&1
+# helm fetch --untar --untardir ./ autoscaler/cluster-autoscaler
+# version=$(grep appVersion "${tmpdir}/cluster-autoscaler/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
+
+printf "${format}" "cluster-autoscaler" "${current_version}" "${version}"
+rm -rf "${tmpdir}"
