@@ -9,3 +9,4 @@
 ./assets/components/contour/crds
 ./assets/components/openebs/README.md
 ./assets/lokomotive-kubernetes/bootkube/resources/charts/calico/crds
+./docs/images/lokomotive-example.gif

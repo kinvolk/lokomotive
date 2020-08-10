@@ -139,37 +139,85 @@ func newComponent() *component {
 	return c
 }
 
-// getWorkerUserdata finds a worker from clusterName in facility given a list
-// of devices in a project and returns its user data. If two devices with the
-// same name are found it returns an error.
-func getWorkerUserdata(clusterName, facility string, devices []packngo.Device) (string, error) {
-	var userData string
-	deviceSet := make(map[string]struct{})
+// getClusterWorkers takes a list of devices from the user and returns list
+// of worker nodes belonging to the specified cluster name and facility.
+func getClusterWorkers(clusterName, facility string, devices []packngo.Device) []packngo.Device {
+	clusterWorkers := []packngo.Device{}
 
 	for _, d := range devices {
+		// Skip devices from other facilities.
 		if d.Facility.Code != facility {
 			continue
 		}
 
-		if _, ok := deviceSet[d.Hostname]; !ok {
-			deviceSet[d.Hostname] = struct{}{}
-		} else {
-			return "", fmt.Errorf("having two devices with the same name (%q) in the same facility is not supported", d.Hostname)
+		// Skip devices from other clusters.
+		if !strings.Contains(d.Hostname, clusterName) {
+			continue
 		}
 
-		// if device hostname contains the cluster name and "worker", we want
-		// its user data
-		if strings.Contains(d.Hostname, clusterName) &&
-			strings.Contains(d.Hostname, "worker") {
-			userData = base64.StdEncoding.EncodeToString([]byte(d.UserData))
+		// Skip non-worker nodes.
+		if !strings.Contains(d.Hostname, "worker") {
+			continue
 		}
+
+		clusterWorkers = append(clusterWorkers, d)
 	}
 
-	if userData == "" {
-		return "", fmt.Errorf("cluster %q must have at least one worker node but no worker was found", clusterName)
+	return clusterWorkers
+}
+
+// findDuplicatedDevices returns duplicated devices from the given set. This can be used to check
+// if all devices are unique in a set.
+func findDuplicatedDevices(devices []packngo.Device) []packngo.Device {
+	duplicatedDevices := []packngo.Device{}
+
+	deviceMap := map[string]struct{}{}
+
+	for _, d := range devices {
+		if _, ok := deviceMap[d.Hostname]; ok {
+			duplicatedDevices = append(duplicatedDevices, d)
+		}
+
+		deviceMap[d.Hostname] = struct{}{}
 	}
 
-	return userData, nil
+	return duplicatedDevices
+}
+
+// devicesHostnames returns list of devices hostnames.
+func devicesHostnames(devices []packngo.Device) []string {
+	hostnames := []string{}
+
+	for _, d := range devices {
+		hostnames = append(hostnames, d.Hostname)
+	}
+
+	return hostnames
+}
+
+// getWorkerUserdata finds a worker from clusterName in facility given a list
+// of devices in a project and returns its user data. If two devices with the
+// same name are found it returns an error.
+func getWorkerUserdata(clusterName, facility string, devices []packngo.Device) (string, error) {
+	workers := getClusterWorkers(clusterName, facility, devices)
+
+	duplicates := findDuplicatedDevices(workers)
+	if len(duplicates) > 0 {
+		hostnames := strings.Join(devicesHostnames(duplicates), ",")
+
+		return "", fmt.Errorf("having two devices with the same name (%q) in the same facility is not supported", hostnames)
+	}
+
+	for _, d := range workers {
+		// If user data is empty for some reason, don't return it.
+		if d.UserData == "" {
+			continue
+		}
+
+		return base64.StdEncoding.EncodeToString([]byte(d.UserData)), nil
+	}
+
+	return "", fmt.Errorf("cluster %q must have at least one worker node with user data", clusterName)
 }
 
 // parseDurations takes the raw string time parameters from component and sets
