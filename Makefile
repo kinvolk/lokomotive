@@ -119,7 +119,7 @@ update: update-dependencies tidy vendor
 
 .PHONY: update-dependencies
 update-dependencies:
-	GO111MODULE=on go get -u
+	GO111MODULE=on go get -u ./...
 
 .PHONY: tidy
 tidy:
