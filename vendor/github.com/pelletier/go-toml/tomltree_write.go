@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"math/big"
 	"reflect"
 	"sort"
 	"strconv"
@@ -107,20 +106,12 @@ func tomlValueStringRepresentation(v interface{}, indent string, arraysOneElemen
 	case int64:
 		return strconv.FormatInt(value, 10), nil
 	case float64:
-		// Default bit length is full 64
-		bits := 64
-		// Float panics if nan is used
-		if !math.IsNaN(value) {
-			// if 32 bit accuracy is enough to exactly show, use 32
-			_, acc := big.NewFloat(value).Float32()
-			if acc == big.Exact {
-				bits = 32
-			}
-		}
+		// Ensure a round float does contain a decimal point. Otherwise feeding
+		// the output back to the parser would convert to an integer.
 		if math.Trunc(value) == value {
-			return strings.ToLower(strconv.FormatFloat(value, 'f', 1, bits)), nil
+			return strings.ToLower(strconv.FormatFloat(value, 'f', 1, 32)), nil
 		}
-		return strings.ToLower(strconv.FormatFloat(value, 'f', -1, bits)), nil
+		return strings.ToLower(strconv.FormatFloat(value, 'f', -1, 32)), nil
 	case string:
 		if tv.multiline {
 			return "\"\"\"\n" + encodeMultilineTomlString(value) + "\"\"\"", nil
@@ -136,12 +127,6 @@ func tomlValueStringRepresentation(v interface{}, indent string, arraysOneElemen
 		return "false", nil
 	case time.Time:
 		return value.Format(time.RFC3339), nil
-	case LocalDate:
-		return value.String(), nil
-	case LocalDateTime:
-		return value.String(), nil
-	case LocalTime:
-		return value.String(), nil
 	case nil:
 		return "", nil
 	}
@@ -369,8 +354,7 @@ func (t *Tree) writeToOrdered(w io.Writer, indent, keyspace string, bytesCount i
 			if v.commented {
 				commented = "# "
 			}
-			quotedKey := quoteKeyIfNeeded(k)
-			writtenBytesCount, err := writeStrings(w, indent, commented, quotedKey, " = ", repr, "\n")
+			writtenBytesCount, err := writeStrings(w, indent, commented, k, " = ", repr, "\n")
 			bytesCount += int64(writtenBytesCount)
 			if err != nil {
 				return bytesCount, err
@@ -379,32 +363,6 @@ func (t *Tree) writeToOrdered(w io.Writer, indent, keyspace string, bytesCount i
 	}
 
 	return bytesCount, nil
-}
-
-// quote a key if it does not fit the bare key format (A-Za-z0-9_-)
-// quoted keys use the same rules as strings
-func quoteKeyIfNeeded(k string) string {
-	// when encoding a map with the 'quoteMapKeys' option enabled, the tree will contain
-	// keys that have already been quoted.
-	// not an ideal situation, but good enough of a stop gap.
-	if len(k) >= 2 && k[0] == '"' && k[len(k)-1] == '"' {
-		return k
-	}
-	isBare := true
-	for _, r := range k {
-		if !isValidBareChar(r) {
-			isBare = false
-			break
-		}
-	}
-	if isBare {
-		return k
-	}
-	return quoteKey(k)
-}
-
-func quoteKey(k string) string {
-	return "\"" + encodeTomlString(k) + "\""
 }
 
 func writeStrings(w io.Writer, s ...string) (int, error) {
@@ -429,11 +387,12 @@ func (t *Tree) WriteTo(w io.Writer) (int64, error) {
 // Output spans multiple lines, and is suitable for ingest by a TOML parser.
 // If the conversion cannot be performed, ToString returns a non-nil error.
 func (t *Tree) ToTomlString() (string, error) {
-	b, err := t.Marshal()
+	var buf bytes.Buffer
+	_, err := t.WriteTo(&buf)
 	if err != nil {
 		return "", err
 	}
-	return string(b), nil
+	return buf.String(), nil
 }
 
 // String generates a human-readable representation of the current tree.
