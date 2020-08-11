@@ -52,14 +52,6 @@ spec:
     - --timeout
     - "5"
 `
-
-	metadataAccessNamespaceManifest = `
-apiVersion: v1
-kind: Namespace
-metadata:
-  generateName: metadata-access-test-
-`
-
 	retryInterval = 1 * time.Second
 	timeout       = 5 * time.Minute
 )
@@ -70,9 +62,10 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 	client := testutil.CreateKubeClient(t).CoreV1()
 	nsclient := client.Namespaces()
 
-	ns := &corev1.Namespace{}
-	if err := yaml.Unmarshal([]byte(metadataAccessNamespaceManifest), ns); err != nil {
-		t.Fatalf("failed to unmarshal namespace manifest: %v", err)
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: testutil.TestNamespace("metadata-access"),
+		},
 	}
 
 	p := &corev1.Pod{}
