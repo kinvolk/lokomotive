@@ -28,8 +28,8 @@ variable "etcd_servers" {
 
 variable "etcd_endpoints" {
   description = "List of Private IPv4 addresses of the controller nodes running etcd."
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 variable "asset_dir" {
