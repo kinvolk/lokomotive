@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 func TestRenderChartBadValues(t *testing.T) {
@@ -97,8 +98,10 @@ metadata:
 	}
 
 	m := components.Metadata{
-		Name:      "foo",
-		Namespace: "foo",
+		Name: "foo",
+		Namespace: k8sutil.Namespace{
+			Name: "foo",
+		},
 	}
 
 	chart, err := chartFromManifests(m, manifests)
@@ -131,8 +134,10 @@ metadata:
 	}
 
 	m := components.Metadata{
-		Name:      "foo",
-		Namespace: "foo",
+		Name: "foo",
+		Namespace: k8sutil.Namespace{
+			Name: "foo",
+		},
 	}
 
 	chart, err := chartFromManifests(m, manifests)
@@ -156,8 +161,10 @@ metadata:
 	}
 
 	m := components.Metadata{
-		Name:      "foo",
-		Namespace: "bar",
+		Name: "foo",
+		Namespace: k8sutil.Namespace{
+			Name: "bar",
+		},
 	}
 
 	chart, err := chartFromManifests(m, manifests)

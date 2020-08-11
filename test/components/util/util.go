@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"testing"
 	"time"
 
@@ -457,4 +458,29 @@ func IsPlatformSupported(t *testing.T, platforms []Platform) bool {
 	}
 
 	return false
+}
+
+// TestNamespacePrefix is testing namespace prefix.
+const TestNamespacePrefix = "test-"
+
+// IsTestNamespace checks if namespace is a testing namespace or not.
+func IsTestNamespace(name string) bool {
+	regEx := regexp.MustCompile("^" + TestNamespacePrefix + ".*")
+
+	return regEx.MatchString(name)
+}
+
+// TestNamespace creates a test namespace.
+func TestNamespace(name string) string {
+	return TestNamespacePrefix + name + "-"
+}
+
+// IsUserNamespace checks for user namespace.
+func IsUserNamespace(ns string) bool {
+	if ns == "kube-system" || ns == "kube-public" || ns == "kube-node-lease" || ns == "default" {
+		return true
+	}
+
+	// Check for testing namespaces.
+	return IsTestNamespace(ns)
 }

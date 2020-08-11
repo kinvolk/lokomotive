@@ -15,8 +15,15 @@
 package k8sutil
 
 import (
+	"context"
 	"reflect"
 	"testing"
+
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes/fake"
+
+	"github.com/kinvolk/lokomotive/internal"
 )
 
 func TestParseManifests(t *testing.T) {
@@ -199,4 +206,84 @@ items:
 		})
 	}
 
+}
+
+func TestCreateOrUpdateNamespaceEmptyName(t *testing.T) {
+	nsclient := fake.NewSimpleClientset().CoreV1().Namespaces()
+
+	name := ""
+	ns := Namespace{
+		Name:   name,
+		Labels: internal.AppendNamespaceLabel(name, map[string]string{}),
+	}
+
+	if err := CreateOrUpdateNamespace(ns, nsclient); err == nil {
+		t.Fatal("namespace name cannot be empty, expected error")
+	}
+}
+
+func TestCreateOrUpdateNamespaceCreateSuccess(t *testing.T) {
+	nsclient := fake.NewSimpleClientset().CoreV1().Namespaces()
+
+	name := "test"
+	ns := Namespace{
+		Name:   name,
+		Labels: internal.AppendNamespaceLabel(name, map[string]string{}),
+	}
+
+	if err := CreateOrUpdateNamespace(ns, nsclient); err != nil {
+		t.Fatalf("expected nil in namespace create, got: %v", err)
+	}
+
+	// Get Namespace to confirm.
+	mockns, getErr := nsclient.Get(context.TODO(), name, metav1.GetOptions{})
+	if getErr != nil {
+		t.Fatalf("expected nil, got: %v", getErr)
+	}
+
+	if mockns.ObjectMeta.Name != name {
+		t.Fatalf("expected namespace %q, got: %q", mockns.ObjectMeta.Name, name)
+	}
+
+	if mockns.ObjectMeta.Labels[internal.NamespaceLabelKey] != name {
+		t.Fatalf("expected %q, got: %q", name, mockns.ObjectMeta.Labels[internal.NamespaceLabelKey])
+	}
+}
+
+func TestCreateOrUpdateNamespaceUpdateSuccess(t *testing.T) {
+	nsclient := fake.NewSimpleClientset().CoreV1().Namespaces()
+
+	name := "test"
+
+	_, createErr := nsclient.Create(context.TODO(), &v1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+	}, metav1.CreateOptions{})
+	if createErr != nil {
+		t.Fatalf("expected nil, got: %v", createErr)
+	}
+
+	ns := Namespace{
+		Name:   name,
+		Labels: internal.AppendNamespaceLabel("test", map[string]string{}),
+	}
+
+	if err := CreateOrUpdateNamespace(ns, nsclient); err != nil {
+		t.Fatalf("expected nil in namespace update, got: %v", err)
+	}
+
+	// Get Namespace to confirm.
+	mockns, getErr := nsclient.Get(context.TODO(), name, metav1.GetOptions{})
+	if getErr != nil {
+		t.Fatalf("expected nil, got: %v", getErr)
+	}
+
+	if mockns.ObjectMeta.Name != name {
+		t.Fatalf("expected namespace %q, got: %q", mockns.ObjectMeta.Name, name)
+	}
+
+	if mockns.ObjectMeta.Labels[internal.NamespaceLabelKey] != name {
+		t.Fatalf("expected %q, got: %q", name, mockns.ObjectMeta.Labels[internal.NamespaceLabelKey])
+	}
 }

@@ -25,6 +25,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/types"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const name = "prometheus-operator"
@@ -186,8 +187,10 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      name,
-		Namespace: c.Namespace,
+		Name: name,
+		Namespace: k8sutil.Namespace{
+			Name: c.Namespace,
+		},
 		Helm: components.HelmMetadata{
 			// Prometheus-operator registers admission webhooks, so we should wait for the webhook to
 			// become ready before proceeding with installing other components, as it may fail.

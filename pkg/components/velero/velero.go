@@ -26,6 +26,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const name = "velero"
@@ -212,7 +213,9 @@ func (c *component) getProvider() (provider, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      name,
-		Namespace: c.Namespace,
+		Name: name,
+		Namespace: k8sutil.Namespace{
+			Name: c.Namespace,
+		},
 	}
 }

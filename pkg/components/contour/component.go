@@ -23,6 +23,7 @@ import (
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const (
@@ -99,7 +100,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	// Generate YAML for the Contour deployment.
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace, values)
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, values)
 	if err != nil {
 		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
@@ -109,7 +110,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      name,
-		Namespace: "projectcontour",
+		Name: name,
+		Namespace: k8sutil.Namespace{
+			Name: "projectcontour",
+		},
 	}
 }

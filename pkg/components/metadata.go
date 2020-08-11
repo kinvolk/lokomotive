@@ -14,11 +14,15 @@
 
 package components
 
+import (
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+)
+
 // Metadata is a struct which represents basic information about the component.
 // It may contain information like name, version, dependencies, namespace, source etc.
 type Metadata struct {
 	Name      string
-	Namespace string
+	Namespace k8sutil.Namespace
 	Helm      HelmMetadata
 }
 

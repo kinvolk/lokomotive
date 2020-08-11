@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const name = "httpbin"
@@ -159,7 +160,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name:      name,
-		Namespace: name,
+		Name: name,
+		Namespace: k8sutil.Namespace{
+			Name: name,
+		},
 	}
 }
