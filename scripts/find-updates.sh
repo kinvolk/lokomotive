@@ -4,6 +4,11 @@ set -euo pipefail
 
 function get_latest_release() {
   version=$(curl --silent "https://api.github.com/repos/$1/releases/latest" | jq -r '.tag_name')
+  if [ "${version}" != "null" ]; then
+    return
+  fi
+
+  version=$(curl --silent "https://api.github.com/repos/$1/tags" | jq -r '.[0].name')
 }
 
 # Make sure we keep track of the Lokomotive code repository.
