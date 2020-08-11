@@ -235,7 +235,7 @@ func (ex *Executor) executeVerbose(args ...string) error {
 }
 
 func (ex *Executor) execute(verbose bool, args ...string) error {
-	pid, done, err := ex.ExecuteAsync(args...)
+	pid, done, err := ex.executeAsync(args...)
 	if err != nil {
 		return fmt.Errorf(
 			"executing Terraform with arguments '%s' in directory %s: %w",
@@ -327,17 +327,17 @@ func (ex *Executor) LoadVars() (map[string]interface{}, error) {
 	return nil, errors.New("Could not parse config as JSON object")
 }
 
-// ExecuteAsync runs the given command and arguments against Terraform, and returns
+// executeAsync runs the given command and arguments against Terraform, and returns
 // an identifier that can be used to read the output of the process as it is
 // executed and after.
 //
-// ExecuteAsync is non-blocking, and takes a lock in the execution path.
+// This function is non-blocking, and takes a lock in the execution path.
 // Locking is handled by Terraform itself.
 //
 // An error is returned if the Terraform binary could not be found, or if the
 // Terraform call itself failed, in which case, details can be found in the
 // output.
-func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
+func (ex *Executor) executeAsync(args ...string) (int, chan struct{}, error) {
 	cmd := ex.generateCommand(args...)
 	rPipe, wPipe := io.Pipe()
 	cmd.Stdout = wPipe
@@ -381,8 +381,8 @@ func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
 	return cmd.Process.Pid, done, nil
 }
 
-// ExecuteSync is like Execute, but synchronous.
-func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
+// executeSync is like executeAsync, but synchronous.
+func (ex *Executor) executeSync(args ...string) ([]byte, error) {
 	// Initialize the signal handler.
 	h := signalHandler(ex.logger)
 
@@ -412,12 +412,22 @@ func (ex *Executor) Plan() error {
 // Output gets output value from Terraform in JSON format and tries to unmarshal it
 // to a given struct.
 func (ex *Executor) Output(key string, s interface{}) error {
-	o, err := ex.ExecuteSync("output", "-json", key)
+	o, err := ex.executeSync("output", "-json", key)
 	if err != nil {
 		return fmt.Errorf("failed getting Terraform output for key %q: %w", key, err)
 	}
 
 	return json.Unmarshal(o, s)
+}
+
+// OutputBytes returns the value of the Terraform output key in JSON format as a byte slice.
+func (ex *Executor) OutputBytes(key string) ([]byte, error) {
+	o, err := ex.executeSync("output", "-json", key)
+	if err != nil {
+		return []byte{}, fmt.Errorf("getting Terraform output for key %q: %w", key, err)
+	}
+
+	return o, nil
 }
 
 // GenerateCommand prepares a Terraform command with the given arguments
@@ -514,7 +524,7 @@ func (ex *Executor) logPath(id int) string {
 }
 
 func (ex *Executor) checkVersion() error {
-	vOutput, err := ex.ExecuteSync("--version")
+	vOutput, err := ex.executeSync("--version")
 	if err != nil {
 		return fmt.Errorf("Error checking Terraform version: %w", err)
 	}

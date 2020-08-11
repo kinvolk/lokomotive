@@ -107,7 +107,7 @@ func (c *Config) ManualConfigPrompt() terraform.ExecutionHook {
 }
 
 func readDNSEntries(ex *terraform.Executor) ([]dnsEntry, error) {
-	output, err := ex.ExecuteSync("output", "-json", "dns_entries")
+	output, err := ex.OutputBytes("dns_entries")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get DNS entries")
 	}
