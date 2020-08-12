@@ -15,11 +15,14 @@
 package dns
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/pkg/errors"
@@ -77,11 +80,18 @@ func (c *Config) ManualConfigPrompt() terraform.ExecutionHook {
 			fmt.Printf("Press Enter to check the entries or type \"skip\" to continue the installation: ")
 
 			var input string
-			fmt.Scanln(&input)
 
-			if input == "skip" {
+			reader := bufio.NewReader(os.Stdin)
+
+			input, err := reader.ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("reading user input: %w", err)
+			}
+
+			v := strings.TrimSpace(input)
+			if v == "skip" {
 				break
-			} else if input != "" {
+			} else if v != "" {
 				continue
 			}
 
