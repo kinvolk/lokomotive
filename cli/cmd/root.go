@@ -26,6 +26,7 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/platform/aks"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/aws"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/baremetal"
+	_ "github.com/kinvolk/lokomotive/pkg/platform/kvmlibvirt"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/packet"
 
 	// Register backends by adding an anonymous import.

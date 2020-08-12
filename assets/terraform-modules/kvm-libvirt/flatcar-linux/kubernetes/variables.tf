@@ -6,7 +6,7 @@ variable "cluster_name" {
 }
 
 # Nodes
-variable "os_image_unpacked" {
+variable "os_image" {
   type        = string
   description = "Path to unpacked Flatcar Container Linux image flatcar_production_qemu_image.img (probably after a qemu-img resize IMG +5G)"
 }
@@ -103,6 +103,17 @@ variable "enable_aggregation" {
   description = "Enable the Kubernetes Aggregation Layer (defaults to true)"
   type        = bool
   default     = true
+}
+
+variable "kube_apiserver_extra_flags" {
+  description = "Extra flags passed to self-hosted kube-apiserver."
+  type        = list(string)
+  default     = []
+}
+
+variable "disable_self_hosted_kubelet" {
+  description = "Disable the self hosted kubelet installed by default"
+  type        = bool
 }
 
 # Certificates

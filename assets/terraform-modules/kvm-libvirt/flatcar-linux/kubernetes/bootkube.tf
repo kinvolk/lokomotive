@@ -19,6 +19,11 @@ module "bootkube" {
   enable_aggregation    = var.enable_aggregation
   encrypt_pod_traffic   = var.encrypt_pod_traffic
 
+  # Disable the self hosted kubelet.
+  disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
+  # Extra flags to API server.
+  kube_apiserver_extra_flags = var.kube_apiserver_extra_flags
+
   certs_validity_period_hours = var.certs_validity_period_hours
 }
 
