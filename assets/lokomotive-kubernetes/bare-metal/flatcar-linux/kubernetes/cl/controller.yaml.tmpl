@@ -189,6 +189,12 @@ storage:
           kind: KubeletConfiguration
           cgroupDriver: "$${docker_cgroup_driver}"
           EOF
+    - path: /etc/tmpfiles.d/etcd-wrapper.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          d    /var/lib/etcd 0700 etcd etcd - -
 passwd:
   users:
     - name: core
