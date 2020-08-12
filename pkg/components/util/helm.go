@@ -32,7 +32,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
-	"github.com/kinvolk/lokomotive/pkg/util/walkers"
 )
 
 // LoadChartFromAssets takes in an asset location and returns a Helm
@@ -46,7 +45,7 @@ func LoadChartFromAssets(location string) (*chart.Chart, error) {
 
 	// Rendered files could contain secret data, only allow the
 	// current user but not others
-	walk := walkers.CopyingWalker(tmpDir, 0700)
+	walk := assets.CopyingWalker(tmpDir, 0700)
 	if err := assets.Assets.WalkFiles(location, walk); err != nil {
 		return nil, errors.Wrap(err, "walking assets")
 	}

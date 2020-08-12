@@ -12,32 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package walkers
+package assets
 
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/pkg/errors"
-
-	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
-func CopyingWalker(path string, newDirPerms os.FileMode) assets.WalkFunc {
+// CopyingWalker returns a WalkFunc which writes the given file to disk.
+func CopyingWalker(path string, newDirPerms os.FileMode) WalkFunc {
 	return func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
 		if err != nil {
-			return errors.Wrapf(err, "error during walking at %q", fileName)
+			return fmt.Errorf("error while walking at %q: %w", fileName, err)
 		}
 
 		fileName = filepath.Join(path, fileName)
 
 		if err := os.MkdirAll(filepath.Dir(fileName), newDirPerms); err != nil {
-			return errors.Wrap(err, "failed to create dir")
+			return fmt.Errorf("failed to create dir: %w", err)
 		}
 
 		return writeFile(fileName, r)
+	}
+}
+
+// DumpingWalker returns a WalkFunc which sets the contents of the given file in a map.
+func DumpingWalker(contentsMap map[string]string, allowedExts ...string) WalkFunc {
+	var extsMap map[string]struct{}
+
+	if len(allowedExts) > 0 {
+		extsMap = make(map[string]struct{}, len(allowedExts))
+		for _, ext := range allowedExts {
+			extsMap[ext] = struct{}{}
+		}
+	}
+
+	return func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
+		if err != nil {
+			return fmt.Errorf("error while walking at %q: %w", fileName, err)
+		}
+
+		if extsMap != nil {
+			if _, ok := extsMap[filepath.Ext(fileName)]; !ok {
+				return nil
+			}
+		}
+
+		contents, err := ioutil.ReadAll(r)
+		if err != nil {
+			return fmt.Errorf("failed to read %q: %w", fileName, err)
+		}
+
+		contentsMap[fileName] = string(contents)
+
+		return nil
 	}
 }
 

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package assets handles Lokomotive assets. Operations such as storing files as binary data and
+// extracting files from memory to disk belong in this package.
 package assets
 
 import (
