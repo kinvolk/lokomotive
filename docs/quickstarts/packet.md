@@ -116,6 +116,8 @@ cluster "packet" {
   facility = "ams1"
   project_id = "89273817-4f44-4b41-9f0c-cb00bf538542"
 
+  controller_type = "c3.small.x86"
+
   ssh_pubkeys       = ["ssh-rsa AAAA..."]
   management_cidrs  = ["0.0.0.0/0"]
   node_private_cidr = "10.0.0.0/8"
@@ -124,6 +126,7 @@ cluster "packet" {
 
   worker_pool "pool-1" {
     count       = 2
+    node_type = "c3.small.x86"
   }
 }
 
