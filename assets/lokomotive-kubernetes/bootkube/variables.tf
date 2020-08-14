@@ -28,8 +28,8 @@ variable "etcd_servers" {
 
 variable "etcd_endpoints" {
   description = "List of Private IPv4 addresses of the controller nodes running etcd."
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 variable "asset_dir" {
@@ -144,7 +144,7 @@ variable "external_apiserver_port" {
 variable "expose_on_all_interfaces" {
   description = "If true, kube-apiserver will be exposed on all controller node interfaces on port 6443. If false, it will be exposed only one kubelet's node IP."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "disable_self_hosted_kubelet" {

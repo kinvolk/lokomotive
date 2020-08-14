@@ -54,6 +54,28 @@ resource "aws_security_group_rule" "controller-apiserver" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
+resource "aws_security_group_rule" "controller-apiserver-internal" {
+  security_group_id = aws_security_group.controller.id
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 7443
+  to_port   = 7443
+
+  self = true
+}
+
+resource "aws_security_group_rule" "controller-apiserver-internal-worker" {
+  security_group_id = aws_security_group.controller.id
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 7443
+  to_port   = 7443
+
+  source_security_group_id = aws_security_group.worker.id
+}
+
 # Allow Prometheus to scrape node-exporter daemonset
 resource "aws_security_group_rule" "controller-node-exporter" {
   security_group_id = aws_security_group.controller.id

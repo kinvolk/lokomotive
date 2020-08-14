@@ -11,29 +11,33 @@ spec:
   - name: kube-apiserver
     image: ${kube_apiserver_image}
     command:
-    - kube-apiserver
-    - --advertise-address=$(POD_IP)
-    - --allow-privileged=true
-    - --anonymous-auth=false
-    - --authorization-mode=RBAC
-    - --bind-address=0.0.0.0
-    - --client-ca-file=/etc/kubernetes/secrets/ca.crt
-    - --cloud-provider=${cloud_provider}
-    - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
-    - --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt
-    - --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt
-    - --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key
-    - --etcd-servers=${etcd_servers}
-    - --insecure-port=0
-    - --kubelet-client-certificate=/etc/kubernetes/secrets/apiserver.crt
-    - --kubelet-client-key=/etc/kubernetes/secrets/apiserver.key
-    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
-    - --secure-port=6443
-    - --service-account-key-file=/etc/kubernetes/secrets/service-account.pub
-    - --service-cluster-ip-range=${service_cidr}
-    - --storage-backend=etcd3
-    - --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt
-    - --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key
+    - /bin/sh
+    - -c
+    - |
+      set -xe
+      exec kube-apiserver \
+      --advertise-address=$(POD_IP) \
+      --allow-privileged=true \
+      --anonymous-auth=false \
+      --authorization-mode=RBAC \
+      --bind-address=$(cat /run/kube-apiserver/address) \
+      --client-ca-file=/etc/kubernetes/secrets/ca.crt \
+      --cloud-provider=${cloud_provider} \
+      --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy \
+      --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt \
+      --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt \
+      --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key \
+      --etcd-servers=${etcd_servers} \
+      --insecure-port=0 \
+      --kubelet-client-certificate=/etc/kubernetes/secrets/apiserver.crt \
+      --kubelet-client-key=/etc/kubernetes/secrets/apiserver.key \
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+      --secure-port=7443 \
+      --service-account-key-file=/etc/kubernetes/secrets/service-account.pub \
+      --service-cluster-ip-range=${service_cidr} \
+      --storage-backend=etcd3 \
+      --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt \
+      --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key
     env:
     - name: POD_IP
       valueFrom:
@@ -46,6 +50,76 @@ spec:
     - name: ssl-certs-host
       mountPath: /etc/ssl/certs
       readOnly: true
+    - name: data
+      mountPath: /run/kube-apiserver
+  - name: haproxy
+    image: haproxy:2.1.4-alpine
+    volumeMounts:
+    - name: data
+      mountPath: /run/kube-apiserver
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -xe
+      export ADDRESS=$(cat /run/kube-apiserver/address)
+      # Make sure initContainer generated kube-apiserver address.
+      if [ -z $ADDRESS ]; then
+        echo "ADDRESS not found"
+        exit 1
+      fi
+      echo "Connecting to $ADDRESS:7443"
+      # We use TCP readiness probe and HAProxy does not reject connections if no backend is available,
+      # so we wait until kube-apiserver is available here, so readiness of haproxy container represents
+      # readiness of kube-apiserver, as kube-apiserver cannot have readiness probe set, as it listens
+      # on random IP address.
+      until nc -zv $ADDRESS 7443; do sleep 1; done
+      echo "Connected"
+      # From https://github.com/docker-library/haproxy/blob/master/Dockerfile-debian.template#L70
+      # kube-apiserver container must run as root, but haproxy must run as nobody, so it can share
+      # the listening with the HAProxy in kube-apiserver pod.
+      su -s /bin/sh -c 'exec haproxy -f /run/kube-apiserver/haproxy.cfg' nobody
+  initContainers:
+  - name: config-generator
+    image: haproxy:2.1.4-alpine
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -xe
+      export ADDRESS="127.$((RANDOM%255)).$((RANDOM%255)).$(((RANDOM%254)+1))"
+      echo $ADDRESS > /run/kube-apiserver/address
+      cat <<EOF > /run/kube-apiserver/haproxy.cfg
+      defaults
+        # Do TLS passthrough
+        mode tcp
+        # Required values for both frontend and backend
+        timeout connect 5s
+        timeout client 30s
+        timeout client-fin 30s
+        timeout server 30s
+        timeout tunnel 21d
+
+      frontend kube-apiserver-internal
+        bind $POD_IP:7443
+        default_backend kube-apiserver
+
+      frontend kube-apiserver-external
+        bind 0.0.0.0:6443
+        default_backend kube-apiserver
+
+      backend kube-apiserver
+        server 1 $ADDRESS:7443
+      EOF
+      cat /run/kube-apiserver/haproxy.cfg
+    volumeMounts:
+    - name: data
+      mountPath: /run/kube-apiserver
+    env:
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
   volumes:
   - name: secrets
     hostPath:
@@ -53,3 +127,5 @@ spec:
   - name: ssl-certs-host
     hostPath:
       path: ${trusted_certs_dir}
+  - name: data
+    emptyDir: {}
