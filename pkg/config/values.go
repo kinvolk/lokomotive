@@ -10,13 +10,12 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-// LoadValuesFile reads the file at the given path and parses it as a
-// "values file" (flat key.value HCL config) for later use in the
-// `EvalContext`.
+// readValuesFile reads the file at the given path and parses it as a "values file" (flat key.value
+// HCL config) for later use in the `EvalContext`.
 //
 // Adapted from
 // https://github.com/hashicorp/terraform/blob/d4ac68423c4998279f33404db46809d27a5c2362/configs/parser_values.go#L8-L23
-func LoadValuesFile(path string) (map[string]cty.Value, hcl.Diagnostics) {
+func readValuesFile(path string) (map[string]cty.Value, hcl.Diagnostics) {
 	hclParser := hclparse.NewParser()
 	varsFile, diags := hclParser.ParseHCLFile(path)
 	if diags != nil {

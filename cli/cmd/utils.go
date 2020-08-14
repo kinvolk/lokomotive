@@ -160,7 +160,7 @@ func assetsKubeconfig(assetDir string) string {
 }
 
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {
-	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
+	return config.ReadHCL(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
 
 // askForConfirmation asks the user to confirm an action.

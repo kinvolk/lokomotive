@@ -77,7 +77,7 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentName
 			return err
 		}
 
-		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
+		componentConfigBody := lokoConfig.Component(componentName)
 
 		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
 			fmt.Printf("%v\n", diags)
