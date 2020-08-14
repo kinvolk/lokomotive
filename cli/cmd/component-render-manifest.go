@@ -73,7 +73,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 			return err
 		}
 
-		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
+		componentConfigBody := lokoConfig.Component(componentName)
 
 		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
 			for _, diagnostic := range diags {

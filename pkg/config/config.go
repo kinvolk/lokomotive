@@ -61,91 +61,59 @@ type Config struct {
 	EvalContext *hcl.EvalContext
 }
 
-func loadLokocfgPaths(configPath string) ([]string, error) {
-	isDir, err := util.PathIsDir(configPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to stat config path %q: %w", configPath, err)
-	}
-	var lokocfgPaths []string
-	if isDir {
-		globPattern := filepath.Join(configPath, "*.lokocfg")
-		configFiles, err := filepath.Glob(globPattern)
-		if err != nil {
-			return nil, fmt.Errorf("bad filepath glob pattern %q: %w", globPattern, err)
+// Component finds a component named name and returns its configuration as a pointer to an
+// hcl.Body. If the component isn't found, nil is returned.
+func (c *Config) Component(name string) *hcl.Body {
+	for _, component := range c.RootConfig.Components {
+		if name == component.Name {
+			return &component.Config
 		}
-		lokocfgPaths = append(lokocfgPaths, configFiles...)
-	} else {
-		lokocfgPaths = append(lokocfgPaths, configPath)
 	}
-	return lokocfgPaths, nil
+
+	return nil
 }
 
-func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) {
-	lokocfgPaths, err := loadLokocfgPaths(lokocfgPath)
+// ReadHCL reads all HCL files at path and one HCL values file at valuesPath, constructs a Config
+// and returns a pointer to it.
+func ReadHCL(path, valuesPath string) (*Config, hcl.Diagnostics) {
+	names, err := lokocfgFilenames(path)
 	if err != nil {
-		return nil, hcl.Diagnostics{
-			&hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  err.Error(),
-			},
-		}
+		return nil, diag(fmt.Errorf("getting lokocfg paths: %w", err))
 	}
 
-	hclParser := hclparse.NewParser()
-
-	var hclFiles []*hcl.File
-	for _, f := range lokocfgPaths {
-		hclFile, diags := hclParser.ParseHCLFile(f)
-		if len(diags) > 0 {
-			return nil, diags
-		}
-		hclFiles = append(hclFiles, hclFile)
-	}
-
-	configBody := hcl.MergeFiles(hclFiles)
-
-	exists, err := util.PathExists(lokocfgVarsPath)
+	files, err := readFiles(names)
 	if err != nil {
-		return nil, hcl.Diagnostics{
-			&hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  fmt.Sprintf("could not stat %q: %v", lokocfgVarsPath, err),
-			},
-		}
+		return nil, diag(err)
 	}
+
+	body, diags := parseHCLFiles(files)
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
+	varsExist, err := util.PathExists(valuesPath)
+	if err != nil {
+		return nil, diag(fmt.Errorf("could not stat %q: %w", valuesPath, err))
+	}
+
 	var userVals map[string]cty.Value
-	var diags hcl.Diagnostics
-	if exists {
-		userVals, diags = LoadValuesFile(lokocfgVarsPath)
-		if len(diags) > 0 {
+	if varsExist {
+		userVals, diags = readValuesFile(valuesPath)
+		if diags.HasErrors() {
 			return nil, diags
 		}
 	}
 
 	var rootConfig RootConfig
-	diags = gohcl.DecodeBody(configBody, nil, &rootConfig)
-	if len(diags) > 0 {
+
+	diags = gohcl.DecodeBody(body, nil, &rootConfig)
+	if diags.HasErrors() {
 		return nil, diags
 	}
 
-	variables := map[string]cty.Value{}
-	for _, v := range rootConfig.Variables {
-		if userVal, ok := userVals[v.Name]; ok {
-			variables[v.Name] = userVal
-			continue
-		}
-		if len(v.Default) == 0 {
-			continue
-		}
-		defaultValue, hasDefaultValue := v.Default["default"]
-		if !hasDefaultValue {
-			continue
-		}
-		defaultVal, diags := defaultValue.Expr.Value(nil)
-		if len(diags) > 0 {
-			return nil, diags
-		}
-		variables[v.Name] = defaultVal
+	variables, diags := populateVars(rootConfig.Variables, userVals)
+	if diags.HasErrors() {
+		return nil, diags
 	}
 
 	evalContext := hcl.EvalContext{
@@ -162,6 +130,44 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) 
 		RootConfig:  &rootConfig,
 		EvalContext: &evalContext,
 	}, nil
+}
+
+// readFiles reads all files based on the provided names and returns a map where the key is the
+// name of the file and the value is a slice of bytes holding the file's contents.
+func readFiles(names []string) (map[string][]byte, error) {
+	files := map[string][]byte{}
+
+	for _, fn := range names {
+		data, err := ioutil.ReadFile(fn) //nolint:gosec
+		if err != nil {
+			return nil, fmt.Errorf("reading file %q: %w", fn, err)
+		}
+
+		files[fn] = data
+	}
+
+	return files, nil
+}
+
+// parseHCLFiles reads the provided HCL files, merges them into a single hcl.Body and returns it.
+func parseHCLFiles(files map[string][]byte) (hcl.Body, hcl.Diagnostics) {
+	parser := hclparse.NewParser()
+
+	hclFiles := []*hcl.File{}
+
+	var diags hcl.Diagnostics
+
+	for name, data := range files {
+		hclFile, d := parser.ParseHCL(data, name)
+		diags = append(diags, d...)
+		hclFiles = append(hclFiles, hclFile)
+	}
+
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
+	return hcl.MergeFiles(hclFiles), nil
 }
 
 func evalFuncPathExpand() function.Function {
@@ -195,13 +201,68 @@ func evalFuncFile() function.Function {
 	})
 }
 
-// LoadComponentConfigBody returns nil if no component with the given
-// name is found in the configuration
-func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
-	for _, component := range c.RootConfig.Components {
-		if componentName == component.Name {
-			return &component.Config
-		}
+// lokocfgFilenames returns a slice containing the names of all .lokocfg files found under path p.
+// If p is not a directory, p is returned by itself in the slice.
+func lokocfgFilenames(p string) ([]string, error) {
+	isDir, err := util.PathIsDir(p)
+	if err != nil {
+		return nil, fmt.Errorf("checking if %q is a directory: %w", p, err)
 	}
-	return nil
+
+	if !isDir {
+		return []string{p}, nil
+	}
+
+	globPattern := filepath.Join(p, "*.lokocfg")
+
+	names, err := filepath.Glob(globPattern)
+	if err != nil {
+		return nil, fmt.Errorf("bad filepath glob pattern %q: %w", globPattern, err)
+	}
+
+	return names, nil
+}
+
+// populateVars accepts a slice of variables and a map of user-provided values. The function
+// populates each variable with the corresponding user-provided value or with a default. If a
+// variable doesn't have a matching value and there is no default, an error is returned (as
+// hcl.Diagnostics).
+func populateVars(vars []variable, values map[string]cty.Value) (map[string]cty.Value, hcl.Diagnostics) {
+	res := map[string]cty.Value{}
+
+	for _, v := range vars {
+		if value, ok := values[v.Name]; ok {
+			res[v.Name] = value
+
+			continue
+		}
+
+		if len(v.Default) == 0 {
+			continue
+		}
+
+		defaultValue, hasDefaultValue := v.Default["default"]
+		if !hasDefaultValue {
+			continue
+		}
+
+		dv, diags := defaultValue.Expr.Value(nil)
+		if diags.HasErrors() {
+			return nil, diags
+		}
+
+		res[v.Name] = dv
+	}
+
+	return res, nil
+}
+
+// diag returns an hcl.Diagnostics with a single hcl.Diagnostic based on the provided error.
+func diag(err error) hcl.Diagnostics {
+	return hcl.Diagnostics{
+		&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  err.Error(),
+		},
+	}
 }
