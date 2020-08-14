@@ -35,8 +35,8 @@ type variable struct {
 }
 
 type cluster struct {
-	Name   string   `hcl:"name,label"`
-	Config hcl.Body `hcl:",remain"`
+	Platform string   `hcl:"platform,label"`
+	Config   hcl.Body `hcl:",remain"`
 }
 
 type component struct {
