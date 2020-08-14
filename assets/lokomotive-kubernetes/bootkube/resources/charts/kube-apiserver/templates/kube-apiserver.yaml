@@ -8,7 +8,7 @@
 # external traffic.
 # See commit 95af6c96 for details.
 {{ define "port" }}
-{{- if and .Values.apiserver.exposeOnAllInterfaces (eq (int .Values.apiserver.replicas) 1) -}}
+{{- if .Values.apiserver.exposeOnAllInterfaces -}}
 7443
 {{- else -}}
 6443
@@ -21,11 +21,7 @@ apiVersion: apps/v1
 # If there is just one controller node, we want to use Deployment to be able to run 2 kube-apiserver
 # pods on a single node at a time, to provide graceful upgrades.
 # See commit 95af6c96 for details.
-{{- if eq (int .Values.apiserver.replicas) 1 }}
 kind: Deployment
-{{- else }}
-kind: DaemonSet
-{{- end }}
 metadata:
   name: kube-apiserver
   namespace: kube-system
@@ -33,25 +29,15 @@ metadata:
     tier: control-plane
     k8s-app: kube-apiserver
 spec:
-  {{- if eq (int .Values.apiserver.replicas) 1 }}
-  replicas: 1
-  {{- end }}
+  replicas: {{ .Values.apiserver.replicas }}
   selector:
     matchLabels:
       tier: control-plane
       k8s-app: kube-apiserver
-  {{- if eq (int .Values.apiserver.replicas) 1 }}
   strategy:
-  {{- else }}
-  updateStrategy:
-  {{- end }}
     type: RollingUpdate
     rollingUpdate:
-      {{- if eq (int .Values.apiserver.replicas) 1 }}
-      maxUnavailable: 0
-      {{- else }}
       maxUnavailable: 1
-      {{- end }}
   template:
     metadata:
       labels:
@@ -74,7 +60,6 @@ spec:
       - name: kube-apiserver
         image: {{ .Values.apiserver.image }}
         command:
-        {{- if eq (int .Values.apiserver.replicas) 1 }}
         - /bin/sh
         - -c
         - |
@@ -114,43 +99,6 @@ spec:
           {{ . }} \
           {{- end }}
           --storage-backend=etcd3
-        {{- else }}
-        - kube-apiserver
-        - --advertise-address=$(POD_IP)
-        - --allow-privileged=true
-        - --anonymous-auth=false
-        - --authorization-mode=RBAC
-        - --bind-address=0.0.0.0
-        - --client-ca-file=/etc/kubernetes/secrets/ca.crt
-        - --cloud-provider={{ .Values.apiserver.cloudProvider }}
-        - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityPolicy
-        - --etcd-cafile=/etc/kubernetes/secrets/etcd-client-ca.crt
-        - --etcd-certfile=/etc/kubernetes/secrets/etcd-client.crt
-        - --etcd-keyfile=/etc/kubernetes/secrets/etcd-client.key
-        - --etcd-servers={{ .Values.apiserver.etcdServers}}
-        - --insecure-port=0
-        - --kubelet-client-certificate=/etc/kubernetes/secrets/apiserver.crt
-        - --kubelet-client-key=/etc/kubernetes/secrets/apiserver.key
-        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
-        - --secure-port=6443
-        - --service-account-key-file=/etc/kubernetes/secrets/service-account.pub
-        - --service-cluster-ip-range={{ .Values.apiserver.serviceCIDR }}
-        - --storage-backend=etcd3
-        - --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt
-        - --tls-private-key-file=/etc/kubernetes/secrets/apiserver.key
-        - --token-auth-file=/etc/kubernetes/secrets/token-auth-file
-        {{- if .Values.apiserver.enableAggregation }}
-        - --proxy-client-cert-file=/etc/kubernetes/secrets/aggregation-client.crt
-        - --proxy-client-key-file=/etc/kubernetes/secrets/aggregation-client.key
-        - --requestheader-client-ca-file=/etc/kubernetes/secrets/aggregation-ca.crt
-        - --requestheader-extra-headers-prefix=X-Remote-Extra-
-        - --requestheader-group-headers=X-Remote-Group
-        - --requestheader-username-headers=X-Remote-User
-        {{- end }}
-        {{- range .Values.apiserver.extraFlags }}
-        - {{ . }}
-        {{- end }}
-        {{- end }}
         env:
         - name: POD_IP
           valueFrom:
@@ -171,7 +119,6 @@ spec:
         - name: ssl-certs-host
           mountPath: /etc/ssl/certs
           readOnly: true
-      {{- if eq (int .Values.apiserver.replicas) 1 }}
         - name: data
           mountPath: /run/kube-apiserver
       - name: haproxy
@@ -253,7 +200,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -264,7 +210,5 @@ spec:
       - name: ssl-certs-host
         hostPath:
           path: {{ .Values.apiserver.trustedCertsDir }}
-      {{- if eq (int .Values.apiserver.replicas) 1 }}
       - name: data
         emptyDir: {}
-      {{- end }}
