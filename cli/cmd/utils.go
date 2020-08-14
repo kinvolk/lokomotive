@@ -71,7 +71,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 		}
 	}
 
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
+	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Platform)
 	if err != nil {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
