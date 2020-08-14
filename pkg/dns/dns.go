@@ -15,11 +15,14 @@
 package dns
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/pkg/errors"
@@ -61,41 +64,50 @@ func (c *Config) Validate() error {
 	return fmt.Errorf("invalid DNS provider %q", c.Provider)
 }
 
-// AskToConfigure reads the required DNS entries from a Terraform output,
-// asks the user to configure them and checks if the configuration is correct.
-func (c *Config) AskToConfigure(ex *terraform.Executor) error {
-	dnsEntries, err := readDNSEntries(ex)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Please configure the following DNS entries at the DNS provider which hosts %q:\n", c.Zone)
-	prettyPrintDNSEntries(dnsEntries)
-
-	for {
-		fmt.Printf("Press Enter to check the entries or type \"skip\" to continue the installation: ")
-
-		var input string
-		fmt.Scanln(&input)
-
-		if input == "skip" {
-			break
-		} else if input != "" {
-			continue
+// ManualConfigPrompt returns a terraform.ExecutionHook which prompts the user to configure DNS
+// entries manually and verifies the entries were created successfully.
+func (c *Config) ManualConfigPrompt() terraform.ExecutionHook {
+	return func(ex *terraform.Executor) error {
+		dnsEntries, err := readDNSEntries(ex)
+		if err != nil {
+			return err
 		}
 
-		if checkDNSEntries(dnsEntries) {
-			break
+		fmt.Printf("Please configure the following DNS entries at the DNS provider which hosts %q:\n", c.Zone)
+		prettyPrintDNSEntries(dnsEntries)
+
+		for {
+			fmt.Printf("Press Enter to check the entries or type \"skip\" to continue the installation: ")
+
+			var input string
+
+			reader := bufio.NewReader(os.Stdin)
+
+			input, err := reader.ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("reading user input: %w", err)
+			}
+
+			v := strings.TrimSpace(input)
+			if v == "skip" {
+				break
+			} else if v != "" {
+				continue
+			}
+
+			if checkDNSEntries(dnsEntries) {
+				break
+			}
+
+			fmt.Println("Entries are not correctly configured, please verify.")
 		}
 
-		fmt.Println("Entries are not correctly configured, please verify.")
+		return nil
 	}
-
-	return nil
 }
 
 func readDNSEntries(ex *terraform.Executor) ([]dnsEntry, error) {
-	output, err := ex.ExecuteSync("output", "-json", "dns_entries")
+	output, err := ex.OutputBytes("dns_entries")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get DNS entries")
 	}

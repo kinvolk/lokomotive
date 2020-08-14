@@ -70,6 +70,34 @@ const (
 	ExecutionStatusFailure ExecutionStatus = "Failure"
 )
 
+// ExecutionHook represents a callback function which should be run prior to executing a Terraform
+// operation.
+type ExecutionHook func(*Executor) error
+
+// ExecutionStep represents a single Terraform operation.
+type ExecutionStep struct {
+	// A short string describing the step in a way that is meaningful to the user. The string
+	// should begin with a lowercase letter, be in the imperative tense and have no period at the
+	// end.
+	//
+	// Examples:
+	// - "create DNS resources"
+	// - "deploy virtual machines"
+	Description string
+	// A list of arguments to be passed to the `terraform` command. Note that for "apply"
+	// operations the "-auto-approve" argument should always be included to avoid halting the
+	// Terraform execution with interactive prompts.
+	//
+	// Examples:
+	// - []string{"apply", "-target=module.foo", "-auto-approve"}
+	// - []string{"refresh"}
+	// - []string{"apply", "-auto-approve"}
+	Args []string
+	// A function which should be run prior to executing the Terraform operation. If specified and
+	// the function returns an error, execution is halted.
+	PreExecutionHook ExecutionHook
+}
+
 // Executor enables calling Terraform from Go, across platforms, with any
 // additional providers/provisioners that the currently executing binary
 // exposes.
@@ -126,25 +154,28 @@ func NewExecutor(conf Config) (*Executor, error) {
 	return ex, nil
 }
 
-// Init() is a wrapper function that runs
-// `terraform init`.
+// Init is a wrapper function that runs `terraform init`.
 func (ex *Executor) Init() error {
-	ex.logger.Println("Initializing Terraform working directory")
-	return ex.Execute("init")
+	return ex.Execute(ExecutionStep{
+		Description: "initialize Terraform",
+		Args:        []string{"init"},
+	})
 }
 
-// Apply() is a wrapper function that runs
-// `terraform apply -auto-approve`.
+// Apply is a wrapper function that runs `terraform apply -auto-approve`.
 func (ex *Executor) Apply() error {
-	ex.logger.Println("Applying Terraform configuration. This creates infrastructure so it might take a long time...")
-	return ex.Execute("apply", "-auto-approve")
+	return ex.Execute(ExecutionStep{
+		Description: "create infrastructure",
+		Args:        []string{"apply", "-auto-approve"},
+	})
 }
 
-// Destroy() is a wrapper function that runs
-// `terraform destroy -auto-approve`.
+// Destroy is a wrapper function that runs `terraform destroy -auto-approve`.
 func (ex *Executor) Destroy() error {
-	ex.logger.Println("Destroying Terraform-managed infrastructure")
-	return ex.Execute("destroy", "-auto-approve")
+	return ex.Execute(ExecutionStep{
+		Description: "destroy infrastructure",
+		Args:        []string{"destroy", "-auto-approve"},
+	})
 }
 
 // tailFile will indefinitely tail logs from the given file path, until
@@ -176,14 +207,27 @@ func tailFile(path string, done chan struct{}, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
-// Execute runs the given command and arguments against Terraform, and returns
-// any errors that occur during the execution.
-//
-// An error is returned if the Terraform binary could not be found, or if the
-// Terraform call itself failed, in which case, details can be found in the
-// output.
-func (ex *Executor) Execute(args ...string) error {
-	return ex.execute(ex.verbose, args...)
+// Execute accepts one or more ExecutionSteps and executes them sequentially in the order they were
+// provided. If a step has a PreExecutionHook defined, the hook is run prior to executing the step.
+// If any error is encountered, the error is returned and the execution is halted.
+func (ex *Executor) Execute(steps ...ExecutionStep) error {
+	for _, s := range steps {
+		if s.PreExecutionHook != nil {
+			ex.logger.Printf("Running pre-execution hook for step %q", s.Description)
+
+			if err := s.PreExecutionHook(ex); err != nil {
+				return fmt.Errorf("running pre-execution hook: %w", err)
+			}
+		}
+
+		ex.logger.Printf("Executing step %q", s.Description)
+
+		if err := ex.execute(ex.verbose, s.Args...); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (ex *Executor) executeVerbose(args ...string) error {
@@ -191,9 +235,12 @@ func (ex *Executor) executeVerbose(args ...string) error {
 }
 
 func (ex *Executor) execute(verbose bool, args ...string) error {
-	pid, done, err := ex.ExecuteAsync(args...)
+	pid, done, err := ex.executeAsync(args...)
 	if err != nil {
-		return fmt.Errorf("failed executing Terraform command with arguments '%s' in directory %s: %w", strings.Join(args, " "), ex.WorkingDirectory(), err)
+		return fmt.Errorf(
+			"executing Terraform with arguments '%s' in directory %s: %w",
+			strings.Join(args, " "), ex.WorkingDirectory(), err,
+		)
 	}
 
 	var wg sync.WaitGroup
@@ -280,17 +327,17 @@ func (ex *Executor) LoadVars() (map[string]interface{}, error) {
 	return nil, errors.New("Could not parse config as JSON object")
 }
 
-// ExecuteAsync runs the given command and arguments against Terraform, and returns
+// executeAsync runs the given command and arguments against Terraform, and returns
 // an identifier that can be used to read the output of the process as it is
 // executed and after.
 //
-// ExecuteAsync is non-blocking, and takes a lock in the execution path.
+// This function is non-blocking, and takes a lock in the execution path.
 // Locking is handled by Terraform itself.
 //
 // An error is returned if the Terraform binary could not be found, or if the
 // Terraform call itself failed, in which case, details can be found in the
 // output.
-func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
+func (ex *Executor) executeAsync(args ...string) (int, chan struct{}, error) {
 	cmd := ex.generateCommand(args...)
 	rPipe, wPipe := io.Pipe()
 	cmd.Stdout = wPipe
@@ -334,8 +381,8 @@ func (ex *Executor) ExecuteAsync(args ...string) (int, chan struct{}, error) {
 	return cmd.Process.Pid, done, nil
 }
 
-// ExecuteSync is like Execute, but synchronous.
-func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
+// executeSync is like executeAsync, but synchronous.
+func (ex *Executor) executeSync(args ...string) ([]byte, error) {
 	// Initialize the signal handler.
 	h := signalHandler(ex.logger)
 
@@ -351,7 +398,11 @@ func (ex *Executor) ExecuteSync(args ...string) ([]byte, error) {
 func (ex *Executor) Plan() error {
 	ex.logger.Println("Generating Terraform execution plan")
 
-	if err := ex.Execute("refresh"); err != nil {
+	s := ExecutionStep{
+		Description: "refresh Terraform state",
+		Args:        []string{"refresh"},
+	}
+	if err := ex.Execute(s); err != nil {
 		return err
 	}
 
@@ -361,12 +412,22 @@ func (ex *Executor) Plan() error {
 // Output gets output value from Terraform in JSON format and tries to unmarshal it
 // to a given struct.
 func (ex *Executor) Output(key string, s interface{}) error {
-	o, err := ex.ExecuteSync("output", "-json", key)
+	o, err := ex.executeSync("output", "-json", key)
 	if err != nil {
 		return fmt.Errorf("failed getting Terraform output for key %q: %w", key, err)
 	}
 
 	return json.Unmarshal(o, s)
+}
+
+// OutputBytes returns the value of the Terraform output key in JSON format as a byte slice.
+func (ex *Executor) OutputBytes(key string) ([]byte, error) {
+	o, err := ex.executeSync("output", "-json", key)
+	if err != nil {
+		return []byte{}, fmt.Errorf("getting Terraform output for key %q: %w", key, err)
+	}
+
+	return o, nil
 }
 
 // GenerateCommand prepares a Terraform command with the given arguments
@@ -463,7 +524,7 @@ func (ex *Executor) logPath(id int) string {
 }
 
 func (ex *Executor) checkVersion() error {
-	vOutput, err := ex.ExecuteSync("--version")
+	vOutput, err := ex.executeSync("--version")
 	if err != nil {
 		return fmt.Errorf("Error checking Terraform version: %w", err)
 	}
