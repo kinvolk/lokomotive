@@ -53,7 +53,7 @@ spec:
     - name: data
       mountPath: /run/kube-apiserver
   - name: haproxy
-    image: haproxy:2.1.4-alpine
+    image: haproxy:2.2.2-alpine
     volumeMounts:
     - name: data
       mountPath: /run/kube-apiserver
@@ -81,7 +81,7 @@ spec:
       su -s /bin/sh -c 'exec haproxy -f /run/kube-apiserver/haproxy.cfg' nobody
   initContainers:
   - name: config-generator
-    image: haproxy:2.1.4-alpine
+    image: haproxy:2.2.2-alpine
     command:
     - /bin/sh
     - -c
