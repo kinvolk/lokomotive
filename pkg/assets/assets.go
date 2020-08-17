@@ -34,7 +34,7 @@ const (
 	// ComponentsSource is the asset source directory for components.
 	ComponentsSource = "/charts/components"
 	// TerraformModulesSource is the asset source directory for Terraform modules.
-	TerraformModulesSource = "/lokomotive-kubernetes"
+	TerraformModulesSource = "/terraform-modules"
 )
 
 type WalkFunc func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error

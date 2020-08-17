@@ -24,7 +24,7 @@ export NEW_VERSION="<new version>"
 Now run the following commands in the root of this repository:
 
 ```bash
-sed -i "s|$OLD_VERSION|$NEW_VERSION|g" assets/lokomotive-kubernetes/*/flatcar-linux/kubernetes/cl/controller.yaml.tmpl
+sed -i "s|$OLD_VERSION|$NEW_VERSION|g" assets/terraform-modules/*/flatcar-linux/kubernetes/cl/controller.yaml.tmpl
 make update-assets
 ```
 
@@ -34,10 +34,10 @@ make update-assets
 
 To update Calico update the image tags in following files:
 
-- `assets/lokomotive-kubernetes/bootkube/resources/charts/calico/values.yaml`
-- `assets/lokomotive-kubernetes/bootkube/variables.tf`
+- `assets/charts/control-plane/calico/values.yaml`
+- `assets/terraform-modules/bootkube/variables.tf`
 
-If there are changes necessary in the helm chart, make them in `assets/lokomotive-kubernetes/bootkube/resources/charts/calico`.
+If there are changes necessary in the helm chart, make them in `assets/charts/control-plane/calico`.
 
 - Releases: https://github.com/projectcalico/calico/releases.
 

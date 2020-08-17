@@ -48,7 +48,7 @@ func Configure(assetDir, renderedBackend string) error {
 
 // PrepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
 func PrepareTerraformDirectoryAndModules(assetDir string) error {
-	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
+	terraformModuleDir := filepath.Join(assetDir, "terraform-modules")
 	if err := assets.Extract(assets.TerraformModulesSource, terraformModuleDir); err != nil {
 		return err
 	}

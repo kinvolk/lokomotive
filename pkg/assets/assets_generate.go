@@ -23,7 +23,7 @@ import (
 
 func main() {
 	dirs := map[string]string{
-		assets.TerraformModulesSource: "../../assets/lokomotive-kubernetes",
+		assets.TerraformModulesSource: "../../assets/terraform-modules",
 		assets.ControlPlaneSource:     "../../assets/charts/control-plane",
 		assets.ComponentsSource:       "../../assets/charts/components",
 		// This assets path is deprecated and should not be used for new components. It contains

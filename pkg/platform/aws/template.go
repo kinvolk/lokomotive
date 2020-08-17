@@ -16,7 +16,7 @@ package aws
 
 var terraformConfigTmpl = `
 module "aws-{{.Config.ClusterName}}" {
-  source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes"
+  source = "../terraform-modules/aws/flatcar-linux/kubernetes"
 
   cluster_name = "{{.Config.ClusterName}}"
   tags         = {{.Tags}}
@@ -99,7 +99,7 @@ module "aws-{{.Config.ClusterName}}" {
 
 {{ range $index, $pool := .Config.WorkerPools }}
 module "worker-pool-{{ $index }}" {
-  source = "../lokomotive-kubernetes/aws/flatcar-linux/kubernetes/workers"
+  source = "../terraform-modules/aws/flatcar-linux/kubernetes/workers"
 
   vpc_id                = module.aws-{{ $.Config.ClusterName }}.vpc_id
   subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
