@@ -26,10 +26,10 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-const componentName = "flatcar-linux-update-operator"
+const name = "flatcar-linux-update-operator"
 
 func init() {
-	components.Register(componentName, &component{})
+	components.Register(name, &component{})
 }
 
 type component struct{}
@@ -45,7 +45,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
 	walk := assets.DumpingWalker(ret, ".yaml")
-	p := filepath.Join("/components", componentName)
+	p := filepath.Join("/components", name)
 	if err := assets.Assets.WalkFiles(p, walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}
@@ -55,7 +55,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: componentName,
+		Name: name,
 		Namespace: k8sutil.Namespace{
 			Name: "reboot-coordinator",
 		},
