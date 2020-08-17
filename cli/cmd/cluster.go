@@ -181,13 +181,13 @@ func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]inte
 	return values, nil
 }
 
-func (c controlplaneUpdater) upgradeComponent(component string) {
+func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 	ctxLogger := c.ctxLogger.WithFields(logrus.Fields{
 		"action":    "controlplane-upgrade",
 		"component": component,
 	})
 
-	actionConfig, err := util.HelmActionConfig("kube-system", c.kubeconfig)
+	actionConfig, err := util.HelmActionConfig(namespace, c.kubeconfig)
 	if err != nil {
 		ctxLogger.Fatalf("Failed initializing helm: %v", err)
 	}
@@ -212,7 +212,7 @@ func (c controlplaneUpdater) upgradeComponent(component string) {
 
 		install := action.NewInstall(actionConfig)
 		install.ReleaseName = component
-		install.Namespace = "kube-system"
+		install.Namespace = namespace
 		install.Atomic = true
 
 		if _, err := install.Run(helmChart, map[string]interface{}{}); err != nil {
