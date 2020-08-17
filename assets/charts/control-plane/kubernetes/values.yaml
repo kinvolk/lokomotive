@@ -24,3 +24,5 @@ coredns:
   clusterIP: 10.0.0.10
 etcd:
   endpoints: []
+kubelet:
+  enableTLSBootstrap: true
