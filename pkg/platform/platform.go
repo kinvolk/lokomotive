@@ -50,6 +50,10 @@ func CommonControlPlaneCharts() []helm.LokomotiveChart {
 			Name:      "lokomotive",
 			Namespace: "lokomotive-system",
 		},
+		{
+			Name:      "bootstrap-secrets",
+			Namespace: "kube-system",
+		},
 	}
 }
 

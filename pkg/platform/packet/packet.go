@@ -94,6 +94,7 @@ type config struct {
 	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
 	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
+	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
@@ -119,7 +120,8 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		EnableAggregation: true,
+		EnableAggregation:  true,
+		EnableTLSBootstrap: true,
 	}
 }
 

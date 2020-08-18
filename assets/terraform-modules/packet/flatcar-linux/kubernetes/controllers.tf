@@ -46,8 +46,13 @@ data "ct_config" "controller-ignitions" {
     etcd_arch_tag_suffix = var.os_arch == "arm64" ? "-arm64" : ""
     etcd_arch_options    = var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
-    etcd_initial_cluster  = join(",", data.template_file.etcds.*.rendered)
-    kubeconfig            = indent(10, module.bootkube.kubeconfig-kubelet)
+    etcd_initial_cluster = join(",", data.template_file.etcds.*.rendered)
+    kubeconfig = var.enable_tls_bootstrap ? indent(10, templatefile("${path.module}/workers/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id[0].result
+      token_secret = random_string.bootstrap_token_secret[0].result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${local.api_server}:6443"
+    })) : indent(10, module.bootkube.kubeconfig-kubelet)
     ssh_keys              = jsonencode(var.ssh_keys)
     k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix = var.cluster_domain_suffix

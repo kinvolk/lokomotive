@@ -98,6 +98,16 @@ variable "kubeconfig" {
   type        = string
 }
 
+variable "ca_cert" {
+  description = "Kubernetes CA certificate needed in the kubeconfig file."
+  type        = string
+}
+
+variable "apiserver" {
+  description = "Apiserver private endpoint needed in the kubeconfig file."
+  type        = string
+}
+
 variable "ssh_keys" {
   type        = list(string)
   description = "SSH public keys for user 'core'"
