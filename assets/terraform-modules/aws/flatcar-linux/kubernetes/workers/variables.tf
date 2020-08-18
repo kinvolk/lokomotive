@@ -158,3 +158,8 @@ variable "lb_https_port" {
   type        = number
   default     = 443
 }
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}

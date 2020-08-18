@@ -98,5 +98,6 @@ data "template_file" "worker-config" {
     cluster_domain_suffix  = var.cluster_domain_suffix
     node_labels            = var.labels
     taints                 = var.taints
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   }
 }

@@ -39,7 +39,13 @@ spec:
           --cluster_domain={{ .Values.clusterDomain }} \
           --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
+          {{- if .Values.enableTLSBootstrap }}
+          --kubeconfig=/var/lib/kubelet/kubeconfig \
+          --bootstrap-kubeconfig=/etc/kubernetes/kubeconfig \
+          --rotate-certificates \
+          {{- else }}
           --kubeconfig=/etc/kubernetes/kubeconfig \
+          {{- end }}
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
           --pod-manifest-path=/etc/kubernetes/manifests \

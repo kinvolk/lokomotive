@@ -191,6 +191,7 @@ data "template_file" "controller-configs" {
     cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
     cluster_domain_suffix  = var.cluster_domain_suffix
     ssh_keys               = jsonencode(var.ssh_keys)
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   }
 }
 
@@ -213,6 +214,7 @@ data "ct_config" "worker-ignitions" {
     cluster_domain_suffix  = var.cluster_domain_suffix
     ssh_keys               = jsonencode(var.ssh_keys)
     kubelet_labels         = merge({ "node.kubernetes.io/node" = "" }, var.labels),
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   })
   pretty_print = false
 

@@ -81,6 +81,7 @@ resource "local_file" "kubernetes" {
     server                        = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
     serviceaccount_key            = base64encode(tls_private_key.service-account.private_key_pem)
     etcd_endpoints                = var.etcd_endpoints
+    enable_tls_bootstrap          = var.enable_tls_bootstrap
   })
 }
 
@@ -114,6 +115,7 @@ data "template_file" "kubelet" {
     kubelet_image          = "${var.container_images["kubelet_image"]}-${var.container_arch}"
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   }
 }
 

@@ -133,6 +133,7 @@ data "template_file" "controller-configs" {
     ssh_keys               = jsonencode(var.ssh_keys)
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   }
 }
 

@@ -180,3 +180,8 @@ variable "dns_zone" {
   type        = string
   description = "DNS Zone (e.g. example.com)"
 }
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}

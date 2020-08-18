@@ -162,6 +162,11 @@ variable "disable_self_hosted_kubelet" {
   type        = bool
 }
 
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}
+
 # Certificates
 
 variable "certs_validity_period_hours" {

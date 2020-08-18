@@ -54,6 +54,7 @@ data "ct_config" "controller-ignitions" {
     controller_count      = var.controller_count
     dns_zone              = var.dns_zone
     cluster_name          = var.cluster_name
+    enable_tls_bootstrap  = var.enable_tls_bootstrap
   })
   snippets = var.controller_clc_snippets
 }
