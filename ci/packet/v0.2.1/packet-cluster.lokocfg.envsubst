@@ -3,6 +3,10 @@ cluster "packet" {
   cluster_name     = "$CLUSTER_ID"
   controller_count = 1
 
+  ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe"
+  os_arch = "amd64"
+  os_channel = "alpha"
+
   controller_clc_snippets = [
     <<EOF
 storage:
@@ -35,6 +39,11 @@ EOF
     count     = 2
     node_type = "c2.medium.x86"
     labels    = "testing.io=yes,roleofnode=testing"
+
+    ipxe_script_url = "https://raw.githubusercontent.com/kinvolk/flatcar-ipxe-scripts/amd64-usr/packet.ipxe"
+    os_arch = "amd64"
+    os_channel = "alpha"
+
     clc_snippets = [
       <<EOF
 storage:
