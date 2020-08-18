@@ -171,6 +171,7 @@ storage:
             --insecure-options=image \
             --net=host \
             --dns=host \
+            --hosts-entry=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"
     - path: /etc/kubernetes/configure-kubelet-cgroup-driver
       filesystem: root
