@@ -1,0 +1,82 @@
+run:
+  build-tags: 
+    - aws
+    - packet
+    - aks
+    - e2e
+    - baremetal
+    - disruptivee2e
+    - poste2e
+
+  modules-download-mode: vendor
+
+  timeout: 5m
+
+issues:
+  exclude-use-default: false
+  max-same-issues: 0
+  max-issues-per-linter: 0
+
+# List for enabled linters can be generated for updates using the following command.
+# golangci-lint linters | grep -v -E '(by your configuration linters|^$)' | cut -d: -f1 | cut -d ' ' -f1 | sort | sed 's/^/    - /g'
+linters:
+  disable-all: false
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - exhaustive
+    - funlen
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - gofmt
+    - gofumpt
+    - goimports
+    - golint
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - lll
+    - maligned
+    - misspell
+    - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - rowserrcheck
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - testpackage
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+    - wsl
+
+  disable:
+    - exportloopref
+    - gci
+    - gochecknoglobals
+    - godox
+    - goerr113
+    - goheader
+    - gomodguard
+    - nlreturn
+    - sqlclosecheck
