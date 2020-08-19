@@ -215,7 +215,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 		install.Namespace = namespace
 		install.Atomic = true
 
-		if _, err := install.Run(helmChart, map[string]interface{}{}); err != nil {
+		if _, err := install.Run(helmChart, values); err != nil {
 			fmt.Println("Failed!")
 
 			ctxLogger.Fatalf("Installing controlplane component failed: %v", err)
