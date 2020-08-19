@@ -4,6 +4,11 @@ set -euo pipefail
 
 function get_latest_release() {
   version=$(curl --silent "https://api.github.com/repos/$1/releases/latest" | jq -r '.tag_name')
+  if [ "${version}" != "null" ]; then
+    return
+  fi
+
+  version=$(curl --silent "https://api.github.com/repos/$1/tags" | jq -r '.[0].name')
 }
 
 # Make sure we keep track of the Lokomotive code repository.
@@ -142,3 +147,113 @@ version=$(grep version "${tmpdir}/openebs/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "openebs" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
+
+###########################
+# prometheus operator
+cd "${workdir}"
+current_version=$(grep appVersion assets/components/prometheus-operator/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+get_latest_release prometheus-operator/prometheus-operator
+printf "${format}" "prometheus-operator" "${current_version}" "${version}"
+
+###########################
+# rook
+cd "${workdir}"
+current_version=$(grep version assets/components/rook-ceph/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+get_latest_release rook/rook
+printf "${format}" "rook" "${current_version}" "${version}"
+
+###########################
+# AWS EBS CSI Driver
+cd "${workdir}"
+current_version=$(grep appVersion assets/components/aws-ebs-csi-driver/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
+
+get_latest_release kubernetes-sigs/aws-ebs-csi-driver
+printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
+
+###########################
+# Velero
+cd "${workdir}"
+current_version=$(grep version assets/components/velero/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+tmpdir=$(mktemp -d)
+cd "${tmpdir}"
+
+helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts >/dev/null 2>&1
+helm repo update >/dev/null 2>&1
+helm fetch --untar --untardir ./ vmware-tanzu/velero
+version=$(grep version "${tmpdir}/velero/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
+
+printf "${format}" "velero" "${current_version}" "${version}"
+rm -rf "${tmpdir}"
+
+###########################
+echo
+# Print the column names.
+printf "${format}" "TF Provider" "Current Version" "Latest Version"
+printf "${format}" "-----------" "---------------" "--------------"
+
+###########################
+# Packet Provider
+cd "${workdir}"
+current_version=$(grep packet assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release terraform-providers/terraform-provider-packet
+printf "${format}" "Packet" "${current_version}" "${version}"
+
+###########################
+# AWS Provider
+cd "${workdir}"
+current_version=$(grep aws assets/lokomotive-kubernetes/aws/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release terraform-providers/terraform-provider-aws
+printf "${format}" "AWS" "${current_version}" "${version}"
+
+###########################
+# Azure Provider
+cd "${workdir}"
+current_version=$(grep azurerm -A1 assets/lokomotive-kubernetes/azure/flatcar-linux/kubernetes/require.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release terraform-providers/terraform-provider-azurerm
+printf "${format}" "Azure" "${current_version}" "${version}"
+
+###########################
+# TLS Provider
+cd "${workdir}"
+current_version=$(grep tls assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release hashicorp/terraform-provider-tls
+printf "${format}" "TLS" "${current_version}" "${version}"
+
+###########################
+# Local Provider
+cd "${workdir}"
+current_version=$(grep 'local' assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release hashicorp/terraform-provider-local
+printf "${format}" "Local" "${current_version}" "${version}"
+
+###########################
+# Null Provider
+cd "${workdir}"
+current_version=$(grep 'null' assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release hashicorp/terraform-provider-null
+printf "${format}" "Null" "${current_version}" "${version}"
+
+###########################
+# CT Provider
+cd "${workdir}"
+current_version=$(grep ct assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's|=||g' | sed 's| ||g')
+
+get_latest_release poseidon/terraform-provider-ct
+printf "${format}" "CT" "${current_version}" "${version}"
+
+###########################
+# Matchbox Provider
+cd "${workdir}"
+current_version=$(grep -A1 '"matchbox"' pkg/platform/baremetal/template.go | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release poseidon/terraform-provider-matchbox
+printf "${format}" "Matchbox" "${current_version}" "${version}"
