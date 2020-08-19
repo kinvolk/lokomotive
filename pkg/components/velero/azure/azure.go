@@ -15,6 +15,10 @@
 package azure
 
 import (
+	"bytes"
+	"fmt"
+	"text/template"
+
 	"github.com/hashicorp/hcl/v2"
 )
 
@@ -40,6 +44,19 @@ type BackupStorageLocation struct {
 type VolumeSnapshotLocation struct {
 	ResourceGroup string `hcl:"resource_group,optional"`
 	APITimeout    string `hcl:"api_timeout,optional"`
+}
+
+// Values returns Azure-specific values for Velero Helm chart.
+func (c *Configuration) Values() (string, error) {
+	t := template.Must(template.New("values").Parse(chartValuesTmpl))
+
+	var buf bytes.Buffer
+
+	if err := t.Execute(&buf, c); err != nil {
+		return "", fmt.Errorf("rendering azure values: %w", err)
+	}
+
+	return buf.String(), nil
 }
 
 // Validate validates azure specific parts in the configuration
