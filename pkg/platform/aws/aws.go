@@ -83,6 +83,7 @@ type config struct {
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
+	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -105,8 +106,9 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		Region:            "eu-central-1",
-		EnableAggregation: true,
+		Region:             "eu-central-1",
+		EnableAggregation:  true,
+		EnableTLSBootstrap: true,
 	}
 }
 

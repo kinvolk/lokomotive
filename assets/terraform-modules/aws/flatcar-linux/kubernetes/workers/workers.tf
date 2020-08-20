@@ -92,7 +92,13 @@ data "template_file" "worker-config" {
   template = file("${path.module}/cl/worker.yaml.tmpl")
 
   vars = {
-    kubeconfig             = indent(10, var.kubeconfig)
+    kubeconfig = var.enable_tls_bootstrap ? indent(10, templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id[0].result
+      token_secret = random_string.bootstrap_token_secret[0].result
+      ca_cert      = var.ca_cert
+      server       = "https://${var.apiserver}:6443"
+    })) : indent(10, var.kubeconfig)
+
     ssh_keys               = jsonencode(var.ssh_keys)
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix

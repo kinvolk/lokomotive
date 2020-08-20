@@ -45,7 +45,13 @@ resource "null_resource" "copy-controller-secrets" {
   }
 
   provisioner "file" {
-    content     = module.bootkube.kubeconfig-kubelet
+    content = var.enable_tls_bootstrap ? templatefile("${path.module}/workers/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id[0].result
+      token_secret = random_string.bootstrap_token_secret[0].result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${local.api_server}:6443"
+    }) : module.bootkube.kubeconfig-kubelet
+
     destination = "$HOME/kubeconfig"
   }
 

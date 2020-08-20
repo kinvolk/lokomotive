@@ -1,9 +1,13 @@
+locals {
+  api_server = format("%s.%s", var.cluster_name, var.dns_zone)
+}
+
 # Self-hosted Kubernetes assets (kubeconfig, manifests)
 module "bootkube" {
   source = "../../../bootkube"
 
   cluster_name                = var.cluster_name
-  api_servers                 = [format("%s.%s", var.cluster_name, var.dns_zone)]
+  api_servers                 = [local.api_server]
   etcd_servers                = aws_route53_record.etcds.*.fqdn
   etcd_endpoints              = aws_instance.controllers.*.private_ip
   asset_dir                   = var.asset_dir
@@ -23,4 +27,7 @@ module "bootkube" {
   #
   # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
   blocked_metadata_cidrs = ["169.254.169.254/32"]
+
+  bootstrap_tokens     = var.enable_tls_bootstrap ? concat([local.controller_bootstrap_token], var.worker_bootstrap_tokens) : []
+  enable_tls_bootstrap = var.enable_tls_bootstrap
 }

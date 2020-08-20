@@ -35,6 +35,14 @@ output "kubeconfig" {
   value = module.bootkube.kubeconfig-kubelet
 }
 
+output "ca_cert" {
+  value = module.bootkube.ca_cert
+}
+
+output "apiserver" {
+  value = local.api_server
+}
+
 # Outputs for custom load balancing
 
 output "nlb_arn" {
@@ -65,4 +73,8 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
+}
+
+output "bootstrap-secrets_values" {
+  value = module.bootkube.bootstrap-secrets_values
 }
