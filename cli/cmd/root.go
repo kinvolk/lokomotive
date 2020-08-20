@@ -56,10 +56,10 @@ func init() {
 	RootCmd.PersistentFlags().String(
 		kubeconfigFlag,
 		"", // Special empty default, use getKubeconfig()
-		`Path to a kubeconfig file. If empty, the following precedence order is `+
-			`used: 1. cluster asset dir when a lokocfg file is present in the `+
-			`current directory 2. KUBECONFIG environment variable 3. `+
-			`"~/.kube/config"`)
+		"Path to a kubeconfig file. If empty, the following precedence order is used:\n"+
+			"  1. Cluster asset dir when a lokocfg file is present in the current directory.\n"+
+			"  2. KUBECONFIG environment variable.\n"+
+			"  3. ~/.kube/config file.")
 
 	if err := viper.BindPFlag(kubeconfigFlag, RootCmd.PersistentFlags().Lookup(kubeconfigFlag)); err != nil {
 		panic("failed registering kubeconfig flag")
