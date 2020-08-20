@@ -16,6 +16,11 @@ package components
 
 import (
 	"fmt"
+	"path/filepath"
+
+	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/helm"
+	"helm.sh/helm/v3/pkg/chart"
 )
 
 // components is the map of registered components
@@ -54,4 +59,12 @@ func Get(name string) (Component, error) {
 		return nil, fmt.Errorf("no component with name %q found", name)
 	}
 	return component, nil
+}
+
+// Chart is a convenience function which returns a pointer to a chart.Chart representing the
+// component named name.
+func Chart(name string) (*chart.Chart, error) {
+	p := filepath.Join(assets.ComponentsSource, name)
+
+	return helm.ChartFromAssets(p)
 }

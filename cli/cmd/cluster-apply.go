@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/internal"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/install"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
@@ -110,7 +111,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		charts := platform.CommonControlPlaneCharts()
 
 		if upgradeKubelets {
-			charts = append(charts, platform.ControlPlaneChart{
+			charts = append(charts, helm.LokomotiveChart{
 				Name:      "kubelet",
 				Namespace: "kube-system",
 			})

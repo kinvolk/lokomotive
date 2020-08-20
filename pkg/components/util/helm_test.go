@@ -15,7 +15,6 @@
 package util
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -27,7 +26,7 @@ func TestRenderChartBadValues(t *testing.T) {
 	c := "cert-manager"
 	values := "malformed\t"
 
-	helmChart, err := LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", c))
+	helmChart, err := components.Chart(c)
 	if err != nil {
 		t.Fatalf("Loading chart from assets should succeed, got: %v", err)
 	}

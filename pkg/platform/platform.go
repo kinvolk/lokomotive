@@ -16,24 +16,20 @@ package platform
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/kinvolk/lokomotive/pkg/version"
+	"helm.sh/helm/v3/pkg/chart"
 )
-
-// ControlPlaneChart represents a Helm chart belonging to a Lokomotive control plane component.
-type ControlPlaneChart struct {
-	// The name of the chart.
-	Name string
-	// The namespace into which the chart should be deployed.
-	Namespace string
-}
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
 // platforms.
-func CommonControlPlaneCharts() []ControlPlaneChart {
-	return []ControlPlaneChart{
+func CommonControlPlaneCharts() []helm.LokomotiveChart {
+	return []helm.LokomotiveChart{
 		{
 			Name:      "calico",
 			Namespace: "kube-system",
@@ -55,6 +51,14 @@ func CommonControlPlaneCharts() []ControlPlaneChart {
 			Namespace: "lokomotive-system",
 		},
 	}
+}
+
+// ControlPlaneChart is a convenience function which returns a pointer to a chart.Chart
+// representing the control plane element named name.
+func ControlPlaneChart(name string) (*chart.Chart, error) {
+	p := filepath.Join(assets.ControlPlaneSource, name)
+
+	return helm.ChartFromAssets(p)
 }
 
 // Platform describes single environment, where cluster can be installed

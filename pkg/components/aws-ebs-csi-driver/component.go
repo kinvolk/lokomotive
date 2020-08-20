@@ -58,9 +58,9 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 // RenderManifests renders the Helm chart templates with values provided.
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
+	helmChart, err := components.Chart(name)
 	if err != nil {
-		return nil, fmt.Errorf("loading chart from assets failed: %w", err)
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)

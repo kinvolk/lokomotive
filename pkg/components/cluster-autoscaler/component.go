@@ -348,9 +348,9 @@ func (c *component) validatePacket(diagnostics hcl.Diagnostics) hcl.Diagnostics 
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s", name))
+	helmChart, err := components.Chart(name)
 	if err != nil {
-		return nil, errors.Wrap(err, "load chart from assets")
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
 	if c.Provider == "packet" {

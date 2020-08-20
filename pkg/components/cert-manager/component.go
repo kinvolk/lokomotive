@@ -76,9 +76,9 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := util.LoadChartFromAssets(fmt.Sprintf("/components/%s/manifests", name))
+	helmChart, err := components.Chart(name)
 	if err != nil {
-		return nil, errors.Wrap(err, "load chart from assets")
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)
