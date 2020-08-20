@@ -64,7 +64,7 @@ test: run-unit-tests
 .PHONY: lint
 lint: build-slim build-test
 	@if [ "$$(git config --get diff.noprefix)" = "true" ]; then printf "\n\ngolangci-lint has a bug and can't run with the current git configuration: 'diff.noprefix' is set to 'true'. To override this setting for this repository, run the following command:\n\n'git config diff.noprefix false'\n\nFor more details, see https://github.com/golangci/golangci-lint/issues/948.\n\n\n"; exit 1; fi
-	golangci-lint run --enable-all --disable=gci,godox,gochecknoglobals,goerr113 --max-same-issues=0 --max-issues-per-linter=0 --build-tags $(ALL_BUILD_TAGS) --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "origin/master") HEAD) --modules-download-mode=$(MOD) --timeout=5m --exclude-use-default=false ./...
+	golangci-lint run --new-from-rev=$$(git merge-base $$(cat .git/resource/base_sha 2>/dev/null || echo "origin/master") HEAD) --verbose ./...
 
 .PHONY: lint-docker
 lint-docker:
