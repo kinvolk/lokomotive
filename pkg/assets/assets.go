@@ -17,6 +17,7 @@
 package assets
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -25,6 +26,15 @@ import (
 	"github.com/prometheus/alertmanager/pkg/modtimevfs"
 	"github.com/shurcooL/httpfs/union"
 	"github.com/shurcooL/vfsgen"
+)
+
+const (
+	// ControlPlaneSource is the asset source directory for control plane charts.
+	ControlPlaneSource = "/charts/control-plane"
+	// ComponentsSource is the asset source directory for components.
+	ComponentsSource = "/charts/components"
+	// TerraformModulesSource is the asset source directory for Terraform modules.
+	TerraformModulesSource = "/lokomotive-kubernetes"
 )
 
 type WalkFunc func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error
@@ -67,4 +77,18 @@ func Generate(fileName string, packageName string, variableName string, dirs map
 		PackageName:  packageName,
 		VariableName: variableName,
 	})
+}
+
+// Extract recursively extracts the assets at src into the directory dst. If dst doesn't exist, the
+// directory is created including any missing parents.
+//
+// The assets are read either from data embedded in the binary or from the filesystem, depending on
+// whether the LOKOCTL_USE_FS_ASSETS environment variable is set.
+func Extract(src, dst string) error {
+	walk := CopyingWalker(dst, 0755)
+	if err := Assets.WalkFiles(src, walk); err != nil {
+		return fmt.Errorf("failed to walk assets: %v", err)
+	}
+
+	return nil
 }

@@ -15,7 +15,7 @@
 package flatcarlinuxupdateoperator
 
 import (
-	"fmt"
+	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -45,7 +45,8 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) RenderManifests() (map[string]string, error) {
 	ret := make(map[string]string)
 	walk := assets.DumpingWalker(ret, ".yaml")
-	if err := assets.Assets.WalkFiles(fmt.Sprintf("/components/%s/manifests", componentName), walk); err != nil {
+	p := filepath.Join("/components", componentName)
+	if err := assets.Assets.WalkFiles(p, walk); err != nil {
 		return nil, errors.Wrap(err, "failed to walk assets")
 	}
 

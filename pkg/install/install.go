@@ -50,7 +50,7 @@ func PrepareTerraformRootDir(path string) error {
 // LOKOCTL_USE_FS_ASSETS environment variable was specified.
 func PrepareLokomotiveTerraformModuleAt(path string) error {
 	walk := assets.CopyingWalker(path, 0755)
-	if err := assets.Assets.WalkFiles("/lokomotive-kubernetes", walk); err != nil {
+	if err := assets.Assets.WalkFiles(assets.TerraformModulesSource, walk); err != nil {
 		return errors.Wrap(err, "failed to walk assets")
 	}
 	return nil

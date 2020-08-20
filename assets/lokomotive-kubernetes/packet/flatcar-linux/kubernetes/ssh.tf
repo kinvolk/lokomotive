@@ -70,7 +70,6 @@ resource "null_resource" "copy-assets-dir" {
     module.bootkube,
     null_resource.copy-controller-secrets,
     local_file.calico_host_protection,
-    template_dir.calico_host_protection,
   ]
 
   connection {

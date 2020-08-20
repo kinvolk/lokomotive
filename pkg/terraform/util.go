@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kinvolk/lokomotive/pkg/install"
+	"github.com/kinvolk/lokomotive/pkg/assets"
 
 	"github.com/pkg/errors"
 )
@@ -49,13 +49,14 @@ func Configure(assetDir, renderedBackend string) error {
 // PrepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
 func PrepareTerraformDirectoryAndModules(assetDir string) error {
 	terraformModuleDir := filepath.Join(assetDir, "lokomotive-kubernetes")
-	if err := install.PrepareLokomotiveTerraformModuleAt(terraformModuleDir); err != nil {
+	if err := assets.Extract(assets.TerraformModulesSource, terraformModuleDir); err != nil {
 		return err
 	}
 
-	terraformRootDir := filepath.Join(assetDir, "terraform")
-	if err := install.PrepareTerraformRootDir(terraformRootDir); err != nil {
-		return err
+	// Ensure Terraform root directory exists.
+	p := filepath.Join(assetDir, "terraform")
+	if err := os.MkdirAll(p, 0755); err != nil {
+		return errors.Wrapf(err, "creating Terraform root directory at %q", p)
 	}
 
 	return nil

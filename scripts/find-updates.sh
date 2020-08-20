@@ -52,7 +52,7 @@ printf "${format}" "etcd" "${current_version}" "${version}"
 # cert-manager
 
 cd "${workdir}"
-current_version=$(grep appVersion assets/components/cert-manager/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep appVersion assets/charts/components/cert-manager/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 # Download the latest chart into a temp dir and find its version.
 tmpdir=$(mktemp -d)
@@ -69,7 +69,7 @@ rm -rf "${tmpdir}"
 # contour
 
 cd "${workdir}"
-current_version=$(grep -A 1 "image: docker.io/projectcontour/contour" assets/components/contour/values.yaml | grep tag | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep -A 1 "image: docker.io/projectcontour/contour" assets/charts/components/contour/values.yaml | grep tag | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release projectcontour/contour
 printf "${format}" "contour" "${current_version}" "${version}"
@@ -86,7 +86,7 @@ printf "${format}" "dex" "${current_version}" "${version}"
 ###########################
 # external dns
 cd "${workdir}"
-current_version=$(grep version assets/components/external-dns/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/external-dns/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -119,7 +119,7 @@ printf "${format}" "metallb" "${current_version}" "${version}"
 ###########################
 # metrics-server
 cd "${workdir}"
-current_version=$(grep version assets/components/metrics-server/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/metrics-server/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -135,7 +135,7 @@ rm -rf "${tmpdir}"
 ###########################
 # openebs
 cd "${workdir}"
-current_version=$(grep version assets/components/openebs/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/openebs-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -151,7 +151,7 @@ rm -rf "${tmpdir}"
 ###########################
 # prometheus operator
 cd "${workdir}"
-current_version=$(grep appVersion assets/components/prometheus-operator/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep appVersion assets/charts/components/prometheus-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release prometheus-operator/prometheus-operator
 printf "${format}" "prometheus-operator" "${current_version}" "${version}"
@@ -159,7 +159,7 @@ printf "${format}" "prometheus-operator" "${current_version}" "${version}"
 ###########################
 # rook
 cd "${workdir}"
-current_version=$(grep version assets/components/rook-ceph/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/rook/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release rook/rook
 printf "${format}" "rook" "${current_version}" "${version}"
@@ -167,7 +167,7 @@ printf "${format}" "rook" "${current_version}" "${version}"
 ###########################
 # AWS EBS CSI Driver
 cd "${workdir}"
-current_version=$(grep appVersion assets/components/aws-ebs-csi-driver/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
+current_version=$(grep appVersion assets/charts/components/aws-ebs-csi-driver/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
 
 get_latest_release kubernetes-sigs/aws-ebs-csi-driver
 printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
@@ -175,7 +175,7 @@ printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
 ###########################
 # Velero
 cd "${workdir}"
-current_version=$(grep version assets/components/velero/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/velero/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"

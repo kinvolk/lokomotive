@@ -18,11 +18,3 @@ resource "local_file" "calico" {
   })
   filename = "${var.asset_dir}/charts/kube-system/calico.yaml"
 }
-
-# Populate calico chart.
-# TODO: Currently, there is no way in Terraform to copy local directory, so we use `template_dir` for it.
-# The downside is, that any Terraform templating syntax stored in this directory will be evaluated, which may bring unexpected results.
-resource "template_dir" "calico" {
-  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/calico"
-  destination_dir = "${var.asset_dir}/charts/kube-system/calico"
-}

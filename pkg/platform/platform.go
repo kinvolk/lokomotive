@@ -22,6 +22,41 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
+// ControlPlaneChart represents a Helm chart belonging to a Lokomotive control plane component.
+type ControlPlaneChart struct {
+	// The name of the chart.
+	Name string
+	// The namespace into which the chart should be deployed.
+	Namespace string
+}
+
+// CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
+// platforms.
+func CommonControlPlaneCharts() []ControlPlaneChart {
+	return []ControlPlaneChart{
+		{
+			Name:      "calico",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-apiserver",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kubernetes",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "pod-checkpointer",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "lokomotive",
+			Namespace: "lokomotive-system",
+		},
+	}
+}
+
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
