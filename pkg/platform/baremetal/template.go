@@ -27,6 +27,9 @@ module "bare-metal-{{.ClusterName}}" {
   # Disable self hosted kubelet
   disable_self_hosted_kubelet = {{ .DisableSelfHostedKubelet }}
 
+  # Enable TLS Bootstrap
+  enable_tls_bootstrap = {{ .EnableTLSBootstrap }}
+
   # configuration
   cached_install     = "{{.CachedInstall}}"
   k8s_domain_name    = "{{.K8sDomainName}}"
@@ -122,6 +125,11 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value     = module.bare-metal-{{.ClusterName}}.lokomotive_values
+  sensitive = true
+}
+
+output "bootstrap-secrets_values" {
+  value     = module.bare-metal-{{.ClusterName}}.bootstrap-secrets_values
   sensitive = true
 }
 `

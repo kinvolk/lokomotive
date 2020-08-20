@@ -18,7 +18,12 @@ resource "null_resource" "copy-controller-secrets" {
   }
 
   provisioner "file" {
-    content     = module.bootkube.kubeconfig-kubelet
+    content = var.enable_tls_bootstrap ? templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id_controller[0].result
+      token_secret = random_string.bootstrap_token_secret_controller[0].result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${var.k8s_domain_name}:6443"
+    }) : module.bootkube.kubeconfig-kubelet
     destination = "$HOME/kubeconfig"
   }
 
@@ -94,7 +99,12 @@ resource "null_resource" "copy-worker-secrets" {
   }
 
   provisioner "file" {
-    content     = module.bootkube.kubeconfig-kubelet
+    content = var.enable_tls_bootstrap ? templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id_worker[0].result
+      token_secret = random_string.bootstrap_token_secret_worker[0].result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${var.k8s_domain_name}:6443"
+    }) : module.bootkube.kubeconfig-kubelet
     destination = "$HOME/kubeconfig"
   }
 
