@@ -68,7 +68,7 @@ resource "template_dir" "kubernetes" {
 # Populate kubernetes chart values file named kubernetes.yaml.
 resource "local_file" "kubernetes" {
   filename = "${var.asset_dir}/charts/kube-system/kubernetes.yaml"
-  content  = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
+  content = templatefile("${path.module}/resources/charts/kubernetes.yaml", {
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
     kube_proxy_image              = var.container_images["kube_proxy"]
@@ -171,4 +171,10 @@ data "template_file" "kubeconfig-admin" {
     kubelet_key  = base64encode(tls_private_key.admin.private_key_pem)
     server       = format("https://%s:%s", local.api_servers_external[0], var.external_apiserver_port)
   }
+}
+
+# Add Lokomotive chart.
+resource "template_dir" "lokomotive" {
+  source_dir      = "${replace(path.module, path.cwd, ".")}/resources/charts/lokomotive"
+  destination_dir = "${var.asset_dir}/charts/lokomotive-system/lokomotive"
 }

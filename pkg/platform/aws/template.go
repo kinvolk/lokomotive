@@ -231,4 +231,9 @@ output "calico_values" {
   value     = module.aws-{{.Config.ClusterName}}.calico_values
   sensitive = true
 }
+
+output "lokomotive_values" {
+  value     = module.aws-{{.Config.ClusterName}}.lokomotive_values
+  sensitive = true
+}
 `

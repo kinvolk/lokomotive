@@ -86,3 +86,7 @@ output "kubelet_values" {
 output "calico_values" {
   value = join("", local_file.calico.*.content)
 }
+
+output "lokomotive_values" {
+  value = join("", local_file.lokomotive.*.content)
+}

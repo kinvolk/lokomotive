@@ -1,0 +1,3 @@
+webhook:
+  servingKey: ${serving_key}
+  servingCert: ${serving_cert}

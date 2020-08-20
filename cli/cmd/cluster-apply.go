@@ -106,14 +106,28 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 			ex:         *ex,
 		}
 
-		releases := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"}
-
-		if upgradeKubelets {
-			releases = append(releases, "kubelet")
+		releases := []struct {
+			Namespace string
+			Component []string
+		}{
+			{
+				Namespace: "kube-system",
+				Component: []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"},
+			},
+			{
+				Namespace: "lokomotive-system",
+				Component: []string{"lokomotive"},
+			},
 		}
 
-		for _, c := range releases {
-			cu.upgradeComponent(c)
+		if upgradeKubelets {
+			releases[0].Component = append(releases[0].Component, "kubelet")
+		}
+
+		for _, val := range releases {
+			for _, component := range val.Component {
+				cu.upgradeComponent(component, val.Namespace)
+			}
 		}
 	}
 

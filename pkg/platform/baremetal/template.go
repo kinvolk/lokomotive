@@ -119,4 +119,9 @@ output "calico_values" {
   value     = module.bare-metal-{{.ClusterName}}.calico_values
   sensitive = true
 }
+
+output "lokomotive_values" {
+  value     = module.bare-metal-{{.ClusterName}}.lokomotive_values
+  sensitive = true
+}
 `

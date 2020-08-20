@@ -8,6 +8,8 @@ DOCS_DIR ?= docs/cli
 
 ALL_BUILD_TAGS := "aws,packet,aks,e2e,baremetal,disruptivee2e,poste2e"
 
+ADMISSION_WEBHOOK_SERVER := "quay.io/kinvolk/lokomotive-admission-webhook-server"
+
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
 ifeq ($(changes),)
@@ -160,3 +162,15 @@ codespell: CODESPELL_BIN := codespell
 codespell:
 	which $(CODESPELL_BIN) >/dev/null 2>&1 || (echo "$(CODESPELL_BIN) binary not found, skipping spell checking"; exit 0)
 	$(CODESPELL_BIN) --skip $(CODESPELL_SKIP) --ignore-words .codespell.ignorewords --check-filenames --check-hidden
+
+.PHONY: build-webhook
+build-webhook:
+	CGO_ENABLED=0 GO111MODULE=on go build \
+		-o=admission-webhook-server \
+		-mod=$(MOD) \
+		-ldflags $(LDFLAGS) \
+		./cmd/admission-webhook-server
+
+.PHONY: docker-build-webhook
+docker-build-webhook:
+	docker build -f cmd/admission-webhook-server/Dockerfile -t $(ADMISSION_WEBHOOK_SERVER) .

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: lokomotive
+description: A Helm chart providing Lokomotive-specific system workloads like admission webhook server.
+type: application
+
+version: 0.1.0

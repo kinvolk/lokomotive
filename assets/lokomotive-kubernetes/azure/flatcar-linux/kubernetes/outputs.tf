@@ -74,3 +74,7 @@ output "kubelet_values" {
 output "calico_values" {
   value = module.bootkube.calico_values
 }
+
+output "lokomotive_values" {
+  value = module.bootkube.lokomotive_values
+}
