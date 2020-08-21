@@ -16,11 +16,50 @@ package platform
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/kinvolk/lokomotive/pkg/version"
+	"helm.sh/helm/v3/pkg/chart"
 )
+
+// CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
+// platforms.
+func CommonControlPlaneCharts() []helm.LokomotiveChart {
+	return []helm.LokomotiveChart{
+		{
+			Name:      "calico",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-apiserver",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kubernetes",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "pod-checkpointer",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "lokomotive",
+			Namespace: "lokomotive-system",
+		},
+	}
+}
+
+// ControlPlaneChart is a convenience function which returns a pointer to a chart.Chart
+// representing the control plane element named name.
+func ControlPlaneChart(name string) (*chart.Chart, error) {
+	p := filepath.Join(assets.ControlPlaneSource, name)
+
+	return helm.ChartFromAssets(p)
+}
 
 // Platform describes single environment, where cluster can be installed
 type Platform interface {

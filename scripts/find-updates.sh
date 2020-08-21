@@ -29,21 +29,21 @@ printf "${format}" "---------" "---------------" "--------------"
 
 ###########################
 # k8s
-current_version=$(grep 'k8s.gcr.io/kube-apiserver' assets/lokomotive-kubernetes/bootkube/variables.tf | cut -d":" -f2 | sed 's/"//g')
+current_version=$(grep 'k8s.gcr.io/kube-apiserver' assets/terraform-modules/bootkube/variables.tf | cut -d":" -f2 | sed 's/"//g')
 
 version=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 printf "${format}" "kubernetes" "${current_version}" "${version}"
 
 ###########################
 # calico
-current_version=$(grep 'calico/node' assets/lokomotive-kubernetes/bootkube/variables.tf | cut -d":" -f2 | sed 's/"//g')
+current_version=$(grep 'calico/node' assets/terraform-modules/bootkube/variables.tf | cut -d":" -f2 | sed 's/"//g')
 
 get_latest_release projectcalico/calico
 printf "${format}" "calico" "${current_version}" "${version}"
 
 ###########################
 # etcd
-current_version=$(grep 'ETCD_IMAGE_TAG=' assets/lokomotive-kubernetes/aws/flatcar-linux/kubernetes/cl/controller.yaml.tmpl | cut -d"=" -f3 | sed 's/"//g')
+current_version=$(grep 'ETCD_IMAGE_TAG=' assets/terraform-modules/aws/flatcar-linux/kubernetes/cl/controller.yaml.tmpl | cut -d"=" -f3 | sed 's/"//g')
 
 get_latest_release etcd-io/etcd
 printf "${format}" "etcd" "${current_version}" "${version}"
@@ -52,7 +52,7 @@ printf "${format}" "etcd" "${current_version}" "${version}"
 # cert-manager
 
 cd "${workdir}"
-current_version=$(grep appVersion assets/components/cert-manager/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep appVersion assets/charts/components/cert-manager/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 # Download the latest chart into a temp dir and find its version.
 tmpdir=$(mktemp -d)
@@ -69,7 +69,7 @@ rm -rf "${tmpdir}"
 # contour
 
 cd "${workdir}"
-current_version=$(grep -A 1 "image: docker.io/projectcontour/contour" assets/components/contour/values.yaml | grep tag | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep -A 1 "image: docker.io/projectcontour/contour" assets/charts/components/contour/values.yaml | grep tag | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release projectcontour/contour
 printf "${format}" "contour" "${current_version}" "${version}"
@@ -86,7 +86,7 @@ printf "${format}" "dex" "${current_version}" "${version}"
 ###########################
 # external dns
 cd "${workdir}"
-current_version=$(grep version assets/components/external-dns/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/external-dns/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -119,7 +119,7 @@ printf "${format}" "metallb" "${current_version}" "${version}"
 ###########################
 # metrics-server
 cd "${workdir}"
-current_version=$(grep version assets/components/metrics-server/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/metrics-server/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -135,7 +135,7 @@ rm -rf "${tmpdir}"
 ###########################
 # openebs
 cd "${workdir}"
-current_version=$(grep version assets/components/openebs/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/openebs-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -151,7 +151,7 @@ rm -rf "${tmpdir}"
 ###########################
 # prometheus operator
 cd "${workdir}"
-current_version=$(grep appVersion assets/components/prometheus-operator/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep appVersion assets/charts/components/prometheus-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release prometheus-operator/prometheus-operator
 printf "${format}" "prometheus-operator" "${current_version}" "${version}"
@@ -159,7 +159,7 @@ printf "${format}" "prometheus-operator" "${current_version}" "${version}"
 ###########################
 # rook
 cd "${workdir}"
-current_version=$(grep version assets/components/rook-ceph/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/rook/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release rook/rook
 printf "${format}" "rook" "${current_version}" "${version}"
@@ -167,7 +167,7 @@ printf "${format}" "rook" "${current_version}" "${version}"
 ###########################
 # AWS EBS CSI Driver
 cd "${workdir}"
-current_version=$(grep appVersion assets/components/aws-ebs-csi-driver/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
+current_version=$(grep appVersion assets/charts/components/aws-ebs-csi-driver/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
 
 get_latest_release kubernetes-sigs/aws-ebs-csi-driver
 printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
@@ -175,7 +175,7 @@ printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
 ###########################
 # Velero
 cd "${workdir}"
-current_version=$(grep version assets/components/velero/manifests/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/velero/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
@@ -197,7 +197,7 @@ printf "${format}" "-----------" "---------------" "--------------"
 ###########################
 # Packet Provider
 cd "${workdir}"
-current_version=$(grep packet assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep packet assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release terraform-providers/terraform-provider-packet
 printf "${format}" "Packet" "${current_version}" "${version}"
@@ -205,7 +205,7 @@ printf "${format}" "Packet" "${current_version}" "${version}"
 ###########################
 # AWS Provider
 cd "${workdir}"
-current_version=$(grep aws assets/lokomotive-kubernetes/aws/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep aws assets/terraform-modules/aws/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release terraform-providers/terraform-provider-aws
 printf "${format}" "AWS" "${current_version}" "${version}"
@@ -213,7 +213,7 @@ printf "${format}" "AWS" "${current_version}" "${version}"
 ###########################
 # Azure Provider
 cd "${workdir}"
-current_version=$(grep azurerm -A1 assets/lokomotive-kubernetes/azure/flatcar-linux/kubernetes/require.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep azurerm -A1 assets/terraform-modules/azure/flatcar-linux/kubernetes/require.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release terraform-providers/terraform-provider-azurerm
 printf "${format}" "Azure" "${current_version}" "${version}"
@@ -221,7 +221,7 @@ printf "${format}" "Azure" "${current_version}" "${version}"
 ###########################
 # TLS Provider
 cd "${workdir}"
-current_version=$(grep tls assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep tls assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release hashicorp/terraform-provider-tls
 printf "${format}" "TLS" "${current_version}" "${version}"
@@ -229,7 +229,7 @@ printf "${format}" "TLS" "${current_version}" "${version}"
 ###########################
 # Local Provider
 cd "${workdir}"
-current_version=$(grep 'local' assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep 'local' assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release hashicorp/terraform-provider-local
 printf "${format}" "Local" "${current_version}" "${version}"
@@ -237,7 +237,7 @@ printf "${format}" "Local" "${current_version}" "${version}"
 ###########################
 # Null Provider
 cd "${workdir}"
-current_version=$(grep 'null' assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep 'null' assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release hashicorp/terraform-provider-null
 printf "${format}" "Null" "${current_version}" "${version}"
@@ -245,7 +245,7 @@ printf "${format}" "Null" "${current_version}" "${version}"
 ###########################
 # CT Provider
 cd "${workdir}"
-current_version=$(grep ct assets/lokomotive-kubernetes/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's|=||g' | sed 's| ||g')
+current_version=$(grep ct assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's|=||g' | sed 's| ||g')
 
 get_latest_release poseidon/terraform-provider-ct
 printf "${format}" "CT" "${current_version}" "${version}"

@@ -16,7 +16,7 @@ package baremetal
 
 var terraformConfigTmpl = `
 module "bare-metal-{{.ClusterName}}" {
-  source = "../lokomotive-kubernetes/bare-metal/flatcar-linux/kubernetes"
+  source = "../terraform-modules/bare-metal/flatcar-linux/kubernetes"
 
   # bare-metal
   cluster_name           = "{{.ClusterName}}"

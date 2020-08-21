@@ -98,9 +98,9 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := util.LoadChartFromAssets("/components/openebs")
+	helmChart, err := components.Chart(name)
 	if err != nil {
-		return nil, fmt.Errorf("load chart from assets: %w", err)
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)

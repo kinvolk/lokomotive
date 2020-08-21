@@ -16,42 +16,17 @@ package util
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"regexp"
 	"strings"
 
 	"sigs.k8s.io/yaml"
 
-	"github.com/pkg/errors"
-
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
-	"helm.sh/helm/v3/pkg/chart/loader"
 
-	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
-
-// LoadChartFromAssets takes in an asset location and returns a Helm
-// Chart object or an error.
-func LoadChartFromAssets(location string) (*chart.Chart, error) {
-	tmpDir, err := ioutil.TempDir("", "lokoctl-chart-")
-	if err != nil {
-		return nil, errors.Wrap(err, "creating temporary dir")
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Rendered files could contain secret data, only allow the
-	// current user but not others
-	walk := assets.CopyingWalker(tmpDir, 0700)
-	if err := assets.Assets.WalkFiles(location, walk); err != nil {
-		return nil, errors.Wrap(err, "walking assets")
-	}
-
-	return loader.Load(tmpDir)
-}
 
 // RenderChart renders a Helm chart with the given name, namespace and values
 // and either returns a map of manifest files or an error.

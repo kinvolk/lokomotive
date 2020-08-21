@@ -16,14 +16,12 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
-	"helm.sh/helm/v3/pkg/chart/loader"
 	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -155,16 +153,16 @@ type controlplaneUpdater struct {
 }
 
 func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, error) {
-	helmChart, err := loader.Load(filepath.Join(c.assetDir, "/lokomotive-kubernetes/bootkube/resources/charts", name))
+	chart, err := platform.ControlPlaneChart(name)
 	if err != nil {
 		return nil, fmt.Errorf("loading chart from assets failed: %w", err)
 	}
 
-	if err := helmChart.Validate(); err != nil {
+	if err := chart.Validate(); err != nil {
 		return nil, fmt.Errorf("chart is invalid: %w", err)
 	}
 
-	return helmChart, nil
+	return chart, nil
 }
 
 func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]interface{}, error) {

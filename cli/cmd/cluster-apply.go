@@ -22,9 +22,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kinvolk/lokomotive/internal"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/install"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
+	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
 var (
@@ -106,28 +108,17 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 			ex:         *ex,
 		}
 
-		releases := []struct {
-			Namespace string
-			Component []string
-		}{
-			{
-				Namespace: "kube-system",
-				Component: []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico"},
-			},
-			{
-				Namespace: "lokomotive-system",
-				Component: []string{"lokomotive"},
-			},
-		}
+		charts := platform.CommonControlPlaneCharts()
 
 		if upgradeKubelets {
-			releases[0].Component = append(releases[0].Component, "kubelet")
+			charts = append(charts, helm.LokomotiveChart{
+				Name:      "kubelet",
+				Namespace: "kube-system",
+			})
 		}
 
-		for _, val := range releases {
-			for _, component := range val.Component {
-				cu.upgradeComponent(component, val.Namespace)
-			}
+		for _, c := range charts {
+			cu.upgradeComponent(c.Name, c.Namespace)
 		}
 	}
 

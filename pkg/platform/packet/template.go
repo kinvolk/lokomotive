@@ -16,7 +16,7 @@ package packet
 
 var terraformConfigTmpl = `
 module "packet-{{.Config.ClusterName}}" {
-  source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes"
+  source = "../terraform-modules/packet/flatcar-linux/kubernetes"
 
   dns_zone    = "{{.Config.DNS.Zone}}"
 
@@ -114,7 +114,7 @@ EOF
 
 {{ range $index, $pool := .Config.WorkerPools }}
 module "worker-{{ $pool.Name }}" {
-  source = "../lokomotive-kubernetes/packet/flatcar-linux/kubernetes/workers"
+  source = "../terraform-modules/packet/flatcar-linux/kubernetes/workers"
 
   dns_zone = "{{$.Config.DNS.Zone}}"
 
@@ -219,7 +219,7 @@ EOF
 {{- end }}
 
 module "dns" {
-  source = "../lokomotive-kubernetes/dns/{{.Config.DNS.Provider}}"
+  source = "../terraform-modules/dns/{{.Config.DNS.Provider}}"
 
   cluster_name             = "{{ .Config.ClusterName }}"
   controllers_public_ipv4  = module.packet-{{.Config.ClusterName}}.controllers_public_ipv4

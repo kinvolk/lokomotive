@@ -31,7 +31,7 @@ Empty value means that lokoctl will search for assets in `assets`
 directory where the binary is.
 Non empty value should point to the `assets` directory.
 The `assets` directory should contain subdirectories like `components`
-and `lokomotive-kubernetes`. Examples:
+and `terraform-modules`. Examples:
 
 ```bash
 LOKOCTL_USE_FS_ASSETS='' ./lokoctl help
