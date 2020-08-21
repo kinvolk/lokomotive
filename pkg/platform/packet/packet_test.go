@@ -6,7 +6,7 @@ import (
 )
 
 func TestCheckNotEmptyWorkersEmpty(t *testing.T) {
-	c := config{}
+	c := Config{}
 
 	if d := c.checkNotEmptyWorkers(); !d.HasErrors() {
 		t.Errorf("Expected to fail with empty workers")
@@ -14,7 +14,7 @@ func TestCheckNotEmptyWorkersEmpty(t *testing.T) {
 }
 
 func TestCheckNotEmptyWorkers(t *testing.T) {
-	c := config{WorkerPools: []workerPool{{Name: "test"}}}
+	c := Config{WorkerPools: []workerPool{{Name: "test"}}}
 
 	if d := c.checkNotEmptyWorkers(); d.HasErrors() {
 		t.Errorf("Should not fail with no duplicated worker pool names")
@@ -22,7 +22,7 @@ func TestCheckNotEmptyWorkers(t *testing.T) {
 }
 
 func TestCheckWorkerPoolNamesUniqueDup(t *testing.T) {
-	c := config{
+	c := Config{
 		WorkerPools: []workerPool{
 			{
 				Name: "dup",
@@ -39,7 +39,7 @@ func TestCheckWorkerPoolNamesUniqueDup(t *testing.T) {
 }
 
 func TestCheckWorkerPoolNamesUniqueNotDup(t *testing.T) {
-	c := config{
+	c := Config{
 		WorkerPools: []workerPool{
 			{
 				Name: "not",
@@ -59,14 +59,14 @@ func TestCheckWorkerPoolNamesUniqueNotDup(t *testing.T) {
 func TestValidateOSVersion(t *testing.T) {
 	type testCase struct {
 		// Config to test
-		cfg config
+		cfg Config
 		// Expected output after running test
 		hasError bool
 	}
 
 	cases := []testCase{
 		{
-			cfg: config{
+			cfg: Config{
 				ClusterName: "c",
 				WorkerPools: []workerPool{
 					{
@@ -78,7 +78,7 @@ func TestValidateOSVersion(t *testing.T) {
 			hasError: true,
 		},
 		{
-			cfg: config{
+			cfg: Config{
 				ClusterName: "c",
 				OSVersion:   "current",
 				WorkerPools: []workerPool{
@@ -90,7 +90,7 @@ func TestValidateOSVersion(t *testing.T) {
 			hasError: true,
 		},
 		{
-			cfg: config{
+			cfg: Config{
 				ClusterName: "c",
 				WorkerPools: []workerPool{
 					{
@@ -101,7 +101,7 @@ func TestValidateOSVersion(t *testing.T) {
 			hasError: false,
 		},
 		{
-			cfg: config{
+			cfg: Config{
 				ClusterName: "c",
 				WorkerPools: []workerPool{
 					{
@@ -114,7 +114,7 @@ func TestValidateOSVersion(t *testing.T) {
 			hasError: false,
 		},
 		{
-			cfg: config{
+			cfg: Config{
 				ClusterName:   "c",
 				OSVersion:     "current",
 				IPXEScriptURL: "https://demo.version",
@@ -240,14 +240,14 @@ func TestCheckEachReservationInvalidInput(t *testing.T) {
 func TestTerraformAddDeps(t *testing.T) {
 	type testCase struct {
 		// Config to test
-		cfg config
+		cfg Config
 		// Expected config after running the test
-		exp config
+		exp Config
 	}
 
 	var cases []testCase
 
-	base := config{
+	base := Config{
 		ClusterName: "c",
 		WorkerPools: []workerPool{
 			{

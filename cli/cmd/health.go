@@ -19,11 +19,13 @@ import (
 	"os"
 	"text/tabwriter"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-
+	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
+	"github.com/mitchellh/go-homedir"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var healthCmd = &cobra.Command{
@@ -42,9 +44,31 @@ func runHealth(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	kubeconfig, err := getKubeconfig()
+	// Read cluster config from HCL files.
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+
+	cc, diags := config.LoadConfig(cp, vp)
+	if len(diags) > 0 {
+		contextLogger.Fatal(diags)
+	}
+
+	if cc.RootConfig.Cluster == nil {
+		// No `cluster` block specified in the configuration.
+		contextLogger.Fatal("No cluster configured")
+	}
+
+	// Construct a Cluster.
+	c := createCluster(contextLogger, cc)
+
+	assetDir, err := homedir.Expand(c.AssetDir())
 	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Fatalf("Error expanding path: %v", err)
+	}
+
+	kubeconfig, err := getKubeconfig(assetDir)
+	if err != nil {
+		contextLogger.Fatalf("Error getting kubeconfig: %s", err)
 	}
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
@@ -52,19 +76,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}
 
-	p, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-		contextLogger.Fatal("Errors found while loading cluster configuration")
-	}
-
-	if p == nil {
-		contextLogger.Fatal("No cluster configured")
-	}
-
-	cluster, err := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
+	cluster, err := lokomotive.NewCluster(cs, c.Nodes())
 	if err != nil {
 		contextLogger.Fatalf("Error in creating new Lokomotive cluster: %q", err)
 	}

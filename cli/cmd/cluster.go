@@ -16,20 +16,30 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"sigs.k8s.io/yaml"
 
+	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/backend/s3"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/platform/aks"
+	"github.com/kinvolk/lokomotive/pkg/platform/aws"
+	"github.com/kinvolk/lokomotive/pkg/platform/baremetal"
+	"github.com/kinvolk/lokomotive/pkg/platform/packet"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
@@ -42,44 +52,180 @@ func init() {
 	RootCmd.AddCommand(clusterCmd)
 }
 
-// initialize does common initialization actions between cluster operations
-// and returns created objects to the caller for further use.
-func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
-	lokoConfig, diags := getLokoConfig()
+//nolint:funlen
+func initialize(ctxLogger *logrus.Entry) (*config.Config, platform.Cluster, *terraform.Executor) {
+	// Read cluster config from HCL files.
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+	cc, diags := config.LoadConfig(cp, vp)
 	if len(diags) > 0 {
 		ctxLogger.Fatal(diags)
 	}
 
-	p, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
-		}
-
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
+	if cc.RootConfig.Cluster == nil {
+		// No `cluster` block specified in the configuration.
+		ctxLogger.Fatal("No cluster configured")
 	}
 
-	if p == nil {
-		ctxLogger.Fatal("No cluster configured")
+	// Construct a Cluster.
+	c := createCluster(ctxLogger, cc)
+
+	assetDir, err := homedir.Expand(c.AssetDir())
+	if err != nil {
+		ctxLogger.Fatalf("Error expanding path: %v", err)
+	}
+
+	// Write Terraform modules to disk.
+	terraformModuleDir := filepath.Join(assetDir, "terraform-modules")
+	if err := assets.Extract(assets.TerraformModulesSource, terraformModuleDir); err != nil {
+		ctxLogger.Fatalf("Writing Terraform files to disk: %v", err)
+	}
+
+	// Create Terraform root directory.
+	terraformRootDir := filepath.Join(assetDir, "terraform")
+	if err := os.MkdirAll(terraformRootDir, 0750); err != nil {
+		ctxLogger.Fatalf("Creating Terraform root directory at %q: %v", terraformRootDir, err)
 	}
 
 	// Render backend configuration.
 	var renderedBackend string
 
-	if lokoConfig.RootConfig.Backend != nil {
-		b := createBackend(ctxLogger, lokoConfig)
+	if cc.RootConfig.Backend != nil {
+		b := createBackend(ctxLogger, cc)
 
 		renderedBackend = b.String()
 	}
 
-	assetDir, err := homedir.Expand(p.Meta().AssetDir)
-	if err != nil {
-		ctxLogger.Fatalf("Error expanding path: %v", err)
+	// Create backend file if the backend configuration isn't empty.
+	if len(strings.TrimSpace(renderedBackend)) > 0 {
+		path := filepath.Join(terraformRootDir, "backend.tf")
+		if err := ioutil.WriteFile(path, []byte(renderedBackend), 0600); err != nil {
+			ctxLogger.Fatalf("Failed to write backend file %q to disk: %v", path, err)
+		}
 	}
 
-	ex := initializeTerraform(ctxLogger, p, renderedBackend)
+	// Write control plane chart files to disk.
+	for _, chart := range c.ControlPlaneCharts() {
+		src := filepath.Join(assets.ControlPlaneSource, chart.Name)
+		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", chart.Name)
 
-	return ex, p, lokoConfig, assetDir
+		if err := assets.Extract(src, dst); err != nil {
+			ctxLogger.Fatalf("Failed to extract charts: %v", err)
+		}
+	}
+
+	// Write Terraform root module to disk.
+	path := filepath.Join(terraformRootDir, "cluster.tf")
+	if err := ioutil.WriteFile(path, []byte(c.TerraformRootModule()), 0600); err != nil {
+		ctxLogger.Fatalf("Failed to write Terraform root module %q to disk: %v", path, err)
+	}
+
+	// Construct Terraform executor.
+	ex, err := terraform.NewExecutor(terraform.Config{
+		WorkingDir: filepath.Join(assetDir, "terraform"),
+		Verbose:    verbose,
+	})
+	if err != nil {
+		ctxLogger.Fatalf("Failed to create Terraform executor: %v", err)
+	}
+
+	// Execute `terraform init`.
+	if err := ex.Init(); err != nil {
+		ctxLogger.Fatalf("Failed to initialize Terraform: %v", err)
+	}
+
+	return cc, c, ex
+}
+
+// clusterExists determines if cluster has already been created by getting all
+// outputs from the Terraform. If there is any output defined, it means 'terraform apply'
+// run at least once.
+func clusterExists(ctxLogger *logrus.Entry, ex *terraform.Executor) bool {
+	o := map[string]interface{}{}
+
+	if err := ex.Output("", &o); err != nil {
+		ctxLogger.Fatalf("Failed to check if cluster exists: %v", err)
+	}
+
+	return len(o) != 0
+}
+
+// createCluster constructs a Cluster based on the provided cluster config and returns a pointer to
+// it.
+//nolint:funlen
+func createCluster(logger *logrus.Entry, config *config.Config) platform.Cluster {
+	p := config.RootConfig.Cluster.Name
+
+	switch p {
+	case platform.Packet:
+		pc, diags := packet.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
+		if diags.HasErrors() {
+			for _, diagnostic := range diags {
+				logger.Error(diagnostic.Error())
+			}
+
+			logger.Fatal("Errors found while loading cluster configuration")
+		}
+
+		c, err := packet.NewCluster(pc)
+		if err != nil {
+			logger.Fatalf("Error constructing cluster: %v", err)
+		}
+
+		return c
+	case platform.AKS:
+		pc, diags := aks.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
+		if diags.HasErrors() {
+			for _, diagnostic := range diags {
+				logger.Error(diagnostic.Error())
+			}
+
+			logger.Fatal("Errors found while loading cluster configuration")
+		}
+
+		c, err := aks.NewCluster(pc)
+		if err != nil {
+			logger.Fatalf("Error constructing cluster: %v", err)
+		}
+
+		return c
+	case platform.AWS:
+		pc, diags := aws.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
+		if diags.HasErrors() {
+			for _, diagnostic := range diags {
+				logger.Error(diagnostic.Error())
+			}
+
+			logger.Fatal("Errors found while loading cluster configuration")
+		}
+
+		c, err := aws.NewCluster(pc)
+		if err != nil {
+			logger.Fatalf("Error constructing cluster: %v", err)
+		}
+
+		return c
+	case platform.BareMetal:
+		pc, diags := baremetal.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
+		if diags.HasErrors() {
+			for _, diagnostic := range diags {
+				logger.Error(diagnostic.Error())
+			}
+
+			logger.Fatal("Errors found while loading cluster configuration")
+		}
+
+		c, err := baremetal.NewCluster(pc)
+		if err != nil {
+			logger.Fatalf("Error constructing cluster: %v", err)
+		}
+
+		return c
+	}
+
+	logger.Fatalf("Unknown platform %q", p)
+
+	return nil
 }
 
 // createBackend constructs a Backend based on the provided cluster config and returns a pointer to
@@ -127,53 +273,6 @@ func createBackend(logger *logrus.Entry, config *config.Config) backend.Backend 
 	return nil
 }
 
-// initializeTerraform initialized Terraform directory using given backend and platform
-// and returns configured executor.
-func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, backendString string) *terraform.Executor {
-	assetDir, err := homedir.Expand(p.Meta().AssetDir)
-	if err != nil {
-		ctxLogger.Fatalf("Error expanding path: %v", err)
-	}
-
-	// Configure Terraform directory, module and backend.
-	if err := terraform.Configure(assetDir, backendString); err != nil {
-		ctxLogger.Fatalf("Failed to configure Terraform : %v", err)
-	}
-
-	conf := terraform.Config{
-		WorkingDir: terraform.GetTerraformRootDir(assetDir),
-		Verbose:    verbose,
-	}
-
-	ex, err := terraform.NewExecutor(conf)
-	if err != nil {
-		ctxLogger.Fatalf("Failed to create Terraform executor: %v", err)
-	}
-
-	if err := p.Initialize(ex); err != nil {
-		ctxLogger.Fatalf("Failed to initialize Platform: %v", err)
-	}
-
-	if err := ex.Init(); err != nil {
-		ctxLogger.Fatalf("Failed to initialize Terraform: %v", err)
-	}
-
-	return ex
-}
-
-// clusterExists determines if cluster has already been created by getting all
-// outputs from the Terraform. If there is any output defined, it means 'terraform apply'
-// run at least once.
-func clusterExists(ctxLogger *logrus.Entry, ex *terraform.Executor) bool {
-	o := map[string]interface{}{}
-
-	if err := ex.Output("", &o); err != nil {
-		ctxLogger.Fatalf("Failed to check if cluster exists: %v", err)
-	}
-
-	return len(o) != 0
-}
-
 type controlplaneUpdater struct {
 	kubeconfig []byte
 	assetDir   string
@@ -195,13 +294,15 @@ func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, er
 }
 
 func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]interface{}, error) {
-	valuesRaw := ""
-	if err := c.ex.Output(fmt.Sprintf("%s_values", name), &valuesRaw); err != nil {
-		return nil, fmt.Errorf("failed to get controlplane component values.yaml from Terraform: %w", err)
+	p := filepath.Join(c.assetDir, "cluster-assets", "charts", "kube-system", name+".yaml")
+
+	v, err := ioutil.ReadFile(p) //nolint:gosec
+	if err != nil {
+		return nil, fmt.Errorf("failed to read Helm values file %q: %w", p, err)
 	}
 
 	values := map[string]interface{}{}
-	if err := yaml.Unmarshal([]byte(valuesRaw), &values); err != nil {
+	if err := yaml.Unmarshal(v, &values); err != nil {
 		return nil, fmt.Errorf("failed to parse values.yaml for controlplane component: %w", err)
 	}
 

@@ -20,12 +20,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
-
-	"github.com/kinvolk/lokomotive/pkg/config"
-	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
 const (
@@ -33,51 +29,8 @@ const (
 	defaultKubeconfigPath = "~/.kube/config"
 )
 
-// getConfiguredPlatform loads a platform from the given configuration file.
-func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {
-	lokoConfig, diags := getLokoConfig()
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
-	if lokoConfig.RootConfig.Cluster == nil {
-		// No cluster defined and no configuration error
-		return nil, hcl.Diagnostics{}
-	}
-
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
-	if err != nil {
-		diag := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  err.Error(),
-		}
-		return nil, hcl.Diagnostics{diag}
-	}
-
-	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
-}
-
-// getAssetDir extracts the asset path from the cluster configuration.
-// It is empty if there is no cluster defined. An error is returned if the
-// cluster configuration has problems.
-func getAssetDir() (string, error) {
-	cfg, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		return "", fmt.Errorf("cannot load config: %s", diags)
-	}
-	if cfg == nil {
-		// No cluster defined and no configuration error
-		return "", nil
-	}
-
-	return cfg.Meta().AssetDir, nil
-}
-
-func getKubeconfig() ([]byte, error) {
-	path, err := getKubeconfigPath()
-	if err != nil {
-		return nil, fmt.Errorf("failed getting kubeconfig path: %w", err)
-	}
+func getKubeconfig(assetDir string) ([]byte, error) {
+	path := kubeconfigPath(assetDir)
 
 	if expandedPath, err := homedir.Expand(path); err == nil {
 		path = expandedPath
@@ -96,51 +49,35 @@ func getKubeconfig() ([]byte, error) {
 // - Asset directory from cluster configuration.
 // - KUBECONFIG environment variable.
 // - ~/.kube/config path, which is the default for kubectl.
-func getKubeconfigPath() (string, error) {
-	assetKubeconfig, err := assetsKubeconfigPath()
-	if err != nil {
-		return "", fmt.Errorf("reading kubeconfig path from configuration failed: %w", err)
+
+// kubeconfigPath returns a path to a kubeconfig file using the following order of precedence:
+// - The value provided via the --kubeconfig-file flag or the KUBECONFIG_FILE environment variable
+// (the latter is a side-effect of using Cobra/Viper and should NOT be documented because it's
+// confusing).
+// - The path to the kubeconfig file in the provided asset directory if assetDir is not an empty
+// string.
+// - The value provided via the KUBECONFIG environment variable.
+// - ~/.kube/config (the default path kubectl uses).
+func kubeconfigPath(assetDir string) string {
+	var assetPath string
+	if assetDir != "" {
+		assetPath = filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
 	}
 
 	paths := []string{
 		viper.GetString(kubeconfigFlag),
-		assetKubeconfig,
+		assetPath,
 		os.Getenv(kubeconfigEnvVariable),
 		defaultKubeconfigPath,
 	}
 
-	for _, path := range paths {
-		if path != "" {
-			return path, nil
+	for _, p := range paths {
+		if p != "" {
+			return p
 		}
 	}
 
-	return "", nil
-}
-
-// assetsKubeconfigPath reads the lokocfg configuration and returns
-// the kubeconfig path defined in it.
-//
-// If no configuration is defined, empty string is returned.
-func assetsKubeconfigPath() (string, error) {
-	assetDir, err := getAssetDir()
-	if err != nil {
-		return "", err
-	}
-
-	if assetDir != "" {
-		return assetsKubeconfig(assetDir), nil
-	}
-
-	return "", nil
-}
-
-func assetsKubeconfig(assetDir string) string {
-	return filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
-}
-
-func getLokoConfig() (*config.Config, hcl.Diagnostics) {
-	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
+	return ""
 }
 
 // askForConfirmation asks the user to confirm an action.

@@ -17,8 +17,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
@@ -44,26 +46,42 @@ func runApply(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoConfig, diags := getLokoConfig()
+	// Read cluster config from HCL files.
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+	cc, diags := config.LoadConfig(cp, vp)
 	if len(diags) > 0 {
 		contextLogger.Fatal(diags)
 	}
+
+	if cc.RootConfig.Cluster == nil {
+		// No `cluster` block specified in the configuration.
+		contextLogger.Fatal("No cluster configured")
+	}
+
+	// Construct a Cluster.
+	c := createCluster(contextLogger, cc)
 
 	var componentsToApply []string
 	if len(args) > 0 {
 		componentsToApply = append(componentsToApply, args...)
 	} else {
-		for _, component := range lokoConfig.RootConfig.Components {
+		for _, component := range cc.RootConfig.Components {
 			componentsToApply = append(componentsToApply, component.Name)
 		}
 	}
 
-	kubeconfig, err := getKubeconfig()
+	assetDir, err := homedir.Expand(c.AssetDir())
+	if err != nil {
+		contextLogger.Fatalf("Error expanding path: %v", err)
+	}
+
+	kubeconfig, err := getKubeconfig(assetDir)
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
 
-	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
+	if err := applyComponents(cc, kubeconfig, componentsToApply...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }

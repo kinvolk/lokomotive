@@ -19,6 +19,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/config"
@@ -40,24 +41,24 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	lokoConfig, diags := getLokoConfig()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-		contextLogger.Fatal("Errors found while loading configuration")
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+
+	cc, diags := config.LoadConfig(cp, vp)
+	if len(diags) > 0 {
+		contextLogger.Fatal(diags)
 	}
 
 	var componentsToRender []string
 	if len(args) > 0 {
 		componentsToRender = append(componentsToRender, args...)
 	} else {
-		for _, component := range lokoConfig.RootConfig.Components {
+		for _, component := range cc.RootConfig.Components {
 			componentsToRender = append(componentsToRender, component.Name)
 		}
 	}
 
-	if err := renderComponentManifests(lokoConfig, componentsToRender...); err != nil {
+	if err := renderComponentManifests(cc, componentsToRender...); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
