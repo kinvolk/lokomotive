@@ -26,6 +26,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
+	"github.com/kinvolk/lokomotive/pkg/backend/s3"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -58,19 +59,15 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 		ctxLogger.Fatal("Errors found while loading cluster configuration")
 	}
 
-	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
-	b, diags := getConfiguredBackend(lokoConfig)
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
-		}
-
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
+	if p == nil {
+		ctxLogger.Fatal("No cluster configured")
 	}
 
-	// Use a local backend if no backend is configured.
-	if b == nil {
-		b = local.NewLocalBackend()
+	// Render backend configuration.
+	var b backend.Backend
+
+	if lokoConfig.RootConfig.Backend != nil {
+		b = createBackend(ctxLogger, lokoConfig)
 	}
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
@@ -78,14 +75,54 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 		ctxLogger.Fatalf("Error expanding path: %v", err)
 	}
 
-	// Validate backend configuration.
-	if err = b.Validate(); err != nil {
-		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
-	}
-
 	ex := initializeTerraform(ctxLogger, p, b)
 
 	return ex, p, lokoConfig, assetDir
+}
+
+// createBackend constructs a Backend based on the provided cluster config and returns a pointer to
+// it. If a backend with the provided name doesn't exist, an error is returned.
+func createBackend(logger *logrus.Entry, config *config.Config) backend.Backend {
+	bn := config.RootConfig.Backend.Name
+
+	switch bn {
+	case backend.Local:
+		bc, diags := local.NewConfig(&config.RootConfig.Backend.Config, config.EvalContext)
+		if diags.HasErrors() {
+			for _, diagnostic := range diags {
+				logger.Error(diagnostic.Error())
+			}
+
+			logger.Fatal("Errors found while loading backend configuration")
+		}
+
+		b, err := local.NewBackend(bc)
+		if err != nil {
+			logger.Fatalf("Error constructing backend: %v", err)
+		}
+
+		return b
+	case backend.S3:
+		bc, diags := s3.NewConfig(&config.RootConfig.Backend.Config, config.EvalContext)
+		if diags.HasErrors() {
+			for _, diagnostic := range diags {
+				logger.Error(diagnostic.Error())
+			}
+
+			logger.Fatal("Errors found while loading backend configuration")
+		}
+
+		b, err := s3.NewBackend(bc)
+		if err != nil {
+			logger.Fatalf("Error constructing backend: %v", err)
+		}
+
+		return b
+	}
+
+	logger.Fatalf("Unknown backend %q", bn)
+
+	return nil
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform
@@ -96,14 +133,8 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 		ctxLogger.Fatalf("Error expanding path: %v", err)
 	}
 
-	// Render backend configuration.
-	renderedBackend, err := b.Render()
-	if err != nil {
-		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
-	}
-
 	// Configure Terraform directory, module and backend.
-	if err := terraform.Configure(assetDir, renderedBackend); err != nil {
+	if err := terraform.Configure(assetDir, b); err != nil {
 		ctxLogger.Fatalf("Failed to configure Terraform : %v", err)
 	}
 

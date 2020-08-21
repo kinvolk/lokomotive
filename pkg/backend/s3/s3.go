@@ -16,61 +16,78 @@ package s3
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
 	"github.com/kinvolk/lokomotive/internal/template"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 )
 
-type s3 struct {
+// Config represents the configuration of an S3 backend.
+type Config struct {
 	Bucket        string `hcl:"bucket"`
 	Key           string `hcl:"key"`
-	Region        string `hcl:"region,optional"`
+	Region        string `hcl:"region"`
 	AWSCredsPath  string `hcl:"aws_creds_path,optional"`
 	DynamoDBTable string `hcl:"dynamodb_table,optional"`
 }
 
-// init registers s3 as a backend.
-func init() {
-	backend.Register("s3", NewS3Backend())
-}
-
-// LoadConfig loads the configuration for the s3 backend.
-func (s *s3) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
-	}
-	return gohcl.DecodeBody(*configBody, evalContext, s)
-}
-
-func NewS3Backend() *s3 {
-	return &s3{}
-}
-
-// Render renders the Go template with s3 backend configuration.
-func (s *s3) Render() (string, error) {
-	return template.Render(backendConfigTmpl, s)
-}
-
-// Validate validates the s3 backend configuration.
-func (s *s3) Validate() error {
-	if s.Bucket == "" {
-		return fmt.Errorf("no bucket specified")
+// validate returns an error if the Config is invalid.
+func (c *Config) validate() error {
+	if c.Bucket == "" {
+		return fmt.Errorf("bucket cannot be empty")
 	}
 
-	if s.Key == "" {
-		return fmt.Errorf("no key specified")
+	if c.Key == "" {
+		return fmt.Errorf("key cannot be empty")
 	}
 
-	if s.AWSCredsPath == "" && os.Getenv("AWS_SHARED_CREDENTIALS_FILE") == "" {
-		if s.Region == "" && os.Getenv("AWS_DEFAULT_REGION") == "" {
-			return fmt.Errorf("no region specified: use Region field in backend configuration or " +
-				"AWS_DEFAULT_REGION environment variable")
-		}
+	if c.Region == "" {
+		return fmt.Errorf("region cannot be empty")
 	}
 
 	return nil
+}
+
+// NewConfig creates a new Config and returns a pointer to it as well as any HCL diagnostics.
+func NewConfig(b *hcl.Body, ctx *hcl.EvalContext) (*Config, hcl.Diagnostics) {
+	diags := hcl.Diagnostics{}
+
+	c := &Config{}
+
+	if b == nil {
+		return nil, diags
+	}
+
+	if d := gohcl.DecodeBody(*b, ctx, c); len(d) != 0 {
+		diags = append(diags, d...)
+		return nil, diags
+	}
+
+	return c, diags
+}
+
+// Backend implements the Backend interface for an S3 backend.
+type Backend struct {
+	config *Config
+	// A string containing the rendered Terraform code of the backend.
+	rendered string
+}
+
+func (b *Backend) String() string {
+	return b.rendered
+}
+
+// NewBackend constructs a Backend based on the provided config and returns a pointer to it.
+func NewBackend(c *Config) (*Backend, error) {
+	if err := c.validate(); err != nil {
+		return nil, fmt.Errorf("validating backend config: %w", err)
+	}
+
+	rendered, err := template.Render(backendConfigTmpl, c)
+	if err != nil {
+		return nil, fmt.Errorf("rendering backend: %v", err)
+	}
+
+	return &Backend{config: c, rendered: rendered}, nil
 }
