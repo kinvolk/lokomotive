@@ -24,7 +24,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 
-	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 )
@@ -33,25 +32,6 @@ const (
 	kubeconfigEnvVariable = "KUBECONFIG"
 	defaultKubeconfigPath = "~/.kube/config"
 )
-
-// getConfiguredBackend loads a backend from the given configuration file.
-func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
-	if lokoConfig.RootConfig.Backend == nil {
-		// No backend defined and no configuration error
-		return nil, hcl.Diagnostics{}
-	}
-
-	backend, err := backend.GetBackend(lokoConfig.RootConfig.Backend.Name)
-	if err != nil {
-		diag := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  err.Error(),
-		}
-		return nil, hcl.Diagnostics{diag}
-	}
-
-	return backend, backend.LoadConfig(&lokoConfig.RootConfig.Backend.Config, lokoConfig.EvalContext)
-}
 
 // getConfiguredPlatform loads a platform from the given configuration file.
 func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {

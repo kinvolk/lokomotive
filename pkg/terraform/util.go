@@ -15,7 +15,6 @@
 package terraform
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -69,7 +68,6 @@ func GetTerraformRootDir(assetDir string) string {
 
 // CreateTerraformBackendFile creates the Terraform backend configuration file.
 func CreateTerraformBackendFile(assetDir, data string) error {
-	backendString := fmt.Sprintf("terraform {%s}\n", data)
 	terraformRootDir := GetTerraformRootDir(assetDir)
 	path := filepath.Join(terraformRootDir, backendFileName)
 	f, err := os.Create(path)
@@ -78,7 +76,7 @@ func CreateTerraformBackendFile(assetDir, data string) error {
 	}
 	defer f.Close()
 
-	if _, err = f.WriteString(backendString); err != nil {
+	if _, err = f.WriteString(data); err != nil {
 		return errors.Wrapf(err, "failed to write to backend file %q", path)
 	}
 
