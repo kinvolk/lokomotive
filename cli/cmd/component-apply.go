@@ -65,7 +65,7 @@ func runApply(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	kubeconfig, err := getKubeconfig()
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}

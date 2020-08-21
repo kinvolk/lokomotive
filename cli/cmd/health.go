@@ -42,7 +42,16 @@ func runHealth(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	kubeconfig, err := getKubeconfig()
+	lokoConfig, diags := getLokoConfig()
+	if diags.HasErrors() {
+		for _, diagnostic := range diags {
+			contextLogger.Error(diagnostic.Error())
+		}
+
+		contextLogger.Fatal("Errors found while loading cluster configuration")
+	}
+
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
@@ -52,17 +61,8 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
 	}
 
-	p, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-		contextLogger.Fatal("Errors found while loading cluster configuration")
-	}
-
-	if p == nil {
-		contextLogger.Fatal("No cluster configured")
-	}
+	// We can skip error checking here, as getKubeconfig() already checks it.
+	p, _ := getConfiguredPlatform(lokoConfig, true)
 
 	cluster := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
 

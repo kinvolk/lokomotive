@@ -93,7 +93,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	kubeconfig, err := getKubeconfig()
+	kubeconfig, err := getKubeconfig(contextLogger, lokoCfg, false)
 	if err != nil {
 		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
 	}
