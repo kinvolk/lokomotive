@@ -16,7 +16,6 @@ package dns
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -107,15 +106,10 @@ func (c *Config) ManualConfigPrompt() terraform.ExecutionHook {
 }
 
 func readDNSEntries(ex *terraform.Executor) ([]dnsEntry, error) {
-	output, err := ex.OutputBytes("dns_entries")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get DNS entries")
-	}
-
 	var entries []dnsEntry
 
-	if err := json.Unmarshal(output, &entries); err != nil {
-		return nil, errors.Wrap(err, "failed to parse DNS entries file")
+	if err := ex.Output("dns_entries", &entries); err != nil {
+		return nil, errors.Wrap(err, "failed to get DNS entries")
 	}
 
 	return entries, nil
