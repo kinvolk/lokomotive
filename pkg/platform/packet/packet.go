@@ -147,7 +147,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	}
 
 	if err := c.DNS.Validate(); err != nil {
-		return errors.Wrap(err, "parsing DNS configuration failed")
+		return fmt.Errorf("parsing DNS configuration: %w", err)
 	}
 
 	assetDir, err := homedir.Expand(c.AssetDir)
@@ -162,7 +162,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 		src := filepath.Join(assets.ControlPlaneSource, c.Name)
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
 		if err := assets.Extract(src, dst); err != nil {
-			return errors.Wrapf(err, "Failed to extract charts")
+			return fmt.Errorf("extracting charts: %w", err)
 		}
 	}
 
@@ -173,7 +173,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	dst := filepath.Join(assetDir,
 		"cluster-assets", "charts", "kube-system", "calico-host-protection")
 	if err := assets.Extract(src, dst); err != nil {
-		return errors.Wrapf(err, "Failed to extract host protection chart")
+		return fmt.Errorf("extracting host protection chart: %w", err)
 	}
 
 	// TODO: A transient change which shall be reverted in a follow up PR to handle
@@ -183,7 +183,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
 		dst = filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
 		if err := assets.Extract(src, dst); err != nil {
-			return errors.Wrapf(err, "Failed to extract kubelet chart")
+			return fmt.Errorf("extracting kubelet chart: %w", err)
 		}
 	}
 
@@ -220,31 +220,34 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	t := template.New(tmplName)
 	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
+		// TODO: Use template.Must().
 		return errors.Wrap(err, "failed to parse template")
 	}
 
 	path := filepath.Join(terraformPath, tmplName)
 	f, err := os.Create(path)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
+		return fmt.Errorf("creating file %q: %w", path, err)
 	}
 	defer f.Close()
 
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
 	managementCIDRs, err := json.Marshal(cfg.ManagementCIDRs)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to marshal management CIDRs")
 	}
 	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
 	if cfg.OIDC != nil {
 		// Skipping the error checking here because its done in checkValidConfig().
 		oidcFlags, _ := cfg.OIDC.ToKubeAPIServerFlags(cfg.clusterDomain())
-		//TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
-		// append is not used for now because Initialize is called in cli/cmd/cluster.go
+		// TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags.
+		// Append is not used for now because Initialize is called in cli/cmd/cluster.go
 		// and again in Apply which duplicates the values.
 		cfg.KubeAPIServerExtraFlags = oidcFlags
 	}
@@ -258,6 +261,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	sort.Strings(tagsList)
 	tags, err := json.Marshal(tagsList)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to marshal tags")
 	}
 	// Append lokoctl-version tag to all worker pools.
@@ -284,8 +288,9 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
+		return fmt.Errorf("executing template: %w", err)
 	}
+
 	return nil
 }
 

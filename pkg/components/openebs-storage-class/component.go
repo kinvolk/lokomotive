@@ -98,13 +98,14 @@ func (c *component) validateConfig() error {
 			maxDefaultStorageClass++
 		}
 		if maxDefaultStorageClass > 1 {
-			return errors.New("cannot have more than one default storage class")
+			return fmt.Errorf("cannot have more than one default storage class")
 		}
 	}
 
 	return nil
 }
 
+// TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
 
 	scTmpl, err := template.New(name).Parse(storageClassTmpl)

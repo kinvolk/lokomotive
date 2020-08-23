@@ -15,11 +15,11 @@
 package flatcarlinuxupdateoperator
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -47,7 +47,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	walk := assets.DumpingWalker(ret, ".yaml")
 	p := filepath.Join("/components", name)
 	if err := assets.Assets.WalkFiles(p, walk); err != nil {
-		return nil, errors.Wrap(err, "failed to walk assets")
+		return nil, fmt.Errorf("traversing assets: %w", err)
 	}
 
 	return ret, nil

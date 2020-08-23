@@ -288,6 +288,7 @@ func marshalToStr(obj interface{}) (string, error) {
 	return string(b), nil
 }
 
+// TODO: convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
 	// Add the default path to google's connector, this is the default path
 	// where the user given google suite json file will be available via a

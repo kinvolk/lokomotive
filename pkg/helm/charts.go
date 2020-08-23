@@ -16,11 +16,11 @@
 package helm
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
-	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 )
@@ -39,7 +39,7 @@ type LokomotiveChart struct {
 func ChartFromAssets(location string) (*chart.Chart, error) {
 	tmpDir, err := ioutil.TempDir("", "lokoctl-chart-")
 	if err != nil {
-		return nil, errors.Wrap(err, "creating temporary dir")
+		return nil, fmt.Errorf("creating temporary directory: %w", err)
 	}
 
 	// TODO: os.RemoveAll() returns an error which we currently don't handle. Handling the error
@@ -49,7 +49,7 @@ func ChartFromAssets(location string) (*chart.Chart, error) {
 	// Rendered files could contain secrets - allow r/w access to owner only.
 	walk := assets.CopyingWalker(tmpDir, 0700)
 	if err := assets.Assets.WalkFiles(location, walk); err != nil {
-		return nil, errors.Wrap(err, "walking assets")
+		return nil, fmt.Errorf("traversing assets: %w", err)
 	}
 
 	return loader.Load(tmpDir)

@@ -15,9 +15,8 @@
 package install
 
 import (
+	"fmt"
 	"os"
-
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/util"
@@ -29,13 +28,13 @@ import (
 func PrepareTerraformRootDir(path string) error {
 	pathExists, err := util.PathExists(path)
 	if err != nil {
-		return errors.Wrapf(err, "failed to stat path %q: %v", path, err)
+		return fmt.Errorf("checking if path %q exists: %w", path, err)
 	}
 	if pathExists {
 		return nil
 	}
 	if err := os.MkdirAll(path, 0755); err != nil {
-		return errors.Wrapf(err, "failed to create terraform assets directory at: %s", path)
+		return fmt.Errorf("creating Terraform assets directory at %q: %w", path, err)
 	}
 	return nil
 }
@@ -51,7 +50,8 @@ func PrepareTerraformRootDir(path string) error {
 func PrepareLokomotiveTerraformModuleAt(path string) error {
 	walk := assets.CopyingWalker(path, 0755)
 	if err := assets.Assets.WalkFiles(assets.TerraformModulesSource, walk); err != nil {
-		return errors.Wrap(err, "failed to walk assets")
+		return fmt.Errorf("traversing assets: %w", err)
 	}
+
 	return nil
 }

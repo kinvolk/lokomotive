@@ -16,6 +16,7 @@ package baremetal
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -118,7 +119,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 		src := filepath.Join(assets.ControlPlaneSource, c.Name)
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
 		if err := assets.Extract(src, dst); err != nil {
-			return errors.Wrapf(err, "Failed to extract charts")
+			return fmt.Errorf("extracting charts: %w", err)
 		}
 	}
 
@@ -129,7 +130,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
 		if err := assets.Extract(src, dst); err != nil {
-			return errors.Wrapf(err, "Failed to extract kubelet chart")
+			return fmt.Errorf("extracting kubelet chart: %w", err)
 		}
 	}
 
@@ -143,58 +144,67 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	t := template.New(tmplName)
 	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
+		// TODO: Use template.Must().
 		return errors.Wrap(err, "failed to parse template")
 	}
 
 	path := filepath.Join(terraformPath, tmplName)
 	f, err := os.Create(path)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
+		return fmt.Errorf("creating file %q: %w", path, err)
 	}
+
 	defer f.Close()
 
 	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
 	if cfg.OIDC != nil {
 		// Skipping the error checking here because its done in checkValidConfig().
 		oidcFlags, _ := cfg.OIDC.ToKubeAPIServerFlags(cfg.K8sDomainName)
-		//TODO: Use append instead of setting the oidcFlags to KubeAPIServerExtraFlags
-		// append is not used for now because Initialize is called in cli/cmd/cluster.go
+		// TODO: Use append instead of setting oidcFlags to KubeAPIServerExtraFlags.
+		// Append is not used for now because Initialize is called in cli/cmd/cluster.go
 		// and again in Apply which duplicates the values.
 		cfg.KubeAPIServerExtraFlags = oidcFlags
 	}
 
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
 	workerDomains, err := json.Marshal(cfg.WorkerDomains)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
 	}
 
 	workerMacs, err := json.Marshal(cfg.WorkerMacs)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerMacs)
 	}
 
 	workerNames, err := json.Marshal(cfg.WorkerNames)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerNames)
 	}
 
 	controllerDomains, err := json.Marshal(cfg.ControllerDomains)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerDomains)
 	}
 
 	controllerMacs, err := json.Marshal(cfg.ControllerMacs)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerMacs)
 	}
 
 	controllerNames, err := json.Marshal(cfg.ControllerNames)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
 	}
 
@@ -243,8 +253,9 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
+		return fmt.Errorf("executing template: %w", err)
 	}
+
 	return nil
 }
 
