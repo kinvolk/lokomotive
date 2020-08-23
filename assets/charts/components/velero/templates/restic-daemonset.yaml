@@ -4,7 +4,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: restic
-  namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "velero.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -22,21 +21,22 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
         helm.sh/chart: {{ include "velero.chart" . }}
+      {{- if .Values.podLabels }}
+        {{ toYaml .Values.podLabels | nindent 8 }}
+      {{- end }}
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.serviceAccount.server.create }}
       serviceAccountName: {{ include "velero.serverServiceAccount" . }}
-      {{- end }}
       securityContext:
         runAsUser: 0
       {{- if .Values.restic.priorityClassName }}
       priorityClassName: {{ include "velero.restic.priorityClassName" . }}
       {{- end }}
       volumes:
-        {{- if and .Values.credentials.useSecret (or (eq $provider "aws") (eq $provider "gcp")) }}
+        {{- if .Values.credentials.useSecret }}
         - name: cloud-credentials
           secret:
             secretName: {{ include "velero.secretName" . }}
@@ -50,16 +50,31 @@ spec:
         {{- toYaml .Values.restic.extraVolumes | nindent 8 }}
         {{- end }}
       containers:
-        - name: velero
+        - name: restic
+        {{- if .Values.image.digest }}
+          image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
+        {{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - /velero
           args:
             - restic
             - server
+          {{- with .Values.configuration }}
+            {{- with .features }}
+            - --features={{ . }}
+            {{- end }}
+            {{- with .logLevel }}
+            - --log-level={{ . }}
+            {{- end }}
+            {{- with .logFormat }}
+            - --log-format={{ . }}
+            {{- end }}
+          {{- end }}
           volumeMounts:
-            {{- if and .Values.credentials.useSecret (or (eq $provider "aws") (eq $provider "gcp")) }}
+            {{- if .Values.credentials.useSecret }}
             - name: cloud-credentials
               mountPath: /credentials
             {{- end }}
@@ -71,12 +86,13 @@ spec:
             {{- if .Values.restic.extraVolumeMounts }}
             {{- toYaml .Values.restic.extraVolumeMounts | nindent 12 }}
             {{- end }}
-          {{- if and .Values.credentials.useSecret (eq $provider "azure") }}
-          envFrom:
-            - secretRef:
-                name: {{ include "velero.secretName" . }}
-          {{- end }}
           env:
+            {{- with .Values.configuration.extraEnvVars }}
+            {{- range $key, $value := . }}
+            - name: {{ default "none" $key | quote }}
+              value: {{ default "none" $value | quote }}
+            {{- end }}
+            {{- end }}
             - name: VELERO_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -87,21 +103,41 @@ spec:
                   fieldPath: spec.nodeName
             - name: VELERO_SCRATCH_DIR
               value: /scratch
-            {{- if and .Values.credentials.useSecret (or (eq $provider "aws") (eq $provider "gcp")) }}
+          {{- if .Values.credentials.useSecret }}
             {{- if eq $provider "aws" }}
             - name: AWS_SHARED_CREDENTIALS_FILE
               value: /credentials/cloud
-            {{- else }}
+            {{- else if eq $provider "gcp" }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /credentials/cloud
-            {{- end }}
-            {{- end }}
-            {{- if eq $provider "minio" }}
-            - name: AWS_SHARED_CREDENTIALS_FILE
+            {{- else if eq $provider "azure" }}
+            - name: AZURE_CREDENTIALS_FILE
+              value: /credentials/cloud
+            {{- else if eq $provider "alibabacloud" }}
+            - name: ALIBABA_CLOUD_CREDENTIALS_FILE
               value: /credentials/cloud
             {{- end }}
+          {{- end }}
+          {{- with .Values.configuration.extraEnvVars }}
+          {{- range $key, $value := . }}
+            - name: {{ default "none" $key | quote }}
+              value: {{ default "none" $value | quote }}
+          {{- end }}
+          {{- end }}
+          {{- with .Values.credentials.extraEnvVars }}
+          {{- range $key, $value := . }}
+            - name: {{ default "none" $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "velero.fullname" $ }}
+                  key: {{ default "none" $key }}
+          {{- end }}
+          {{- end }}
           securityContext:
             privileged: {{ .Values.restic.privileged }}
+            {{- with .Values.restic.securityContext }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- with .Values.restic.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
