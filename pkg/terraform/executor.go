@@ -420,16 +420,6 @@ func (ex *Executor) Output(key string, s interface{}) error {
 	return json.Unmarshal(o, s)
 }
 
-// OutputBytes returns the value of the Terraform output key in JSON format as a byte slice.
-func (ex *Executor) OutputBytes(key string) ([]byte, error) {
-	o, err := ex.executeSync("output", "-json", key)
-	if err != nil {
-		return []byte{}, fmt.Errorf("getting Terraform output for key %q: %w", key, err)
-	}
-
-	return o, nil
-}
-
 // GenerateCommand prepares a Terraform command with the given arguments
 // by setting up the command, configuration, working directory
 // (so the files such as terraform.tfstate are stored at the right place) and
