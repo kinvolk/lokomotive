@@ -141,6 +141,10 @@ cluster "aws" {
 
     os_version = "current"
 
+    labels = "foo=bar,baz=zab"
+
+    taints = "nodeType=storage:NoSchedule"
+
     disk_size = var.worker_disk_size
 
     disk_type = var.worker_disk_type
@@ -228,6 +232,8 @@ worker_pool "my-worker-pool" {
 | `worker_pool.ssh_pubkeys`     | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...".               |        -        | list(string) |   true   |
 | `worker_pool.os_channel`      | Flatcar Container Linux channel to install from (stable, beta, alpha, edge).                                                                                                               |    "stable"     |    string    |  false   |
 | `worker_pool.os_version`      | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                       |    "current"    |    string    |  false   |
+| `worker_pool.labels`          | Custom labels to assign to worker nodes such as `foo=bar,baz=zab`.                                                                                                                         |        -        |    string    |  false   |
+| `worker_pool.taints`          | Taints to assign to worker nodes such as `nodeType=storage:NoSchedule`.                                                                                                                    |        -        |    string    |  false   |
 | `worker_pool.disk_size`       | Size of the EBS volume in GB.                                                                                                                                                              |       40        |    number    |  false   |
 | `worker_pool.disk_type`       | Type of the EBS volume (e.g. standard, gp2, io1).                                                                                                                                          |      "gp2"      |    string    |  false   |
 | `worker_pool.disk_iops`       | IOPS of the EBS volume (e.g 100).                                                                                                                                                          |        0        |    number    |  false   |
