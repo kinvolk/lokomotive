@@ -178,7 +178,7 @@ module "worker-pool-{{ $index }}" {
 {{- end }}
 
 provider "aws" {
-  version = "2.48.0"
+  version = "3.3.0"
 
   region                  = "{{.Config.Region}}"
   {{- if .Config.CredsPath }}
@@ -187,7 +187,7 @@ provider "aws" {
 }
 
 provider "ct" {
-  version = "~> 0.3"
+  version = "0.6.1"
 }
 
 provider "local" {
@@ -195,15 +195,15 @@ provider "local" {
 }
 
 provider "null" {
-  version = "~> 2.1"
+  version = "2.1.2"
 }
 
 provider "template" {
-  version = "~> 2.1"
+  version = "2.1.2"
 }
 
 provider "tls" {
-  version = "~> 2.0"
+  version = "2.2.0"
 }
 
 # Stub output, which indicates, that Terraform run at least once.
