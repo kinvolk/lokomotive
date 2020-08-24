@@ -17,7 +17,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -146,11 +145,7 @@ func verifyCluster(kubeconfig []byte, expectedNodes int) error {
 		return fmt.Errorf("creating Kubernetes clientset: %w", err)
 	}
 
-	cluster, err := lokomotive.NewCluster(cs, expectedNodes)
-	if err != nil {
-		// TODO: NewCluster should be changed to not return an error.
-		return errors.Wrapf(err, "failed to set up cluster client")
-	}
+	cluster := lokomotive.NewCluster(cs, expectedNodes)
 
 	return install.Verify(cluster)
 }
