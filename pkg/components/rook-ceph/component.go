@@ -66,6 +66,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
+// TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
 	// Generate YAML for Ceph cluster.
 	var err error

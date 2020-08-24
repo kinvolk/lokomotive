@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/kinvolk/lokomotive/pkg/terraform"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -109,7 +108,7 @@ func readDNSEntries(ex *terraform.Executor) ([]dnsEntry, error) {
 	var entries []dnsEntry
 
 	if err := ex.Output("dns_entries", &entries); err != nil {
-		return nil, errors.Wrap(err, "failed to get DNS entries")
+		return nil, fmt.Errorf("getting DNS entries: %w", err)
 	}
 
 	return entries, nil

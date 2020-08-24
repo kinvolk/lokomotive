@@ -154,7 +154,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 		src := filepath.Join(assets.ControlPlaneSource, c.Name)
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
 		if err := assets.Extract(src, dst); err != nil {
-			return errors.Wrapf(err, "Failed to extract charts")
+			return fmt.Errorf("extracting charts: %w", err)
 		}
 	}
 
@@ -165,7 +165,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
 		if err := assets.Extract(src, dst); err != nil {
-			return errors.Wrapf(err, "Failed to extract kubelet chart")
+			return fmt.Errorf("extracting kubelet chart: %w", err)
 		}
 	}
 
@@ -180,23 +180,26 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	t := template.New(tmplName)
 	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
+		// TODO: Use template.Must().
 		return errors.Wrap(err, "failed to parse template")
 	}
 
 	path := filepath.Join(terraformRootDir, tmplName)
 	f, err := os.Create(path)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
+		return fmt.Errorf("creating file %q: %w", path, err)
 	}
 	defer f.Close()
 
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrap(err, "failed to marshal SSH public keys")
 	}
 
 	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to marshal CLC snippets")
 	}
 
@@ -214,6 +217,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 
 	tags, err := json.Marshal(cfg.Tags)
 	if err != nil {
+		// TODO: Render manually instead of marshaling.
 		return errors.Wrapf(err, "failed to marshal tags")
 	}
 
@@ -258,8 +262,9 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
-		return errors.Wrapf(err, "failed to write template to file: %q", path)
+		return fmt.Errorf("executing template: %w", err)
 	}
+
 	return nil
 }
 

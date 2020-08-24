@@ -141,6 +141,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
+// TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
 	tmpl, err := template.New("ingress").Parse(ingressTmpl)
 	if err != nil {

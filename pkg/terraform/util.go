@@ -21,8 +21,6 @@ import (
 	"strings"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
-
-	"github.com/pkg/errors"
 )
 
 const backendFileName = "backend.tf"
@@ -31,7 +29,7 @@ const backendFileName = "backend.tf"
 // provided by the user.
 func Configure(assetDir, renderedBackend string) error {
 	if err := PrepareTerraformDirectoryAndModules(assetDir); err != nil {
-		return errors.Wrapf(err, "Failed to create required terraform directory")
+		return fmt.Errorf("creating Terraform directories: %w", err)
 	}
 
 	// Create backend file only if the backend rendered string isn't empty.
@@ -40,7 +38,7 @@ func Configure(assetDir, renderedBackend string) error {
 	}
 
 	if err := CreateTerraformBackendFile(assetDir, renderedBackend); err != nil {
-		return errors.Wrapf(err, "Failed to create backend configuration file")
+		return fmt.Errorf("creating backend configuration file: %w", err)
 	}
 
 	return nil
@@ -56,7 +54,7 @@ func PrepareTerraformDirectoryAndModules(assetDir string) error {
 	// Ensure Terraform root directory exists.
 	p := filepath.Join(assetDir, "terraform")
 	if err := os.MkdirAll(p, 0755); err != nil {
-		return errors.Wrapf(err, "creating Terraform root directory at %q", p)
+		return fmt.Errorf("creating Terraform root directory at %q: %w", p, err)
 	}
 
 	return nil
@@ -74,16 +72,16 @@ func CreateTerraformBackendFile(assetDir, data string) error {
 	path := filepath.Join(terraformRootDir, backendFileName)
 	f, err := os.Create(path)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %q", path)
+		return fmt.Errorf("creating file %q: %w", path, err)
 	}
 	defer f.Close()
 
 	if _, err = f.WriteString(backendString); err != nil {
-		return errors.Wrapf(err, "failed to write to backend file %q", path)
+		return fmt.Errorf("writing to backend file %q: %w", path, err)
 	}
 
 	if err = f.Sync(); err != nil {
-		return errors.Wrapf(err, "failed to flush data to file %q", path)
+		return fmt.Errorf("flushing data to file %q: %w", path, err)
 	}
 
 	return nil

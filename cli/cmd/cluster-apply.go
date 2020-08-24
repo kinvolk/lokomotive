@@ -143,11 +143,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 func verifyCluster(kubeconfig []byte, expectedNodes int) error {
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
-		return errors.Wrapf(err, "failed to set up clientset")
+		return fmt.Errorf("creating Kubernetes clientset: %w", err)
 	}
 
 	cluster, err := lokomotive.NewCluster(cs, expectedNodes)
 	if err != nil {
+		// TODO: NewCluster should be changed to not return an error.
 		return errors.Wrapf(err, "failed to set up cluster client")
 	}
 

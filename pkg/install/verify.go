@@ -18,8 +18,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
 )
@@ -42,7 +40,7 @@ func Verify(cl *lokomotive.Cluster) error {
 	// Wait for cluster to become available
 	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.Ping)
 	if err != nil {
-		return errors.Wrapf(err, "failed to ping cluster for readiness")
+		return fmt.Errorf("pinging cluster for readiness: %w", err)
 	}
 
 	var ns *lokomotive.NodeStatus
@@ -58,7 +56,7 @@ func Verify(cl *lokomotive.Cluster) error {
 		return ns.Ready(), nil // Retry if not ready
 	})
 	if nsErr != nil {
-		return errors.Wrapf(nsErr, "error determining node status within the allowed time")
+		return fmt.Errorf("waiting for nodes: %w", nsErr)
 	}
 	if err != nil {
 		return fmt.Errorf("not all nodes became ready within the allowed time")

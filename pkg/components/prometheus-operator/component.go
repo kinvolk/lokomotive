@@ -19,7 +19,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -174,12 +173,12 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart values template")
+		return nil, fmt.Errorf("rendering chart values template: %w", err)
 	}
 
 	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart")
+		return nil, fmt.Errorf("rendering chart: %w", err)
 	}
 
 	return renderedFiles, nil

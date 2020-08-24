@@ -20,7 +20,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -118,7 +117,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	if c.AwsConfig.AccessKeyID == "" {
 		accessKeyID, ok := os.LookupEnv("AWS_ACCESS_KEY_ID")
 		if !ok || accessKeyID == "" {
-			return nil, errors.New("AWS Credentials not found.")
+			return nil, fmt.Errorf("AWS access key ID not found")
 		}
 		c.AwsConfig.AccessKeyID = accessKeyID
 	}
@@ -126,19 +125,19 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	if c.AwsConfig.SecretAccessKey == "" {
 		secretAccessKey, ok := os.LookupEnv("AWS_SECRET_ACCESS_KEY")
 		if !ok || secretAccessKey == "" {
-			return nil, errors.New("AWS Credentials not found.")
+			return nil, fmt.Errorf("AWS secret access key not found")
 		}
 		c.AwsConfig.SecretAccessKey = secretAccessKey
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart values template")
+		return nil, fmt.Errorf("rendering chart values template: %w", err)
 	}
 
 	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
 	if err != nil {
-		return nil, errors.Wrap(err, "render chart")
+		return nil, fmt.Errorf("rendering chart: %w", err)
 	}
 
 	return renderedFiles, nil
