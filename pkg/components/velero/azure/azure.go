@@ -35,6 +35,7 @@ type Configuration struct {
 
 // BackupStorageLocation stores information about storage account used for backups on Azure
 type BackupStorageLocation struct {
+	Name           string `hcl:"name,optional"`
 	ResourceGroup  string `hcl:"resource_group,optional"`
 	StorageAccount string `hcl:"storage_account,optional"`
 	Bucket         string `hcl:"bucket,optional"`
@@ -42,6 +43,7 @@ type BackupStorageLocation struct {
 
 // VolumeSnapshotLocation stores information where disk snapshots will be stored on Azure
 type VolumeSnapshotLocation struct {
+	Name          string `hcl:"name,optional"`
 	ResourceGroup string `hcl:"resource_group,optional"`
 	APITimeout    string `hcl:"api_timeout,optional"`
 }

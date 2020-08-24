@@ -25,7 +25,10 @@ configuration:
       resourceGroup: {{ .BackupStorageLocation.ResourceGroup }}
       storageAccount: {{ .BackupStorageLocation.StorageAccount }}
   volumeSnapshotLocation:
-    name: azure
+    {{- if .VolumeSnapshotLocation.Name }}
+    name: {{ .VolumeSnapshotLocation.Name }}
+    {{- end }}
+    provider: velero.io/azure
     config:
       {{- if .VolumeSnapshotLocation.ResourceGroup }}
       resourceGroup: {{ .VolumeSnapshotLocation.ResourceGroup }}
