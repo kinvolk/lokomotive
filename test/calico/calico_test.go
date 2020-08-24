@@ -69,7 +69,7 @@ func TestHostEndpointObjectsExistForPublicInterfacesOnAllNodes(t *testing.T) { /
 	}
 
 	if err := json.Unmarshal(response, &hostEndpoints); err != nil {
-		t.Fatalf("failed unmarshalling response: %v\n\n%s", err, string(response))
+		t.Fatalf("failed unmarshaling response: %v\n\n%s", err, string(response))
 	}
 
 	// Collect all received host endpoints into a map, so we can quickly look up if a
