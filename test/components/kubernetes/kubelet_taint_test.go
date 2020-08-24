@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build packet baremetal aws
+// +build aws
 // +build e2e
 
-package kubernetes //nolint:testpackage
+package kubernetes_test
 
 import (
 	"context"
@@ -26,7 +26,7 @@ import (
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func TestNodeHasLabels(t *testing.T) {
+func TestNodeHasTaints(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
 	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{
@@ -38,5 +38,17 @@ func TestNodeHasLabels(t *testing.T) {
 
 	if len(nodes.Items) == 0 {
 		t.Fatalf("no worker nodes found")
+	}
+
+	for _, items := range nodes.Items {
+		for _, taint := range items.Spec.Taints {
+			taintKey := taint.Key
+			taintValue := taint.Value
+			taintEffect := taint.Effect
+
+			if taintKey != "nodeType" || taintValue != "storage" || taintEffect != "NoSchedule" {
+				t.Fatalf("expected taint: %s, got: %s=%s:%s", "nodeType=storage:NoSchedule", taintKey, taintValue, taintEffect)
+			}
+		}
 	}
 }
