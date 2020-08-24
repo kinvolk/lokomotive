@@ -33,12 +33,44 @@ storage:
 EOF
   ]
 
-  worker_pool "$CLUSTER_ID-wp" {
+  worker_pool "$CLUSTER_ID-w1" {
     count         = 2
     ssh_pubkeys   = ["$PUB_KEY"]
     disk_size     = 30
     instance_type = "i3.large"
     spot_price    = "0.08"
+    tags = {
+      "deployment" = "ci"
+    }
+    clc_snippets = [
+      <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+    ]
+  }
+
+  worker_pool "$CLUSTER_ID-w2" {
+    count         = 1
+    ssh_pubkeys   = ["$PUB_KEY"]
+    disk_size     = 30
+    instance_type = "t2.small"
+    spot_price    = "0.01"
+    labels        = "testing.io=yes,roleofnode=testing"
+    taints        = "nodeType=storage:NoSchedule"
+
+    # TODO: remove this once https://github.com/kinvolk/lokomotive/issues/839 is fixed.
+    lb_http_port  = 8080
+    lb_https_port = 8443
     tags = {
       "deployment" = "ci"
     }
