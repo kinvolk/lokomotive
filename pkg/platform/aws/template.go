@@ -139,6 +139,14 @@ module "worker-pool-{{ $index }}" {
   os_version            = "{{ $pool.OSVersion }}"
   {{- end }}
 
+  {{- if $pool.Labels }}
+  labels = "{{ $pool.Labels }}"
+  {{- end}}
+
+  {{- if $pool.Taints }}
+  taints = "{{ $pool.Taints }}"
+  {{- end}}
+
   {{- if $pool.DiskSize }}
   disk_size             = "{{ $pool.DiskSize }}"
   {{- end }}
