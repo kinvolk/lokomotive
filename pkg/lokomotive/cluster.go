@@ -31,6 +31,7 @@ type Cluster struct {
 	ExpectedNodes int
 }
 
+// NewCluster constructs and returns a new Cluster object.
 func NewCluster(client *kubernetes.Clientset, expectedNodes int) *Cluster {
 	return &Cluster{KubeClient: client, ExpectedNodes: expectedNodes}
 }
