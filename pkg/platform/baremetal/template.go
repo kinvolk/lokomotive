@@ -59,7 +59,7 @@ module "bare-metal-{{.ClusterName}}" {
 }
 
 provider "matchbox" {
-  version     = "~> 0.3"
+  version     = "0.4.1"
   endpoint    = "{{.MatchboxEndpoint}}"
   client_cert = file("{{.MatchboxClientCert}}")
   client_key  = file("{{.MatchboxClientKey}}")
@@ -67,7 +67,7 @@ provider "matchbox" {
 }
 
 provider "ct" {
-  version = "~> 0.3"
+  version = "0.6.1"
 }
 
 provider "local" {
@@ -75,15 +75,15 @@ provider "local" {
 }
 
 provider "null" {
-  version = "~> 2.1"
+  version = "2.1.2"
 }
 
 provider "template" {
-  version = "~> 2.1"
+  version = "2.1.2"
 }
 
 provider "tls" {
-  version = "~> 2.0"
+  version = "2.2.0"
 }
 
 # Stub output, which indicates, that Terraform run at least once.
