@@ -2,6 +2,7 @@
 ./.git
 ./lokoctl
 *.png
+./assets/charts/components/cert-manager
 ./assets/charts/components/rook
 ./assets/charts/components/prometheus-operator
 ./assets/charts/components/velero
