@@ -66,8 +66,6 @@ cluster "aks" {
 }
 
 component "prometheus-operator" {
-  disable_webhooks = true
-
   monitor {
     etcd                    = false
     kube_controller_manager = false
