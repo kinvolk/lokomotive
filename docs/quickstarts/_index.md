@@ -1,5 +1,5 @@
 ---
 title: Quickstarts
 content_type: quickstart
-weight: 40
+weight: 10
 ---

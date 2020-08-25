@@ -2,5 +2,5 @@
 title: How to Guides
 linktitle: How to Guides
 main_menu: true
-weight: 40
+weight: 20
 ---

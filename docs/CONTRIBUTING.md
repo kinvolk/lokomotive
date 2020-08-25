@@ -1,6 +1,6 @@
 ---
 title: Contribution Guidelines
-weight: 10
+weight: 40
 ---
 
 ## Code of Conduct

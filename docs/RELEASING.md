@@ -1,6 +1,6 @@
 ---
 title: Release process
-weight: 10
+weight: 40
 ---
 
 This section shows how to perform a release of Lokomotive. Only parts of the
