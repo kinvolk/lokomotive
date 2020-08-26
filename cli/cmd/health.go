@@ -64,10 +64,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("No cluster configured")
 	}
 
-	cluster, err := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
-	if err != nil {
-		contextLogger.Fatalf("Error in creating new Lokomotive cluster: %q", err)
-	}
+	cluster := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
 
 	ns, err := cluster.GetNodeStatus()
 	if err != nil {

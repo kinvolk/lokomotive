@@ -31,8 +31,9 @@ type Cluster struct {
 	ExpectedNodes int
 }
 
-func NewCluster(client *kubernetes.Clientset, expectedNodes int) (*Cluster, error) {
-	return &Cluster{KubeClient: client, ExpectedNodes: expectedNodes}, nil
+// NewCluster constructs and returns a new Cluster object.
+func NewCluster(client *kubernetes.Clientset, expectedNodes int) *Cluster {
+	return &Cluster{KubeClient: client, ExpectedNodes: expectedNodes}
 }
 
 func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
