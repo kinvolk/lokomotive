@@ -13,7 +13,7 @@ systemd:
             EnvironmentFile=/etc/kubernetes/etcd.config
             Environment="ETCD_IMAGE_URL=docker://quay.io/coreos/etcd"
             Environment="RKT_RUN_ARGS=--insecure-options=image"
-            Environment="ETCD_IMAGE_TAG=v3.4.10${etcd_arch_tag_suffix}"
+            Environment="ETCD_IMAGE_TAG=v3.4.13${etcd_arch_tag_suffix}"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
             Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
