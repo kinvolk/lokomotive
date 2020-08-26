@@ -8,16 +8,8 @@ provider "ct" {
   version = "0.4.0"
 }
 
-provider "local" {
-  version = "1.4.0"
-}
-
 provider "template" {
   version = "~> 2.1"
-}
-
-provider "tls" {
-  version = "~> 2.0"
 }
 
 provider "libvirt" {

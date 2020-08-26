@@ -8,7 +8,6 @@ terraform {
     local    = "1.4.0"
     null     = "2.1.2"
     template = "2.1.2"
-    tls      = "2.2.0"
     packet   = "3.0.0"
   }
 }
