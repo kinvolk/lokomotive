@@ -9,7 +9,7 @@ apiserver:
   aggregationCaCert:
   aggregationClientCert:
   aggregationClientKey:
-  image: k8s.gcr.io/kube-apiserver:v1.18.6
+  image: k8s.gcr.io/kube-apiserver:v1.18.8
   cloudProvider:
   etcdServers:
   aggregationFlags:
