@@ -18,7 +18,6 @@
 package clusterautoscaler
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -28,14 +27,15 @@ import (
 const (
 	defaultDeploymentTimeout       = 5 * time.Minute
 	defaultDeploymentProbeInterval = 5 * time.Second
+	name                           = "cluster-autoscaler-packet-cluster-autoscaler-chart"
 )
 
 func TestClusterAutoscalerDeployments(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
-	t.Run(fmt.Sprintf("deployment"), func(t *testing.T) {
+	t.Run("deployment", func(t *testing.T) {
 		t.Parallel()
 
-		testutil.WaitForDeployment(t, client, "kube-system", "cluster-autoscaler-packet-cluster-autoscaler", defaultDeploymentProbeInterval, defaultDeploymentTimeout)
+		testutil.WaitForDeployment(t, client, "kube-system", name, defaultDeploymentProbeInterval, defaultDeploymentTimeout)
 	})
 }
