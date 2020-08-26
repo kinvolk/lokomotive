@@ -27,8 +27,8 @@ By the end of this guide, you'll have a production-ready Kubernetes cluster runn
 * Basic understanding of Kubernetes concepts.
 * AWS account and IAM credentials.
 * AWS Route53 DNS Zone (registered Domain Name or delegated subdomain).
-* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) v0.5.0
-  installed locally
+* Terraform v0.12.x and [terraform-provider-ct](https://github.com/poseidon/terraform-provider-ct) v0.6.1
+  installed locally.
 * An SSH key pair for management access.
 * `kubectl` installed locally to access the Kubernetes cluster.
 

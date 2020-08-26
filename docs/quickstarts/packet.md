@@ -58,8 +58,8 @@ application to verify the cluster behaves as expected.
 * An SSH key pair for accessing the cluster nodes.
 * Terraform `v0.12.x`
   [installed](https://learn.hashicorp.com/terraform/getting-started/install.html#install-terraform).
-* The `ct` Terraform provider `v0.5.0`
-  [installed](https://github.com/poseidon/terraform-provider-ct/blob/v0.5.0/README.md#install).
+* The `ct` Terraform provider `v0.6.1`
+  [installed](https://github.com/poseidon/terraform-provider-ct/blob/v0.6.1/README.md#install).
 * `kubectl` [installed](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
 >NOTE: The `kubectl` version used to interact with a Kubernetes cluster needs to be compatible with
