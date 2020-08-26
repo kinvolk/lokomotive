@@ -1,0 +1,2 @@
+#!/bin/sh
+ln -fs ~/.local/bin/terraform13 ~/.local/bin/terraform

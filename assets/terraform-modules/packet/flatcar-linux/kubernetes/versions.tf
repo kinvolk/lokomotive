@@ -1,14 +1,32 @@
 # Terraform version and plugin versions
 
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.13"
 
   required_providers {
-    ct       = "0.6.1"
-    local    = "1.4.0"
-    null     = "2.1.2"
-    template = "2.1.2"
-    packet   = "3.0.0"
-    random   = "2.3.0"
+    ct = {
+      source  = "poseidon/ct"
+      version = "0.6.1"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "1.4.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "2.1.2"
+    }
+    template = {
+      source  = "hashicorp/template"
+      version = "2.1.2"
+    }
+    packet = {
+      source  = "packethost/packet"
+      version = "3.0.1"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "2.3.0"
+    }
   }
 }

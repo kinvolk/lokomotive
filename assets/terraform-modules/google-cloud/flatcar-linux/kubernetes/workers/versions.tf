@@ -1,8 +1,17 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.13"
 
   required_providers {
-    google   = "2.16.0"
-    template = "2.1.2"
+    google = {
+      source  = "hashicorp/google"
+      version = "2.16.0"
+    }
+    template = {
+      source  = "hashicorp/template"
+      version = "2.1.2"
+    }
+    ct = {
+      source = "poseidon/ct"
+    }
   }
 }

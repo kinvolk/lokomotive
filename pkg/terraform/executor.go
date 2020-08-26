@@ -43,7 +43,7 @@ const (
 	logsFileSuffix = ".log"
 	failFileSuffix = ".fail"
 
-	requiredVersion = ">= 0.12, < 0.13"
+	requiredVersion = ">= 0.13, < 0.14"
 
 	noOfLinesOnError = 20
 )

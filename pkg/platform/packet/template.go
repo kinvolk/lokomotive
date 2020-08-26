@@ -260,7 +260,6 @@ output "dns_entries" {
 
 {{- if eq .Config.DNS.Provider "route53" }}
 provider "aws" {
-  version = "3.3.0"
   # The Route 53 service doesn't need a specific region to operate, however
   # the AWS Terraform provider needs it and the documentation suggests to use
   # "us-east-1": https://docs.aws.amazon.com/general/latest/gr/r53.html.
@@ -268,29 +267,16 @@ provider "aws" {
 }
 {{- end }}
 
-provider "ct" {
-  version = "0.6.1"
-}
-
-provider "local" {
-  version = "1.4.0"
-}
-
-provider "null" {
-  version = "2.1.2"
-}
-
-provider "template" {
-  version = "2.1.2"
-}
-
-provider "tls" {
-  version = "2.2.0"
+terraform {
+  required_providers {
+    packet = {
+      source  = "packethost/packet"
+      version = "3.0.1"
+    }
+  }
 }
 
 provider "packet" {
-  version = "3.0.0"
-
   {{- if .Config.AuthToken }}
   auth_token = "{{.Config.AuthToken}}"
   {{- end }}

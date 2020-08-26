@@ -54,25 +54,34 @@ locals {
 }
 
 provider "azurerm" {
-  version = "2.31.1"
-
   # https://github.com/terraform-providers/terraform-provider-azurerm/issues/5893
   features {}
 }
 
-provider "local" {
-  version = "1.4.0"
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "2.31.1"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "1.4.0"
+    }
+{{- if .ApplicationName }}
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "1.0.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.0.0"
+    }
+{{- end }}
+  }
 }
 
 {{- if .ApplicationName }}
-provider "azuread" {
-  version = "1.0.0"
-}
-
-provider "random" {
-  version = "3.0.0"
-}
-
 resource "azuread_application" "aks" {
   name = local.application_name
 }
