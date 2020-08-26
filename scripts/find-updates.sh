@@ -199,7 +199,7 @@ printf "${format}" "-----------" "---------------" "--------------"
 cd "${workdir}"
 current_version=$(grep packet assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
-get_latest_release terraform-providers/terraform-provider-packet
+get_latest_release packethost/terraform-provider-packet
 printf "${format}" "Packet" "${current_version}" "${version}"
 
 ###########################
