@@ -189,6 +189,15 @@ printf "${format}" "velero" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
 
 ###########################
+# cluster-autoscaler
+cd "${workdir}"
+current_version=$(grep version assets/charts/components/cluster-autoscaler/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
+
+get_latest_release kubernetes/autoscaler
+latest_version=$(echo $version | cut -d"-" -f4 | sed 's/ //g' | sed 's/"//g')
+printf "${format}" "cluster-autoscaler" "${current_version}" "${latest_version}"
+
+###########################
 echo
 # Print the column names.
 printf "${format}" "TF Provider" "Current Version" "Latest Version"
