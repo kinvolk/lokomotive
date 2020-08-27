@@ -35,8 +35,6 @@ const name = "cluster-autoscaler"
 
 const chartValuesTmpl = `
 cloudProvider: {{ .Provider }}
-image:
-  tag: v1.17.0
 nodeSelector:
   node.kubernetes.io/controller: "true"
 tolerations:
