@@ -98,3 +98,66 @@ func TestMergeMapsNil(t *testing.T) {
 		t.Errorf("expected map to be empty but not nil, got: %v", final)
 	}
 }
+
+func TestIndent(t *testing.T) {
+	type args struct {
+		data   string
+		indent int
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			args: args{
+				data: `foo:
+  bar:
+  - baz`,
+				indent: 2,
+			},
+			want: `  foo:
+    bar:
+    - baz`,
+		},
+		{
+			args: args{
+				data:   "singleline",
+				indent: 3,
+			},
+			want: "   singleline",
+		},
+		{
+			args: args{
+				data: `a:
+  b: foobar
+`,
+				indent: 4,
+			},
+			want: `    a:
+      b: foobar
+`,
+		},
+		{
+			args: args{
+				data: `[default]
+aws_access_key=test_key
+aws_secret_access_key=secret_key`,
+				indent: 6,
+			},
+			want: `      [default]
+      aws_access_key=test_key
+      aws_secret_access_key=secret_key`,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := internal.Indent(tt.args.data, tt.args.indent); got != tt.want {
+				t.Errorf("indent() = \n%v\nwant =\n%v", got, tt.want)
+			}
+		})
+	}
+}
