@@ -1,0 +1,232 @@
+# Default values for linkerd.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Values that are passed along to sub-charts
+global:
+  clusterDomain: &cluster_domain cluster.local
+  imagePullPolicy: &image_pull_policy IfNotPresent
+
+  # control plane trace configuration
+  controlPlaneTracing: false
+
+  # control plane version. See Proxy section for proxy version
+  linkerdVersion: &linkerd_version stable-2.8.1
+
+  namespace: linkerd
+
+  identityTrustAnchorsPEM: |
+
+  identityTrustDomain: *cluster_domain
+
+  # url of external grafana instance.
+  grafanaUrl: ""
+
+  # proxy configuration
+  proxy:
+    enableExternalProfiles: false
+    image:
+      name: gcr.io/linkerd-io/proxy
+      pullPolicy: *image_pull_policy
+      version: *linkerd_version
+    logLevel: warn,linkerd=info
+    ports:
+      admin: 4191
+      control: 4190
+      inbound: 4143
+      outbound: 4140
+    resources:
+      cpu:
+        limit: ""
+        request: ""
+      memory:
+        limit: ""
+        request: ""
+    trace:
+      collectorSvcAddr: ""
+      collectorSvcAccount: default
+    uid: 2102
+    # If set, the proxy's pre-stop hook will postpone the Kubernetes's SIGTERM signal
+    # and wait for this duration before letting the proxy process the SIGTERM signal.
+    # See https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+    # for more info on container lifecycle hooks.
+    waitBeforeExitSeconds: 0
+    requireIdentityOnInboundPorts: ""
+    destinationGetNetworks: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+  # proxy-init configuration
+  proxyInit:
+    ignoreInboundPorts: ""
+    ignoreOutboundPorts: ""
+    image:
+      name: gcr.io/linkerd-io/proxy-init
+      pullPolicy: *image_pull_policy
+      version: v1.3.3
+    resources:
+      cpu:
+        limit: 100m
+        request: 10m
+      memory:
+        limit: 50Mi
+        request: 10Mi
+    closeWaitTimeoutSecs: 0
+
+  # control plane annotations - do not edit
+  createdByAnnotation: linkerd.io/created-by
+  proxyInjectAnnotation: linkerd.io/inject
+  proxyInjectDisabled: disabled
+
+  # control plane labels - do not edit
+  controllerComponentLabel: linkerd.io/control-plane-component
+  controllerNamespaceLabel: linkerd.io/control-plane-ns
+  linkerdNamespaceLabel: linkerd.io/is-control-plane
+  workloadNamespaceLabel: linkerd.io/workload-ns
+
+# enforced host validation regular expression
+enforcedHostRegexp: ""
+
+enableH2Upgrade: true
+
+omitWebhookSideEffects: false
+webhookFailurePolicy: Ignore
+
+# controller configuration
+controllerImage: gcr.io/linkerd-io/controller
+controllerLogLevel: &controller_log_level info
+controllerReplicas: 1
+controllerUID: 2103
+
+# web dashboard configuration
+dashboard:
+  replicas: 1
+
+# debug configuration
+debugContainer:
+  image:
+    name: gcr.io/linkerd-io/debug
+    pullPolicy: *image_pull_policy
+    version: *linkerd_version
+
+# identity configuration
+identity:
+  issuer:
+    scheme: linkerd.io/tls
+
+    clockSkewAllowance: 20s
+
+    # must match the expiry date in crtPEM
+    crtExpiry:
+
+    # control plane annotation - do not edit
+    crtExpiryAnnotation: linkerd.io/identity-issuer-expiry
+
+    issuanceLifetime: 86400s
+
+    tls:
+      # PEM-encoded certificate
+      crtPEM: |
+
+      # PEM-encoded ECDSA private key
+      keyPEM: |
+
+# heartbeat configuration
+disableHeartBeat: false
+heartbeatSchedule: "0 0 * * *"
+
+# prometheus configuration
+prometheusImage: prom/prometheus:v2.15.2
+prometheusLogLevel: *controller_log_level
+prometheusExtraArgs: {}
+  # log.format: json
+prometheusAlertmanagers: []
+  # - scheme: http
+  #   static_configs:
+  #   - targets:
+  #     - "alertmanager.linkerd.svc:9093"
+prometheusRuleConfigMapMounts: []
+  # - name: alerting-rules
+  #   subPath: alerting_rules.yml
+  #   configMap: linkerd-prometheus-rules
+  # - name: recording-rules
+  #   subPath: recording_rules.yml
+  #   configMap: linkerd-prometheus-rules
+
+# proxy injector configuration
+proxyInjector:
+  externalSecret: false
+  # if empty, Helm will auto-generate these fields
+  crtPEM: |
+
+  keyPEM: |
+
+  # if empty, Helm will auto-generate this field, unless externalSecret is set to true.
+  caBundle: |
+
+# service profile validator configuration
+profileValidator:
+  externalSecret: false
+  # if empty, Helm will auto-generate these fields
+  crtPEM: |
+
+  keyPEM: |
+
+  # if empty, Helm will auto-generate this field, unless externalSecret is set to true.
+  caBundle: |
+
+# tap configuration
+tap:
+  externalSecret: false
+  # if empty, Helm will auto-generate these fields
+  crtPEM: |
+
+  keyPEM: |
+
+  # if empty, Helm will auto-generate this field, unless externalSecret is set to true.
+  caBundle: |
+
+# web configuration
+webImage: gcr.io/linkerd-io/web
+
+# If the namespace is controlled by an external tool or can't be installed with Helm
+# you can disable its installation. In this case:
+# - The namespace created by the external tool must match the namespace value above
+# - The external tool needs to create the namespace with the label:
+#     config.linkerd.io/admission-webhooks: disabled
+installNamespace: true
+
+# Node selection constraints for control-plane components
+# https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector.
+nodeSelector:
+  beta.kubernetes.io/os: linux
+
+smiMetrics:
+  enabled: false
+  externalSecret: false
+  image: deislabs/smi-metrics:v0.2.1
+  # if empty, Helm will auto-generate these fields
+  crtPEM: |
+
+  keyPEM: |
+
+  # if empty, Helm will auto-generate this field, unless externalSecret is set to true.
+  caBundle: |
+
+# Configuration for Add-ons
+
+grafana:
+  enabled: true
+  name: linkerd-grafana
+  image:
+    name: gcr.io/linkerd-io/grafana
+  # resources:
+
+tracing:
+  enabled: false
+  collector:
+    name: linkerd-collector
+    image: omnition/opencensus-collector:0.1.11
+    # resources:
+  jaeger:
+    name: linkerd-jaeger
+    image: jaegertracing/all-in-one:1.17.1
+    # resources:
