@@ -16,13 +16,13 @@ package linkerd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/linkerd/linkerd2/pkg/tls"
 	"helm.sh/helm/v3/pkg/chartutil"
 
+	"github.com/kinvolk/lokomotive/internal"
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
@@ -134,29 +134,6 @@ func (c *component) Metadata() components.Metadata {
 	}
 }
 
-func indent(data string, indent int) string {
-	lines := strings.Split(data, "\n")
-
-	var gap string
-
-	// Calculate the gap/indent.
-	for i := 0; i < indent; i++ {
-		gap += " "
-	}
-
-	// For each line add the gap/indent.
-	for ind := range lines {
-		lines[ind] = gap + lines[ind]
-	}
-
-	// If the last line is empty then remove the indent from it.
-	if lines[len(lines)-1] == gap {
-		lines[len(lines)-1] = ""
-	}
-
-	return strings.Join(lines, "\n")
-}
-
 func mergeValuesFiles(dst, src string) (string, error) {
 	d, err := chartutil.ReadValues([]byte(dst))
 	if err != nil {
@@ -178,9 +155,9 @@ func generateCertificates() (cert, error) {
 	}
 
 	return cert{
-		Key:    indent(root.Cred.EncodePrivateKeyPEM(), 8),
-		Cert:   indent(root.Cred.Crt.EncodeCertificatePEM(), 8),
-		CA:     indent(root.Cred.Crt.EncodeCertificatePEM(), 4),
+		Key:    internal.Indent(root.Cred.EncodePrivateKeyPEM(), 8),
+		Cert:   internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 8),
+		CA:     internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 4),
 		Expiry: root.Cred.Crt.Certificate.NotAfter.String(),
 	}, nil
 }
