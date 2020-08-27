@@ -114,7 +114,9 @@ imagePullSecrets:
 Return true if a secret object should be created
 */}}
 {{- define "external-dns.createSecret" -}}
-{{- if and (eq .Values.provider "aws") .Values.aws.credentials.secretKey .Values.aws.credentials.accessKey (not .Values.aws.credentials.secretName) }}
+{{- if and (eq .Values.provider "alibabacloud") .Values.alibabacloud.accessKeyId .Values.alibabacloud.accessKeySecret (not .Values.alibabacloud.secretName) }}
+    {{- true -}}
+{{- else if and (eq .Values.provider "aws") .Values.aws.credentials.secretKey .Values.aws.credentials.accessKey (not .Values.aws.credentials.secretName) }}
     {{- true -}}
 {{- else if and (eq .Values.provider "azure") (or (and .Values.azure.resourceGroup .Values.azure.tenantId .Values.azure.subscriptionId .Values.azure.aadClientId .Values.azure.aadClientSecret (not .Values.azure.useManagedIdentityExtension)) (and .Values.azure.resourceGroup .Values.azure.tenantId .Values.azure.subscriptionId .Values.azure.useManagedIdentityExtension)) (not .Values.azure.secretName) -}}
     {{- true -}}
@@ -132,11 +134,13 @@ Return true if a secret object should be created
     {{- true -}}
 {{- else if and (eq .Values.provider "rfc2136") .Values.rfc2136.tsigSecret -}}
     {{- true -}}
-{{- else if and (eq .Values.provider "pdns") .Values.pdns.apiKey -}}
+{{- else if and (eq .Values.provider "pdns") .Values.pdns.apiKey (not .Values.pdns.secretName) -}}
     {{- true -}}
 {{- else if and (eq .Values.provider "transip") .Values.transip.apiKey -}}
     {{- true -}}
 {{- else if and (eq .Values.provider "ovh") .Values.ovh.consumerKey -}}
+    {{- true -}}
+{{- else if and (eq .Values.provider "vinyldns") (or .Values.vinyldns.secretKey .Values.vinyldns.accessKey) -}}
     {{- true -}}
 {{- else -}}
 {{- end -}}
@@ -146,7 +150,9 @@ Return true if a secret object should be created
 Return the name of the Secret used to store the passwords
 */}}
 {{- define "external-dns.secretName" -}}
-{{- if and (eq .Values.provider "aws") .Values.aws.credentials.secretName }}
+{{- if and (eq .Values.provider "alibabacloud") .Values.alibabacloud.secretName }}
+{{- .Values.alibabacloud.secretName }}
+{{- else if and (eq .Values.provider "aws") .Values.aws.credentials.secretName }}
 {{- .Values.aws.credentials.secretName }}
 {{- else if and (or (eq .Values.provider "azure") (eq .Values.provider "azure-private-dns")) .Values.azure.secretName }}
 {{- .Values.azure.secretName }}
@@ -156,10 +162,26 @@ Return the name of the Secret used to store the passwords
 {{- .Values.digitalocean.secretName }}
 {{- else if and (eq .Values.provider "google") .Values.google.serviceAccountSecret }}
 {{- .Values.google.serviceAccountSecret }}
+{{- else if and (eq .Values.provider "pdns") .Values.pdns.secretName }}
+{{- .Values.pdns.secretName }}
 {{- else -}}
 {{- template "external-dns.fullname" . }}
 {{- end -}}
 {{- end -}}
+
+{{- define "external-dns.alibabacloud-credentials" -}}
+{
+  {{- if .Values.alibabacloud.regionId }}
+  "regionId": "{{ .Values.alibabacloud.regionId }}",
+  {{- end}}
+  {{- if .Values.alibabacloud.accessKeyId }}
+  "accessKeyId": "{{ .Values.alibabacloud.accessKeyId }}",
+  {{- end}}
+  {{- if .Values.alibabacloud.accessKeySecret }}
+  "accessKeySecret": "{{ .Values.alibabacloud.accessKeySecret }}"
+  {{- end}}
+}
+{{ end }}
 
 {{- define "external-dns.aws-credentials" }}
 [default]
@@ -214,7 +236,8 @@ Compile all warnings into a single message, and call fail.
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.subscriptionId" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.aadClientId" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.aadClientSecret" .) -}}
-{{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionNotSupported" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionAadClientId" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionAadClientSecret" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.transip.account" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.transip.apiKey" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.ovh.consumerKey" .) -}}
@@ -319,7 +342,7 @@ Validate values of External DNS:
 - must provide the PowerDNS API key when provider is "pdns"
 */}}
 {{- define "external-dns.validateValues.pdns.apiKey" -}}
-{{- if and (eq .Values.provider "pdns") (not .Values.pdns.apiKey) -}}
+{{- if and (eq .Values.provider "pdns") (not .Values.pdns.apiKey) (not .Values.pdns.secretName) -}}
 external-dns: pdns.apiKey
     You must provide the the PowerDNS API key when provider="pdns".
     Please set the apiKey parameter (--set pdns.apiKey="xxxx")
@@ -420,6 +443,18 @@ external-dns: azure.useManagedIdentityExtension
 
 {{/*
 Validate values of Azure Private DNS:
+- must provide the Azure AAD Client Secret when provider is "azure-private-dns", secretName is not set and useManagedIdentityExtension is "true"
+*/}}
+{{- define "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionAadClientSecret" -}}
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) .Values.azure.aadClientSecret .Values.azure.useManagedIdentityExtension -}}
+external-dns: azure.useManagedIdentityExtension
+    You must not provide the Azure AAD Client Secret when provider="azure-private-dns", secretName is not set, and useManagedIdentityExtension is "true".
+    Please unset the aadClientSecret parameter (--set azure.aadClientSecret="")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of Azure Private DNS:
 - must provide the Azure Resource Group when provider is "azure-private-dns"
 - azure-private-dns provider does not use azure.json for specifying the resource group so it must be set
 */}}
@@ -457,40 +492,39 @@ external-dns: azure.subscriptionId
 
 {{/*
 Validate values of Azure Private DNS:
-- must provide the Azure AAD Client ID when provider is "azure-private-dns" and secretName is not set
+- must not provide the Azure AAD Client Secret when provider is "azure-private-dns", secretName is not set and MSI is enabled
 */}}
-{{- define "external-dns.validateValues.azurePrivateDns.aadClientId" -}}
-{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientId) -}}
-external-dns: azure.aadClientId
-    You must provide the Azure AAD Client ID when provider="azure-private-dns".
-    Please set the aadClientId parameter (--set azure.aadClientId="xxxx")
+{{- define "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionAadClientId" -}}
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) .Values.azure.aadClientId .Values.azure.useManagedIdentityExtension -}}
+external-dns: azure.useManagedIdentityExtension
+    You must not provide the Azure AAD Client ID when provider="azure-private-dns" and useManagedIdentityExtension is "true".
+    Please unset the aadClientId parameter (--set azure.aadClientId="")
 {{- end -}}
 {{- end -}}
 
 {{/*
 Validate values of Azure Private DNS:
-- must provide the Azure AAD Client Secret when provider is "azure-private-dns" and secretName is not set
+- must provide the Azure AAD Client ID when provider is "azure-private-dns", secret name is not set and MSI is disabled
+*/}}
+{{- define "external-dns.validateValues.azurePrivateDns.aadClientId" -}}
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientId) (not .Values.azure.useManagedIdentityExtension) -}}
+external-dns: azure.useManagedIdentityExtension
+    You must provide the Azure AAD Client ID when provider="azure-private-dns" and useManagedIdentityExtension is not set.
+    Please set the aadClientSecret parameter (--set azure.aadClientId="xxxx")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of Azure Private DNS:
+- must provide the Azure AAD Client Secret when provider is "azure-private-dns", secretName is not set and MSI is disabled
 */}}
 {{- define "external-dns.validateValues.azurePrivateDns.aadClientSecret" -}}
-{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientSecret) -}}
-external-dns: azure.aadClientSecret
-    You must provide the Azure AAD Client Secret when provider="azure-private-dns".
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientSecret) (not .Values.azure.useManagedIdentityExtension) -}}
+external-dns: azure.useManagedIdentityExtension
+    You must provide the Azure AAD Client Secret when provider="azure-private-dns" and useManagedIdentityExtension is not set.
     Please set the aadClientSecret parameter (--set azure.aadClientSecret="xxxx")
 {{- end -}}
 {{- end -}}
-
-{{/*
-Validate values of Azure Private DNS:
-- MSI is not currently supported by external-dns for azure-private-dns, see https://github.com/kubernetes-sigs/external-dns/issues/1510
-*/}}
-{{- define "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionNotSupported" -}}
-{{- if and (eq .Values.provider "azure-private-dns") (.Values.azure.useManagedIdentityExtension) -}}
-external-dns: azure.useManagedIdentityExtension
-    The value useManagedIdentityExtension is not supported in provider "azure-private-dns"
-    Please set the aadClientId & aadClientSecret values and unset useManagedIdentityExtension (--set azure.useManagedIdentityExtension=false,azure.aadClientID="xxxx",azure.aadClientSecret="xxxx")
-{{- end -}}
-{{- end -}}
-
 
 {{/*
 Validate values of TransIP DNS:
@@ -556,9 +590,9 @@ external-dns: ovh.applicationSecret
 Return the ExternalDNS service account name
 */}}
 {{- define "external-dns.serviceAccountName" -}}
-{{- if .Values.rbac.serviceAccountName -}}
-    {{- printf "%s" (tpl .Values.rbac.serviceAccountName . ) -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "external-dns.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
-    {{- printf "%s" (include "external-dns.fullname" . ) -}}
+    {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
