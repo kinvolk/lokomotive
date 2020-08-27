@@ -106,8 +106,10 @@ spec:
           value: {{ .Values.csi.enableRbdDriver | quote }}
         - name: ROOK_CSI_ENABLE_CEPHFS
           value: {{ .Values.csi.enableCephfsDriver | quote }}
-        - name: CSI_ENABLE_SNAPSHOTTER
-          value: {{ .Values.csi.enableSnapshotter | quote }}
+        - name: CSI_PLUGIN_PRIORITY_CLASSNAME
+          value: {{ .Values.csi.pluginPriorityClassName | quote }}
+        - name: CSI_PROVISIONER_PRIORITY_CLASSNAME
+          value: {{ .Values.csi.provisionerPriorityClassName | quote }}
 {{- if .Values.csi.cephFSPluginUpdateStrategy }}
         - name: CSI_CEPHFS_PLUGIN_UPDATE_STRATEGY
           value: {{ .Values.csi.cephFSPluginUpdateStrategy | quote }}
@@ -169,7 +171,7 @@ spec:
 {{- if .Values.csi.allowUnsupportedVersion }}
         - name: ROOK_CSI_ALLOW_UNSUPPORTED_VERSION
           value: {{ .Values.csi.allowUnsupportedVersion | quote }}
-{{- end }}     
+{{- end }}
 {{- if .Values.csi.pluginTolerations }}
         - name: CSI_PLUGIN_TOLERATIONS
           value: {{ toYaml .Values.csi.pluginTolerations | quote }}
@@ -202,11 +204,29 @@ spec:
         - name: CSI_LOG_LEVEL
           value: {{ .Values.csi.logLevel | quote }}
 {{- end }}
+{{- if .Values.csi.csiRBDProvisionerResource }}
+        - name: CSI_RBD_PROVISIONER_RESOURCE
+          value: {{ .Values.csi.csiRBDProvisionerResource | quote }}
+{{- end }}
+{{- if .Values.csi.csiRBDPluginResource }}
+        - name: CSI_RBD_PLUGIN_RESOURCE
+          value: {{ .Values.csi.csiRBDPluginResource | quote }}
+{{- end }}
+{{- if .Values.csi.csiCephFSProvisionerResource }}
+        - name: CSI_CEPHFS_PROVISIONER_RESOURCE
+          value: {{ .Values.csi.csiCephFSProvisionerResource | quote }}
+{{- end }}
+{{- if .Values.csi.csiCephFSPluginResource }}
+        - name: CSI_CEPHFS_PLUGIN_RESOURCE
+          value: {{ .Values.csi.csiCephFSPluginResource | quote }}
+{{- end }}
 {{- end }}
         - name: ROOK_ENABLE_FLEX_DRIVER
           value: "{{ .Values.enableFlexDriver }}"
         - name: ROOK_ENABLE_DISCOVERY_DAEMON
           value: "{{ .Values.enableDiscoveryDaemon }}"
+        - name: ROOK_OBC_WATCH_OPERATOR_NAMESPACE
+          value: "{{ .Values.enableOBCWatchOperatorNamespace }}"
 
         - name: NODE_NAME
           valueFrom:
@@ -220,20 +240,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-{{- if .Values.cephStatusCheckInterval }}
-        - name: ROOK_CEPH_STATUS_CHECK_INTERVAL
-          value: {{ .Values.cephStatusCheckInterval }}
-{{- end }}
-{{- if .Values.mon }}
-{{- if .Values.mon.healthCheckInterval }}
-        - name: ROOK_MON_HEALTHCHECK_INTERVAL
-          value: {{ .Values.mon.healthCheckInterval }}
-{{- end }}
-{{- if .Values.mon.monOutTimeout }}
-        - name: ROOK_MON_OUT_TIMEOUT
-          value: {{ .Values.mon.monOutTimeout }}
-{{- end }}
-{{- end }}
 {{- if .Values.unreachableNodeTolerationSeconds }}
         - name: ROOK_UNREACHABLE_NODE_TOLERATION_SECONDS
           value: {{ .Values.unreachableNodeTolerationSeconds | quote }}

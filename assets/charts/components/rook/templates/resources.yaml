@@ -138,6 +138,17 @@ spec:
                   type: string
                 config: {}
                 storageClassDeviceSets: {}
+            driveGroups:
+              type: array
+              items:
+                properties:
+                  name:
+                    type: string
+                  spec: {}
+                  placement: {}
+                required:
+                - name
+                - spec
             monitoring:
               properties:
                 enabled:
@@ -154,9 +165,20 @@ spec:
             resources: {}
             cleanupPolicy:
               properties:
-                deleteDataDirOnHosts:
+                confirmation:
                   type: string
                   pattern: ^$|^yes-really-destroy-data$
+                sanitizeDisks:
+                  properties:
+                    method:
+                      type: string
+                      pattern: ^(complete|quick)$
+                    dataSource:
+                      type: string
+                      pattern: ^(zero|random)$
+                    iteration:
+                      type: integer
+                      format: int32
   additionalPrinterColumns:
     - name: DataDirHostPath
       type: string
@@ -181,6 +203,8 @@ spec:
       type: string
       description: Ceph Health
       JSONPath: .status.ceph.health
+  subresources:
+    status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -215,6 +239,8 @@ spec:
               properties:
                 failureDomain:
                   type: string
+                crushRoot:
+                  type: string
                 replicated:
                   properties:
                     size:
@@ -241,11 +267,15 @@ spec:
                   - passive
                   - aggressive
                   - force
+                parameters:
+                  type: object
             dataPools:
               type: array
               items:
                 properties:
                   failureDomain:
+                    type: string
+                  crushRoot:
                     type: string
                   replicated:
                     properties:
@@ -273,6 +303,8 @@ spec:
                     - passive
                     - aggressive
                     - force
+                  parameters:
+                    type: object
             preservePoolsOnDelete:
               type: boolean
   subresources:
@@ -285,6 +317,8 @@ spec:
     - name: Age
       type: date
       JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -359,6 +393,8 @@ spec:
               properties:
                 failureDomain:
                   type: string
+                crushRoot:
+                  type: string
                 replicated:
                   properties:
                     size:
@@ -379,10 +415,14 @@ spec:
                   - passive
                   - aggressive
                   - force
+                parameters:
+                  type: object
             dataPool:
               properties:
                 failureDomain:
                   type: string
+                crushRoot:
+                  type: string
                 replicated:
                   properties:
                     size:
@@ -403,8 +443,19 @@ spec:
                   - passive
                   - aggressive
                   - force
+                parameters:
+                  type: object
             preservePoolsOnDelete:
               type: boolean
+            healthCheck:
+              properties:
+                bucket:
+                  properties:
+                    enabled:
+                      type: boolean
+                    interval:
+                      type: string
+  subresources:
   subresources:
     status: {}
 ---
@@ -430,6 +481,57 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  name: cephobjectrealms.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: CephObjectRealm
+    listKind: CephObjectRealmList
+    plural: cephobjectrealms
+    singular: cephobjectrealm
+    shortNames:
+    - realm
+    - realms
+  scope: Namespaced
+  version: v1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: cephobjectzonegroups.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: CephObjectZoneGroup
+    listKind: CephObjectZoneGroupList
+    plural: cephobjectzonegroups
+    singular: cephobjectzonegroup
+    shortNames:
+    - zonegroup
+    - zonegroups
+  scope: Namespaced
+  version: v1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: cephobjectzones.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: CephObjectZone
+    listKind: CephObjectZoneList
+    plural: cephobjectzones
+    singular: cephobjectzone
+    shortNames:
+    - zone
+    - zones
+  scope: Namespaced
+  version: v1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
   name: cephblockpools.ceph.rook.io
 spec:
   group: ceph.rook.io
@@ -446,6 +548,8 @@ spec:
         spec:
           properties:
             failureDomain:
+                type: string
+            crushRoot:
                 type: string
             replicated:
               properties:
@@ -475,6 +579,12 @@ spec:
               - passive
               - aggressive
               - force
+            enableRBDStats:
+              description: EnableRBDStats is used to enable gathering of statistics
+                for all RBD images in the pool
+              type: boolean
+            parameters:
+              type: object
   subresources:
     status: {}
 ---
@@ -560,5 +670,30 @@ spec:
           properties:
             caps:
               type: object
+  subresources:
+    status: {}
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: cephrbdmirrors.ceph.rook.io
+spec:
+  group: ceph.rook.io
+  names:
+    kind: CephRBDMirror
+    listKind: CephRBDMirrorList
+    plural: cephrbdmirrors
+    singular: cephrbdmirror
+  scope: Namespaced
+  version: v1
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          properties:
+            count:
+              type: integer
+              minimum: 1
+              maximum: 100
   subresources:
     status: {}
