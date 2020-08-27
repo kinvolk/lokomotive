@@ -52,8 +52,13 @@ data "ct_config" "ignitions" {
   content = templatefile(
     "${path.module}/cl/worker.yaml.tmpl",
     {
-      os_arch               = var.os_arch
-      kubeconfig            = indent(10, var.kubeconfig)
+      os_arch = var.os_arch
+      kubeconfig = var.enable_tls_bootstrap ? indent(10, templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
+        token_id     = random_string.bootstrap_token_id[0].result
+        token_secret = random_string.bootstrap_token_secret[0].result
+        ca_cert      = var.ca_cert
+        server       = "https://${var.apiserver}:6443"
+      })) : indent(10, var.kubeconfig)
       ssh_keys              = jsonencode(var.ssh_keys)
       k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
       cluster_domain_suffix = var.cluster_domain_suffix
@@ -66,6 +71,7 @@ data "ct_config" "ignitions" {
       setup_raid_ssd_fs     = var.setup_raid_ssd_fs
       cluster_name          = var.cluster_name
       dns_zone              = var.dns_zone
+      enable_tls_bootstrap  = var.enable_tls_bootstrap
     }
   )
   platform = "packet"

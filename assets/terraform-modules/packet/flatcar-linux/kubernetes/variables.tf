@@ -167,6 +167,16 @@ variable "disable_self_hosted_kubelet" {
   type        = bool
 }
 
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}
+
+variable "worker_bootstrap_tokens" {
+  description = "List of token-id and token-secret of each node."
+  type        = list(any)
+}
+
 # Certificates
 
 variable "certs_validity_period_hours" {

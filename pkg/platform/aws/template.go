@@ -95,6 +95,13 @@ module "aws-{{.Config.ClusterName}}" {
     {{- end }}
   ]
   {{- end }}
+
+  enable_tls_bootstrap    = {{ .Config.EnableTLSBootstrap }}
+  worker_bootstrap_tokens = [
+    {{- range $index, $pool := .Config.WorkerPools }}
+    module.worker-pool-{{ $index }}.worker_bootstrap_token,
+    {{- end }}
+  ]
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
@@ -105,6 +112,9 @@ module "worker-pool-{{ $index }}" {
   subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
   security_groups       = module.aws-{{ $.Config.ClusterName }}.worker_security_groups
   kubeconfig            = module.aws-{{ $.Config.ClusterName }}.kubeconfig
+  ca_cert               = module.aws-{{ $.Config.ClusterName }}.ca_cert
+  apiserver             = module.aws-{{ $.Config.ClusterName }}.apiserver
+  enable_tls_bootstrap  = {{ $.Config.EnableTLSBootstrap }}
 
   {{- if $.Config.ServiceCIDR }}
   service_cidr          = "{{ $.Config.ServiceCIDR }}"
@@ -242,6 +252,11 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value     = module.aws-{{.Config.ClusterName}}.lokomotive_values
+  sensitive = true
+}
+
+output "bootstrap-secrets_values" {
+  value     = module.aws-{{.Config.ClusterName}}.bootstrap-secrets_values
   sensitive = true
 }
 `

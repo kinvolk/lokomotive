@@ -6,6 +6,7 @@ resource "local_file" "bootstrap-apiserver" {
     etcd_servers         = join(",", formatlist("https://%s:2379", var.etcd_servers))
     service_cidr         = var.service_cidr
     trusted_certs_dir    = var.trusted_certs_dir
+    enable_tls_bootstrap = var.enable_tls_bootstrap
   })
 }
 
@@ -49,6 +50,7 @@ resource "local_file" "kube-apiserver" {
     replicas                 = length(var.etcd_servers)
     expose_on_all_interfaces = var.expose_on_all_interfaces
     extra_flags              = var.kube_apiserver_extra_flags
+    enable_tls_bootstrap     = var.enable_tls_bootstrap
   })
 }
 
@@ -79,6 +81,23 @@ resource "local_file" "kubernetes" {
     server                        = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
     serviceaccount_key            = base64encode(tls_private_key.service-account.private_key_pem)
     etcd_endpoints                = var.etcd_endpoints
+    enable_tls_bootstrap          = var.enable_tls_bootstrap
+  })
+}
+
+# Populate bootstrap-secrets chart values file named bootstrap-secrets.yaml.
+resource "local_file" "bootstrap-secrets" {
+  count = var.enable_tls_bootstrap == true ? 1 : 0
+
+  filename = "${var.asset_dir}/charts/kube-system/bootstrap-secrets.yaml"
+  content = templatefile("${path.module}/resources/charts/bootstrap-secrets.yaml", {
+    bootstrap_tokens = [
+      for token in var.bootstrap_tokens :
+      {
+        token_id     = token.token_id
+        token_secret = token.token_secret
+      }
+    ]
   })
 }
 
@@ -96,6 +115,7 @@ data "template_file" "kubelet" {
     kubelet_image          = "${var.container_images["kubelet_image"]}-${var.container_arch}"
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   }
 }
 

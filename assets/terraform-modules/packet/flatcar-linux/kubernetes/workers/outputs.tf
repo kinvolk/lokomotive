@@ -11,3 +11,7 @@ output "worker_nodes_public_ipv4" {
 output "device_ids" {
   value = packet_device.nodes.*.id
 }
+
+output "worker_bootstrap_token" {
+  value = local.worker_bootstrap_token
+}

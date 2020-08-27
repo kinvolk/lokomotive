@@ -121,6 +121,16 @@ variable "kubeconfig" {
   description = "Must be set to `kubeconfig` output by cluster"
 }
 
+variable "ca_cert" {
+  description = "Kubernetes CA certificate needed in the kubeconfig file."
+  type        = string
+}
+
+variable "apiserver" {
+  description = "Apiserver private endpoint needed in the kubeconfig file."
+  type        = string
+}
+
 variable "ssh_keys" {
   type        = list(string)
   description = "SSH public keys for user 'core'"
@@ -157,4 +167,9 @@ variable "lb_https_port" {
   description = "Port the load balancer should listen on for HTTPS connections"
   type        = number
   default     = 443
+}
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
 }

@@ -124,7 +124,13 @@ systemd:
           --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
           --exit-on-lock-contention \
+          %{~ if enable_tls_bootstrap ~}
+          --kubeconfig=/var/lib/kubelet/kubeconfig \
+          --bootstrap-kubeconfig=/etc/kubernetes/kubeconfig \
+          --rotate-certificates \
+          %{~ else ~}
           --kubeconfig=/etc/kubernetes/kubeconfig \
+          %{~ endif ~}
           --lock-file=/var/run/lock/kubelet.lock \
           --network-plugin=cni \
           --node-labels=$${NODE_LABELS} \

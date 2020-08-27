@@ -6,6 +6,14 @@ output "kubeconfig" {
   value = module.bootkube.kubeconfig-kubelet
 }
 
+output "ca_cert" {
+  value = module.bootkube.ca_cert
+}
+
+output "apiserver" {
+  value = local.api_server
+}
+
 # values.yaml content for all deployed charts.
 output "pod-checkpointer_values" {
   value = module.bootkube.pod-checkpointer_values
@@ -29,6 +37,10 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
+}
+
+output "bootstrap-secrets_values" {
+  value = module.bootkube.bootstrap-secrets_values
 }
 
 # Dummy output used to create dependencies only

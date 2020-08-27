@@ -92,6 +92,8 @@ cluster "bare-metal" {
 
   os_channel = "flatcar-stable"
 
+  enable_tls_bootstrap = true
+
   oidc {
     issuer_url     = var.oidc_issuer_url
     client_id      = var.oidc_client_id
@@ -147,6 +149,7 @@ os_version = var.custom_default_os_version
 | `ssh_pubkeys`               | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...". |        -         | list(string) |   true   |
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                         |    "current"     |    string    |  false   |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                         | "flatcar-stable" |    string    |  false   |
+| `enable_tls_bootstrap`      | Enable TLS bootstraping for Kubelet.                                                                                                                                         |      true        |     bool     |  false   |
 | `oidc`                      | OIDC configuration block.                                                                                                                                                    |        -         |    object    |  false   |
 | `oidc.issuer_url`           | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                       |        -         |    string    |  false   |
 | `oidc.client_id`            | A client id that all tokens must be issued for.                                                                                                                              |    "gangway"     |    string    |  false   |

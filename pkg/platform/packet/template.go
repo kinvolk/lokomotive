@@ -110,6 +110,13 @@ EOF
     {{- end }}
   ]
   {{- end }}
+
+  enable_tls_bootstrap    = {{ .Config.EnableTLSBootstrap }}
+  worker_bootstrap_tokens = [
+    {{- range $index, $pool := .Config.WorkerPools }}
+    module.worker-{{$pool.Name}}.worker_bootstrap_token,
+    {{- end }}
+  ]
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
@@ -168,6 +175,10 @@ EOF
   {{- end }}
 
   kubeconfig = module.packet-{{ $.Config.ClusterName }}.kubeconfig
+
+  ca_cert              = module.packet-{{ $.Config.ClusterName }}.ca_cert
+  apiserver            = module.packet-{{ $.Config.ClusterName }}.apiserver
+  enable_tls_bootstrap = {{ $.Config.EnableTLSBootstrap }}
 
   {{- if $pool.Labels }}
   labels = "{{ $pool.Labels }}"
@@ -308,6 +319,11 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value     = module.packet-{{.Config.ClusterName}}.lokomotive_values
+  sensitive = true
+}
+
+output "bootstrap-secrets_values" {
+  value     = module.packet-{{.Config.ClusterName}}.bootstrap-secrets_values
   sensitive = true
 }
 `

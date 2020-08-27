@@ -90,3 +90,7 @@ output "calico_values" {
 output "lokomotive_values" {
   value = join("", local_file.lokomotive.*.content)
 }
+
+output "bootstrap-secrets_values" {
+  value = var.enable_tls_bootstrap ? local_file.bootstrap-secrets[0].content : ""
+}

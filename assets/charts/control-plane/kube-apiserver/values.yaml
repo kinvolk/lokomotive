@@ -21,3 +21,4 @@ apiserver:
   # If false, it will be exposed only on HostIP on port 6443.
   exposeOnAllInterfaces: false
   extraFlags: []
+  enableTLSBootstrap:

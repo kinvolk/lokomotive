@@ -31,3 +31,5 @@ etcd:
   %{~ else ~}
   endpoints: []
   %{~ endif ~}
+kubelet:
+  enableTLSBootstrap: ${enable_tls_bootstrap}

@@ -54,6 +54,7 @@ type config struct {
 	WorkerDomains            []string          `hcl:"worker_domains"`
 	Labels                   map[string]string `hcl:"labels,optional"`
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
+	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -84,9 +85,10 @@ func (c *config) Meta() platform.Meta {
 
 func NewConfig() *config {
 	return &config{
-		CachedInstall: "false",
-		OSChannel:     "flatcar-stable",
-		OSVersion:     "current",
+		CachedInstall:      "false",
+		OSChannel:          "flatcar-stable",
+		OSVersion:          "current",
+		EnableTLSBootstrap: true,
 	}
 }
 
@@ -229,6 +231,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet bool
 		KubeAPIServerExtraFlags  []string
 		Labels                   map[string]string
+		EnableTLSBootstrap       bool
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -250,6 +253,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet: cfg.DisableSelfHostedKubelet,
 		KubeAPIServerExtraFlags:  cfg.KubeAPIServerExtraFlags,
 		Labels:                   cfg.Labels,
+		EnableTLSBootstrap:       cfg.EnableTLSBootstrap,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
