@@ -27,6 +27,20 @@ csi:
   # This is set explicitly because the default port 9091 conflicts with Calico's metrics port.
   cephfsGrpcMetricsPort: 9092
 
+  {{- if .Tolerations }}
+  provisionerTolerations: {{ .TolerationsRaw }}
+  {{- end }}
+  {{- if .NodeSelector }}
+  provisionerNodeAffinity: {{ .RookNodeAffinity }}
+  {{- end }}
+
+  {{- if .Tolerations }}
+  pluginTolerations: {{ .TolerationsRaw }}
+  {{- end }}
+  {{- if .NodeSelector }}
+  pluginNodeAffinity: {{ .RookNodeAffinity }}
+  {{- end }}
+
 agent:
   flexVolumeDirPath: "/var/lib/kubelet/volumeplugins"
   {{- if and .AgentTolerationKey .AgentTolerationEffect }}
