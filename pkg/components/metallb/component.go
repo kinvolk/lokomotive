@@ -19,7 +19,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -87,23 +86,23 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	t, err = util.RenderTolerations(c.ControllerTolerations)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal controller tolerations")
+		return nil, fmt.Errorf("rendering controller tolerations: %w", err)
 	}
 	c.ControllerTolerationsJSON = t
 
 	controllerStr, err := template.Render(deploymentController, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "render template failed")
+		return nil, fmt.Errorf("rendering controller Deployment template: %w", err)
 	}
 
 	speakerStr, err := template.Render(daemonsetSpeaker, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "render template failed")
+		return nil, fmt.Errorf("rendering speaker DaemonSet template: %w", err)
 	}
 
 	configMapStr, err := template.Render(configMap, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "rendering ConfigMap template failed")
+		return nil, fmt.Errorf("rendering ConfigMap template: %w", err)
 	}
 
 	rendered := map[string]string{

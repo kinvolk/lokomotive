@@ -19,7 +19,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
@@ -72,7 +71,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	var err error
 	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to render tolerations")
+		return nil, fmt.Errorf("rendering tolerations: %w", err)
 	}
 
 	ret := make(map[string]string)
