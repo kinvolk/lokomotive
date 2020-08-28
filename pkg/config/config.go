@@ -76,42 +76,12 @@ func (c *Config) Component(name string) *hcl.Body {
 // ReadHCL reads all HCL files at path and one HCL variables file at varPath, constructs a Config
 // and returns a pointer to it.
 func ReadHCL(path, varPath string) (*Config, hcl.Diagnostics) {
-	names, err := lokocfgFilenames(path)
-	if err != nil {
-		return nil, diag(fmt.Sprintf("getting lokocfg paths: %v", err))
-	}
-
-	files, err := readFiles(names)
-	if err != nil {
-		return nil, diag(err.Error())
-	}
-
-	body, diags := parseHCLFiles(files)
+	rootConfig, diags := readConfig(path)
 	if diags.HasErrors() {
 		return nil, diags
 	}
 
-	varsExist, err := util.PathExists(varPath)
-	if err != nil {
-		return nil, diag(fmt.Sprintf("could not stat %q: %v", varPath, err))
-	}
-
-	var userVals map[string]cty.Value
-	if varsExist {
-		userVals, diags = readValuesFile(varPath)
-		if diags.HasErrors() {
-			return nil, diags
-		}
-	}
-
-	var rootConfig RootConfig
-
-	diags = gohcl.DecodeBody(body, nil, &rootConfig)
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
-	variables, diags := populateVars(rootConfig.Variables, userVals)
+	variables, diags := rootConfig.variablesWithValues(varPath)
 	if diags.HasErrors() {
 		return nil, diags
 	}
@@ -127,9 +97,58 @@ func ReadHCL(path, varPath string) (*Config, hcl.Diagnostics) {
 	}
 
 	return &Config{
-		RootConfig:  &rootConfig,
+		RootConfig:  rootConfig,
 		EvalContext: &evalContext,
 	}, nil
+}
+
+// variablesWithValues converts configured variables into values map and optionally merges them with
+// values from values file.
+func (c *RootConfig) variablesWithValues(valuesPath string) (map[string]cty.Value, hcl.Diagnostics) {
+	variablesMap, diags := c.variablesMap()
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
+	valuesExist, err := util.PathExists(valuesPath)
+	if err != nil {
+		return nil, diag(fmt.Sprintf("could not stat %q: %v", valuesPath, err))
+	}
+
+	var values map[string]cty.Value
+
+	if valuesExist {
+		values, diags = readValuesFile(valuesPath)
+		if diags.HasErrors() {
+			return nil, diags
+		}
+	}
+
+	return mergeValuesMap(variablesMap, values), nil
+}
+
+// readConfig reads lokocfg configuration files and converts it into
+// initialized RootConfig struct.
+func readConfig(configPath string) (*RootConfig, hcl.Diagnostics) {
+	// Read configuration files.
+	names, err := lokocfgFilenames(configPath)
+	if err != nil {
+		return nil, diag(fmt.Sprintf("getting lokocfg paths: %v", err))
+	}
+
+	files, err := readFiles(names)
+	if err != nil {
+		return nil, diag(err.Error())
+	}
+
+	body, diags := parseHCLFiles(files)
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
+	var rootConfig RootConfig
+
+	return &rootConfig, gohcl.DecodeBody(body, nil, &rootConfig)
 }
 
 // readFiles reads all files based on the provided names and returns a map where the key is the
@@ -226,20 +245,11 @@ func lokocfgFilenames(p string) ([]string, error) {
 	return names, nil
 }
 
-// populateVars accepts a slice of variables and a map of user-provided values. The function
-// populates each variable with the corresponding user-provided value or with a default. If a
-// variable doesn't have a matching value and there is no default, an error is returned (as
-// hcl.Diagnostics).
-func populateVars(vars []variable, values map[string]cty.Value) (map[string]cty.Value, hcl.Diagnostics) {
+// variablesMap converts Variables field into values map.
+func (r *RootConfig) variablesMap() (map[string]cty.Value, hcl.Diagnostics) {
 	res := map[string]cty.Value{}
 
-	for _, v := range vars {
-		if value, ok := values[v.Name]; ok {
-			res[v.Name] = value
-
-			continue
-		}
-
+	for _, v := range r.Variables {
 		if len(v.Default) == 0 {
 			continue
 		}
@@ -258,6 +268,20 @@ func populateVars(vars []variable, values map[string]cty.Value) (map[string]cty.
 	}
 
 	return res, nil
+}
+
+// mergeValuesMap merges zero or more values map into one, where the next one
+// takes precedence over previous ones.
+func mergeValuesMap(values ...map[string]cty.Value) map[string]cty.Value {
+	res := map[string]cty.Value{}
+
+	for _, vm := range values {
+		for k, v := range vm {
+			res[k] = v
+		}
+	}
+
+	return res
 }
 
 // diag returns an hcl.Diagnostics with a single hcl.Diagnostic based on the provided error string.
