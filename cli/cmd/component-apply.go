@@ -32,6 +32,13 @@ var componentApplyCmd = &cobra.Command{
 Deploys a component if not yet present, otherwise updates it.
 When run with no arguments, all components listed in the configuration are applied.`,
 	Run: runApply,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) != 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return components.ListNames(), cobra.ShellCompDirectiveNoFileComp
+	},
 }
 
 func init() {
