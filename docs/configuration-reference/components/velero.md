@@ -83,6 +83,16 @@ component "velero" {
   #   }
   # }
 
+  # restic {
+  #   credentials = file("cloud-credentials-file")
+  #
+  #   backup_storage_location {
+  #     provider = "aws"
+  #     bucket   = "my-bucket"
+  #     name     = "my-backup-location"
+  #   }
+  # }
+
   # Optional.
   metrics {
     enabled         = false
@@ -101,7 +111,7 @@ Table of all the arguments accepted by the component.
 Example:
 
 | Argument                                             | Description                                                                                                                 | Default                                           | Type   | Required |
-|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-:-:-----------------------------------------------|-:-:----|-:-:------|
+|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--:-:----------------------------------------------|--:-:---|--:-:-----|
 | `namespace`                                          | Namespace to install Velero.                                                                                                | "velero"                                          | string | false    |
 | `metrics`                                            | Configure Prometheus to scrape Velero metrics. Needs the [Prometheus Operator component](prometheus-operator.md) installed. | -                                                 | object | false    |
 | `metrics.enabled`                                    | Adds Prometheus annotations to Velero deployment if enabled.                                                                | false                                             | bool   | false    |
@@ -129,13 +139,18 @@ Example:
 | `openebs.backup_storage_location.name`               | Name for backup location object on the cluster.                                                                             | -                                                 | string | false    |
 | `openebs.volume_snapshot_location`                   | Configure volume snapshot location.                                                                                         | -                                                 | object | true     |
 | `openebs.volume_snapshot_location.bucket`            | Cloud storage bucket name for storing volume snapshots.                                                                     | -                                                 | string | true     |
-| `openebs.volume_snapshot_location.region`            | Cloud provider region for                                                                                                   |                                                   |        |          |
+| `openebs.volume_snapshot_location.region`            | Cloud provider region for storing snapshots.                                                                                |                                                   | string | true     |
 | `openebs.volume_snapshot_location.provider`          | Cloud provider name for storing snapshots. Overrides `openebs.provider` field for backup storage.                           | -                                                 | string | false    |
 | `openebs.volume_snapshot_location.name`              | Name for snapshot location object on the cluster.                                                                           | -                                                 | string | false    |
 | `openebs.volume_snapshot_location.prefix`            | Prefix for snapshot names.                                                                                                  | -                                                 | string | false    |
 | `openebs.volume_snapshot_location.local`             | If `true`, backups won't be copied to cloud storage.                                                                        | false                                             | bool   | false    |
 | `openebs.volume_snapshot_location.openebs_namespace` | Name of the namespace where OpenEBS runs.                                                                                   | -                                                 | string | true     |
 | `openebs.volume_snapshot_location.s3_url`            | S3 API URL.                                                                                                                 | -                                                 | string | false    |
+| `restic`                                             | Configure Restic provider for Velero.                                                                                       | -                                                 | object | false    |
+| `restic.credentials`                                 | Content of cloud provider credentials.                                                                                      | -                                                 | string | true     |
+| `restic.backup_storage_location.provider`            | Cloud provider name for storing backups.                                                                                    | -                                                 | string | false    |
+| `restic.backup_storage_location.bucket`              | Cloud storage bucket name for storing backups.                                                                              | -                                                 | string | true     |
+| `restic.backup_storage_location.name`                | Name for backup location object on the cluster.                                                                             | -                                                 | string | false    |
 
 ## Applying
 
