@@ -155,3 +155,39 @@ component "velero" {}
 		t.Fatalf("Loading configuration should fail if there is no provider configured")
 	}
 }
+
+func TestRenderManifestRestic(t *testing.T) {
+	configHCL := `
+component "velero" {
+  restic {
+    credentials = "foo"
+
+    backup_storage_location {
+      bucket   = "foo"
+      provider = "aws"
+    }
+  }
+}
+`
+
+	component := newComponent()
+
+	body, d := util.GetComponentBody(configHCL, name)
+	if d != nil {
+		t.Fatalf("Error getting component body: %v", d)
+	}
+
+	d = component.LoadConfig(body, &hcl.EvalContext{})
+	if d.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", d)
+	}
+
+	m, err := component.RenderManifests()
+	if err != nil {
+		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
+	}
+
+	if len(m) == 0 {
+		t.Fatalf("Rendered manifests shouldn't be empty")
+	}
+}
