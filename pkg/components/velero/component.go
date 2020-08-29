@@ -65,6 +65,10 @@ func newComponent() *component {
 		Namespace: "velero",
 		// Once we have more than one provider supported, we should remove the default value
 		Provider: "azure",
+		Metrics: &Metrics{
+			Enabled:        false,
+			ServiceMonitor: false,
+		},
 	}
 }
 
@@ -133,9 +137,6 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 		diagnostics = append(diagnostics, err...)
 	}
 
-	// Set default values in the component configuration if they are missing
-	c.setDefaults()
-
 	// Validate component's configuration
 	diagnostics = append(diagnostics, c.validate()...)
 
@@ -164,21 +165,6 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	return renderedFiles, nil
-}
-
-// setDefaults set default values for all nested blocks
-//
-// Since nested blocks in hcl2 does not support default values during DecodeBody,
-// we need to set the default value here, rather then adding diagnostics.
-// Once PR https://github.com/hashicorp/hcl2/pull/120 is released, this value can be set in
-// newComponent() and diagnostic can be added.
-func (c *component) setDefaults() {
-	if c.Metrics == nil {
-		c.Metrics = &Metrics{
-			Enabled:        false,
-			ServiceMonitor: false,
-		}
-	}
 }
 
 // validate validates component configuration
