@@ -25,6 +25,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
+	"github.com/kinvolk/lokomotive/pkg/components/velero/openebs"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
@@ -37,8 +38,6 @@ func init() {
 
 // component represents component configuration data
 type component struct {
-	// Once we support more than one provider, this field should not be optional anymore
-	Provider string `hcl:"provider,optional"`
 	// Namespace where velero resources should be installed. Defaults to 'velero'.
 	Namespace string `hcl:"namespace,optional"`
 	// Metrics specific configuration
@@ -46,6 +45,8 @@ type component struct {
 
 	// Azure specific parameters
 	Azure *azure.Configuration `hcl:"azure,block"`
+	// OpenEBS specific parameters.
+	OpenEBS *openebs.Configuration `hcl:"openebs,block"`
 }
 
 // Metrics represents prometheus specific parameters
@@ -64,8 +65,6 @@ type provider interface {
 func newComponent() components.Component {
 	return &component{
 		Namespace: "velero",
-		// Once we have more than one provider supported, we should remove the default value
-		Provider: "azure",
 		Metrics: &Metrics{
 			Enabled:        false,
 			ServiceMonitor: false,
@@ -159,30 +158,51 @@ func (c *component) values() (string, error) {
 // validate validates component configuration
 func (c *component) validate() hcl.Diagnostics {
 	diagnostics := hcl.Diagnostics{}
+	// Supported providers.
+	supportedProviders := c.getSupportedProviders()
 
 	// Select provider and validate it's configuration
 	p, err := c.getProvider()
 	if err != nil {
-		// Slice can't be constant, so just use a variable
-		supportedProviders := []string{"azure"}
 		return append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  fmt.Sprintf("provider must be one of: '%s'", strings.Join(supportedProviders[:], "', '")),
-			Detail:   "Make sure to set provider to one of supported values",
+			Detail:   fmt.Sprintf("Make sure to set provider to one of supported values: %v", err.Error()),
 		})
 	}
 
 	return append(diagnostics, p.Validate()...)
 }
 
-// getProvider returns correct provider interface based on component configuration
+// getSupportedProviders returns a list of supported providers.
+func (c *component) getSupportedProviders() []string {
+	return []string{"azure", "openebs"}
+}
+
+// getProvider returns correct provider interface based on component configuration.
+//
+// If no providers are configured or there is more than one provider configured, error
+// is returned.
 func (c *component) getProvider() (provider, error) {
-	switch c.Provider {
-	case "azure":
-		return c.Azure, nil
-	default:
-		return nil, fmt.Errorf("unsupported provider '%s'", c.Provider)
+	providers := []provider{}
+
+	if c.Azure != nil {
+		providers = append(providers, c.Azure)
 	}
+
+	if c.OpenEBS != nil {
+		providers = append(providers, c.OpenEBS)
+	}
+
+	if len(providers) > 1 {
+		return nil, fmt.Errorf("more than one provider configured")
+	}
+
+	if len(providers) == 0 {
+		return nil, fmt.Errorf("no providers configured")
+	}
+
+	return providers[0], nil
 }
 
 func (c *component) Metadata() components.Metadata {

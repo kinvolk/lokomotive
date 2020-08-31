@@ -12,21 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package velero
+package velero_test
 
 import (
 	"testing"
 
 	"github.com/hashicorp/hcl/v2"
 
+	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
+func newComponent(t *testing.T) components.Component {
+	c, err := components.Get("velero")
+	if err != nil {
+		t.Fatalf("Component %q not found", "velero")
+	}
+
+	return c
+}
+
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := newComponent(t)
+
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
 	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
+
 	if !diagnostics.HasErrors() {
 		t.Errorf("Empty config should return error")
 	}
@@ -51,9 +63,9 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := newComponent(t)
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, "velero")
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -70,5 +82,86 @@ component "velero" {
 
 	if len(m) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
+	}
+}
+
+func TestRenderManifestOpenEBS(t *testing.T) {
+	configHCL := `
+component "velero" {
+	openebs {
+		credentials = "foo"
+		provider		= "aws"
+
+		backup_storage_location {
+			provider = "aws"
+			bucket	 = "foo"
+			region	 = "foo"
+		}
+
+		volume_snapshot_location {
+			provider = "aws"
+			bucket	 = "foo"
+			region	 = "foo"
+		}
+	}
+}
+`
+
+	component := newComponent(t)
+
+	body, diagnostics := util.GetComponentBody(configHCL, "velero")
+	if diagnostics != nil {
+		t.Fatalf("Error getting component body: %v", diagnostics)
+	}
+
+	diagnostics = component.LoadConfig(body, &hcl.EvalContext{})
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+	}
+
+	m, err := component.RenderManifests()
+	if err != nil {
+		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
+	}
+
+	if len(m) == 0 {
+		t.Fatalf("Rendered manifests shouldn't be empty")
+	}
+}
+
+func TestRenderManifestConflictingProviders(t *testing.T) {
+	configHCL := `
+component "velero" {
+	azure {}
+	openebs {}
+}
+`
+
+	component := newComponent(t)
+
+	body, d := util.GetComponentBody(configHCL, "velero")
+	if d != nil {
+		t.Fatalf("Error getting component body: %v", d)
+	}
+
+	if d := component.LoadConfig(body, &hcl.EvalContext{}); !d.HasErrors() {
+		t.Fatalf("Loading configuration should fail if there is more than one provider configured")
+	}
+}
+
+func TestRenderManifestNoProviderConfigured(t *testing.T) {
+	configHCL := `
+component "velero" {}
+`
+
+	component := newComponent(t)
+
+	body, d := util.GetComponentBody(configHCL, "velero")
+	if d != nil {
+		t.Fatalf("Error getting component body: %v", d)
+	}
+
+	if d := component.LoadConfig(body, &hcl.EvalContext{}); !d.HasErrors() {
+		t.Fatalf("Loading configuration should fail if there is no provider configured")
 	}
 }
