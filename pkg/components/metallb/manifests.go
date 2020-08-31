@@ -513,9 +513,9 @@ data:
   config: |
     peer-autodiscovery:
       from-labels:
-        my-asn: metallb.universe.tf/my-asn
-        peer-asn: metallb.universe.tf/peer-asn
-        peer-address: metallb.universe.tf/peer-address
+        my-asn: metallb.lokomotive.io/my-asn
+        peer-asn: metallb.lokomotive.io/peer-asn
+        peer-address: metallb.lokomotive.io/peer-address
     address-pools:
     {{- range $k, $v := .AddressPools }}
     - name: {{ $k }}

@@ -43,9 +43,9 @@ resource "packet_bgp_session" "bgp" {
 
 # BGP node labels.
 locals {
-  my_asn = format("metallb.universe.tf/my-asn=%d", data.packet_project.project.bgp_config.0.asn)
+  my_asn = format("metallb.lokomotive.io/my-asn=%d", data.packet_project.project.bgp_config.0.asn)
   # Packet always uses ASN 65530 as the remote ASN for local BGP.
-  peer_asn = format("metallb.universe.tf/peer-asn=%d", 65530)
+  peer_asn = format("metallb.lokomotive.io/peer-asn=%d", 65530)
 }
 
 data "ct_config" "ignitions" {
