@@ -1,0 +1,47 @@
+{{ if .Values.enableMonitoring }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    name: istio-operator
+    release: prometheus-operator
+  name: istio-control-plane-proxies
+  namespace: {{.Values.istioNamespace}}
+spec:
+  selector:
+    matchLabels:
+      install.operator.istio.io/owning-resource: istiocontrolplane
+  endpoints:
+  - targetPort: 15090
+    path: /stats/prometheus
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    name: istio-operator
+    release: prometheus-operator
+  name: istiod
+  namespace: {{.Values.istioNamespace}}
+spec:
+  selector:
+    matchLabels:
+      app: istiod
+  endpoints:
+  - port: http-monitoring
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    name: istio-operator
+    release: prometheus-operator
+  name: istio-operator
+  namespace: {{.Values.operatorNamespace}}
+spec:
+  selector:
+    matchLabels:
+      name: istio-operator
+  endpoints:
+  - port: http-metrics
+{{ end }}

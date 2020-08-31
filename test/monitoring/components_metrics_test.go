@@ -95,6 +95,18 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			query:         "tcp_read_bytes_total",
 			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS},
 		},
+		{
+			// This is from the istiod service.
+			componentName: "experimental-istio-operator",
+			query:         "pilot_k8s_reg_events",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
+		},
+		{
+			// This is from the istio operator.
+			componentName: "experimental-istio-operator",
+			query:         "controller_runtime_reconcile_time_seconds_count{controller=\"istiocontrolplane-controller\"}",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
+		},
 	}
 
 	for _, tc := range testCases {
