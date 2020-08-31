@@ -29,7 +29,7 @@ import (
 const name = "rook-ceph"
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -49,7 +49,7 @@ type StorageClass struct {
 	Default bool `hcl:"default,optional"`
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		Namespace:    "rook",
 		MonitorCount: 1,

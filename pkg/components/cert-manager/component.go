@@ -29,7 +29,7 @@ import (
 const name = "cert-manager"
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -39,7 +39,7 @@ type component struct {
 	ServiceMonitor bool   `hcl:"service_monitor,optional"`
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		Namespace:      "cert-manager",
 		Webhooks:       true,

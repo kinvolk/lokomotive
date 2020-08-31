@@ -29,7 +29,7 @@ import (
 const name = "openebs-operator"
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -84,7 +84,7 @@ webhook:
 {{- end }}
 `
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{}
 }
 

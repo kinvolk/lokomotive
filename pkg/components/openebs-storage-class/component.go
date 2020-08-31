@@ -32,7 +32,7 @@ const (
 )
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type Storageclass struct {
@@ -58,7 +58,7 @@ func defaultStorageClass() *Storageclass {
 	}
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		Storageclasses: []*Storageclass{},
 	}

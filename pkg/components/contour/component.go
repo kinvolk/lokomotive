@@ -33,7 +33,7 @@ const (
 )
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 // This annotation is added to Envoy service.
@@ -46,7 +46,7 @@ type component struct {
 	TolerationsRaw   string
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		ServiceType: serviceTypeLoadBalancer,
 	}

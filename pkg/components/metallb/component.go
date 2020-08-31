@@ -29,7 +29,7 @@ import (
 const name = "metallb"
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -44,7 +44,7 @@ type component struct {
 	SpeakerTolerationsJSON    string
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{}
 }
 
