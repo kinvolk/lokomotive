@@ -24,13 +24,14 @@ import (
 )
 
 // components is the map of registered components
-var components map[string]Component
+var components map[string]func() Component
 
 func init() {
-	components = make(map[string]Component)
+	components = make(map[string]func() Component)
 }
 
-func Register(name string, obj Component) {
+// Register registers new component function into global components registry.
+func Register(name string, obj func() Component) {
 	if _, exists := components[name]; exists {
 		panic(fmt.Sprintf("component with name %q registered already", name))
 	}
@@ -50,7 +51,8 @@ func Get(name string) (Component, error) {
 	if !exists {
 		return nil, fmt.Errorf("no component with name %q found", name)
 	}
-	return component, nil
+
+	return component(), nil
 }
 
 // Chart is a convenience function which returns a pointer to a chart.Chart representing the

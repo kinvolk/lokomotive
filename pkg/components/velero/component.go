@@ -34,7 +34,7 @@ const name = "velero"
 
 // init registers velero component to components list, so it shows up as available to install
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 // component represents component configuration data
@@ -65,7 +65,7 @@ type provider interface {
 }
 
 // newComponent creates new velero component struct with default values initialized
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		Namespace: "velero",
 		Metrics: &Metrics{

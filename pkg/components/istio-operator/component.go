@@ -33,7 +33,7 @@ const (
 
 //nolint:gochecknoinits
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -41,7 +41,7 @@ type component struct {
 	EnableMonitoring bool   `hcl:"enable_monitoring,optional"`
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		Profile:          "minimal",
 		EnableMonitoring: false,

@@ -75,7 +75,7 @@ serviceMonitor:
 `
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -114,7 +114,7 @@ type packetConfiguration struct {
 	AuthToken     string
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	c := &component{
 		Provider:               "packet",
 		Namespace:              "kube-system",

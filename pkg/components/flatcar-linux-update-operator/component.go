@@ -28,7 +28,7 @@ import (
 const name = "flatcar-linux-update-operator"
 
 func init() {
-	components.Register(name, &component{})
+	components.Register(name, func() components.Component { return &component{} })
 }
 
 type component struct{}

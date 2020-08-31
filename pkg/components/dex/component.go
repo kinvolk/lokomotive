@@ -29,8 +29,9 @@ import (
 
 const name = "dex"
 
-func init() { //nolint:gochecknoinits
-	components.Register(name, newComponent())
+//nolint:gochecknoinits
+func init() {
+	components.Register(name, newComponent)
 }
 
 type org struct {
@@ -77,7 +78,7 @@ type component struct {
 	StaticClientsRaw string
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		CertManagerClusterIssuer: "letsencrypt-production",
 	}

@@ -44,7 +44,8 @@ func TestEmptyBody(t *testing.T) {
 	}
 }
 func TestDefaultValues(t *testing.T) {
-	c := newComponent()
+	c := newComponent().(*component)
+
 	if c.Namespace != "external-dns" {
 		t.Fatal("Default namespace for installation should be external-dns.")
 	}

@@ -30,7 +30,7 @@ import (
 const name = "prometheus-operator"
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 // Monitor holds information about which Kubernetes components should be monitored with the default Prometheus instance.
@@ -88,7 +88,7 @@ type component struct {
 	CoreDNS *CoreDNS `hcl:"coredns,block"`
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	defaultAlertManagerConfig := `
   config:
     global:

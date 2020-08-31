@@ -36,7 +36,7 @@ const (
 
 //nolint:gochecknoinits
 func init() {
-	components.Register(name, newComponent())
+	components.Register(name, newComponent)
 }
 
 type component struct {
@@ -53,7 +53,7 @@ type cert struct {
 	Expiry string
 }
 
-func newComponent() *component {
+func newComponent() components.Component {
 	return &component{
 		ControllerReplicas: 1,
 		EnableMonitoring:   false,
