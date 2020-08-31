@@ -46,9 +46,9 @@ const clusterRoleMetallbSystemController = `
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metallb-system:controller
   labels:
     app: metallb
+  name: metallb-system:controller
 rules:
 - apiGroups:
   - ''
@@ -72,17 +72,23 @@ rules:
   verbs:
   - create
   - patch
+- apiGroups:
+  - policy
+  resourceNames:
+  - controller
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
 `
 
-// Note: Diversion from upstream.
-// This ClusterRole has added rule to use the Pod Security Policy.
 const clusterRoleMetallbSystemSpeaker = `
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metallb-system:speaker
   labels:
     app: metallb
+  name: metallb-system:speaker
 rules:
 - apiGroups:
   - ''
@@ -102,7 +108,7 @@ rules:
   - create
   - patch
 - apiGroups:
-  - extensions
+  - policy
   resourceNames:
   - speaker
   resources:
@@ -115,10 +121,10 @@ const roleConfigWatcher = `
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: metallb-system
-  name: config-watcher
   labels:
     app: metallb
+  name: config-watcher
+  namespace: metallb-system
 rules:
 - apiGroups:
   - ''
@@ -130,69 +136,103 @@ rules:
   - watch
 `
 
+const rolePodLister = `
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: metallb
+  name: pod-lister
+  namespace: metallb-system
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - list
+`
+
 const clusterRoleBindingMetallbSystemController = `
 ## Role bindings
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: metallb-system:controller
   labels:
     app: metallb
-subjects:
-- kind: ServiceAccount
-  name: controller
-  namespace: metallb-system
+  name: metallb-system:controller
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: metallb-system:controller
+subjects:
+- kind: ServiceAccount
+  name: controller
+  namespace: metallb-system
 `
 
 const clusterRoleBindingMetallbSystemSpeaker = `
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: metallb-system:speaker
   labels:
     app: metallb
-subjects:
-- kind: ServiceAccount
-  name: speaker
-  namespace: metallb-system
+  name: metallb-system:speaker
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: metallb-system:speaker
+subjects:
+- kind: ServiceAccount
+  name: speaker
+  namespace: metallb-system
 `
 
 const roleBindingConfigWatcher = `
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: metallb-system
-  name: config-watcher
   labels:
     app: metallb
+  name: config-watcher
+  namespace: metallb-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: config-watcher
 subjects:
 - kind: ServiceAccount
   name: controller
 - kind: ServiceAccount
   name: speaker
+`
+
+const roleBindingPodLister = `
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: metallb
+  name: pod-lister
+  namespace: metallb-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: config-watcher
+  name: pod-lister
+subjects:
+- kind: ServiceAccount
+  name: speaker
 `
 
 const deploymentController = `
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: metallb-system
-  name: controller
   labels:
     app: metallb
     component: controller
+  name: controller
+  namespace: metallb-system
 spec:
   revisionHistoryLimit: 3
   selector:
@@ -201,12 +241,12 @@ spec:
       component: controller
   template:
     metadata:
+      annotations:
+        prometheus.io/port: '7472'
+        prometheus.io/scrape: 'true'
       labels:
         app: metallb
         component: controller
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "7472"
     spec:
       {{- if .ControllerNodeSelectors }}
       nodeSelector:
@@ -214,21 +254,16 @@ spec:
         {{ $key }}: "{{ $value }}"
         {{- end }}
       {{- end }}
-      serviceAccountName: controller
-      terminationGracePeriodSeconds: 0
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534 # nobody
       containers:
-      - name: controller
-        image: quay.io/kinvolk/metallb-controller:v0.8.3-2-gf653773b
-        imagePullPolicy: IfNotPresent
-        args:
+      - args:
         - --port=7472
         - --config=config
+        image: quay.io/kinvolk/metallb-controller:v0.1.0-789-g85b7a46a
+        imagePullPolicy: Always
+        name: controller
         ports:
-        - name: monitoring
-          containerPort: 7472
+        - containerPort: 7472
+          name: monitoring
         resources:
           limits:
             cpu: 100m
@@ -239,20 +274,30 @@ spec:
             drop:
             - all
           readOnlyRootFilesystem: true
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      serviceAccountName: controller
+      terminationGracePeriodSeconds: 0
       {{- if .ControllerTolerationsJSON }}
       tolerations: {{ .ControllerTolerationsJSON }}
       {{- end }}
 `
 
+// Divergence from upstream: disable fast dead node detection for layer 2. We use BGP and therefore
+// have no use for this functionality. This way we also don't have to deal with generating
+// memberlist secrets.
 const daemonsetSpeaker = `
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  namespace: metallb-system
-  name: speaker
   labels:
     app: metallb
     component: speaker
+  name: speaker
+  namespace: metallb-system
 spec:
   selector:
     matchLabels:
@@ -260,12 +305,12 @@ spec:
       component: speaker
   template:
     metadata:
+      annotations:
+        prometheus.io/port: '7472'
+        prometheus.io/scrape: 'true'
       labels:
         app: metallb
         component: speaker
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "7472"
     spec:
       {{- if .SpeakerNodeSelectors }}
       nodeSelector:
@@ -273,79 +318,100 @@ spec:
         {{ $key }}: "{{ $value }}"
         {{- end }}
       {{- end }}
-      serviceAccountName: speaker
-      terminationGracePeriodSeconds: 0
-      hostNetwork: true
       containers:
-      - name: speaker
-        image: quay.io/kinvolk/metallb-speaker:v0.8.3-2-gf653773b
-        imagePullPolicy: IfNotPresent
-        args:
-        - --port=7472
+      - args:
+        - --metrics-port=7472
+        - --status-port=7473
         - --config=config
         env:
         - name: METALLB_NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: METALLB_HOST
+        - name: METALLB_METRICS_HOST
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        #- name: METALLB_ML_BIND_ADDR
+        #  valueFrom:
+        #    fieldRef:
+        #      fieldPath: status.podIP
+        # needed when another software is also using memberlist / port 7946
+        #- name: METALLB_ML_BIND_PORT
+        #  value: "7946"
+        #- name: METALLB_ML_LABELS
+        #  value: "app=metallb,component=speaker"
+        #- name: METALLB_ML_NAMESPACE
+        #  valueFrom:
+        #    fieldRef:
+        #      fieldPath: metadata.namespace
+        #- name: METALLB_ML_SECRET_KEY
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: memberlist
+        #      key: secretkey
+        image: quay.io/kinvolk/metallb-speaker:v0.1.0-789-g85b7a46a
+        imagePullPolicy: Always
+        name: speaker
         ports:
-        - name: monitoring
-          containerPort: 7472
+        - containerPort: 7472
+          name: monitoring
         resources:
           limits:
             cpu: 100m
             memory: 100Mi
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
           capabilities:
-            drop:
-            - ALL
             add:
             - NET_ADMIN
             - NET_RAW
             - SYS_ADMIN
-      {{- if .SpeakerTolerationsJSON }}
-      tolerations: {{ .SpeakerTolerationsJSON }}
-      {{- end }}
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+      hostNetwork: true
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      serviceAccountName: speaker
+      terminationGracePeriodSeconds: 2
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
 `
 
-// Note: Diversion from upstream.
-// This config was created specifically for clusters that has Pod Security Policy enabled on them.
-const pspMetallbSpeaker = `
+const pspMetallbController = `
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
-    seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
-  name: speaker
   labels:
     app: metallb
+  name: controller
+  namespace: metallb-system
 spec:
-  hostNetwork: true
-  hostPorts:
-  - min: 7472
-    max: 7472
   allowPrivilegeEscalation: false
-  allowedCapabilities:
-  - NET_RAW
-  - NET_ADMIN
-  - SYS_ADMIN
-  seLinux:
-    rule: RunAsAny
+  allowedCapabilities: []
+  allowedHostPaths: []
+  defaultAddCapabilities: []
+  defaultAllowPrivilegeEscalation: false
   fsGroup:
     ranges:
     - max: 65535
       min: 1
     rule: MustRunAs
-  privileged: true
+  hostIPC: false
+  hostNetwork: false
+  hostPID: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+  - ALL
   runAsUser:
-    # Require the container to run without root privileges.
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  seLinux:
     rule: RunAsAny
   supplementalGroups:
     ranges:
@@ -353,7 +419,50 @@ spec:
       min: 1
     rule: MustRunAs
   volumes:
+  - configMap
   - secret
+  - emptyDir
+`
+
+const pspMetallbSpeaker = `
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  labels:
+    app: metallb
+  name: speaker
+  namespace: metallb-system
+spec:
+  allowPrivilegeEscalation: false
+  allowedCapabilities:
+  - NET_ADMIN
+  - NET_RAW
+  - SYS_ADMIN
+  allowedHostPaths: []
+  defaultAddCapabilities: []
+  defaultAllowPrivilegeEscalation: false
+  fsGroup:
+    rule: RunAsAny
+  hostIPC: false
+  hostNetwork: true
+  hostPID: false
+  hostPorts:
+  - max: 7472
+    min: 7472
+  privileged: true
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+  - emptyDir
 `
 
 // Needed by ServiceMonitor
@@ -402,6 +511,11 @@ metadata:
   name: config
 data:
   config: |
+    peer-autodiscovery:
+      from-labels:
+        my-asn: metallb.universe.tf/my-asn
+        peer-asn: metallb.universe.tf/peer-asn
+        peer-address: metallb.universe.tf/peer-address
     address-pools:
     {{- range $k, $v := .AddressPools }}
     - name: {{ $k }}
