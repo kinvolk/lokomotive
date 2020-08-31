@@ -15,7 +15,7 @@
 package rookceph
 
 // CephCluster resource definition was taken from:
-// https://github.com/rook/rook/blob/release-1.3/cluster/examples/kubernetes/ceph/cluster.yaml
+// https://github.com/rook/rook/blob/v1.4.2/cluster/examples/kubernetes/ceph/cluster.yaml
 var template = map[string]string{
 	"ceph-cluster.yaml": `
 apiVersion: ceph.rook.io/v1
@@ -25,7 +25,7 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   cephVersion:
-    image: ceph/ceph:v14.2.8
+    image: ceph/ceph:v15.2.4-20200630
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
@@ -44,12 +44,14 @@ spec:
     enabled: true
     rulesNamespace: {{ .Namespace }}
   network:
-  rbdMirroring:
-    workers: 0
   crashCollector:
     disable: false
   cleanupPolicy:
-    deleteDataDirOnHosts: ""
+    confirmation: ""
+    sanitizeDisks:
+      method: quick
+      dataSource: zero
+      iteration: 1
   placement:
     all:
       {{- if .NodeAffinity }}
@@ -88,6 +90,28 @@ spec:
     osdMaintenanceTimeout: 30
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
+
+  # healthChecks
+  # Valid values for daemons are 'mon', 'osd', 'status'
+  healthCheck:
+    daemonHealth:
+      mon:
+        disabled: false
+        interval: 45s
+      osd:
+        disabled: false
+        interval: 60s
+      status:
+        disabled: false
+        interval: 60s
+    # Change pod liveness probe, it works for all mon,mgr,osd daemons
+    livenessProbe:
+      mon:
+        disabled: false
+      mgr:
+        disabled: false
+      osd:
+        disabled: false
 `,
 
 	"storage-class.yaml": `
@@ -162,16 +186,21 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: rook-ceph-tools
-        image: rook/ceph:master
+        image: rook/ceph:v1.4.2
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
         imagePullPolicy: IfNotPresent
         env:
-        - name: ROOK_ADMIN_SECRET
+        - name: ROOK_CEPH_USERNAME
           valueFrom:
             secretKeyRef:
               name: rook-ceph-mon
-              key: admin-secret
+              key: ceph-username
+        - name: ROOK_CEPH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rook-ceph-mon
+              key: ceph-secret
         volumeMounts:
         - mountPath: /etc/ceph
           name: ceph-config

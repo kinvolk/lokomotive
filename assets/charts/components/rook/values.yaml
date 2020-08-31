@@ -5,7 +5,7 @@
 image:
   prefix: rook
   repository: rook/ceph
-  tag: v1.3.2
+  tag: v1.4.2
   pullPolicy: IfNotPresent
 
 resources:
@@ -30,13 +30,6 @@ unreachableNodeTolerationSeconds: 5
 # Whether rook watches its current namespace for CRDs or the entire cluster, defaults to false
 currentNamespaceOnly: false
 
-# Interval at which to get the ceph status and update the cluster custom resource status
-cephStatusCheckInterval: "60s"
-
-mon:
-  healthCheckInterval: "45s"
-  monOutTimeout: "600s"
-
 ## Annotations to be added to pod
 annotations: {}
 
@@ -57,7 +50,12 @@ csi:
   enableRbdDriver: true
   enableCephfsDriver: true
   enableGrpcMetrics: true
-  enableSnapshotter: true
+  # (Optional) set user created priorityclassName for csi plugin pods.
+  # pluginPriorityClassName: system-node-critical
+
+  # (Optional) set user created priorityclassName for csi provisioner pods.
+  # provisionerPriorityClassName: system-cluster-critical
+
   # Set logging level for csi containers.
   # Supported values from 0 to 5. 0 for general useful logs, 5 for trace level verbosity.
   #logLevel: 0
@@ -69,7 +67,154 @@ csi:
   #cephFSPluginUpdateStrategy: OnDelete
   # Allow starting unsupported ceph-csi image
   allowUnsupportedVersion: false
-
+    # (Optional) CEPH CSI RBD provisioner resource requirement list, Put here list of resource
+  # requests and limits you want to apply for provisioner pod
+  # csiRBDProvisionerResource: |
+  #  - name : csi-provisioner
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-resizer
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-attacher
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-snapshotter
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-rbdplugin
+  #    resource:
+  #      requests:
+  #        memory: 512Mi
+  #        cpu: 250m
+  #      limits:
+  #        memory: 1Gi
+  #        cpu: 500m
+  #  - name : liveness-prometheus
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 50m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 100m
+  # (Optional) CEPH CSI RBD plugin resource requirement list, Put here list of resource
+  # requests and limits you want to apply for plugin pod
+  # csiRBDPluginResource: |
+  #  - name : driver-registrar
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 50m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 100m
+  #  - name : csi-rbdplugin
+  #    resource:
+  #      requests:
+  #        memory: 512Mi
+  #        cpu: 250m
+  #      limits:
+  #        memory: 1Gi
+  #        cpu: 500m
+  #  - name : liveness-prometheus
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 50m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 100m
+  # (Optional) CEPH CSI CephFS provisioner resource requirement list, Put here list of resource
+  # requests and limits you want to apply for provisioner pod
+  # csiCephFSProvisionerResource: |
+  #  - name : csi-provisioner
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-resizer
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-attacher
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 100m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 200m
+  #  - name : csi-cephfsplugin
+  #    resource:
+  #      requests:
+  #        memory: 512Mi
+  #        cpu: 250m
+  #      limits:
+  #        memory: 1Gi
+  #        cpu: 500m
+  #  - name : liveness-prometheus
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 50m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 100m
+  # (Optional) CEPH CSI CephFS plugin resource requirement list, Put here list of resource
+  # requests and limits you want to apply for plugin pod
+  # csiCephFSPluginResource: |
+  #  - name : driver-registrar
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 50m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 100m
+  #  - name : csi-cephfsplugin
+  #    resource:
+  #      requests:
+  #        memory: 512Mi
+  #        cpu: 250m
+  #      limits:
+  #        memory: 1Gi
+  #        cpu: 500m
+  #  - name : liveness-prometheus
+  #    resource:
+  #      requests:
+  #        memory: 128Mi
+  #        cpu: 50m
+  #      limits:
+  #        memory: 256Mi
+  #        cpu: 100m
   # Set provisonerTolerations and provisionerNodeAffinity for provisioner pod.
   # The CSI provisioner would be best to start on the same nodes as other ceph daemons.
   # provisionerTolerations:
@@ -94,13 +239,13 @@ csi:
   #rbdLivenessMetricsPort: 9080
   #kubeletDirPath: /var/lib/kubelet
   #cephcsi:
-    #image: quay.io/cephcsi/cephcsi:v2.1.0
+    #image: quay.io/cephcsi/cephcsi:v3.1.0
   #registrar:
     #image: quay.io/k8scsi/csi-node-driver-registrar:v1.2.0
   #provisioner:
-    #image: quay.io/k8scsi/csi-provisioner:v1.4.0
+    #image: quay.io/k8scsi/csi-provisioner:v1.6.0
   #snapshotter:
-    #image: quay.io/k8scsi/csi-snapshotter:v1.2.2
+    #image: quay.io/k8scsi/csi-snapshotter:v2.1.1
   #attacher:
     #image: quay.io/k8scsi/csi-attacher:v2.1.0
   #resizer:
@@ -166,4 +311,8 @@ discoverDaemonUdev:
 # imagePullSecrets:
 # - name: my-registry-secret
 
+# Whether the OBC provisioner should watch on the operator namespace or not, if not the namespace of the cluster will be used
+enableOBCWatchOperatorNamespace: true
+
+# XXX: Lokomotive specific change.
 enableMonitoring: false
