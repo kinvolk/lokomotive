@@ -16,11 +16,11 @@ package httpbin
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
@@ -145,11 +145,11 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) RenderManifests() (map[string]string, error) {
 	tmpl, err := template.New("ingress").Parse(ingressTmpl)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse template failed")
+		return nil, fmt.Errorf("parsing template: %w", err)
 	}
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, c); err != nil {
-		return nil, errors.Wrap(err, "execute template failed")
+		return nil, fmt.Errorf("executing template: %w", err)
 	}
 	return map[string]string{
 		"namespace.yml":  namespaceManifest,

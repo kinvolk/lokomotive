@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
@@ -185,7 +184,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
 		// TODO: Use template.Must().
-		return errors.Wrap(err, "failed to parse template")
+		return fmt.Errorf("parsing template: %w", err)
 	}
 
 	path := filepath.Join(terraformRootDir, tmplName)
@@ -198,13 +197,13 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrap(err, "failed to marshal SSH public keys")
+		return fmt.Errorf("marshaling SSH public keys: %w", err)
 	}
 
 	controllerCLCSnippetsBytes, err := json.Marshal(cfg.ControllerCLCSnippets)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to marshal CLC snippets")
+		return fmt.Errorf("marshaling CLC snippets: %w", err)
 	}
 
 	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
@@ -222,7 +221,7 @@ func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	tags, err := json.Marshal(cfg.Tags)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to marshal tags")
+		return fmt.Errorf("marshaling tags: %w", err)
 	}
 
 	for _, workerpool := range cfg.WorkerPools {

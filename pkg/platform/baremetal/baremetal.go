@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
@@ -147,7 +146,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
 		// TODO: Use template.Must().
-		return errors.Wrap(err, "failed to parse template")
+		return fmt.Errorf("parsing template: %w", err)
 	}
 
 	path := filepath.Join(terraformPath, tmplName)
@@ -171,43 +170,43 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	keyListBytes, err := json.Marshal(cfg.SSHPubKeys)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrap(err, "failed to marshal SSH public keys")
+		return fmt.Errorf("marshaling SSH public keys: %w", err)
 	}
 
 	workerDomains, err := json.Marshal(cfg.WorkerDomains)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerDomains)
+		return fmt.Errorf("marshaling worker domains: %w", err)
 	}
 
 	workerMacs, err := json.Marshal(cfg.WorkerMacs)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerMacs)
+		return fmt.Errorf("marshaling worker MAC addresses: %w", err)
 	}
 
 	workerNames, err := json.Marshal(cfg.WorkerNames)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to parse %q", cfg.WorkerNames)
+		return fmt.Errorf("marshaling worker names: %w", err)
 	}
 
 	controllerDomains, err := json.Marshal(cfg.ControllerDomains)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerDomains)
+		return fmt.Errorf("marshaling controller domains: %w", err)
 	}
 
 	controllerMacs, err := json.Marshal(cfg.ControllerMacs)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerMacs)
+		return fmt.Errorf("marshaling controller MAC addresses: %w", err)
 	}
 
 	controllerNames, err := json.Marshal(cfg.ControllerNames)
 	if err != nil {
 		// TODO: Render manually instead of marshaling.
-		return errors.Wrapf(err, "failed to parse %q", cfg.ControllerNames)
+		return fmt.Errorf("marshaling controller names: %w", err)
 	}
 
 	terraformCfg := struct {
