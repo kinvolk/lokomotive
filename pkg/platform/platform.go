@@ -74,6 +74,13 @@ type Platform interface {
 	Meta() Meta
 }
 
+// PlatformWithPostApplyHook runs code after Terraform finishes applying. This allows
+// running sanity checks on the newly created cluster. Implementing this
+// interface is optional for platforms.
+type PlatformWithPostApplyHook interface { // nolint:golint
+	PostApplyHook(kubeconfig []byte) error
+}
+
 // Meta is a generic information format about the platform.
 type Meta struct {
 	AssetDir      string
