@@ -31,6 +31,13 @@ var componentDeleteCmd = &cobra.Command{
 	Long: `Delete a component.
 When run with no arguments, all components listed in the configuration are deleted.`,
 	Run: runDelete,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) != 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return components.ListNames(), cobra.ShellCompDirectiveNoFileComp
+	},
 }
 
 var deleteNamespace bool
