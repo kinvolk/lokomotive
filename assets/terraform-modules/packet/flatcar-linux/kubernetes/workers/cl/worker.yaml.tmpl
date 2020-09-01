@@ -112,7 +112,7 @@ systemd:
             --node-labels=$${NODE_LABELS} \
             --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
             %{~ if bgp_node_labels != "" ~}
-            --node-labels=$${BGP_NODE_LABELS},metallb.universe.tf/peer-address=$BGP_PEER_ADDRESS \
+            --node-labels=$${BGP_NODE_LABELS},metallb.lokomotive.io/peer-address=$BGP_PEER_ADDRESS \
             %{~ endif ~}
             --pod-manifest-path=/etc/kubernetes/manifests \
             --read-only-port=0 \
