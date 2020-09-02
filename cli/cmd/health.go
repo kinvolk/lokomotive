@@ -66,7 +66,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
-		contextLogger.Fatalf("Error in creating setting up Kubernetes client: %q", err)
+		contextLogger.Fatalf("Error in creating Kubernetes client: %q", err)
 	}
 
 	// We can skip error checking here, as getKubeconfig() already checks it.
