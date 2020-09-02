@@ -278,10 +278,57 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkNotEmptyWorkers()...)
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkNameSizes()...)
+	diagnostics = append(diagnostics, c.checkLBPortsUnique()...)
 
 	if c.OIDC != nil {
 		_, diags := c.OIDC.ToKubeAPIServerFlags(c.clusterDomain())
 		diagnostics = append(diagnostics, diags...)
+	}
+
+	return diagnostics
+}
+
+// checkLBPortsUnique checks that the lb_http_port and lb_https_port
+// flags have different values if the user is using multiple worker
+// pools.
+func (c *config) checkLBPortsUnique() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	portMap := make(map[int]struct {
+		field    string
+		poolName string
+	})
+
+	for _, wp := range c.WorkerPools {
+		httpPort := wp.LBHTTPPort
+		if httpPort == 0 {
+			httpPort = 80
+		}
+
+		httpsPort := wp.LBHTTPSPort
+		if httpsPort == 0 {
+			httpsPort = 443
+		}
+
+		ports := map[int]string{
+			httpPort:  "lb_http_port",
+			httpsPort: "lb_https_port",
+		}
+
+		for p, field := range ports {
+			if v, ok := portMap[p]; ok {
+				diagnostics = append(diagnostics, &hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Unique ports required",
+					Detail:   fmt.Sprintf("'worker_pool.%s.%s' collides with 'worker_pool.%s.%s'", wp.Name, field, v.poolName, v.field), //nolint:lll
+				})
+			}
+
+			portMap[p] = struct {
+				field    string
+				poolName string
+			}{field, wp.Name}
+		}
 	}
 
 	return diagnostics
