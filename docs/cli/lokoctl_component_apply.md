@@ -15,7 +15,8 @@ lokoctl component apply [flags]
 ### Options
 
 ```
-  -h, --help   help for apply
+      --debug   Print debug messages
+  -h, --help    help for apply
 ```
 
 ### Options inherited from parent commands

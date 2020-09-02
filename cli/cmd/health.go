@@ -32,8 +32,11 @@ var healthCmd = &cobra.Command{
 	Run:   runHealth,
 }
 
+// nolint:gochecknoinits
 func init() {
 	RootCmd.AddCommand(healthCmd)
+	pf := healthCmd.PersistentFlags()
+	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
 }
 
 func runHealth(cmd *cobra.Command, args []string) {
@@ -41,6 +44,10 @@ func runHealth(cmd *cobra.Command, args []string) {
 		"command": "lokoctl health",
 		"args":    args,
 	})
+
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {

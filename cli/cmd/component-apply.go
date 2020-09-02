@@ -41,8 +41,13 @@ When run with no arguments, all components listed in the configuration are appli
 	},
 }
 
+var debug bool
+
+// nolint:gochecknoinits
 func init() {
 	componentCmd.AddCommand(componentApplyCmd)
+	pf := componentApplyCmd.PersistentFlags()
+	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
 }
 
 func runApply(cmd *cobra.Command, args []string) {
@@ -50,6 +55,10 @@ func runApply(cmd *cobra.Command, args []string) {
 		"command": "lokoctl component apply",
 		"args":    args,
 	})
+
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {

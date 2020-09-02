@@ -48,6 +48,7 @@ func init() {
 	pf := componentDeleteCmd.PersistentFlags()
 	pf.BoolVarP(&deleteNamespace, "delete-namespace", "", false, "Delete namespace with component")
 	pf.BoolVarP(&confirm, "confirm", "", false, "Delete component without asking for confirmation")
+	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
 }
 
 func runDelete(cmd *cobra.Command, args []string) {
@@ -55,6 +56,10 @@ func runDelete(cmd *cobra.Command, args []string) {
 		"command": "lokoctl component delete",
 		"args":    args,
 	})
+
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	lokoCfg, diags := getLokoConfig()
 	if len(diags) > 0 {

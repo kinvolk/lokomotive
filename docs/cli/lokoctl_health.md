@@ -13,7 +13,8 @@ lokoctl health [flags]
 ### Options
 
 ```
-  -h, --help   help for health
+      --debug   Print debug messages
+  -h, --help    help for health
 ```
 
 ### Options inherited from parent commands
