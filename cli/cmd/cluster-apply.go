@@ -121,6 +121,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	if ph, ok := p.(platform.PlatformWithPostApplyHook); ok {
+		if err := ph.PostApplyHook(kubeconfig); err != nil {
+			ctxLogger.Fatalf("Running platform post install hook failed: %v", err)
+		}
+	}
+
 	if skipComponents {
 		return
 	}

@@ -17,15 +17,21 @@
 package aks
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	v1 "k8s.io/client-go/kubernetes/typed/storage/v1"
 
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
@@ -307,6 +313,48 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
 
 	return createTerraformConfigFile(c, terraformRootDir)
+}
+
+const (
+	retryInterval = 5 * time.Second
+	timeout       = 10 * time.Minute
+)
+
+// PostApplyHook implements platform.PlatformWithPostApplyHook interface and defines hooks
+// which should be executed after AKS cluster is created.
+func (c *config) PostApplyHook(kubeconfig []byte) error {
+	client, err := k8sutil.NewClientset(kubeconfig)
+	if err != nil {
+		return fmt.Errorf("creating clientset from kubeconfig: %w", err)
+	}
+
+	return waitForDefaultStorageClass(client.StorageV1().StorageClasses())
+}
+
+// waitForDefaultStorageClass waits until the default storage class appears on a given cluster.
+// If it doesn't appear within a defined time range, an error is returned.
+func waitForDefaultStorageClass(sci v1.StorageClassInterface) error {
+	// AKS still uses annotation with .beta.
+	defaultStorageClassAnnotation := "storageclass.beta.kubernetes.io/is-default-class"
+
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+		scs, err := sci.List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, fmt.Errorf("getting storage classes: %w", err)
+		}
+
+		for _, sc := range scs.Items {
+			if v, ok := sc.ObjectMeta.Annotations[defaultStorageClassAnnotation]; ok && v == "true" {
+				return true, nil
+			}
+		}
+
+		return false, nil
+	}); err != nil {
+		return fmt.Errorf("waiting for the default storage class to be configured: %w", err)
+	}
+
+	return nil
 }
 
 // createTerraformConfigFiles create Terraform config files in given directory.
