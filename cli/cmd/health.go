@@ -60,7 +60,8 @@ func runHealth(cmd *cobra.Command, args []string) {
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
 	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
 	cs, err := k8sutil.NewClientset(kubeconfig)

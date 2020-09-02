@@ -100,7 +100,8 @@ func runDelete(cmd *cobra.Command, args []string) {
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoCfg, false)
 	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
 	if err := deleteComponents(kubeconfig, componentsObjects...); err != nil {
