@@ -67,6 +67,8 @@ Example:
 | `discover_toleration_key`    | Toleration key for the rook discover pods.                                                               |    -    | string                                                                                                         |  false   |
 | `discover_toleration_effect` | Toleration effect for the rook discover pods. Needs to be specified if `discover_toleration_key` is set. |    -    | string                                                                                                         |  false   |
 | `enable_monitoring`          | Enable Monitoring for the Rook sub-systems. Make sure that the Prometheus Operator is installed.         |  false  | bool                                                                                                           |  false   |
+| `csi_plugin_node_selector`   | A map with specific labels to install Rook CSI plugins on a group of nodes.                              |    -    | map(string)                                                                                                    |  false   |
+| `csi_plugin_toleration`      | Tolerations that the Rook CSI plugin installation pods will tolerate.                                    |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
 
 
 ## Applying

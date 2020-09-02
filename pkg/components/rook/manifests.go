@@ -34,11 +34,11 @@ csi:
   provisionerNodeAffinity: {{ .RookNodeAffinity }}
   {{- end }}
 
-  {{- if .Tolerations }}
-  pluginTolerations: {{ .TolerationsRaw }}
+  {{- if .CSIPluginTolerations }}
+  pluginTolerations: {{ .CSIPluginTolerationsRaw }}
   {{- end }}
-  {{- if .NodeSelector }}
-  pluginNodeAffinity: {{ .RookNodeAffinity }}
+  {{- if .CSIPluginNodeSelector }}
+  pluginNodeAffinity: {{ .CSIPluginNodeAffinity }}
   {{- end }}
 
 agent:
