@@ -137,9 +137,15 @@ func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config,
 		return nil, fmt.Errorf("loading cluster configuration")
 	}
 
-	// Viper takes precedence over all other options.
-	if path := viper.GetString(kubeconfigFlag); path != "" {
-		return []string{path}, nil
+	for _, k := range viper.AllKeys() {
+		if k != kubeconfigFlag {
+			continue
+		}
+
+		// Viper takes precedence over all other options.
+		if path := viper.GetString(kubeconfigFlag); path != "" {
+			return []string{path}, nil
+		}
 	}
 
 	// If platform is not configured and not required, fallback to global kubeconfig files.

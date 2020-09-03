@@ -47,6 +47,7 @@ var debug bool
 func init() {
 	componentCmd.AddCommand(componentApplyCmd)
 	pf := componentApplyCmd.PersistentFlags()
+	addKubeconfigFileFlag(pf)
 	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
 }
 

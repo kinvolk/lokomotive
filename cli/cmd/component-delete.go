@@ -46,6 +46,7 @@ var deleteNamespace bool
 func init() {
 	componentCmd.AddCommand(componentDeleteCmd)
 	pf := componentDeleteCmd.PersistentFlags()
+	addKubeconfigFileFlag(pf)
 	pf.BoolVarP(&deleteNamespace, "delete-namespace", "", false, "Delete namespace with component")
 	pf.BoolVarP(&confirm, "confirm", "", false, "Delete component without asking for confirmation")
 	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
