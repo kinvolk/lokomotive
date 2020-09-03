@@ -19,6 +19,17 @@ resource "packet_device" "controllers" {
   always_pxe      = false
   tags            = var.tags
 
+  lifecycle {
+    ignore_changes = [
+      // With newer Packet provider, changing userdata causes re-creation of the device,
+      // which we want to silent to avoid destroying controller nodes and losing cluster data.
+      user_data,
+      // As we do not support replacing controller nodes at the moment, ignore changes to controller
+      // machine type, so changing it does not cause replacing all controller nodes and losing cluster data.
+      plan,
+    ]
+  }
+
   # This way to handle dependencies was inspired in this:
   # https://discuss.hashicorp.com/t/tips-howto-implement-module-depends-on-emulation/2305/2
   depends_on = [var.nodes_depend_on]
