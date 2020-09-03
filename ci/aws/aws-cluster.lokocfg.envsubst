@@ -34,7 +34,7 @@ EOF
   ]
 
   worker_pool "$CLUSTER_ID-w1" {
-    count         = 2
+    count         = 3
     ssh_pubkeys   = ["$PUB_KEY"]
     disk_size     = 30
     instance_type = "i3.large"
