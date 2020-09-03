@@ -39,11 +39,15 @@ type component struct {
 	RookNodeAffinity         string
 	Tolerations              []util.Toleration `hcl:"toleration,block"`
 	TolerationsRaw           string
-	AgentTolerationKey       string `hcl:"agent_toleration_key,optional"`
-	AgentTolerationEffect    string `hcl:"agent_toleration_effect,optional"`
-	DiscoverTolerationKey    string `hcl:"discover_toleration_key,optional"`
-	DiscoverTolerationEffect string `hcl:"discover_toleration_effect,optional"`
-	EnableMonitoring         bool   `hcl:"enable_monitoring,optional"`
+	AgentTolerationKey       string            `hcl:"agent_toleration_key,optional"`
+	AgentTolerationEffect    string            `hcl:"agent_toleration_effect,optional"`
+	DiscoverTolerationKey    string            `hcl:"discover_toleration_key,optional"`
+	DiscoverTolerationEffect string            `hcl:"discover_toleration_effect,optional"`
+	EnableMonitoring         bool              `hcl:"enable_monitoring,optional"`
+	CSIPluginNodeSelector    util.NodeSelector `hcl:"csi_plugin_node_selector,optional"`
+	CSIPluginNodeAffinity    string
+	CSIPluginTolerations     []util.Toleration `hcl:"csi_plugin_toleration,block"`
+	CSIPluginTolerationsRaw  string
 }
 
 func newComponent() *component {
@@ -71,12 +75,18 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, fmt.Errorf("rendering tolerations failed: %w", err)
 	}
 
+	c.CSIPluginTolerationsRaw, err = util.RenderTolerations(c.CSIPluginTolerations)
+	if err != nil {
+		return nil, fmt.Errorf("rendering CSI tolerations failed: %w", err)
+	}
+
 	c.NodeSelectorRaw, err = c.NodeSelector.Render()
 	if err != nil {
 		return nil, fmt.Errorf("rendering node selector failed: %w", err)
 	}
 
 	c.RookNodeAffinity = convertNodeSelector(c.NodeSelector)
+	c.CSIPluginNodeAffinity = convertNodeSelector(c.CSIPluginNodeSelector)
 
 	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
