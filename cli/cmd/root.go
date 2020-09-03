@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	// Register platforms by adding an anonymous import.
@@ -47,13 +48,8 @@ const (
 	kubeconfigFlag = "kubeconfig-file"
 )
 
-func init() {
-	cobra.OnInitialize(cobraInit)
-
-	RootCmd.DisableAutoGenTag = true
-
-	// Add kubeconfig flag.
-	RootCmd.PersistentFlags().String(
+func addKubeconfigFileFlag(pf *flag.FlagSet) {
+	pf.String(
 		kubeconfigFlag,
 		"", // Special empty default, use getKubeconfig()
 		"Path to a kubeconfig file. If empty, the following precedence order is used:\n"+
@@ -61,9 +57,15 @@ func init() {
 			"  2. KUBECONFIG environment variable.\n"+
 			"  3. ~/.kube/config file.")
 
-	if err := viper.BindPFlag(kubeconfigFlag, RootCmd.PersistentFlags().Lookup(kubeconfigFlag)); err != nil {
+	if err := viper.BindPFlag(kubeconfigFlag, pf.Lookup(kubeconfigFlag)); err != nil {
 		panic("failed registering kubeconfig flag")
 	}
+}
+
+func init() { //nolint:gochecknoinits
+	cobra.OnInitialize(cobraInit)
+
+	RootCmd.DisableAutoGenTag = true
 
 	RootCmd.PersistentFlags().String("lokocfg", "./", "Path to lokocfg directory or file")
 	viper.BindPFlag("lokocfg", RootCmd.PersistentFlags().Lookup("lokocfg"))

@@ -326,4 +326,9 @@ output "bootstrap-secrets_values" {
   value     = module.packet-{{.Config.ClusterName}}.bootstrap-secrets_values
   sensitive = true
 }
+
+output "kubeconfig" {
+  value     = module.packet-{{.Config.ClusterName}}.kubeconfig-admin
+  sensitive = true
+}
 `

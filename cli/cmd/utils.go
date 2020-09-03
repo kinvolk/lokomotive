@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -30,8 +31,9 @@ import (
 )
 
 const (
-	kubeconfigEnvVariable = "KUBECONFIG"
-	defaultKubeconfigPath = "~/.kube/config"
+	kubeconfigEnvVariable        = "KUBECONFIG"
+	defaultKubeconfigPath        = "~/.kube/config"
+	kubeconfigTerraformOutputKey = "kubeconfig"
 )
 
 // getConfiguredBackend loads a backend from the given configuration file.
@@ -54,15 +56,19 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 }
 
 // getConfiguredPlatform loads a platform from the given configuration file.
-func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {
-	lokoConfig, diags := getLokoConfig()
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
-	if lokoConfig.RootConfig.Cluster == nil {
+func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Platform, hcl.Diagnostics) {
+	if lokoConfig.RootConfig.Cluster == nil && !require {
 		// No cluster defined and no configuration error
 		return nil, hcl.Diagnostics{}
+	}
+
+	if lokoConfig.RootConfig.Cluster == nil && require {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "no platform configured",
+			},
+		}
 	}
 
 	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
@@ -77,82 +83,94 @@ func getConfiguredPlatform() (platform.Platform, hcl.Diagnostics) {
 	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
 }
 
-// getAssetDir extracts the asset path from the cluster configuration.
-// It is empty if there is no cluster defined. An error is returned if the
-// cluster configuration has problems.
-func getAssetDir() (string, error) {
-	cfg, diags := getConfiguredPlatform()
-	if diags.HasErrors() {
-		return "", fmt.Errorf("cannot load config: %s", diags)
-	}
-	if cfg == nil {
-		// No cluster defined and no configuration error
-		return "", nil
-	}
-
-	return cfg.Meta().AssetDir, nil
-}
-
-func getKubeconfig() ([]byte, error) {
-	path, err := getKubeconfigPath()
+// getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
+//
+// If platform is required and user do not have it configured, an error is returned.
+func getKubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]byte, error) {
+	sources, err := getKubeconfigSource(contextLogger, lokoConfig, platformRequired)
 	if err != nil {
-		return nil, fmt.Errorf("failed getting kubeconfig path: %w", err)
+		return nil, fmt.Errorf("selecting kubeconfig source: %w", err)
 	}
 
-	if expandedPath, err := homedir.Expand(path); err == nil {
-		path = expandedPath
+	// If no sources has been returned, it means we should read from Terraform state.
+	if len(sources) == 0 {
+		return readKubeconfigFromTerraformState(contextLogger)
 	}
 
-	// homedir.Expand is too restrictive for the ~ prefix,
-	// i.e., it errors on "~somepath" which is a valid path,
-	// so just read from the original path.
-	return ioutil.ReadFile(path) // #nosec G304
-}
-
-// getKubeconfig finds the kubeconfig to be used. The precedence is the following:
-// - --kubeconfig-file flag OR KUBECONFIG_FILE environment variable (the latter
-// is a side-effect of cobra/viper and should NOT be documented because it's
-// confusing).
-// - Asset directory from cluster configuration.
-// - KUBECONFIG environment variable.
-// - ~/.kube/config path, which is the default for kubectl.
-func getKubeconfigPath() (string, error) {
-	assetKubeconfig, err := assetsKubeconfigPath()
-	if err != nil {
-		return "", fmt.Errorf("reading kubeconfig path from configuration failed: %w", err)
-	}
-
-	paths := []string{
-		viper.GetString(kubeconfigFlag),
-		assetKubeconfig,
-		os.Getenv(kubeconfigEnvVariable),
-		defaultKubeconfigPath,
-	}
-
-	for _, path := range paths {
-		if path != "" {
-			return path, nil
+	// Select first non-empty source and read it.
+	for _, source := range sources {
+		if source != "" {
+			return expandAndRead(source)
 		}
 	}
 
-	return "", nil
+	// This should never occur, since we always fallback to ~/.kube/config.
+	return nil, fmt.Errorf("no kubeconfig source found")
 }
 
-// assetsKubeconfigPath reads the lokocfg configuration and returns
-// the kubeconfig path defined in it.
+// getKubeconfigSource defines how we select which kubeconfig file to use. If source slice is empty, it means
+// kubeconfig from Terraform state should be used.
 //
-// If no configuration is defined, empty string is returned.
-func assetsKubeconfigPath() (string, error) {
-	assetDir, err := getAssetDir()
-	if err != nil {
-		return "", err
+// If multiple sources are returned, first non-empty should be used.
+//
+// The precedence is the following:
+//
+// - If platform configuration is not required, --kubeconfig-file or KUBECONFIG_FILE environment variable
+// 	 always takes precedence.
+//
+// - Kubeconfig in the assets directory.
+//
+// - If platform is configured, kubeconfig from the Terraform state.
+//
+// - kubeconfig from KUBECONFIG environment variable.
+//
+// - kubeconfig from ~/.kube/config file.
+//
+func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
+	// Always try reading platform configuration.
+	p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
+	if diags.HasErrors() {
+		for _, diagnostic := range diags {
+			contextLogger.Error(diagnostic.Error())
+		}
+
+		return nil, fmt.Errorf("loading cluster configuration")
 	}
 
-	if assetDir != "" {
-		return assetsKubeconfig(assetDir), nil
+	for _, k := range viper.AllKeys() {
+		if k != kubeconfigFlag {
+			continue
+		}
+
+		// Viper takes precedence over all other options.
+		if path := viper.GetString(kubeconfigFlag); path != "" {
+			return []string{path}, nil
+		}
 	}
 
-	return "", nil
+	// If platform is not configured and not required, fallback to global kubeconfig files.
+	if p == nil {
+		return []string{
+			os.Getenv(kubeconfigEnvVariable),
+			defaultKubeconfigPath,
+		}, nil
+	}
+
+	// Next, try reading kubeconfig file from assets directory.
+	kubeconfigPath := assetsKubeconfig(p.Meta().AssetDir)
+
+	kubeconfig, err := expandAndRead(kubeconfigPath)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, fmt.Errorf("reading kubeconfig file %q: %w", kubeconfigPath, err)
+	}
+
+	if len(kubeconfig) != 0 {
+		return []string{kubeconfigPath}, nil
+	}
+
+	// If reading from assets gave no result and platform is defined, let's indicate, that kubeconfig
+	// should be read from the Terraform state, by returning empty source slice.
+	return []string{}, nil
 }
 
 func assetsKubeconfig(assetDir string) string {
@@ -161,6 +179,36 @@ func assetsKubeconfig(assetDir string) string {
 
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {
 	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
+}
+
+// readKubeconfigFromTerraformState initializes Terraform and
+// reads content of cluster kubeconfig file from the Terraform.
+func readKubeconfigFromTerraformState(contextLogger *logrus.Entry) ([]byte, error) {
+	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
+		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
+
+	ex, _, _, _ := initialize(contextLogger) //nolint:dogsled
+
+	kubeconfig := ""
+
+	if err := ex.Output(kubeconfigTerraformOutputKey, &kubeconfig); err != nil {
+		return nil, fmt.Errorf("reading kubeconfig file content from Terraform state: %w", err)
+	}
+
+	return []byte(kubeconfig), nil
+}
+
+// expandAndRead optimistically tries to expand ~ in given path and then reads
+// the entire content of the file and returns it to the user.
+func expandAndRead(path string) ([]byte, error) {
+	if expandedPath, err := homedir.Expand(path); err == nil {
+		path = expandedPath
+	}
+
+	// homedir.Expand is too restrictive for the ~ prefix,
+	// i.e., it errors on "~somepath" which is a valid path,
+	// so just read from the original path.
+	return ioutil.ReadFile(path) // #nosec G304
 }
 
 // askForConfirmation asks the user to confirm an action.

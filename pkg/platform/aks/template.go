@@ -223,4 +223,9 @@ output "initialized" {
   value     = true
   sensitive = true
 }
+
+output "kubeconfig" {
+  value     = azurerm_kubernetes_cluster.aks.kube_config_raw
+  sensitive = true
+}
 `

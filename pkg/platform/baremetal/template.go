@@ -132,4 +132,9 @@ output "bootstrap-secrets_values" {
   value     = module.bare-metal-{{.ClusterName}}.bootstrap-secrets_values
   sensitive = true
 }
+
+output "kubeconfig" {
+  value     = module.bare-metal-{{.ClusterName}}.kubeconfig-admin
+  sensitive = true
+}
 `

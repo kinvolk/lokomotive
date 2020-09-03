@@ -15,13 +15,17 @@
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 type kubeconfigSources struct {
@@ -34,7 +38,7 @@ const (
 	tmpPattern = "lokoctl-tests-"
 )
 
-func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) {
+func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) (*log.Entry, *config.Config) {
 	// Ensure viper flag is NOT empty.
 	viper.Set(kubeconfigFlag, k.flag)
 
@@ -74,6 +78,13 @@ func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) {
 			t.Fatalf("writing file %q: %v", path, err)
 		}
 	}
+
+	lokoConfig, diags := getLokoConfig()
+	if diags.HasErrors() {
+		t.Fatalf("getting lokomotive configuration: %v", err)
+	}
+
+	return log.WithFields(log.Fields{}), lokoConfig
 }
 
 func TestGetKubeconfigBadConfig(t *testing.T) {
@@ -83,11 +94,29 @@ func TestGetKubeconfigBadConfig(t *testing.T) {
 }`,
 	}
 
-	prepareKubeconfigSource(t, k)
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfig()
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err == nil {
 		t.Errorf("getting kubeconfig with bad configuration should fail")
+	}
+
+	if kubeconfig != nil {
+		t.Fatalf("if getting kubeconfig fails, empty content should be returned")
+	}
+}
+
+func TestGetKubeconfigNoConfigButRequired(t *testing.T) {
+	k := &kubeconfigSources{
+		env:  "/foo",
+		flag: "/bar",
+	}
+
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
+
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	if err == nil {
+		t.Errorf("getting kubeconfig with no configuration and platform required should fail")
 	}
 
 	if kubeconfig != nil {
@@ -103,6 +132,12 @@ func TestGetKubeconfig(t *testing.T) {
 		t.Fatalf("creating temp file should succeed, got: %v", err)
 	}
 
+	t.Cleanup(func() {
+		if err := os.Remove(f.Name()); err != nil {
+			t.Logf("removing temp file %q: %v", f.Name(), err)
+		}
+	})
+
 	if err := ioutil.WriteFile(f.Name(), expectedContent, 0600); err != nil {
 		t.Fatalf("writing temp file %q should succeed, got: %v", f.Name(), err)
 	}
@@ -111,9 +146,9 @@ func TestGetKubeconfig(t *testing.T) {
 		env: f.Name(),
 	}
 
-	prepareKubeconfigSource(t, k)
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfig()
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
@@ -123,8 +158,8 @@ func TestGetKubeconfig(t *testing.T) {
 	}
 }
 
-func TestGetKubeconfigPathFlag(t *testing.T) {
-	expectedPath := "/foo"
+func TestGetKubeconfigSourceFlag(t *testing.T) {
+	expectedPath := []string{"/foo"}
 
 	k := &kubeconfigSources{
 		configFile: `cluster "packet" {
@@ -145,24 +180,24 @@ func TestGetKubeconfigPathFlag(t *testing.T) {
     count = 0
   }
 }`,
-		flag: expectedPath,
+		flag: expectedPath[0],
 		env:  "/badpath",
 	}
 
-	prepareKubeconfigSource(t, k)
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigPath()
+	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, true)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
 
-	if kubeconfig != expectedPath {
-		t.Fatalf("expected %q, got %q", expectedPath, kubeconfig)
+	if !reflect.DeepEqual(kubeconfig, expectedPath) {
+		t.Fatalf("expected %v, got %v", expectedPath, kubeconfig)
 	}
 }
 
-func TestGetKubeconfigPathConfigFile(t *testing.T) {
-	expectedPath := assetsKubeconfig("/foo")
+func TestGetKubeconfigSourceConfigFile(t *testing.T) {
+	expectedPath := []string{}
 
 	k := &kubeconfigSources{
 		configFile: `cluster "packet" {
@@ -186,71 +221,131 @@ func TestGetKubeconfigPathConfigFile(t *testing.T) {
 		env: "/badpath",
 	}
 
-	prepareKubeconfigSource(t, k)
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigPath()
+	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, true)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
 
-	if kubeconfig != expectedPath {
-		t.Fatalf("expected %q, got %q", expectedPath, kubeconfig)
+	if !reflect.DeepEqual(kubeconfig, expectedPath) {
+		t.Fatalf("expected %v, got %v", expectedPath, kubeconfig)
 	}
 }
 
-func TestGetKubeconfigPathBadConfigFile(t *testing.T) {
-	expectedPath := ""
+func TestGetKubeconfigFromAssetsDir(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", tmpPattern)
+	if err != nil {
+		t.Fatalf("creating tmp dir: %v", err)
+	}
 
+	t.Cleanup(func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("removing temp dir %q: %v", tmpDir, err)
+		}
+	})
+
+	expected := []byte("foo")
+
+	kubeconfigPath := assetsKubeconfig(tmpDir)
+	dir, _ := filepath.Split(kubeconfigPath)
+
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		t.Fatalf("creating directory structure %q: %v", dir, err)
+	}
+
+	if err := ioutil.WriteFile(kubeconfigPath, expected, 0600); err != nil {
+		t.Fatalf("writing file %q: %v", kubeconfigPath, err)
+	}
+
+	k := &kubeconfigSources{
+		configFile: fmt.Sprintf(`cluster "packet" {
+  asset_dir = "%s"
+
+  cluster_name      = ""
+  controller_count  = 0
+  facility          = ""
+  management_cidrs  = []
+  node_private_cidr = ""
+  project_id        = ""
+  ssh_pubkeys       = []
+  dns {
+    provider = ""
+    zone     = ""
+  }
+  worker_pool "foo" {
+    count = 0
+  }
+}`, tmpDir),
+		env: "/badpath",
+	}
+
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
+
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	if err != nil {
+		t.Fatalf("getting kubeconfig: %v", err)
+	}
+
+	if !reflect.DeepEqual(kubeconfig, expected) {
+		t.Fatalf("expected %v, got %v", expected, kubeconfig)
+	}
+}
+
+func TestGetKubeconfigSourceBadConfigFile(t *testing.T) {
 	k := &kubeconfigSources{
 		configFile: `cluster "packet" {
 	asset_dir = "/foo"
 }`,
 	}
 
-	prepareKubeconfigSource(t, k)
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigPath()
+	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, true)
 	if err == nil {
 		t.Errorf("getting kubeconfig with bad configuration should fail")
 	}
 
-	if kubeconfig != expectedPath {
+	if kubeconfig != nil {
 		t.Fatalf("if getting kubeconfig fails, empty path should be returned")
 	}
 }
 
-func TestGetKubeconfigPathEnvVariable(t *testing.T) {
-	expectedPath := "/foo"
-
-	k := &kubeconfigSources{
-		env: expectedPath,
+func TestGetKubeconfigSourceEnvVariable(t *testing.T) {
+	expectedPath := []string{
+		"/foo",
+		defaultKubeconfigPath,
 	}
 
-	prepareKubeconfigSource(t, k)
+	k := &kubeconfigSources{
+		env: expectedPath[0],
+	}
 
-	kubeconfig, err := getKubeconfigPath()
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
+
+	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, false)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
 
-	if kubeconfig != expectedPath {
-		t.Fatalf("expected %q, got %q", expectedPath, kubeconfig)
+	if !reflect.DeepEqual(kubeconfig, expectedPath) {
+		t.Fatalf("expected %v, got %v", expectedPath, kubeconfig)
 	}
 }
 
-func TestGetKubeconfigPathDefault(t *testing.T) {
-	expectedPath := defaultKubeconfigPath
+func TestGetKubeconfigSourceDefault(t *testing.T) {
+	expectedPath := []string{"", defaultKubeconfigPath}
 
 	k := &kubeconfigSources{}
 
-	prepareKubeconfigSource(t, k)
+	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigPath()
+	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, false)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
 
-	if kubeconfig != expectedPath {
-		t.Fatalf("expected %q, got %q", expectedPath, kubeconfig)
+	if !reflect.DeepEqual(kubeconfig, expectedPath) {
+		t.Fatalf("expected %v, got %v", expectedPath, kubeconfig)
 	}
 }

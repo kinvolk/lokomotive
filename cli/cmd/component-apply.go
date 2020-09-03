@@ -41,8 +41,14 @@ When run with no arguments, all components listed in the configuration are appli
 	},
 }
 
+var debug bool
+
+// nolint:gochecknoinits
 func init() {
 	componentCmd.AddCommand(componentApplyCmd)
+	pf := componentApplyCmd.PersistentFlags()
+	addKubeconfigFileFlag(pf)
+	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
 }
 
 func runApply(cmd *cobra.Command, args []string) {
@@ -50,6 +56,10 @@ func runApply(cmd *cobra.Command, args []string) {
 		"command": "lokoctl component apply",
 		"args":    args,
 	})
+
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {
@@ -65,9 +75,10 @@ func runApply(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	kubeconfig, err := getKubeconfig()
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
-		contextLogger.Fatalf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
+		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
 	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
