@@ -17,6 +17,14 @@ resource "packet_device" "nodes" {
     var.reservation_ids_default,
   )
 
+  lifecycle {
+    ignore_changes = [
+      // With newer Packet provider, changing userdata causes re-creation of the device,
+      // which we want to silent to avoid destroying nodes, as they may contain local data.
+      user_data,
+    ]
+  }
+
   tags = var.tags
 
   # This way to handle dependencies was inspired in this:
