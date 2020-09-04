@@ -18,6 +18,9 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/backend/local"
 )
 
 // createTerraformConfigFile() test.
@@ -33,7 +36,14 @@ func TestCreateTerraformConfigFile(t *testing.T) {
 		}
 	})
 
-	c := &config{}
+	c := &config{
+		Backend: &backend.Backend{
+			Type: "local",
+			Config: local.Config{
+				Path: "fake",
+			},
+		},
+	}
 
 	if err := createTerraformConfigFile(c, tmpDir); err != nil {
 		t.Fatalf("creating Terraform config files should succeed, got: %v", err)

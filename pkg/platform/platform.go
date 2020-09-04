@@ -20,6 +20,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/kinvolk/lokomotive/pkg/version"
@@ -67,7 +68,7 @@ func ControlPlaneChart(name string) (*chart.Chart, error) {
 
 // Platform describes single environment, where cluster can be installed
 type Platform interface {
-	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
+	LoadConfig(*config.Config) hcl.Diagnostics
 	Apply(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
 	Initialize(*terraform.Executor) error

@@ -16,30 +16,17 @@ package terraform
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 )
-
-const backendFileName = "backend.tf"
 
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
-func Configure(assetDir string, b backend.Backend) error {
+func Configure(assetDir string) error {
 	if err := PrepareTerraformDirectoryAndModules(assetDir); err != nil {
 		return fmt.Errorf("creating Terraform directories: %w", err)
-	}
-
-	// Create backend file only if a backend was configured by the user.
-	if b == nil {
-		return nil
-	}
-
-	if err := CreateTerraformBackendFile(assetDir, b.String()); err != nil {
-		return fmt.Errorf("creating backend configuration file: %w", err)
 	}
 
 	return nil
@@ -64,13 +51,4 @@ func PrepareTerraformDirectoryAndModules(assetDir string) error {
 // GetTerraformRootDir gets the Terraform directory path.
 func GetTerraformRootDir(assetDir string) string {
 	return filepath.Join(assetDir, "terraform")
-}
-
-// CreateTerraformBackendFile creates the Terraform backend configuration file.
-func CreateTerraformBackendFile(assetDir, data string) error {
-	backendString := fmt.Sprintf("terraform {%s}\n", data)
-	terraformRootDir := GetTerraformRootDir(assetDir)
-	p := filepath.Join(terraformRootDir, backendFileName)
-
-	return ioutil.WriteFile(p, []byte(backendString), 0600)
 }

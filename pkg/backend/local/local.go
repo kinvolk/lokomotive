@@ -15,11 +15,8 @@
 package local
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/kinvolk/lokomotive/internal/template"
 )
 
 // Config represents the configuration of a local backend.
@@ -40,25 +37,4 @@ func NewConfig(b *hcl.Body, ctx *hcl.EvalContext) (*Config, hcl.Diagnostics) {
 	}
 
 	return c, hcl.Diagnostics{}
-}
-
-// Backend implements the Backend interface for a local backend.
-type Backend struct {
-	config *Config
-	// A string containing the rendered Terraform code of the backend.
-	rendered string
-}
-
-func (b *Backend) String() string {
-	return b.rendered
-}
-
-// NewBackend constructs a Backend based on the provided config and returns a pointer to it.
-func NewBackend(c *Config) (*Backend, error) {
-	rendered, err := template.Render(backendConfigTmpl, c)
-	if err != nil {
-		return nil, fmt.Errorf("rendering backend: %v", err)
-	}
-
-	return &Backend{config: c, rendered: rendered}, nil
 }

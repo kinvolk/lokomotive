@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclparse"
-
 	lokoconfig "github.com/kinvolk/lokomotive/pkg/config"
 )
 
@@ -261,15 +260,17 @@ func loadConfigFromString(t *testing.T, c string) hcl.Diagnostics {
 
 	configBody := hcl.MergeFiles([]*hcl.File{f})
 
-	var rootConfig lokoconfig.RootConfig
+	clusterConfig := lokoconfig.Config{
+		RootConfig: &lokoconfig.RootConfig{},
+	}
 
-	if d := gohcl.DecodeBody(configBody, nil, &rootConfig); d.HasErrors() {
+	if d := gohcl.DecodeBody(configBody, nil, clusterConfig.RootConfig); d.HasErrors() {
 		t.Fatalf("decoding root config should succeed, got: %v", d)
 	}
 
 	cc := &config{}
 
-	return cc.LoadConfig(&rootConfig.Cluster.Config, &hcl.EvalContext{})
+	return cc.LoadConfig(&clusterConfig)
 }
 
 func TestLoadConfig(t *testing.T) {
@@ -297,7 +298,7 @@ cluster "aks" {
 func TestLoadConfigEmpty(t *testing.T) {
 	c := &config{}
 
-	if d := c.LoadConfig(nil, &hcl.EvalContext{}); !d.HasErrors() {
+	if d := c.LoadConfig(nil); !d.HasErrors() {
 		t.Fatalf("empty config should return error, got: %v", d)
 	}
 }

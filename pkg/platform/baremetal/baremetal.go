@@ -26,6 +26,8 @@ import (
 	"github.com/mitchellh/go-homedir"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	lkconfig "github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -55,6 +57,9 @@ type config struct {
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	KubeAPIServerExtraFlags  []string
+
+	// TODO: Transient change - remove when refactoring platform interface.
+	Backend *backend.Backend
 }
 
 // init registers bare-metal as a platform
@@ -62,13 +67,33 @@ func init() {
 	platform.Register("bare-metal", NewConfig())
 }
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
+func (c *config) LoadConfig(cc *lkconfig.Config) hcl.Diagnostics {
+	if cc == nil {
+		return hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "nil config",
+			},
+		}
+	}
+
+	clusterConfig := cc.RootConfig.Cluster.Config
+
+	if clusterConfig == nil {
 		return hcl.Diagnostics{}
 	}
 
-	if diags := gohcl.DecodeBody(*configBody, evalContext, c); diags.HasErrors() {
+	if diags := gohcl.DecodeBody(clusterConfig, cc.EvalContext, c); diags.HasErrors() {
 		return diags
+	}
+
+	if cc.RootConfig.Backend != nil {
+		b, diags := backend.New(cc)
+		if diags.HasErrors() {
+			return diags
+		}
+
+		c.Backend = b
 	}
 
 	return c.checkValidConfig()
@@ -231,6 +256,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		KubeAPIServerExtraFlags  []string
 		Labels                   map[string]string
 		EnableTLSBootstrap       bool
+		Backend                  *backend.Backend
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -253,6 +279,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		KubeAPIServerExtraFlags:  cfg.KubeAPIServerExtraFlags,
 		Labels:                   cfg.Labels,
 		EnableTLSBootstrap:       cfg.EnableTLSBootstrap,
+		Backend:                  cfg.Backend,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

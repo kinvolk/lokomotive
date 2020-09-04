@@ -29,6 +29,8 @@ import (
 	"github.com/mitchellh/go-homedir"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	lkconfig "github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/dns"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -98,6 +100,9 @@ type config struct {
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
 	NodesDependOn           []string
+
+	// TODO: Transient change - remove when refactoring platform interface.
+	Backend *backend.Backend
 }
 
 // init registers packet as a platform
@@ -105,13 +110,33 @@ func init() {
 	platform.Register("packet", NewConfig())
 }
 
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
+func (c *config) LoadConfig(cc *lkconfig.Config) hcl.Diagnostics {
+	if cc == nil {
+		return hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "nil config",
+			},
+		}
+	}
+
+	clusterConfig := cc.RootConfig.Cluster.Config
+
+	if clusterConfig == nil {
 		return hcl.Diagnostics{}
 	}
 
-	if diags := gohcl.DecodeBody(*configBody, evalContext, c); len(diags) != 0 {
+	if diags := gohcl.DecodeBody(clusterConfig, cc.EvalContext, c); len(diags) != 0 {
 		return diags
+	}
+
+	if cc.RootConfig.Backend != nil {
+		b, diags := backend.New(cc)
+		if diags.HasErrors() {
+			return diags
+		}
+
+		c.Backend = b
 	}
 
 	return c.checkValidConfig()
@@ -281,11 +306,13 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Tags            string
 		SSHPublicKeys   string
 		ManagementCIDRs string
+		Backend         *backend.Backend
 	}{
 		Config:          *cfg,
 		Tags:            string(tags),
 		SSHPublicKeys:   string(keyListBytes),
 		ManagementCIDRs: string(managementCIDRs),
+		Backend:         cfg.Backend,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

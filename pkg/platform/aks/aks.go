@@ -31,6 +31,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	v1 "k8s.io/client-go/kubernetes/typed/storage/v1"
 
+	"github.com/kinvolk/lokomotive/pkg/backend"
+	lkconfig "github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -71,6 +73,9 @@ type config struct {
 	WorkerPools []workerPool `hcl:"worker_pool,block"`
 
 	KubernetesVersion string
+
+	// TODO: Transient change - remove when refactoring platform interface.
+	Backend *backend.Backend
 }
 
 const (
@@ -97,14 +102,33 @@ func init() { //nolint:gochecknoinits
 }
 
 // LoadConfig loads configuration values into the config struct from given HCL configuration.
-func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		emptyConfig := hcl.EmptyBody()
-		configBody = &emptyConfig
+func (c *config) LoadConfig(cc *lkconfig.Config) hcl.Diagnostics {
+	if cc == nil {
+		return hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "nil config",
+			},
+		}
 	}
 
-	if d := gohcl.DecodeBody(*configBody, evalContext, c); d.HasErrors() {
+	clusterConfig := hcl.EmptyBody()
+
+	if cc.RootConfig.Cluster.Config != nil {
+		clusterConfig = cc.RootConfig.Cluster.Config
+	}
+
+	if d := gohcl.DecodeBody(clusterConfig, cc.EvalContext, c); d.HasErrors() {
 		return d
+	}
+
+	if cc.RootConfig.Backend != nil {
+		b, diags := backend.New(cc)
+		if diags.HasErrors() {
+			return diags
+		}
+
+		c.Backend = b
 	}
 
 	return c.checkValidConfig()

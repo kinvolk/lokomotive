@@ -60,7 +60,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 		return nil, hcl.Diagnostics{diag}
 	}
 
-	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
+	return platform, platform.LoadConfig(lokoConfig)
 }
 
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.

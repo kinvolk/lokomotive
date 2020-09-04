@@ -45,7 +45,7 @@ type component struct {
 }
 
 type backend struct {
-	Name   string   `hcl:"name,label"`
+	Type   string   `hcl:"type,label"`
 	Config hcl.Body `hcl:",remain"`
 }
 
