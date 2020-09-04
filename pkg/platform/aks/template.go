@@ -61,7 +61,7 @@ azuread_application_password.aks.value
 {{- else -}}
 "{{ .ClientSecret }}"
 {{- end -}}
-{{- end -}}
+{{- end }}
 
 locals {
   subscription_id           = "{{ .SubscriptionID }}"
