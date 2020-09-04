@@ -208,6 +208,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 		install.ReleaseName = component
 		install.Namespace = namespace
 		install.Atomic = true
+		install.CreateNamespace = true
 
 		if _, err := install.Run(helmChart, values); err != nil {
 			fmt.Println("Failed!")
