@@ -1,3 +1,528 @@
+## v0.4.0 - 2020-09-07
+
+We're happy to announce the release of Lokomotive v0.4.0 (Darjeeling Himalayan).
+
+This release packs new features, bug fixes, code optimizations, better user interface, latest
+versions of components, security hardening and much more.
+
+### Changes in v0.4.0
+
+#### Kubernetes Updates
+
+- Update Kubernetes version to
+  [`v1.18.8`](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.18.md#v1188)
+  ([#861](https://github.com/kinvolk/lokomotive/pull/861)).
+
+#### Platform updates
+
+##### AKS
+
+- Update Kubernetes version to `1.17.9` ([#849](https://github.com/kinvolk/lokomotive/pull/849)).
+
+##### AWS
+
+- AWS: Add support for custom taints and labels
+  ([#832](https://github.com/kinvolk/lokomotive/pull/832)).
+
+#### New Components
+
+- Add component `experimental-istio-operator`
+  ([#686](https://github.com/kinvolk/lokomotive/pull/686)).
+- Add component `experimental-linkerd` ([#690](https://github.com/kinvolk/lokomotive/pull/690)).
+
+#### Component updates
+
+- Update etcd to `v3.4.13` ([#838](https://github.com/kinvolk/lokomotive/pull/838)).
+- Update Calico to `v3.15.2` ([#841](https://github.com/kinvolk/lokomotive/pull/841)).
+- Update Grafana to `7.1.4` and chart version `5.5.5`
+  ([#842](https://github.com/kinvolk/lokomotive/pull/842)).
+- Update Velero chart to `1.4.2` ([#830](https://github.com/kinvolk/lokomotive/pull/830)).
+- Update ExternalDNS chart to `3.3.0` ([#845](https://github.com/kinvolk/lokomotive/pull/845)).
+- Update Amazon Elastic Block Store (EBS) CSI driver to `v0.6.0`
+  ([#856](https://github.com/kinvolk/lokomotive/pull/856)).
+- Update Cluster Autoscaler to `v2` version `1.0.2`
+  ([#859](https://github.com/kinvolk/lokomotive/pull/859)).
+- Update cert-manager to `v0.16.1` ([#847](https://github.com/kinvolk/lokomotive/pull/847)).
+- Update OpenEBS to `v1.12.0` ([#781](https://github.com/kinvolk/lokomotive/pull/781)).
+- Update MetalLB to `v0.1.0-789-g85b7a46a` ([#885](https://github.com/kinvolk/lokomotive/pull/885)).
+- Update Rook to `v1.4.2` ([#879](https://github.com/kinvolk/lokomotive/pull/879)).
+- Use new bootkube image at version `v0.14.0-helm-7047a87`
+  ([#775](https://github.com/kinvolk/lokomotive/pull/775)), later updated to `v0.14.0-helm-ec64535`
+  as a part of ([#704](https://github.com/kinvolk/lokomotive/pull/704)).
+- Update Prometheus operator to `0.41.0` and chart version `9.3.0`
+  ([#757](https://github.com/kinvolk/lokomotive/pull/757)).
+- Update Contour to `v1.7.0` ([#771](https://github.com/kinvolk/lokomotive/pull/771)).
+
+#### Terraform Providers Updates
+
+- Update all Terraform providers to latest versions
+  ([#835](https://github.com/kinvolk/lokomotive/pull/835)).
+
+#### UX
+
+- Add autocomplete for bash and zsh in lokoctl
+  ([#880](https://github.com/kinvolk/lokomotive/pull/880)).
+
+    Run the following command to start using auto-completion for lokoctl:
+
+    ```bash
+    source <(lokoctl completion bash)
+    ```
+
+- Add `kubeconfig` fallback to Terraform state
+  ([#701](https://github.com/kinvolk/lokomotive/pull/701)).
+
+#### Features
+
+- Add label `lokomotive.kinvolk.io/name: <namespace_name>` to all namespaces
+  ([#646](https://github.com/kinvolk/lokomotive/pull/646)).
+- Add admission webhook to lokomotive, which disables automounting `default` service account token
+  ([#704](https://github.com/kinvolk/lokomotive/pull/704)).
+- **[Breaking Change]** Kubelet joins cluster using TLS Bootstrapping now, add flag
+  `enable_tls_bootstrap = false` to disable.
+  ([#618](https://github.com/kinvolk/lokomotive/pull/618)).
+- Add `csi_plugin_node_selector` and `csi_plugin_toleration` for rook-ceph's CSI plugin
+  ([#892](https://github.com/kinvolk/lokomotive/pull/892)).
+
+#### Docs
+
+- Setting up third party OAuth for Grafana ([#542](https://github.com/kinvolk/lokomotive/pull/542)).
+- Upgrading bootstrap kubelet ([#592](https://github.com/kinvolk/lokomotive/pull/592)).
+- Upgrading etcd ([#802](https://github.com/kinvolk/lokomotive/pull/802)).
+- How to add custom monitoring resources? ([#554](https://github.com/kinvolk/lokomotive/pull/554)).
+- Kubernetes storage with Rook Ceph on Packet cloud
+  ([#494](https://github.com/kinvolk/lokomotive/pull/494)).
+
+#### Bug fixes
+
+- aws: Add check for multiple worker pools with same LB ports
+  ([#889](https://github.com/kinvolk/lokomotive/pull/889)).
+- packet: ignore changes to plan and user_data on controller nodes
+  ([#907](https://github.com/kinvolk/lokomotive/pull/907)).
+- Introduce platform.PostApplyHook interface and implement it for AKS cluster
+  ([#886](https://github.com/kinvolk/lokomotive/pull/886)).
+- aws-ebs-csi-driver: add NetworkPolicy allowing access to metadata
+  ([#865](https://github.com/kinvolk/lokomotive/pull/865)).
+- pkg/components/cluster-autoscaler: fix checking device uniqueness
+  ([#768](https://github.com/kinvolk/lokomotive/pull/768)).
+
+#### Development
+
+- Replace use of github.com/pkg/errors.Wrapf with fmt
+  ([#831](https://github.com/kinvolk/lokomotive/pull/831),
+  [#877](https://github.com/kinvolk/lokomotive/pull/877)).
+- Refactor assets handling ([#807](https://github.com/kinvolk/lokomotive/pull/807)).
+- cli/cmd: improve --kubeconfig-file flag help message formatting
+  ([#818](https://github.com/kinvolk/lokomotive/pull/818)).
+- Use host's /etc/hosts entries for bootkube
+  ([#409](https://github.com/kinvolk/lokomotive/pull/409)).
+- Refactor Terraform executor ([#794](https://github.com/kinvolk/lokomotive/pull/794)).
+- Pass kubeconfig content around rather than a file path
+  ([#631](https://github.com/kinvolk/lokomotive/pull/631)).
+
+### Upgrading from v0.3.0
+
+#### Lokoctl Host binary upgrades
+
+##### terraform-provider-ct
+
+- Update the `ct` Terraform provider to `v0.6.1`, find the install instructions
+  [here](https://github.com/poseidon/terraform-provider-ct/blob/v0.6.1/README.md#install).
+
+#### Disable TLS Bootstrap
+
+In this release we introduced TLS bootstrapping and we enable it by default. To avoid cluster
+recreation, disable it by adding the following attribute to the `cluster ...` block:
+
+```tf
+cluster "packet" {
+  enable_tls_bootstrap = false
+...
+```
+
+#### Cluster upgrade steps
+
+Go to your cluster's directory and run the following command:
+
+```
+lokoctl cluster apply --skip-components -v
+```
+
+The update process typically takes about 10 minutes.
+After the update, running `lokoctl health` should result in an output similar to the following.
+
+```
+Node                     Ready    Reason          Message
+
+lokomotive-controller-0  True     KubeletReady    kubelet is posting ready status
+lokomotive-1-worker-0    True     KubeletReady    kubelet is posting ready status
+lokomotive-1-worker-1    True     KubeletReady    kubelet is posting ready status
+lokomotive-1-worker-2    True     KubeletReady    kubelet is posting ready status
+Name      Status    Message              Error
+
+etcd-0    True      {"health":"true"}
+```
+
+#### Cluster nodes component upgrade (optional)
+
+- Manually upgrade etcd following the steps mentioned in the doc
+  [here](https://github.com/kinvolk/lokomotive/blob/v0.4.0/docs/how-to-guides/upgrade-etcd.md).
+- Manually upgrade the kubelet running on the nodes, by following the steps mentioned in the doc
+  [here](https://github.com/kinvolk/lokomotive/blob/v0.4.0/docs/how-to-guides/upgrade-bootstrap-kubelet.md).
+
+#### Manual Cluster Changes
+
+The latest version of Metallb changes the labels of the ingress nodes. Label all the nodes that have
+`asn` set with the new labels:
+
+```
+kubectl label $(kubectl get nodes -o name -l metallb.universe.tf/my-asn) \
+  metallb.lokomotive.io/my-asn=65000 metallb.lokomotive.io/peer-asn=65530
+```
+
+Find a peer address of a node and assign it new label:
+
+```bash
+for node in $(kubectl get nodes -o name -l metallb.universe.tf/peer-address); do
+  peer_ip=$(kubectl get $node -o jsonpath='{.metadata.labels.metallb\.universe\.tf/peer-address}')
+  kubectl label $node metallb.lokomotive.io/peer-address=$peer_ip
+done
+```
+
+Now it is safe to update:
+
+```
+lokoctl component apply metallb
+```
+
+#### Ceph Upgrade steps
+
+These steps are curated from the upgrade doc provided by rook:
+https://rook.io/docs/rook/master/ceph-upgrade.html.
+
+- Keep note of the CSI images:
+
+  ```
+  kubectl --namespace rook get pod -o \
+    jsonpath='{range .items[*]}{range .spec.containers[*]}{.image}{"\n"}' \
+    -l 'app in (csi-rbdplugin,csi-rbdplugin-provisioner,csi-cephfsplugin,csi-cephfsplugin-provisioner)' | \
+    sort | uniq
+  ```
+
+- Ensure autoscale is on
+
+  Ensure that the output of the command `ceph osd pool autoscale-status | grep replicapool` says
+  `on` (in the last column) and not `warn` in the toolbox pod. If it says `warn`. Then run the
+  command `ceph osd pool set replicapool pg_autoscale_mode on` to set it to `on`. This is to ensure
+  we are not facing: https://github.com/rook/rook/issues/5608.
+
+  Read more about the toolbox pod here:
+  https://github.com/kinvolk/lokomotive/blob/v0.4.0/docs/how-to-guides/rook-ceph-storage.md#enable-and-access-toolbox.
+
+  > **NOTE**: If you see this error `[errno 5] RADOS I/O error (error connecting to the cluster)` in
+  > toolbox pod then tag the toolbox pod image to a specific version using this command: `kubectl -n
+  > rook set image deploy rook-ceph-tools rook-ceph-tools=rook/ceph:v1.3.2`.
+
+- Ceph Status
+
+  Run the following in the toolbox pod:
+
+  ```
+  watch ceph status
+  ```
+
+  Ensure that the output says that health is `HEALTH_OK`. Match the output such that   everything
+  looks fine as explained here: https://rook.io/docs/rook/master/ceph-upgrade.  html#status-output.
+
+
+- Pods in rook namespace:
+
+  Watch the pods status in another from the `rook` namespace in another terminal   window. Just
+  running this will be enough:
+
+  ```
+  watch kubectl -n rook get pods -o wide
+  ```
+
+- Watch for the rook version update
+
+  Run the following command to keep an eye on the rook version update as it is rolls   down for all
+  the components:
+
+  ```
+  watch --exec kubectl -n rook get deployments -l rook_cluster=rook -o jsonpath='  {range .items[*]}{.metadata.name}{"  \treq/upd/avl: "}{.spec.replicas}{"/"}{.  status.updatedReplicas}{"/"}{.status.readyReplicas}{"  \trook-version="}{.metadata.  labels.rook-version}{"\n"}{end}'
+  ```
+
+  You should see that `rook-version` slowly changes to `v1.4.2`.
+
+- Watch for the Ceph version update
+
+  Run the following command to keep an eye on the Ceph version update as the new pods come up:
+
+  ```
+  watch --exec kubectl -n rook get deployments -l rook_cluster=rook -o jsonpath='{range .items[*]}{.metadata.name}{"  \treq/upd/avl: "}{.spec.replicas}{"/"}{.status.updatedReplicas}{"/"}{.status.readyReplicas}{"  \tceph-version="}{.metadata.labels.ceph-version}{"\n"}{end}'
+  ```
+
+  You should see that `ceph-version` slowly changes to `15.`
+
+- Keep an eye on the events in the rook namespace
+
+  ```
+  kubectl -n rook get events -w
+  ```
+
+- Ceph Dashboard
+
+  Keep it open in one window, but sometimes it is more hassle than any help. It keeps reloading and
+  logs you out automatically. See this on how to access the dashboard:
+  https://github.com/kinvolk/lokomotive/blob/v0.4.0/docs/how-to-guides/rook-ceph-storage.md#access-the-ceph-dashboard.
+
+- Grafana dashboards
+
+  Keep an eye on the Grafana dashboard, but the data here will always be old, and the most reliable
+  state of the system will come from the watch running inside toolbox pod.
+
+- Run updates
+
+  ```
+  kubectl apply -f https://raw.githubusercontent.com/kinvolk/lokomotive/v0.4.0/assets/charts/components/rook/templates/resources.yaml
+  lokoctl component apply rook rook-ceph
+  ```
+
+- Verify that the csi images are updated:
+
+  ```
+  kubectl --namespace rook get pod -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.image}{"\n"}' -l 'app in (csi-rbdplugin,csi-rbdplugin-provisioner,csi-cephfsplugin,csi-cephfsplugin-provisioner)' | sort | uniq
+  ```
+
+- Final checks:
+
+  Once everything is up to date then run following commands in the toolbox pod:
+
+  ```
+  ceph status
+  ceph osd status
+  ceph df
+  rados df
+  ```
+
+#### OpenEBS
+
+OpenEBS control plane components and data plane components work independently.
+Even after the OpenEBS Control Plane components have been upgraded to 1.12.0,
+the Storage Pools and Volumes (both jiva and cStor) will continue to work with
+older versions.
+
+> Upgrade functionality is still under active development. It is highly recommended to schedule a
+> downtime for the application using the OpenEBS PV while performing this upgrade. Also, make sure
+> you have taken a backup of the data before starting the below upgrade procedure. - [Openebs
+> documentation](https://github.com/openebs/openebs/blob/master/k8s/upgrades/README.md#step-3-upgrade-the-openebs-pools-and-volumes)
+
+Upgrade the component by running the following steps:
+
+```
+lokoctl component apply openebs-operator openebs-storage-class
+```
+
+##### Upgrade cStor Pools
+
+* Extract the SPC name using the following command and replace it in the subsequent YAML file:
+
+```console
+$ kubectl get spc
+NAME                          AGE
+cstor-pool-openebs-replica1   24h
+```
+
+The Job spec for upgrade cstor pools is:
+
+```yaml
+# This is an example YAML for upgrading cstor SPC.
+# Some of the values below need to be changed to
+# match your openebs installation. The fields are
+# indicated with VERIFY
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  # VERIFY that you have provided a unique name for this upgrade job.
+  # The name can be any valid K8s string for name. This example uses
+  # the following convention: cstor-spc-<flattened-from-to-versions>
+  name: cstor-spc-11101120
+
+  # VERIFY the value of namespace is same as the namespace where openebs components
+  # are installed. You can verify using the command:
+  # `kubectl get pods -n <openebs-namespace> -l openebs.io/component-name=maya-apiserver`
+  # The above command should return status of the openebs-apiserver.
+  namespace: openebs
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      # VERIFY the value of serviceAccountName is pointing to service account
+      # created within openebs namespace. Use the non-default account.
+      # by running `kubectl get sa -n <openebs-namespace>`
+      serviceAccountName: openebs-operator
+      containers:
+      - name:  upgrade
+        args:
+        - "cstor-spc"
+
+        # --from-version is the current version of the pool
+        - "--from-version=1.11.0"
+
+        # --to-version is the version desired upgrade version
+        - "--to-version=1.12.0"
+
+        # Bulk upgrade is supported from 1.9
+        # To make use of it, please provide the list of SPCs
+        # as mentioned below
+        - "cstor-pool-openebs-replica1"
+        # For upgrades older than 1.9.0, use
+        # '--spc-name=<spc_name> format as
+        # below commented line
+        # - "--spc-name=cstor-sparse-pool"
+
+        #Following are optional parameters
+        #Log Level
+        - "--v=4"
+        #DO NOT CHANGE BELOW PARAMETERS
+        env:
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        tty: true
+
+        # the image version should be same as the --to-version mentioned above
+        # in the args of the Job
+        image: quay.io/openebs/m-upgrade:1.12.0
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
+```
+
+Apply the Job manifest using `kubectl`. Check the logs of the pod started by the Job:
+
+```console
+$ kubectl get logs -n openebs cstor-spc-1001120-dc7kx
+..
+..
+..
+I0903 12:25:00.397066       1 spc_upgrade.go:102] Upgrade Successful for spc cstor-pool-openebs-replica1
+I0903 12:25:00.397091       1 cstor_spc.go:120] Successfully upgraded storagePoolClaim{cstor-pool-openebs-replica1} from 1.11.0 to 1.12.0
+```
+
+##### Upgrade cStor volumes
+
+Extract the `cstor` volume names using the following command and replace it in the subsequent YAML file:
+
+```console
+$ kubectl get cstorvolumes -A
+NAMESPACE   NAME                                       STATUS    AGE   CAPACITY
+openebs     pvc-3415af20-db82-42cf-99e0-5d0f2809c657   Healthy   72m   50Gi
+openebs     pvc-c3d0b587-5da9-457b-9d0e-23331ade7f3d   Healthy   77m   50Gi
+openebs     pvc-e115f3f9-1666-4680-a932-d05bfd049087   Healthy   77m   100Gi
+```
+
+Create a Kubernetes Job spec for upgrading the cstor volume. An example spec is
+as follows:
+
+```yaml
+# This is an example YAML for upgrading cstor volume.
+# Some of the values below need to be changed to
+# match your openebs installation. The fields are
+# indicated with VERIFY
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  # VERIFY that you have provided a unique name for this upgrade job.
+  # The name can be any valid K8s string for name. This example uses
+  # the following convention: cstor-vol-<flattened-from-to-versions>
+  name: cstor-vol-11101120
+
+  # VERIFY the value of namespace is same as the namespace where openebs components
+  # are installed. You can verify using the command:
+  # `kubectl get pods -n <openebs-namespace> -l openebs.io/component-name=maya-apiserver`
+  # The above command should return the status of the openebs-apiserver.
+  namespace: openebs
+
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      # VERIFY the value of serviceAccountName is pointing to service account
+      # created within openebs namespace. Use the non-default account.
+      # by running `kubectl get sa -n <openebs-namespace>`
+      serviceAccountName: openebs-operator
+      containers:
+      - name:  upgrade
+        args:
+        - "cstor-volume"
+
+        # --from-version is the current version of the volume
+        - "--from-version=1.11.0"
+
+        # --to-version is the version desired upgrade version
+        - "--to-version=1.12.0"
+
+        # Bulk upgrade is supported from 1.9
+        # To make use of it, please provide the list of cstor volumes
+        # as mentioned below
+        - "pvc-3415af20-db82-42cf-99e0-5d0f2809c657"
+        - "pvc-c3d0b587-5da9-457b-9d0e-23331ade7f3d"
+        - "pvc-e115f3f9-1666-4680-a932-d05bfd049087"
+        # For upgrades older than 1.9.0, use
+        # '--pv-name=<pv_name> format as
+        # below commented line
+        # - "--pv-name=pvc-c630f6d5-afd2-11e9-8e79-42010a800065"
+
+        #Following are optional parameters
+        #Log Level
+        - "--v=4"
+        #DO NOT CHANGE BELOW PARAMETERS
+        env:
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        tty: true
+
+        # the image version should be same as the --to-version mentioned above
+        # in the args of the job
+        image: quay.io/openebs/m-upgrade:1.12.0
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
+---
+
+```
+
+Apply the Job manifest using `kubectl`. Check the logs of the pod started by the Job:
+
+```console
+$ kubectl get logs -n openebs cstor-vol-1001120-8b2h9
+..
+..
+..
+I0903 12:41:41.984635       1 cstor_volume_upgrade.go:609] Upgrade Successful for cstor volume pvc-e115f3f9-1666-4680-a932-d05bfd049087
+I0903 12:41:41.994013       1 cstor_volume.go:119] Successfully upgraded cstorVolume{pvc-e115f3f9-1666-4680-a932-d05bfd049087} from 1.11.0 to 1.12.0
+```
+
+Verify that all the volumes are updated to the latest version by running the following command:
+
+```console
+$ kubectl get cstorvolume -A -o jsonpath='{.items[*].versionDetails.status.current}'
+1.12.0 1.12.0 1.12.0
+```
+
+#### Upgrade other components
+
+Other components are safe to upgrade by running the following command:
+
+```
+lokoctl component apply <component name>
+```
+
 ## v0.3.0 - 2020-07-31
 
 We're happy to announce the release of Lokomotive v0.3.0 (Coast Starlight).
