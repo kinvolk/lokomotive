@@ -21,7 +21,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
+	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
@@ -49,16 +51,18 @@ func runHealth(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	lokoConfig, diags := getLokoConfig()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-
-		contextLogger.Fatal("Errors found while loading cluster configuration")
+	// Read cluster config from HCL files.
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+	cc, diags := config.LoadConfig(cp, vp)
+	if len(diags) > 0 {
+		contextLogger.Fatal(diags)
 	}
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	// Construct a Cluster.
+	c := createCluster(contextLogger, cc)
+
+	kubeconfig, err := getKubeconfig(contextLogger, cc, true)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
 		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
@@ -69,10 +73,7 @@ func runHealth(cmd *cobra.Command, args []string) {
 		contextLogger.Fatalf("Error in creating Kubernetes client: %q", err)
 	}
 
-	// We can skip error checking here, as getKubeconfig() already checks it.
-	p, _ := getConfiguredPlatform(lokoConfig, true)
-
-	cluster := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
+	cluster := lokomotive.NewCluster(cs, c.Nodes())
 
 	ns, err := cluster.GetNodeStatus()
 	if err != nil {

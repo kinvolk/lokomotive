@@ -40,7 +40,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	ex, p, _, _ := initialize(contextLogger)
+	_, _, ex := initialize(contextLogger)
 
 	if !clusterExists(contextLogger, ex) {
 		contextLogger.Println("Cluster already destroyed, nothing to do")
@@ -56,7 +56,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := p.Destroy(ex); err != nil {
+	if err := ex.Destroy(); err != nil {
 		contextLogger.Fatalf("Error destroying cluster: %v", err)
 	}
 

@@ -27,7 +27,6 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/config"
-	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
 const (
@@ -55,33 +54,33 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 	return backend, backend.LoadConfig(&lokoConfig.RootConfig.Backend.Config, lokoConfig.EvalContext)
 }
 
-// getConfiguredPlatform loads a platform from the given configuration file.
-func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Platform, hcl.Diagnostics) {
-	if lokoConfig.RootConfig.Cluster == nil && !require {
-		// No cluster defined and no configuration error
-		return nil, hcl.Diagnostics{}
-	}
+// // getConfiguredPlatform loads a platform from the given configuration file.
+// func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Platform, hcl.Diagnostics) {
+// 	if lokoConfig.RootConfig.Cluster == nil && !require {
+// 		// No cluster defined and no configuration error
+// 		return nil, hcl.Diagnostics{}
+// 	}
 
-	if lokoConfig.RootConfig.Cluster == nil && require {
-		return nil, hcl.Diagnostics{
-			{
-				Severity: hcl.DiagError,
-				Summary:  "no platform configured",
-			},
-		}
-	}
+// 	if lokoConfig.RootConfig.Cluster == nil && require {
+// 		return nil, hcl.Diagnostics{
+// 			{
+// 				Severity: hcl.DiagError,
+// 				Summary:  "no platform configured",
+// 			},
+// 		}
+// 	}
 
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
-	if err != nil {
-		diag := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  err.Error(),
-		}
-		return nil, hcl.Diagnostics{diag}
-	}
+// 	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
+// 	if err != nil {
+// 		diag := &hcl.Diagnostic{
+// 			Severity: hcl.DiagError,
+// 			Summary:  err.Error(),
+// 		}
+// 		return nil, hcl.Diagnostics{diag}
+// 	}
 
-	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
-}
+// 	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
+// }
 
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
 //
@@ -127,8 +126,20 @@ func getKubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config, platf
 // - kubeconfig from ~/.kube/config file.
 //
 func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
-	// Always try reading platform configuration.
-	p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
+	// // Always try reading platform configuration.
+	// p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
+	// if diags.HasErrors() {
+	// 	for _, diagnostic := range diags {
+	// 		contextLogger.Error(diagnostic.Error())
+	// 	}
+
+	// 	return nil, fmt.Errorf("loading cluster configuration")
+	// }
+
+	// Read cluster config from HCL files.
+	cp := viper.GetString("lokocfg")
+	vp := viper.GetString("lokocfg-vars")
+	cc, diags := config.LoadConfig(cp, vp)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
@@ -136,6 +147,8 @@ func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config,
 
 		return nil, fmt.Errorf("loading cluster configuration")
 	}
+
+	c := createCluster(contextLogger, cc)
 
 	for _, k := range viper.AllKeys() {
 		if k != kubeconfigFlag {
@@ -149,7 +162,7 @@ func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config,
 	}
 
 	// If platform is not configured and not required, fallback to global kubeconfig files.
-	if p == nil {
+	if c == nil {
 		return []string{
 			os.Getenv(kubeconfigEnvVariable),
 			defaultKubeconfigPath,
@@ -157,7 +170,7 @@ func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config,
 	}
 
 	// Next, try reading kubeconfig file from assets directory.
-	kubeconfigPath := assetsKubeconfig(p.Meta().AssetDir)
+	kubeconfigPath := assetsKubeconfig(c.AssetDir())
 
 	kubeconfig, err := expandAndRead(kubeconfigPath)
 	if err != nil && !os.IsNotExist(err) {
@@ -187,7 +200,7 @@ func readKubeconfigFromTerraformState(contextLogger *logrus.Entry) ([]byte, erro
 	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
 		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
 
-	ex, _, _, _ := initialize(contextLogger) //nolint:dogsled
+	_, _, ex := initialize(contextLogger)
 
 	kubeconfig := ""
 

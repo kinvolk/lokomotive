@@ -1,315 +1,246 @@
-package aks
+package aks_test
 
-import (
-	"io/ioutil"
-	"os"
-	"testing"
+// TODO: Migrate tests.
 
-	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/hashicorp/hcl/v2/hclparse"
+// // Meta()
+// func TestMeta(t *testing.T) {
+// 	assetDir := "foo"
 
-	lokoconfig "github.com/kinvolk/lokomotive/pkg/config"
-)
+// 	moreWorkers := 3
 
-const (
-	testWorkerCount = 1
-)
+// 	c := &config{
+// 		AssetDir: assetDir,
+// 		WorkerPools: []workerPool{
+// 			{
+// 				Count: testWorkerCount,
+// 			},
+// 			{
+// 				Count: moreWorkers,
+// 			},
+// 		},
+// 	}
 
-// createTerraformConfigFile()
-func TestCreateTerraformConfigFile(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
-	if err != nil {
-		t.Fatalf("creating tmp dir should succeed, got: %v", err)
-	}
+// 	expectedNodes := 4
+// 	if e := c.Meta().ExpectedNodes; e != expectedNodes {
+// 		t.Errorf("Meta should count workers from all pools. Expected %d, got %d", expectedNodes, e)
+// 	}
 
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			t.Logf("failed to remove temp dir %q: %v", tmpDir, err)
-		}
-	}()
+// 	if a := c.Meta().AssetDir; a != assetDir {
+// 		t.Errorf("Meta should return configured asset dir. Expected %q, got %q", assetDir, a)
+// 	}
+// }
 
-	c := &config{
-		WorkerPools: []workerPool{
-			{
-				Name:   "foo",
-				VMSize: "bar",
-				Count:  testWorkerCount,
-			},
-		},
-	}
+// // checkWorkerPoolNamesUnique()
+// func TestCheckWorkerPoolNamesUniqueDuplicated(t *testing.T) {
+// 	c := &config{
+// 		WorkerPools: []workerPool{
+// 			{
+// 				Name: "foo",
+// 			},
+// 			{
+// 				Name: "foo",
+// 			},
+// 		},
+// 	}
 
-	if err := createTerraformConfigFile(c, tmpDir); err != nil {
-		t.Fatalf("creating Terraform config files should succeed, got: %v", err)
-	}
-}
+// 	if d := c.checkWorkerPoolNamesUnique(); !d.HasErrors() {
+// 		t.Fatalf("should return error when worker pools are duplicated")
+// 	}
+// }
 
-func TestCreateTerraformConfigFileNoWorkerPools(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
-	if err != nil {
-		t.Fatalf("creating tmp dir should succeed, got: %v", err)
-	}
+// func TestCheckWorkerPoolNamesUnique(t *testing.T) {
+// 	c := &config{
+// 		WorkerPools: []workerPool{
+// 			{
+// 				Name: "foo",
+// 			},
+// 			{
+// 				Name: "bar",
+// 			},
+// 		},
+// 	}
 
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			t.Logf("failed to remove temp dir %q: %v", tmpDir, err)
-		}
-	}()
+// 	if d := c.checkWorkerPoolNamesUnique(); d.HasErrors() {
+// 		t.Fatalf("should not return errors when pool names are unique, got: %v", d)
+// 	}
+// }
 
-	c := &config{}
+// // checkNotEmptyWorkers()
+// func TestNotEmptyWorkersEmpty(t *testing.T) {
+// 	c := &config{}
 
-	if err := createTerraformConfigFile(c, tmpDir); err == nil {
-		t.Fatalf("creating Terraform config files should fail if there is no worker pools defined")
-	}
-}
+// 	if d := c.checkNotEmptyWorkers(); !d.HasErrors() {
+// 		t.Fatalf("should return error when there is no worker pool defined")
+// 	}
+// }
 
-func TestCreateTerraformConfigFileNonExistingPath(t *testing.T) {
-	c := &config{}
+// func TestNotEmptyWorkers(t *testing.T) {
+// 	c := &config{
+// 		WorkerPools: []workerPool{
+// 			{
+// 				Name: "foo",
+// 			},
+// 		},
+// 	}
 
-	if err := createTerraformConfigFile(c, "/nonexisting"); err == nil {
-		t.Fatalf("creating Terraform config files in non-existing path should fail")
-	}
-}
+// 	if d := c.checkNotEmptyWorkers(); d.HasErrors() {
+// 		t.Fatalf("should not return errors when worker pool is not empty, got: %v", d)
+// 	}
+// }
 
-// Meta()
-func TestMeta(t *testing.T) {
-	assetDir := "foo"
+// // checkConfiguration()
+// func TestCheckWorkerPoolNamesUniqueTest(t *testing.T) {
+// 	c := &config{
+// 		WorkerPools: []workerPool{
+// 			{
+// 				Name: "foo",
+// 			},
+// 			{
+// 				Name: "bar",
+// 			},
+// 		},
+// 	}
 
-	moreWorkers := 3
+// 	if d := c.checkWorkerPoolNamesUnique(); d.HasErrors() {
+// 		t.Fatalf("should not return errors when pool names are unique, got: %v", d)
+// 	}
+// }
 
-	c := &config{
-		AssetDir: assetDir,
-		WorkerPools: []workerPool{
-			{
-				Count: testWorkerCount,
-			},
-			{
-				Count: moreWorkers,
-			},
-		},
-	}
+// // checkCredentials()
+// func TestCheckCredentialsAppNameAndClientID(t *testing.T) {
+// 	c := &config{
+// 		ApplicationName: "foo",
+// 		ClientID:        "foo",
+// 	}
 
-	expectedNodes := 4
-	if e := c.Meta().ExpectedNodes; e != expectedNodes {
-		t.Errorf("Meta should count workers from all pools. Expected %d, got %d", expectedNodes, e)
-	}
+// 	if d := c.checkCredentials(); !d.HasErrors() {
+// 		t.Fatalf("should give error if both ApplicationName and ClientID fields are defined")
+// 	}
+// }
 
-	if a := c.Meta().AssetDir; a != assetDir {
-		t.Errorf("Meta should return configured asset dir. Expected %q, got %q", assetDir, a)
-	}
-}
+// func TestCheckCredentialsAppNameAndClientSecret(t *testing.T) {
+// 	c := &config{
+// 		ApplicationName: "foo",
+// 		ClientSecret:    "foo",
+// 	}
 
-// checkWorkerPoolNamesUnique()
-func TestCheckWorkerPoolNamesUniqueDuplicated(t *testing.T) {
-	c := &config{
-		WorkerPools: []workerPool{
-			{
-				Name: "foo",
-			},
-			{
-				Name: "foo",
-			},
-		},
-	}
+// 	if d := c.checkCredentials(); !d.HasErrors() {
+// 		t.Fatalf("should give error if both ApplicationName and ClientID fields are defined")
+// 	}
+// }
 
-	if d := c.checkWorkerPoolNamesUnique(); !d.HasErrors() {
-		t.Fatalf("should return error when worker pools are duplicated")
-	}
-}
+// func TestCheckCredentialsAppNameClientIDAndClientSecret(t *testing.T) {
+// 	c := &config{
+// 		ApplicationName: "foo",
+// 		ClientID:        "foo",
+// 		ClientSecret:    "foo",
+// 	}
 
-func TestCheckWorkerPoolNamesUnique(t *testing.T) {
-	c := &config{
-		WorkerPools: []workerPool{
-			{
-				Name: "foo",
-			},
-			{
-				Name: "bar",
-			},
-		},
-	}
+// 	expectedErrorCount := 2
 
-	if d := c.checkWorkerPoolNamesUnique(); d.HasErrors() {
-		t.Fatalf("should not return errors when pool names are unique, got: %v", d)
-	}
-}
+// 	if d := c.checkCredentials(); len(d) != expectedErrorCount {
+// 		t.Fatalf("should give errors for both conflicting ClientID and ClientSecret, got %v", d)
+// 	}
+// }
 
-// checkNotEmptyWorkers()
-func TestNotEmptyWorkersEmpty(t *testing.T) {
-	c := &config{}
+// func TestCheckCredentialsRequireSome(t *testing.T) {
+// 	c := &config{}
 
-	if d := c.checkNotEmptyWorkers(); !d.HasErrors() {
-		t.Fatalf("should return error when there is no worker pool defined")
-	}
-}
+// 	if d := c.checkCredentials(); !d.HasErrors() {
+// 		t.Fatalf("should give error if both ApplicationName and ClientID fields are empty")
+// 	}
+// }
 
-func TestNotEmptyWorkers(t *testing.T) {
-	c := &config{
-		WorkerPools: []workerPool{
-			{
-				Name: "foo",
-			},
-		},
-	}
+// func TestCheckCredentialsRequireClientIDWithClientSecret(t *testing.T) {
+// 	c := &config{
+// 		ClientSecret: "foo",
+// 	}
 
-	if d := c.checkNotEmptyWorkers(); d.HasErrors() {
-		t.Fatalf("should not return errors when worker pool is not empty, got: %v", d)
-	}
-}
+// 	if d := c.checkCredentials(); !d.HasErrors() {
+// 		t.Fatalf("should give error if ClientSecret is defined and ClientID is empty")
+// 	}
+// }
 
-// checkConfiguration()
-func TestCheckWorkerPoolNamesUniqueTest(t *testing.T) {
-	c := &config{
-		WorkerPools: []workerPool{
-			{
-				Name: "foo",
-			},
-			{
-				Name: "bar",
-			},
-		},
-	}
+// func TestCheckCredentialsReadClientSecretFromEnvironment(t *testing.T) {
+// 	if err := os.Setenv(clientSecretEnv, "1"); err != nil {
+// 		t.Fatalf("failed to set environment variable %q: %v", clientSecretEnv, err)
+// 	}
 
-	if d := c.checkWorkerPoolNamesUnique(); d.HasErrors() {
-		t.Fatalf("should not return errors when pool names are unique, got: %v", d)
-	}
-}
+// 	defer func() {
+// 		if err := os.Setenv(clientSecretEnv, ""); err != nil {
+// 			t.Logf("failed unsetting environment variable %q: %v", clientSecretEnv, err)
+// 		}
+// 	}()
 
-// checkCredentials()
-func TestCheckCredentialsAppNameAndClientID(t *testing.T) {
-	c := &config{
-		ApplicationName: "foo",
-		ClientID:        "foo",
-	}
+// 	c := &config{
+// 		ClientID: "foo",
+// 	}
 
-	if d := c.checkCredentials(); !d.HasErrors() {
-		t.Fatalf("should give error if both ApplicationName and ClientID fields are defined")
-	}
-}
+// 	if d := c.checkCredentials(); d.HasErrors() {
+// 		t.Fatalf("should read client secret from environment")
+// 	}
+// }
 
-func TestCheckCredentialsAppNameAndClientSecret(t *testing.T) {
-	c := &config{
-		ApplicationName: "foo",
-		ClientSecret:    "foo",
-	}
+// // LoadConfig()
+// func loadConfigFromString(t *testing.T, c string) hcl.Diagnostics {
+// 	p := hclparse.NewParser()
 
-	if d := c.checkCredentials(); !d.HasErrors() {
-		t.Fatalf("should give error if both ApplicationName and ClientID fields are defined")
-	}
-}
+// 	f, d := p.ParseHCL([]byte(c), "x.lokocfg")
+// 	if d.HasErrors() {
+// 		t.Fatalf("parsing HCL should succeed, got: %v", d)
+// 	}
 
-func TestCheckCredentialsAppNameClientIDAndClientSecret(t *testing.T) {
-	c := &config{
-		ApplicationName: "foo",
-		ClientID:        "foo",
-		ClientSecret:    "foo",
-	}
+// 	configBody := hcl.MergeFiles([]*hcl.File{f})
 
-	expectedErrorCount := 2
+// 	var rootConfig lokoconfig.RootConfig
 
-	if d := c.checkCredentials(); len(d) != expectedErrorCount {
-		t.Fatalf("should give errors for both conflicting ClientID and ClientSecret, got %v", d)
-	}
-}
+// 	if d := gohcl.DecodeBody(configBody, nil, &rootConfig); d.HasErrors() {
+// 		t.Fatalf("decoding root config should succeed, got: %v", d)
+// 	}
 
-func TestCheckCredentialsRequireSome(t *testing.T) {
-	c := &config{}
+// 	cc := &config{}
 
-	if d := c.checkCredentials(); !d.HasErrors() {
-		t.Fatalf("should give error if both ApplicationName and ClientID fields are empty")
-	}
-}
+// 	return cc.LoadConfig(&rootConfig.Cluster.Config, &hcl.EvalContext{})
+// }
 
-func TestCheckCredentialsRequireClientIDWithClientSecret(t *testing.T) {
-	c := &config{
-		ClientSecret: "foo",
-	}
+// func TestLoadConfig(t *testing.T) {
+// 	c := `
+// cluster "aks" {
+//   asset_dir           = "/fooo"
+//   client_id           = "bar"
+//   client_secret       = "foo"
+//   cluster_name        = "mycluster"
+//   resource_group_name = "test"
+//   subscription_id     = "foo"
+//   tenant_id           = "bar"
 
-	if d := c.checkCredentials(); !d.HasErrors() {
-		t.Fatalf("should give error if ClientSecret is defined and ClientID is empty")
-	}
-}
+//   worker_pool "foo" {
+//     count   = 1
+//     vm_size = "foo"
+//   }
+// }
+// `
+// 	if d := loadConfigFromString(t, c); d.HasErrors() {
+// 		t.Fatalf("valid config should not return error, got: %v", d)
+// 	}
+// }
 
-func TestCheckCredentialsReadClientSecretFromEnvironment(t *testing.T) {
-	if err := os.Setenv(clientSecretEnv, "1"); err != nil {
-		t.Fatalf("failed to set environment variable %q: %v", clientSecretEnv, err)
-	}
+// func TestLoadConfigEmpty(t *testing.T) {
+// 	c := &config{}
 
-	defer func() {
-		if err := os.Setenv(clientSecretEnv, ""); err != nil {
-			t.Logf("failed unsetting environment variable %q: %v", clientSecretEnv, err)
-		}
-	}()
+// 	if d := c.LoadConfig(nil, &hcl.EvalContext{}); !d.HasErrors() {
+// 		t.Fatalf("empty config should return error, got: %v", d)
+// 	}
+// }
 
-	c := &config{
-		ClientID: "foo",
-	}
+// func TestLoadConfigBadHCL(t *testing.T) {
+// 	c := `
+// cluster "aks" {
+//   not_defined_field = "doh"
+// }
+// `
 
-	if d := c.checkCredentials(); d.HasErrors() {
-		t.Fatalf("should read client secret from environment")
-	}
-}
-
-// LoadConfig()
-func loadConfigFromString(t *testing.T, c string) hcl.Diagnostics {
-	p := hclparse.NewParser()
-
-	f, d := p.ParseHCL([]byte(c), "x.lokocfg")
-	if d.HasErrors() {
-		t.Fatalf("parsing HCL should succeed, got: %v", d)
-	}
-
-	configBody := hcl.MergeFiles([]*hcl.File{f})
-
-	var rootConfig lokoconfig.RootConfig
-
-	if d := gohcl.DecodeBody(configBody, nil, &rootConfig); d.HasErrors() {
-		t.Fatalf("decoding root config should succeed, got: %v", d)
-	}
-
-	cc := &config{}
-
-	return cc.LoadConfig(&rootConfig.Cluster.Config, &hcl.EvalContext{})
-}
-
-func TestLoadConfig(t *testing.T) {
-	c := `
-cluster "aks" {
-  asset_dir           = "/fooo"
-  client_id           = "bar"
-  client_secret       = "foo"
-  cluster_name        = "mycluster"
-  resource_group_name = "test"
-  subscription_id     = "foo"
-  tenant_id           = "bar"
-
-  worker_pool "foo" {
-    count   = 1
-    vm_size = "foo"
-  }
-}
-`
-	if d := loadConfigFromString(t, c); d.HasErrors() {
-		t.Fatalf("valid config should not return error, got: %v", d)
-	}
-}
-
-func TestLoadConfigEmpty(t *testing.T) {
-	c := &config{}
-
-	if d := c.LoadConfig(nil, &hcl.EvalContext{}); !d.HasErrors() {
-		t.Fatalf("empty config should return error, got: %v", d)
-	}
-}
-
-func TestLoadConfigBadHCL(t *testing.T) {
-	c := `
-cluster "aks" {
-  not_defined_field = "doh"
-}
-`
-
-	if d := loadConfigFromString(t, c); !d.HasErrors() {
-		t.Fatalf("invalid HCL should return errors")
-	}
-}
+// 	if d := loadConfigFromString(t, c); !d.HasErrors() {
+// 		t.Fatalf("invalid HCL should return errors")
+// 	}
+// }
