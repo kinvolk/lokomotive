@@ -312,12 +312,6 @@ spec:
         app: metallb
         component: speaker
     spec:
-      {{- if .SpeakerNodeSelectors }}
-      nodeSelector:
-        {{- range $key, $value := .SpeakerNodeSelectors }}
-        {{ $key }}: "{{ $value }}"
-        {{- end }}
-      {{- end }}
       containers:
       - args:
         - --metrics-port=7472
@@ -371,8 +365,13 @@ spec:
             - ALL
           readOnlyRootFilesystem: true
       hostNetwork: true
+      # XXX: Lokomotive specific change.
+      {{- if .SpeakerNodeSelectors }}
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        {{- range $key, $value := .SpeakerNodeSelectors }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+      {{- end }}
       serviceAccountName: speaker
       terminationGracePeriodSeconds: 2
       # XXX: Lokomotive specific change.
