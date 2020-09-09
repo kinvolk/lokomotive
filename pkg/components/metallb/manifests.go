@@ -248,12 +248,6 @@ spec:
         app: metallb
         component: controller
     spec:
-      {{- if .ControllerNodeSelectors }}
-      nodeSelector:
-        {{- range $key, $value := .ControllerNodeSelectors }}
-        {{ $key }}: "{{ $value }}"
-        {{- end }}
-      {{- end }}
       containers:
       - args:
         - --port=7472
@@ -274,13 +268,19 @@ spec:
             drop:
             - all
           readOnlyRootFilesystem: true
+      # XXX: Lokomotive specific change.
+      {{- if .ControllerNodeSelectors }}
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        {{- range $key, $value := .ControllerNodeSelectors }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
       serviceAccountName: controller
       terminationGracePeriodSeconds: 0
+      # XXX: Lokomotive specific change.
       {{- if .ControllerTolerationsJSON }}
       tolerations: {{ .ControllerTolerationsJSON }}
       {{- end }}
