@@ -375,9 +375,10 @@ spec:
         beta.kubernetes.io/os: linux
       serviceAccountName: speaker
       terminationGracePeriodSeconds: 2
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
+      # XXX: Lokomotive specific change.
+      {{- if .SpeakerTolerationsJSON }}
+      tolerations: {{ .SpeakerTolerationsJSON }}
+      {{- end }}
 `
 
 const pspMetallbController = `
