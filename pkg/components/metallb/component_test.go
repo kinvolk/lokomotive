@@ -32,7 +32,7 @@ func TestEmptyConfig(t *testing.T) {
 	}
 }
 
-func testRenderManifest(t *testing.T, configHCL string) {
+func renderManifest(t *testing.T, configHCL string) map[string]string {
 	component := newComponent()
 
 	body, diagnostics := util.GetComponentBody(configHCL, name)
@@ -45,11 +45,17 @@ func testRenderManifest(t *testing.T, configHCL string) {
 		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
 	}
 
-	m, err := component.RenderManifests()
+	ret, err := component.RenderManifests()
 	if err != nil {
 		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
 	}
-	if len(m) <= 0 {
+
+	return ret
+}
+
+func testRenderManifest(t *testing.T, configHCL string) {
+	m := renderManifest(t, configHCL)
+	if len(m) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 }
