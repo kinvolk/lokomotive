@@ -250,7 +250,7 @@ https://rook.io/docs/rook/master/ceph-upgrade.html.
   the components:
 
   ```
-  watch --exec kubectl -n rook get deployments -l rook_cluster=rook -o jsonpath='  {range .items[*]}{.metadata.name}{"  \treq/upd/avl: "}{.spec.replicas}{"/"}{.  status.updatedReplicas}{"/"}{.status.readyReplicas}{"  \trook-version="}{.metadata.  labels.rook-version}{"\n"}{end}'
+  watch --exec kubectl -n rook get deployments -l rook_cluster=rook -o jsonpath='{range .items[*]}{.metadata.name}{"  \treq/upd/avl: "}{.spec.replicas}{"/"}{.status.updatedReplicas}{"/"}{.status.readyReplicas}{"  \trook-version="}{.metadata.labels.rook-version}{"\n"}{end}'
   ```
 
   You should see that `rook-version` slowly changes to `v1.4.2`.
