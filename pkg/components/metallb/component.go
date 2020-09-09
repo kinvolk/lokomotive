@@ -73,7 +73,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	c.ControllerNodeSelectors["beta.kubernetes.io/os"] = "linux"
 	c.ControllerNodeSelectors["node.kubernetes.io/master"] = ""
 
-	c.ControllerTolerations = append(c.SpeakerTolerations, util.Toleration{
+	c.ControllerTolerations = append(c.ControllerTolerations, util.Toleration{
 		Effect: "NoSchedule",
 		Key:    "node-role.kubernetes.io/master",
 	})
