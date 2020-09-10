@@ -26,8 +26,6 @@ type fsAssets struct {
 	assetsDir string
 }
 
-var _ AssetsIface = &fsAssets{}
-
 func newFsAssets(dir string) *fsAssets {
 	if dir == "" {
 		execDir, err := osext.ExecutableFolder()
@@ -41,7 +39,7 @@ func newFsAssets(dir string) *fsAssets {
 	}
 }
 
-func (a *fsAssets) WalkFiles(location string, cb WalkFunc) error {
+func (a *fsAssets) WalkFiles(location string, cb walkFunc) error {
 	relativeLocation := strings.TrimLeft(location, string(os.PathSeparator))
 	assetsLocation := filepath.Join(a.assetsDir, relativeLocation)
 	return filepath.Walk(assetsLocation, func(path string, info os.FileInfo, err error) error {

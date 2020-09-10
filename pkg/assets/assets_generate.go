@@ -16,19 +16,36 @@
 package main
 
 import (
-	"log"
+	"net/http"
+	"time"
+
+	// External dependencies should also be added to assets.go file.
+	"github.com/prometheus/alertmanager/pkg/modtimevfs"
+	"github.com/shurcooL/httpfs/union"
+	"github.com/shurcooL/vfsgen"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 )
 
 func main() {
-	dirs := map[string]string{
-		assets.TerraformModulesSource: "../../assets/terraform-modules",
-		assets.ControlPlaneSource:     "../../assets/charts/control-plane",
-		assets.ComponentsSource:       "../../assets/charts/components",
+	directoriesToEmbed := map[string]http.FileSystem{
+		assets.TerraformModulesSource: http.Dir("../../assets/terraform-modules"),
+		assets.ControlPlaneSource:     http.Dir("../../assets/charts/control-plane"),
+		assets.ComponentsSource:       http.Dir("../../assets/charts/components"),
 	}
-	err := assets.Generate("generated_assets.go", "assets", "vfsgenAssets", dirs)
-	if err != nil {
-		log.Fatalln(err)
+
+	// Reset modification time on files, so after cloning the repository all
+	// assets don't get modified.
+	u := union.New(directoriesToEmbed)
+	fs := modtimevfs.New(u, time.Unix(1, 0))
+
+	options := vfsgen.Options{
+		Filename:     "generated_assets.go",
+		PackageName:  "assets",
+		VariableName: "vfsgenAssets",
+	}
+
+	if err := vfsgen.Generate(fs, options); err != nil {
+		panic(err)
 	}
 }

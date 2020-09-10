@@ -22,7 +22,7 @@ import (
 )
 
 // copyingWalker returns a WalkFunc which writes the given file to disk.
-func copyingWalker(path string, newDirPerms os.FileMode) WalkFunc {
+func copyingWalker(path string, newDirPerms os.FileMode) walkFunc {
 	return func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
 		if err != nil {
 			return fmt.Errorf("error while walking at %q: %w", fileName, err)

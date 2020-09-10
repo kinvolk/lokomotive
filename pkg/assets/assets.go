@@ -19,13 +19,27 @@ package assets
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
-	"time"
 
-	"github.com/prometheus/alertmanager/pkg/modtimevfs"
-	"github.com/shurcooL/httpfs/union"
-	"github.com/shurcooL/vfsgen"
+	// Currently pkg/assets/assets_generate.go file is ignored from regular
+	// builds and it's only used when running 'go generate'.
+	//
+	// Because of that, external dependencies of assets_generate.go are not
+	// normally added to go.mod and go.sum files, unless you run 'go generate'.
+	// But then 'go mod tidy' removes them again.
+	//
+	// Those anonymous imports ensure, that those external dependencies
+	// will always be pulled into go.mod file.
+	//
+	// The alternative would be to refactor the function to actually use the
+	// dependencies here, but then we have an exported function, which
+	// shouldn't really be exported.
+	//
+	// Also see https://github.com/golang/go/issues/25922 and https://github.com/golang/go/issues/29516
+	// for more details about this issue.
+	_ "github.com/prometheus/alertmanager/pkg/modtimevfs"
+	_ "github.com/shurcooL/httpfs/union"
+	_ "github.com/shurcooL/vfsgen"
 )
 
 const (
@@ -37,45 +51,24 @@ const (
 	TerraformModulesSource = "/terraform-modules"
 )
 
-type WalkFunc func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error
+type walkFunc func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error
 
-type AssetsIface interface {
+type assetsIface interface {
 	// WalkFiles calls cb for every regular file within path.
 	//
 	// Usually, fileName passed to the cb will be relative to
 	// path. But in case of error, it is possible that it will
 	// not.be relative. Also, in case of error, fileInfo or r may
 	// be nil.
-	WalkFiles(path string, cb WalkFunc) error
+	WalkFiles(path string, cb walkFunc) error
 }
 
-func get() AssetsIface {
+func get() assetsIface {
 	if value, found := os.LookupEnv("LOKOCTL_USE_FS_ASSETS"); found {
 		return newFsAssets(value)
 	}
 
 	return newEmbeddedAssets()
-}
-
-// Generate function wraps vfsgen.Generate function.
-// Additionally to vfsgen.Generate, it also takes map of directories,
-// where key represents path in the assets and a value represents path
-// to the assets directory in local filesystem (which should be relative).
-//
-// This function also resets modification time for every file, so creating a new copy
-// of code does not trigger changes in all asset files.
-func Generate(fileName string, packageName string, variableName string, dirs map[string]string) error {
-	ufs := make(map[string]http.FileSystem)
-	for assetsPath, fsPath := range dirs {
-		ufs[assetsPath] = http.Dir(fsPath)
-	}
-	u := union.New(ufs)
-	fs := modtimevfs.New(u, time.Unix(1, 0))
-	return vfsgen.Generate(fs, vfsgen.Options{
-		Filename:     fileName,
-		PackageName:  packageName,
-		VariableName: variableName,
-	})
 }
 
 // Extract recursively extracts the assets at src into the directory dst. If dst doesn't exist, the

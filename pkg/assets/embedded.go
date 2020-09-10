@@ -29,15 +29,13 @@ type embeddedAssets struct {
 	fs http.FileSystem
 }
 
-var _ AssetsIface = &embeddedAssets{}
-
 func newEmbeddedAssets() *embeddedAssets {
 	return &embeddedAssets{
 		fs: vfsgenAssets,
 	}
 }
 
-func (a *embeddedAssets) WalkFiles(location string, cb WalkFunc) error {
+func (a *embeddedAssets) WalkFiles(location string, cb walkFunc) error {
 	return vfsutil.WalkFiles(a.fs, location, func(filePath string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
 		if err != nil {
 			return cb(filePath, fileInfo, r, err)
