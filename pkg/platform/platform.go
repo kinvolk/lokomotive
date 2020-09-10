@@ -31,7 +31,7 @@ import (
 func CommonControlPlaneCharts() []helm.LokomotiveChart {
 	return []helm.LokomotiveChart{
 		{
-			Name:      "calico",
+			Name:      "pod-checkpointer",
 			Namespace: "kube-system",
 		},
 		{
@@ -43,7 +43,7 @@ func CommonControlPlaneCharts() []helm.LokomotiveChart {
 			Namespace: "kube-system",
 		},
 		{
-			Name:      "pod-checkpointer",
+			Name:      "calico",
 			Namespace: "kube-system",
 		},
 		{
