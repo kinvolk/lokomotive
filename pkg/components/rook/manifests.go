@@ -15,6 +15,10 @@
 package rook
 
 const chartValuesTmpl = `
+resources:
+  limits:
+    memory: 512Mi
+
 {{- if .NodeSelector }}
 nodeSelector: {{ .NodeSelectorRaw }}
 {{- end }}
