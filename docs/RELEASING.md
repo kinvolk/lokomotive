@@ -65,6 +65,9 @@ Now we'll tag the release.
 - Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for details).
   - `export GITHUB_TOKEN=<GitHub token>`
 
+- Export your GPG Key Signature. Find your signature in the [KEYS](KEYS.md) file.
+  - `export GPG_FINGERPRINT=<GPG Signature>`
+
 - Build the binary, sign it, upload it to GitHub, create draft GitHub release.
   - `make build-and-publish-release`
 
