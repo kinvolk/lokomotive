@@ -17,7 +17,6 @@ package assets
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -36,39 +35,6 @@ func copyingWalker(path string, newDirPerms os.FileMode) WalkFunc {
 		}
 
 		return writeFile(fileName, r)
-	}
-}
-
-// DumpingWalker returns a WalkFunc which sets the contents of the given file in a map.
-func DumpingWalker(contentsMap map[string]string, allowedExts ...string) WalkFunc {
-	var extsMap map[string]struct{}
-
-	if len(allowedExts) > 0 {
-		extsMap = make(map[string]struct{}, len(allowedExts))
-		for _, ext := range allowedExts {
-			extsMap[ext] = struct{}{}
-		}
-	}
-
-	return func(fileName string, fileInfo os.FileInfo, r io.ReadSeeker, err error) error {
-		if err != nil {
-			return fmt.Errorf("error while walking at %q: %w", fileName, err)
-		}
-
-		if extsMap != nil {
-			if _, ok := extsMap[filepath.Ext(fileName)]; !ok {
-				return nil
-			}
-		}
-
-		contents, err := ioutil.ReadAll(r)
-		if err != nil {
-			return fmt.Errorf("failed to read %q: %w", fileName, err)
-		}
-
-		contentsMap[fileName] = string(contents)
-
-		return nil
 	}
 }
 
