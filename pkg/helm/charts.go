@@ -46,9 +46,7 @@ func ChartFromAssets(location string) (*chart.Chart, error) {
 	// isn't trivial since we call os.RemoveAll() in a defer statement.
 	defer os.RemoveAll(tmpDir) //nolint: errcheck
 
-	// Rendered files could contain secrets - allow r/w access to owner only.
-	walk := assets.CopyingWalker(tmpDir, 0700)
-	if err := assets.Assets.WalkFiles(location, walk); err != nil {
+	if err := assets.Extract(location, tmpDir); err != nil {
 		return nil, fmt.Errorf("traversing assets: %w", err)
 	}
 
