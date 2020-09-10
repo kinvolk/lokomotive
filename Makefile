@@ -156,7 +156,7 @@ docs:
 .PHONY: build-and-publish-release
 build-and-publish-release: SHELL:=/bin/bash
 build-and-publish-release:
-	goreleaser --release-notes <(./scripts/print-version-changelog.sh)
+	goreleaser release --release-notes <(./scripts/print-version-changelog.sh)
 
 .PHONY: codespell
 codespell: CODESPELL_SKIP := $(shell cat .codespell.skip | tr \\n ',')
