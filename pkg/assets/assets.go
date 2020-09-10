@@ -85,7 +85,7 @@ func Generate(fileName string, packageName string, variableName string, dirs map
 // The assets are read either from data embedded in the binary or from the filesystem, depending on
 // whether the LOKOCTL_USE_FS_ASSETS environment variable is set.
 func Extract(src, dst string) error {
-	walk := CopyingWalker(dst, 0700)
+	walk := copyingWalker(dst, 0700)
 	if err := Assets.WalkFiles(src, walk); err != nil {
 		return fmt.Errorf("failed to walk assets: %v", err)
 	}
