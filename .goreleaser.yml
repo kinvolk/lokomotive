@@ -23,6 +23,7 @@ changelog:
 # Enable signing checksums.
 signs:
 - artifacts: all
+  args: ["-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}"]
 
 # Override default project name.
 project_name: lokoctl
