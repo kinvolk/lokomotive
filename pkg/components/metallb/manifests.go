@@ -248,12 +248,6 @@ spec:
         app: metallb
         component: controller
     spec:
-      {{- if .ControllerNodeSelectors }}
-      nodeSelector:
-        {{- range $key, $value := .ControllerNodeSelectors }}
-        {{ $key }}: "{{ $value }}"
-        {{- end }}
-      {{- end }}
       containers:
       - args:
         - --port=7472
@@ -274,13 +268,19 @@ spec:
             drop:
             - all
           readOnlyRootFilesystem: true
+      # XXX: Lokomotive specific change.
+      {{- if .ControllerNodeSelectors }}
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        {{- range $key, $value := .ControllerNodeSelectors }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
       serviceAccountName: controller
       terminationGracePeriodSeconds: 0
+      # XXX: Lokomotive specific change.
       {{- if .ControllerTolerationsJSON }}
       tolerations: {{ .ControllerTolerationsJSON }}
       {{- end }}
@@ -312,12 +312,6 @@ spec:
         app: metallb
         component: speaker
     spec:
-      {{- if .SpeakerNodeSelectors }}
-      nodeSelector:
-        {{- range $key, $value := .SpeakerNodeSelectors }}
-        {{ $key }}: "{{ $value }}"
-        {{- end }}
-      {{- end }}
       containers:
       - args:
         - --metrics-port=7472
@@ -371,13 +365,19 @@ spec:
             - ALL
           readOnlyRootFilesystem: true
       hostNetwork: true
+      # XXX: Lokomotive specific change.
+      {{- if .SpeakerNodeSelectors }}
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        {{- range $key, $value := .SpeakerNodeSelectors }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+      {{- end }}
       serviceAccountName: speaker
       terminationGracePeriodSeconds: 2
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
+      # XXX: Lokomotive specific change.
+      {{- if .SpeakerTolerationsJSON }}
+      tolerations: {{ .SpeakerTolerationsJSON }}
+      {{- end }}
 `
 
 const pspMetallbController = `
