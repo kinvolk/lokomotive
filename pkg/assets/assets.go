@@ -49,13 +49,12 @@ type AssetsIface interface {
 	WalkFiles(path string, cb WalkFunc) error
 }
 
-var Assets AssetsIface
-
-func init() {
-	Assets = newEmbeddedAssets()
+func get() AssetsIface {
 	if value, found := os.LookupEnv("LOKOCTL_USE_FS_ASSETS"); found {
-		Assets = newFsAssets(value)
+		return newFsAssets(value)
 	}
+
+	return newEmbeddedAssets()
 }
 
 // Generate function wraps vfsgen.Generate function.
@@ -86,7 +85,7 @@ func Generate(fileName string, packageName string, variableName string, dirs map
 // whether the LOKOCTL_USE_FS_ASSETS environment variable is set.
 func Extract(src, dst string) error {
 	walk := copyingWalker(dst, 0700)
-	if err := Assets.WalkFiles(src, walk); err != nil {
+	if err := get().WalkFiles(src, walk); err != nil {
 		return fmt.Errorf("failed to walk assets: %v", err)
 	}
 
