@@ -23,7 +23,7 @@ import (
 	"time"
 
 	v1 "k8s.io/api/core/v1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 )
@@ -50,7 +50,7 @@ func NewCluster(client *kubernetes.Clientset, expectedNodes int) *Cluster {
 }
 
 func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
-	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(context.TODO(), meta_v1.ListOptions{})
+	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ type NodeStatus struct {
 
 // GetNodeStatus returns the status for all running nodes or an error.
 func (cl *Cluster) GetNodeStatus() (*NodeStatus, error) {
-	n, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
+	n, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (ns *NodeStatus) PrettyPrint() {
 
 // ping Cluster to know when its endpoint can be used.
 func (cl *Cluster) ping() (bool, error) {
-	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
+	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return false, nil
 	}
