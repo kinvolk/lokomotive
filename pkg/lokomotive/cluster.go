@@ -138,8 +138,8 @@ func (ns *NodeStatus) PrettyPrint() {
 	w.Flush()
 }
 
-// Ping Cluster to know when its endpoint can be used
-func (cl *Cluster) Ping() (bool, error) {
+// ping Cluster to know when its endpoint can be used
+func (cl *Cluster) ping() (bool, error) {
 	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
 	if err != nil {
 		return false, nil
@@ -151,7 +151,7 @@ func (cl *Cluster) Verify() error {
 	fmt.Println("\nNow checking health and readiness of the cluster nodes ...")
 
 	// Wait for cluster to become available
-	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.Ping)
+	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.ping)
 	if err != nil {
 		return fmt.Errorf("pinging cluster for readiness: %w", err)
 	}
