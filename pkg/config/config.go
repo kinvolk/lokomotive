@@ -17,6 +17,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
@@ -25,8 +26,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-
-	"github.com/kinvolk/lokomotive/pkg/util"
 )
 
 type variable struct {
@@ -62,7 +61,7 @@ type Config struct {
 }
 
 func loadLokocfgPaths(configPath string) ([]string, error) {
-	isDir, err := util.PathIsDir(configPath)
+	isDir, err := pathIsDir(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to stat config path %q: %w", configPath, err)
 	}
@@ -104,7 +103,7 @@ func LoadConfig(lokocfgPath, lokocfgVarsPath string) (*Config, hcl.Diagnostics) 
 
 	configBody := hcl.MergeFiles(hclFiles)
 
-	exists, err := util.PathExists(lokocfgVarsPath)
+	exists, err := pathExists(lokocfgVarsPath)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			&hcl.Diagnostic{
@@ -204,4 +203,26 @@ func (c *Config) LoadComponentConfigBody(componentName string) *hcl.Body {
 		}
 	}
 	return nil
+}
+
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return true, err
+}
+
+func pathIsDir(path string) (bool, error) {
+	stat, err := os.Stat(path)
+	if err == nil {
+		return stat.IsDir(), nil
+	}
+
+	return false, err
 }
