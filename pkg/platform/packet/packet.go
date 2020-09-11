@@ -169,6 +169,10 @@ func (c *Cluster) Nodes() int {
 	return nodes
 }
 
+func (c *Cluster) PostApplyHooks() []platform.PostApplyHook {
+	return []platform.PostApplyHook{}
+}
+
 func (c *Cluster) TerraformExecutionPlan() []terraform.ExecutionStep {
 	// DNS provider isn't "manual" - create all infrastructure in a single step.
 	if c.config.DNS.Provider != dns.Manual {

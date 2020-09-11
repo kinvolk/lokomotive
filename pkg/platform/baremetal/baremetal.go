@@ -117,6 +117,10 @@ func (c *Cluster) Nodes() int {
 	return len(c.config.ControllerMacs) + len(c.config.WorkerMacs)
 }
 
+func (c *Cluster) PostApplyHooks() []platform.PostApplyHook {
+	return []platform.PostApplyHook{}
+}
+
 func (c *Cluster) TerraformExecutionPlan() []terraform.ExecutionStep {
 	return []terraform.ExecutionStep{
 		{

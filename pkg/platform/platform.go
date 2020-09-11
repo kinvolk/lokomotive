@@ -74,6 +74,14 @@ func ControlPlaneChart(name string) (*chart.Chart, error) {
 	return helm.ChartFromAssets(p)
 }
 
+// PostApplyHook represents a function which should be run following a cluster "apply" operation.
+type PostApplyHook struct {
+	// A short description for the hook. Should begin with a lowercase letter, be in the imperative
+	// tense and have no period at the end.
+	Description string
+	Function    func(kubeconfig []byte) error
+}
+
 // Cluster describes a Lokomotive cluster.
 type Cluster interface {
 	// AssetDir returns the path to the Lokomotive assets directory.
@@ -85,6 +93,8 @@ type Cluster interface {
 	// Nodes returns the total number of nodes for the cluster. This is the total number of nodes
 	// including all controller nodes and all worker nodes from all worker pools.
 	Nodes() int
+	// PostApplyHooks returns one or more PostApplyHook functions.
+	PostApplyHooks() []PostApplyHook
 	// TerraformExecutionPlan returns a list of terraform.ExecutionStep representing steps which
 	// should be executed to get a working cluster on a platform. The execution plan is used during
 	// cluster creation only - when destroying a cluster, a simple `terraform destroy` is always

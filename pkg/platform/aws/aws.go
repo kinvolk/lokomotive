@@ -150,6 +150,10 @@ func (c *Cluster) Nodes() int {
 	return nodes
 }
 
+func (c *Cluster) PostApplyHooks() []platform.PostApplyHook {
+	return []platform.PostApplyHook{}
+}
+
 func (c *Cluster) TerraformExecutionPlan() []terraform.ExecutionStep {
 	return []terraform.ExecutionStep{
 		{

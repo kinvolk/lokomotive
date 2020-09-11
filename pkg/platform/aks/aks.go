@@ -18,14 +18,20 @@ package aks
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"text/template"
+	"time"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	v1 "k8s.io/client-go/kubernetes/typed/storage/v1"
 
 	"github.com/kinvolk/lokomotive/pkg/helm"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
@@ -150,6 +156,22 @@ func (c *Cluster) Nodes() int {
 	}
 
 	return nodes
+}
+
+func (c *Cluster) PostApplyHooks() []platform.PostApplyHook {
+	return []platform.PostApplyHook{
+		{
+			Description: "wait for default storage class",
+			Function: func(kubeconfig []byte) error {
+				client, err := k8sutil.NewClientset(kubeconfig)
+				if err != nil {
+					return fmt.Errorf("creating clientset from kubeconfig: %w", err)
+				}
+
+				return waitForDefaultStorageClass(client.StorageV1().StorageClasses())
+			},
+		},
+	}
 }
 
 func (c *Cluster) TerraformExecutionPlan() []terraform.ExecutionStep {
@@ -352,46 +374,33 @@ func renderRootModule(conf *Config) (string, error) {
 	return rendered.String(), nil
 }
 
-// TODO: Migrate post-apply hook to new architecture.
-
-// const (
-// 	retryInterval = 5 * time.Second
-// 	timeout       = 10 * time.Minute
-// )
-
-// PostApplyHook implements platform.PlatformWithPostApplyHook interface and defines hooks
-// which should be executed after AKS cluster is created.
-// func (c *config) PostApplyHook(kubeconfig []byte) error {
-// 	client, err := k8sutil.NewClientset(kubeconfig)
-// 	if err != nil {
-// 		return fmt.Errorf("creating clientset from kubeconfig: %w", err)
-// 	}
-
-// 	return waitForDefaultStorageClass(client.StorageV1().StorageClasses())
-// }
+const (
+	retryInterval = 5 * time.Second
+	timeout       = 10 * time.Minute
+)
 
 // waitForDefaultStorageClass waits until the default storage class appears on a given cluster.
 // If it doesn't appear within a defined time range, an error is returned.
-// func waitForDefaultStorageClass(sci v1.StorageClassInterface) error {
-// 	// AKS still uses annotation with .beta.
-// 	defaultStorageClassAnnotation := "storageclass.beta.kubernetes.io/is-default-class"
+func waitForDefaultStorageClass(sci v1.StorageClassInterface) error {
+	// AKS still uses annotation with .beta.
+	defaultStorageClassAnnotation := "storageclass.beta.kubernetes.io/is-default-class"
 
-// 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
-// 		scs, err := sci.List(context.TODO(), metav1.ListOptions{})
-// 		if err != nil {
-// 			return false, fmt.Errorf("getting storage classes: %w", err)
-// 		}
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+		scs, err := sci.List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, fmt.Errorf("getting storage classes: %w", err)
+		}
 
-// 		for _, sc := range scs.Items {
-// 			if v, ok := sc.ObjectMeta.Annotations[defaultStorageClassAnnotation]; ok && v == "true" {
-// 				return true, nil
-// 			}
-// 		}
+		for _, sc := range scs.Items {
+			if v, ok := sc.ObjectMeta.Annotations[defaultStorageClassAnnotation]; ok && v == "true" {
+				return true, nil
+			}
+		}
 
-// 		return false, nil
-// 	}); err != nil {
-// 		return fmt.Errorf("waiting for the default storage class to be configured: %w", err)
-// 	}
+		return false, nil
+	}); err != nil {
+		return fmt.Errorf("waiting for the default storage class to be configured: %w", err)
+	}
 
-// 	return nil
-// }
+	return nil
+}

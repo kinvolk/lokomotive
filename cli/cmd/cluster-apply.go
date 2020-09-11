@@ -52,7 +52,7 @@ func init() {
 	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
 
-//nolint:funlen
+//nolint:funlen,gocognit
 func runClusterApply(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
 		"command": "lokoctl cluster apply",
@@ -139,12 +139,16 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// TODO: Fix.
-	// if ph, ok := p.(platform.PlatformWithPostApplyHook); ok {
-	// 	if err := ph.PostApplyHook(kubeconfig); err != nil {
-	// 		contextLogger.Fatalf("Running platform post install hook failed: %v", err)
-	// 	}
-	// }
+	hooks := c.PostApplyHooks()
+	if len(hooks) > 0 {
+		for _, h := range hooks {
+			contextLogger.Infof("Running post apply hook %q", h.Description)
+
+			if err := h.Function(kubeconfig); err != nil {
+				contextLogger.Fatalf("Post apply hook %q failed: %v", h.Description, err)
+			}
+		}
+	}
 
 	if skipComponents {
 		return
