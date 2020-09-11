@@ -15,6 +15,7 @@
 package platform_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -43,5 +44,21 @@ func TestAppendVersionTag(t *testing.T) {
 
 	if len(f) != 2 {
 		t.Fatalf("should append version tag to existing map")
+	}
+}
+
+func TestCommonControlPlaneChartsOrder(t *testing.T) {
+	expectedOrder := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico", "lokomotive", "bootstrap-secrets"} //nolint:lll
+
+	commonControlPlaneCharts := platform.CommonControlPlaneCharts()
+
+	actualOrder := []string{}
+
+	for _, v := range commonControlPlaneCharts {
+		actualOrder = append(actualOrder, v.Name)
+	}
+
+	if !reflect.DeepEqual(actualOrder, expectedOrder) {
+		t.Fatalf("expected order: %s, got: %s", expectedOrder, actualOrder)
 	}
 }
