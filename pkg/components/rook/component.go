@@ -16,6 +16,7 @@ package rook
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -116,8 +117,18 @@ func (c *component) Metadata() components.Metadata {
 func convertNodeSelector(m map[string]string) string {
 	var ret string
 
-	for k, v := range m {
-		ret += fmt.Sprintf("%s=%s; ", k, v)
+	// Covert map to slice and sort them
+	// by keys.
+	keys := []string{}
+
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		ret += fmt.Sprintf("%s=%s; ", k, m[k])
 	}
 
 	return ret
