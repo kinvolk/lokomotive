@@ -109,7 +109,7 @@ func (ns *NodeStatus) Ready() bool {
 	return true
 }
 
-// PrettyPrint prints Node statuses in a pretty way
+// PrettyPrint prints Node statuses in a pretty way.
 func (ns *NodeStatus) PrettyPrint() {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
 
@@ -138,7 +138,7 @@ func (ns *NodeStatus) PrettyPrint() {
 	w.Flush()
 }
 
-// ping Cluster to know when its endpoint can be used
+// ping Cluster to know when its endpoint can be used.
 func (cl *Cluster) ping() (bool, error) {
 	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
 	if err != nil {
@@ -147,17 +147,20 @@ func (cl *Cluster) ping() (bool, error) {
 	return true, nil
 }
 
+// Verify checks cluster health and returns an error if some issues are detected.
 func (cl *Cluster) Verify() error {
 	fmt.Println("\nNow checking health and readiness of the cluster nodes ...")
 
-	// Wait for cluster to become available
+	// Wait for cluster to become available.
 	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.ping)
 	if err != nil {
 		return fmt.Errorf("pinging cluster for readiness: %w", err)
 	}
 
 	var ns *NodeStatus
+
 	var nsErr error
+
 	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, func() (bool, error) {
 		// Store the original error because Retry would stop too early if we forward it
 		// and anyway overrides the error in case of timeout.
@@ -166,14 +169,18 @@ func (cl *Cluster) Verify() error {
 			// To continue retrying, we don't set the error here.
 			return false, nil
 		}
-		return ns.Ready(), nil // Retry if not ready
+
+		return ns.Ready(), nil // Retry if not ready.
 	})
+
 	if nsErr != nil {
 		return fmt.Errorf("waiting for nodes: %w", nsErr)
 	}
+
 	if err != nil {
 		return fmt.Errorf("not all nodes became ready within the allowed time")
 	}
+
 	ns.PrettyPrint()
 
 	fmt.Println("\nSuccess - cluster is healthy and nodes are ready!")
