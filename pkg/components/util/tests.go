@@ -46,5 +46,5 @@ func GetComponentBody(configHCL string, name string) (*hcl.Body, hcl.Diagnostics
 		RootConfig: &rootConfig,
 	}
 
-	return c.LoadComponentConfigBody(name), nil
+	return c.Component(name), nil
 }

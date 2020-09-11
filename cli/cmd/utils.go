@@ -71,7 +71,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 		}
 	}
 
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
+	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Platform)
 	if err != nil {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
@@ -178,7 +178,7 @@ func assetsKubeconfig(assetDir string) string {
 }
 
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {
-	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
+	return config.ReadHCL(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
 
 // readKubeconfigFromTerraformState initializes Terraform and
