@@ -24,20 +24,19 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
 )
 
 const (
-	// Max number of retries when waiting for cluster to become available.
-	clusterPingRetries = 18
+	// Period after which we assume cluster will not become reachable and we return timeout error to the user.
+	clusterPingRetryTimeout = 3 * time.Minute
 	// Number of seconds to wait between retires when waiting for cluster to become available.
-	clusterPingRetryInterval = 10
-	// Max number of retries when waiting for nodes to become ready.
-	nodeReadinessRetries = 18
+	clusterPingRetryInterval = 10 * time.Second
+	// Period after which we assume that nodes will never become ready and we return timeout error to the user.
+	nodeReadinessRetryTimeout = 3 * time.Minute
 	// Number of seconds to wait between retires when waiting for nodes to become ready.
-	nodeReadinessRetryInterval = 10
+	nodeReadinessRetryInterval = 10 * time.Second
 )
 
 type Cluster struct {
@@ -152,7 +151,7 @@ func (cl *Cluster) Verify() error {
 	fmt.Println("\nNow checking health and readiness of the cluster nodes ...")
 
 	// Wait for cluster to become available.
-	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.ping)
+	err := wait.PollImmediate(clusterPingRetryInterval, clusterPingRetryTimeout, cl.ping)
 	if err != nil {
 		return fmt.Errorf("pinging cluster for readiness: %w", err)
 	}
@@ -161,7 +160,7 @@ func (cl *Cluster) Verify() error {
 
 	var nsErr error
 
-	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, func() (bool, error) {
+	err = wait.PollImmediate(nodeReadinessRetryInterval, nodeReadinessRetryTimeout, func() (bool, error) {
 		// Store the original error because Retry would stop too early if we forward it
 		// and anyway overrides the error in case of timeout.
 		ns, nsErr = cl.GetNodeStatus()
