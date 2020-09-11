@@ -15,6 +15,7 @@
 package util
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
@@ -91,10 +92,45 @@ type helmAction struct {
 	wait         bool
 }
 
+// postRender is a Lokomotive post-renderer for Helm, which allows bypassing Helm templating engine
+// by copying manifests from Templates field and then including them into the chart.
+//
+// As we render original charts twice (once when we render manifests ourselves to be able to print them
+// to the user and then again via Helm, when it installs/upgrades/uninstalls the release.
+//
+// This is required as some charts use complex escaping syntax, which breaks if the templates
+// are evaluated twice. This, for example, breaks the prometheus-operator chart.
+type postRender struct {
+	manifests bytes.Buffer
+}
+
+// Run implements postrender.PostRenderer interface by ignoring given templates from Helm and returning
+// manifests defined at creation time.
+func (pr postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
+	return &pr.manifests, nil
+}
+
+// chartTemplatesToPostRender creates PostRenderer from given chart templates and resets
+// chart's Templates field so it does not run twice trough rendering engine.
+func chartTemplatesToPostRender(c *chart.Chart) postRender {
+	var buf bytes.Buffer
+
+	for _, template := range c.Templates {
+		fmt.Fprintf(&buf, "\n---\n# %s\n%s", template.Name, template.Data)
+	}
+
+	c.Templates = nil
+
+	return postRender{
+		manifests: buf,
+	}
+}
+
 func install(helmAction *helmAction, namespace string) error {
 	install := action.NewInstall(helmAction.actionConfig)
 	install.ReleaseName = helmAction.releaseName
 	install.Namespace = namespace
+	install.PostRenderer = chartTemplatesToPostRender(helmAction.chart)
 
 	// Currently, we install components one-by-one, in the order how they are
 	// defined in the configuration and we do not support any dependencies between
@@ -120,6 +156,7 @@ func upgrade(helmAction *helmAction) error {
 	upgrade := action.NewUpgrade(helmAction.actionConfig)
 	upgrade.Wait = helmAction.wait
 	upgrade.RecreateResources = true
+	upgrade.PostRenderer = chartTemplatesToPostRender(helmAction.chart)
 
 	if _, err := upgrade.Run(helmAction.releaseName, helmAction.chart, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("upgrading release failed: %w", err)
