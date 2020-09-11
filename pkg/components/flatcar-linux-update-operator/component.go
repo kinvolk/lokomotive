@@ -16,13 +16,12 @@ package flatcarlinuxupdateoperator
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
-	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
@@ -43,14 +42,12 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	ret := make(map[string]string)
-	walk := assets.DumpingWalker(ret, ".yaml")
-	p := filepath.Join("/components", name)
-	if err := assets.Assets.WalkFiles(p, walk); err != nil {
-		return nil, fmt.Errorf("traversing assets: %w", err)
+	helmChart, err := components.Chart(name)
+	if err != nil {
+		return nil, fmt.Errorf("loading chart from assets: %w", err)
 	}
 
-	return ret, nil
+	return util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, "")
 }
 
 func (c *component) Metadata() components.Metadata {

@@ -26,9 +26,6 @@ func main() {
 		assets.TerraformModulesSource: "../../assets/terraform-modules",
 		assets.ControlPlaneSource:     "../../assets/charts/control-plane",
 		assets.ComponentsSource:       "../../assets/charts/components",
-		// This assets path is deprecated and should not be used for new components. It contains
-		// manifests for components which haven't yet been converted to Helm charts.
-		"/components": "../../assets/components",
 	}
 	err := assets.Generate("generated_assets.go", "assets", "vfsgenAssets", dirs)
 	if err != nil {
