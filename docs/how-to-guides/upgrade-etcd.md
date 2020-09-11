@@ -95,8 +95,7 @@ We can use `etcdctl` client to verify the state of etcd cluster.
 
 ```bash
 # Find the endpoint of this node's etcd:
-export endpoint=$(grep ETCD_ADVERTISE_CLIENT_URLS \
-        /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf | cut -d"=" -f3 | tr -d '"')
+export endpoint=$(grep ETCD_ADVERTISE_CLIENT_URLS /etc/kubernetes/etcd.env | cut -d"=" -f2)
 export flags="--cacert=/etc/ssl/etcd/etcd-client-ca.crt \
               --cert=/etc/ssl/etcd/etcd-client.crt \
               --key=/etc/ssl/etcd/etcd-client.key"
