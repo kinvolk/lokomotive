@@ -56,6 +56,8 @@ grafana:
   sidecar:
     dashboards:
       searchNamespace: ALL
+      provider:
+        foldersFromFilesStructure: true
   rbac:
     pspUseAppArmor: false
   adminPassword: {{.Grafana.AdminPassword}}
