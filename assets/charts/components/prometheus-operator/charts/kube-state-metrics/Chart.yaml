@@ -17,4 +17,4 @@ maintainers:
 name: kube-state-metrics
 sources:
 - https://github.com/kubernetes/kube-state-metrics/
-version: 2.8.10
+version: 2.9.1
