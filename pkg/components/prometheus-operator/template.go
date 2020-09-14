@@ -118,7 +118,9 @@ prometheus:
       secretName: {{ .Prometheus.Ingress.Host }}-tls
   {{ end }}
   prometheusSpec:
-    {{ if .Prometheus.Ingress }}
+    {{ if .Prometheus.ExternalURL }}
+    externalUrl: {{ .Prometheus.ExternalURL }}
+    {{ else if .Prometheus.Ingress }}
     externalUrl: https://{{.Prometheus.Ingress.Host}}
     {{ end }}
     {{ if .Prometheus.NodeSelector }}
