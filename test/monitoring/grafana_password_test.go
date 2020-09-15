@@ -15,7 +15,7 @@
 // +build aws aws_edge packet aks
 // +build poste2e
 
-package monitoring // nolint:testpackage
+package monitoring //nolint:testpackage
 
 import (
 	"context"

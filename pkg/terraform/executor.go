@@ -285,7 +285,7 @@ func (ex *Executor) execute(verbose bool, args ...string) error {
 }
 
 func showError(path string, noOfLines int) {
-	// nolint: gosec
+	//nolint: gosec
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Printf("error reading file: %v", err)
@@ -297,7 +297,7 @@ func showError(path string, noOfLines int) {
 
 	// Deletion by one is done here to adjust the difference between the user provided number which
 	// starts counting from 1 and array indices which start counting from 0.
-	// nolint: gomnd
+	//nolint: gomnd
 	offset := len(lines) - noOfLines - 1
 
 	if offset > 0 {

@@ -64,7 +64,7 @@ func TestLinkerdDeployment(t *testing.T) {
 }
 
 const (
-	// nolint: lll
+	//nolint: lll
 	podConfig = `
 apiVersion: v1
 kind: Pod
@@ -121,7 +121,7 @@ spec:
 	timeout       = 9 * time.Minute
 )
 
-// nolint: funlen
+//nolint: funlen
 func TestLinkerdCheck(t *testing.T) {
 	t.Parallel()
 

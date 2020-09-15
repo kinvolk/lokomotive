@@ -34,7 +34,7 @@ const (
 	certCommonName = "identity.linkerd.cluster.local"
 )
 
-// nolint:gochecknoinits
+//nolint:gochecknoinits
 func init() {
 	components.Register(name, newComponent())
 }

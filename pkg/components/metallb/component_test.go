@@ -136,7 +136,7 @@ func getDeployController(t *testing.T, m map[string]string) *appsv1.Deployment {
 	return deploy
 }
 
-// nolint:funlen
+//nolint:funlen
 func TestConversion(t *testing.T) {
 	configHCL := `
 component "metallb" {

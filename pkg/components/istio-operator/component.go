@@ -31,7 +31,7 @@ const (
 	namespace = "istio-operator"
 )
 
-// nolint:gochecknoinits
+//nolint:gochecknoinits
 func init() {
 	components.Register(name, newComponent())
 }

@@ -32,7 +32,7 @@ var healthCmd = &cobra.Command{
 	Run:   runHealth,
 }
 
-// nolint:gochecknoinits
+//nolint:gochecknoinits
 func init() {
 	RootCmd.AddCommand(healthCmd)
 	pf := healthCmd.PersistentFlags()
