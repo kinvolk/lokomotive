@@ -15,109 +15,20 @@
 package httpbin
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
+	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const name = "httpbin"
 
-const namespaceManifest = `apiVersion: v1
-kind: Namespace
-metadata:
-  name: httpbin
-  labels:
-    name: httpbin
-`
-
-const deploymentManifest = `apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: httpbin
-  name: httpbin
-  namespace: httpbin
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: httpbin
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
-  template:
-    metadata:
-      labels:
-        app: httpbin
-    spec:
-      containers:
-      - image: docker.io/kennethreitz/httpbin
-        name: httpbin
-        ports:
-        - containerPort: 8080
-          name: http
-        command: ["gunicorn"]
-        args: ["-b", "0.0.0.0:8080", "httpbin:app"]
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-        runAsGroup: 65534
-      terminationGracePeriodSeconds: 30
-`
-
-const serviceManifest = `apiVersion: v1
-kind: Service
-metadata:
-  name: httpbin
-  namespace: httpbin
-spec:
-  ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
-  selector:
-    app: httpbin
-`
-
-const ingressTmpl = `apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: httpbin
-  namespace: httpbin
-  labels:
-    app.kubernetes.io/managed-by: Helm
-  annotations:
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: {{ .CertManagerClusterIssuer }}
-    kubernetes.io/ingress.class: contour
-    meta.helm.sh/release-name: httpbin
-    meta.helm.sh/release-namespace: httpbin
-spec:
-  tls:
-  - secretName: {{ .IngressHost }}-tls
-    hosts:
-    - {{ .IngressHost }}
-  rules:
-  - host: {{ .IngressHost }}
-    http:
-      paths:
-      - backend:
-          serviceName: httpbin
-          servicePort: 8080
-`
-
-func init() {
+func init() { //nolint:gochecknoinits
 	components.Register(name, newComponent())
 }
 
@@ -138,25 +49,28 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 			components.HCLDiagConfigBodyNil,
 		}
 	}
+
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-// TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
-	tmpl, err := template.New("ingress").Parse(ingressTmpl)
+	helmChart, err := components.Chart(name)
 	if err != nil {
-		return nil, fmt.Errorf("parsing template: %w", err)
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, c); err != nil {
-		return nil, fmt.Errorf("executing template: %w", err)
+
+	values, err := internaltemplate.Render(chartValuesTmpl, c)
+	if err != nil {
+		return nil, fmt.Errorf("rendering values template failed: %w", err)
 	}
-	return map[string]string{
-		"namespace.yml":  namespaceManifest,
-		"deployment.yml": deploymentManifest,
-		"service.yml":    serviceManifest,
-		"ingress.yml":    buf.String(),
-	}, nil
+
+	// Generate YAML for the httpbin deployment.
+	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, values)
+	if err != nil {
+		return nil, fmt.Errorf("rendering chart failed: %w", err)
+	}
+
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {
