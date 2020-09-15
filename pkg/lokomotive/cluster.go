@@ -30,11 +30,11 @@ import (
 
 const (
 	// Period after which we assume cluster will not become reachable and we return timeout error to the user.
-	clusterPingRetryTimeout = 3 * time.Minute
+	clusterPingRetryTimeout = 5 * time.Minute
 	// Number of seconds to wait between retires when waiting for cluster to become available.
 	clusterPingRetryInterval = 10 * time.Second
 	// Period after which we assume that nodes will never become ready and we return timeout error to the user.
-	nodeReadinessRetryTimeout = 3 * time.Minute
+	nodeReadinessRetryTimeout = 10 * time.Minute
 	// Number of seconds to wait between retires when waiting for nodes to become ready.
 	nodeReadinessRetryInterval = 10 * time.Second
 )
