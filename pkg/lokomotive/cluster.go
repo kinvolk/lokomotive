@@ -23,21 +23,20 @@ import (
 	"time"
 
 	v1 "k8s.io/api/core/v1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
 )
 
 const (
-	// Max number of retries when waiting for cluster to become available.
-	clusterPingRetries = 18
+	// Period after which we assume cluster will not become reachable and we return timeout error to the user.
+	clusterPingRetryTimeout = 5 * time.Minute
 	// Number of seconds to wait between retires when waiting for cluster to become available.
-	clusterPingRetryInterval = 10
-	// Max number of retries when waiting for nodes to become ready.
-	nodeReadinessRetries = 18
+	clusterPingRetryInterval = 10 * time.Second
+	// Period after which we assume that nodes will never become ready and we return timeout error to the user.
+	nodeReadinessRetryTimeout = 10 * time.Minute
 	// Number of seconds to wait between retires when waiting for nodes to become ready.
-	nodeReadinessRetryInterval = 10
+	nodeReadinessRetryInterval = 10 * time.Second
 )
 
 type Cluster struct {
@@ -51,7 +50,7 @@ func NewCluster(client *kubernetes.Clientset, expectedNodes int) *Cluster {
 }
 
 func (cl *Cluster) Health() ([]v1.ComponentStatus, error) {
-	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(context.TODO(), meta_v1.ListOptions{})
+	cs, err := cl.KubeClient.CoreV1().ComponentStatuses().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +75,7 @@ type NodeStatus struct {
 
 // GetNodeStatus returns the status for all running nodes or an error.
 func (cl *Cluster) GetNodeStatus() (*NodeStatus, error) {
-	n, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
+	n, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +139,7 @@ func (ns *NodeStatus) PrettyPrint() {
 
 // ping Cluster to know when its endpoint can be used.
 func (cl *Cluster) ping() (bool, error) {
-	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), meta_v1.ListOptions{})
+	_, err := cl.KubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return false, nil
 	}
@@ -152,7 +151,7 @@ func (cl *Cluster) Verify() error {
 	fmt.Println("\nNow checking health and readiness of the cluster nodes ...")
 
 	// Wait for cluster to become available.
-	err := retryutil.Retry(clusterPingRetryInterval*time.Second, clusterPingRetries, cl.ping)
+	err := wait.PollImmediate(clusterPingRetryInterval, clusterPingRetryTimeout, cl.ping)
 	if err != nil {
 		return fmt.Errorf("pinging cluster for readiness: %w", err)
 	}
@@ -161,7 +160,7 @@ func (cl *Cluster) Verify() error {
 
 	var nsErr error
 
-	err = retryutil.Retry(nodeReadinessRetryInterval*time.Second, nodeReadinessRetries, func() (bool, error) {
+	err = wait.PollImmediate(nodeReadinessRetryInterval, nodeReadinessRetryTimeout, func() (bool, error) {
 		// Store the original error because Retry would stop too early if we forward it
 		// and anyway overrides the error in case of timeout.
 		ns, nsErr = cl.GetNodeStatus()

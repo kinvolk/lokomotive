@@ -26,15 +26,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kinvolk/lokomotive/pkg/util/retryutil"
-	testutil "github.com/kinvolk/lokomotive/test/components/util"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 const (
-	retryIntervalSeconds = 5
-	maxRetries           = 60
-	httpTimeout          = 4 * time.Second
+	retryInterval = 5 * time.Second
+	retryTimeout  = 9 * time.Minute
+	httpTimeout   = 4 * time.Second
 )
 
 func TestAWSIngress(t *testing.T) {
@@ -70,7 +71,7 @@ func TestAWSIngress(t *testing.T) {
 			h := i.Spec.Rules[0].Host
 			c := getHTTPClient()
 
-			err = retryutil.Retry(retryIntervalSeconds*time.Second, maxRetries, func() (bool, error) {
+			err = wait.PollImmediate(retryInterval, retryTimeout, func() (bool, error) {
 				resp, err := c.Get(fmt.Sprintf("https://%s/get", h))
 				if err != nil {
 					t.Logf("got an HTTP error: %v", err)
