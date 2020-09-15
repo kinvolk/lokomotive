@@ -62,7 +62,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	lokoCfg, diags := getLokoConfig()
+	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {
 		contextLogger.Fatal(diags)
 	}
@@ -71,9 +71,9 @@ func runDelete(cmd *cobra.Command, args []string) {
 	copy(componentsToDelete, args)
 
 	if len(args) == 0 {
-		componentsToDelete = make([]string, len(lokoCfg.RootConfig.Components))
+		componentsToDelete = make([]string, len(lokoConfig.RootConfig.Components))
 
-		for i, component := range lokoCfg.RootConfig.Components {
+		for i, component := range lokoConfig.RootConfig.Components {
 			componentsToDelete[i] = component.Name
 		}
 	}
@@ -99,7 +99,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoCfg, false)
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
 		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
