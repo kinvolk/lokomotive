@@ -54,46 +54,46 @@ func init() {
 
 //nolint:funlen
 func runClusterApply(cmd *cobra.Command, args []string) {
-	ctxLogger := log.WithFields(log.Fields{
+	contextLogger := log.WithFields(log.Fields{
 		"command": "lokoctl cluster apply",
 		"args":    args,
 	})
 
-	ex, p, lokoConfig, assetDir := initialize(ctxLogger)
+	ex, p, lokoConfig, assetDir := initialize(contextLogger)
 
-	exists := clusterExists(ctxLogger, ex)
+	exists := clusterExists(contextLogger, ex)
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := ex.Plan(); err != nil {
-			ctxLogger.Fatalf("Failed to reconcile cluster state: %v", err)
+			contextLogger.Fatalf("Failed to reconcile cluster state: %v", err)
 		}
 
 		if !askForConfirmation("Do you want to proceed with cluster apply?") {
-			ctxLogger.Println("Cluster apply cancelled")
+			contextLogger.Println("Cluster apply cancelled")
 
 			return
 		}
 	}
 
 	if err := p.Apply(ex); err != nil {
-		ctxLogger.Fatalf("error applying cluster: %v", err)
+		contextLogger.Fatalf("error applying cluster: %v", err)
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
-	kubeconfig, err := getKubeconfig(ctxLogger, lokoConfig, true)
+	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
 	if err != nil {
-		ctxLogger.Fatalf("Failed to get kubeconfig: %v", err)
+		contextLogger.Fatalf("Failed to get kubeconfig: %v", err)
 	}
 
 	if err := verifyCluster(kubeconfig, p.Meta().ExpectedNodes); err != nil {
-		ctxLogger.Fatalf("Verify cluster: %v", err)
+		contextLogger.Fatalf("Verify cluster: %v", err)
 	}
 
 	// Update all the pre installed namespaces with lokomotive specific label.
 	// `lokomotive.kinvolk.io/name: <namespace_name>`.
 	if err := updateInstalledNamespaces(kubeconfig); err != nil {
-		ctxLogger.Fatalf("Updating installed namespace: %v", err)
+		contextLogger.Fatalf("Updating installed namespace: %v", err)
 	}
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
@@ -101,10 +101,10 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
-			kubeconfig: kubeconfig,
-			assetDir:   assetDir,
-			ctxLogger:  *ctxLogger,
-			ex:         *ex,
+			kubeconfig:    kubeconfig,
+			assetDir:      assetDir,
+			contextLogger: *contextLogger,
+			ex:            *ex,
 		}
 
 		charts := platform.CommonControlPlaneCharts()
@@ -123,7 +123,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 	if ph, ok := p.(platform.PlatformWithPostApplyHook); ok {
 		if err := ph.PostApplyHook(kubeconfig); err != nil {
-			ctxLogger.Fatalf("Running platform post install hook failed: %v", err)
+			contextLogger.Fatalf("Running platform post install hook failed: %v", err)
 		}
 	}
 
@@ -136,11 +136,11 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		componentsToApply = append(componentsToApply, component.Name)
 	}
 
-	ctxLogger.Println("Applying component configuration")
+	contextLogger.Println("Applying component configuration")
 
 	if len(componentsToApply) > 0 {
 		if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
-			ctxLogger.Fatalf("Applying component configuration failed: %v", err)
+			contextLogger.Fatalf("Applying component configuration failed: %v", err)
 		}
 	}
 }

@@ -35,15 +35,15 @@ func init() {
 }
 
 func runClusterDestroy(cmd *cobra.Command, args []string) {
-	ctxLogger := log.WithFields(log.Fields{
+	contextLogger := log.WithFields(log.Fields{
 		"command": "lokoctl cluster destroy",
 		"args":    args,
 	})
 
-	ex, p, _, _ := initialize(ctxLogger)
+	ex, p, _, _ := initialize(contextLogger)
 
-	if !clusterExists(ctxLogger, ex) {
-		ctxLogger.Println("Cluster already destroyed, nothing to do")
+	if !clusterExists(contextLogger, ex) {
+		contextLogger.Println("Cluster already destroyed, nothing to do")
 
 		return
 	}
@@ -51,15 +51,15 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 	if !confirm {
 		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
 		if !confirmation {
-			ctxLogger.Println("Cluster destroy canceled")
+			contextLogger.Println("Cluster destroy canceled")
 			return
 		}
 	}
 
 	if err := p.Destroy(ex); err != nil {
-		ctxLogger.Fatalf("error destroying cluster: %v", err)
+		contextLogger.Fatalf("error destroying cluster: %v", err)
 	}
 
-	ctxLogger.Println("Cluster destroyed successfully")
-	ctxLogger.Println("You can safely remove the assets directory now")
+	contextLogger.Println("Cluster destroyed successfully")
+	contextLogger.Println("You can safely remove the assets directory now")
 }
