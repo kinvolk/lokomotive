@@ -22,7 +22,6 @@ import (
 
 	"github.com/kinvolk/lokomotive/internal"
 	"github.com/kinvolk/lokomotive/pkg/helm"
-	"github.com/kinvolk/lokomotive/pkg/install"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -153,7 +152,7 @@ func verifyCluster(kubeconfig []byte, expectedNodes int) error {
 
 	cluster := lokomotive.NewCluster(cs, expectedNodes)
 
-	return install.Verify(cluster)
+	return cluster.Verify()
 }
 
 func updateInstalledNamespaces(kubeconfig []byte) error {
