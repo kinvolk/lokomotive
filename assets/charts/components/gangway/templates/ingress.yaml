@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: gangway
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: {{ .Values.certManagerClusterIssuer }}
+    kubernetes.io/ingress.class: contour
+spec:
+  tls:
+  - secretName: gangway
+    hosts:
+    - {{ .Values.ingressHost }}
+  rules:
+  - host: {{ .Values.ingressHost }}
+    http:
+      paths:
+      - backend:
+          serviceName: gangwaysvc
+          servicePort: http

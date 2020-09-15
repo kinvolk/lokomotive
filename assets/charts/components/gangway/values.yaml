@@ -1,0 +1,10 @@
+clusterName: 
+ingressHost:
+sessionKey:
+apiServerURL:
+authorizeURL:
+tokenURL:
+clientID:
+clientSecret:
+redirectURL:
+certManagerClusterIssuer:
