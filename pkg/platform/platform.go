@@ -77,7 +77,7 @@ type Platform interface {
 // PlatformWithPostApplyHook runs code after Terraform finishes applying. This allows
 // running sanity checks on the newly created cluster. Implementing this
 // interface is optional for platforms.
-type PlatformWithPostApplyHook interface { // nolint:golint
+type PlatformWithPostApplyHook interface { //nolint:golint
 	PostApplyHook(kubeconfig []byte) error
 }
 

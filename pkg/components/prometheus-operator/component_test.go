@@ -20,7 +20,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
-// nolint:funlen
+//nolint:funlen
 func TestRenderManifest(t *testing.T) {
 	tests := []struct {
 		desc    string

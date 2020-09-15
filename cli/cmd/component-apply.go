@@ -43,7 +43,7 @@ When run with no arguments, all components listed in the configuration are appli
 
 var debug bool
 
-// nolint:gochecknoinits
+//nolint:gochecknoinits
 func init() {
 	componentCmd.AddCommand(componentApplyCmd)
 	pf := componentApplyCmd.PersistentFlags()

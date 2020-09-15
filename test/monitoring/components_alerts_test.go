@@ -43,7 +43,6 @@ type alertTestCase struct {
 	Alerts        []string
 }
 
-//nolint:funlen
 func testComponentAlerts(t *testing.T, v1api v1.API) {
 	alertTestCases := []alertTestCase{
 		{

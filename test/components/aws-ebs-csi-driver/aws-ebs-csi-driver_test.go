@@ -15,7 +15,7 @@
 // +build aws aws_edge
 // +build e2e
 
-// nolint:testpackage
+//nolint:testpackage
 package awsebscsidriver
 
 import (

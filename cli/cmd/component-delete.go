@@ -42,7 +42,7 @@ When run with no arguments, all components listed in the configuration are delet
 
 var deleteNamespace bool
 
-// nolint:gochecknoinits
+//nolint:gochecknoinits
 func init() {
 	componentCmd.AddCommand(componentDeleteCmd)
 	pf := componentDeleteCmd.PersistentFlags()

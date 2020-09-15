@@ -79,7 +79,7 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", retryInterval, timeout)
 }
 
-// nolint:funlen
+//nolint:funlen
 func TestGrafanaLoadsEnvVars(t *testing.T) {
 	kubeconfig := testutil.KubeconfigPath(t)
 
