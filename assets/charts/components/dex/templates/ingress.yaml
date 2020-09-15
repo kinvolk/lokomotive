@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: dex
+  annotations:
+    kubernetes.io/ingress.class: contour
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: {{ .Values.certManagerClusterIssuer }}
+spec:
+  tls:
+    - hosts:
+      - {{ .Values.ingressHost }}
+      secretName: {{ .Values.ingressHost }}-tls
+  rules:
+  - host: {{ .Values.ingressHost }}
+    http:
+      paths:
+      - backend:
+          serviceName: dex
+          servicePort: 5556

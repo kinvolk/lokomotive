@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex
+data:
+  config.yaml: |
+    issuer: {{ .Values.issuerHost }}
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      http: 0.0.0.0:5556
+    frontend:
+      theme: custom
+    connectors: {{ .Values.connectorsRaw | toJson }}
+    oauth2:
+      skipApprovalScreen: true
+    staticClients: {{ .Values.staticClientsRaw | toJson }}

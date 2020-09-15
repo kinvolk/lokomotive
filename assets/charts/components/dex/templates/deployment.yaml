@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dex
+  name: dex
+spec:
+  selector:
+    matchLabels:
+      app: dex
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+      serviceAccountName: dex
+      initContainers:
+      - name: download-theme
+        image: alpine/git:v2.24.3
+        command:
+        - git
+        - clone
+        - "https://github.com/kinvolk/dex-theme.git"
+        - /theme
+        volumeMounts:
+        - name: theme
+          mountPath: /theme/
+      containers:
+      - image: quay.io/dexidp/dex:{{ .Chart.AppVersion }}
+        name: dex
+        command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+        ports:
+        - name: https
+          containerPort: 5556
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dex/cfg
+        - mountPath: /web/themes/custom/
+          name: theme
+        {{- if .Values.gSuiteJSONConfigPath }}
+        - name: gsuite-auth
+          mountPath: /config/
+        {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: dex
+          items:
+          - key: config.yaml
+            path: config.yaml
+      - name: theme
+        emptyDir: {}
+      {{- if .Values.gSuiteJSONConfigPath }}
+      - name: gsuite-auth
+        secret:
+          secretName: gsuite-auth
+      {{- end }}
