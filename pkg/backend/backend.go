@@ -18,39 +18,61 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/kinvolk/lokomotive/pkg/backend/local"
+	"github.com/kinvolk/lokomotive/pkg/backend/s3"
+	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
-// Backend describes the Terraform state storage location.
-type Backend interface {
-	// LoadConfig loads the backend config provided by the user.
-	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
-	// Render renders the backend template with user backend configuration.
-	Render() (string, error)
-	// Validate validates backend configuration.
-	Validate() error
+const (
+	// Local represents a local backend.
+	Local = "local"
+	// S3 represents an S3 backend.
+	S3 = "s3"
+)
+
+// Backend describes a Terraform state storage location.
+type Backend struct {
+	Type   string
+	Config interface{}
 }
 
-// backends is a collection in which all Backends get automatically registered.
-var backends map[string]Backend
-
-// Initialize package's global variable on import.
-func init() {
-	backends = make(map[string]Backend)
-}
-
-// Register registers Backend b in the internal backends map.
-func Register(name string, b Backend) {
-	if _, exists := backends[name]; exists {
-		panic(fmt.Sprintf("backend with name %q registered already", name))
+// New creates a new Backend from the provided config and returns a pointer to it.
+func New(c *config.Config) (*Backend, hcl.Diagnostics) {
+	if c == nil && c.RootConfig.Backend == nil {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "nil backend config",
+			},
+		}
 	}
-	backends[name] = b
-}
 
-// GetBackend returns the Backend referred to by name.
-func GetBackend(name string) (Backend, error) {
-	backend, exists := backends[name]
-	if !exists {
-		return nil, fmt.Errorf("no backend with name %q found", name)
+	backendType := c.RootConfig.Backend.Type
+
+	var bc interface{}
+
+	var d hcl.Diagnostics
+
+	switch backendType {
+	case Local:
+		bc, d = local.NewConfig(&c.RootConfig.Backend.Config, c.EvalContext)
+	case S3:
+		bc, d = s3.NewConfig(&c.RootConfig.Backend.Config, c.EvalContext)
+	default:
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("unknown backend type %q", backendType),
+			},
+		}
 	}
-	return backend, nil
+
+	if d.HasErrors() {
+		return nil, d
+	}
+
+	return &Backend{
+		Type:   backendType,
+		Config: bc,
+	}, nil
 }

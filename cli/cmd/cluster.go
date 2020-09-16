@@ -24,8 +24,6 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"sigs.k8s.io/yaml"
 
-	"github.com/kinvolk/lokomotive/pkg/backend"
-	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -58,19 +56,8 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 		ctxLogger.Fatal("Errors found while loading cluster configuration")
 	}
 
-	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
-	b, diags := getConfiguredBackend(lokoConfig)
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
-		}
-
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
-	}
-
-	// Use a local backend if no backend is configured.
-	if b == nil {
-		b = local.NewLocalBackend()
+	if p == nil {
+		ctxLogger.Fatal("No cluster configured")
 	}
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
@@ -78,32 +65,21 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 		ctxLogger.Fatalf("Error expanding path: %v", err)
 	}
 
-	// Validate backend configuration.
-	if err = b.Validate(); err != nil {
-		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
-	}
-
-	ex := initializeTerraform(ctxLogger, p, b)
+	ex := initializeTerraform(ctxLogger, p)
 
 	return ex, p, lokoConfig, assetDir
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
+func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform) *terraform.Executor {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		ctxLogger.Fatalf("Error expanding path: %v", err)
 	}
 
-	// Render backend configuration.
-	renderedBackend, err := b.Render()
-	if err != nil {
-		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
-	}
-
 	// Configure Terraform directory, module and backend.
-	if err := terraform.Configure(assetDir, renderedBackend); err != nil {
+	if err := terraform.Configure(assetDir); err != nil {
 		ctxLogger.Fatalf("Failed to configure Terraform : %v", err)
 	}
 

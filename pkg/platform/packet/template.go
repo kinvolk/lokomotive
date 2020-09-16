@@ -14,7 +14,31 @@
 
 package packet
 
-var terraformConfigTmpl = `
+var terraformConfigTmpl = `terraform {
+  {{- if .Backend }}
+  {{- if eq .Backend.Type "local" }}
+  backend "local" {
+    {{- if .Backend.Config.Path }}
+    path = "{{ .Backend.Config.Path }}"
+    {{- end }}
+  }
+  {{- end }}
+  {{- if eq .Backend.Type "s3" }}
+  backend "s3" {
+    bucket = "{{ .Backend.Config.Bucket }}"
+    key    = "{{ .Backend.Config.Key }}"
+    region = "{{ .Backend.Config.Region }}"
+    {{- if .Backend.Config.AWSCredsPath }}
+    shared_credentials_file = "{{ .Backend.Config.AWSCredsPath }}"
+    {{- end }}
+    {{- if .Backend.Config.DynamoDBTable }}
+    dynamodb_table = "{{ .Backend.Config.DynamoDBTable }}"
+    {{- end }}
+  }
+  {{- end }}
+  {{- end }}
+}
+
 module "packet-{{.Config.ClusterName}}" {
   source = "../terraform-modules/packet/flatcar-linux/kubernetes"
 
@@ -330,5 +354,4 @@ output "bootstrap-secrets_values" {
 output "kubeconfig" {
   value     = module.packet-{{.Config.ClusterName}}.kubeconfig-admin
   sensitive = true
-}
-`
+}`

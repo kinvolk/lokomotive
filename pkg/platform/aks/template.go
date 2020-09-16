@@ -14,7 +14,32 @@
 
 package aks
 
-var terraformConfigTmpl = `{{- define "resource_group_name" -}}
+var terraformConfigTmpl = `terraform {
+  {{- if .Backend }}
+  {{- if eq .Backend.Type "local" }}
+  backend "local" {
+    {{- if .Backend.Config.Path }}
+    path = "{{ .Backend.Config.Path }}"
+    {{- end }}
+  }
+  {{- end }}
+  {{- if eq .Backend.Type "s3" }}
+  backend "s3" {
+    bucket = "{{ .Backend.Config.Bucket }}"
+    key    = "{{ .Backend.Config.Key }}"
+    region = "{{ .Backend.Config.Region }}"
+    {{- if .Backend.Config.AWSCredsPath }}
+    shared_credentials_file = "{{ .Backend.Config.AWSCredsPath }}"
+    {{- end }}
+    {{- if .Backend.Config.DynamoDBTable }}
+    dynamodb_table = "{{ .Backend.Config.DynamoDBTable }}"
+    {{- end }}
+  }
+  {{- end }}
+  {{- end }}
+}
+
+{{- define "resource_group_name" -}}
 {{- if .ManageResourceGroup -}}
 azurerm_resource_group.aks.name
 {{- else -}}
@@ -36,7 +61,7 @@ azuread_application_password.aks.value
 {{- else -}}
 "{{ .ClientSecret }}"
 {{- end -}}
-{{- end -}}
+{{- end }}
 
 locals {
   subscription_id           = "{{ .SubscriptionID }}"

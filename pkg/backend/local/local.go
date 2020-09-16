@@ -17,38 +17,24 @@ package local
 import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-
-	"github.com/kinvolk/lokomotive/internal/template"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 )
 
-type local struct {
+// Config represents the configuration of a local backend.
+type Config struct {
 	Path string `hcl:"path,optional"`
 }
 
-// init registers local as a backend.
-func init() {
-	backend.Register("local", NewLocalBackend())
-}
+// NewConfig creates a new Config and returns a pointer to it as well as any HCL diagnostics.
+func NewConfig(b *hcl.Body, ctx *hcl.EvalContext) (*Config, hcl.Diagnostics) {
+	c := &Config{}
 
-// LoadConfig loads the configuration for the local backend.
-func (l *local) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
-	if configBody == nil {
-		return hcl.Diagnostics{}
+	if b == nil {
+		return nil, hcl.Diagnostics{}
 	}
-	return gohcl.DecodeBody(*configBody, evalContext, l)
-}
 
-func NewLocalBackend() *local {
-	return &local{}
-}
+	if d := gohcl.DecodeBody(*b, ctx, c); len(d) != 0 {
+		return nil, d
+	}
 
-// Render renders the Go template with local backend configuration.
-func (l *local) Render() (string, error) {
-	return template.Render(backendConfigTmpl, l)
-}
-
-// Validate validates the local backend configuration.
-func (l *local) Validate() error {
-	return nil
+	return c, hcl.Diagnostics{}
 }
