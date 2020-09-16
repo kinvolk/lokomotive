@@ -1,3 +1,40 @@
+## v0.4.1 - 2020-09-15
+
+This is a patch release which includes mainly bug fixes.
+
+> **NOTE**: Please read the upgrading guidelines [here](https://github.com/kinvolk/lokomotive/blob/v0.4.1/CHANGELOG.md#upgrading-from-v030).
+
+### Changes in v0.4.1
+
+#### Component updates
+
+- Dex convert to helm chart and update to v2.25.0 ([#962](https://github.com/kinvolk/lokomotive/pull/962)).
+
+#### Features
+
+- feat: add severity labels to MetalLB alerts ([#925](https://github.com/kinvolk/lokomotive/pull/925)).
+
+#### Bug fixes
+
+- Override memory limits of rook operator to 512Mi ([#938](https://github.com/kinvolk/lokomotive/pull/938)).
+- Fix envoy grafana dashboard errors ([#969](https://github.com/kinvolk/lokomotive/pull/969)).
+- MetalLB: Fix regressions of tolerations and nodeSelectors ([#927](https://github.com/kinvolk/lokomotive/pull/927)).
+- Fix controlplane components update order ([#937](https://github.com/kinvolk/lokomotive/pull/937)).
+- component/metallb: Fix controller tolerations ([#931](https://github.com/kinvolk/lokomotive/pull/931)).
+- Increased the node-ready and cluster-ping timeouts ([#952](https://github.com/kinvolk/lokomotive/pull/952)).
+
+#### Docs
+
+- docs: fix etcd version upgrade sed expression ([#921](https://github.com/kinvolk/lokomotive/pull/921)).
+- docs: fix rook version update command ([#930](https://github.com/kinvolk/lokomotive/pull/930)).
+
+#### Development
+
+- Fix output of `convertNodeSelector` in rook ([#945](https://github.com/kinvolk/lokomotive/pull/945)).
+- httpbin convert to helm chart ([#965](https://github.com/kinvolk/lokomotive/pull/965)).
+- FLUO: convert to Helm chart ([#935](https://github.com/kinvolk/lokomotive/pull/935)).
+- Makefile: Don't build before linting and add new target `lint-bin` ([#901](https://github.com/kinvolk/lokomotive/pull/901)).
+
 ## v0.4.0 - 2020-09-07
 
 We're happy to announce the release of Lokomotive v0.4.0 (Darjeeling Himalayan).
