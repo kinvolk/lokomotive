@@ -76,6 +76,8 @@ cluster "bare-metal" {
     "testlabel" = ""
   }
 
+  network_mtu = 1480
+
   controller_domains = var.controller_domains
 
   controller_macs = var.controller_macs
@@ -143,13 +145,14 @@ os_version = var.custom_default_os_version
 | `matchbox_client_key_path`  | Path to the server TLS key file.                                                                                                                                             |        -         |    string    |   true   |
 | `matchbox_endpoint`         | Matchbox API endpoint.                                                                                                                                                       |        -         |    string    |   true   |
 | `matchbox_http_endpoint`    | Matchbox HTTP read-only endpoint. Example: "http://matchbox.example.com:8080"                                                                                                |        -         |    string    |   true   |
+| `network_mtu`               | CNI interface MTU.                                                                                                                                                           |       1480       |    number    |  false   |
 | `worker_names`              | Ordered list of worker names. Example: ["node2", "node3"]                                                                                                                    |        -         | list(string) |   true   |
 | `worker_macs`               | Ordered list of worker identifying MAC addresses. Example ["52:54:00:b2:2f:86", "52:54:00:c3:61:77"]                                                                         |        -         | list(string) |   true   |
 | `worker_domains`            | Ordered list of worker FQDNs. Example ["node2.example.com", "node3.example.com"]                                                                                             |        -         | list(string) |   true   |
 | `ssh_pubkeys`               | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...". |        -         | list(string) |   true   |
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                         |    "current"     |    string    |  false   |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                         | "flatcar-stable" |    string    |  false   |
-| `enable_tls_bootstrap`      | Enable TLS bootstraping for Kubelet.                                                                                                                                         |      true        |     bool     |  false   |
+| `enable_tls_bootstrap`      | Enable TLS bootstraping for Kubelet.                                                                                                                                         |       true       |     bool     |  false   |
 | `oidc`                      | OIDC configuration block.                                                                                                                                                    |        -         |    object    |  false   |
 | `oidc.issuer_url`           | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                       |        -         |    string    |  false   |
 | `oidc.client_id`            | A client id that all tokens must be issued for.                                                                                                                              |    "gangway"     |    string    |  false   |
