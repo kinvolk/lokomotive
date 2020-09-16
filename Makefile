@@ -45,6 +45,8 @@ all: build build-test test lint codespell
 
 .PHONY: update-assets
 update-assets:
+	@find assets/ -type d -empty | grep . >/dev/null && echo "Found empty directories in assets/ directory. Remove them and run 'make update-assets' again." || true
+	@find assets/ -type d -empty | grep . && exit 1 || true
 	GO111MODULE=on go generate -mod=$(MOD) ./...
 
 .PHONY: build-slim
