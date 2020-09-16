@@ -44,6 +44,10 @@ module "bare-metal-{{.ClusterName}}" {
   worker_macs        = {{.WorkerMacs}}
   worker_domains     = {{.WorkerDomains}}
 
+  {{- if .NetworkMTU }}
+  network_mtu = {{ .NetworkMTU }}
+  {{- end }}
+
   {{- if .KubeAPIServerExtraFlags }}
   kube_apiserver_extra_flags = [
     {{- range .KubeAPIServerExtraFlags }}
