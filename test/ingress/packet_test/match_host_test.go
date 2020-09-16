@@ -94,7 +94,7 @@ func checkIngressHost(client kubernetes.Interface, tc componentTestCase) wait.Co
 		addr, err := net.LookupIP(ingHost)
 
 		if err != nil {
-			return false, fmt.Errorf("Unknown host: %v", err)
+			return false, fmt.Errorf("unknown host: %v", err)
 		}
 
 		for _, v := range addr {
