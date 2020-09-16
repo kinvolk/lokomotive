@@ -40,7 +40,7 @@ component "httpbin" {
 		{
 			desc: "invalid config",
 			hcl: `
-component "dex" {
+component "httpbin" {
   certmanager_cluster_issuer = "letsencrypt-staging"
 }
 			`,
