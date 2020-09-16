@@ -1,4 +1,7 @@
-## lokoctl completion bash
+---
+title: lokoctl completion bash
+weight: 10
+---
 
 Generate the completion code for Bash
 

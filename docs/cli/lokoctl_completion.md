@@ -1,4 +1,7 @@
-## lokoctl completion
+---
+title: lokoctl completion
+weight: 10
+---
 
 Generate the completion code for the specified shell
 
