@@ -17,7 +17,7 @@ These binaries can be manually downloaded and installed.
    signature.
 
 2. Verify the signature. It should match one of the [Trusted
-   keys](https://github.com/kinvolk/lokomotive/blob/master/docs/KEYS.md).
+   keys](../../keys).
 
 ```console
 gpg --verify lokoctl_0.5.0_linux_amd64.tar.gz.sig

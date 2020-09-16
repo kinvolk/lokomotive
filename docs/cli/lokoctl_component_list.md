@@ -24,5 +24,5 @@ lokoctl component list [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage components
+* [lokoctl component](../lokoctl_component)	 - Manage components
 

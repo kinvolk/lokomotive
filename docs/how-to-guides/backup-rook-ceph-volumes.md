@@ -20,7 +20,7 @@ it.
 
 - A Lokomotive cluster deployed on a Packet cloud and accessible via `kubectl`.
 
-- Rook Ceph installed by following [this guide](./rook-ceph-storage.md).
+- Rook Ceph installed by following [this guide](../rook-ceph-storage).
 
 - `aws` CLI tool [installed](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
 
@@ -232,8 +232,8 @@ $ kubectl -n demo-ns exec -it demo-app-0 -- /bin/sh -c 'du -s /data'
 
 - Velero [Restic Docs](https://velero.io/docs/v1.4/restic/).
 - Lokomotive `velero` component [configuration reference
-  document](../configuration-reference/components/velero.md).
+  document](../../configuration-reference/components/velero).
 - Lokomotive `rook` component [configuration reference
-  document](../configuration-reference/components/rook.md).
+  document](../../configuration-reference/components/rook).
 - Lokomotive `rook-ceph` component [configuration reference
-  document](../configuration-reference/components/rook-ceph.md).
+  document](../../configuration-reference/components/rook-ceph).

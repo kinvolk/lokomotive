@@ -20,7 +20,7 @@ Manage a cluster
 
 ### SEE ALSO
 
-* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
-* [lokoctl cluster apply](lokoctl_cluster_apply.md)	 - Deploy or update a cluster
-* [lokoctl cluster destroy](lokoctl_cluster_destroy.md)	 - Destroy a cluster
+* [lokoctl](../lokoctl)	 - Manage Lokomotive clusters
+* [lokoctl cluster apply](../lokoctl_cluster_apply)	 - Deploy or update a cluster
+* [lokoctl cluster destroy](../lokoctl_cluster_destroy)	 - Destroy a cluster
 

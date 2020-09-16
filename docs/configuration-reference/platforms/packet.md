@@ -10,7 +10,7 @@ the configuration options available to the user.
 
 ## Prerequisites
 
-* `lokoctl` [installed locally.](../../installer/lokoctl.md)
+* `lokoctl` [installed locally.](../../../installer/lokoctl)
 * `kubectl` installed locally to access the Kubernetes cluster.
 
 ### Configuration
@@ -297,6 +297,6 @@ nodeSelector:
 An example on how to build multiarch images yourself is
 [here](https://github.com/kinvolk/calico-hostendpoint-controller/#building).
 
-**Note**: [Lokomotive Components](../../concepts/components.md) are not
+**Note**: [Lokomotive Components](../../../concepts/components) are not
 supported in this preview, so if you need them you'll have to install them
 manually using Kubernetes directly.

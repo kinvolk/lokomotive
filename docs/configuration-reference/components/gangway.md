@@ -13,7 +13,7 @@ users.
 
 * A Lokomotive cluster accessible via `kubectl`.
 
-* [Dex](dex.md) installed with a static client for gangway.
+* [Dex](../dex) installed with a static client for gangway.
 
 ## Configuration
 

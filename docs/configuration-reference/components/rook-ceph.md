@@ -12,7 +12,7 @@ cluster managed by the Rook operator.
 
 * A Lokomotive cluster accessible via `kubectl`.
 
-* The [Rook](rook.md) component deployed on the cluster.
+* The [Rook](../rook) component deployed on the cluster.
 
 ## Configuration
 
