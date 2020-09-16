@@ -32,15 +32,15 @@ func init() {
 }
 
 func runDocument(docCmd *cobra.Command, args []string) {
-	ctxLogger := log.WithFields(log.Fields{
+	contextLogger := log.WithFields(log.Fields{
 		"command": "go run cli/cmd/document/main.go",
 		"args":    args,
 	})
 
 	err := doc.GenMarkdownTree(cmd.RootCmd, args[0])
 	if err != nil {
-		ctxLogger.Fatalf("Failed to generate markdown documentation: %v", err)
+		contextLogger.Fatalf("Failed to generate markdown documentation: %v", err)
 	}
 
-	ctxLogger.Printf("Markdown documentation written to %s\n", args[0])
+	contextLogger.Printf("Markdown documentation written to %s\n", args[0])
 }

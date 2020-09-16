@@ -43,29 +43,29 @@ func init() {
 
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
+func initialize(contextLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
 	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {
-		ctxLogger.Fatal(diags)
+		contextLogger.Fatal(diags)
 	}
 
 	p, diags := getConfiguredPlatform(lokoConfig, true)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
+			contextLogger.Error(diagnostic.Error())
 		}
 
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
+		contextLogger.Fatal("Errors found while loading cluster configuration")
 	}
 
 	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
 	b, diags := getConfiguredBackend(lokoConfig)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
-			ctxLogger.Error(diagnostic.Error())
+			contextLogger.Error(diagnostic.Error())
 		}
 
-		ctxLogger.Fatal("Errors found while loading cluster configuration")
+		contextLogger.Fatal("Errors found while loading cluster configuration")
 	}
 
 	// Use a local backend if no backend is configured.
@@ -75,36 +75,36 @@ func initialize(ctxLogger *logrus.Entry) (*terraform.Executor, platform.Platform
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
-		ctxLogger.Fatalf("Error expanding path: %v", err)
+		contextLogger.Fatalf("Error expanding path: %v", err)
 	}
 
 	// Validate backend configuration.
 	if err = b.Validate(); err != nil {
-		ctxLogger.Fatalf("Failed to validate backend configuration: %v", err)
+		contextLogger.Fatalf("Failed to validate backend configuration: %v", err)
 	}
 
-	ex := initializeTerraform(ctxLogger, p, b)
+	ex := initializeTerraform(contextLogger, p, b)
 
 	return ex, p, lokoConfig, assetDir
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
+func initializeTerraform(contextLogger *logrus.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
-		ctxLogger.Fatalf("Error expanding path: %v", err)
+		contextLogger.Fatalf("Error expanding path: %v", err)
 	}
 
 	// Render backend configuration.
 	renderedBackend, err := b.Render()
 	if err != nil {
-		ctxLogger.Fatalf("Failed to render backend configuration file: %v", err)
+		contextLogger.Fatalf("Failed to render backend configuration file: %v", err)
 	}
 
 	// Configure Terraform directory, module and backend.
 	if err := terraform.Configure(assetDir, renderedBackend); err != nil {
-		ctxLogger.Fatalf("Failed to configure Terraform : %v", err)
+		contextLogger.Fatalf("Failed to configure Terraform : %v", err)
 	}
 
 	conf := terraform.Config{
@@ -114,15 +114,15 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 
 	ex, err := terraform.NewExecutor(conf)
 	if err != nil {
-		ctxLogger.Fatalf("Failed to create Terraform executor: %v", err)
+		contextLogger.Fatalf("Failed to create Terraform executor: %v", err)
 	}
 
 	if err := p.Initialize(ex); err != nil {
-		ctxLogger.Fatalf("Failed to initialize Platform: %v", err)
+		contextLogger.Fatalf("Failed to initialize Platform: %v", err)
 	}
 
 	if err := ex.Init(); err != nil {
-		ctxLogger.Fatalf("Failed to initialize Terraform: %v", err)
+		contextLogger.Fatalf("Failed to initialize Terraform: %v", err)
 	}
 
 	return ex
@@ -131,21 +131,21 @@ func initializeTerraform(ctxLogger *logrus.Entry, p platform.Platform, b backend
 // clusterExists determines if cluster has already been created by getting all
 // outputs from the Terraform. If there is any output defined, it means 'terraform apply'
 // run at least once.
-func clusterExists(ctxLogger *logrus.Entry, ex *terraform.Executor) bool {
+func clusterExists(contextLogger *logrus.Entry, ex *terraform.Executor) bool {
 	o := map[string]interface{}{}
 
 	if err := ex.Output("", &o); err != nil {
-		ctxLogger.Fatalf("Failed to check if cluster exists: %v", err)
+		contextLogger.Fatalf("Failed to check if cluster exists: %v", err)
 	}
 
 	return len(o) != 0
 }
 
 type controlplaneUpdater struct {
-	kubeconfig []byte
-	assetDir   string
-	ctxLogger  logrus.Entry
-	ex         terraform.Executor
+	kubeconfig    []byte
+	assetDir      string
+	contextLogger logrus.Entry
+	ex            terraform.Executor
 }
 
 func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, error) {
@@ -176,29 +176,29 @@ func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]inte
 }
 
 func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
-	ctxLogger := c.ctxLogger.WithFields(logrus.Fields{
+	contextLogger := c.contextLogger.WithFields(logrus.Fields{
 		"action":    "controlplane-upgrade",
 		"component": component,
 	})
 
 	actionConfig, err := util.HelmActionConfig(namespace, c.kubeconfig)
 	if err != nil {
-		ctxLogger.Fatalf("Failed initializing helm: %v", err)
+		contextLogger.Fatalf("Failed initializing helm: %v", err)
 	}
 
 	helmChart, err := c.getControlplaneChart(component)
 	if err != nil {
-		ctxLogger.Fatalf("Loading chart from assets failed: %v", err)
+		contextLogger.Fatalf("Loading chart from assets failed: %v", err)
 	}
 
 	values, err := c.getControlplaneValues(component)
 	if err != nil {
-		ctxLogger.Fatalf("Failed to get kubernetes values.yaml from Terraform: %v", err)
+		contextLogger.Fatalf("Failed to get kubernetes values.yaml from Terraform: %v", err)
 	}
 
 	exists, err := util.ReleaseExists(*actionConfig, component)
 	if err != nil {
-		ctxLogger.Fatalf("Failed checking if controlplane component is installed: %v", err)
+		contextLogger.Fatalf("Failed checking if controlplane component is installed: %v", err)
 	}
 
 	if !exists {
@@ -213,7 +213,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 		if _, err := install.Run(helmChart, values); err != nil {
 			fmt.Println("Failed!")
 
-			ctxLogger.Fatalf("Installing controlplane component failed: %v", err)
+			contextLogger.Fatalf("Installing controlplane component failed: %v", err)
 		}
 
 		fmt.Println("Done.")
@@ -228,7 +228,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 	if _, err := update.Run(component, helmChart, values); err != nil {
 		fmt.Println("Failed!")
 
-		ctxLogger.Fatalf("Updating chart failed: %v", err)
+		contextLogger.Fatalf("Updating chart failed: %v", err)
 	}
 
 	fmt.Println("Done.")
