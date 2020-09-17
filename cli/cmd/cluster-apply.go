@@ -75,7 +75,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	}
 
 	if err := p.Apply(ex); err != nil {
-		contextLogger.Fatalf("error applying cluster: %v", err)
+		contextLogger.Fatalf("Error applying cluster: %v", err)
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)

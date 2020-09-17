@@ -57,7 +57,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 	}
 
 	if err := p.Destroy(ex); err != nil {
-		contextLogger.Fatalf("error destroying cluster: %v", err)
+		contextLogger.Fatalf("Error destroying cluster: %v", err)
 	}
 
 	contextLogger.Println("Cluster destroyed successfully")

@@ -516,31 +516,31 @@ func (ex *Executor) logPath(id int) string {
 func (ex *Executor) checkVersion() error {
 	vOutput, err := ex.executeSync("--version")
 	if err != nil {
-		return fmt.Errorf("Error checking Terraform version: %w", err)
+		return fmt.Errorf("checking Terraform version: %w", err)
 	}
 
 	var vStr string
 	n, err := fmt.Sscanf(string(vOutput), "Terraform v%s\n", &vStr)
 	if err != nil {
-		return fmt.Errorf("Error checking Terraform version: %w", err)
+		return fmt.Errorf("checking Terraform version: %w", err)
 	}
 
 	if n != 1 {
-		return fmt.Errorf("Parsing Terraform version failed")
+		return fmt.Errorf("error parsing Terraform version")
 	}
 
 	v, err := version.NewVersion(vStr)
 	if err != nil {
-		return fmt.Errorf("Error checking Terraform version: %w", err)
+		return fmt.Errorf("checking Terraform version: %w", err)
 	}
 
 	constraints, err := version.NewConstraint(requiredVersion)
 	if err != nil {
-		return fmt.Errorf("Error checking Terraform version: %w", err)
+		return fmt.Errorf("checking Terraform version: %w", err)
 	}
 
 	if !constraints.Check(v) {
-		return fmt.Errorf("Version '%s' of Terraform not supported. Needed %s", v, constraints)
+		return fmt.Errorf("version '%s' of Terraform not supported. Needed %s", v, constraints)
 	}
 
 	return nil

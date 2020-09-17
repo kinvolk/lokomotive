@@ -118,7 +118,7 @@ func getComponentAlertRetryFunc(t *testing.T, v1api v1.API, tc alertTestCase) wa
 		}
 
 		if !reflect.DeepEqual(rules, tc.Alerts) {
-			return false, fmt.Errorf("Rules don't match. Expected: %#v and \ngot %#v", tc.Alerts, rules)
+			return false, fmt.Errorf("rules don't match. Expected: %#v and \ngot %#v", tc.Alerts, rules)
 		}
 
 		return true, nil
