@@ -60,7 +60,14 @@ func runHealth(cmd *cobra.Command, args []string) {
 	}
 
 	// Construct a Cluster.
-	c := createCluster(contextLogger, cc)
+	c, diags := createCluster(cc)
+	if diags.HasErrors() {
+		for _, diag := range diags {
+			contextLogger.Error(diag.Error())
+		}
+
+		contextLogger.Fatal("Errors found while constructing cluster")
+	}
 
 	kubeconfig, err := getKubeconfig(contextLogger, cc, true)
 	if err != nil {

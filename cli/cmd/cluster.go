@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -67,7 +68,14 @@ func initialize(contextLogger *logrus.Entry) (*config.Config, platform.Cluster, 
 	}
 
 	// Construct a Cluster.
-	c := createCluster(contextLogger, cc)
+	c, diags := createCluster(cc)
+	if diags.HasErrors() {
+		for _, diag := range diags {
+			contextLogger.Error(diag.Error())
+		}
+
+		contextLogger.Fatal("Errors found while constructing cluster")
+	}
 
 	assetDir, err := homedir.Expand(c.AssetDir())
 	if err != nil {
@@ -170,79 +178,65 @@ func clusterExists(contextLogger *logrus.Entry, ex *terraform.Executor) bool {
 // createCluster constructs a Cluster based on the provided cluster config and returns a pointer to
 // it.
 //nolint:funlen
-func createCluster(logger *logrus.Entry, config *config.Config) platform.Cluster {
+func createCluster(config *config.Config) (platform.Cluster, hcl.Diagnostics) {
+	if config.RootConfig.Cluster == nil {
+		return nil, diag(fmt.Errorf("nil cluster config"))
+	}
+
 	p := config.RootConfig.Cluster.Name
 
 	switch p {
 	case platform.Packet:
 		pc, diags := packet.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
 		if diags.HasErrors() {
-			for _, diagnostic := range diags {
-				logger.Error(diagnostic.Error())
-			}
-
-			logger.Fatal("Errors found while loading cluster configuration")
+			return nil, diags
 		}
 
 		c, err := packet.NewCluster(pc)
 		if err != nil {
-			logger.Fatalf("Error constructing cluster: %v", err)
+			return nil, diag(err)
 		}
 
-		return c
+		return c, nil
 	case platform.AKS:
 		pc, diags := aks.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
 		if diags.HasErrors() {
-			for _, diagnostic := range diags {
-				logger.Error(diagnostic.Error())
-			}
-
-			logger.Fatal("Errors found while loading cluster configuration")
+			return nil, diags
 		}
 
 		c, err := aks.NewCluster(pc)
 		if err != nil {
-			logger.Fatalf("Error constructing cluster: %v", err)
+			return nil, diag(err)
 		}
 
-		return c
+		return c, nil
 	case platform.AWS:
 		pc, diags := aws.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
 		if diags.HasErrors() {
-			for _, diagnostic := range diags {
-				logger.Error(diagnostic.Error())
-			}
-
-			logger.Fatal("Errors found while loading cluster configuration")
+			return nil, diags
 		}
 
 		c, err := aws.NewCluster(pc)
 		if err != nil {
-			logger.Fatalf("Error constructing cluster: %v", err)
+			return nil, diag(err)
 		}
 
-		return c
+		return c, nil
 	case platform.BareMetal:
 		pc, diags := baremetal.NewConfig(&config.RootConfig.Cluster.Config, config.EvalContext)
 		if diags.HasErrors() {
-			for _, diagnostic := range diags {
-				logger.Error(diagnostic.Error())
-			}
-
-			logger.Fatal("Errors found while loading cluster configuration")
+			return nil, diags
 		}
 
 		c, err := baremetal.NewCluster(pc)
 		if err != nil {
-			logger.Fatalf("Error constructing cluster: %v", err)
+			return nil, diag(err)
 		}
 
-		return c
+		return c, nil
 	}
 
-	logger.Fatalf("Unknown platform %q", p)
-
-	return nil
+	return nil, diag(fmt.Errorf("unknown platform %q", p))
 }
 
 type controlplaneUpdater struct {
@@ -336,4 +330,15 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 	}
 
 	fmt.Println("Done.")
+}
+
+// diag returns an hcl.Diagnostics with a single hcl.Diagnostic based on the provided error.
+func diag(err error) hcl.Diagnostics {
+	return hcl.Diagnostics{
+		&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  err.Error(),
+		},
+	}
+	return nil
 }

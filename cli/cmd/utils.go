@@ -126,16 +126,6 @@ func getKubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config, platf
 // - kubeconfig from ~/.kube/config file.
 //
 func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
-	// // Always try reading platform configuration.
-	// p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
-	// if diags.HasErrors() {
-	// 	for _, diagnostic := range diags {
-	// 		contextLogger.Error(diagnostic.Error())
-	// 	}
-
-	// 	return nil, fmt.Errorf("loading cluster configuration")
-	// }
-
 	// Read cluster config from HCL files.
 	cp := viper.GetString("lokocfg")
 	vp := viper.GetString("lokocfg-vars")
@@ -148,7 +138,14 @@ func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config,
 		return nil, fmt.Errorf("loading cluster configuration")
 	}
 
-	c := createCluster(contextLogger, cc)
+	c, diags := createCluster(cc)
+	if diags.HasErrors() {
+		for _, diagnostic := range diags {
+			contextLogger.Error(diagnostic.Error())
+		}
+
+		return nil, fmt.Errorf("errors while constructing cluster")
+	}
 
 	for _, k := range viper.AllKeys() {
 		if k != kubeconfigFlag {
