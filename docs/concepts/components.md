@@ -74,13 +74,17 @@ Sample output:
 
 ```
 Available components:
+	 aws-ebs-csi-driver
 	 cert-manager
 	 cluster-autoscaler
 	 contour
 	 dex
+	 experimental-istio-operator
+	 experimental-linkerd
 	 external-dns
 	 flatcar-linux-update-operator
 	 gangway
+	 headlamp
 	 httpbin
 	 metallb
 	 metrics-server
