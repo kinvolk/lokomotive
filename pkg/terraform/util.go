@@ -33,7 +33,7 @@ func GetTerraformRootDir(assetDir string) string {
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
 func Configure(assetDir, renderedBackend string) error {
-	if err := PrepareTerraformDirectoryAndModules(assetDir); err != nil {
+	if err := prepareTerraformDirectoryAndModules(assetDir); err != nil {
 		return fmt.Errorf("creating Terraform directories: %w", err)
 	}
 
@@ -42,15 +42,15 @@ func Configure(assetDir, renderedBackend string) error {
 		return nil
 	}
 
-	if err := CreateTerraformBackendFile(assetDir, renderedBackend); err != nil {
+	if err := createTerraformBackendFile(assetDir, renderedBackend); err != nil {
 		return fmt.Errorf("creating backend configuration file: %w", err)
 	}
 
 	return nil
 }
 
-// PrepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
-func PrepareTerraformDirectoryAndModules(assetDir string) error {
+// prepareTerraformDirectoryAndModules creates a Terraform directory and downloads required modules.
+func prepareTerraformDirectoryAndModules(assetDir string) error {
 	terraformModuleDir := filepath.Join(assetDir, "terraform-modules")
 	if err := assets.Extract(assets.TerraformModulesSource, terraformModuleDir); err != nil {
 		return err
@@ -65,8 +65,8 @@ func PrepareTerraformDirectoryAndModules(assetDir string) error {
 	return nil
 }
 
-// CreateTerraformBackendFile creates the Terraform backend configuration file.
-func CreateTerraformBackendFile(assetDir, data string) error {
+// createTerraformBackendFile creates the Terraform backend configuration file.
+func createTerraformBackendFile(assetDir, data string) error {
 	backendString := fmt.Sprintf("terraform {%s}\n", data)
 	terraformRootDir := GetTerraformRootDir(assetDir)
 	path := filepath.Join(terraformRootDir, backendFileName)
