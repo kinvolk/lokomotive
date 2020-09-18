@@ -25,6 +25,11 @@ import (
 
 const backendFileName = "backend.tf"
 
+// GetTerraformRootDir gets the Terraform directory path.
+func GetTerraformRootDir(assetDir string) string {
+	return filepath.Join(assetDir, "terraform")
+}
+
 // Configure creates Terraform directories and modules as well as a Terraform backend file if
 // provided by the user.
 func Configure(assetDir, renderedBackend string) error {
@@ -58,11 +63,6 @@ func PrepareTerraformDirectoryAndModules(assetDir string) error {
 	}
 
 	return nil
-}
-
-// GetTerraformRootDir gets the Terraform directory path.
-func GetTerraformRootDir(assetDir string) string {
-	return filepath.Join(assetDir, "terraform")
 }
 
 // CreateTerraformBackendFile creates the Terraform backend configuration file.
