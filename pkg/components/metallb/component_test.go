@@ -265,6 +265,10 @@ component "metallb" {
     my-asn: metallb.lokomotive.io/my-asn
     peer-asn: metallb.lokomotive.io/peer-asn
     peer-address: metallb.lokomotive.io/peer-address
+    peer-port: metallb.lokomotive.io/peer-port
+    src-address: metallb.lokomotive.io/src-address
+    hold-time: metallb.lokomotive.io/hold-time
+    router-id: metallb.lokomotive.io/router-id
 address-pools:
 - name: default
   protocol: bgp
