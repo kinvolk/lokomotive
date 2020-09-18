@@ -45,14 +45,6 @@ func ListNames() []string {
 	return componentList
 }
 
-func List() []Component {
-	var componentList []Component
-	for _, component := range components {
-		componentList = append(componentList, component)
-	}
-	return componentList
-}
-
 func Get(name string) (Component, error) {
 	component, exists := components[name]
 	if !exists {
