@@ -19,11 +19,12 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
+	"helm.sh/helm/v3/pkg/chart"
+
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 	"github.com/kinvolk/lokomotive/pkg/version"
-	"helm.sh/helm/v3/pkg/chart"
 )
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
