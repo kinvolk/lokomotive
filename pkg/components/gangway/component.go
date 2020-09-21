@@ -28,7 +28,7 @@ import (
 
 const name = "gangway"
 
-func init() { //nolint:gocheckinit
+func init() { //nolint:gochecknoinits
 	components.Register(name, newComponent())
 }
 
