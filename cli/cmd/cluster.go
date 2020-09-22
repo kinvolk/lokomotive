@@ -49,13 +49,17 @@ func initialize(contextLogger *logrus.Entry) (*terraform.Executor, platform.Plat
 		contextLogger.Fatal(diags)
 	}
 
-	p, diags := getConfiguredPlatform(lokoConfig, true)
+	p, diags := getConfiguredPlatform(lokoConfig)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
 		}
 
 		contextLogger.Fatal("Errors found while loading cluster configuration")
+	}
+
+	if p == nil {
+		contextLogger.Fatalf("No cluster configured")
 	}
 
 	// Get the configured backend for the cluster. Backend types currently supported: local, s3.

@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
@@ -56,19 +55,10 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 }
 
 // getConfiguredPlatform loads a platform from the given configuration file.
-func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Platform, hcl.Diagnostics) {
-	if lokoConfig.RootConfig.Cluster == nil && !require {
-		// No cluster defined and no configuration error
-		return nil, hcl.Diagnostics{}
-	}
-
-	if lokoConfig.RootConfig.Cluster == nil && require {
-		return nil, hcl.Diagnostics{
-			{
-				Severity: hcl.DiagError,
-				Summary:  "no platform configured",
-			},
-		}
+func getConfiguredPlatform(lokoConfig *config.Config) (platform.Platform, hcl.Diagnostics) {
+	if lokoConfig.RootConfig.Cluster == nil {
+		// No cluster defined by user.
+		return nil, nil
 	}
 
 	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
@@ -83,98 +73,32 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
 }
 
-// getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
-//
-// If platform is required and user do not have it configured, an error is returned.
-func getKubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]byte, error) {
-	sources, err := getKubeconfigSource(contextLogger, lokoConfig, platformRequired)
-	if err != nil {
-		return nil, fmt.Errorf("selecting kubeconfig source: %w", err)
-	}
-
-	// If no sources has been returned, it means we should read from Terraform state.
-	if len(sources) == 0 {
-		return readKubeconfigFromTerraformState(contextLogger)
-	}
-
-	// Select first non-empty source and read it.
-	for _, source := range sources {
-		if source != "" {
-			return expandAndRead(source)
-		}
-	}
-
-	// This should never occur, since we always fallback to ~/.kube/config.
-	return nil, fmt.Errorf("no kubeconfig source found")
-}
-
-// getKubeconfigSource defines how we select which kubeconfig file to use. If source slice is empty, it means
-// kubeconfig from Terraform state should be used.
-//
-// If multiple sources are returned, first non-empty should be used.
-//
-// The precedence is the following:
-//
-// - If platform configuration is not required, --kubeconfig-file or KUBECONFIG_FILE environment variable
-// 	 always takes precedence.
-//
-// - Kubeconfig in the assets directory.
-//
-// - If platform is configured, kubeconfig from the Terraform state.
-//
-// - kubeconfig from KUBECONFIG environment variable.
-//
-// - kubeconfig from ~/.kube/config file.
-//
-func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
-	// Always try reading platform configuration.
-	p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-
-		return nil, fmt.Errorf("loading cluster configuration")
-	}
-
+// kubeconfig discovers the kubeconfig file to be used for cluster/component operations and returns
+// its contents.
+func kubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config) ([]byte, error) {
+	// User-specified kubeconfig from --kubeconfig-file flag or KUBECONFIG_FILE env var.
 	for _, k := range viper.AllKeys() {
 		if k != kubeconfigFlag {
 			continue
 		}
 
-		// Viper takes precedence over all other options.
 		if path := viper.GetString(kubeconfigFlag); path != "" {
-			return []string{path}, nil
+			return readKubeconfigFromPath(path)
 		}
 	}
 
-	// If platform is not configured and not required, fallback to global kubeconfig files.
-	if p == nil {
-		return []string{
-			os.Getenv(kubeconfigEnvVariable),
-			defaultKubeconfigPath,
-		}, nil
+	// kubeconfig from Terraform state.
+	if k, err := readKubeconfigFromTerraformState(contextLogger); err == nil {
+		return k, nil
 	}
 
-	// Next, try reading kubeconfig file from assets directory.
-	kubeconfigPath := assetsKubeconfig(p.Meta().AssetDir)
-
-	kubeconfig, err := expandAndRead(kubeconfigPath)
-	if err != nil && !os.IsNotExist(err) {
-		return nil, fmt.Errorf("reading kubeconfig file %q: %w", kubeconfigPath, err)
+	// Global kubeconfig from environment.
+	if e := os.Getenv(kubeconfigEnvVariable); e != "" {
+		return readKubeconfigFromPath(e)
 	}
 
-	if len(kubeconfig) != 0 {
-		return []string{kubeconfigPath}, nil
-	}
-
-	// If reading from assets gave no result and platform is defined, let's indicate, that kubeconfig
-	// should be read from the Terraform state, by returning empty source slice.
-	return []string{}, nil
-}
-
-func assetsKubeconfig(assetDir string) string {
-	return filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
+	// Global kubeconfig from default path on disk.
+	return readKubeconfigFromPath(defaultKubeconfigPath)
 }
 
 func getLokoConfig() (*config.Config, hcl.Diagnostics) {
@@ -184,23 +108,22 @@ func getLokoConfig() (*config.Config, hcl.Diagnostics) {
 // readKubeconfigFromTerraformState initializes Terraform and
 // reads content of cluster kubeconfig file from the Terraform.
 func readKubeconfigFromTerraformState(contextLogger *logrus.Entry) ([]byte, error) {
-	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
-		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
+	contextLogger.Warn("Reading kubeconfig from Terraform state. This could take a while.")
 
 	ex, _, _, _ := initialize(contextLogger) //nolint:dogsled
 
 	kubeconfig := ""
 
 	if err := ex.Output(kubeconfigTerraformOutputKey, &kubeconfig); err != nil {
-		return nil, fmt.Errorf("reading kubeconfig file content from Terraform state: %w", err)
+		return nil, fmt.Errorf("reading kubeconfig from Terraform state: %w", err)
 	}
 
 	return []byte(kubeconfig), nil
 }
 
-// expandAndRead optimistically tries to expand ~ in given path and then reads
-// the entire content of the file and returns it to the user.
-func expandAndRead(path string) ([]byte, error) {
+// readKubeconfigFromPath optimistically tries to expand ~ in the given path and then reads the entire
+// contents of the file and returns them.
+func readKubeconfigFromPath(path string) ([]byte, error) {
 	if expandedPath, err := homedir.Expand(path); err == nil {
 		path = expandedPath
 	}
