@@ -77,6 +77,28 @@ component "metallb" {
 
 MetalLB will use the specified CIDR for exposing services of type `LoadBalancer`.
 
+### Advanced IP allocation
+
+By default, MetalLB uses all specified address pools to allocate IP addresses to services. To
+request an address from a specific pool, set the `metallb.universe.tf/address-pool` annotation for
+the relevant service:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  annotations:
+    metallb.universe.tf/address-pool: pool2
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: LoadBalancer
+```
+
 ## Attribute reference
 
 Table of all the arguments accepted by the component.
