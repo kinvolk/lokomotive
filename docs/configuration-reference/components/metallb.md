@@ -100,6 +100,7 @@ To apply the MetalLB component:
 ```bash
 lokoctl component apply metallb
 ```
+
 ## Deleting
 
 To destroy the component:
