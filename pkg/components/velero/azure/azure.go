@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package azure deals with configuring Velero azure plugin.
 package azure
 
 import (
+	"bytes"
+	"fmt"
+	"text/template"
+
 	"github.com/hashicorp/hcl/v2"
 )
 
@@ -31,6 +36,7 @@ type Configuration struct {
 
 // BackupStorageLocation stores information about storage account used for backups on Azure
 type BackupStorageLocation struct {
+	Name           string `hcl:"name,optional"`
 	ResourceGroup  string `hcl:"resource_group,optional"`
 	StorageAccount string `hcl:"storage_account,optional"`
 	Bucket         string `hcl:"bucket,optional"`
@@ -38,8 +44,22 @@ type BackupStorageLocation struct {
 
 // VolumeSnapshotLocation stores information where disk snapshots will be stored on Azure
 type VolumeSnapshotLocation struct {
+	Name          string `hcl:"name,optional"`
 	ResourceGroup string `hcl:"resource_group,optional"`
 	APITimeout    string `hcl:"api_timeout,optional"`
+}
+
+// Values returns Azure-specific values for Velero Helm chart.
+func (c *Configuration) Values() (string, error) {
+	t := template.Must(template.New("values").Parse(chartValuesTmpl))
+
+	var buf bytes.Buffer
+
+	if err := t.Execute(&buf, c); err != nil {
+		return "", fmt.Errorf("rendering azure values: %w", err)
+	}
+
+	return buf.String(), nil
 }
 
 // Validate validates azure specific parts in the configuration

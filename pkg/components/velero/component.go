@@ -25,6 +25,8 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
+	"github.com/kinvolk/lokomotive/pkg/components/velero/openebs"
+	"github.com/kinvolk/lokomotive/pkg/components/velero/restic"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
@@ -37,8 +39,6 @@ func init() {
 
 // component represents component configuration data
 type component struct {
-	// Once we support more than one provider, this field should not be optional anymore
-	Provider string `hcl:"provider,optional"`
 	// Namespace where velero resources should be installed. Defaults to 'velero'.
 	Namespace string `hcl:"namespace,optional"`
 	// Metrics specific configuration
@@ -46,6 +46,10 @@ type component struct {
 
 	// Azure specific parameters
 	Azure *azure.Configuration `hcl:"azure,block"`
+	// OpenEBS specific parameters.
+	OpenEBS *openebs.Configuration `hcl:"openebs,block"`
+	// Restic specific parameters.
+	Restic *restic.Configuration `hcl:"restic,block"`
 }
 
 // Metrics represents prometheus specific parameters
@@ -56,6 +60,7 @@ type Metrics struct {
 
 // Provider requires implementing config validation function for each provider
 type provider interface {
+	Values() (string, error)
 	Validate() hcl.Diagnostics
 }
 
@@ -63,51 +68,20 @@ type provider interface {
 func newComponent() *component {
 	return &component{
 		Namespace: "velero",
-		// Once we have more than one provider supported, we should remove the default value
-		Provider: "azure",
+		Metrics: &Metrics{
+			Enabled:        false,
+			ServiceMonitor: false,
+		},
 	}
 }
 
 const chartValuesTmpl = `
-configuration:
-  provider: {{ .Provider }}
-  backupStorageLocation:
-    name: {{ .Provider }}
-    bucket: {{ .Azure.BackupStorageLocation.Bucket }}
-    config:
-      resourceGroup: {{ .Azure.BackupStorageLocation.ResourceGroup }}
-      storageAccount: {{ .Azure.BackupStorageLocation.StorageAccount }}
-  volumeSnapshotLocation:
-    name: {{ .Provider }}
-    config:
-      {{- if .Azure.VolumeSnapshotLocation.ResourceGroup }}
-      resourceGroup: {{ .Azure.VolumeSnapshotLocation.ResourceGroup }}
-      {{- end }}
-      apitimeout: {{ .Azure.VolumeSnapshotLocation.APITimeout }}
-credentials:
-  secretContents:
-    cloud: |
-      AZURE_SUBSCRIPTION_ID: "{{ .Azure.SubscriptionID }}"
-      AZURE_TENANT_ID: "{{ .Azure.TenantID }}"
-      AZURE_CLIENT_ID: "{{ .Azure.ClientID }}"
-      AZURE_CLIENT_SECRET: "{{ .Azure.ClientSecret }}"
-      AZURE_RESOURCE_GROUP: "{{ .Azure.ResourceGroup }}"
 metrics:
   enabled: {{ .Metrics.Enabled }}
   serviceMonitor:
     enabled: {{ .Metrics.ServiceMonitor }}
     additionalLabels:
       release: prometheus-operator
-initContainers:
-- image: velero/velero-plugin-for-microsoft-azure:v1.0.0
-  imagePullPolicy: IfNotPresent
-  name: velero-plugin-for-azure
-  resources: {}
-  terminationMessagePath: /dev/termination-log
-  terminationMessagePolicy: File
-  volumeMounts:
-  - mountPath: /target
-    name: plugins
 `
 
 // LoadConfig decodes given HCL and validates the configuration.
@@ -133,9 +107,6 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 		diagnostics = append(diagnostics, err...)
 	}
 
-	// Set default values in the component configuration if they are missing
-	c.setDefaults()
-
 	// Validate component's configuration
 	diagnostics = append(diagnostics, c.validate()...)
 
@@ -153,9 +124,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
-	values, err := template.Render(chartValuesTmpl, c)
+	values, err := c.values()
 	if err != nil {
-		return nil, fmt.Errorf("rendering chart values template: %w", err)
+		return nil, fmt.Errorf("getting values: %w", err)
 	}
 
 	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
@@ -166,48 +137,79 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	return renderedFiles, nil
 }
 
-// setDefaults set default values for all nested blocks
-//
-// Since nested blocks in hcl2 does not support default values during DecodeBody,
-// we need to set the default value here, rather then adding diagnostics.
-// Once PR https://github.com/hashicorp/hcl2/pull/120 is released, this value can be set in
-// newComponent() and diagnostic can be added.
-func (c *component) setDefaults() {
-	if c.Metrics == nil {
-		c.Metrics = &Metrics{
-			Enabled:        false,
-			ServiceMonitor: false,
-		}
+// values renders common values for all providers, provider specific values and
+// concatenates them.
+func (c *component) values() (string, error) {
+	commonValues, err := template.Render(chartValuesTmpl, c)
+	if err != nil {
+		return "", fmt.Errorf("rendering common values template: %w", err)
 	}
+
+	p, err := c.getProvider()
+	if err != nil {
+		return "", fmt.Errorf("getting provider: %w", err)
+	}
+
+	values, err := p.Values()
+	if err != nil {
+		return "", fmt.Errorf("getting provider values: %w", err)
+	}
+
+	return commonValues + values, nil
 }
 
 // validate validates component configuration
 func (c *component) validate() hcl.Diagnostics {
 	diagnostics := hcl.Diagnostics{}
+	// Supported providers.
+	supportedProviders := c.getSupportedProviders()
 
 	// Select provider and validate it's configuration
 	p, err := c.getProvider()
 	if err != nil {
-		// Slice can't be constant, so just use a variable
-		supportedProviders := []string{"azure"}
 		return append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  fmt.Sprintf("provider must be one of: '%s'", strings.Join(supportedProviders[:], "', '")),
-			Detail:   "Make sure to set provider to one of supported values",
+			Detail:   fmt.Sprintf("Make sure to set provider to one of supported values: %v", err.Error()),
 		})
 	}
 
 	return append(diagnostics, p.Validate()...)
 }
 
-// getProvider returns correct provider interface based on component configuration
+// getSupportedProviders returns a list of supported providers.
+func (c *component) getSupportedProviders() []string {
+	return []string{"azure", "openebs", "restic"}
+}
+
+// getProvider returns correct provider interface based on component configuration.
+//
+// If no providers are configured or there is more than one provider configured, error
+// is returned.
 func (c *component) getProvider() (provider, error) {
-	switch c.Provider {
-	case "azure":
-		return c.Azure, nil
-	default:
-		return nil, fmt.Errorf("unsupported provider '%s'", c.Provider)
+	providers := []provider{}
+
+	if c.Azure != nil {
+		providers = append(providers, c.Azure)
 	}
+
+	if c.OpenEBS != nil {
+		providers = append(providers, c.OpenEBS)
+	}
+
+	if c.Restic != nil {
+		providers = append(providers, c.Restic)
+	}
+
+	if len(providers) > 1 {
+		return nil, fmt.Errorf("more than one provider configured")
+	}
+
+	if len(providers) == 0 {
+		return nil, fmt.Errorf("no providers configured")
+	}
+
+	return providers[0], nil
 }
 
 func (c *component) Metadata() components.Metadata {

@@ -15,6 +15,10 @@
 // Package internal contains the utility functions used across the codebase.
 package internal
 
+import (
+	"strings"
+)
+
 const (
 	// NamespaceLabelKey acts a placeholder for the generic key name
 	// `lokomotive.kinvolk.io/name`.
@@ -56,4 +60,29 @@ func MergeMaps(m1, m2 map[string]string) map[string]string {
 	}
 
 	return final
+}
+
+// Indent indents the given string after splitting it first on `\n`
+// and adds the space padding to each token by the provided indent number.
+func Indent(data string, indent int) string {
+	lines := strings.Split(data, "\n")
+
+	var gap string
+
+	// Calculate the gap/indent.
+	for i := 0; i < indent; i++ {
+		gap += " "
+	}
+
+	// For each line add the gap/indent.
+	for ind := range lines {
+		lines[ind] = gap + lines[ind]
+	}
+
+	// If the last line is empty then remove the indent from it.
+	if lines[len(lines)-1] == gap {
+		lines[len(lines)-1] = ""
+	}
+
+	return strings.Join(lines, "\n")
 }
