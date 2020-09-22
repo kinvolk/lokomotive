@@ -50,8 +50,8 @@ MetalLB component configuration example:
 ```tf
 component "metallb" {
   address_pools = {
-    default = ["147.63.8.20/32"]
-    special_addresses = ["147.85.47.16/29", "147.85.47.24/29"]
+    pool1 = ["147.63.8.20/32"]
+    pool2 = ["147.85.47.16/29", "147.85.47.24/29"]
   }
   controller_node_selectors = {
     "kubernetes.io/hostname" = "worker3"
@@ -85,7 +85,7 @@ Example:
 
 | Argument                    | Description                                                                                | Default | Type                                                                                                           | Required |
 |-----------------------------|--------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
-| `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  |    -    | object({default = list(string), special_addresses = list(string)})                                             |   true   |
+| `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  |    -    | map(list(string))                                                                                              |   true   |
 | `controller_node_selectors` | A map with specific labels to run MetalLB controller pods selectively on a group of nodes. |    -    | map(string)                                                                                                    |  false   |
 | `speaker_node_selectors`    | A map with specific labels to run MetalLB speaker pods selectively on a group of nodes.    |    -    | map(string)                                                                                                    |  false   |
 | `controller_toleration`     | Specify one or more tolerations for controller pods.                                       |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
