@@ -53,7 +53,7 @@ func (b *BackupStorageLocation) validate(defaultProvider string) hcl.Diagnostics
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'openebs.backup_storage_location' block must be specified",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -61,7 +61,7 @@ func (b *BackupStorageLocation) validate(defaultProvider string) hcl.Diagnostics
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'openebs.backup_storage_location.bucket' cannot be empty",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -69,7 +69,7 @@ func (b *BackupStorageLocation) validate(defaultProvider string) hcl.Diagnostics
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'openebs.backup_storage_location.region' cannot be empty",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -77,7 +77,7 @@ func (b *BackupStorageLocation) validate(defaultProvider string) hcl.Diagnostics
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "either 'openebs.provider' or 'openebs.backup_storage_location.provider' must be set",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -115,7 +115,7 @@ func (v *VolumeSnapshotLocation) validate(defaultProvider string) hcl.Diagnostic
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'openebs.volume_snapshot_location' block must be specified",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -123,7 +123,7 @@ func (v *VolumeSnapshotLocation) validate(defaultProvider string) hcl.Diagnostic
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'openebs.volume_snapshot_location.bucket' cannot be empty",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -131,7 +131,7 @@ func (v *VolumeSnapshotLocation) validate(defaultProvider string) hcl.Diagnostic
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'openebs.volume_snapshot_location.region' cannot be empty",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
@@ -139,7 +139,7 @@ func (v *VolumeSnapshotLocation) validate(defaultProvider string) hcl.Diagnostic
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "either 'openebs.provider' or 'openebs.volume_snapshot_location.provider' must be set",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 

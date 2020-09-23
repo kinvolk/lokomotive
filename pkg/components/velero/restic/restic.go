@@ -83,7 +83,7 @@ func (c *Configuration) Validate() hcl.Diagnostics {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "'restic.backup_storage_location' block must be specified",
-			Detail:   "Make sure to the set the field to valid non-empty value",
+			Detail:   "Make sure to set the field to valid non-empty value",
 		})
 	}
 
