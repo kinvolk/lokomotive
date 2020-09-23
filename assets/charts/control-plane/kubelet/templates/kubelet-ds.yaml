@@ -65,36 +65,52 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
+        # This has two directories `networks` and `cache`.
+        # cache: This directory is used by CNI to store cache files.
+        # networks: Certain network providers use this directory.
         - mountPath: /var/lib/cni
           name: coreos-var-lib-cni
           readOnly: false
+        # This is needed so that the Calico CNI plugin can read the file named `nodename` in the
+        # following path. This file is created by `calico-node` daemonset pod.
         - mountPath: /var/lib/calico
           name: coreos-var-lib-calico
           readOnly: true
+        # This directory has CNI plugin binaries.
         - mountPath: /opt/cni/bin
           name: coreos-opt-cni-bin
           readOnly: true
-        # TODO check if this is needed
         - name: dev
           mountPath: /dev
+          readOnly: false
+        # Here kubelet stores the lock file and unix sockets.
         - name: run
           mountPath: /run
+          readOnly: false
         - name: sys
           mountPath: /sys
+          readOnly: false
+        # This is mounted so that node local storage works fine.
         - name: mnt
           mountPath: /mnt
           mountPropagation: Bidirectional
+        # This directory has certs that kubelet needs to authenticate.
         - name: etc-kubernetes
           mountPath: /etc/kubernetes
           readOnly: true
+        # This is needed so that kubelet can access the logs (which are symlinked) of the
+        # containers. The CAdvisor (which is baked into kubelet) needs access to monitor the
+        # container and report via kubelet monitoring endpoint.
         - name: var-lib-docker
           mountPath: /var/lib/docker
+          readOnly: false
         - name: var-lib-kubelet
           mountPath: /var/lib/kubelet
           mountPropagation: Bidirectional
-          # Logs from the kubelet pods
+          # Logs from the pods.
         - name: logs
           mountPath: /var/log/pods
+          readOnly: false
           # This is mounted from host to make sure that the kubelet showcases OS as Flatcar and not
           # Debian from the kubelet image.
         - name: os-release
@@ -106,12 +122,17 @@ spec:
         - name: etc-resolv
           mountPath: /etc/resolv.conf
           readOnly: true
+        # This is mounted so that storage works fine.
         - name: iscsiadm
           mountPath: /usr/sbin/iscsiadm
+          readOnly: false
         - name: modules
           mountPath: /lib/modules
+          readOnly: true
+        # Kubelet looks for the CNI config files here.
         - name: etc-cni-netd
           mountPath: /etc/cni/net.d
+          readOnly: true
       hostNetwork: true
       hostPID: true
       # Tolerate all the taints. This ensures that the pod runs on all the nodes.
