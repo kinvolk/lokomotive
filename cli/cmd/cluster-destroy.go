@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -40,26 +42,35 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
+	if err := clusterDestroy(contextLogger); err != nil {
+		contextLogger.Fatalf("Destroying cluster: %v", err)
+	}
+}
+
+func clusterDestroy(contextLogger *log.Entry) error {
 	ex, p, _, _ := initialize(contextLogger)
 
 	if !clusterExists(contextLogger, ex) {
 		contextLogger.Println("Cluster already destroyed, nothing to do")
 
-		return
+		return nil
 	}
 
 	if !confirm {
 		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
 		if !confirmation {
 			contextLogger.Println("Cluster destroy canceled")
-			return
+
+			return nil
 		}
 	}
 
 	if err := p.Destroy(ex); err != nil {
-		contextLogger.Fatalf("Error destroying cluster: %v", err)
+		return fmt.Errorf("destroying cluster: %v", err)
 	}
 
 	contextLogger.Println("Cluster destroyed successfully")
 	contextLogger.Println("You can safely remove the assets directory now")
+
+	return nil
 }

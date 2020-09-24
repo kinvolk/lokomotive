@@ -51,48 +51,54 @@ func init() {
 	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
 
-//nolint:funlen
 func runClusterApply(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
 		"command": "lokoctl cluster apply",
 		"args":    args,
 	})
 
+	if err := clusterApply(contextLogger); err != nil {
+		contextLogger.Fatalf("Applying cluster failed: %v", err)
+	}
+}
+
+//nolint:funlen
+func clusterApply(contextLogger *log.Entry) error {
 	ex, p, lokoConfig, assetDir := initialize(contextLogger)
 
 	exists := clusterExists(contextLogger, ex)
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := ex.Plan(); err != nil {
-			contextLogger.Fatalf("Failed to reconcile cluster state: %v", err)
+			return fmt.Errorf("reconciling cluster state: %v", err)
 		}
 
 		if !askForConfirmation("Do you want to proceed with cluster apply?") {
 			contextLogger.Println("Cluster apply cancelled")
 
-			return
+			return nil
 		}
 	}
 
 	if err := p.Apply(ex); err != nil {
-		contextLogger.Fatalf("Error applying cluster: %v", err)
+		return fmt.Errorf("applying platform: %v", err)
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
 	if err != nil {
-		contextLogger.Fatalf("Failed to get kubeconfig: %v", err)
+		return fmt.Errorf("getting kubeconfig: %v", err)
 	}
 
 	if err := verifyCluster(kubeconfig, p.Meta().ExpectedNodes); err != nil {
-		contextLogger.Fatalf("Verify cluster: %v", err)
+		return fmt.Errorf("verifying cluster: %v", err)
 	}
 
 	// Update all the pre installed namespaces with lokomotive specific label.
 	// `lokomotive.kinvolk.io/name: <namespace_name>`.
 	if err := updateInstalledNamespaces(kubeconfig); err != nil {
-		contextLogger.Fatalf("Updating installed namespace: %v", err)
+		return fmt.Errorf("updating installed namespace: %v", err)
 	}
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
@@ -122,12 +128,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 	if ph, ok := p.(platform.PlatformWithPostApplyHook); ok {
 		if err := ph.PostApplyHook(kubeconfig); err != nil {
-			contextLogger.Fatalf("Running platform post install hook failed: %v", err)
+			return fmt.Errorf("running platform post install hook: %v", err)
 		}
 	}
 
 	if skipComponents {
-		return
+		return nil
 	}
 
 	componentsToApply := []string{}
@@ -139,9 +145,11 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 	if len(componentsToApply) > 0 {
 		if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
-			contextLogger.Fatalf("Applying component configuration failed: %v", err)
+			return fmt.Errorf("applying component configuration: %v", err)
 		}
 	}
+
+	return nil
 }
 
 func verifyCluster(kubeconfig []byte, expectedNodes int) error {
