@@ -34,6 +34,20 @@ systemd:
         ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done; /opt/wait-for-dns ${dns_zone} ${cluster_name}-private 3600'
         [Install]
         RequiredBy=kubelet.service
+    %{~ if bgp_node_labels != "" ~}
+    - name: bgp-metadata.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Write BGP metadata to disk
+        Before=kubelet.service
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/opt/bgp-metadata
+        [Install]
+        RequiredBy=kubelet.service
+    %{~ endif ~}
     - name: coreos-metadata.service
       enable: true
       contents: |
@@ -55,72 +69,68 @@ systemd:
         Wants=rpc-statd.service
         [Service]
         EnvironmentFile=/run/metadata/flatcar
+        EnvironmentFile=-/run/metadata/bgp
         EnvironmentFile=/etc/kubernetes/kubelet.env
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
         ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
         ExecStartPre=/etc/kubernetes/configure-kubelet-cgroup-driver
         ExecStartPre=-docker rm -f kubelet
-        # TODO: Workaround until https://github.com/coreos/afterburn/pull/358
-        # makes it into Flatcar. Then we can read COREOS_PACKET_IPV4_PRIVATE_GATEWAY_0
-        # from /run/metadata/flatcar and disable the template conditionals below.
-        ExecStartPre=/bin/sh -c \
-            "%{~ if bgp_node_labels != "" ~}
-            BGP_PEER_ADDRESS=$(ip route | grep '10.0.0.0/8' | awk {'print $3'}); \
-            %{~ endif ~}
-            docker run -d \
-            --name=kubelet \
-            --restart=unless-stopped \
-            --log-driver=journald \
-            --network=host \
-            --pid=host \
-            --privileged \
-            -v /dev:/dev:rw \
-            -v /etc/cni/net.d:/etc/cni/net.d:ro \
-            -v /etc/kubernetes:/etc/kubernetes:ro \
-            -v /etc/machine-id:/etc/machine-id:ro \
-            -v /lib/modules:/lib/modules:ro \
-            -v /run:/run:rw \
-            -v /sys:/sys:rw \
-            -v /opt/cni/bin:/opt/cni/bin:ro \
-            -v /usr/lib/os-release:/etc/os-release:ro \
-            -v /usr/sbin/iscsiadm:/usr/sbin/iscsiadm:rw \
-            -v /var/lib/calico:/var/lib/calico:ro \
-            -v /var/lib/cni:/var/lib/cni:rw \
-            -v /var/lib/docker:/var/lib/docker:rw \
-            -v /var/log/pods:/var/log/pods:rw \
-            --mount type=bind,source=/mnt,target=/mnt,bind-propagation=rshared \
-            --mount type=bind,source=/var/lib/kubelet,target=/var/lib/kubelet,bind-propagation=rshared \
-            $${KUBELET_IMAGE_URL}:$${KUBELET_IMAGE_TAG} \
-            --node-ip=$${COREOS_PACKET_IPV4_PRIVATE_0} \
-            --anonymous-auth=false \
-            --authentication-token-webhook \
-            --authorization-mode=Webhook \
-            --client-ca-file=/etc/kubernetes/ca.crt \
-            --cluster_dns=${k8s_dns_service_ip} \
-            --cluster_domain=${cluster_domain_suffix} \
-            --cni-conf-dir=/etc/cni/net.d \
-            --config=/etc/kubernetes/kubelet.config \
-            --exit-on-lock-contention \
-            %{~ if enable_tls_bootstrap ~}
-            --kubeconfig=/var/lib/kubelet/kubeconfig \
-            --bootstrap-kubeconfig=/etc/kubernetes/kubeconfig \
-            --rotate-certificates \
-            %{~ else ~}
-            --kubeconfig=/etc/kubernetes/kubeconfig \
-            %{~ endif ~}
-            --lock-file=/var/run/lock/kubelet.lock \
-            --network-plugin=cni \
-            --node-labels=$${NODE_LABELS} \
-            --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
-            %{~ if bgp_node_labels != "" ~}
-            --node-labels=$${BGP_NODE_LABELS},metallb.lokomotive.io/peer-address=$BGP_PEER_ADDRESS \
-            %{~ endif ~}
-            --pod-manifest-path=/etc/kubernetes/manifests \
-            --read-only-port=0 \
-            --register-with-taints=$${NODE_TAINTS} \
-            --address=$${COREOS_PACKET_IPV4_PRIVATE_0} \
-            --volume-plugin-dir=/var/lib/kubelet/volumeplugins"
+        ExecStartPre=docker run -d \
+          --name=kubelet \
+          --restart=unless-stopped \
+          --log-driver=journald \
+          --network=host \
+          --pid=host \
+          --privileged \
+          -v /dev:/dev:rw \
+          -v /etc/cni/net.d:/etc/cni/net.d:ro \
+          -v /etc/kubernetes:/etc/kubernetes:ro \
+          -v /etc/machine-id:/etc/machine-id:ro \
+          -v /lib/modules:/lib/modules:ro \
+          -v /run:/run:rw \
+          -v /sys:/sys:rw \
+          -v /opt/cni/bin:/opt/cni/bin:ro \
+          -v /usr/lib/os-release:/etc/os-release:ro \
+          -v /usr/sbin/iscsiadm:/usr/sbin/iscsiadm:rw \
+          -v /var/lib/calico:/var/lib/calico:ro \
+          -v /var/lib/cni:/var/lib/cni:rw \
+          -v /var/lib/docker:/var/lib/docker:rw \
+          -v /var/log/pods:/var/log/pods:rw \
+          --mount type=bind,source=/mnt,target=/mnt,bind-propagation=rshared \
+          --mount type=bind,source=/var/lib/kubelet,target=/var/lib/kubelet,bind-propagation=rshared \
+          $${KUBELET_IMAGE_URL}:$${KUBELET_IMAGE_TAG} \
+          --node-ip=$${COREOS_PACKET_IPV4_PRIVATE_0} \
+          --anonymous-auth=false \
+          --authentication-token-webhook \
+          --authorization-mode=Webhook \
+          --client-ca-file=/etc/kubernetes/ca.crt \
+          --cluster_dns=${k8s_dns_service_ip} \
+          --cluster_domain=${cluster_domain_suffix} \
+          --cni-conf-dir=/etc/cni/net.d \
+          --config=/etc/kubernetes/kubelet.config \
+          --exit-on-lock-contention \
+          %{~ if enable_tls_bootstrap ~}
+          --kubeconfig=/var/lib/kubelet/kubeconfig \
+          --bootstrap-kubeconfig=/etc/kubernetes/kubeconfig \
+          --rotate-certificates \
+          %{~ else ~}
+          --kubeconfig=/etc/kubernetes/kubeconfig \
+          %{~ endif ~}
+          --lock-file=/var/run/lock/kubelet.lock \
+          --network-plugin=cni \
+          --node-labels=$${NODE_LABELS} \
+          --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
+          %{~ if bgp_node_labels != "" ~}
+          --node-labels=$${BGP_NODE_LABELS} \
+          --node-labels=metallb.lokomotive.io/peer-address=$${BGP_PEER_ADDRESS_0} \
+          --node-labels=metallb.lokomotive.io/src-address=$${COREOS_PACKET_IPV4_PRIVATE_0} \
+          %{~ endif ~}
+          --pod-manifest-path=/etc/kubernetes/manifests \
+          --read-only-port=0 \
+          --register-with-taints=$${NODE_TAINTS} \
+          --address=$${COREOS_PACKET_IPV4_PRIVATE_0} \
+          --volume-plugin-dir=/var/lib/kubelet/volumeplugins
         ExecStart=docker logs -f kubelet
         ExecStop=docker stop kubelet
         ExecStopPost=docker rm kubelet
@@ -419,6 +429,41 @@ storage:
           done
           echo "$record.$zone is available on all nameservers"
           exit 0
+    - path: /opt/bgp-metadata
+      filesystem: root
+      mode: 0544
+      contents:
+        inline: |
+          #!/bin/bash
+          set -o pipefail
+          max_attempts=3600
+          target=/run/metadata/bgp
+          echo "Polling metadata service for BGP information"
+          counter=0
+          while [[ $counter -lt $max_attempts ]]; do
+              out=$(curl -s -f --connect-timeout 5 \
+                  https://metadata.packet.net/metadata | jq -r .bgp_neighbors[0].peer_ips[0])
+              ret=$?
+              if [[ $ret -ne 0 ]]; then
+                  echo "Non-zero exit code: $ret"
+              elif [[ "$out" = "" ]]; then
+                  echo "Empty response"
+              elif [[ "$out" = "null" ]]; then
+                  echo "Null response"
+              else
+                  echo "BGP metadata is available!"
+                  if [[ ! "$out" =~ ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$ ]]; then
+                      echo "Invalid IP $out"
+                      exit 1
+                  fi
+                  echo "BGP_PEER_ADDRESS_0=$out" > "$target"
+                  exit $?
+              fi
+              sleep 1
+              counter=$((counter+1))
+          done
+          echo "BGP metadata did not become available in time"
+          exit 1
 passwd:
   users:
   - name: core
