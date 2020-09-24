@@ -63,7 +63,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 	}
 
 	lokoConfig, diags := getLokoConfig()
-	if len(diags) > 0 {
+	if diags.HasErrors() {
 		contextLogger.Fatal(diags)
 	}
 

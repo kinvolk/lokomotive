@@ -62,12 +62,11 @@ func runApply(cmd *cobra.Command, args []string) {
 	}
 
 	lokoConfig, diags := getLokoConfig()
-	if len(diags) > 0 {
+	if diags.HasErrors() {
 		contextLogger.Fatal(diags)
 	}
 
 	componentsToApply := args
-
 	if len(componentsToApply) == 0 {
 		for _, component := range lokoConfig.RootConfig.Components {
 			componentsToApply = append(componentsToApply, component.Name)
@@ -96,7 +95,7 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentName
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
 
-		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); len(diags) > 0 {
+		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
 			fmt.Printf("%v\n", diags)
 			return diags
 		}

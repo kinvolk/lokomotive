@@ -45,7 +45,7 @@ func init() {
 // and returns created objects to the caller for further use.
 func initialize(contextLogger *log.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
 	lokoConfig, diags := getLokoConfig()
-	if len(diags) > 0 {
+	if diags.HasErrors() {
 		contextLogger.Fatal(diags)
 	}
 
