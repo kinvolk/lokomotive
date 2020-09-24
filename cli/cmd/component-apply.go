@@ -66,10 +66,9 @@ func runApply(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal(diags)
 	}
 
-	var componentsToApply []string
-	if len(args) > 0 {
-		componentsToApply = append(componentsToApply, args...)
-	} else {
+	componentsToApply := args
+
+	if len(componentsToApply) == 0 {
 		for _, component := range lokoConfig.RootConfig.Components {
 			componentsToApply = append(componentsToApply, component.Name)
 		}
