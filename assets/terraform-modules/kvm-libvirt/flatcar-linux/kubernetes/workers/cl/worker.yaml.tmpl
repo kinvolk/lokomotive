@@ -103,7 +103,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://quay.io/poseidon/kubelet
-          KUBELET_IMAGE_TAG=v1.18.8
+          KUBELET_IMAGE_TAG=v1.19.2
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/node"
     - path: /etc/sysctl.d/max-user-watches.conf
@@ -142,7 +142,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://quay.io/poseidon/kubelet:v1.18.8 \
+            docker://quay.io/poseidon/kubelet:v1.19.2 \
             --net=host \
             --dns=host \
             -- \
