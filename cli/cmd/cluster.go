@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/go-homedir"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -43,7 +43,7 @@ func init() {
 
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(contextLogger *logrus.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
+func initialize(contextLogger *log.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
 	lokoConfig, diags := getLokoConfig()
 	if len(diags) > 0 {
 		contextLogger.Fatal(diags)
@@ -90,7 +90,7 @@ func initialize(contextLogger *logrus.Entry) (*terraform.Executor, platform.Plat
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func initializeTerraform(contextLogger *logrus.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
+func initializeTerraform(contextLogger *log.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		contextLogger.Fatalf("Error expanding path: %v", err)
@@ -131,7 +131,7 @@ func initializeTerraform(contextLogger *logrus.Entry, p platform.Platform, b bac
 // clusterExists determines if cluster has already been created by getting all
 // outputs from the Terraform. If there is any output defined, it means 'terraform apply'
 // run at least once.
-func clusterExists(contextLogger *logrus.Entry, ex *terraform.Executor) bool {
+func clusterExists(contextLogger *log.Entry, ex *terraform.Executor) bool {
 	o := map[string]interface{}{}
 
 	if err := ex.Output("", &o); err != nil {
@@ -144,7 +144,7 @@ func clusterExists(contextLogger *logrus.Entry, ex *terraform.Executor) bool {
 type controlplaneUpdater struct {
 	kubeconfig    []byte
 	assetDir      string
-	contextLogger logrus.Entry
+	contextLogger log.Entry
 	ex            terraform.Executor
 }
 
@@ -176,7 +176,7 @@ func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]inte
 }
 
 func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
-	contextLogger := c.contextLogger.WithFields(logrus.Fields{
+	contextLogger := c.contextLogger.WithFields(log.Fields{
 		"action":    "controlplane-upgrade",
 		"component": component,
 	})

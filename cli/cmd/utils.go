@@ -22,7 +22,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
@@ -86,7 +86,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
 //
 // If platform is required and user do not have it configured, an error is returned.
-func getKubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]byte, error) {
+func getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config, platformRequired bool) ([]byte, error) {
 	sources, err := getKubeconfigSource(contextLogger, lokoConfig, platformRequired)
 	if err != nil {
 		return nil, fmt.Errorf("selecting kubeconfig source: %w", err)
@@ -126,7 +126,7 @@ func getKubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config, platf
 //
 // - kubeconfig from ~/.kube/config file.
 //
-func getKubeconfigSource(contextLogger *logrus.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
+func getKubeconfigSource(contextLogger *log.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
 	// Always try reading platform configuration.
 	p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
 	if diags.HasErrors() {
@@ -183,7 +183,7 @@ func getLokoConfig() (*config.Config, hcl.Diagnostics) {
 
 // readKubeconfigFromTerraformState initializes Terraform and
 // reads content of cluster kubeconfig file from the Terraform.
-func readKubeconfigFromTerraformState(contextLogger *logrus.Entry) ([]byte, error) {
+func readKubeconfigFromTerraformState(contextLogger *log.Entry) ([]byte, error) {
 	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
 		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
 
