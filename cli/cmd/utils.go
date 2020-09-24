@@ -75,24 +75,33 @@ func getConfiguredPlatform(lokoConfig *config.Config) (platform.Platform, hcl.Di
 
 // kubeconfig discovers the kubeconfig file to be used for cluster/component operations and returns
 // its contents.
+//
+// The following order of precedence is used:
+// - User-specified kubeconfig from --kubeconfig-file flag or KUBECONFIG_FILE env var (via Viper).
+// - Lokomotive kubeconfig from Terraform state.
+// - Global kubeconfig from KUBECONFIG env var.
+// - Global kubeconfig from ~/.kube/config.
 func kubeconfig(contextLogger *logrus.Entry, lokoConfig *config.Config) ([]byte, error) {
-	// User-specified kubeconfig from --kubeconfig-file flag or KUBECONFIG_FILE env var.
+	// User-specified kubeconfig.
 	for _, k := range viper.AllKeys() {
 		if k != kubeconfigFlag {
+			fmt.Printf("Skipping flag %s\n", k)
 			continue
 		}
 
 		if path := viper.GetString(kubeconfigFlag); path != "" {
 			return readKubeconfigFromPath(path)
 		}
+
+		fmt.Println("Oh no")
 	}
 
-	// kubeconfig from Terraform state.
+	// Lokomotive kubeconfig from Terraform state.
 	if k, err := readKubeconfigFromTerraformState(contextLogger); err == nil {
 		return k, nil
 	}
 
-	// Global kubeconfig from environment.
+	// Global kubeconfig from KUBECONFIG env var.
 	if e := os.Getenv(kubeconfigEnvVariable); e != "" {
 		return readKubeconfigFromPath(e)
 	}
