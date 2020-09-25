@@ -74,7 +74,10 @@ func componentApply(contextLogger *log.Entry, componentsList []string) error {
 		return diags
 	}
 
-	componentsToApply := selectComponentNames(componentsList, *lokoConfig.RootConfig)
+	componentObjects, err := componentNamesToObjects(selectComponentNames(componentsList, *lokoConfig.RootConfig))
+	if err != nil {
+		return fmt.Errorf("getting component objects: %w", err)
+	}
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
@@ -83,21 +86,17 @@ func componentApply(contextLogger *log.Entry, componentsList []string) error {
 		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply); err != nil {
+	if err := applyComponents(lokoConfig, kubeconfig, componentObjects); err != nil {
 		return fmt.Errorf("applying components: %w", err)
 	}
 
 	return nil
 }
 
-func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentNames []string) error {
-	for _, componentName := range componentNames {
+func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentObjects []components.Component) error {
+	for _, component := range componentObjects {
+		componentName := component.Metadata().Name
 		fmt.Printf("Applying component '%s'...\n", componentName)
-
-		component, err := components.Get(componentName)
-		if err != nil {
-			return fmt.Errorf("getting component %q: %w", componentName, err)
-		}
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
 

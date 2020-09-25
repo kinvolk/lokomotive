@@ -145,17 +145,15 @@ func clusterApply(contextLogger *log.Entry) error {
 		return nil
 	}
 
-	componentsToApply := []string{}
-	for _, component := range c.lokomotiveConfig.RootConfig.Components {
-		componentsToApply = append(componentsToApply, component.Name)
+	componentObjects, err := componentNamesToObjects(selectComponentNames(nil, *c.lokomotiveConfig.RootConfig))
+	if err != nil {
+		return fmt.Errorf("getting component objects: %w", err)
 	}
 
 	contextLogger.Println("Applying component configuration")
 
-	if len(componentsToApply) > 0 {
-		if err := applyComponents(c.lokomotiveConfig, kubeconfig, componentsToApply...); err != nil {
-			return fmt.Errorf("applying component configuration: %v", err)
-		}
+	if err := applyComponents(c.lokomotiveConfig, kubeconfig, componentObjects); err != nil {
+		return fmt.Errorf("applying component configuration: %v", err)
 	}
 
 	return nil
