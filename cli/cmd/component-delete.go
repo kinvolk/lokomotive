@@ -86,12 +86,12 @@ func runDelete(cmd *cobra.Command, args []string) {
 		componentsObjects[i] = compObj
 	}
 
-	if !confirm && !askForConfirmation(
-		fmt.Sprintf(
-			"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
-			strings.Join(componentsToDelete, "\n\t"),
-		),
-	) {
+	confirmationMessage := fmt.Sprintf(
+		"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
+		strings.Join(componentsToDelete, "\n\t"),
+	)
+
+	if !confirm && !askForConfirmation(confirmationMessage) {
 		contextLogger.Info("Components deletion cancelled.")
 		return
 	}
