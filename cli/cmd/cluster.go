@@ -52,10 +52,10 @@ type cluster struct {
 
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(contextLogger *log.Entry) *cluster {
+func initialize(contextLogger *log.Entry) (*cluster, error) {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
-		contextLogger.Fatal(diags)
+		return nil, diags
 	}
 
 	p, diags := getConfiguredPlatform(lokoConfig, true)
@@ -64,7 +64,7 @@ func initialize(contextLogger *log.Entry) *cluster {
 			contextLogger.Error(diagnostic.Error())
 		}
 
-		contextLogger.Fatal("Errors found while loading cluster configuration")
+		return nil, fmt.Errorf("loading platform configuration")
 	}
 
 	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
@@ -74,7 +74,7 @@ func initialize(contextLogger *log.Entry) *cluster {
 			contextLogger.Error(diagnostic.Error())
 		}
 
-		contextLogger.Fatal("Errors found while loading cluster configuration")
+		return nil, fmt.Errorf("loading backend configuration")
 	}
 
 	// Use a local backend if no backend is configured.
@@ -84,12 +84,12 @@ func initialize(contextLogger *log.Entry) *cluster {
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
-		contextLogger.Fatalf("Error expanding path: %v", err)
+		return nil, fmt.Errorf("expanding path %q: %v", p.Meta().AssetDir, err)
 	}
 
 	// Validate backend configuration.
 	if err = b.Validate(); err != nil {
-		contextLogger.Fatalf("Failed to validate backend configuration: %v", err)
+		return nil, fmt.Errorf("validating backend configuration: %v", err)
 	}
 
 	ex := initializeTerraform(contextLogger, p, b)
@@ -99,7 +99,7 @@ func initialize(contextLogger *log.Entry) *cluster {
 		platform:          p,
 		lokomotiveConfig:  lokoConfig,
 		assetDir:          assetDir,
-	}
+	}, nil
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform

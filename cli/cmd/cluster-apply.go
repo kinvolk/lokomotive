@@ -64,7 +64,10 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 //nolint:funlen
 func clusterApply(contextLogger *log.Entry) error {
-	c := initialize(contextLogger)
+	c, err := initialize(contextLogger)
+	if err != nil {
+		return fmt.Errorf("initializing: %w", err)
+	}
 
 	exists := clusterExists(contextLogger, &c.terraformExecutor)
 	if exists && !confirm {
