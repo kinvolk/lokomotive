@@ -23,6 +23,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 var componentDeleteCmd = &cobra.Command{
@@ -67,23 +68,11 @@ func runDelete(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal(diags)
 	}
 
-	componentsToDelete := args
+	componentsToDelete := selectComponentNames(args, *lokoConfig.RootConfig)
 
-	if len(componentsToDelete) == 0 {
-		for _, component := range lokoConfig.RootConfig.Components {
-			componentsToDelete = append(componentsToDelete, component.Name)
-		}
-	}
-
-	componentsObjects := make([]components.Component, len(componentsToDelete))
-
-	for i, componentName := range componentsToDelete {
-		compObj, err := components.Get(componentName)
-		if err != nil {
-			contextLogger.Fatal(err)
-		}
-
-		componentsObjects[i] = compObj
+	componentObjects, err := componentNamesToObjects(componentsToDelete)
+	if err != nil {
+		contextLogger.Fatalf("getting component objects: %v", err)
 	}
 
 	confirmationMessage := fmt.Sprintf(
@@ -102,9 +91,40 @@ func runDelete(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := deleteComponents(kubeconfig, componentsObjects...); err != nil {
+	if err := deleteComponents(kubeconfig, componentObjects...); err != nil {
 		contextLogger.Fatal(err)
 	}
+}
+
+// selectComponentNames returns list of components to operate on. If explicit list is empty,
+// it returns components defined in the configuration.
+func selectComponentNames(list []string, lokomotiveConfig config.RootConfig) []string {
+	if len(list) != 0 {
+		return list
+	}
+
+	for _, component := range lokomotiveConfig.Components {
+		list = append(list, component.Name)
+	}
+
+	return list
+}
+
+// componentNamesToObjects converts list of component names to list of component objects.
+// If some component does not exist, error is returned.
+func componentNamesToObjects(componentNames []string) ([]components.Component, error) {
+	c := []components.Component{}
+
+	for _, componentName := range componentNames {
+		component, err := components.Get(componentName)
+		if err != nil {
+			return nil, fmt.Errorf("getting component %q: %w", componentName, err)
+		}
+
+		c = append(c, component)
+	}
+
+	return c, nil
 }
 
 func deleteComponents(kubeconfig []byte, componentObjects ...components.Component) error {
