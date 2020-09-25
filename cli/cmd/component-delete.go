@@ -115,7 +115,7 @@ func deleteComponents(kubeconfig []byte, componentObjects ...components.Componen
 		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
 
 		if err := util.UninstallComponent(compObj, kubeconfig, deleteNamespace); err != nil {
-			return err
+			return fmt.Errorf("uninstalling component %q: %w", compObj.Metadata().Name, err)
 		}
 
 		fmt.Printf("Successfully deleted component %q!\n", compObj.Metadata().Name)
