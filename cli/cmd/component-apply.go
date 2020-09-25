@@ -101,7 +101,7 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentName
 
 		component, err := components.Get(componentName)
 		if err != nil {
-			return err
+			return fmt.Errorf("getting component %q: %w", componentName, err)
 		}
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
@@ -112,10 +112,11 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentName
 		}
 
 		if err := util.InstallComponent(component, kubeconfig); err != nil {
-			return err
+			return fmt.Errorf("installing component %q: %w", componentName, err)
 		}
 
 		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
 	}
+
 	return nil
 }
