@@ -40,19 +40,28 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
+	if err := componentRenderManifest(contextLogger, args); err != nil {
+		contextLogger.Fatalf("Rendering component manifests failed: %v", err)
+	}
+}
+
+func componentRenderManifest(contextLogger *log.Entry, componentsList []string) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
 		}
-		contextLogger.Fatal("Errors found while loading configuration")
+
+		return diags
 	}
 
-	componentsToRender := selectComponentNames(args, *lokoConfig.RootConfig)
+	componentsToRender := selectComponentNames(componentsList, *lokoConfig.RootConfig)
 
 	if err := renderComponentManifests(lokoConfig, componentsToRender); err != nil {
-		contextLogger.Fatal(err)
+		return fmt.Errorf("rendering component manifests: %w", err)
 	}
+
+	return nil
 }
 
 func renderComponentManifests(lokoConfig *config.Config, componentNames []string) error {
