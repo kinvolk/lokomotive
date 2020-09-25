@@ -91,7 +91,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := deleteComponents(kubeconfig, componentObjects...); err != nil {
+	if err := deleteComponents(kubeconfig, componentObjects); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
@@ -127,7 +127,7 @@ func componentNamesToObjects(componentNames []string) ([]components.Component, e
 	return c, nil
 }
 
-func deleteComponents(kubeconfig []byte, componentObjects ...components.Component) error {
+func deleteComponents(kubeconfig []byte, componentObjects []components.Component) error {
 	for _, compObj := range componentObjects {
 		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
 
