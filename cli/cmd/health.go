@@ -49,24 +49,32 @@ func runHealth(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	if err := health(contextLogger); err != nil {
+		contextLogger.Fatalf("Checking cluster health failed: %v", err)
+	}
+}
+
+//nolint:funlen
+func health(contextLogger *log.Entry) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
 		}
 
-		contextLogger.Fatal("Errors found while loading cluster configuration")
+		return diags
 	}
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
+
+		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
 	if err != nil {
-		contextLogger.Fatalf("Error in creating Kubernetes client: %q", err)
+		return fmt.Errorf("creating Kubernetes client: %w", err)
 	}
 
 	// We can skip error checking here, as getKubeconfig() already checks it.
@@ -76,18 +84,18 @@ func runHealth(cmd *cobra.Command, args []string) {
 
 	ns, err := cluster.GetNodeStatus()
 	if err != nil {
-		contextLogger.Fatalf("Error getting node status: %q", err)
+		return fmt.Errorf("getting node status: %w", err)
 	}
 
 	ns.PrettyPrint()
 
 	if !ns.Ready() {
-		contextLogger.Fatalf("The cluster is not completely ready.")
+		return fmt.Errorf("cluster is not completely ready")
 	}
 
 	components, err := cluster.Health()
 	if err != nil {
-		contextLogger.Fatalf("Error in getting Lokomotive cluster health: %q", err)
+		return fmt.Errorf("getting Lokomotive cluster health: %w", err)
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
@@ -114,4 +122,6 @@ func runHealth(cmd *cobra.Command, args []string) {
 
 		w.Flush()
 	}
+
+	return nil
 }
