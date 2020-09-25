@@ -129,7 +129,9 @@ func clusterApply(contextLogger *log.Entry) error {
 		}
 
 		for _, c := range charts {
-			cu.upgradeComponent(c.Name, c.Namespace)
+			if err := cu.upgradeComponent(c.Name, c.Namespace); err != nil {
+				return fmt.Errorf("upgrading controlplane component %q: %w", c.Name, err)
+			}
 		}
 	}
 

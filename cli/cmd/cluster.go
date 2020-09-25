@@ -192,30 +192,25 @@ func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]inte
 	return values, nil
 }
 
-func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
-	contextLogger := c.contextLogger.WithFields(log.Fields{
-		"action":    "controlplane-upgrade",
-		"component": component,
-	})
-
+func (c controlplaneUpdater) upgradeComponent(component, namespace string) error {
 	actionConfig, err := util.HelmActionConfig(namespace, c.kubeconfig)
 	if err != nil {
-		contextLogger.Fatalf("Failed initializing helm: %v", err)
+		return fmt.Errorf("initializing Helm action: %w", err)
 	}
 
 	helmChart, err := c.getControlplaneChart(component)
 	if err != nil {
-		contextLogger.Fatalf("Loading chart from assets failed: %v", err)
+		return fmt.Errorf("loading chart from assets: %w", err)
 	}
 
 	values, err := c.getControlplaneValues(component)
 	if err != nil {
-		contextLogger.Fatalf("Failed to get kubernetes values.yaml from Terraform: %v", err)
+		return fmt.Errorf("getting chart values from Terraform: %w", err)
 	}
 
 	exists, err := util.ReleaseExists(*actionConfig, component)
 	if err != nil {
-		contextLogger.Fatalf("Failed checking if controlplane component is installed: %v", err)
+		return fmt.Errorf("checking if controlplane component is installed: %w", err)
 	}
 
 	if !exists {
@@ -230,7 +225,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 		if _, err := install.Run(helmChart, values); err != nil {
 			fmt.Println("Failed!")
 
-			contextLogger.Fatalf("Installing controlplane component failed: %v", err)
+			return fmt.Errorf("installing controlplane component: %w", err)
 		}
 
 		fmt.Println("Done.")
@@ -245,8 +240,10 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 	if _, err := update.Run(component, helmChart, values); err != nil {
 		fmt.Println("Failed!")
 
-		contextLogger.Fatalf("Updating chart failed: %v", err)
+		return fmt.Errorf("updating controlplane component: %w", err)
 	}
 
 	fmt.Println("Done.")
+
+	return nil
 }
