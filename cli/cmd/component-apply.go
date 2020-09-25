@@ -83,14 +83,14 @@ func componentApply(contextLogger *log.Entry, componentsList []string) error {
 		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
+	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply); err != nil {
 		return fmt.Errorf("applying components: %w", err)
 	}
 
 	return nil
 }
 
-func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentNames ...string) error {
+func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentNames []string) error {
 	for _, componentName := range componentNames {
 		fmt.Printf("Applying component '%s'...\n", componentName)
 
