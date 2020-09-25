@@ -50,12 +50,12 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 
 	componentsToRender := selectComponentNames(args, *lokoConfig.RootConfig)
 
-	if err := renderComponentManifests(lokoConfig, componentsToRender...); err != nil {
+	if err := renderComponentManifests(lokoConfig, componentsToRender); err != nil {
 		contextLogger.Fatal(err)
 	}
 }
 
-func renderComponentManifests(lokoConfig *config.Config, componentNames ...string) error {
+func renderComponentManifests(lokoConfig *config.Config, componentNames []string) error {
 	for _, componentName := range componentNames {
 		contextLogger := log.WithFields(log.Fields{
 			"component": componentName,
