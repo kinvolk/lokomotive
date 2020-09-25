@@ -92,7 +92,10 @@ func initialize(contextLogger *log.Entry) (*cluster, error) {
 		return nil, fmt.Errorf("validating backend configuration: %v", err)
 	}
 
-	ex := initializeTerraform(contextLogger, p, b)
+	ex, err := initializeTerraform(p, b)
+	if err != nil {
+		return nil, fmt.Errorf("initializing Terraform: %w", err)
+	}
 
 	return &cluster{
 		terraformExecutor: *ex,
@@ -104,21 +107,21 @@ func initialize(contextLogger *log.Entry) (*cluster, error) {
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func initializeTerraform(contextLogger *log.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
+func initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
-		contextLogger.Fatalf("Error expanding path: %v", err)
+		return nil, fmt.Errorf("expanding path %q: %w", p.Meta().AssetDir, err)
 	}
 
 	// Render backend configuration.
 	renderedBackend, err := b.Render()
 	if err != nil {
-		contextLogger.Fatalf("Failed to render backend configuration file: %v", err)
+		return nil, fmt.Errorf("rendering backend configuration: %w", err)
 	}
 
 	// Configure Terraform directory, module and backend.
 	if err := terraform.Configure(assetDir, renderedBackend); err != nil {
-		contextLogger.Fatalf("Failed to configure Terraform : %v", err)
+		return nil, fmt.Errorf("configuring Terraform: %w", err)
 	}
 
 	conf := terraform.Config{
@@ -128,18 +131,18 @@ func initializeTerraform(contextLogger *log.Entry, p platform.Platform, b backen
 
 	ex, err := terraform.NewExecutor(conf)
 	if err != nil {
-		contextLogger.Fatalf("Failed to create Terraform executor: %v", err)
+		return nil, fmt.Errorf("creating Terraform executor: %w", err)
 	}
 
 	if err := p.Initialize(ex); err != nil {
-		contextLogger.Fatalf("Failed to initialize Platform: %v", err)
+		return nil, fmt.Errorf("initializing Platform: %w", err)
 	}
 
 	if err := ex.Init(); err != nil {
-		contextLogger.Fatalf("Failed to initialize Terraform: %v", err)
+		return nil, fmt.Errorf("running 'terraform init': %w", err)
 	}
 
-	return ex
+	return ex, nil
 }
 
 // clusterExists determines if cluster has already been created by getting all
