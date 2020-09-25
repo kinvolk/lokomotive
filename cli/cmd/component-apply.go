@@ -61,12 +61,20 @@ func runApply(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	if err := componentApply(contextLogger, args); err != nil {
+		contextLogger.Fatalf("Applying components failed: %v", err)
+	}
+}
+
+// componentApply implements 'lokoctl component apply' separated from CLI
+// dependencies.
+func componentApply(contextLogger *log.Entry, componentsList []string) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
-		contextLogger.Fatal(diags)
+		return diags
 	}
 
-	componentsToApply := args
+	componentsToApply := componentsList
 	if len(componentsToApply) == 0 {
 		for _, component := range lokoConfig.RootConfig.Components {
 			componentsToApply = append(componentsToApply, component.Name)
@@ -76,12 +84,15 @@ func runApply(cmd *cobra.Command, args []string) {
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
+
+		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
 	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
-		contextLogger.Fatal(err)
+		return fmt.Errorf("applying components: %w", err)
 	}
+
+	return nil
 }
 
 func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentNames ...string) error {
