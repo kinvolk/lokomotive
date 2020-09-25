@@ -74,12 +74,7 @@ func componentApply(contextLogger *log.Entry, componentsList []string) error {
 		return diags
 	}
 
-	componentsToApply := componentsList
-	if len(componentsToApply) == 0 {
-		for _, component := range lokoConfig.RootConfig.Components {
-			componentsToApply = append(componentsToApply, component.Name)
-		}
-	}
+	componentsToApply := selectComponentNames(componentsList, *lokoConfig.RootConfig)
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
