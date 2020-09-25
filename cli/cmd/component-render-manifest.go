@@ -48,14 +48,7 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal("Errors found while loading configuration")
 	}
 
-	var componentsToRender []string
-	if len(args) > 0 {
-		componentsToRender = append(componentsToRender, args...)
-	} else {
-		for _, component := range lokoConfig.RootConfig.Components {
-			componentsToRender = append(componentsToRender, component.Name)
-		}
-	}
+	componentsToRender := selectComponentNames(args, *lokoConfig.RootConfig)
 
 	if err := renderComponentManifests(lokoConfig, componentsToRender...); err != nil {
 		contextLogger.Fatal(err)
