@@ -67,14 +67,11 @@ func runDelete(cmd *cobra.Command, args []string) {
 		contextLogger.Fatal(diags)
 	}
 
-	componentsToDelete := make([]string, len(args))
-	copy(componentsToDelete, args)
+	componentsToDelete := args
 
-	if len(args) == 0 {
-		componentsToDelete = make([]string, len(lokoConfig.RootConfig.Components))
-
-		for i, component := range lokoConfig.RootConfig.Components {
-			componentsToDelete[i] = component.Name
+	if len(componentsToDelete) == 0 {
+		for _, component := range lokoConfig.RootConfig.Components {
+			componentsToDelete = append(componentsToDelete, component.Name)
 		}
 	}
 
