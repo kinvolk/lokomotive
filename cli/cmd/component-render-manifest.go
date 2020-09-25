@@ -72,7 +72,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames []string
 
 		component, err := components.Get(componentName)
 		if err != nil {
-			return err
+			return fmt.Errorf("getting component %q: %w", componentName, err)
 		}
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
@@ -86,7 +86,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames []string
 
 		manifests, err := component.RenderManifests()
 		if err != nil {
-			return err
+			return fmt.Errorf("rendering manifest of component %q: %w", componentName, err)
 		}
 
 		fmt.Printf("# manifests for component %s\n", componentName)
