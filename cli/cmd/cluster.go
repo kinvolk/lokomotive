@@ -148,14 +148,14 @@ func initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Exe
 // clusterExists determines if cluster has already been created by getting all
 // outputs from the Terraform. If there is any output defined, it means 'terraform apply'
 // run at least once.
-func clusterExists(contextLogger *log.Entry, ex *terraform.Executor) bool {
+func clusterExists(ex terraform.Executor) (bool, error) {
 	o := map[string]interface{}{}
 
 	if err := ex.Output("", &o); err != nil {
-		contextLogger.Fatalf("Failed to check if cluster exists: %v", err)
+		return false, fmt.Errorf("getting Terraform output: %w", err)
 	}
 
-	return len(o) != 0
+	return len(o) != 0, nil
 }
 
 type controlplaneUpdater struct {

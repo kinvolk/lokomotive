@@ -69,7 +69,11 @@ func clusterApply(contextLogger *log.Entry) error {
 		return fmt.Errorf("initializing: %w", err)
 	}
 
-	exists := clusterExists(contextLogger, &c.terraformExecutor)
+	exists, err := clusterExists(c.terraformExecutor)
+	if err != nil {
+		return fmt.Errorf("checking if cluster exists: %w", err)
+	}
+
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := c.terraformExecutor.Plan(); err != nil {
