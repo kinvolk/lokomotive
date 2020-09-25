@@ -187,11 +187,11 @@ func readKubeconfigFromTerraformState(contextLogger *log.Entry) ([]byte, error) 
 	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
 		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
 
-	ex, _, _, _ := initialize(contextLogger) //nolint:dogsled
+	c := initialize(contextLogger)
 
 	kubeconfig := ""
 
-	if err := ex.Output(kubeconfigTerraformOutputKey, &kubeconfig); err != nil {
+	if err := c.terraformExecutor.Output(kubeconfigTerraformOutputKey, &kubeconfig); err != nil {
 		return nil, fmt.Errorf("reading kubeconfig file content from Terraform state: %w", err)
 	}
 

@@ -64,12 +64,12 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 //nolint:funlen
 func clusterApply(contextLogger *log.Entry) error {
-	ex, p, lokoConfig, assetDir := initialize(contextLogger)
+	c := initialize(contextLogger)
 
-	exists := clusterExists(contextLogger, ex)
+	exists := clusterExists(contextLogger, &c.terraformExecutor)
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
-		if err := ex.Plan(); err != nil {
+		if err := c.terraformExecutor.Plan(); err != nil {
 			return fmt.Errorf("reconciling cluster state: %v", err)
 		}
 
@@ -80,18 +80,18 @@ func clusterApply(contextLogger *log.Entry) error {
 		}
 	}
 
-	if err := p.Apply(ex); err != nil {
+	if err := c.platform.Apply(&c.terraformExecutor); err != nil {
 		return fmt.Errorf("applying platform: %v", err)
 	}
 
-	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
+	fmt.Printf("\nYour configurations are stored in %s\n", c.assetDir)
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	kubeconfig, err := getKubeconfig(contextLogger, c.lokomotiveConfig, true)
 	if err != nil {
 		return fmt.Errorf("getting kubeconfig: %v", err)
 	}
 
-	if err := verifyCluster(kubeconfig, p.Meta().ExpectedNodes); err != nil {
+	if err := verifyCluster(kubeconfig, c.platform.Meta().ExpectedNodes); err != nil {
 		return fmt.Errorf("verifying cluster: %v", err)
 	}
 
@@ -102,14 +102,14 @@ func clusterApply(contextLogger *log.Entry) error {
 	}
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
-	if exists && !p.Meta().Managed {
+	if exists && !c.platform.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
 			kubeconfig:    kubeconfig,
-			assetDir:      assetDir,
+			assetDir:      c.assetDir,
 			contextLogger: *contextLogger,
-			ex:            *ex,
+			ex:            c.terraformExecutor,
 		}
 
 		charts := platform.CommonControlPlaneCharts()
@@ -126,7 +126,7 @@ func clusterApply(contextLogger *log.Entry) error {
 		}
 	}
 
-	if ph, ok := p.(platform.PlatformWithPostApplyHook); ok {
+	if ph, ok := c.platform.(platform.PlatformWithPostApplyHook); ok {
 		if err := ph.PostApplyHook(kubeconfig); err != nil {
 			return fmt.Errorf("running platform post install hook: %v", err)
 		}
@@ -137,14 +137,14 @@ func clusterApply(contextLogger *log.Entry) error {
 	}
 
 	componentsToApply := []string{}
-	for _, component := range lokoConfig.RootConfig.Components {
+	for _, component := range c.lokomotiveConfig.RootConfig.Components {
 		componentsToApply = append(componentsToApply, component.Name)
 	}
 
 	contextLogger.Println("Applying component configuration")
 
 	if len(componentsToApply) > 0 {
-		if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
+		if err := applyComponents(c.lokomotiveConfig, kubeconfig, componentsToApply...); err != nil {
 			return fmt.Errorf("applying component configuration: %v", err)
 		}
 	}

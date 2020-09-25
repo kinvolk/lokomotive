@@ -41,9 +41,18 @@ func init() {
 	RootCmd.AddCommand(clusterCmd)
 }
 
+// cluster is a temporary helper struct to aggregate objects which are used
+// for managing the cluster and components.
+type cluster struct {
+	terraformExecutor terraform.Executor
+	platform          platform.Platform
+	lokomotiveConfig  *config.Config
+	assetDir          string
+}
+
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(contextLogger *log.Entry) (*terraform.Executor, platform.Platform, *config.Config, string) {
+func initialize(contextLogger *log.Entry) *cluster {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		contextLogger.Fatal(diags)
@@ -85,7 +94,12 @@ func initialize(contextLogger *log.Entry) (*terraform.Executor, platform.Platfor
 
 	ex := initializeTerraform(contextLogger, p, b)
 
-	return ex, p, lokoConfig, assetDir
+	return &cluster{
+		terraformExecutor: *ex,
+		platform:          p,
+		lokomotiveConfig:  lokoConfig,
+		assetDir:          assetDir,
+	}
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform
