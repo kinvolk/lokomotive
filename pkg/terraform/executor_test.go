@@ -31,21 +31,50 @@ func TestVersionConstraint(t *testing.T) {
 		expectError bool
 	}{
 		"valid": {
-			output: "Terraform v0.13.10",
+			output: `{
+  "terraform_version": "0.13.10",
+  "terraform_revision": "",
+  "provider_selections": {},
+  "terraform_outdated": false
+}
+`,
 		},
 		"outdated": {
-			output:      "Terraform v0.11.0",
+			output: `{
+  "terraform_version": "0.11.0",
+  "terraform_revision": "",
+  "provider_selections": {},
+  "terraform_outdated": false
+}
+`,
 			expectError: true,
 		},
 		"unsupported": {
-			output:      "Terraform v0.14.5",
+			output: `{
+  "terraform_version": "0.14.5",
+  "terraform_revision": "",
+  "provider_selections": {},
+  "terraform_outdated": false
+}
+`,
 			expectError: true,
 		},
-		"with extra test": {
+		"not JSON": {
 			output: `Terraform v0.13.11
 
 Your version of Terraform is out of date! The latest version
 is 0.13.3. You can update by downloading from https://www.terraform.io/downloads.html`,
+			expectError: true,
+		},
+		"empty version field": {
+			output: `{
+  "terraform_version": "",
+  "terraform_revision": "",
+  "provider_selections": {},
+  "terraform_outdated": false
+}
+`,
+			expectError: true,
 		},
 	}
 
