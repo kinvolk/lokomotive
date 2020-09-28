@@ -534,10 +534,8 @@ func (ex *Executor) checkVersion() error {
 		return fmt.Errorf("checking Terraform version: %w", err)
 	}
 
-	constraints, err := version.NewConstraint(requiredVersion)
-	if err != nil {
-		return fmt.Errorf("checking Terraform version: %w", err)
-	}
+	// requiredVersion is const, so we test it in unit tests.
+	constraints, _ := version.NewConstraint(requiredVersion)
 
 	if !constraints.Check(v) {
 		return fmt.Errorf("version '%s' of Terraform not supported. Needed %s", v, constraints)
