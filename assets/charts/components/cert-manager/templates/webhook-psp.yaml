@@ -11,7 +11,8 @@ metadata:
     app.kubernetes.io/component: "webhook"
     helm.sh/chart: {{ include "webhook.chart" . }}
   annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    # XXX: Lokomotive specific change
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
     seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
     {{- if .Values.global.podSecurityPolicy.useAppArmor }}
     apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
