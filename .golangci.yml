@@ -30,6 +30,7 @@ linters:
     - dupl
     - errcheck
     - exhaustive
+    - exportloopref
     - funlen
     - gochecknoinits
     - gocognit
@@ -39,9 +40,11 @@ linters:
     - godot
     - gofmt
     - gofumpt
+    - goheader
     - goimports
     - golint
     - gomnd
+    - gomodguard
     - goprintffuncname
     - gosec
     - gosimple
@@ -53,11 +56,13 @@ linters:
     - misspell
     - nakedret
     - nestif
+    - nlreturn
     - noctx
     - nolintlint
     - prealloc
     - rowserrcheck
     - scopelint
+    - sqlclosecheck
     - staticcheck
     - structcheck
     - stylecheck
@@ -71,12 +76,7 @@ linters:
     - wsl
 
   disable:
-    - exportloopref
     - gci
     - gochecknoglobals
     - godox
     - goerr113
-    - goheader
-    - gomodguard
-    - nlreturn
-    - sqlclosecheck
