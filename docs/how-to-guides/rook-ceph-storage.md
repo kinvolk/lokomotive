@@ -277,7 +277,7 @@ component "rook-ceph" {
 Execute the following command to apply the changes:
 
 ```bash
-lokoctl component apply rook
+lokoctl component apply rook-ceph
 ```
 
 Verify the StorageClass is default:
