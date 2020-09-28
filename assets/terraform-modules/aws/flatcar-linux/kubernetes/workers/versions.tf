@@ -7,5 +7,6 @@ terraform {
     aws      = "3.3.0"
     ct       = "0.6.1"
     template = "2.1.2"
+    random   = "2.3.0"
   }
 }

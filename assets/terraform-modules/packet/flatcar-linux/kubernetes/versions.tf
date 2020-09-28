@@ -9,5 +9,6 @@ terraform {
     null     = "2.1.2"
     template = "2.1.2"
     packet   = "3.0.0"
+    random   = "2.3.0"
   }
 }

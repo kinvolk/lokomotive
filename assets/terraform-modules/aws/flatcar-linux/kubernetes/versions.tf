@@ -8,5 +8,6 @@ terraform {
     ct       = "0.6.1"
     null     = "2.1.2"
     template = "2.1.2"
+    random   = "2.3.0"
   }
 }

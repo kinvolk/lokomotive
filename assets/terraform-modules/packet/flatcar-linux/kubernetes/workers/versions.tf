@@ -6,5 +6,6 @@ terraform {
   required_providers {
     ct     = "0.6.1"
     packet = "3.0.0"
+    random = "2.3.0"
   }
 }

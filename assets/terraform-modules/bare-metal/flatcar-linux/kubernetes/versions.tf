@@ -8,5 +8,6 @@ terraform {
     null     = "2.1.2"
     template = "2.1.2"
     matchbox = "0.4.1"
+    random   = "2.3.0"
   }
 }
