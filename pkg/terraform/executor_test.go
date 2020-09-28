@@ -1,15 +1,17 @@
 //+build e2e
 
-package terraform
+package terraform_test
 
 import (
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
-func executor(t *testing.T) *Executor {
+func executor(t *testing.T) *terraform.Executor {
 	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
 	if err != nil {
 		t.Fatalf("Creating tmp dir should succeed, got: %v", err)
@@ -21,12 +23,12 @@ func executor(t *testing.T) *Executor {
 		}
 	})
 
-	conf := Config{
+	conf := terraform.Config{
 		Verbose:    false,
 		WorkingDir: tmpDir,
 	}
 
-	ex, err := NewExecutor(conf)
+	ex, err := terraform.NewExecutor(conf)
 	if err != nil {
 		t.Fatalf("Creating new executor should succeed, got: %v", err)
 	}
