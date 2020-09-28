@@ -15,7 +15,11 @@ func executor(t *testing.T) *Executor {
 		t.Fatalf("Creating tmp dir should succeed, got: %v", err)
 	}
 
-	defer os.RemoveAll(tmpDir)
+	t.Cleanup(func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Removing directory %q: %v", tmpDir, err)
+		}
+	})
 
 	conf := Config{
 		Verbose:    false,
