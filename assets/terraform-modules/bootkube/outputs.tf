@@ -92,5 +92,5 @@ output "lokomotive_values" {
 }
 
 output "bootstrap-secrets_values" {
-  value = var.enable_tls_bootstrap ? local_file.bootstrap-secrets[0].content : ""
+  value = var.enable_tls_bootstrap ? local.bootstrap_secrets : ""
 }
