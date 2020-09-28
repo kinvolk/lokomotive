@@ -391,7 +391,11 @@ func (ex *Executor) executeSync(args ...string) ([]byte, error) {
 
 	h.stop()
 
-	return output, err
+	if err != nil {
+		return nil, fmt.Errorf("executing with arguments '%s': %w", strings.Join(args, ", "), err)
+	}
+
+	return output, nil
 }
 
 // Plan runs 'terraform plan'.
