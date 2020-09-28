@@ -39,6 +39,7 @@ EOF
     disk_size     = 30
     instance_type = "i3.large"
     spot_price    = "0.08"
+    labels        = "testing.io=yes,roleofnode=testing"
     tags = {
       "deployment" = "ci"
     }
