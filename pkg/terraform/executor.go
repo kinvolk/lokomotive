@@ -516,22 +516,23 @@ func (ex *Executor) logPath(id int) string {
 func (ex *Executor) checkVersion() error {
 	vOutput, err := ex.executeSync("--version")
 	if err != nil {
-		return fmt.Errorf("checking Terraform version: %w", err)
+		return fmt.Errorf("executing 'terraform --version': %w", err)
 	}
 
+	format := "Terraform v%s\n"
 	var vStr string
-	n, err := fmt.Sscanf(string(vOutput), "Terraform v%s\n", &vStr)
+	n, err := fmt.Sscanf(string(vOutput), format, &vStr)
 	if err != nil {
-		return fmt.Errorf("checking Terraform version: %w", err)
+		return fmt.Errorf("output %q does not match format %q: %w", string(vOutput), format, err)
 	}
 
 	if n != 1 {
-		return fmt.Errorf("error parsing Terraform version")
+		return fmt.Errorf("version not found in 'terraform --version' output")
 	}
 
 	v, err := version.NewVersion(vStr)
 	if err != nil {
-		return fmt.Errorf("checking Terraform version: %w", err)
+		return fmt.Errorf("parsing Terraform version %q: %w", vStr, err)
 	}
 
 	// requiredVersion is const, so we test it in unit tests.
