@@ -17,7 +17,6 @@ apiserver:
   trustedCertsDir: ${trusted_certs_dir}
   replicas: ${replicas}
   enableTLSBootstrap: ${enable_tls_bootstrap}
-  exposeOnAllInterfaces: ${expose_on_all_interfaces}
   %{~ if length(extra_flags) > 0 ~}
   extraFlags:
   %{~ for f in extra_flags ~}
