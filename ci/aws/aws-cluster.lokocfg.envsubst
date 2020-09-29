@@ -236,3 +236,10 @@ component "aws-ebs-csi-driver" {}
 component "experimental-istio-operator" {
   enable_monitoring = true
 }
+
+component "headlamp" {
+  ingress {
+    host                       = "headlamp.$CLUSTER_ID.$AWS_DNS_ZONE"
+    certmanager_cluster_issuer = "letsencrypt-staging"
+  }
+}
