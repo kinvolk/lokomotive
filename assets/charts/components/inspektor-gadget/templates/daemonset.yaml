@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "inspektor-gadget.fullname" . }}
+  labels:
+    {{- include "inspektor-gadget.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "inspektor-gadget.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        k8s-app: gadget # kubectl-gadget and headlamp's traceloop plugin expect this
+        {{- include "inspektor-gadget.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "inspektor-gadget.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostPID: true
+      hostNetwork: true
+      containers:
+      - name: gadget # kubectl-gadget expects this container name
+        securityContext:
+          privileged: true
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        command: [ "/entrypoint.sh" ]
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/cleanup.sh"
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: GADGET_POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        {{- if .Values.enableTraceloop }}
+        - name: TRACELOOP_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: TRACELOOP_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: TRACELOOP_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: TRACELOOP_IMAGE
+          value: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        {{- end }}
+        - name: INSPEKTOR_GADGET_VERSION
+          value: {{ .Chart.AppVersion }}
+        - name: INSPEKTOR_GADGET_OPTION_TRACELOOP
+          value: "{{ .Values.enableTraceloop }}"
+        {{- if .Values.enableTraceloop }}
+        - name: INSPEKTOR_GADGET_OPTION_TRACELOOP_LOGLEVEL
+          value: {{ .Values.logLevel }}
+        - name: INSPEKTOR_GADGET_OPTION_RUNC_HOOKS_MODE
+          value: "auto"
+        {{- end }}
+        volumeMounts:
+        - name: host
+          mountPath: /host
+        - name: run
+          mountPath: /run
+          mountPropagation: Bidirectional
+        - name: modules
+          mountPath: /lib/modules
+        - name: debugfs
+          mountPath: /sys/kernel/debug
+        - name: cgroup
+          mountPath: /sys/fs/cgroup
+        - name: bpffs
+          mountPath: /sys/fs/bpf
+        - name: localtime
+          mountPath: /etc/localtime
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+        {{- with .Values.tolerations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+      - name: host
+        hostPath:
+          path: /
+      - name: run
+        hostPath:
+          path: /run
+      - name: cgroup
+        hostPath:
+          path: /sys/fs/cgroup
+      - name: modules
+        hostPath:
+          path: /lib/modules
+      - name: bpffs
+        hostPath:
+          path: /sys/fs/bpf
+      - name: debugfs
+        hostPath:
+          path: /sys/kernel/debug
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
