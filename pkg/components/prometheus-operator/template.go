@@ -49,8 +49,6 @@ alertmanager:
 
 grafana:
   plugins: "grafana-piechart-panel"
-  image:
-    tag: 7.1.4
   testFramework:
     enabled: false
   sidecar:
