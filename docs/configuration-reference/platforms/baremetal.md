@@ -76,7 +76,7 @@ cluster "bare-metal" {
     "testlabel" = ""
   }
 
-  network_mtu = 1480
+  network_mtu = 1500
 
   controller_domains = var.controller_domains
 
@@ -145,7 +145,7 @@ os_version = var.custom_default_os_version
 | `matchbox_client_key_path`  | Path to the server TLS key file.                                                                                                                                             |        -         |    string    |   true   |
 | `matchbox_endpoint`         | Matchbox API endpoint.                                                                                                                                                       |        -         |    string    |   true   |
 | `matchbox_http_endpoint`    | Matchbox HTTP read-only endpoint. Example: "http://matchbox.example.com:8080"                                                                                                |        -         |    string    |   true   |
-| `network_mtu`               | CNI interface MTU.                                                                                                                                                           |       1480       |    number    |  false   |
+| `network_mtu`               | Physical Network MTU.                                                                                                                                                        |       1500       |    number    |  false   |
 | `worker_names`              | Ordered list of worker names. Example: ["node2", "node3"]                                                                                                                    |        -         | list(string) |   true   |
 | `worker_macs`               | Ordered list of worker identifying MAC addresses. Example ["52:54:00:b2:2f:86", "52:54:00:c3:61:77"]                                                                         |        -         | list(string) |   true   |
 | `worker_domains`            | Ordered list of worker FQDNs. Example ["node2.example.com", "node3.example.com"]                                                                                             |        -         | list(string) |   true   |

@@ -113,7 +113,7 @@ cluster "aws" {
 
   disk_iops = var.disk_iops
 
-  network_mtu = 1480
+  network_mtu = 1500
 
   host_cidr = ""
 
@@ -222,7 +222,7 @@ worker_pool "my-worker-pool" {
 | `disk_size`                   | Size of the EBS volume in GB.                                                                                                                                                              |       40        |    number    |  false   |
 | `disk_type`                   | Type of the EBS volume (e.g. standard, gp2, io1).                                                                                                                                          |      "gp2"      |    string    |  false   |
 | `disk_iops`                   | IOPS of the EBS volume (e.g 100).                                                                                                                                                          |        0        |    number    |  false   |
-| `network_mtu`                 | CNI interface MTU. Use 8981 if using instances types with Jumbo frames.                                                                                                                    |      1480       |    number    |  false   |
+| `network_mtu`                 | Physical Network MTU. When using instance types with Jumbo frames, use 9001.                                                                                                               |      1500       |    number    |  false   |
 | `host_cidr`                   | CIDR IPv4 range to assign to EC2 nodes.                                                                                                                                                    |  "10.0.0.0/16"  |    string    |  false   |
 | `pod_cidr`                    | CIDR IPv4 range to assign Kubernetes pods.                                                                                                                                                 |  "10.2.0.0/16"  |    string    |  false   |
 | `service_cidr`                | CIDR IPv4 range to assign Kubernetes services.                                                                                                                                             |  "10.3.0.0/16"  |    string    |  false   |
