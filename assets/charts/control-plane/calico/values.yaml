@@ -13,3 +13,5 @@ calico:
   podCIDR: 10.2.0.0/16
   networkEncapsulation: "ipipMode: Always"
   blockedMetadataCIDRs: []
+  # Lokomotive specific change.
+  # failsafeInboundHostPorts:

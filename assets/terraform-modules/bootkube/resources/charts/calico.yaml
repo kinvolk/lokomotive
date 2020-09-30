@@ -16,3 +16,13 @@ calico:
   - ${cidr}
   %{~ endfor ~}
   %{~ endif ~}
+  %{~ if failsafe_inbound_host_ports != null && failsafe_inbound_host_ports != [] ~}
+  failsafeInboundHostPorts:
+  %{~ for protoport in failsafe_inbound_host_ports ~}
+  - protocol: ${protoport.protocol}
+    port: ${protoport.port}
+  %{~ endfor ~}
+  %{~ endif ~}
+  %{~ if failsafe_inbound_host_ports == [] ~}
+  failsafeInboundHostPorts: []
+  %{~ endif ~}

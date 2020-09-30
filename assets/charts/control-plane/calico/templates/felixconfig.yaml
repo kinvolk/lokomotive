@@ -1,0 +1,9 @@
+apiVersion: crd.projectcalico.org/v1
+kind: FelixConfiguration
+metadata:
+  name: default
+spec:
+  {{- if hasKey .Values.calico "failsafeInboundHostPorts"  }}
+  failsafeInboundHostPorts: {{ .Values.calico.failsafeInboundHostPorts }}
+  {{- end }}
+  bpfLogLevel: Info
