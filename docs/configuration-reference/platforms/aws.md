@@ -107,6 +107,8 @@ cluster "aws" {
 
   enable_tls_bootstrap = true
 
+  encrypt_pod_traffic = true
+
   disk_size = var.disk_size
 
   disk_type = var.disk_type
@@ -219,6 +221,7 @@ worker_pool "my-worker-pool" {
 | `region`                      | AWS region to use for deploying the cluster.                                                                                                                                               | "eu-central-1"  |    string    |  false   |
 | `enable_aggregation`          | Enable the Kubernetes Aggregation Layer.                                                                                                                                                   |      true       |     bool     |  false   |
 | `enable_tls_bootstrap`        | Enable TLS bootstraping for Kubelet.                                                                                                                                                       |      true       |     bool     |  false   |
+| `encrypt_pod_traffic`         | Enable in-cluster pod traffic encryption. If true `network_mtu` is reduced by 60 to make room for the encryption header.                                                                   |      false      |     bool     |  false   |
 | `disk_size`                   | Size of the EBS volume in GB.                                                                                                                                                              |       40        |    number    |  false   |
 | `disk_type`                   | Type of the EBS volume (e.g. standard, gp2, io1).                                                                                                                                          |      "gp2"      |    string    |  false   |
 | `disk_iops`                   | IOPS of the EBS volume (e.g 100).                                                                                                                                                          |        0        |    number    |  false   |

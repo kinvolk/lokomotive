@@ -96,6 +96,8 @@ cluster "bare-metal" {
 
   enable_tls_bootstrap = true
 
+  encrypt_pod_traffic = true
+
   oidc {
     issuer_url     = var.oidc_issuer_url
     client_id      = var.oidc_client_id
@@ -153,6 +155,7 @@ os_version = var.custom_default_os_version
 | `os_version`                | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                         |    "current"     |    string    |  false   |
 | `os_channel`                | Flatcar Container Linux channel to install from ("flatcar-stable", "flatcar-beta", "flatcar-alpha", "flatcar-edge").                                                         | "flatcar-stable" |    string    |  false   |
 | `enable_tls_bootstrap`      | Enable TLS bootstraping for Kubelet.                                                                                                                                         |       true       |     bool     |  false   |
+| `encrypt_pod_traffic`       | Enable in-cluster pod traffic encryption. If true `network_mtu` is reduced by 60 to make room for the encryption header.                                                     |      false       |     bool     |  false   |
 | `oidc`                      | OIDC configuration block.                                                                                                                                                    |        -         |    object    |  false   |
 | `oidc.issuer_url`           | URL of the provider which allows the API server to discover public signing keys. Only URLs which use the https:// scheme are accepted.                                       |        -         |    string    |  false   |
 | `oidc.client_id`            | A client id that all tokens must be issued for.                                                                                                                              |    "gangway"     |    string    |  false   |
