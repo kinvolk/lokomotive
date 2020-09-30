@@ -77,7 +77,7 @@ printf "${format}" "contour" "${current_version}" "${version}"
 ###########################
 # Dex
 cd "${workdir}"
-current_version=$(grep "image: quay.io/dexidp/dex" pkg/components/dex/component.go | cut -d":" -f3)
+current_version=$(grep appVersion assets/charts/components/dex/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release dexidp/dex
 printf "${format}" "dex" "${current_version}" "${version}"
@@ -99,13 +99,33 @@ printf "${format}" "external-dns" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
 
 ###########################
+# flatcar-linux-update-operator
+
+cd "${workdir}"
+current_version=$(grep appVersion assets/charts/components/flatcar-linux-update-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+get_latest_release kinvolk/flatcar-linux-update-operator
+printf "${format}" "fluo" "${current_version}" "${version}"
+
+
+###########################
 # gangway
 
 cd "${workdir}"
-current_version=$(grep "image: gcr.io/heptio-images/gangway" pkg/components/gangway/component.go | cut -d":" -f3)
+current_version=$(grep appVersion assets/charts/components/gangway/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release heptiolabs/gangway
 printf "${format}" "gangway" "${current_version}" "${version}"
+
+###########################
+# httpbin
+
+cd "${workdir}"
+current_version=$(grep appVersion assets/charts/components/httpbin/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+
+get_latest_release postmanlabs/httpbin
+printf "${format}" "httpbin" "${current_version}" "${version}"
+
 
 ###########################
 # metallb
@@ -206,7 +226,7 @@ printf "${format}" "-----------" "---------------" "--------------"
 ###########################
 # Packet Provider
 cd "${workdir}"
-current_version=$(grep packet assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep packet assets/terraform-modules/packet/flatcar-linux/kubernetes/versions.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release packethost/terraform-provider-packet
 printf "${format}" "Packet" "${current_version}" "${version}"
@@ -214,7 +234,7 @@ printf "${format}" "Packet" "${current_version}" "${version}"
 ###########################
 # AWS Provider
 cd "${workdir}"
-current_version=$(grep aws assets/terraform-modules/aws/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep aws assets/terraform-modules/aws/flatcar-linux/kubernetes/versions.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release terraform-providers/terraform-provider-aws
 printf "${format}" "AWS" "${current_version}" "${version}"
@@ -222,23 +242,15 @@ printf "${format}" "AWS" "${current_version}" "${version}"
 ###########################
 # Azure Provider
 cd "${workdir}"
-current_version=$(grep azurerm -A1 assets/terraform-modules/azure/flatcar-linux/kubernetes/require.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep azurerm -A1 assets/terraform-modules/azure/flatcar-linux/kubernetes/versions.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release terraform-providers/terraform-provider-azurerm
 printf "${format}" "Azure" "${current_version}" "${version}"
 
 ###########################
-# TLS Provider
-cd "${workdir}"
-current_version=$(grep tls assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
-
-get_latest_release hashicorp/terraform-provider-tls
-printf "${format}" "TLS" "${current_version}" "${version}"
-
-###########################
 # Local Provider
 cd "${workdir}"
-current_version=$(grep 'local' assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep 'local' assets/terraform-modules/packet/flatcar-linux/kubernetes/versions.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release hashicorp/terraform-provider-local
 printf "${format}" "Local" "${current_version}" "${version}"
@@ -246,7 +258,7 @@ printf "${format}" "Local" "${current_version}" "${version}"
 ###########################
 # Null Provider
 cd "${workdir}"
-current_version=$(grep 'null' assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+current_version=$(grep 'null' assets/terraform-modules/packet/flatcar-linux/kubernetes/versions.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
 get_latest_release hashicorp/terraform-provider-null
 printf "${format}" "Null" "${current_version}" "${version}"
@@ -254,7 +266,7 @@ printf "${format}" "Null" "${current_version}" "${version}"
 ###########################
 # CT Provider
 cd "${workdir}"
-current_version=$(grep ct assets/terraform-modules/packet/flatcar-linux/kubernetes/require.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's|=||g' | sed 's| ||g')
+current_version=$(grep ct assets/terraform-modules/packet/flatcar-linux/kubernetes/versions.tf | cut -d"\"" -f2 | sed 's|~>||g' | sed 's|=||g' | sed 's| ||g')
 
 get_latest_release poseidon/terraform-provider-ct
 printf "${format}" "CT" "${current_version}" "${version}"
