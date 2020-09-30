@@ -86,9 +86,8 @@ variable "asset_dir" {
 }
 
 variable "network_mtu" {
-  description = "CNI interface MTU"
+  description = "Physical Network MTU."
   type        = number
-  default     = 1480
 }
 
 variable "network_ip_autodetection_method" {

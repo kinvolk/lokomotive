@@ -121,6 +121,7 @@ func NewConfig() *config {
 	return &config{
 		EnableAggregation:  true,
 		EnableTLSBootstrap: true,
+		NetworkMTU:         platform.NetworkMTU,
 	}
 }
 

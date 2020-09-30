@@ -108,6 +108,7 @@ func NewConfig() *config {
 		Region:             "eu-central-1",
 		EnableAggregation:  true,
 		EnableTLSBootstrap: true,
+		NetworkMTU:         platform.NetworkMTU,
 	}
 }
 
