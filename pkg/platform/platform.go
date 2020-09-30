@@ -27,6 +27,9 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
+// NetworkMTU is the default host network MTU.
+const NetworkMTU = 1500
+
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
 // platforms.
 func CommonControlPlaneCharts() []helm.LokomotiveChart {

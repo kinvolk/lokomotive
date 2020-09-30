@@ -44,4 +44,8 @@ module "bootkube" {
 
   bootstrap_tokens     = var.enable_tls_bootstrap ? concat([local.controller_bootstrap_token], var.worker_bootstrap_tokens) : []
   enable_tls_bootstrap = var.enable_tls_bootstrap
+
+  # We install calico-host-protection chart on Packet which ships GNPs, so we can disable failsafe ports in Calico.
+  failsafe_inbound_host_ports = []
+  encrypt_pod_traffic         = var.encrypt_pod_traffic
 }

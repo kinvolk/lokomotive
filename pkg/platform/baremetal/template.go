@@ -30,6 +30,10 @@ module "bare-metal-{{.ClusterName}}" {
   # Enable TLS Bootstrap
   enable_tls_bootstrap = {{ .EnableTLSBootstrap }}
 
+  {{- if .EncryptPodTraffic }}
+  encrypt_pod_traffic = {{ .EncryptPodTraffic }}
+  {{- end }}
+
   # configuration
   cached_install     = "{{.CachedInstall}}"
   k8s_domain_name    = "{{.K8sDomainName}}"

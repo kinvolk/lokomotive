@@ -15,6 +15,14 @@ resource "local_file" "calico" {
     pod_cidr                        = var.pod_cidr
     enable_reporting                = var.enable_reporting
     blocked_metadata_cidrs          = var.blocked_metadata_cidrs
+    failsafe_inbound_host_ports = var.failsafe_inbound_host_ports != null ? [
+      for protoport in var.failsafe_inbound_host_ports :
+      {
+        protocol = protoport.protocol
+        port     = protoport.port
+      }
+    ] : null
+    encrypt_pod_traffic = var.encrypt_pod_traffic
   })
   filename = "${var.asset_dir}/charts/kube-system/calico.yaml"
 }

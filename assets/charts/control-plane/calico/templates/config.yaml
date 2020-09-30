@@ -13,7 +13,11 @@ data:
   # - Otherwise, if VXLAN or BPF mode is enabled, set to your network MTU - 50
   # - Otherwise, if IPIP is enabled, set to your network MTU - 20
   # - Otherwise, if not using any encapsulation, set to your network MTU.
-  veth_mtu: "{{ .Values.calico.networkMTU }}"
+  {{- if .Values.calico.encryptPodTraffic }}
+  veth_mtu: "{{ sub .Values.calico.networkMTU 60 }}" # Wireguard overhead.
+  {{- else }}
+  veth_mtu: "{{ sub .Values.calico.networkMTU 20 }}" # IP in IP overhead.
+  {{- end}}
   # The CNI network configuration to install on each node. The special
   # values in this config will be automatically populated.
   cni_network_config: |-

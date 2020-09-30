@@ -1,15 +1,3 @@
-# General
-# =======
----
-# Disable default failsafe inbound rules
-apiVersion: crd.projectcalico.org/v1
-kind: FelixConfiguration
-metadata:
-  name: default
-spec:
-  failsafeInboundHostPorts: []
-  bpfLogLevel: Info
-
 # Firewall policy
 # ===============
 ---

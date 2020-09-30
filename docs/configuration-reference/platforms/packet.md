@@ -100,7 +100,7 @@ cluster "packet" {
 
   cluster_domain_suffix = "cluster.local"
 
-  network_mtu = 1480
+  network_mtu = 1500
 
   tags {
     key1 = "value1"
@@ -110,6 +110,8 @@ cluster "packet" {
   enable_aggregation = true
 
   enable_tls_bootstrap = true
+
+  encrypt_pod_traffic = true
 
   enable_reporting = false
 
@@ -221,7 +223,8 @@ node_type = var.custom_default_worker_type
 | `node_private_cidr`                   | Private IPv4 CIDR of the nodes used to allow inter-node traffic. Example "10.0.0.0/8"                                                                                                                                                                                             |        -        |    string    |   true   |
 | `enable_aggregation`                  | Enable the Kubernetes Aggregation Layer.                                                                                                                                                                                                                                          |      true       |     bool     |  false   |
 | `enable_tls_bootstrap`                | Enable TLS bootstraping for Kubelet.                                                                                                                                                                                                                                              |      true       |     bool     |  false   |
-| `network_mtu`                         | CNI interface MTU                                                                                                                                                                                                                                                                 |      1480       |    number    |  false   |
+| `encrypt_pod_traffic`                 | Enable in-cluster pod traffic encryption. If true `network_mtu` is reduced by 60 to make room for the encryption header.                                                                                                                                                          |      false      |     bool     |  false   |
+| `network_mtu`                         | Physical Network MTU.                                                                                                                                                                                                                                                             |      1500       |    number    |  false   |
 | `pod_cidr`                            | CIDR IPv4 range to assign Kubernetes pods.                                                                                                                                                                                                                                        |  "10.2.0.0/16"  |    string    |  false   |
 | `service_cidr`                        | CIDR IPv4 range to assign Kubernetes services.                                                                                                                                                                                                                                    |  "10.3.0.0/16"  |    string    |  false   |
 | `cluster_domain_suffix`               | Cluster's DNS domain.                                                                                                                                                                                                                                                             | "cluster.local" |    string    |  false   |

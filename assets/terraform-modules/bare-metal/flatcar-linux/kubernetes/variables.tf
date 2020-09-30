@@ -83,9 +83,8 @@ variable "asset_dir" {
 }
 
 variable "network_mtu" {
-  description = "CNI interface MTU"
+  description = "Physical Network MTU."
   type        = number
-  default     = 1480
 }
 
 variable "network_ip_autodetection_method" {
@@ -183,4 +182,10 @@ variable "kube_apiserver_extra_flags" {
   description = "Extra flags passed to self-hosted kube-apiserver."
   type        = list(string)
   default     = []
+}
+
+variable "encrypt_pod_traffic" {
+  description = "Enable in-cluster pod traffic encryption."
+  type        = bool
+  default     = false
 }

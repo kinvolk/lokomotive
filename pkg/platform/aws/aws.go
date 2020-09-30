@@ -83,6 +83,7 @@ type config struct {
 	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
+	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -108,6 +109,7 @@ func NewConfig() *config {
 		Region:             "eu-central-1",
 		EnableAggregation:  true,
 		EnableTLSBootstrap: true,
+		NetworkMTU:         platform.NetworkMTU,
 	}
 }
 

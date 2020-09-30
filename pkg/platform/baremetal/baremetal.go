@@ -55,6 +55,7 @@ type config struct {
 	Labels                   map[string]string `hcl:"labels,optional"`
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
+	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -89,6 +90,7 @@ func NewConfig() *config {
 		OSChannel:          "flatcar-stable",
 		OSVersion:          "current",
 		EnableTLSBootstrap: true,
+		NetworkMTU:         platform.NetworkMTU,
 	}
 }
 
@@ -233,6 +235,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		KubeAPIServerExtraFlags  []string
 		Labels                   map[string]string
 		EnableTLSBootstrap       bool
+		EncryptPodTraffic        bool
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -256,6 +259,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		KubeAPIServerExtraFlags:  cfg.KubeAPIServerExtraFlags,
 		Labels:                   cfg.Labels,
 		EnableTLSBootstrap:       cfg.EnableTLSBootstrap,
+		EncryptPodTraffic:        cfg.EncryptPodTraffic,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

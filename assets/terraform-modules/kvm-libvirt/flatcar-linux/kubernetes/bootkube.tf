@@ -17,6 +17,7 @@ module "bootkube" {
   cluster_domain_suffix = var.cluster_domain_suffix
   enable_reporting      = var.enable_reporting
   enable_aggregation    = var.enable_aggregation
+  encrypt_pod_traffic   = var.encrypt_pod_traffic
 
   certs_validity_period_hours = var.certs_validity_period_hours
 }

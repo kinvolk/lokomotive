@@ -111,9 +111,8 @@ variable "asset_dir" {
 }
 
 variable "network_mtu" {
-  description = "CNI interface MTU. Use 8981 if using instances types with Jumbo frames."
+  description = "Physical Network MTU. Use 9001 if using instances types with Jumbo frames."
   type        = number
-  default     = 1480
 }
 
 variable "host_cidr" {
@@ -184,4 +183,10 @@ variable "kube_apiserver_extra_flags" {
   description = "Extra flags passed to self-hosted kube-apiserver."
   type        = list(string)
   default     = []
+}
+
+variable "encrypt_pod_traffic" {
+  description = "Enable in-cluster pod traffic encryption."
+  type        = bool
+  default     = false
 }

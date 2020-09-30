@@ -173,3 +173,15 @@ variable "enable_tls_bootstrap" {
   description = "Enable TLS Bootstrap for Kubelet."
   type        = bool
 }
+
+variable "failsafe_inbound_host_ports" {
+  description = "UDP/TCP/SCTP protocol/port pairs to allow incoming traffic on regardless of the security policy."
+  type        = list(any)
+  default     = null
+}
+
+variable "encrypt_pod_traffic" {
+  description = "Enable in-cluster pod traffic encryption."
+  type        = bool
+  default     = false
+}

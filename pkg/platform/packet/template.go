@@ -112,6 +112,11 @@ EOF
   {{- end }}
 
   enable_tls_bootstrap    = {{ .Config.EnableTLSBootstrap }}
+
+  {{- if .Config.EncryptPodTraffic }}
+  encrypt_pod_traffic = {{.Config.EncryptPodTraffic}}
+  {{- end }}
+
   worker_bootstrap_tokens = [
     {{- range $index, $pool := .Config.WorkerPools }}
     module.worker-{{$pool.Name}}.worker_bootstrap_token,
