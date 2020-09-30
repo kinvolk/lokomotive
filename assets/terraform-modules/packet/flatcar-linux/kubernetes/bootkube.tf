@@ -47,4 +47,5 @@ module "bootkube" {
 
   # We install calico-host-protection chart on Packet which ships GNPs, so we can disable failsafe ports in Calico.
   failsafe_inbound_host_ports = []
+  encrypt_pod_traffic         = var.encrypt_pod_traffic
 }

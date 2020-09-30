@@ -112,3 +112,9 @@ variable "certs_validity_period_hours" {
   type        = number
   default     = 8760
 }
+
+variable "encrypt_pod_traffic" {
+  description = "Enable in-cluster pod traffic encryption."
+  type        = bool
+  default     = false
+}

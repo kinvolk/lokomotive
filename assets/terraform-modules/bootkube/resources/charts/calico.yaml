@@ -26,3 +26,4 @@ calico:
   %{~ if failsafe_inbound_host_ports == [] ~}
   failsafeInboundHostPorts: []
   %{~ endif ~}
+  encryptPodTraffic: ${encrypt_pod_traffic}

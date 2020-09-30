@@ -183,3 +183,9 @@ variable "kube_apiserver_extra_flags" {
   type        = list(string)
   default     = []
 }
+
+variable "encrypt_pod_traffic" {
+  description = "Enable in-cluster pod traffic encryption."
+  type        = bool
+  default     = false
+}

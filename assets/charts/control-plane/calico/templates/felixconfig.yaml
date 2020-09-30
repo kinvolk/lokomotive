@@ -7,3 +7,4 @@ spec:
   failsafeInboundHostPorts: {{ .Values.calico.failsafeInboundHostPorts }}
   {{- end }}
   bpfLogLevel: Info
+  wireguardEnabled: {{ .Values.calico.encryptPodTraffic }}

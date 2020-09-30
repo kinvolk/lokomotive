@@ -22,6 +22,7 @@ resource "local_file" "calico" {
         port     = protoport.port
       }
     ] : null
+    encrypt_pod_traffic = var.encrypt_pod_traffic
   })
   filename = "${var.asset_dir}/charts/kube-system/calico.yaml"
 }
