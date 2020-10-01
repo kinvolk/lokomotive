@@ -155,7 +155,9 @@ cluster "packet" {
 
     os_version = "current"
 
-    labels = "foo=bar,baz=zab"
+    labels = {
+      "testlabel" = ""
+    }
 
     taints = "nodeType=storage:NoSchedule"
 
@@ -242,7 +244,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.os_channel`              | Flatcar Container Linux channel to install from (stable, beta, alpha, edge).                                                                                                                                                                                                      |    "stable"     |    string    |  false   |
 | `worker_pool.os_version`              | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                                                                                                              |    "current"    |    string    |  false   |
 | `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                                                                                                                            | "c3.small.x86"  |    string    |  false   |
-| `worker_pool.labels`                  | Custom labels to assign to worker nodes such as `foo=bar,baz=zab`.                                                                                                                                                                                                                |        -        |    string    |  false   |
+| `worker_pool.labels`                  | Map of extra Kubernetes Node labels for worker nodes.                                                                                                                                                                                                                             |        -        | map(string)  |  false   |
 | `worker_pool.taints`                  | Taints to assign to worker nodes such as `nodeType=storage:NoSchedule`.                                                                                                                                                                                                           |        -        |    string    |  false   |
 | `worker_pool.reservation_ids`         | Block with Packet hardware reservation IDs for worker nodes. Each key must have the format `worker-${index}` and the value is the reservation UUID. Can't be combined with `reservation_ids_default`. Example: `reservation_ids = { worker-0 = "<reservation_id>" }`.             |        -        | map(string)  |  false   |
 | `worker_pool.reservation_ids_default` | Default reservation ID for workers. The value`next-available` will choose any reservation that matches the pool's device type and facility. Can't be combined with `reservation_ids`.                                                                                             |        -        |    string    |  false   |
