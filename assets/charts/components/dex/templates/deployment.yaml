@@ -13,6 +13,9 @@ spec:
     metadata:
       labels:
         app: dex
+      ### Lokomotive specific change.
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       securityContext:
         runAsNonRoot: true

@@ -23,16 +23,14 @@ import (
 
 const name = "dex"
 
-//nolint:funlen
-func TestRenderManifest(t *testing.T) {
-	tests := []struct {
-		desc    string
-		hcl     string
-		wantErr bool
-	}{
-		{
-			desc: "Valid config",
-			hcl: `
+var tests = []struct {
+	desc    string
+	hcl     string
+	wantErr bool
+}{
+	{
+		desc: "first valid config",
+		hcl: `
 component "dex" {
   ingress_host = "foo"
   issuer_host  = "bar"
@@ -47,7 +45,7 @@ component "dex" {
       org {
         name = "kinvolk"
         teams = [
-          "lokomotive-developers",
+          "lokomotive-developers-1",
         ]
       }
     }
@@ -61,22 +59,55 @@ component "dex" {
   }
 }
 			`,
-		},
-		{
-			desc: "invalid config",
-			hcl: `
+	},
+	{
+		desc: "second valid config",
+		hcl: `
+component "dex" {
+  ingress_host = "foo"
+  issuer_host  = "bar"
+  connector "github" {
+    id   = "github"
+    name = "Github"
+    config {
+      client_id       = "clientid"
+      client_secret   = "clientsecret"
+      redirect_uri    = "redirecturi"
+      team_name_field = "slug"
+      org {
+        name = "kinvolk"
+        teams = [
+          "lokomotive-developers-2",
+        ]
+      }
+    }
+  }
+
+  static_client {
+    name          = "gangway"
+    id            = "gangway id"
+    secret        = "gangway secret"
+    redirect_uris = ["redirecturis"]
+  }
+}
+			`,
+	},
+	{
+		desc: "invalid config",
+		hcl: `
 component "dex" {
   ingress_host = "NodePort"
 }
 			`,
-			wantErr: true,
-		},
-	}
+		wantErr: true,
+	},
+}
 
+func TestRenderManifest(t *testing.T) {
 	for _, tc := range tests {
 		b, d := util.GetComponentBody(tc.hcl, name)
 		if d != nil {
-			t.Errorf("%s - Error getting component body: %v", tc.desc, d)
+			t.Fatalf("%s - Error getting component body: %v", tc.desc, d)
 		}
 
 		c, err := components.Get(name)
@@ -87,20 +118,52 @@ component "dex" {
 		d = c.LoadConfig(b, nil)
 
 		if !tc.wantErr && d.HasErrors() {
-			t.Errorf("%s - Valid config should not return error, got: %s", tc.desc, d)
+			t.Fatalf("%s - Valid config should not return error, got: %s", tc.desc, d)
 		}
 
 		if tc.wantErr && !d.HasErrors() {
-			t.Errorf("%s - Wrong config should have returned an error", tc.desc)
+			t.Fatalf("%s - Wrong config should have returned an error", tc.desc)
 		}
 
 		m, err := c.RenderManifests()
 		if err != nil {
-			t.Errorf("%s - Rendering manifests with valid config should succeed, got: %s", tc.desc, err)
+			t.Fatalf("%s - Rendering manifests with valid config should succeed, got: %s", tc.desc, err)
 		}
 
 		if len(m) == 0 {
-			t.Errorf("%s - Rendered manifests shouldn't be empty", tc.desc)
+			t.Fatalf("%s - Rendered manifests shouldn't be empty", tc.desc)
 		}
+	}
+}
+
+func TestDeploymentAnnotationHashChange(t *testing.T) {
+	deploymentArr := []string{}
+
+	for _, tc := range tests {
+		b, d := util.GetComponentBody(tc.hcl, name)
+		if d != nil {
+			t.Fatalf("%s - Error getting component body: %v", tc.desc, d)
+		}
+
+		c, err := components.Get(name)
+		if err != nil {
+			t.Fatalf("failed getting component: %v", err)
+		}
+
+		d = c.LoadConfig(b, nil)
+		if !tc.wantErr && d.HasErrors() {
+			t.Fatalf("%s - Valid config should not return error, got: %s", tc.desc, d)
+		}
+
+		m, err := c.RenderManifests()
+		if err != nil {
+			t.Fatalf("%s - Rendering manifests with valid config should succeed, got: %s", tc.desc, err)
+		}
+
+		deploymentArr = append(deploymentArr, m["dex/templates/deployment.yaml"])
+	}
+
+	if deploymentArr[0] == deploymentArr[1] {
+		t.Fatalf("expected checksum/configmap hash to be different.")
 	}
 }
