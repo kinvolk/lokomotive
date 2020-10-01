@@ -70,7 +70,7 @@ data "ct_config" "ignitions" {
       ssh_keys              = jsonencode(var.ssh_keys)
       k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
       cluster_domain_suffix = var.cluster_domain_suffix
-      node_labels           = var.labels
+      node_labels           = merge({ "node.kubernetes.io/node" = "" }, var.labels)
       bgp_node_labels       = var.disable_bgp ? "" : format("%s,%s", local.my_asn, local.peer_asn)
       taints                = var.taints
       setup_raid            = var.setup_raid

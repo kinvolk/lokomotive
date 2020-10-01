@@ -291,7 +291,7 @@ storage:
         inline: |
           KUBELET_IMAGE_URL=quay.io/poseidon/kubelet
           KUBELET_IMAGE_TAG=v1.18.8-${os_arch}
-          NODE_LABELS="node.kubernetes.io/node,${node_labels}"
+          NODE_LABELS="${join(",", [for k, v in node_labels : "${k}=${v}"])}"
           BGP_NODE_LABELS="${bgp_node_labels}"
           NODE_TAINTS="${taints}"
     - path: /etc/sysctl.d/max-user-watches.conf

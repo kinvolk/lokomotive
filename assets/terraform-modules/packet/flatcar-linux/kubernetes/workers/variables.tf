@@ -37,9 +37,9 @@ variable "clc_snippets" {
 # TODO: migrate to `templatefile` when Terraform `0.12` is out and use `{% for ~}`
 # to avoid specifying `--node-labels` again when the var is empty.
 variable "labels" {
-  type        = string
-  default     = ""
-  description = "Custom labels to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'"
+  type        = map(string)
+  description = "Map of custom labels for worker nodes."
+  default     = {}
 }
 
 variable "taints" {
