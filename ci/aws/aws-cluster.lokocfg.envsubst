@@ -39,7 +39,10 @@ EOF
     disk_size     = 30
     instance_type = "i3.large"
     spot_price    = "0.08"
-    labels        = "testing.io=yes,roleofnode=testing"
+    labels        = {
+      "testing.io" = "yes",
+      "roleofnode" = "testing",
+    }
     tags = {
       "deployment" = "ci"
     }
@@ -66,8 +69,13 @@ EOF
     disk_size     = 30
     instance_type = "t2.small"
     spot_price    = "0.01"
-    labels        = "testing.io=yes,roleofnode=testing"
-    taints        = "nodeType=storage:NoSchedule"
+    labels        = {
+      "testing.io" = "yes",
+      "roleofnode" = "testing",
+    }
+    taints        = {
+      "nodeType" = "storage:NoSchedule"
+    }
 
     # TODO: remove this once https://github.com/kinvolk/lokomotive/issues/839 is fixed.
     lb_http_port  = 8080
