@@ -99,7 +99,6 @@ component "velero" {
     service_monitor = false
   }
 
-  provider  = "azure"
   namespace = "velero"
 }
 ```
