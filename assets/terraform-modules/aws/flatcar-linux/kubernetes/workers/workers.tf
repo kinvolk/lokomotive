@@ -82,16 +82,7 @@ resource "aws_launch_configuration" "worker" {
 
 # Worker Ignition config
 data "ct_config" "worker-ignition" {
-  content      = data.template_file.worker-config.rendered
-  pretty_print = false
-  snippets     = var.clc_snippets
-}
-
-# Worker Container Linux config
-data "template_file" "worker-config" {
-  template = file("${path.module}/cl/worker.yaml.tmpl")
-
-  vars = {
+  content = templatefile("${path.module}/cl/worker.yaml.tmpl", {
     kubeconfig = var.enable_tls_bootstrap ? indent(10, templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
       token_id     = random_string.bootstrap_token_id[0].result
       token_secret = random_string.bootstrap_token_secret[0].result
@@ -105,5 +96,7 @@ data "template_file" "worker-config" {
     node_labels            = var.labels
     taints                 = var.taints
     enable_tls_bootstrap   = var.enable_tls_bootstrap
-  }
+  })
+  pretty_print = false
+  snippets     = var.clc_snippets
 }
