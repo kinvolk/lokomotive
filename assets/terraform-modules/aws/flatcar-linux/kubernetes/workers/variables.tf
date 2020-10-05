@@ -40,9 +40,9 @@ variable "instance_type" {
 }
 
 variable "labels" {
-  type        = string
-  default     = ""
-  description = "Custom labels to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'"
+  type        = map(string)
+  description = "Map of custom labels for worker nodes."
+  default     = {}
 }
 
 variable "taints" {

@@ -93,7 +93,7 @@ data "ct_config" "worker-ignition" {
     ssh_keys               = jsonencode(var.ssh_keys)
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
-    node_labels            = var.labels
+    node_labels            = merge({ "node.kubernetes.io/node" = "" }, var.labels)
     taints                 = var.taints
     enable_tls_bootstrap   = var.enable_tls_bootstrap
   })
