@@ -43,9 +43,9 @@ variable "labels" {
 }
 
 variable "taints" {
-  type        = string
-  default     = ""
-  description = "Comma separated list of taints. eg. 'clusterType=staging:NoSchedule,nodeType=storage:NoSchedule'"
+  type        = map(string)
+  default     = {}
+  description = "Map of custom taints for worker nodes."
 }
 
 variable "ipxe_script_url" {
