@@ -111,7 +111,7 @@ Table of all the arguments accepted by the component.
 Example:
 
 | Argument                                             | Description                                                                                                                 | Default                                           | Type   | Required |
-|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--:-:----------------------------------------------|--:-:---|--:-:-----|
+|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|--------|----------|
 | `namespace`                                          | Namespace to install Velero.                                                                                                | "velero"                                          | string | false    |
 | `metrics`                                            | Configure Prometheus to scrape Velero metrics. Needs the [Prometheus Operator component](prometheus-operator.md) installed. | -                                                 | object | false    |
 | `metrics.enabled`                                    | Adds Prometheus annotations to Velero deployment if enabled.                                                                | false                                             | bool   | false    |
