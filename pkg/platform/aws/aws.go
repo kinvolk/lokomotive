@@ -39,7 +39,7 @@ type workerPool struct {
 	OSChannel    string            `hcl:"os_channel,optional"`
 	OSVersion    string            `hcl:"os_version,optional"`
 	Labels       map[string]string `hcl:"labels,optional"`
-	Taints       string            `hcl:"taints,optional"`
+	Taints       map[string]string `hcl:"taints,optional"`
 	DiskSize     int               `hcl:"disk_size,optional"`
 	DiskType     string            `hcl:"disk_type,optional"`
 	DiskIOPS     int               `hcl:"disk_iops,optional"`
