@@ -48,7 +48,7 @@ func TestAWSIngress(t *testing.T) {
 			Ingress:   "httpbin",
 		},
 		{
-			Component: "promtheus-operator",
+			Component: "prometheus-operator",
 			Namespace: "monitoring",
 			Ingress:   "prometheus-operator-prometheus",
 		},
