@@ -51,59 +51,65 @@ func init() {
 	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
 
-//nolint:funlen
 func runClusterApply(cmd *cobra.Command, args []string) {
 	contextLogger := log.WithFields(log.Fields{
 		"command": "lokoctl cluster apply",
 		"args":    args,
 	})
 
-	ex, p, lokoConfig, assetDir := initialize(contextLogger)
+	if err := clusterApply(contextLogger); err != nil {
+		contextLogger.Fatalf("Applying cluster failed: %v", err)
+	}
+}
 
-	exists := clusterExists(contextLogger, ex)
+//nolint:funlen
+func clusterApply(contextLogger *log.Entry) error {
+	c := initialize(contextLogger)
+
+	exists := clusterExists(contextLogger, &c.terraformExecutor)
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
-		if err := ex.Plan(); err != nil {
-			contextLogger.Fatalf("Failed to reconcile cluster state: %v", err)
+		if err := c.terraformExecutor.Plan(); err != nil {
+			return fmt.Errorf("reconciling cluster state: %v", err)
 		}
 
 		if !askForConfirmation("Do you want to proceed with cluster apply?") {
 			contextLogger.Println("Cluster apply cancelled")
 
-			return
+			return nil
 		}
 	}
 
-	if err := p.Apply(ex); err != nil {
-		contextLogger.Fatalf("Error applying cluster: %v", err)
+	if err := c.platform.Apply(&c.terraformExecutor); err != nil {
+		return fmt.Errorf("applying platform: %v", err)
 	}
 
-	fmt.Printf("\nYour configurations are stored in %s\n", assetDir)
+	fmt.Printf("\nYour configurations are stored in %s\n", c.assetDir)
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	kubeconfig, err := getKubeconfig(contextLogger, c.lokomotiveConfig, true)
 	if err != nil {
-		contextLogger.Fatalf("Failed to get kubeconfig: %v", err)
+		return fmt.Errorf("getting kubeconfig: %v", err)
 	}
 
-	if err := verifyCluster(kubeconfig, p.Meta().ExpectedNodes); err != nil {
-		contextLogger.Fatalf("Verify cluster: %v", err)
+	if err := verifyCluster(kubeconfig, c.platform.Meta().ExpectedNodes); err != nil {
+		return fmt.Errorf("verifying cluster: %v", err)
 	}
 
 	// Update all the pre installed namespaces with lokomotive specific label.
 	// `lokomotive.kinvolk.io/name: <namespace_name>`.
 	if err := updateInstalledNamespaces(kubeconfig); err != nil {
-		contextLogger.Fatalf("Updating installed namespace: %v", err)
+		return fmt.Errorf("updating installed namespace: %v", err)
 	}
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
-	if exists && !p.Meta().Managed {
+	if exists && !c.platform.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
 			kubeconfig:    kubeconfig,
-			assetDir:      assetDir,
+			assetDir:      c.assetDir,
 			contextLogger: *contextLogger,
-			ex:            *ex,
+			ex:            c.terraformExecutor,
 		}
 
 		charts := platform.CommonControlPlaneCharts()
@@ -120,28 +126,30 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if ph, ok := p.(platform.PlatformWithPostApplyHook); ok {
+	if ph, ok := c.platform.(platform.PlatformWithPostApplyHook); ok {
 		if err := ph.PostApplyHook(kubeconfig); err != nil {
-			contextLogger.Fatalf("Running platform post install hook failed: %v", err)
+			return fmt.Errorf("running platform post install hook: %v", err)
 		}
 	}
 
 	if skipComponents {
-		return
+		return nil
 	}
 
 	componentsToApply := []string{}
-	for _, component := range lokoConfig.RootConfig.Components {
+	for _, component := range c.lokomotiveConfig.RootConfig.Components {
 		componentsToApply = append(componentsToApply, component.Name)
 	}
 
 	contextLogger.Println("Applying component configuration")
 
 	if len(componentsToApply) > 0 {
-		if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
-			contextLogger.Fatalf("Applying component configuration failed: %v", err)
+		if err := applyComponents(c.lokomotiveConfig, kubeconfig, componentsToApply...); err != nil {
+			return fmt.Errorf("applying component configuration: %v", err)
 		}
 	}
+
+	return nil
 }
 
 func verifyCluster(kubeconfig []byte, expectedNodes int) error {
