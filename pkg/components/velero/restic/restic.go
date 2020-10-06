@@ -38,6 +38,7 @@ type BackupStorageLocation struct {
 	Provider string `hcl:"provider"`
 	Bucket   string `hcl:"bucket"`
 	Name     string `hcl:"name,optional"`
+	Region   string `hcl:"region,optional"`
 }
 
 // NewConfiguration returns the default restic configuration.
@@ -46,6 +47,7 @@ func NewConfiguration() *Configuration {
 		BackupStorageLocation: &BackupStorageLocation{
 			Provider: "aws",
 			Name:     "default",
+			Region:   "eu-west-1",
 		},
 	}
 }
