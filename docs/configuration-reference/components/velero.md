@@ -163,9 +163,9 @@ lokoctl component apply velero
 
 For day-to-day tasks, the `velero` CLI tool is the recommended way to interact with Velero.
 
-You can find how to install it in the [official documentation](https://velero.io/docs/master/basic-install/#install-the-cli).
+You can find how to install it in the [official documentation](https://velero.io/docs/v1.4/basic-install#install-the-cli).
 
-To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.2.0/examples/)
+To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.4/examples/)
 
 ## Deleting
 
