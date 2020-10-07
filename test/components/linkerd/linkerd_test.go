@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"testing"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,7 +57,7 @@ func TestLinkerdDeployment(t *testing.T) {
 		t.Run(d, func(t *testing.T) {
 			t.Parallel()
 
-			testutil.WaitForDeployment(t, client, namespace, d, retryInterval, timeout)
+			testutil.WaitForDeployment(t, client, namespace, d, testutil.RetryInterval, testutil.TimeoutSlow)
 		})
 	}
 }
@@ -116,9 +115,6 @@ spec:
   - name: download-dir
     emptyDir: {}
 `
-
-	retryInterval = 5 * time.Second
-	timeout       = 9 * time.Minute
 )
 
 //nolint: funlen
@@ -160,7 +156,7 @@ func TestLinkerdCheck(t *testing.T) {
 	podsClient := client.Pods(ns.Name)
 
 	// Retry pod creation. This might fail if Linkerd is not ready yet and some requests might fail.
-	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+	if err := wait.PollImmediate(testutil.RetryInterval, testutil.TimeoutSlow, func() (done bool, err error) {
 		pod, err = podsClient.Create(context.TODO(), pod, metav1.CreateOptions{})
 		if err != nil {
 			t.Logf("retrying pod creation, failed with: %v", err)
@@ -175,7 +171,7 @@ func TestLinkerdCheck(t *testing.T) {
 
 	phase := corev1.PodUnknown
 
-	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+	if err := wait.PollImmediate(testutil.RetryInterval, testutil.TimeoutSlow, func() (done bool, err error) {
 		p, err := podsClient.Get(context.TODO(), pod.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, fmt.Errorf("couldn't get the pod %q: %w", pod.Name, err)

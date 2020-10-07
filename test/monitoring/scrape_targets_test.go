@@ -25,6 +25,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -33,7 +34,7 @@ func testScrapeTargetRechability(t *testing.T, v1api v1.API) {
 	var w *tabwriter.Writer
 
 	if err := wait.PollImmediate(
-		retryInterval, timeout, getScrapeTargetRetryFunc(t, v1api, w),
+		testutil.RetryInterval, testutil.TimeoutSlow, getScrapeTargetRetryFunc(t, v1api, w),
 	); err != nil {
 		t.Errorf("%v", err)
 

@@ -21,7 +21,6 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,9 +51,6 @@ spec:
     - --timeout
     - "5"
 `
-
-	retryInterval = 1 * time.Second
-	timeout       = 5 * time.Minute
 )
 
 func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
@@ -99,7 +95,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 	podsclient := client.Pods(ns.ObjectMeta.Name)
 
 	// Retry pod creation. This might fail if Linkerd is not ready yet and some requests might fail.
-	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+	if err := wait.PollImmediate(testutil.RetryInterval, testutil.Timeout, func() (done bool, err error) {
 		p, err = podsclient.Create(context.TODO(), p, metav1.CreateOptions{})
 		if err != nil {
 			t.Logf("retrying pod creation, failed with: %v", err)
@@ -114,7 +110,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 
 	phase := corev1.PodUnknown
 
-	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+	if err := wait.PollImmediate(testutil.RetryInterval, testutil.Timeout, func() (done bool, err error) {
 		p, err := podsclient.Get(context.TODO(), p.ObjectMeta.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, err

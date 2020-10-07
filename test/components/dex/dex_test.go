@@ -19,7 +19,6 @@ package dex
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -33,6 +32,6 @@ func TestDexDeployment(t *testing.T) {
 		t.Parallel()
 		deployment := "dex"
 
-		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
 }

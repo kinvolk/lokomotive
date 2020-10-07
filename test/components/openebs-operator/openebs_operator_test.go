@@ -19,7 +19,6 @@ package openebsoperator
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -42,7 +41,7 @@ func TestOpenEBSOperatorDeployment(t *testing.T) {
 		t.Run("deployment", func(t *testing.T) {
 			t.Parallel()
 
-			testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+			testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout) //nolint:goscope
 		})
 	}
 }

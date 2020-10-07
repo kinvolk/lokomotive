@@ -19,7 +19,6 @@ package metricsserver
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -33,6 +32,6 @@ func TestMetricsServerDeployment(t *testing.T) {
 		t.Parallel()
 		deployment := "metrics-server"
 
-		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
 }

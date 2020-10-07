@@ -31,8 +31,6 @@ import (
 )
 
 const (
-	retryInterval  = time.Second * 5
-	timeout        = time.Minute * 5
 	contextTimeout = 10
 )
 
@@ -67,7 +65,7 @@ func TestIngressHost(t *testing.T) {
 			}
 
 			if err := wait.PollImmediate(
-				retryInterval, timeout, checkIngressHost(client, tc),
+				testutil.RetryInterval, testutil.Timeout, checkIngressHost(client, tc),
 			); err != nil {
 				t.Fatalf("%v", err)
 			}

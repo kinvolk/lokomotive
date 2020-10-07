@@ -19,9 +19,9 @@ package externaldns
 
 import (
 	"fmt"
-	testutil "github.com/kinvolk/lokomotive/test/components/util"
 	"testing"
-	"time"
+
+	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 const namespace = "external-dns"
@@ -32,6 +32,6 @@ func TestExternalDNSDeployments(t *testing.T) {
 	t.Run(fmt.Sprintf("deployment"), func(t *testing.T) {
 		t.Parallel()
 		deployment := "external-dns"
-		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
 }

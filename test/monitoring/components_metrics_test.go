@@ -120,7 +120,8 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 
 			t.Logf("querying %q", tc.query)
 
-			if err := wait.PollImmediate(retryInterval, timeout, getMetricRetryFunc(t, v1api, tc.query)); err != nil {
+			//nolint:lll
+			if err := wait.PollImmediate(testutil.RetryInterval, testutil.TimeoutSlow, getMetricRetryFunc(t, v1api, tc.query)); err != nil {
 				t.Errorf("%v", err)
 			}
 		})

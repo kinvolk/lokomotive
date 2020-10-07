@@ -19,15 +19,12 @@ package clusterautoscaler
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 const (
-	defaultDeploymentTimeout       = 5 * time.Minute
-	defaultDeploymentProbeInterval = 5 * time.Second
-	name                           = "cluster-autoscaler-packet-cluster-autoscaler-chart"
+	name = "cluster-autoscaler-packet-cluster-autoscaler-chart"
 )
 
 func TestClusterAutoscalerDeployments(t *testing.T) {
@@ -36,6 +33,6 @@ func TestClusterAutoscalerDeployments(t *testing.T) {
 	t.Run("deployment", func(t *testing.T) {
 		t.Parallel()
 
-		testutil.WaitForDeployment(t, client, "kube-system", name, defaultDeploymentProbeInterval, defaultDeploymentTimeout)
+		testutil.WaitForDeployment(t, client, "kube-system", name, testutil.RetryInterval, testutil.Timeout)
 	})
 }

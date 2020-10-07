@@ -20,7 +20,6 @@ package kubernetes
 import (
 	"context"
 	"testing"
-	"time"
 
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -69,10 +68,8 @@ func TestSelfHostedKubeletLabels(t *testing.T) {
 		t.Fatalf("Deleting kubelet pod %q on node %q: %v", chosenNode, pod.Name, err)
 	}
 
-	retryInterval := time.Second * 5
-	timeout := time.Minute * 5
 	// Wait for the node to come up.
-	if err = wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+	if err = wait.PollImmediate(testutil.RetryInterval, testutil.Timeout, func() (done bool, err error) {
 		node, err := client.CoreV1().Nodes().Get(context.TODO(), chosenNode, metav1.GetOptions{})
 		if err != nil {
 			if k8serrors.IsNotFound(err) {

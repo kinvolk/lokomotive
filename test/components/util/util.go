@@ -40,6 +40,15 @@ import (
 	"k8s.io/client-go/transport/spdy"
 )
 
+const (
+	// RetryInterval is time for test to retry.
+	RetryInterval = time.Second * 5
+	// Timeout is time after which tests stops and fails.
+	Timeout = time.Minute * 5
+	// TimeoutSlow is time after which tests stops and fails.
+	TimeoutSlow = time.Minute * 9
+)
+
 func KubeconfigPath(t *testing.T) string {
 	kubeconfig := os.ExpandEnv(os.Getenv("KUBECONFIG"))
 

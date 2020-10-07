@@ -19,7 +19,6 @@ package fluo
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -31,7 +30,7 @@ func TestUpdateAgentDaemonset(t *testing.T) {
 
 	client := testutil.CreateKubeClient(t)
 
-	testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
+	testutil.WaitForDaemonSet(t, client, namespace, daemonset, testutil.RetryInterval, testutil.Timeout)
 }
 
 func TestUpdateOperatorDeployment(t *testing.T) {
@@ -41,5 +40,5 @@ func TestUpdateOperatorDeployment(t *testing.T) {
 
 	client := testutil.CreateKubeClient(t)
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+	testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 }

@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -37,8 +36,6 @@ import (
 )
 
 const (
-	retryInterval     = time.Second * 5
-	timeout           = time.Minute * 9
 	namespace         = "monitoring"
 	grafanaDeployment = "prometheus-operator-grafana"
 )
@@ -57,7 +54,7 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 		t.Run("deployment", func(t *testing.T) {
 			t.Parallel()
 
-			testutil.WaitForDeployment(t, client, namespace, deployment, retryInterval, timeout)
+			testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.TimeoutSlow)
 		})
 	}
 
@@ -72,11 +69,11 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 			t.Parallel()
 			replicas := 1
 
-			testutil.WaitForStatefulSet(t, client, namespace, statefulset, replicas, retryInterval, timeout)
+			testutil.WaitForStatefulSet(t, client, namespace, statefulset, replicas, testutil.RetryInterval, testutil.TimeoutSlow) //nolint:lll
 		})
 	}
 
-	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", retryInterval, timeout)
+	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", testutil.RetryInterval, testutil.TimeoutSlow) //nolint:lll
 }
 
 //nolint:funlen
@@ -96,7 +93,7 @@ func TestGrafanaLoadsEnvVars(t *testing.T) {
 	}
 
 	// We will wait until the Grafana Pods are up and running so we don't have to reimplement wait logic again.
-	testutil.WaitForDeployment(t, client, namespace, grafanaDeployment, retryInterval, timeout)
+	testutil.WaitForDeployment(t, client, namespace, grafanaDeployment, testutil.RetryInterval, testutil.TimeoutSlow)
 
 	// Get grafana deployment object so that we can get the corresponding pod.
 	deploy, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), grafanaDeployment, metav1.GetOptions{})

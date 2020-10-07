@@ -33,9 +33,7 @@ import (
 )
 
 const (
-	retryInterval = 5 * time.Second
-	retryTimeout  = 9 * time.Minute
-	httpTimeout   = 4 * time.Second
+	httpTimeout = 4 * time.Second
 )
 
 func TestAWSIngress(t *testing.T) {
@@ -71,7 +69,7 @@ func TestAWSIngress(t *testing.T) {
 			h := i.Spec.Rules[0].Host
 			c := getHTTPClient()
 
-			err = wait.PollImmediate(retryInterval, retryTimeout, func() (bool, error) {
+			err = wait.PollImmediate(testutil.RetryInterval, testutil.TimeoutSlow, func() (bool, error) {
 				resp, err := c.Get(fmt.Sprintf("https://%s/get", h))
 				if err != nil {
 					t.Logf("got an HTTP error: %v", err)
