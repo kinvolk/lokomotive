@@ -4,7 +4,8 @@ This is a developer docs directory. Not meant for end users.
 
 ## Contents
 
-- [Update component configuration.](./updating-components.md)
+- [How to update components?](./updating-components.md)
+- [Lokomotive coding style guide](./coding-style-guide.md)
 
 ## Spell checking
 
