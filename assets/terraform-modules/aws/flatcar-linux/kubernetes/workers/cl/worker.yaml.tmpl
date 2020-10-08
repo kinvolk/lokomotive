@@ -29,32 +29,35 @@ systemd:
         Wants=rpc-statd.service
         [Service]
         EnvironmentFile=/etc/kubernetes/kubelet.env
-        Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
-          --volume=resolv,kind=host,source=/etc/resolv.conf \
-          --mount volume=resolv,target=/etc/resolv.conf \
-          --volume var-lib-cni,kind=host,source=/var/lib/cni \
-          --mount volume=var-lib-cni,target=/var/lib/cni \
-          --volume var-lib-calico,kind=host,source=/var/lib/calico \
-          --mount volume=var-lib-calico,target=/var/lib/calico \
-          --volume opt-cni-bin,kind=host,source=/opt/cni/bin \
-          --mount volume=opt-cni-bin,target=/opt/cni/bin \
-          --volume var-log,kind=host,source=/var/log \
-          --mount volume=var-log,target=/var/log \
-          --volume etc-cni-netd,kind=host,source=/etc/cni/net.d \
-          --mount volume=etc-cni-netd,target=/etc/cni/net.d \
-          --volume iscsiadm,kind=host,source=/usr/sbin/iscsiadm \
-          --mount volume=iscsiadm,target=/usr/sbin/iscsiadm \
-          --insecure-options=image"
-        ExecStartPre=/bin/mkdir -p /opt/cni/bin
-        ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStartPre=/bin/mkdir -p /etc/cni/net.d
-        ExecStartPre=/bin/mkdir -p /var/lib/cni
-        ExecStartPre=/bin/mkdir -p /var/lib/calico
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
         ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
         ExecStartPre=/etc/kubernetes/configure-kubelet-cgroup-driver
-        ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
-        ExecStart=/usr/lib/coreos/kubelet-wrapper \
+        ExecStartPre=-docker rm -f kubelet
+        ExecStartPre=docker run -d \
+          --name=kubelet \
+          --restart=unless-stopped \
+          --log-driver=journald \
+          --network=host \
+          --pid=host \
+          --privileged \
+          -v /dev:/dev:rw \
+          -v /etc/cni/net.d:/etc/cni/net.d:ro \
+          -v /etc/kubernetes:/etc/kubernetes:ro \
+          -v /etc/machine-id:/etc/machine-id:ro \
+          -v /lib/modules:/lib/modules:ro \
+          -v /run:/run:rw \
+          -v /sys:/sys:rw \
+          -v /opt/cni/bin:/opt/cni/bin:ro \
+          -v /usr/lib/os-release:/etc/os-release:ro \
+          -v /usr/sbin/iscsiadm:/usr/sbin/iscsiadm:rw \
+          -v /var/lib/calico:/var/lib/calico:ro \
+          -v /var/lib/cni:/var/lib/cni:rw \
+          -v /var/lib/docker:/var/lib/docker:rw \
+          -v /var/log/pods:/var/log/pods:rw \
+          --mount type=bind,source=/mnt,target=/mnt,bind-propagation=rshared \
+          --mount type=bind,source=/var/lib/kubelet,target=/var/lib/kubelet,bind-propagation=rshared \
+          $${KUBELET_IMAGE_URL}:$${KUBELET_IMAGE_TAG} \
           --anonymous-auth=false \
           --authentication-token-webhook \
           --authorization-mode=Webhook \
@@ -78,7 +81,9 @@ systemd:
           --read-only-port=0 \
           --register-with-taints=$${NODE_TAINTS} \
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins
-        ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
+        ExecStart=docker logs -f kubelet
+        ExecStop=docker stop kubelet
+        ExecStopPost=docker rm kubelet
         Restart=always
         RestartSec=5
         [Install]
@@ -108,9 +113,8 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=docker://quay.io/poseidon/kubelet
+          KUBELET_IMAGE_URL=quay.io/poseidon/kubelet
           KUBELET_IMAGE_TAG=v1.18.8
-          KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/node,${node_labels}"
           NODE_TAINTS="${taints}"
     - path: /etc/sysctl.d/max-user-watches.conf
@@ -138,19 +142,16 @@ storage:
         inline: |
           #!/bin/bash
           set -e
-          exec /usr/bin/rkt run \
-            --trust-keys-from-https \
-            --volume config,kind=host,source=/etc/kubernetes \
-            --mount volume=config,target=/etc/kubernetes \
-            --insecure-options=image \
-            docker://quay.io/poseidon/kubelet:v1.18.8 \
-            --net=host \
-            --dns=host \
-            -- \
+          exec docker run \
+            --network=host \
+            -v /etc/kubernetes:/etc/kubernetes:ro \
+            -v /var/lib/kubelet:/var/lib/kubelet:ro \
+            --entrypoint=/usr/local/bin/kubectl \
+            quay.io/poseidon/kubelet:v1.18.8 \
             %{~ if enable_tls_bootstrap ~}
-            kubectl --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
+            --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
             %{~ else ~}
-            kubectl --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)
+            --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)
             %{ endif }
 passwd:
   users:
