@@ -107,58 +107,55 @@ resource "local_file" "bootstrap-secrets" {
 
 locals {
   kubelet = var.disable_self_hosted_kubelet == false ? 1 : 0
-}
-
-# Render kubelet.yaml for kubelet chart
-data "template_file" "kubelet" {
-  count = local.kubelet
-
-  template = "${file("${path.module}/resources/charts/kubelet.yaml")}"
-
-  vars = {
+  # Render kubelet.yaml for kubelet chart
+  kubelet_content = templatefile("${path.module}/resources/charts/kubelet.yaml", {
     kubelet_image          = "${var.container_images["kubelet_image"]}-${var.container_arch}"
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
     enable_tls_bootstrap   = var.enable_tls_bootstrap
-  }
+  })
+
+  kubeconfig_kubelet_content = templatefile("${path.module}/resources/kubeconfig-kubelet", {
+    ca_cert      = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
+    kubelet_cert = base64encode(tls_locally_signed_cert.kubelet.cert_pem)
+    kubelet_key  = base64encode(tls_private_key.kubelet.private_key_pem)
+    server       = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
+  })
+
+  kubeconfig_admin_content = templatefile("${path.module}/resources/kubeconfig-admin", {
+    name         = var.cluster_name
+    ca_cert      = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
+    kubelet_cert = base64encode(tls_locally_signed_cert.admin.cert_pem)
+    kubelet_key  = base64encode(tls_private_key.admin.private_key_pem)
+    server       = format("https://%s:%s", local.api_servers_external[0], var.external_apiserver_port)
+  })
 }
 
 # Populate kubelet chart values file named kubelet.yaml.
 resource "local_file" "kubelet" {
   count = local.kubelet
 
-  content  = data.template_file.kubelet[0].rendered
+  content  = join("", [for i in range(0, 1) : local.kubelet_content])
   filename = "${var.asset_dir}/charts/kube-system/kubelet.yaml"
 }
 
 # Generated kubeconfig for Kubelets
 resource "local_file" "kubeconfig-kubelet" {
-  content  = data.template_file.kubeconfig-kubelet.rendered
+  content  = local.kubeconfig_kubelet_content
   filename = "${var.asset_dir}/auth/kubeconfig-kubelet"
 }
 
 # Generated admin kubeconfig (bootkube requires it be at auth/kubeconfig)
 # https://github.com/kubernetes-incubator/bootkube/blob/master/pkg/bootkube/bootkube.go#L42
 resource "local_file" "kubeconfig-admin" {
-  content  = data.template_file.kubeconfig-admin.rendered
+  content  = local.kubeconfig_admin_content
   filename = "${var.asset_dir}/auth/kubeconfig"
 }
 
 # Generated admin kubeconfig in a file named after the cluster
 resource "local_file" "kubeconfig-admin-named" {
-  content  = data.template_file.kubeconfig-admin.rendered
+  content  = local.kubeconfig_admin_content
   filename = "${var.asset_dir}/auth/${var.cluster_name}-config"
-}
-
-data "template_file" "kubeconfig-kubelet" {
-  template = file("${path.module}/resources/kubeconfig-kubelet")
-
-  vars = {
-    ca_cert      = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
-    kubelet_cert = base64encode(tls_locally_signed_cert.kubelet.cert_pem)
-    kubelet_key  = base64encode(tls_private_key.kubelet.private_key_pem)
-    server       = format("https://%s:%s", var.api_servers[0], var.external_apiserver_port)
-  }
 }
 
 # If var.api_servers_external isn't set, use var.api_servers.
@@ -167,16 +164,4 @@ data "template_file" "kubeconfig-kubelet" {
 # used with lists.
 locals {
   api_servers_external = split(",", join(",", var.api_servers_external) == "" ? join(",", var.api_servers) : join(",", var.api_servers_external))
-}
-
-data "template_file" "kubeconfig-admin" {
-  template = file("${path.module}/resources/kubeconfig-admin")
-
-  vars = {
-    name         = var.cluster_name
-    ca_cert      = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
-    kubelet_cert = base64encode(tls_locally_signed_cert.admin.cert_pem)
-    kubelet_key  = base64encode(tls_private_key.admin.private_key_pem)
-    server       = format("https://%s:%s", local.api_servers_external[0], var.external_apiserver_port)
-  }
 }

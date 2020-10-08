@@ -4,12 +4,12 @@ output "cluster_dns_service_ip" {
 
 // Generated kubeconfig for Kubelets (i.e. lower privilege than admin)
 output "kubeconfig-kubelet" {
-  value = data.template_file.kubeconfig-kubelet.rendered
+  value = local.kubeconfig_kubelet_content
 }
 
 // Generated kubeconfig for admins (i.e. human super-user)
 output "kubeconfig-admin" {
-  value = data.template_file.kubeconfig-admin.rendered
+  value = local.kubeconfig_admin_content
 }
 
 # etcd TLS assets
@@ -80,7 +80,7 @@ output "kubernetes_values" {
 }
 
 output "kubelet_values" {
-  value = join("", data.template_file.kubelet.*.rendered)
+  value = join("", [for i in range(local.kubelet) : local.kubelet_content])
 }
 
 output "calico_values" {

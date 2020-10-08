@@ -30,15 +30,7 @@ resource "matchbox_profile" "container-linux-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = data.template_file.container-linux-install-configs[count.index].rendered
-}
-
-data "template_file" "container-linux-install-configs" {
-  count = length(var.controller_names) + length(var.worker_names)
-
-  template = file("${path.module}/cl/install.yaml.tmpl")
-
-  vars = {
+  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
     os_flavor           = local.flavor
     os_channel          = local.channel
     os_version          = var.os_version
@@ -48,7 +40,7 @@ data "template_file" "container-linux-install-configs" {
     ssh_keys            = jsonencode(var.ssh_keys)
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
-  }
+  })
 }
 
 // CoreOS Container Linux Install profile (from matchbox /assets cache)
@@ -76,15 +68,7 @@ resource "matchbox_profile" "cached-container-linux-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = data.template_file.cached-container-linux-install-configs[count.index].rendered
-}
-
-data "template_file" "cached-container-linux-install-configs" {
-  count = length(var.controller_names) + length(var.worker_names)
-
-  template = file("${path.module}/cl/install.yaml.tmpl")
-
-  vars = {
+  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
     os_flavor           = local.flavor
     os_channel          = local.channel
     os_version          = var.os_version
@@ -94,7 +78,7 @@ data "template_file" "cached-container-linux-install-configs" {
     ssh_keys            = jsonencode(var.ssh_keys)
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/${local.flavor}"
-  }
+  })
 }
 
 // Flatcar Container Linux install profile (from release.flatcar-linux.net)
@@ -121,7 +105,17 @@ resource "matchbox_profile" "flatcar-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = data.template_file.container-linux-install-configs[count.index].rendered
+  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
+    os_flavor           = local.flavor
+    os_channel          = local.channel
+    os_version          = var.os_version
+    ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
+    install_disk        = var.install_disk
+    container_linux_oem = var.container_linux_oem
+    ssh_keys            = jsonencode(var.ssh_keys)
+    # only cached-container-linux profile adds -b baseurl
+    baseurl_flag = ""
+  })
 }
 
 // Flatcar Container Linux Install profile (from matchbox /assets cache)
@@ -149,7 +143,17 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = data.template_file.cached-container-linux-install-configs[count.index].rendered
+  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
+    os_flavor           = local.flavor
+    os_channel          = local.channel
+    os_version          = var.os_version
+    ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
+    install_disk        = var.install_disk
+    container_linux_oem = var.container_linux_oem
+    ssh_keys            = jsonencode(var.ssh_keys)
+    # profile uses -b baseurl to install from matchbox cache
+    baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/${local.flavor}"
+  })
 }
 
 // Kubernetes Controller profiles
@@ -164,20 +168,8 @@ resource "matchbox_profile" "controllers" {
 }
 
 data "ct_config" "controller-ignitions" {
-  count        = length(var.controller_names)
-  content      = data.template_file.controller-configs[count.index].rendered
-  pretty_print = false
-
-  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  snippets = local.clc_map[var.controller_names[count.index]]
-}
-
-data "template_file" "controller-configs" {
   count = length(var.controller_names)
-
-  template = file("${path.module}/cl/controller.yaml.tmpl")
-
-  vars = {
+  content = templatefile("${path.module}/cl/controller.yaml.tmpl", {
     domain_name = var.controller_domains[count.index]
     etcd_name   = var.controller_names[count.index]
     etcd_initial_cluster = join(
@@ -192,7 +184,11 @@ data "template_file" "controller-configs" {
     cluster_domain_suffix  = var.cluster_domain_suffix
     ssh_keys               = jsonencode(var.ssh_keys)
     enable_tls_bootstrap   = var.enable_tls_bootstrap
-  }
+  })
+  pretty_print = false
+
+  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
+  snippets = local.clc_map[var.controller_names[count.index]]
 }
 
 // Kubernetes Worker profiles
@@ -227,17 +223,12 @@ locals {
   # Hack to workaround https://github.com/hashicorp/terraform/issues/17251
   # Default CoreOS Container Linux config snippets map every node names to list("\n") so
   # all lookups succeed
+  total_length = length(var.controller_names) + length(var.worker_names)
   clc_defaults = zipmap(
     concat(var.controller_names, var.worker_names),
-    chunklist(data.template_file.clc-default-snippets.*.rendered, 1),
+    chunklist([for i in range(local.total_length) : "\n"], 1),
   )
 
   # Union of the default and user specific snippets, later overrides prior.
   clc_map = merge(local.clc_defaults, var.clc_snippets)
-}
-
-// Horrible hack to generate a Terraform list of node count length
-data "template_file" "clc-default-snippets" {
-  count    = length(var.controller_names) + length(var.worker_names)
-  template = "\n"
 }

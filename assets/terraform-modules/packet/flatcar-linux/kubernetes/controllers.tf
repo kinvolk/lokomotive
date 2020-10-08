@@ -57,7 +57,7 @@ data "ct_config" "controller-ignitions" {
     etcd_arch_tag_suffix = var.os_arch == "arm64" ? "-arm64" : ""
     etcd_arch_options    = var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
-    etcd_initial_cluster = join(",", data.template_file.etcds.*.rendered)
+    etcd_initial_cluster = join(",", [for i in range(var.controller_count) : format("etcd%d=https://%s-etcd%d.%s:2380", i, var.cluster_name, i, var.dns_zone)])
     kubeconfig = var.enable_tls_bootstrap ? indent(10, templatefile("${path.module}/workers/cl/bootstrap-kubeconfig.yaml.tmpl", {
       token_id     = random_string.bootstrap_token_id[0].result
       token_secret = random_string.bootstrap_token_secret[0].result
@@ -73,15 +73,4 @@ data "ct_config" "controller-ignitions" {
     enable_tls_bootstrap  = var.enable_tls_bootstrap
   })
   snippets = var.controller_clc_snippets
-}
-
-data "template_file" "etcds" {
-  count    = var.controller_count
-  template = "etcd$${index}=https://$${cluster_name}-etcd$${index}.$${dns_zone}:2380"
-
-  vars = {
-    index        = count.index
-    cluster_name = var.cluster_name
-    dns_zone     = var.dns_zone
-  }
 }

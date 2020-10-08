@@ -112,38 +112,18 @@ resource "aws_instance" "controllers" {
 
 # Controller Ignition configs
 data "ct_config" "controller-ignitions" {
-  count        = var.controller_count
-  content      = data.template_file.controller-configs[count.index].rendered
-  pretty_print = false
-  snippets     = var.controller_clc_snippets
-}
-
-# Controller Container Linux configs
-data "template_file" "controller-configs" {
   count = var.controller_count
-
-  template = file("${path.module}/cl/controller.yaml.tmpl")
-
-  vars = {
+  content = templatefile("${path.module}/cl/controller.yaml.tmpl", {
     # Cannot use cyclic dependencies on controllers or their DNS records
     etcd_name   = "etcd${count.index}"
     etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
-    etcd_initial_cluster   = join(",", data.template_file.etcds.*.rendered)
+    etcd_initial_cluster   = join(",", [for i in range(var.controller_count) : format("etcd%d=https://%s-etcd%d.%s:2380", i, var.cluster_name, i, var.dns_zone)])
     ssh_keys               = jsonencode(var.ssh_keys)
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
     enable_tls_bootstrap   = var.enable_tls_bootstrap
-  }
-}
-
-data "template_file" "etcds" {
-  count    = var.controller_count
-  template = "etcd$${index}=https://$${cluster_name}-etcd$${index}.$${dns_zone}:2380"
-
-  vars = {
-    index        = count.index
-    cluster_name = var.cluster_name
-    dns_zone     = var.dns_zone
-  }
+  })
+  pretty_print = false
+  snippets     = var.controller_clc_snippets
 }
