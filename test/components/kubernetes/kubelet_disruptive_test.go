@@ -49,6 +49,26 @@ func TestSelfHostedKubeletLabels(t *testing.T) {
 		t.Errorf("could not delete the node %s: %v", chosenNode, err)
 	}
 
+	pc := client.CoreV1().Pods("kube-system")
+
+	pods, err := pc.List(context.TODO(), metav1.ListOptions{
+		LabelSelector: "k8s-app=kubelet",
+		FieldSelector: "spec.nodeName=" + chosenNode,
+	})
+	if err != nil {
+		t.Fatalf("Getting kubelet pods on node %q: %v", chosenNode, err)
+	}
+
+	if len(pods.Items) != 1 {
+		t.Fatalf("Found %d kubelet pods on node %q, expected 1", len(pods.Items), chosenNode)
+	}
+
+	pod := pods.Items[0]
+
+	if err := pc.Delete(context.TODO(), pod.Name, metav1.DeleteOptions{}); err != nil {
+		t.Fatalf("Deleting kubelet pod %q on node %q: %v", chosenNode, pod.Name, err)
+	}
+
 	retryInterval := time.Second * 5
 	timeout := time.Minute * 5
 	// Wait for the node to come up.
