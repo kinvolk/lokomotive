@@ -19,7 +19,6 @@ package metallb
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -33,13 +32,13 @@ func TestMetalLBDeployment(t *testing.T) {
 		t.Parallel()
 		daemonset := "speaker"
 
-		testutil.WaitForDaemonSet(t, client, namespace, daemonset, time.Second*5, time.Minute*5)
+		testutil.WaitForDaemonSet(t, client, namespace, daemonset, testutil.RetryInterval, testutil.Timeout)
 	})
 
 	t.Run("controller deployment", func(t *testing.T) {
 		t.Parallel()
 		deployment := "controller"
 
-		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
 }

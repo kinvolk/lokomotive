@@ -31,5 +31,5 @@ func TestControllerManagerDeployment(t *testing.T) {
 
 	client := testutil.CreateKubeClient(t)
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, retryInterval, timeout)
+	testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 }

@@ -31,8 +31,6 @@ import (
 )
 
 const (
-	retryInterval  = time.Second * 5
-	timeout        = time.Minute * 9
 	contextTimeout = 10
 )
 
@@ -72,7 +70,7 @@ func testComponentAlerts(t *testing.T, v1api v1.API) {
 			}
 
 			if err := wait.PollImmediate(
-				retryInterval, timeout, getComponentAlertRetryFunc(t, v1api, tc),
+				testutil.RetryInterval, testutil.TimeoutSlow, getComponentAlertRetryFunc(t, v1api, tc),
 			); err != nil {
 				t.Fatalf("%v", err)
 			}

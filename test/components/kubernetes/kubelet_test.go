@@ -19,14 +19,9 @@ package kubernetes
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
-
-const retryInterval = time.Second * 5
-
-const timeout = time.Minute * 5
 
 func TestSelfHostedKubeletPods(t *testing.T) {
 	t.Parallel()
@@ -36,5 +31,5 @@ func TestSelfHostedKubeletPods(t *testing.T) {
 	namespace := "kube-system"
 	daemonset := "kubelet"
 
-	testutil.WaitForDaemonSet(t, client, namespace, daemonset, retryInterval, timeout)
+	testutil.WaitForDaemonSet(t, client, namespace, daemonset, testutil.RetryInterval, testutil.Timeout)
 }

@@ -20,14 +20,8 @@ package httpbin
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
-)
-
-const (
-	defaultDeploymentTimeout       = 5 * time.Minute
-	defaultDeploymentProbeInterval = 5 * time.Second
 )
 
 func TestHttpbinDeployments(t *testing.T) {
@@ -36,6 +30,6 @@ func TestHttpbinDeployments(t *testing.T) {
 	t.Run(fmt.Sprintf("deployment"), func(t *testing.T) {
 		t.Parallel()
 
-		testutil.WaitForDeployment(t, client, "httpbin", "httpbin", defaultDeploymentProbeInterval, defaultDeploymentTimeout)
+		testutil.WaitForDeployment(t, client, "httpbin", "httpbin", testutil.RetryInterval, testutil.Timeout)
 	})
 }

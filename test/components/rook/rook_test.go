@@ -19,7 +19,6 @@ package rook
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -33,6 +32,6 @@ func TestRookDeployment(t *testing.T) {
 		t.Parallel()
 		deployment := "rook-ceph-operator"
 
-		testutil.WaitForDeployment(t, client, namespace, deployment, time.Second*5, time.Minute*5)
+		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
 }

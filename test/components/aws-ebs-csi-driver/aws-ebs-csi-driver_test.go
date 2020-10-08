@@ -21,7 +21,6 @@ package awsebscsidriver
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -43,7 +42,7 @@ func TestCSIDriverDeployments(t *testing.T) {
 		test := test
 		t.Run(fmt.Sprintf("aws-ebs-csi-driver deployment:%s", test.deployment), func(t *testing.T) {
 			t.Parallel()
-			testutil.WaitForDeployment(t, client, namespace, test.deployment, time.Second*5, time.Minute*5)
+			testutil.WaitForDeployment(t, client, namespace, test.deployment, testutil.RetryInterval, testutil.Timeout)
 		})
 	}
 }

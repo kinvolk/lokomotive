@@ -19,14 +19,8 @@ package istio_test
 
 import (
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
-)
-
-const (
-	retryInterval = 3 * time.Second
-	timeout       = 7 * time.Minute
 )
 
 func TestIstioDeployments(t *testing.T) {
@@ -51,7 +45,7 @@ func TestIstioDeployments(t *testing.T) {
 		t.Run(d.Deployment, func(t *testing.T) {
 			t.Parallel()
 
-			testutil.WaitForDeployment(t, client, d.Namespace, d.Deployment, retryInterval, timeout)
+			testutil.WaitForDeployment(t, client, d.Namespace, d.Deployment, testutil.RetryInterval, testutil.TimeoutSlow)
 		})
 	}
 }

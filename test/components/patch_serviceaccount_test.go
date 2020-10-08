@@ -30,8 +30,6 @@ import (
 )
 
 const (
-	retryInterval  = time.Second * 5
-	timeout        = time.Minute * 5
 	contextTimeout = 10
 )
 
@@ -50,7 +48,7 @@ func TestDisableAutomountServiceAccountToken(t *testing.T) {
 				t.Parallel()
 
 				if err := wait.PollImmediate(
-					retryInterval, timeout, checkDefaultServiceAccountPatch(client, name),
+					testutil.RetryInterval, testutil.Timeout, checkDefaultServiceAccountPatch(client, name),
 				); err != nil {
 					t.Fatalf("%v", err)
 				}

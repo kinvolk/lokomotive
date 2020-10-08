@@ -20,7 +20,6 @@ package certmanager
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -45,9 +44,10 @@ func TestCertManagerDeployments(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(fmt.Sprintf("cert-manager deployment:%s", test.deployment), func(t *testing.T) {
 			t.Parallel()
-			testutil.WaitForDeployment(t, client, namespace, test.deployment, time.Second*5, time.Minute*5)
+			testutil.WaitForDeployment(t, client, namespace, test.deployment, testutil.RetryInterval, testutil.Timeout)
 		})
 	}
 }
