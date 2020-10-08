@@ -35,7 +35,10 @@ EOF
   worker_pool "pool-1" {
     count     = 2
     node_type = "c2.medium.x86"
-    labels    = "testing.io=yes,roleofnode=testing"
+    labels        = {
+      "testing.io" = "yes",
+      "roleofnode" = "testing",
+    }
     clc_snippets = [
       <<EOF
 storage:

@@ -51,8 +51,8 @@ type workerPool struct {
 	OSChannel             string            `hcl:"os_channel,optional"`
 	OSVersion             string            `hcl:"os_version,optional"`
 	NodeType              string            `hcl:"node_type,optional"`
-	Labels                string            `hcl:"labels,optional"`
-	Taints                string            `hcl:"taints,optional"`
+	Labels                map[string]string `hcl:"labels,optional"`
+	Taints                map[string]string `hcl:"taints,optional"`
 	ReservationIDs        map[string]string `hcl:"reservation_ids,optional"`
 	ReservationIDsDefault string            `hcl:"reservation_ids_default,optional"`
 	SetupRaid             bool              `hcl:"setup_raid,optional"`

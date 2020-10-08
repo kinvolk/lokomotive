@@ -186,10 +186,18 @@ EOF
   enable_tls_bootstrap = {{ $.Config.EnableTLSBootstrap }}
 
   {{- if $pool.Labels }}
-  labels = "{{ $pool.Labels }}"
+  labels = {
+  {{- range $k, $v := $pool.Labels }}
+    "{{ $k }}" = "{{ $v }}",
+  {{- end }}
+  }
   {{- end }}
   {{- if $pool.Taints }}
-  taints = "{{ $pool.Taints }}"
+  taints = {
+  {{- range $k, $v := $pool.Taints }}
+    "{{ $k }}" = "{{ $v }}",
+  {{- end }}
+  }
   {{- end }}
   {{- if $.Config.ServiceCIDR }}
   service_cidr = "{{$.Config.ServiceCIDR}}"

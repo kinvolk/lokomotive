@@ -40,15 +40,15 @@ variable "instance_type" {
 }
 
 variable "labels" {
-  type        = string
-  default     = ""
-  description = "Custom labels to assign to worker nodes. Provide comma separated key=value pairs as labels. e.g. 'foo=oof,bar=,baz=zab'"
+  type        = map(string)
+  description = "Map of custom labels for worker nodes."
+  default     = {}
 }
 
 variable "taints" {
-  type        = string
-  default     = ""
-  description = "Comma separated list of taints. eg. 'clusterType=staging:NoSchedule,nodeType=storage:NoSchedule'"
+  type        = map(string)
+  default     = {}
+  description = "Map of custom taints for worker nodes."
 }
 
 variable "os_name" {

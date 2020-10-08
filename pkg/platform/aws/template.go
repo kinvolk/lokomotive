@@ -155,11 +155,19 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
 
   {{- if $pool.Labels }}
-  labels = "{{ $pool.Labels }}"
-  {{- end}}
+  labels = {
+  {{- range $k, $v := $pool.Labels }}
+    "{{ $k }}" = "{{ $v }}",
+  {{- end }}
+  }
+  {{- end }}
 
   {{- if $pool.Taints }}
-  taints = "{{ $pool.Taints }}"
+  taints = {
+  {{- range $k, $v := $pool.Taints }}
+    "{{ $k }}" = "{{ $v }}",
+  {{- end }}
+  }
   {{- end}}
 
   {{- if $pool.DiskSize }}
