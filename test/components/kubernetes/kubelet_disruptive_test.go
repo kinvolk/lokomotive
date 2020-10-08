@@ -39,14 +39,39 @@ func TestSelfHostedKubeletLabels(t *testing.T) {
 	if err != nil {
 		t.Errorf("could not list nodes: %v", err)
 	}
+
 	if len(nodes.Items) == 0 {
 		t.Fatalf("no worker nodes found")
 	}
-	chosenNode := nodes.Items[0].Name
 
 	// Delete the chosen node.
+	chosenNode := nodes.Items[0].Name
+
 	if err = client.CoreV1().Nodes().Delete(context.TODO(), chosenNode, metav1.DeleteOptions{}); err != nil {
-		t.Errorf("could not delete the node %s: %v", chosenNode, err)
+		t.Fatalf("Deleting the node %s: %v", chosenNode, err)
+	}
+
+	// Find the kubelet pod running on the chosen node.
+	namespace := "kube-system"
+
+	pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: "k8s-app=kubelet",
+		FieldSelector: "spec.nodeName=" + chosenNode,
+	})
+	if err != nil {
+		t.Fatalf("Listing kubelet pods on node: %q: %v", chosenNode, err)
+	}
+
+	// There should only be one pod listed after those filters. Filters include namespace as
+	// kube-system, node name as the chose node and the label selector for kubelet daemonset.
+	if len(pods.Items) != 1 {
+		t.Fatalf("Kubelet pods wanted: 1, got: %d", len(pods.Items))
+	}
+
+	podName := pods.Items[0].Name
+
+	if err = client.CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{}); err != nil {
+		t.Fatalf("Deleting pod %q on node %q: %v", podName, chosenNode, err)
 	}
 
 	retryInterval := time.Second * 5
