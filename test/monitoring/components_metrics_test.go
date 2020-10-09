@@ -67,7 +67,7 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 		},
 		{
 			componentName: "kubelet",
-			query:         "kubelet_running_pod_count",
+			query:         "kubelet_running_pods",
 			platforms:     selfHostedPlatforms,
 		},
 		{
