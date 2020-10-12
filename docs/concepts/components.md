@@ -86,6 +86,7 @@ Available components:
 	 gangway
 	 web-ui
 	 httpbin
+	 inspektor-gadget
 	 metallb
 	 metrics-server
 	 openebs-operator
