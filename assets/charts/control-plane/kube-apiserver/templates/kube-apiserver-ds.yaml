@@ -1,6 +1,6 @@
-{{- if eq (int .Values.apiserver.replicas) 1 }}
+{{- if gt (int .Values.apiserver.replicas) 1 }}
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: kube-apiserver
   namespace: kube-system
@@ -8,15 +8,14 @@ metadata:
     tier: control-plane
     k8s-app: kube-apiserver
 spec:
-  replicas: 1
   selector:
     matchLabels:
       tier: control-plane
       k8s-app: kube-apiserver
-  strategy:
+  updateStrategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:

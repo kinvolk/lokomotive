@@ -1,3 +1,4 @@
+{{- if eq (int .Values.kubeScheduler.controlPlaneReplicas) 1 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,11 +8,15 @@ metadata:
     tier: control-plane
     k8s-app: kube-scheduler
 spec:
-  replicas: {{ .Values.kubeScheduler.controlPlaneReplicas }}
+  replicas: 1
   selector:
     matchLabels:
       tier: control-plane
       k8s-app: kube-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -20,43 +25,5 @@ spec:
       annotations:
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: tier
-                  operator: In
-                  values:
-                  - control-plane
-                - key: k8s-app
-                  operator: In
-                  values:
-                  - kube-scheduler
-              topologyKey: kubernetes.io/hostname
-      nodeSelector:
-        node.kubernetes.io/master: ""
-      priorityClassName: system-cluster-critical
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-      serviceAccountName: kube-scheduler
-      tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: Exists
-        effect: NoSchedule
-      containers:
-      - name: kube-scheduler
-        image: "{{ .Values.kubeScheduler.image }}"
-        command:
-        - kube-scheduler
-        - --leader-elect=true
-        livenessProbe:
-          httpGet:
-            scheme: HTTPS
-            path: /healthz
-            port: 10259
-          initialDelaySeconds: 15
-          timeoutSeconds: 15
+{{- template "scheduler-containers" . }}
+{{- end }}

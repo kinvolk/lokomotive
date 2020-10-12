@@ -1,30 +1,28 @@
-{{- if eq (int .Values.apiserver.replicas) 1 }}
+{{- if gt (int .Values.controllerManager.controlPlaneReplicas) 1 }}
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: kube-apiserver
+  name: kube-controller-manager
   namespace: kube-system
   labels:
     tier: control-plane
-    k8s-app: kube-apiserver
+    k8s-app: kube-controller-manager
 spec:
-  replicas: 1
   selector:
     matchLabels:
       tier: control-plane
-      k8s-app: kube-apiserver
-  strategy:
+      k8s-app: kube-controller-manager
+  updateStrategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:
         tier: control-plane
-        k8s-app: kube-apiserver
+        k8s-app: kube-controller-manager
       annotations:
-        checkpointer.alpha.coreos.com/checkpoint: "true"
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
-{{- template "containers" . }}
+{{- template "controller-manager-containers" . }}
 {{- end }}
