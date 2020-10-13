@@ -69,32 +69,20 @@ module "bare-metal-{{.ClusterName}}" {
   {{- end}}
 }
 
+terraform {
+  required_providers {
+    matchbox = {
+      source  = "poseidon/matchbox"
+      version = "0.4.1"
+    }
+  }
+}
+
 provider "matchbox" {
-  version     = "0.4.1"
   endpoint    = "{{.MatchboxEndpoint}}"
   client_cert = file("{{.MatchboxClientCert}}")
   client_key  = file("{{.MatchboxClientKey}}")
   ca          = file("{{.MatchboxCA}}")
-}
-
-provider "ct" {
-  version = "0.6.1"
-}
-
-provider "local" {
-  version = "1.4.0"
-}
-
-provider "null" {
-  version = "2.1.2"
-}
-
-provider "template" {
-  version = "2.1.2"
-}
-
-provider "tls" {
-  version = "2.2.0"
 }
 
 # Stub output, which indicates, that Terraform run at least once.

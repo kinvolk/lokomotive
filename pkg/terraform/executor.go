@@ -43,7 +43,7 @@ const (
 	logsFileSuffix = ".log"
 	failFileSuffix = ".fail"
 
-	requiredVersion = ">= 0.12, < 0.13"
+	requiredVersion = ">= 0.13, < 0.14"
 
 	noOfLinesOnError = 20
 )
@@ -391,7 +391,11 @@ func (ex *Executor) executeSync(args ...string) ([]byte, error) {
 
 	h.stop()
 
-	return output, err
+	if err != nil {
+		return nil, fmt.Errorf("executing with arguments '%s': %w", strings.Join(args, ", "), err)
+	}
+
+	return output, nil
 }
 
 // Plan runs 'terraform plan'.
@@ -514,25 +518,22 @@ func (ex *Executor) logPath(id int) string {
 }
 
 func (ex *Executor) checkVersion() error {
-	vOutput, err := ex.executeSync("--version")
+	versionOutputRaw, err := ex.executeSync("version", "-json")
 	if err != nil {
-		return fmt.Errorf("executing 'terraform --version': %w", err)
+		return fmt.Errorf("executing 'terraform version -json': %w", err)
 	}
 
-	format := "Terraform v%s\n"
-	var vStr string
-	n, err := fmt.Sscanf(string(vOutput), format, &vStr)
-	if err != nil {
-		return fmt.Errorf("output %q does not match format %q: %w", string(vOutput), format, err)
+	versionOutput := struct {
+		TerraformVersion string `json:"terraform_version"`
+	}{}
+
+	if err := json.Unmarshal(versionOutputRaw, &versionOutput); err != nil {
+		return fmt.Errorf("unmarshaling version command output %q: %w", string(versionOutputRaw), err)
 	}
 
-	if n != 1 {
-		return fmt.Errorf("version not found in 'terraform --version' output")
-	}
-
-	v, err := version.NewVersion(vStr)
+	v, err := version.NewVersion(versionOutput.TerraformVersion)
 	if err != nil {
-		return fmt.Errorf("parsing Terraform version %q: %w", vStr, err)
+		return fmt.Errorf("parsing Terraform version %q: %w", versionOutput.TerraformVersion, err)
 	}
 
 	// requiredVersion is const, so we test it in unit tests.

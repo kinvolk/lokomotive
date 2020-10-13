@@ -1,11 +1,19 @@
 # Terraform version and plugin versions
 
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.13"
   required_providers {
-    local    = "1.4.0"
-    template = "2.1.2"
-    tls      = "2.2.0"
-    random   = "2.3.0"
+    local = {
+      source  = "hashicorp/local"
+      version = "1.4.0"
+    }
+    template = {
+      source  = "hashicorp/template"
+      version = "2.1.2"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "2.2.0"
+    }
   }
 }

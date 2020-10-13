@@ -201,32 +201,10 @@ module "worker-pool-{{ $index }}" {
 {{- end }}
 
 provider "aws" {
-  version = "3.3.0"
-
   region                  = "{{.Config.Region}}"
   {{- if .Config.CredsPath }}
   shared_credentials_file = "{{.Config.CredsPath}}"
   {{- end }}
-}
-
-provider "ct" {
-  version = "0.6.1"
-}
-
-provider "local" {
-  version = "1.4.0"
-}
-
-provider "null" {
-  version = "2.1.2"
-}
-
-provider "template" {
-  version = "2.1.2"
-}
-
-provider "tls" {
-  version = "2.2.0"
 }
 
 # Stub output, which indicates, that Terraform run at least once.
