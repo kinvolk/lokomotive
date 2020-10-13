@@ -54,7 +54,7 @@ locals {
 }
 
 provider "azurerm" {
-  version = "2.24.0"
+  version = "2.31.1"
 
   # https://github.com/terraform-providers/terraform-provider-azurerm/issues/5893
   features {}
@@ -66,11 +66,11 @@ provider "local" {
 
 {{- if .ApplicationName }}
 provider "azuread" {
-  version = "0.11.0"
+  version = "1.0.0"
 }
 
 provider "random" {
-  version = "2.3.0"
+  version = "3.0.0"
 }
 
 resource "azuread_application" "aks" {
