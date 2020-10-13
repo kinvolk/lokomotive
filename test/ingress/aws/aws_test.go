@@ -41,16 +41,19 @@ func TestAWSIngress(t *testing.T) {
 		Component string
 		Namespace string
 		Ingress   string
+		Subpath   string
 	}{
 		{
 			Component: "httpbin",
 			Namespace: "httpbin",
 			Ingress:   "httpbin",
+			Subpath:   "get",
 		},
 		{
 			Component: "prometheus-operator",
 			Namespace: "monitoring",
 			Ingress:   "prometheus-operator-prometheus",
+			Subpath:   "graph",
 		},
 	}
 
@@ -61,16 +64,16 @@ func TestAWSIngress(t *testing.T) {
 
 			client := testutil.CreateKubeClient(t)
 
-			i, err := client.NetworkingV1beta1().Ingresses("httpbin").Get(context.TODO(), "httpbin", metav1.GetOptions{})
+			i, err := client.NetworkingV1beta1().Ingresses(tc.Namespace).Get(context.TODO(), tc.Component, metav1.GetOptions{})
 			if err != nil {
-				t.Fatalf("getting httpbin ingress: %v", err)
+				t.Fatalf("getting %s ingress: %v", tc.Component, err)
 			}
 
 			h := i.Spec.Rules[0].Host
 			c := getHTTPClient()
 
 			err = wait.PollImmediate(testutil.RetryInterval, testutil.TimeoutSlow, func() (bool, error) {
-				resp, err := c.Get(fmt.Sprintf("https://%s/get", h))
+				resp, err := c.Get(fmt.Sprintf("https://%s/%s", h, tc.Subpath))
 				if err != nil {
 					t.Logf("got an HTTP error: %v", err)
 					return false, nil
