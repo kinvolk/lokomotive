@@ -334,8 +334,7 @@ func (c *config) PostApplyHook(kubeconfig []byte) error {
 // waitForDefaultStorageClass waits until the default storage class appears on a given cluster.
 // If it doesn't appear within a defined time range, an error is returned.
 func waitForDefaultStorageClass(sci v1.StorageClassInterface) error {
-	// AKS still uses annotation with .beta.
-	defaultStorageClassAnnotation := "storageclass.beta.kubernetes.io/is-default-class"
+	defaultStorageClassAnnotation := "storageclass.kubernetes.io/is-default-class"
 
 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
 		scs, err := sci.List(context.TODO(), metav1.ListOptions{})
