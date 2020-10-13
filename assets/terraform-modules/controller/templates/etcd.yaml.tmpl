@@ -14,6 +14,12 @@ systemd:
         RestartSec=5s
         TimeoutStartSec=0
         LimitNOFILE=40000
+        ConditionPathExists=/etc/ssl/etcd/etcd/server-ca.crt
+        ConditionPathExists=/etc/ssl/etcd/etcd/server.crt
+        ConditionPathExists=/etc/ssl/etcd/etcd/server.key
+        ConditionPathExists=/etc/ssl/etcd/etcd/peer-ca.crt
+        ConditionPathExists=/etc/ssl/etcd/etcd/peer.crt
+        ConditionPathExists=/etc/ssl/etcd/etcd/peer.key
         EnvironmentFile=/etc/kubernetes/etcd.env
         ExecStartPre=-docker rm -f etcd
         ExecStartPre=sh -c "docker run -d \
