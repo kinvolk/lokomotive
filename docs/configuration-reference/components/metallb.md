@@ -50,8 +50,8 @@ MetalLB component configuration example:
 ```tf
 component "metallb" {
   address_pools = {
-    default = ["147.63.8.20/32"]
-    special_addresses = ["147.85.47.16/29", "147.85.47.24/29"]
+    pool1 = ["147.63.8.20/32"]
+    pool2 = ["147.85.47.16/29", "147.85.47.24/29"]
   }
   controller_node_selectors = {
     "kubernetes.io/hostname" = "worker3"
@@ -77,6 +77,28 @@ component "metallb" {
 
 MetalLB will use the specified CIDR for exposing services of type `LoadBalancer`.
 
+### Advanced IP allocation
+
+By default, MetalLB uses all specified address pools to allocate IP addresses to services. To
+request an address from a specific pool, set the `metallb.universe.tf/address-pool` annotation for
+the relevant service:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  annotations:
+    metallb.universe.tf/address-pool: pool2
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: LoadBalancer
+```
+
 ## Attribute reference
 
 Table of all the arguments accepted by the component.
@@ -85,7 +107,7 @@ Example:
 
 | Argument                    | Description                                                                                | Default | Type                                                                                                           | Required |
 |-----------------------------|--------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
-| `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  |    -    | object({default = list(string), special_addresses = list(string)})                                             |   true   |
+| `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  |    -    | map(list(string))                                                                                              |   true   |
 | `controller_node_selectors` | A map with specific labels to run MetalLB controller pods selectively on a group of nodes. |    -    | map(string)                                                                                                    |  false   |
 | `speaker_node_selectors`    | A map with specific labels to run MetalLB speaker pods selectively on a group of nodes.    |    -    | map(string)                                                                                                    |  false   |
 | `controller_toleration`     | Specify one or more tolerations for controller pods.                                       |    -    | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
@@ -100,6 +122,7 @@ To apply the MetalLB component:
 ```bash
 lokoctl component apply metallb
 ```
+
 ## Deleting
 
 To destroy the component:
