@@ -152,6 +152,12 @@ variable "kube_apiserver_extra_flags" {
   default     = []
 }
 
+variable "ignore_x509_cn_check" {
+  description = "Ignore CN checks in x509 certificates."
+  type        = bool
+  default     = false
+}
+
 variable "blocked_metadata_cidrs" {
   description = "List of platform metadata CIDRs to block access to for all pods"
   type        = list(string)

@@ -17,6 +17,7 @@ apiserver:
   trustedCertsDir: ${trusted_certs_dir}
   replicas: ${replicas}
   enableTLSBootstrap: ${enable_tls_bootstrap}
+  ignoreX509CNCheck: ${ignore_x509_cn_check}
   %{~ if length(extra_flags) > 0 ~}
   extraFlags:
   %{~ for f in extra_flags ~}

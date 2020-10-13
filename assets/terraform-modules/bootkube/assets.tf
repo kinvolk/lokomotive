@@ -50,6 +50,7 @@ resource "local_file" "kube-apiserver" {
     replicas                 = length(var.etcd_servers)
     extra_flags              = var.kube_apiserver_extra_flags
     enable_tls_bootstrap     = var.enable_tls_bootstrap
+    ignore_x509_cn_check     = var.ignore_x509_cn_check
   })
 }
 

@@ -31,4 +31,6 @@ module "bootkube" {
   bootstrap_tokens     = var.enable_tls_bootstrap ? concat([local.controller_bootstrap_token], var.worker_bootstrap_tokens) : []
   enable_tls_bootstrap = var.enable_tls_bootstrap
   encrypt_pod_traffic  = var.encrypt_pod_traffic
+
+  ignore_x509_cn_check = var.ignore_x509_cn_check
 }

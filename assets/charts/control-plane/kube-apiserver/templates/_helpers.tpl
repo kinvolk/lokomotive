@@ -58,6 +58,10 @@
         {{- end }}
         - --permit-port-sharing=true
         env:
+        {{- if .Values.apiserver.ignoreX509CNCheck }}
+        - name: GODEBUG
+          value: x509ignoreCN=0
+        {{- end }}
         - name: POD_IP
           valueFrom:
             fieldRef:

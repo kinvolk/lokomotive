@@ -18,3 +18,4 @@ apiserver:
   replicas: 1
   extraFlags: []
   enableTLSBootstrap:
+  ignoreX509CNCheck: false
