@@ -1,0 +1,41 @@
+version: '0.1'
+name: flatcar-install
+global_timeout: 1800
+tasks:
+- name: "flatcar-install"
+  worker: "{{.device_1}}"
+  volumes:
+  - /dev:/dev
+  - /statedir:/statedir
+  actions:
+  - name: "dump-ignition"
+    image: flatcar-install
+    command:
+    - sh
+    - -c
+    - echo '${base64encode(ignition_config)}' | base64 -d > /statedir/ignition.json
+  - name: "flatcar-install"
+    image: flatcar-install
+    command:
+    - /usr/local/bin/flatcar-install
+    - -s # Use the smallest disk to install the OS.
+    %{~ if os_version != "" ~}
+    - -V
+    - ${os_version}
+    %{~ endif ~}
+    %{~ if os_channel != "" ~}
+    - -C
+    - ${os_channel}
+    %{~ endif ~}
+    - -i
+    - /statedir/ignition.json
+    %{~ if flatcar_install_base_url != "" ~}
+    - -b
+    - ${flatcar_install_base_url}
+    %{~ endif ~}
+  - name: "reboot" # This task shouldn't really be there, but there is no other way to reboot the Tinkerbell Worker into target OS in Tinkerbell for now.
+    image: flatcar-install
+    command:
+    - sh
+    - -c
+    - 'echo 1 > /proc/sys/kernel/sysrq; echo b > /proc/sysrq-trigger'

@@ -35,6 +35,7 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/platform/aws"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/baremetal"
 	_ "github.com/kinvolk/lokomotive/pkg/platform/packet"
+	_ "github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
 
 	// Register backends by adding an anonymous import.
 	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
