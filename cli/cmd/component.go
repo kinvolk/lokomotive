@@ -26,6 +26,7 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/components/external-dns"
 	_ "github.com/kinvolk/lokomotive/pkg/components/flatcar-linux-update-operator"
 	_ "github.com/kinvolk/lokomotive/pkg/components/gangway"
+	_ "github.com/kinvolk/lokomotive/pkg/components/headlamp"
 	_ "github.com/kinvolk/lokomotive/pkg/components/httpbin"
 	_ "github.com/kinvolk/lokomotive/pkg/components/istio-operator"
 	_ "github.com/kinvolk/lokomotive/pkg/components/linkerd"
