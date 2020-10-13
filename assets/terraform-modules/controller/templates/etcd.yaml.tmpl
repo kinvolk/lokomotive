@@ -1,0 +1,117 @@
+systemd:
+  units:
+    - name: etcd.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=etcd (System Application Container)
+        Documentation=https://github.com/etcd-io/etcd
+        Wants=docker.service
+        After=docker.service
+        [Service]
+        Type=simple
+        Restart=always
+        RestartSec=5s
+        TimeoutStartSec=0
+        LimitNOFILE=40000
+        EnvironmentFile=/etc/kubernetes/etcd.env
+        ExecStartPre=-docker rm -f etcd
+        ExecStartPre=sh -c "docker run -d \
+          --name=etcd \
+          --restart=unless-stopped \
+          --log-driver=journald \
+          --network=host \
+          -u $(id -u \"$${ETCD_USER}\"):$(id -u \"$${ETCD_USER}\") \
+          -v $${ETCD_DATA_DIR}:$${ETCD_DATA_DIR}:rw \
+          -v $${ETCD_SSL_DIR}:$${ETCD_SSL_DIR}:ro \
+          --env-file /etc/kubernetes/etcd.env \
+          $${ETCD_IMAGE_URL}:$${ETCD_IMAGE_TAG}"
+        ExecStart=docker logs -f etcd
+        ExecStop=docker stop etcd
+        ExecStopPost=docker rm etcd
+        ExecStopPost=-/opt/etcd-rejoin
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  files:
+    - path: /etc/kubernetes/etcd.env
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          ETCD_IMAGE_TAG=v3.4.13
+          ETCD_IMAGE_URL=quay.io/coreos/etcd
+          ETCD_SSL_DIR=/etc/ssl/etcd
+          ETCD_DATA_DIR=/var/lib/etcd
+          ETCD_USER=etcd
+          ETCD_NAME=${etcd_name}
+          ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379
+          ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380
+          ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379
+          ETCD_LISTEN_PEER_URLS=https://0.0.0.0:2380
+          ETCD_LISTEN_METRICS_URLS=http://0.0.0.0:2381
+          ETCD_INITIAL_CLUSTER=${etcd_initial_cluster}
+          ETCD_STRICT_RECONFIG_CHECK=true
+          ETCD_TRUSTED_CA_FILE=/etc/ssl/etcd/etcd/server-ca.crt
+          ETCD_CERT_FILE=/etc/ssl/etcd/etcd/server.crt
+          ETCD_KEY_FILE=/etc/ssl/etcd/etcd/server.key
+          ETCD_CLIENT_CERT_AUTH=true
+          ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/etcd/etcd/peer-ca.crt
+          ETCD_PEER_CERT_FILE=/etc/ssl/etcd/etcd/peer.crt
+          ETCD_PEER_KEY_FILE=/etc/ssl/etcd/etcd/peer.key
+          ETCD_PEER_CLIENT_CERT_AUTH=true
+    - path: /etc/tmpfiles.d/etcd-wrapper.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          d    /var/lib/etcd 0700 etcd etcd - -
+    - path: /opt/etcd-rejoin
+      filesystem: root
+      mode: 0555
+      contents:
+        inline: |
+          #!/bin/bash
+          set -eou pipefail
+          # Rejoin a cluster as fresh node when etcd cannot join
+          # (e.g., after repovisioning, crashing or node being down).
+          # Set ExecStopPost=-/opt/etcd-rejoin to run when etcd failed and
+          # use env vars of etcd-member.service.
+          # Skip if not provisioned
+          if [ ! -d "/etc/ssl/etcd/" ]; then exit 0; fi
+          # or got stopped.
+          if [ "$EXIT_CODE" = "killed" ]; then exit 0; fi
+          now=$(date +%s)
+          if [ -f /var/lib/etcd-last-fail ]; then
+            last=$(cat /var/lib/etcd-last-fail)
+          else
+            last=0
+          fi
+          echo "$now" > /var/lib/etcd-last-fail
+          let "d = $now - $last"
+          # Skip and restart regularly if it does not fail within 120s.
+          if [ "$d" -gt 120 ]; then exit 0; fi
+          export ETCDCTL_API=3
+          urls=$(echo "$ETCD_INITIAL_CLUSTER" | tr "," "\n" | cut -d "=" -f 2 | tr "\n" "," | head -c -1)
+          # $$ for terraform
+          endpoints="$${urls//2380/2379}"
+          ARGS="--cacert=/etc/ssl/etcd/etcd-client-ca.crt --cert=/etc/ssl/etcd/etcd-client.crt --key=/etc/ssl/etcd/etcd-client.key --endpoints=$endpoints"
+          # Check if unhealthy (should be because etcd is not running)
+          unhealty=$((etcdctl endpoint health $ARGS 2> /dev/stdout | grep "is unhealthy" | grep "$ETCD_NAME") || true)
+          if [ -z "$unhealty" ]; then exit 0; fi
+          # Remove old ID if still exists
+          ID=$((etcdctl member list $ARGS | grep "$ETCD_NAME" | cut -d "," -f 1) || true)
+          if [ ! -z "$ID" ]; then
+            etcdctl member remove "$ID" $ARGS
+          fi
+          # Re-add as new member
+          etcdctl member add "$ETCD_NAME" --peer-urls="$ETCD_INITIAL_ADVERTISE_PEER_URLS" $ARGS
+          # Join fresh without state
+          mv /var/lib/etcd "/var/lib/etcd-bkp-$(date +%s)" || true
+          if [ -z "$(grep ETCD_INITIAL_CLUSTER_STATE=existing /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf)" ]; then
+            echo 'Environment="ETCD_INITIAL_CLUSTER_STATE=existing"' >> /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf
+            # Apply change
+            systemctl daemon-reload
+          fi
+          # Restart unit (yes, within itself)
+          systemctl restart etcd-member &
