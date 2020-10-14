@@ -93,6 +93,8 @@ func componentApply(contextLogger *log.Entry, componentsList []string) error {
 	return nil
 }
 
+// applyComponents reads the configuration of given components and applies them to the cluster pointer
+// by given kubeconfig file content.
 func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentObjects []components.Component) error {
 	for _, component := range componentObjects {
 		componentName := component.Metadata().Name
