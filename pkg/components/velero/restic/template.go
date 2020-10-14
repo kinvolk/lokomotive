@@ -26,7 +26,7 @@ configuration:
     {{- end }}
     bucket: {{ .Configuration.BackupStorageLocation.Bucket }}
     config:
-      region: eu-west-1
+      region: {{ .Configuration.BackupStorageLocation.Region }}
 deployRestic: true
 snapshotsEnabled: false
 restic:

@@ -99,7 +99,6 @@ component "velero" {
     service_monitor = false
   }
 
-  provider  = "azure"
   namespace = "velero"
 }
 ```
@@ -151,6 +150,7 @@ Example:
 | `restic.backup_storage_location.provider`            | Cloud provider name for storing backups.                                                                                    | -                                                 | string | false    |
 | `restic.backup_storage_location.bucket`              | Cloud storage bucket name for storing backups.                                                                              | -                                                 | string | true     |
 | `restic.backup_storage_location.name`                | Name for backup location object on the cluster.                                                                             | -                                                 | string | false    |
+| `restic.backup_storage_location.region`              | Cloud provider region for storing snapshots.                                                                                | `eu-west-1`                                       | string | false    |
 
 ## Applying
 
@@ -164,9 +164,9 @@ lokoctl component apply velero
 
 For day-to-day tasks, the `velero` CLI tool is the recommended way to interact with Velero.
 
-You can find how to install it in the [official documentation](https://velero.io/docs/master/basic-install/#install-the-cli).
+You can find how to install it in the [official documentation](https://velero.io/docs/v1.4/basic-install#install-the-cli).
 
-To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.2.0/examples/)
+To learn more on taking backups with Velero, visit [Velero#getting-stated](https://velero.io/docs/v1.4/examples/)
 
 ## Deleting
 
