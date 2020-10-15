@@ -2,10 +2,6 @@
 
 Get the health of a cluster
 
-### Synopsis
-
-Get the health of a cluster
-
 ```
 lokoctl health [flags]
 ```

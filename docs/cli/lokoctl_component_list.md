@@ -2,10 +2,6 @@
 
 List all available components
 
-### Synopsis
-
-List all available components
-
 ```
 lokoctl component list [flags]
 ```

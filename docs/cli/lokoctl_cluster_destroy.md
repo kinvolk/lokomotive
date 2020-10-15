@@ -2,10 +2,6 @@
 
 Destroy a cluster
 
-### Synopsis
-
-Destroy a cluster
-
 ```
 lokoctl cluster destroy [flags]
 ```

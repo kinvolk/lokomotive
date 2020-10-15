@@ -2,10 +2,6 @@
 
 Print version information
 
-### Synopsis
-
-Print version information
-
 ```
 lokoctl version [flags]
 ```

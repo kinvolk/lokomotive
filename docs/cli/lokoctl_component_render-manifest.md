@@ -2,10 +2,6 @@
 
 Print the manifests for a component
 
-### Synopsis
-
-Print the manifests for a component
-
 ```
 lokoctl component render-manifest [flags]
 ```

@@ -2,10 +2,6 @@
 
 Manage a cluster
 
-### Synopsis
-
-Manage a cluster
-
 ### Options
 
 ```

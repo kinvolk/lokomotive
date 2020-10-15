@@ -2,10 +2,6 @@
 
 Manage Lokomotive clusters
 
-### Synopsis
-
-Manage Lokomotive clusters
-
 ### Options
 
 ```
