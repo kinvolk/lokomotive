@@ -1,4 +1,4 @@
-image: quay.io/poseidon/kubelet:v1.19.2
+image: quay.io/poseidon/kubelet:v1.19.3
 clusterDNS: 10.0.0.10
 clusterDomain: cluster.local
 enableTLSBootstrap: true
