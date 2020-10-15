@@ -2,10 +2,6 @@
 
 Manage components
 
-### Synopsis
-
-Manage components
-
 ### Options
 
 ```
