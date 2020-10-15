@@ -194,7 +194,7 @@ storage:
             -v /opt/bootkube/assets:/assets:ro \
             -v /etc/kubernetes:/etc/kubernetes:rw \
             --network=host \
-            quay.io/kinvolk/bootkube:v0.14.0-helm-ec64535-amd64 \
+            quay.io/kinvolk/bootkube:v0.14.0-helm2-amd64 \
             /bootkube start --asset-dir=/assets
     - path: /etc/tmpfiles.d/etcd-wrapper.conf
       filesystem: root
