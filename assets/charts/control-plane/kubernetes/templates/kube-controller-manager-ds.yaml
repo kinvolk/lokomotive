@@ -1,0 +1,28 @@
+{{- if gt (int .Values.controllerManager.controlPlaneReplicas) 1 }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  labels:
+    tier: control-plane
+    k8s-app: kube-controller-manager
+spec:
+  selector:
+    matchLabels:
+      tier: control-plane
+      k8s-app: kube-controller-manager
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        tier: control-plane
+        k8s-app: kube-controller-manager
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+{{- template "controller-manager-containers" . }}
+{{- end }}

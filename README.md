@@ -14,7 +14,7 @@ not shipped with upstream Kubernetes.
 
 <a href="https://landscape.cncf.io/selected=lokomotive"><img src="https://raw.githubusercontent.com/cncf/artwork/1c1a10d9cc7de24235e07c8831923874331ef233/projects/kubernetes/certified-kubernetes/versionless/color/certified-kubernetes-color.svg" align="right" width="100px"></a>
 
-* Kubernetes 1.18 (upstream, via
+* Kubernetes 1.19 (upstream, via
   [kubernetes-incubator/bootkube](https://github.com/kubernetes-incubator/bootkube))
 * Fully self-hosted, including the kubelet
 * Single or multi-master

@@ -67,6 +67,8 @@ module "bare-metal-{{.ClusterName}}" {
   {{- end}}
   }
   {{- end}}
+
+  ignore_x509_cn_check = {{.IgnoreX509CNCheck}}
 }
 
 terraform {

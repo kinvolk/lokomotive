@@ -1,0 +1,28 @@
+{{- if gt (int .Values.coredns.controlPlaneReplicas) 1 }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+    k8s-app: coredns
+    kubernetes.io/name: "CoreDNS"
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      tier: control-plane
+      k8s-app: coredns
+  template:
+    metadata:
+      labels:
+        tier: control-plane
+        k8s-app: coredns
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+{{- template "coredns-containers" . }}
+{{- end }}

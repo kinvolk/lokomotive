@@ -56,6 +56,7 @@ type config struct {
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -236,6 +237,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Labels                   map[string]string
 		EnableTLSBootstrap       bool
 		EncryptPodTraffic        bool
+		IgnoreX509CNCheck        bool
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -260,6 +262,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Labels:                   cfg.Labels,
 		EnableTLSBootstrap:       cfg.EnableTLSBootstrap,
 		EncryptPodTraffic:        cfg.EncryptPodTraffic,
+		IgnoreX509CNCheck:        cfg.IgnoreX509CNCheck,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

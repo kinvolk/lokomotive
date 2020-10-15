@@ -3,7 +3,7 @@ kind: PodSecurityPolicy
 metadata:
   name: zz-minimal
   annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
     seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 spec:
   privileged: false

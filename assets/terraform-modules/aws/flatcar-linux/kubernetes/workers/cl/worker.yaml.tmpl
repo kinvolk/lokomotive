@@ -114,7 +114,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=quay.io/poseidon/kubelet
-          KUBELET_IMAGE_TAG=v1.18.8
+          KUBELET_IMAGE_TAG=v1.19.3
           NODE_LABELS="${join(",", [for k, v in node_labels : "${k}=${v}"])}"
           NODE_TAINTS="${join(",", [for k, v in taints : "${k}=${v}"])}"
     - path: /etc/sysctl.d/max-user-watches.conf

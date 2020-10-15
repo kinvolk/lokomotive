@@ -99,13 +99,13 @@ variable "container_images" {
     calico_cni              = "calico/cni:v3.15.2"
     calico_controllers      = "calico/kube-controllers:v3.15.2"
     flexvol_driver_image    = "calico/pod2daemon-flexvol:v3.15.2"
-    kubelet_image           = "quay.io/poseidon/kubelet:v1.18.8"
+    kubelet_image           = "quay.io/poseidon/kubelet:v1.19.3"
     coredns                 = "coredns/coredns:coredns-"
     pod_checkpointer        = "kinvolk/pod-checkpointer:d1c58443fe7d7d33aa5bf7d80d65d299be6e5847"
-    kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.18.8"
-    kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.18.8"
-    kube_scheduler          = "k8s.gcr.io/kube-scheduler:v1.18.8"
-    kube_proxy              = "k8s.gcr.io/kube-proxy:v1.18.8"
+    kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.19.3"
+    kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.19.3"
+    kube_scheduler          = "k8s.gcr.io/kube-scheduler:v1.19.3"
+    kube_proxy              = "k8s.gcr.io/kube-proxy:v1.19.3"
   }
 }
 
@@ -141,12 +141,6 @@ variable "external_apiserver_port" {
   default     = 6443
 }
 
-variable "expose_on_all_interfaces" {
-  description = "If true, kube-apiserver will be exposed on all controller node interfaces on port 6443. If false, it will be exposed only one kubelet's node IP."
-  type        = bool
-  default     = false
-}
-
 variable "disable_self_hosted_kubelet" {
   description = "Disable the self hosted kubelet installed by default"
   type        = bool
@@ -156,6 +150,12 @@ variable "kube_apiserver_extra_flags" {
   description = "Extra flags passed to self-hosted kube-apiserver."
   type        = list(string)
   default     = []
+}
+
+variable "ignore_x509_cn_check" {
+  description = "Ignore CN checks in x509 certificates."
+  type        = bool
+  default     = false
 }
 
 variable "blocked_metadata_cidrs" {

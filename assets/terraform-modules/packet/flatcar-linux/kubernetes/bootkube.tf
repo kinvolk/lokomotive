@@ -28,8 +28,6 @@ module "bootkube" {
 
   container_arch = var.os_arch
 
-  expose_on_all_interfaces = true
-
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
   # Extra flags to API server.
@@ -48,4 +46,6 @@ module "bootkube" {
   # We install calico-host-protection chart on Packet which ships GNPs, so we can disable failsafe ports in Calico.
   failsafe_inbound_host_ports = []
   encrypt_pod_traffic         = var.encrypt_pod_traffic
+
+  ignore_x509_cn_check = var.ignore_x509_cn_check
 }

@@ -23,13 +23,13 @@ import (
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func TestControllerManagerDeployment(t *testing.T) {
+func TestControllerManagerDaemonSet(t *testing.T) {
 	t.Parallel()
 
 	namespace := "kube-system"
-	deployment := "kube-controller-manager"
+	daemonset := "kube-controller-manager"
 
 	client := testutil.CreateKubeClient(t)
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
+	testutil.WaitForDaemonSet(t, client, namespace, daemonset, testutil.RetryInterval, testutil.Timeout)
 }

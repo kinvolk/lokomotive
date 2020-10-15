@@ -189,3 +189,9 @@ variable "encrypt_pod_traffic" {
   type        = bool
   default     = false
 }
+
+variable "ignore_x509_cn_check" {
+  description = "Ignore CN checks in x509 certificates."
+  type        = bool
+  default     = false
+}

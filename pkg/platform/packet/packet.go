@@ -95,6 +95,7 @@ type config struct {
 	OIDC                     *oidc.Config      `hcl:"oidc,block"`
 	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string

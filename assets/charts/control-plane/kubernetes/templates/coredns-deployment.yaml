@@ -1,3 +1,4 @@
+{{- if eq (int .Values.coredns.controlPlaneReplicas) 1 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,11 +8,11 @@ metadata:
     k8s-app: coredns
     kubernetes.io/name: "CoreDNS"
 spec:
-  replicas: {{ .Values.coredns.controlPlaneReplicas }}
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       tier: control-plane
@@ -24,78 +25,5 @@ spec:
       annotations:
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: tier
-                  operator: In
-                  values:
-                  - control-plane
-                - key: k8s-app
-                  operator: In
-                  values:
-                  - coredns
-              topologyKey: kubernetes.io/hostname
-      priorityClassName: system-cluster-critical
-      serviceAccountName: coredns
-      tolerations:
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
-      containers:
-        - name: coredns
-          image: {{ .Values.coredns.image }}
-          resources:
-            limits:
-              memory: 170Mi
-            requests:
-              cpu: 100m
-              memory: 70Mi
-          args: [ "-conf", "/etc/coredns/Corefile" ]
-          volumeMounts:
-            - name: config
-              mountPath: /etc/coredns
-              readOnly: true
-          ports:
-            - name: dns
-              protocol: UDP
-              containerPort: 53
-            - name: dns-tcp
-              protocol: TCP
-              containerPort: 53
-            - name: metrics
-              protocol: TCP
-              containerPort: 9153
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 60
-            timeoutSeconds: 5
-            successThreshold: 1
-            failureThreshold: 5
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 8181
-              scheme: HTTP
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              add:
-              - NET_BIND_SERVICE
-              drop:
-              - all
-            readOnlyRootFilesystem: true
-      dnsPolicy: Default
-      volumes:
-        - name: config
-          configMap:
-            name: coredns
-            items:
-            - key: Corefile
-              path: Corefile
+{{- template "coredns-containers" . }}
+{{- end }}

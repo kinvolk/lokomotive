@@ -102,6 +102,8 @@ module "aws-{{.Config.ClusterName}}" {
   encrypt_pod_traffic = {{.Config.EncryptPodTraffic}}
   {{- end }}
 
+  ignore_x509_cn_check = {{.Config.IgnoreX509CNCheck}}
+
   worker_bootstrap_tokens = [
     {{- range $index, $pool := .Config.WorkerPools }}
     module.worker-pool-{{ $index }}.worker_bootstrap_token,

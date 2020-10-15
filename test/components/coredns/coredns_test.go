@@ -23,12 +23,13 @@ import (
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func TestCoreDNSDeployment(t *testing.T) {
+func TestCoreDNSDaemonSet(t *testing.T) {
 	t.Parallel()
+
 	namespace := "kube-system"
-	deployment := "coredns"
+	daemonset := "coredns"
 
 	client := testutil.CreateKubeClient(t)
 
-	testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
+	testutil.WaitForDaemonSet(t, client, namespace, daemonset, testutil.RetryInterval, testutil.Timeout)
 }

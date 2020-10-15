@@ -18,7 +18,7 @@ const chartValuesTmpl = `
 global:
   rbac:
     pspAnnotations:
-      seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+      seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
       seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 
 alertmanager:
@@ -173,7 +173,7 @@ kubeScheduler:
 kube-state-metrics:
   podSecurityPolicy:
     annotations:
-      seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+      seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
       seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 
 kubeProxy:

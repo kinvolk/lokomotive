@@ -60,6 +60,8 @@ EOF
   # Acts as a smoke test to check if API server is functional after addition
   # of extra flags.
   oidc {}
+
+  ignore_x509_cn_check = true
 }
 
 component "metrics-server" {}
