@@ -77,9 +77,6 @@
         - name: ssl-certs-host
           mountPath: /etc/ssl/certs
           readOnly: true
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
       volumes:
       - name: secrets
         secret:
