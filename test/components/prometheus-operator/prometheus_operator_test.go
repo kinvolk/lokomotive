@@ -160,3 +160,20 @@ func TestGrafanaLoadsEnvVars(t *testing.T) {
 		t.Fatalf("required env var %q not found in following env vars:\n\n%s\n", searchEnvVar, containerOutput)
 	}
 }
+
+func TestPrometheusOperatorPVC(t *testing.T) {
+	pvcs := []string{
+		"data-alertmanager-prometheus-operator-alertmanager-0",
+		"data-prometheus-prometheus-operator-prometheus-0",
+	}
+
+	client := testutil.CreateKubeClient(t)
+
+	for _, pvc := range pvcs {
+		pvc := pvc
+		t.Run(pvc, func(t *testing.T) {
+			t.Parallel()
+			testutil.WaitForPVCToBeBound(t, client, namespace, pvc, testutil.RetryInterval, testutil.TimeoutSlow)
+		})
+	}
+}
