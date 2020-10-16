@@ -20,8 +20,8 @@ fullnameOverride: web-ui
 nodeSelector:
   beta.kubernetes.io/os: linux
 image:
-  # TODO: Use v0.1.0 when it's released.
-  tag: l8e
+  repository: quay.io/kinvolk/lokomotive-web-ui
+  tag: v0.1.1
   pullPolicy: Always
 securityContext:
   capabilities:

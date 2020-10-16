@@ -8,7 +8,7 @@ image:
   repository: quay.io/kinvolk/headlamp
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: l8e
+  tag: v0.1.1
 
 imagePullSecrets: []
 nameOverride: ""

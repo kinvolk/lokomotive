@@ -4,4 +4,4 @@ description: An easy-to-use and versatile dashboard for Kubernetes brought to yo
 type: application
 
 version: 0.1.0
-appVersion: 0.0.0
+appVersion: 0.1.1
