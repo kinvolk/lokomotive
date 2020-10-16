@@ -2,18 +2,21 @@
 
 * Installs the web dashboarding system [Grafana](http://grafana.org/)
 
-## TL;DR;
+## Get Repo Info
 
 ```console
-$ helm install stable/grafana
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
 ```
+
+_See [helm repo](https://helm.sh/docs/helm/helm_repo/) for command documentation._
 
 ## Installing the Chart
 
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install --name my-release stable/grafana
+helm install --name my-release grafana/grafana
 ```
 
 ## Uninstalling the Chart
@@ -21,7 +24,7 @@ $ helm install --name my-release stable/grafana
 To uninstall/delete the my-release deployment:
 
 ```console
-$ helm delete my-release
+helm delete my-release
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -53,6 +56,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `priorityClassName`                       | Name of Priority Class to assign pods         | `nil`                                                   |
 | `image.repository`                        | Image repository                              | `grafana/grafana`                                       |
 | `image.tag`                               | Image tag (`Must be >= 5.0.0`)                | `7.0.3`                                                 |
+| `image.sha`                               | Image sha (optional)                          | `17cbd08b9515fda889ca959e9d72ee6f3327c8f1844a3336dfd952134f38e2fe` |
 | `image.pullPolicy`                        | Image pull policy                             | `IfNotPresent`                                          |
 | `image.pullSecrets`                       | Image pull secrets                            | `{}`                                                    |
 | `service.type`                            | Kubernetes service type                       | `ClusterIP`                                             |
@@ -66,7 +70,8 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `service.loadBalancerIP`                  | IP address to assign to load balancer (if supported) | `nil`                                            |
 | `service.loadBalancerSourceRanges`        | list of IP CIDRs allowed access to lb (if supported) | `[]`                                             |
 | `service.externalIPs`                     | service external IP addresses                 | `[]`                                                    |
-| `extraExposePorts`                        | Additional service ports for sidecar containers| `[]`                                                   | 
+| `extraExposePorts`                        | Additional service ports for sidecar containers| `[]`                                                   |
+| `hostAliases`                             | adds rules to the pod's /etc/hosts            | `[]`                                                    |
 | `ingress.enabled`                         | Enables Ingress                               | `false`                                                 |
 | `ingress.annotations`                     | Ingress annotations (values are templated)    | `{}`                                                    |
 | `ingress.labels`                          | Custom labels                                 | `{}`                                                    |
@@ -93,7 +98,8 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `persistence.subPath`                     | Mount a sub dir of the persistent volume      | `nil`                                                   |
 | `initChownData.enabled`                   | If false, don't reset data ownership at startup | true                                                  |
 | `initChownData.image.repository`          | init-chown-data container image repository    | `busybox`                                               |
-| `initChownData.image.tag`                 | init-chown-data container image tag           | `latest`                                                |
+| `initChownData.image.tag`                 | init-chown-data container image tag           | `1.31.1`                                                |
+| `initChownData.image.sha`                 | init-chown-data container image sha (optional)| `""`                                                    |
 | `initChownData.image.pullPolicy`          | init-chown-data container image pull policy   | `IfNotPresent`                                          |
 | `initChownData.resources`                 | init-chown-data pod resource requests & limits | `{}`                                                   |
 | `schedulerName`                           | Alternate scheduler name                      | `nil`                                                   |
@@ -122,8 +128,10 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `podPortName`                             | Name of the grafana port on the pod           | `grafana`                                               |
 | `sidecar.image.repository`                | Sidecar image repository                      | `kiwigrid/k8s-sidecar`                                  |
 | `sidecar.image.tag`                       | Sidecar image tag                             | `0.1.151`                                               |
+| `sidecar.image.sha`                       | Sidecar image sha (optional)                  | `""`                                                    |
 | `sidecar.imagePullPolicy`                 | Sidecar image pull policy                     | `IfNotPresent`                                          |
 | `sidecar.resources`                       | Sidecar resources                             | `{}`                                                    |
+| `sidecar.enableUniqueFilenames`           | Sets the kiwigrid/k8s-sidecar UNIQUE_FILENAMES environment variable | `false`                           |
 | `sidecar.dashboards.enabled`              | Enables the cluster wide search for dashboards and adds/updates/deletes them in grafana | `false`       |
 | `sidecar.dashboards.SCProvider`           | Enables creation of sidecar provider          | `true`                                                  |
 | `sidecar.dashboards.provider.name`        | Unique name of the grafana provider           | `sidecarProvider`                                       |
@@ -132,6 +140,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `sidecar.dashboards.provider.disableDelete` | Activate to avoid the deletion of imported dashboards | `false`                                       |
 | `sidecar.dashboards.provider.allowUiUpdates` | Allow updating provisioned dashboards from the UI | `false`                                          |
 | `sidecar.dashboards.provider.type`        | Provider type                                 | `file`                                                  |
+| `sidecar.dashboards.provider.foldersFromFilesStructure`        | Allow Grafana to replicate dashboard structure from filesystem.                                 | `false`                                                  |
 | `sidecar.dashboards.watchMethod`          | Method to use to detect ConfigMap changes. With WATCH the sidecar will do a WATCH requests, with SLEEP it will list all ConfigMaps, then sleep for 60 seconds. | `WATCH` |
 | `sidecar.skipTlsVerify`                   | Set to true to skip tls verification for kube api calls | `nil`                                         |
 | `sidecar.dashboards.label`                | Label that config maps with dashboards should have to be added | `grafana_dashboard`                                |
@@ -141,6 +150,9 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `sidecar.datasources.enabled`             | Enables the cluster wide search for datasources and adds/updates/deletes them in grafana |`false`       |
 | `sidecar.datasources.label`               | Label that config maps with datasources should have to be added | `grafana_datasource`                               |
 | `sidecar.datasources.searchNamespace`     | If specified, the sidecar will search for datasources config-maps inside this namespace. Otherwise the namespace in which the sidecar is running will be used. It's also possible to specify ALL to search in all namespaces | `nil`                               |
+| `sidecar.notifiers.enabled`               | Enables the cluster wide search for notifiers and adds/updates/deletes them in grafana |`false`       |
+| `sidecar.notifiers.label`                 | Label that config maps with notifiers should have to be added | `grafana_notifier`                               |
+| `sidecar.notifiers.searchNamespace`       | If specified, the sidecar will search for notifiers config-maps (or secrets) inside this namespace. Otherwise the namespace in which the sidecar is running will be used. It's also possible to specify ALL to search in all namespaces | `nil`                               |
 | `smtp.existingSecret`                     | The name of an existing secret containing the SMTP credentials. | `""`                                  |
 | `smtp.userKey`                            | The key in the existing SMTP secret containing the username. | `"user"`                                 |
 | `smtp.passwordKey`                        | The key in the existing SMTP secret containing the password. | `"password"`                             |
@@ -150,7 +162,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `serviceAccount.annotations`              | ServiceAccount annotations                    |                                                         |
 | `serviceAccount.create`                   | Create service account                        | `true`                                                  |
 | `serviceAccount.name`                     | Service account name to use, when empty will be set to created account if `serviceAccount.create` is set else to `default` | `` |
-| `serviceAccount.nameTest`                 | Service account name to use for test, when empty will be set to created account if `serviceAccount.create` is set else to `default` | `` |
+| `serviceAccount.nameTest`                 | Service account name to use for test, when empty will be set to created account if `serviceAccount.create` is set else to `default` | `nil` |
 | `rbac.create`                             | Create and use RBAC resources                 | `true`                                                  |
 | `rbac.namespaced`                         | Creates Role and Rolebinding instead of the default ClusterRole and ClusteRoleBindings for the grafana instance  | `false` |
 | `rbac.pspEnabled`                         | Create PodSecurityPolicy (with `rbac.create`, grant roles permissions as well) | `true`                 |
@@ -166,9 +178,34 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `downloadDashboards.env`                  | Environment variables to be passed to the `download-dashboards` container | `{}`                        |
 | `downloadDashboards.resources`            | Resources of `download-dashboards` container  | `{}`                                                    |
 | `downloadDashboardsImage.repository`      | Curl docker image repo                        | `curlimages/curl`                                       |
-| `downloadDashboardsImage.tag`             | Curl docker image tag                         | `7.68.0`                                                |
+| `downloadDashboardsImage.tag`             | Curl docker image tag                         | `7.70.0`                                                |
+| `downloadDashboardsImage.sha`             | Curl docker image sha (optional)              | `""`                                                    |
 | `downloadDashboardsImage.pullPolicy`      | Curl docker image pull policy                 | `IfNotPresent`                                          |
 | `namespaceOverride`                       | Override the deployment namespace             | `""` (`Release.Namespace`)                              |
+| `serviceMonitor.enabled`                  | Use servicemonitor from prometheus operator   | `false`                                                 |
+| `serviceMonitor.namespace`                | Namespace this servicemonitor is installed in |                                                         |
+| `serviceMonitor.interval`                 | How frequently Prometheus should scrape       | `1m`                                                    |
+| `serviceMonitor.path`                     | Path to scrape                                | `/metrics`                                              |
+| `serviceMonitor.labels`                   | Labels for the servicemonitor passed to Prometheus Operator      |  `{}`                                |
+| `serviceMonitor.scrapeTimeout`            | Timeout after which the scrape is ended       | `30s`                                                   |
+| `serviceMonitor.relabelings`              | MetricRelabelConfigs to apply to samples before ingestion.  | `[]`                                      |
+| `revisionHistoryLimit`                    | Number of old ReplicaSets to retain           | `10`                                                    |
+| `imageRenderer.enabled`                    | Enable the image-renderer deployment & service                                     | `false`                          |
+| `imageRenderer.image.repository`           | image-renderer Image repository                                                    | `grafana/grafana-image-renderer` |
+| `imageRenderer.image.tag`                  | image-renderer Image tag                                                           | `latest`                         |
+| `imageRenderer.image.sha`                  | image-renderer Image sha (optional)                                                | `""`                             |
+| `imageRenderer.image.pullPolicy`           | image-renderer ImagePullPolicy                                                     | `Always`                         |
+| `imageRenderer.env`                        | extra env-vars for image-renderer                                                  | `{}`                             |
+| `imageRenderer.securityContext`            | image-renderer deployment securityContext                                          | `{}`                             |
+| `imageRenderer.hostAliases`                | image-renderer deployment Host Aliases                                             | `[]`                             |
+| `imageRenderer.priorityClassName`          | image-renderer deployment priority class                                           | `''`                             |
+| `imageRenderer.service.portName`           | image-renderer service port name                                                   | `'http'`                         |
+| `imageRenderer.service.port`               | image-renderer service port used by both service and deployment                    | `8081`                           |
+| `imageRenderer.podPortName`                | name of the image-renderer port on the pod                                         | `http`                           |
+| `imageRenderer.revisionHistoryLimit`       | number of image-renderer replica sets to keep                                      | `10`                             |
+| `imageRenderer.networkPolicy.limitIngress` | Enable a NetworkPolicy to limit inbound traffic from only the created grafana pods  | `true`                           |
+| `imageRenderer.networkPolicy.limitEgress`  | Enable a NetworkPolicy to limit outbound traffic to only the created grafana pods   | `false`                          |
+| `imageRenderer.resources`                  | Set resource limits for image-renderer pdos                                        | `{}`                             |
 
 ### Example ingress with path
 
@@ -231,14 +268,15 @@ dashboards:
 
 ## BASE64 dashboards
 
-Dashboards could be storaged in a server that does not return JSON directly and instead of it returns a Base64 encoded file (e.g. Gerrit)
+Dashboards could be stored on a server that does not return JSON directly and instead of it returns a Base64 encoded file (e.g. Gerrit)
 A new parameter has been added to the url use case so if you specify a b64content value equals to true after the url entry a Base64 decoding is applied before save the file to disk.
 If this entry is not set or is equals to false not decoding is applied to the file before saving it to disk.
 
-### Gerrit use case:
-Gerrit API for download files has the following schema: https://yourgerritserver/a/{project-name}/branches/{branch-id}/files/{file-id}/content where {project-name} and
-{file-id} usualy has '/' in their values and so they MUST be replaced by %2F so if project-name is user/repo, branch-id is master and file-id is equals to dir1/dir2/dashboard
-the url value is https://yourgerritserver/a/user%2Frepo/branches/master/files/dir1%2Fdir2%2Fdashboard/content
+### Gerrit use case
+
+Gerrit API for download files has the following schema: <https://yourgerritserver/a/{project-name}/branches/{branch-id}/files/{file-id}/content> where {project-name} and
+{file-id} usually has '/' in their values and so they MUST be replaced by %2F so if project-name is user/repo, branch-id is master and file-id is equals to dir1/dir2/dashboard
+the url value is <https://yourgerritserver/a/user%2Frepo/branches/master/files/dir1%2Fdir2%2Fdashboard/content>
 
 ## Sidecar for dashboards
 
@@ -252,7 +290,8 @@ A recommendation is to use one configmap per dashboard, as a reduction of multip
 one configmap is currently not properly mirrored in grafana.
 
 Example dashboard config:
-```
+
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -274,10 +313,11 @@ the data sources in grafana can be imported. The secrets must be created before 
 that the datasources init container can list the secrets.
 
 Secrets are recommended over configmaps for this usecase because datasources usually contain private
-data like usernames and passwords. Secrets are the more appropriate cluster ressource to manage those.
+data like usernames and passwords. Secrets are the more appropriate cluster resource to manage those.
 
 Example datasource config adapted from [Grafana](http://docs.grafana.org/administration/provisioning/#example-datasource-config-file):
-```
+
+```yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -340,9 +380,52 @@ stringData:
 
 ```
 
+## Sidecar for notifiers
+
+If the parameter `sidecar.notifiers.enabled` is set, an init container is deployed in the grafana
+pod. This container lists all secrets (or configmaps, though not recommended) in the cluster and
+filters out the ones with a label as defined in `sidecar.notifiers.label`. The files defined in
+those secrets are written to a folder and accessed by grafana on startup. Using these yaml files,
+the notification channels in grafana can be imported. The secrets must be created before
+`helm install` so that the notifiers init container can list the secrets.
+
+Secrets are recommended over configmaps for this usecase because alert notification channels usually contain
+private data like SMTP usernames and passwords. Secrets are the more appropriate cluster resource to manage those.
+
+Example datasource config adapted from [Grafana](https://grafana.com/docs/grafana/latest/administration/provisioning/#alert-notification-channels):
+
+```yaml
+notifiers:
+  - name: notification-channel-1
+    type: slack
+    uid: notifier1
+    # either
+    org_id: 2
+    # or
+    org_name: Main Org.
+    is_default: true
+    send_reminder: true
+    frequency: 1h
+    disable_resolve_message: false
+    # See `Supported Settings` section for settings supporter for each
+    # alert notification type.
+    settings:
+      recipient: 'XXX'
+      token: 'xoxb'
+      uploadImage: true
+      url: https://slack.com
+
+delete_notifiers:
+  - name: notification-channel-1
+    uid: notifier1
+    org_id: 2
+  - name: notification-channel-2
+    # default org_id: 1
+```
+
 ## How to serve Grafana with a path prefix (/grafana)
 
-In order to serve Grafana with a prefix (e.g., http://example.com/grafana), add the following to your values.yaml.
+In order to serve Grafana with a prefix (e.g., <http://example.com/grafana>), add the following to your values.yaml.
 
 ```yaml
 ingress:
@@ -360,3 +443,55 @@ grafana.ini:
   server:
     root_url: http://localhost:3000/grafana # this host can be localhost
 ```
+
+## How to securely reference secrets in grafana.ini
+
+This example uses Grafana uses [file providers](https://grafana.com/docs/grafana/latest/administration/configuration/#file-provider) for secret values and the `extraSecretMounts` configuration flag (Additional grafana server secret mounts) to mount the secrets.
+
+In grafana.ini:
+
+```yaml
+grafana.ini:
+  [auth.generic_oauth]
+  enabled = true
+  client_id = $__file{/etc/secrets/auth_generic_oauth/client_id}
+  client_secret = $__file{/etc/secrets/auth_generic_oauth/client_secret}
+```
+
+Existing secret, or created along with helm:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-generic-oauth-secret
+type: Opaque
+stringData:
+  client_id: <value>
+  client_secret: <value>
+```
+
+Include in the `extraSecretMounts` configuration flag:
+
+```yaml
+- extraSecretMounts:
+  - name: auth-generic-oauth-secret-mount
+     secretName: auth-generic-oauth-secret
+     defaultMode: 0440
+     mountPath: /etc/secrets/auth_generic_oauth
+     readOnly: true
+```
+
+## Image Renderer Plug-In
+
+This chart supports enabling [remote image rendering](https://github.com/grafana/grafana-image-renderer/blob/master/docs/remote_rendering_using_docker.md)
+
+```yaml
+imageRenderer:
+  enabled: true
+```
+
+### Image Renderer NetworkPolicy
+
+By default the image-renderer pods will have a network policy which only allows ingress traffic from the created grafana instance
