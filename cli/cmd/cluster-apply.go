@@ -64,9 +64,16 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 
 //nolint:funlen
 func clusterApply(contextLogger *log.Entry) error {
-	c := initialize(contextLogger)
+	c, err := initialize(contextLogger)
+	if err != nil {
+		return fmt.Errorf("initializing: %w", err)
+	}
 
-	exists := clusterExists(contextLogger, &c.terraformExecutor)
+	exists, err := clusterExists(c.terraformExecutor)
+	if err != nil {
+		return fmt.Errorf("checking if cluster exists: %w", err)
+	}
+
 	if exists && !confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := c.terraformExecutor.Plan(); err != nil {
@@ -122,7 +129,9 @@ func clusterApply(contextLogger *log.Entry) error {
 		}
 
 		for _, c := range charts {
-			cu.upgradeComponent(c.Name, c.Namespace)
+			if err := cu.upgradeComponent(c.Name, c.Namespace); err != nil {
+				return fmt.Errorf("upgrading controlplane component %q: %w", c.Name, err)
+			}
 		}
 	}
 
@@ -136,17 +145,15 @@ func clusterApply(contextLogger *log.Entry) error {
 		return nil
 	}
 
-	componentsToApply := []string{}
-	for _, component := range c.lokomotiveConfig.RootConfig.Components {
-		componentsToApply = append(componentsToApply, component.Name)
+	componentObjects, err := componentNamesToObjects(selectComponentNames(nil, *c.lokomotiveConfig.RootConfig))
+	if err != nil {
+		return fmt.Errorf("getting component objects: %w", err)
 	}
 
 	contextLogger.Println("Applying component configuration")
 
-	if len(componentsToApply) > 0 {
-		if err := applyComponents(c.lokomotiveConfig, kubeconfig, componentsToApply...); err != nil {
-			return fmt.Errorf("applying component configuration: %v", err)
-		}
+	if err := applyComponents(c.lokomotiveConfig, kubeconfig, componentObjects); err != nil {
+		return fmt.Errorf("applying component configuration: %v", err)
 	}
 
 	return nil

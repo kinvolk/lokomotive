@@ -48,9 +48,17 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 }
 
 func clusterDestroy(contextLogger *log.Entry) error {
-	c := initialize(contextLogger)
+	c, err := initialize(contextLogger)
+	if err != nil {
+		return fmt.Errorf("initializing: %w", err)
+	}
 
-	if !clusterExists(contextLogger, &c.terraformExecutor) {
+	exists, err := clusterExists(c.terraformExecutor)
+	if err != nil {
+		return fmt.Errorf("checking if cluster exists: %w", err)
+	}
+
+	if !exists {
 		contextLogger.Println("Cluster already destroyed, nothing to do")
 
 		return nil

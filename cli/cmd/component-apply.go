@@ -61,37 +61,44 @@ func runApply(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	if err := componentApply(contextLogger, args); err != nil {
+		contextLogger.Fatalf("Applying components failed: %v", err)
+	}
+}
+
+// componentApply implements 'lokoctl component apply' separated from CLI
+// dependencies.
+func componentApply(contextLogger *log.Entry, componentsList []string) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
-		contextLogger.Fatal(diags)
+		return diags
 	}
 
-	componentsToApply := args
-	if len(componentsToApply) == 0 {
-		for _, component := range lokoConfig.RootConfig.Components {
-			componentsToApply = append(componentsToApply, component.Name)
-		}
+	componentObjects, err := componentNamesToObjects(selectComponentNames(componentsList, *lokoConfig.RootConfig))
+	if err != nil {
+		return fmt.Errorf("getting component objects: %w", err)
 	}
 
 	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
+
+		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := applyComponents(lokoConfig, kubeconfig, componentsToApply...); err != nil {
-		contextLogger.Fatal(err)
+	if err := applyComponents(lokoConfig, kubeconfig, componentObjects); err != nil {
+		return fmt.Errorf("applying components: %w", err)
 	}
+
+	return nil
 }
 
-func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentNames ...string) error {
-	for _, componentName := range componentNames {
+// applyComponents reads the configuration of given components and applies them to the cluster pointer
+// by given kubeconfig file content.
+func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentObjects []components.Component) error {
+	for _, component := range componentObjects {
+		componentName := component.Metadata().Name
 		fmt.Printf("Applying component '%s'...\n", componentName)
-
-		component, err := components.Get(componentName)
-		if err != nil {
-			return err
-		}
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
 
@@ -101,10 +108,11 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentName
 		}
 
 		if err := util.InstallComponent(component, kubeconfig); err != nil {
-			return err
+			return fmt.Errorf("installing component %q: %w", componentName, err)
 		}
 
 		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
 	}
+
 	return nil
 }

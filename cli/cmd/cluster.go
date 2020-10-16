@@ -52,10 +52,10 @@ type cluster struct {
 
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(contextLogger *log.Entry) *cluster {
+func initialize(contextLogger *log.Entry) (*cluster, error) {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
-		contextLogger.Fatal(diags)
+		return nil, diags
 	}
 
 	p, diags := getConfiguredPlatform(lokoConfig, true)
@@ -64,7 +64,7 @@ func initialize(contextLogger *log.Entry) *cluster {
 			contextLogger.Error(diagnostic.Error())
 		}
 
-		contextLogger.Fatal("Errors found while loading cluster configuration")
+		return nil, fmt.Errorf("loading platform configuration")
 	}
 
 	// Get the configured backend for the cluster. Backend types currently supported: local, s3.
@@ -74,7 +74,7 @@ func initialize(contextLogger *log.Entry) *cluster {
 			contextLogger.Error(diagnostic.Error())
 		}
 
-		contextLogger.Fatal("Errors found while loading cluster configuration")
+		return nil, fmt.Errorf("loading backend configuration")
 	}
 
 	// Use a local backend if no backend is configured.
@@ -84,41 +84,44 @@ func initialize(contextLogger *log.Entry) *cluster {
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
-		contextLogger.Fatalf("Error expanding path: %v", err)
+		return nil, fmt.Errorf("expanding path %q: %v", p.Meta().AssetDir, err)
 	}
 
 	// Validate backend configuration.
 	if err = b.Validate(); err != nil {
-		contextLogger.Fatalf("Failed to validate backend configuration: %v", err)
+		return nil, fmt.Errorf("validating backend configuration: %v", err)
 	}
 
-	ex := initializeTerraform(contextLogger, p, b)
+	ex, err := initializeTerraform(p, b)
+	if err != nil {
+		return nil, fmt.Errorf("initializing Terraform: %w", err)
+	}
 
 	return &cluster{
 		terraformExecutor: *ex,
 		platform:          p,
 		lokomotiveConfig:  lokoConfig,
 		assetDir:          assetDir,
-	}
+	}, nil
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func initializeTerraform(contextLogger *log.Entry, p platform.Platform, b backend.Backend) *terraform.Executor {
+func initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
-		contextLogger.Fatalf("Error expanding path: %v", err)
+		return nil, fmt.Errorf("expanding path %q: %w", p.Meta().AssetDir, err)
 	}
 
 	// Render backend configuration.
 	renderedBackend, err := b.Render()
 	if err != nil {
-		contextLogger.Fatalf("Failed to render backend configuration file: %v", err)
+		return nil, fmt.Errorf("rendering backend configuration: %w", err)
 	}
 
 	// Configure Terraform directory, module and backend.
 	if err := terraform.Configure(assetDir, renderedBackend); err != nil {
-		contextLogger.Fatalf("Failed to configure Terraform : %v", err)
+		return nil, fmt.Errorf("configuring Terraform: %w", err)
 	}
 
 	conf := terraform.Config{
@@ -128,31 +131,31 @@ func initializeTerraform(contextLogger *log.Entry, p platform.Platform, b backen
 
 	ex, err := terraform.NewExecutor(conf)
 	if err != nil {
-		contextLogger.Fatalf("Failed to create Terraform executor: %v", err)
+		return nil, fmt.Errorf("creating Terraform executor: %w", err)
 	}
 
 	if err := p.Initialize(ex); err != nil {
-		contextLogger.Fatalf("Failed to initialize Platform: %v", err)
+		return nil, fmt.Errorf("initializing Platform: %w", err)
 	}
 
 	if err := ex.Init(); err != nil {
-		contextLogger.Fatalf("Failed to initialize Terraform: %v", err)
+		return nil, fmt.Errorf("running 'terraform init': %w", err)
 	}
 
-	return ex
+	return ex, nil
 }
 
 // clusterExists determines if cluster has already been created by getting all
 // outputs from the Terraform. If there is any output defined, it means 'terraform apply'
 // run at least once.
-func clusterExists(contextLogger *log.Entry, ex *terraform.Executor) bool {
+func clusterExists(ex terraform.Executor) (bool, error) {
 	o := map[string]interface{}{}
 
 	if err := ex.Output("", &o); err != nil {
-		contextLogger.Fatalf("Failed to check if cluster exists: %v", err)
+		return false, fmt.Errorf("getting Terraform output: %w", err)
 	}
 
-	return len(o) != 0
+	return len(o) != 0, nil
 }
 
 type controlplaneUpdater struct {
@@ -189,30 +192,25 @@ func (c controlplaneUpdater) getControlplaneValues(name string) (map[string]inte
 	return values, nil
 }
 
-func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
-	contextLogger := c.contextLogger.WithFields(log.Fields{
-		"action":    "controlplane-upgrade",
-		"component": component,
-	})
-
+func (c controlplaneUpdater) upgradeComponent(component, namespace string) error {
 	actionConfig, err := util.HelmActionConfig(namespace, c.kubeconfig)
 	if err != nil {
-		contextLogger.Fatalf("Failed initializing helm: %v", err)
+		return fmt.Errorf("initializing Helm action: %w", err)
 	}
 
 	helmChart, err := c.getControlplaneChart(component)
 	if err != nil {
-		contextLogger.Fatalf("Loading chart from assets failed: %v", err)
+		return fmt.Errorf("loading chart from assets: %w", err)
 	}
 
 	values, err := c.getControlplaneValues(component)
 	if err != nil {
-		contextLogger.Fatalf("Failed to get kubernetes values.yaml from Terraform: %v", err)
+		return fmt.Errorf("getting chart values from Terraform: %w", err)
 	}
 
 	exists, err := util.ReleaseExists(*actionConfig, component)
 	if err != nil {
-		contextLogger.Fatalf("Failed checking if controlplane component is installed: %v", err)
+		return fmt.Errorf("checking if controlplane component is installed: %w", err)
 	}
 
 	if !exists {
@@ -227,7 +225,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 		if _, err := install.Run(helmChart, values); err != nil {
 			fmt.Println("Failed!")
 
-			contextLogger.Fatalf("Installing controlplane component failed: %v", err)
+			return fmt.Errorf("installing controlplane component: %w", err)
 		}
 
 		fmt.Println("Done.")
@@ -242,8 +240,10 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) {
 	if _, err := update.Run(component, helmChart, values); err != nil {
 		fmt.Println("Failed!")
 
-		contextLogger.Fatalf("Updating chart failed: %v", err)
+		return fmt.Errorf("updating controlplane component: %w", err)
 	}
 
 	fmt.Println("Done.")
+
+	return nil
 }
