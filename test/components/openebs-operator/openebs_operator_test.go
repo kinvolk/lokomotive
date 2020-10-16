@@ -41,7 +41,7 @@ func TestOpenEBSOperatorDeployment(t *testing.T) {
 		t.Run("deployment", func(t *testing.T) {
 			t.Parallel()
 
-			testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout) //nolint:goscope
+			testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout) //nolint:scopelint,lll
 		})
 	}
 }
