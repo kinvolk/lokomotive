@@ -184,6 +184,23 @@ component "prometheus-operator" {
 			expected:             "prometheus.mydomain.net",
 			jsonPath:             "{.spec.rules[0].host}",
 		},
+		{
+			name:                 "verify foldersFromFilesStructure in configmap",
+			inputConfig:          `component "prometheus-operator" {}`,
+			expectedManifestName: "prometheus-operator/charts/grafana/templates/configmap-dashboard-provider.yaml",
+			expected: `apiVersion: 1
+providers:
+- name: 'sidecarProvider'
+  orgId: 1
+  folder: ''
+  type: file
+  disableDeletion: false
+  allowUiUpdates: false
+  options:
+    foldersFromFilesStructure: true
+    path: /tmp/dashboards`,
+			jsonPath: "{.data.provider\\.yaml}",
+		},
 	}
 
 	for _, tc := range testCases {
