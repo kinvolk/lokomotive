@@ -88,6 +88,10 @@ func (c *component) Metadata() components.Metadata {
 		Name: name,
 		Namespace: k8sutil.Namespace{
 			Name: namespace,
+			Labels: map[string]string{
+				"istio-operator-managed": "Reconcile",
+				"istio-injection":        "disabled",
+			},
 		},
 	}
 }

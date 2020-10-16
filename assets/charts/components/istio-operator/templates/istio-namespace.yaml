@@ -1,0 +1,8 @@
+---
+# XXX: Lokomotive specific config
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Values.istioNamespace}}
+  labels:
+    lokomotive.kinvolk.io/name: {{.Values.istioNamespace}}
