@@ -34,9 +34,16 @@ func init() {
 	components.Register(name, newComponent())
 }
 
+type oidc struct {
+	ClientID     string `hcl:"client_id"`
+	ClientSecret string `hcl:"client_secret"`
+	IssuerURL    string `hcl:"issuer_url"`
+}
+
 type component struct {
 	Namespace string         `hcl:"namespace,optional"`
 	Ingress   *types.Ingress `hcl:"ingress,block"`
+	OIDC      *oidc          `hcl:"oidc,block"`
 }
 
 func newComponent() *component {

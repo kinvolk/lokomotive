@@ -32,6 +32,11 @@ spec:
           args:
           - -in-cluster
           - -plugins-dir=/headlamp/plugins/
+          {{- if .Values.oidc }}
+          - -oidc-client-id={{ .Values.oidc.clientID }}
+          - -oidc-client-secret={{ .Values.oidc.clientSecret }}
+          - -oidc-idp-issuer-url={{ .Values.oidc.issuerURL }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

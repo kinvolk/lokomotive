@@ -45,4 +45,10 @@ ingress:
     cert-manager.io/cluster-issuer: {{ .Ingress.CertManagerClusterIssuer }}
     contour.heptio.com/websocket-routes: "/"
 {{- end }}
+{{- if .OIDC }}
+oidc:
+  clientID: {{ .OIDC.ClientID }}
+  clientSecret: {{ .OIDC.ClientSecret }}
+  issuerURL: {{ .OIDC.IssuerURL }}
+{{- end }}
 `
