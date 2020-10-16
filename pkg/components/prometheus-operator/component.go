@@ -16,6 +16,7 @@ package prometheus
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -63,6 +64,7 @@ type Prometheus struct {
 	WatchLabeledPrometheusRules bool              `hcl:"watch_labeled_prometheus_rules,optional"`
 	Ingress                     *types.Ingress    `hcl:"ingress,block"`
 	ExternalLabels              map[string]string `hcl:"external_labels,optional"`
+	ExternalURL                 string            `hcl:"external_url,optional"`
 }
 
 type component struct {
@@ -160,6 +162,30 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 	if c.Prometheus != nil && c.Prometheus.Ingress != nil {
 		c.Prometheus.Ingress.SetDefaults()
+	}
+
+	// If user has provided both `prometheus.ingress.host` and `prometheus.external_url`, the
+	// hostnames should be the same.
+	if c.Prometheus != nil && c.Prometheus.ExternalURL != "" && c.Prometheus.Ingress != nil {
+		exu, err := url.Parse(c.Prometheus.ExternalURL)
+		if err != nil {
+			return hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary: fmt.Sprintf("parsing 'prometheus.external_url' with value %q as URL: %v",
+						c.Prometheus.ExternalURL, err),
+				},
+			}
+		}
+
+		if exu.Host != c.Prometheus.Ingress.Host {
+			return hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary:  "'prometheus.external_url' and 'prometheus.ingress.host' do not match",
+				},
+			}
+		}
 	}
 
 	return nil

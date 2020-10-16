@@ -17,6 +17,7 @@ package prometheus
 import (
 	"testing"
 
+	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -62,6 +63,34 @@ component "prometheus-operator" {
 }`,
 			wantErr: true,
 		},
+		{
+			desc: "prometheus ingress and external_url given and are different",
+			hcl: `
+component "prometheus-operator" {
+  prometheus {
+	external_url = "https://prometheus.notmydomain.net"
+    ingress {
+      host = "prometheus.mydomain.net"
+    }
+  }
+}
+`,
+			wantErr: true,
+		},
+		{
+			desc: "prometheus ingress and external_url given and are same",
+			hcl: `
+component "prometheus-operator" {
+  prometheus {
+	external_url = "https://prometheus.mydomain.net"
+    ingress {
+      host = "prometheus.mydomain.net"
+    }
+  }
+}
+`,
+			wantErr: false,
+		},
 	}
 
 	for _, tc := range tests {
@@ -95,6 +124,78 @@ component "prometheus-operator" {
 			if len(m) == 0 {
 				t.Fatal("rendered manifests shouldn't be empty")
 			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestConversion(t *testing.T) {
+	testCases := []struct {
+		name                 string
+		inputConfig          string
+		expectedManifestName string
+		expected             string
+		jsonPath             string
+	}{
+		{
+			name: "use external_url param",
+			inputConfig: `
+component "prometheus-operator" {
+  prometheus {
+    external_url = "https://prometheus.externalurl.net"
+  }
+}
+`,
+			expectedManifestName: "prometheus-operator/templates/prometheus/prometheus.yaml",
+			expected:             "https://prometheus.externalurl.net",
+			jsonPath:             "{.spec.externalUrl}",
+		},
+		{
+			name: "no external_url param",
+			inputConfig: `
+		component "prometheus-operator" {
+		  prometheus {
+		    ingress {
+		      host                       = "prometheus.mydomain.net"
+		      class                      = "contour"
+		      certmanager_cluster_issuer = "letsencrypt-production"
+		    }
+		  }
+		}
+		`,
+			expectedManifestName: "prometheus-operator/templates/prometheus/prometheus.yaml",
+			expected:             "https://prometheus.mydomain.net",
+			jsonPath:             "{.spec.externalUrl}",
+		},
+		{
+			name: "ingress creation for prometheus",
+			inputConfig: `
+		component "prometheus-operator" {
+		  prometheus {
+		    ingress {
+		      host                       = "prometheus.mydomain.net"
+		      class                      = "contour"
+		      certmanager_cluster_issuer = "letsencrypt-production"
+		    }
+		  }
+		}
+		`,
+			expectedManifestName: "prometheus-operator/templates/prometheus/ingress.yaml",
+			expected:             "prometheus.mydomain.net",
+			jsonPath:             "{.spec.rules[0].host}",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			component := newComponent()
+			m := testutil.RenderManifests(t, component, name, tc.inputConfig)
+			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
+
+			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
 		})
 	}
 }
