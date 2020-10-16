@@ -98,6 +98,36 @@ func CreateKubeClient(t *testing.T) *kubernetes.Clientset {
 	return cs
 }
 
+// WaitForPVCToBeBound is a helper utility function to test if given PVC reaches Bound phase in given time.
+func WaitForPVCToBeBound(
+	t *testing.T, client kubernetes.Interface, ns, name string, retryInterval, timeout time.Duration,
+) {
+	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
+		pvc, err := client.CoreV1().PersistentVolumeClaims(ns).Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			if k8serrors.IsNotFound(err) {
+				t.Logf("waiting for PVC %q to be created", name)
+
+				return false, nil
+			}
+
+			return false, fmt.Errorf("getting PVC %q: %w", name, err)
+		}
+
+		phase := pvc.Status.Phase
+
+		t.Logf("PVC: %q, Phase: %q", name, phase)
+
+		if phase == corev1.ClaimBound {
+			return true, nil
+		}
+
+		return false, nil
+	}); err != nil {
+		t.Fatalf("waiting for the PVC to be in Bound phase: %v", err)
+	}
+}
+
 func WaitForStatefulSet(t *testing.T, client kubernetes.Interface, ns, name string, replicas int, retryInterval, timeout time.Duration) {
 	if err := wait.PollImmediate(retryInterval, timeout, func() (done bool, err error) {
 		ds, err := client.AppsV1().StatefulSets(ns).Get(context.TODO(), name, metav1.GetOptions{})
