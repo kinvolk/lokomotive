@@ -15,11 +15,11 @@
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
 )
 
 var confirm bool
@@ -43,63 +43,14 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	options := clusterDestroyOptions{
-		confirm:    confirm,
-		verbose:    verbose,
-		configPath: viper.GetString("lokocfg"),
-		valuesPath: viper.GetString("lokocfg-vars"),
+	options := cluster.DestroyOptions{
+		Confirm:    confirm,
+		Verbose:    verbose,
+		ConfigPath: viper.GetString("lokocfg"),
+		ValuesPath: viper.GetString("lokocfg-vars"),
 	}
 
-	if err := clusterDestroy(contextLogger, options); err != nil {
+	if err := cluster.Destroy(contextLogger, options); err != nil {
 		contextLogger.Fatalf("Destroying cluster: %v", err)
 	}
-}
-
-type clusterDestroyOptions struct {
-	confirm    bool
-	verbose    bool
-	configPath string
-	valuesPath string
-}
-
-func clusterDestroy(contextLogger *log.Entry, options clusterDestroyOptions) error {
-	cc := clusterConfig{
-		verbose:    options.verbose,
-		configPath: options.configPath,
-		valuesPath: options.valuesPath,
-	}
-
-	c, err := cc.initialize(contextLogger)
-	if err != nil {
-		return fmt.Errorf("initializing: %w", err)
-	}
-
-	exists, err := clusterExists(c.terraformExecutor)
-	if err != nil {
-		return fmt.Errorf("checking if cluster exists: %w", err)
-	}
-
-	if !exists {
-		contextLogger.Println("Cluster already destroyed, nothing to do")
-
-		return nil
-	}
-
-	if !options.confirm {
-		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
-		if !confirmation {
-			contextLogger.Println("Cluster destroy canceled")
-
-			return nil
-		}
-	}
-
-	if err := c.platform.Destroy(&c.terraformExecutor); err != nil {
-		return fmt.Errorf("destroying cluster: %v", err)
-	}
-
-	contextLogger.Println("Cluster destroyed successfully")
-	contextLogger.Println("You can safely remove the assets directory now")
-
-	return nil
 }

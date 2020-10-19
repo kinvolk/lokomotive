@@ -15,14 +15,11 @@
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
 )
 
 var componentRenderCmd = &cobra.Command{
@@ -41,69 +38,12 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	options := componentRenderManifestOptions{
-		configPath: viper.GetString("lokocfg"),
-		valuesPath: viper.GetString("lokocfg-vars"),
+	options := cluster.ComponentRenderManifestOptions{
+		ConfigPath: viper.GetString("lokocfg"),
+		ValuesPath: viper.GetString("lokocfg-vars"),
 	}
 
-	if err := componentRenderManifest(contextLogger, args, options); err != nil {
+	if err := cluster.ComponentRenderManifest(contextLogger, args, options); err != nil {
 		contextLogger.Fatalf("Rendering component manifests failed: %v", err)
 	}
-}
-
-type componentRenderManifestOptions struct {
-	configPath string
-	valuesPath string
-}
-
-func componentRenderManifest(contextLogger *log.Entry, componentsList []string, options componentRenderManifestOptions) error {
-	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-
-		return diags
-	}
-
-	componentsToRender := selectComponentNames(componentsList, *lokoConfig.RootConfig)
-
-	if err := renderComponentManifests(lokoConfig, componentsToRender); err != nil {
-		return fmt.Errorf("rendering component manifests: %w", err)
-	}
-
-	return nil
-}
-
-func renderComponentManifests(lokoConfig *config.Config, componentNames []string) error {
-	for _, componentName := range componentNames {
-		contextLogger := log.WithFields(log.Fields{
-			"component": componentName,
-		})
-
-		component, err := components.Get(componentName)
-		if err != nil {
-			return fmt.Errorf("getting component %q: %w", componentName, err)
-		}
-
-		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
-
-		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
-			for _, diagnostic := range diags {
-				contextLogger.Error(diagnostic.Error())
-			}
-			return diags
-		}
-
-		manifests, err := component.RenderManifests()
-		if err != nil {
-			return fmt.Errorf("rendering manifest of component %q: %w", componentName, err)
-		}
-
-		fmt.Printf("# manifests for component %s\n", componentName)
-		for filename, manifest := range manifests {
-			fmt.Printf("\n---\n# %s\n%s", filename, manifest)
-		}
-	}
-	return nil
 }

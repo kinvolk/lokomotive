@@ -15,16 +15,12 @@
 package cmd
 
 import (
-	"fmt"
-	"strings"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 var componentDeleteCmd = &cobra.Command{
@@ -64,116 +60,15 @@ func runDelete(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	options := componentDeleteOptions{
-		confirm:         confirm,
-		deleteNamespace: deleteNamespace,
-		kubeconfigPath:  kubeconfigFlag,
-		configPath:      viper.GetString("lokocfg"),
-		valuesPath:      viper.GetString("lokocfg-vars"),
+	options := cluster.ComponentDeleteOptions{
+		Confirm:         confirm,
+		DeleteNamespace: deleteNamespace,
+		KubeconfigPath:  kubeconfigFlag,
+		ConfigPath:      viper.GetString("lokocfg"),
+		ValuesPath:      viper.GetString("lokocfg-vars"),
 	}
 
-	if err := componentDelete(contextLogger, args, options); err != nil {
+	if err := cluster.ComponentDelete(contextLogger, args, options); err != nil {
 		contextLogger.Fatalf("Deleting components failed: %v", err)
 	}
-}
-
-type componentDeleteOptions struct {
-	confirm         bool
-	deleteNamespace bool
-	kubeconfigPath  string
-	configPath      string
-	valuesPath      string
-}
-
-// componentDelete implements 'lokoctl component delete' separated from CLI
-// dependencies.
-func componentDelete(contextLogger *log.Entry, componentsList []string, options componentDeleteOptions) error {
-	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
-	if diags.HasErrors() {
-		return diags
-	}
-
-	componentsToDelete := selectComponentNames(componentsList, *lokoConfig.RootConfig)
-
-	componentObjects, err := componentNamesToObjects(componentsToDelete)
-	if err != nil {
-		return fmt.Errorf("getting component objects: %v", err)
-	}
-
-	confirmationMessage := fmt.Sprintf(
-		"The following components will be deleted:\n\t%s\n\nAre you sure you want to proceed?",
-		strings.Join(componentsToDelete, "\n\t"),
-	)
-
-	if !options.confirm && !askForConfirmation(confirmationMessage) {
-		contextLogger.Info("Components deletion cancelled.")
-
-		return nil
-	}
-
-	kg := kubeconfigGetter{
-		platformRequired: false,
-		path:             options.kubeconfigPath,
-	}
-
-	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
-	if err != nil {
-		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-
-		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
-	}
-
-	if err := deleteComponents(kubeconfig, componentObjects, options.deleteNamespace); err != nil {
-		return fmt.Errorf("deleting components: %w", err)
-	}
-
-	return nil
-}
-
-// selectComponentNames returns list of components to operate on. If explicit list is empty,
-// it returns components defined in the configuration.
-func selectComponentNames(list []string, lokomotiveConfig config.RootConfig) []string {
-	if len(list) != 0 {
-		return list
-	}
-
-	for _, component := range lokomotiveConfig.Components {
-		list = append(list, component.Name)
-	}
-
-	return list
-}
-
-// componentNamesToObjects converts list of component names to list of component objects.
-// If some component does not exist, error is returned.
-func componentNamesToObjects(componentNames []string) ([]components.Component, error) {
-	c := []components.Component{}
-
-	for _, componentName := range componentNames {
-		component, err := components.Get(componentName)
-		if err != nil {
-			return nil, fmt.Errorf("getting component %q: %w", componentName, err)
-		}
-
-		c = append(c, component)
-	}
-
-	return c, nil
-}
-
-func deleteComponents(kubeconfig []byte, componentObjects []components.Component, deleteNamespace bool) error {
-	for _, compObj := range componentObjects {
-		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
-
-		if err := util.UninstallComponent(compObj, kubeconfig, deleteNamespace); err != nil {
-			return fmt.Errorf("uninstalling component %q: %w", compObj.Metadata().Name, err)
-		}
-
-		fmt.Printf("Successfully deleted component %q!\n", compObj.Metadata().Name)
-	}
-
-	// Add a line to distinguish between info logs and errors, if any.
-	fmt.Println()
-
-	return nil
 }

@@ -15,15 +15,12 @@
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/components/util"
-	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 var componentApplyCmd = &cobra.Command{
@@ -62,75 +59,13 @@ func runApply(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	options := componentApplyOptions{
-		kubeconfigPath: kubeconfigFlag,
-		configPath:     viper.GetString("lokocfg"),
-		valuesPath:     viper.GetString("lokocfg-vars"),
+	options := cluster.ComponentApplyOptions{
+		KubeconfigPath: kubeconfigFlag,
+		ConfigPath:     viper.GetString("lokocfg"),
+		ValuesPath:     viper.GetString("lokocfg-vars"),
 	}
 
-	if err := componentApply(contextLogger, args, options); err != nil {
+	if err := cluster.ComponentApply(contextLogger, args, options); err != nil {
 		contextLogger.Fatalf("Applying components failed: %v", err)
 	}
-}
-
-type componentApplyOptions struct {
-	kubeconfigPath string
-	configPath     string
-	valuesPath     string
-}
-
-// componentApply implements 'lokoctl component apply' separated from CLI
-// dependencies.
-func componentApply(contextLogger *log.Entry, componentsList []string, options componentApplyOptions) error {
-	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
-	if diags.HasErrors() {
-		return diags
-	}
-
-	componentObjects, err := componentNamesToObjects(selectComponentNames(componentsList, *lokoConfig.RootConfig))
-	if err != nil {
-		return fmt.Errorf("getting component objects: %w", err)
-	}
-
-	kg := kubeconfigGetter{
-		platformRequired: false,
-		path:             options.kubeconfigPath,
-	}
-
-	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
-	if err != nil {
-		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-
-		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
-	}
-
-	if err := applyComponents(lokoConfig, kubeconfig, componentObjects); err != nil {
-		return fmt.Errorf("applying components: %w", err)
-	}
-
-	return nil
-}
-
-// applyComponents reads the configuration of given components and applies them to the cluster pointer
-// by given kubeconfig file content.
-func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentObjects []components.Component) error {
-	for _, component := range componentObjects {
-		componentName := component.Metadata().Name
-		fmt.Printf("Applying component '%s'...\n", componentName)
-
-		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
-
-		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
-			fmt.Printf("%v\n", diags)
-			return diags
-		}
-
-		if err := util.InstallComponent(component, kubeconfig); err != nil {
-			return fmt.Errorf("installing component %q: %w", componentName, err)
-		}
-
-		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
-	}
-
-	return nil
 }
