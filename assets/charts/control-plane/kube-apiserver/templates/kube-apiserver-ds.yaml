@@ -1,4 +1,4 @@
-{{- if gt (int .Values.apiserver.replicas) 1 }}
+{{- if gt (int .Values.apiserver.replicas) 2 }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

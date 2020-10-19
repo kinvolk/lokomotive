@@ -1,4 +1,4 @@
-{{- if gt (int .Values.controllerManager.controlPlaneReplicas) 1 }}
+{{- if gt (int .Values.controllerManager.controlPlaneReplicas) 2 }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

@@ -1,4 +1,4 @@
-{{- if eq (int .Values.kubeScheduler.controlPlaneReplicas) 1 }}
+{{- if le (int .Values.kubeScheduler.controlPlaneReplicas) 2 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +8,7 @@ metadata:
     tier: control-plane
     k8s-app: kube-scheduler
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       tier: control-plane

@@ -1,4 +1,4 @@
-{{- if eq (int .Values.apiserver.replicas) 1 }}
+{{- if le (int .Values.apiserver.replicas) 2 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
