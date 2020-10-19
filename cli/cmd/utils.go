@@ -187,7 +187,10 @@ func readKubeconfigFromTerraformState(contextLogger *log.Entry) ([]byte, error) 
 	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
 		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
 
-	c, err := initialize(contextLogger)
+	// TODO: Add Terraform verbose support back.
+	cc := clusterConfig{}
+
+	c, err := cc.initialize(contextLogger)
 	if err != nil {
 		return nil, fmt.Errorf("initializing: %w", err)
 	}

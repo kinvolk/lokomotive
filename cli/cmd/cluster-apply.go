@@ -61,6 +61,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		confirm:         confirm,
 		upgradeKubelets: upgradeKubelets,
 		skipComponents:  skipComponents,
+		verbose:         verbose,
 	}
 
 	if err := clusterApply(contextLogger, options); err != nil {
@@ -72,11 +73,16 @@ type clusterApplyOptions struct {
 	confirm         bool
 	upgradeKubelets bool
 	skipComponents  bool
+	verbose         bool
 }
 
 //nolint:funlen
 func clusterApply(contextLogger *log.Entry, options clusterApplyOptions) error {
-	c, err := initialize(contextLogger)
+	cc := clusterConfig{
+		verbose: options.verbose,
+	}
+
+	c, err := cc.initialize(contextLogger)
 	if err != nil {
 		return fmt.Errorf("initializing: %w", err)
 	}

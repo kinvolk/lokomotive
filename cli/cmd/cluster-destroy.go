@@ -44,6 +44,7 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 
 	options := clusterDestroyOptions{
 		confirm: confirm,
+		verbose: verbose,
 	}
 
 	if err := clusterDestroy(contextLogger, options); err != nil {
@@ -53,10 +54,15 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 
 type clusterDestroyOptions struct {
 	confirm bool
+	verbose bool
 }
 
 func clusterDestroy(contextLogger *log.Entry, options clusterDestroyOptions) error {
-	c, err := initialize(contextLogger)
+	cc := clusterConfig{
+		verbose: options.verbose,
+	}
+
+	c, err := cc.initialize(contextLogger)
 	if err != nil {
 		return fmt.Errorf("initializing: %w", err)
 	}

@@ -50,9 +50,13 @@ type cluster struct {
 	assetDir          string
 }
 
+type clusterConfig struct {
+	verbose bool
+}
+
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
-func initialize(contextLogger *log.Entry) (*cluster, error) {
+func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		return nil, diags
@@ -92,7 +96,7 @@ func initialize(contextLogger *log.Entry) (*cluster, error) {
 		return nil, fmt.Errorf("validating backend configuration: %v", err)
 	}
 
-	ex, err := initializeTerraform(p, b)
+	ex, err := cc.initializeTerraform(p, b)
 	if err != nil {
 		return nil, fmt.Errorf("initializing Terraform: %w", err)
 	}
@@ -107,7 +111,7 @@ func initialize(contextLogger *log.Entry) (*cluster, error) {
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
+func (cc clusterConfig) initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		return nil, fmt.Errorf("expanding path %q: %w", p.Meta().AssetDir, err)
@@ -126,7 +130,7 @@ func initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Exe
 
 	conf := terraform.Config{
 		WorkingDir: terraform.GetTerraformRootDir(assetDir),
-		Verbose:    verbose,
+		Verbose:    cc.verbose,
 	}
 
 	ex, err := terraform.NewExecutor(conf)
