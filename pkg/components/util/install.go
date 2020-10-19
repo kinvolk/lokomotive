@@ -184,7 +184,7 @@ func UninstallComponent(c components.Component, kubeconfig []byte, deleteNSBool 
 
 	cfg, err := HelmActionConfig(ns, kubeconfig)
 	if err != nil {
-		return fmt.Errorf("failed preparing helm client: %w", err)
+		return fmt.Errorf("preparing Helm client: %w", err)
 	}
 
 	history := action.NewHistory(cfg)
