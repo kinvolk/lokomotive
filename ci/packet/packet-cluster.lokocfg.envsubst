@@ -216,4 +216,9 @@ component "web-ui" {
     host                       = "web-ui.$CLUSTER_ID.$AWS_DNS_ZONE"
     certmanager_cluster_issuer = "letsencrypt-staging"
   }
+  oidc {
+    client_id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+    client_secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
+    issuer_url    = "$ISSUER_HOST"
+  }
 }
