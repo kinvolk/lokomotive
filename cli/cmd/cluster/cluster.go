@@ -37,7 +37,6 @@ import (
 	_ "github.com/kinvolk/lokomotive/pkg/platform/packet"
 
 	// Register backends by adding an anonymous import.
-	_ "github.com/kinvolk/lokomotive/pkg/backend/local"
 	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
 )
 
