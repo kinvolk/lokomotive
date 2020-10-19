@@ -51,13 +51,15 @@ type cluster struct {
 }
 
 type clusterConfig struct {
-	verbose bool
+	verbose    bool
+	configPath string
+	valuesPath string
 }
 
 // initialize does common initialization actions between cluster operations
 // and returns created objects to the caller for further use.
 func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
-	lokoConfig, diags := getLokoConfig()
+	lokoConfig, diags := config.LoadConfig(cc.configPath, cc.valuesPath)
 	if diags.HasErrors() {
 		return nil, diags
 	}

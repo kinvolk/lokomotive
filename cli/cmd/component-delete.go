@@ -20,6 +20,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
@@ -67,6 +68,8 @@ func runDelete(cmd *cobra.Command, args []string) {
 		confirm:         confirm,
 		deleteNamespace: deleteNamespace,
 		kubeconfigPath:  kubeconfigFlag,
+		configPath:      viper.GetString("lokocfg"),
+		valuesPath:      viper.GetString("lokocfg-vars"),
 	}
 
 	if err := componentDelete(contextLogger, args, options); err != nil {
@@ -78,12 +81,14 @@ type componentDeleteOptions struct {
 	confirm         bool
 	deleteNamespace bool
 	kubeconfigPath  string
+	configPath      string
+	valuesPath      string
 }
 
 // componentDelete implements 'lokoctl component delete' separated from CLI
 // dependencies.
 func componentDelete(contextLogger *log.Entry, componentsList []string, options componentDeleteOptions) error {
-	lokoConfig, diags := getLokoConfig()
+	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
 	if diags.HasErrors() {
 		return diags
 	}

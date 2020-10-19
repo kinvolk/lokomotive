@@ -19,6 +19,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
@@ -63,6 +64,8 @@ func runApply(cmd *cobra.Command, args []string) {
 
 	options := componentApplyOptions{
 		kubeconfigPath: kubeconfigFlag,
+		configPath:     viper.GetString("lokocfg"),
+		valuesPath:     viper.GetString("lokocfg-vars"),
 	}
 
 	if err := componentApply(contextLogger, args, options); err != nil {
@@ -72,12 +75,14 @@ func runApply(cmd *cobra.Command, args []string) {
 
 type componentApplyOptions struct {
 	kubeconfigPath string
+	configPath     string
+	valuesPath     string
 }
 
 // componentApply implements 'lokoctl component apply' separated from CLI
 // dependencies.
 func componentApply(contextLogger *log.Entry, componentsList []string, options componentApplyOptions) error {
-	lokoConfig, diags := getLokoConfig()
+	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
 	if diags.HasErrors() {
 		return diags
 	}

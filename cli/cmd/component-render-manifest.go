@@ -19,6 +19,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/config"
@@ -40,13 +41,23 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	if err := componentRenderManifest(contextLogger, args); err != nil {
+	options := componentRenderManifestOptions{
+		configPath: viper.GetString("lokocfg"),
+		valuesPath: viper.GetString("lokocfg-vars"),
+	}
+
+	if err := componentRenderManifest(contextLogger, args, options); err != nil {
 		contextLogger.Fatalf("Rendering component manifests failed: %v", err)
 	}
 }
 
-func componentRenderManifest(contextLogger *log.Entry, componentsList []string) error {
-	lokoConfig, diags := getLokoConfig()
+type componentRenderManifestOptions struct {
+	configPath string
+	valuesPath string
+}
+
+func componentRenderManifest(contextLogger *log.Entry, componentsList []string, options componentRenderManifestOptions) error {
+	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())

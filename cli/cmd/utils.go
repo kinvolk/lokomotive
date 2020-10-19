@@ -23,7 +23,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/config"
@@ -173,10 +172,6 @@ func (kg kubeconfigGetter) getKubeconfigSource(contextLogger *log.Entry, lokoCon
 
 func assetsKubeconfig(assetDir string) string {
 	return filepath.Join(assetDir, "cluster-assets", "auth", "kubeconfig")
-}
-
-func getLokoConfig() (*config.Config, hcl.Diagnostics) {
-	return config.LoadConfig(viper.GetString("lokocfg"), viper.GetString("lokocfg-vars"))
 }
 
 // readKubeconfigFromTerraformState initializes Terraform and

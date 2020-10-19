@@ -19,6 +19,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/internal"
 	"github.com/kinvolk/lokomotive/pkg/helm"
@@ -62,6 +63,8 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		upgradeKubelets: upgradeKubelets,
 		skipComponents:  skipComponents,
 		verbose:         verbose,
+		configPath:      viper.GetString("lokocfg"),
+		valuesPath:      viper.GetString("lokocfg-vars"),
 	}
 
 	if err := clusterApply(contextLogger, options); err != nil {
@@ -74,12 +77,16 @@ type clusterApplyOptions struct {
 	upgradeKubelets bool
 	skipComponents  bool
 	verbose         bool
+	configPath      string
+	valuesPath      string
 }
 
 //nolint:funlen
 func clusterApply(contextLogger *log.Entry, options clusterApplyOptions) error {
 	cc := clusterConfig{
-		verbose: options.verbose,
+		verbose:    options.verbose,
+		configPath: options.configPath,
+		valuesPath: options.valuesPath,
 	}
 
 	c, err := cc.initialize(contextLogger)

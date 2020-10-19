@@ -74,7 +74,7 @@ func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) (*log.Entry, *c
 		}
 	}
 
-	lokoConfig, diags := getLokoConfig()
+	lokoConfig, diags := config.LoadConfig(tmpDir, "")
 	if diags.HasErrors() {
 		t.Fatalf("getting lokomotive configuration: %v", err)
 	}

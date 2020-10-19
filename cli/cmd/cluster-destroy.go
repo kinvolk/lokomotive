@@ -19,6 +19,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var confirm bool
@@ -43,8 +44,10 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 	})
 
 	options := clusterDestroyOptions{
-		confirm: confirm,
-		verbose: verbose,
+		confirm:    confirm,
+		verbose:    verbose,
+		configPath: viper.GetString("lokocfg"),
+		valuesPath: viper.GetString("lokocfg-vars"),
 	}
 
 	if err := clusterDestroy(contextLogger, options); err != nil {
@@ -53,13 +56,17 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 }
 
 type clusterDestroyOptions struct {
-	confirm bool
-	verbose bool
+	confirm    bool
+	verbose    bool
+	configPath string
+	valuesPath string
 }
 
 func clusterDestroy(contextLogger *log.Entry, options clusterDestroyOptions) error {
 	cc := clusterConfig{
-		verbose: options.verbose,
+		verbose:    options.verbose,
+		configPath: options.configPath,
+		valuesPath: options.valuesPath,
 	}
 
 	c, err := cc.initialize(contextLogger)

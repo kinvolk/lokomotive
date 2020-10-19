@@ -21,7 +21,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
+	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
@@ -49,14 +51,24 @@ func runHealth(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if err := health(contextLogger); err != nil {
+	options := healthOptions{
+		configPath: viper.GetString("lokocfg"),
+		valuesPath: viper.GetString("lokocfg-vars"),
+	}
+
+	if err := health(contextLogger, options); err != nil {
 		contextLogger.Fatalf("Checking cluster health failed: %v", err)
 	}
 }
 
+type healthOptions struct {
+	configPath string
+	valuesPath string
+}
+
 //nolint:funlen
-func health(contextLogger *log.Entry) error {
-	lokoConfig, diags := getLokoConfig()
+func health(contextLogger *log.Entry, options healthOptions) error {
+	lokoConfig, diags := config.LoadConfig(options.configPath, options.valuesPath)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
