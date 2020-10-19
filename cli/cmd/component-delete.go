@@ -82,6 +82,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 
 	if !confirm && !askForConfirmation(confirmationMessage) {
 		contextLogger.Info("Components deletion cancelled.")
+
 		return
 	}
 
