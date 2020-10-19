@@ -42,12 +42,20 @@ func runClusterDestroy(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	if err := clusterDestroy(contextLogger); err != nil {
+	options := clusterDestroyOptions{
+		confirm: confirm,
+	}
+
+	if err := clusterDestroy(contextLogger, options); err != nil {
 		contextLogger.Fatalf("Destroying cluster: %v", err)
 	}
 }
 
-func clusterDestroy(contextLogger *log.Entry) error {
+type clusterDestroyOptions struct {
+	confirm bool
+}
+
+func clusterDestroy(contextLogger *log.Entry, options clusterDestroyOptions) error {
 	c, err := initialize(contextLogger)
 	if err != nil {
 		return fmt.Errorf("initializing: %w", err)
@@ -64,7 +72,7 @@ func clusterDestroy(contextLogger *log.Entry) error {
 		return nil
 	}
 
-	if !confirm {
+	if !options.confirm {
 		confirmation := askForConfirmation("WARNING: This action cannot be undone. Do you really want to destroy the cluster?")
 		if !confirmation {
 			contextLogger.Println("Cluster destroy canceled")
