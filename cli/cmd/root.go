@@ -44,13 +44,12 @@ func Execute() {
 	}
 }
 
-const (
-	kubeconfigFlag = "kubeconfig-file"
-)
+var kubeconfigFlag string
 
 func addKubeconfigFileFlag(pf *flag.FlagSet) {
-	pf.String(
-		kubeconfigFlag,
+	pf.StringVar(
+		&kubeconfigFlag,
+		"kubeconfig-file",
 		"", // Special empty default, use getKubeconfig()
 		"Path to a kubeconfig file. If empty, the following precedence order is used:\n"+
 			"  1. Cluster asset dir when a lokocfg file is present in the current directory.\n"+

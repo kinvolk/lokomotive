@@ -66,6 +66,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 	options := componentDeleteOptions{
 		confirm:         confirm,
 		deleteNamespace: deleteNamespace,
+		kubeconfigPath:  kubeconfigFlag,
 	}
 
 	if err := componentDelete(contextLogger, args, options); err != nil {
@@ -76,6 +77,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 type componentDeleteOptions struct {
 	confirm         bool
 	deleteNamespace bool
+	kubeconfigPath  string
 }
 
 // componentDelete implements 'lokoctl component delete' separated from CLI
@@ -106,6 +108,7 @@ func componentDelete(contextLogger *log.Entry, componentsList []string, options 
 
 	kg := kubeconfigGetter{
 		platformRequired: false,
+		path:             options.kubeconfigPath,
 	}
 
 	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)

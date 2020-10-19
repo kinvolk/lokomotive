@@ -85,6 +85,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 
 type kubeconfigGetter struct {
 	platformRequired bool
+	path             string
 }
 
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
@@ -141,15 +142,8 @@ func (kg kubeconfigGetter) getKubeconfigSource(contextLogger *log.Entry, lokoCon
 		return nil, fmt.Errorf("loading cluster configuration")
 	}
 
-	for _, k := range viper.AllKeys() {
-		if k != kubeconfigFlag {
-			continue
-		}
-
-		// Viper takes precedence over all other options.
-		if path := viper.GetString(kubeconfigFlag); path != "" {
-			return []string{path}, nil
-		}
+	if kg.path != "" {
+		return []string{kg.path}, nil
 	}
 
 	// If platform is not configured and not required, fallback to global kubeconfig files.

@@ -23,13 +23,11 @@ import (
 	"testing"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 type kubeconfigSources struct {
-	flag       string
 	env        string
 	configFile string
 }
@@ -39,9 +37,6 @@ const (
 )
 
 func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) (*log.Entry, *config.Config) {
-	// Ensure viper flag is NOT empty.
-	viper.Set(kubeconfigFlag, k.flag)
-
 	if k.env == "" {
 		// Ensure KUBECONFIG is not set.
 		if err := os.Unsetenv(kubeconfigEnvVariable); err != nil {
@@ -112,14 +107,14 @@ func TestGetKubeconfigBadConfig(t *testing.T) {
 
 func TestGetKubeconfigNoConfigButRequired(t *testing.T) {
 	k := &kubeconfigSources{
-		env:  "/foo",
-		flag: "/bar",
+		env: "/foo",
 	}
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
 	kg := kubeconfigGetter{
 		platformRequired: true,
+		path:             "/bar",
 	}
 
 	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
@@ -192,14 +187,14 @@ func TestGetKubeconfigSourceFlag(t *testing.T) {
     count = 0
   }
 }`,
-		flag: expectedPath[0],
-		env:  "/badpath",
+		env: "/badpath",
 	}
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
 	kg := kubeconfigGetter{
 		platformRequired: true,
+		path:             expectedPath[0],
 	}
 
 	kubeconfig, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
