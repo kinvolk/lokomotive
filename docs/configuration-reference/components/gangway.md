@@ -52,8 +52,8 @@ component "gangway" {
   token_url = "https://dex.example.lokomotive-k8s.org/token"
 
   # The static client id and secret
-  client_id     = var.dex_static_client_gangway_id
-  client_secret = var.dex_static_client_gangway_secret
+  client_id     = var.dex_static_client_clusterauth_id
+  client_secret = var.dex_static_client_clusterauth_secret
 
   # gangway's redirect URL, i.e. where the OIDC endpoint should callback to
   redirect_url = var.gangway_redirect_url
@@ -67,8 +67,8 @@ gangway_redirect_url         = "https://gangway.example.lokomotive-k8s.org/callb
 
 # A random secret key (create one with `openssl rand -base64 32`)
 gangway_session_key              = "5Rsz5C4qRqYFoAfYcXOedQOyQpHTXyLiWFYvtjwjtm0="
-dex_static_client_gangway_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
-dex_static_client_gangway_id     = "gangway"
+dex_static_client_clusterauth_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
+dex_static_client_clusterauth_id     = "clusterauth"
 ```
 ## Attribute reference
 

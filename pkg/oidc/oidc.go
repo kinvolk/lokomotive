@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	defaultClientID      = "gangway"
+	defaultClientID      = "clusterauth"
 	defaultUsernameClaim = "email"
 	defaultGroupsClaim   = "groups"
 )

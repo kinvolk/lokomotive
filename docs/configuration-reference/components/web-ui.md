@@ -52,7 +52,7 @@ Secrets can be defined in another file (`lokocfg.vars`) like following:
 ```tf
 # A random secret key (create one with `openssl rand -base64 32`)
 dex_static_client_clusterauth_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
-dex_static_client_clusterauth_id     = "cluster-auth"
+dex_static_client_clusterauth_id     = "clusterauth"
 ```
 
 ### OIDC
