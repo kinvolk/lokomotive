@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
-	"github.com/kinvolk/lokomotive/pkg/components"
 )
 
 var componentDeleteCmd = &cobra.Command{
@@ -34,7 +33,7 @@ When run with no arguments, all components listed in the configuration are delet
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		return components.ListNames(), cobra.ShellCompDirectiveNoFileComp
+		return cluster.AvailableComponents(), cobra.ShellCompDirectiveNoFileComp
 	},
 }
 

@@ -12,24 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package cluster
 
 import (
-	"fmt"
-
-	"github.com/spf13/cobra"
-
-	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
-func init() {
-	RootCmd.AddCommand(versionCmd)
-}
-
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print version information",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cluster.Version())
-	},
+// Version returns current Lokomotive version.
+func Version() string {
+	return version.Version
 }

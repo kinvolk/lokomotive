@@ -21,7 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
 )
 
 var listCmd = &cobra.Command{
@@ -44,7 +44,7 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println("Available components:")
-	comps := components.ListNames()
+	comps := cluster.AvailableComponents()
 	sort.Strings(comps)
 	for _, name := range comps {
 		fmt.Println("\t", name)
