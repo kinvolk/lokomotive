@@ -46,7 +46,7 @@ Table of all the arguments accepted by the component.
 Example:
 
 | Argument                             | Description                                                                                                                                   | Default                  | Type   | Required |
-|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|--:-:---------------------|--:-:---|--:-:-----|
+|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|--------|----------|
 | `namespace`                          | Namespace where Headlamp will be installed.                                                                                                   | "lokomotive-system"      | string | false    |
 | `ingress`                            | Configuration block for exposing Headlamp through an Ingress resource.                                                                        | -                        | block  | false    |
 | `ingress.host`                       | Used as the `hosts` domain in the Ingress resource for headlamp that is automatically created.                                                | -                        | string | true     |
