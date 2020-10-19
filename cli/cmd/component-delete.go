@@ -104,7 +104,11 @@ func componentDelete(contextLogger *log.Entry, componentsList []string, options 
 		return nil
 	}
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
 

@@ -111,7 +111,11 @@ func clusterApply(contextLogger *log.Entry, options clusterApplyOptions) error {
 
 	fmt.Printf("\nYour configurations are stored in %s\n", c.assetDir)
 
-	kubeconfig, err := getKubeconfig(contextLogger, c.lokomotiveConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, c.lokomotiveConfig)
 	if err != nil {
 		return fmt.Errorf("getting kubeconfig: %v", err)
 	}

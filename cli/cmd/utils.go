@@ -83,11 +83,15 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
 }
 
+type kubeconfigGetter struct {
+	platformRequired bool
+}
+
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
 //
 // If platform is required and user do not have it configured, an error is returned.
-func getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config, platformRequired bool) ([]byte, error) {
-	sources, err := getKubeconfigSource(contextLogger, lokoConfig, platformRequired)
+func (kg kubeconfigGetter) getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config) ([]byte, error) {
+	sources, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err != nil {
 		return nil, fmt.Errorf("selecting kubeconfig source: %w", err)
 	}
@@ -126,9 +130,9 @@ func getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config, platform
 //
 // - kubeconfig from ~/.kube/config file.
 //
-func getKubeconfigSource(contextLogger *log.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
+func (kg kubeconfigGetter) getKubeconfigSource(contextLogger *log.Entry, lokoConfig *config.Config) ([]string, error) { //nolint:lll
 	// Always try reading platform configuration.
-	p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
+	p, diags := getConfiguredPlatform(lokoConfig, kg.platformRequired)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())

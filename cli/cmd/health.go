@@ -65,7 +65,11 @@ func health(contextLogger *log.Entry) error {
 		return diags
 	}
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
 
