@@ -26,6 +26,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
+// ApplyOptions defines how cluster apply operation will behave.
 type ApplyOptions struct {
 	Confirm         bool
 	UpgradeKubelets bool
@@ -35,6 +36,8 @@ type ApplyOptions struct {
 	ValuesPath      string
 }
 
+// Apply applies cluster configuration together with components.
+//
 //nolint:funlen
 func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 	cc := clusterConfig{

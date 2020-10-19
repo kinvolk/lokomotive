@@ -25,6 +25,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
+// ComponentDeleteOptions controls ComponentDelete() behavior.
 type ComponentDeleteOptions struct {
 	Confirm         bool
 	DeleteNamespace bool
@@ -33,7 +34,7 @@ type ComponentDeleteOptions struct {
 	ValuesPath      string
 }
 
-// ComponentApply implements 'lokoctl component delete' separated from CLI
+// ComponentDelete implements 'lokoctl component delete' separated from CLI
 // dependencies.
 func ComponentDelete(contextLogger *log.Entry, componentsList []string, options ComponentDeleteOptions) error {
 	lokoConfig, diags := config.LoadConfig(options.ConfigPath, options.ValuesPath)

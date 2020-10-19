@@ -24,6 +24,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
+// ComponentApplyOptions controls ComponentApply() behavior.
 type ComponentApplyOptions struct {
 	KubeconfigPath string
 	ConfigPath     string
@@ -73,6 +74,7 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentObje
 
 		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
 			fmt.Printf("%v\n", diags)
+
 			return diags
 		}
 

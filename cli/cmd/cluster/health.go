@@ -26,11 +26,14 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 )
 
+// HealthOptions controls Health() behavior.
 type HealthOptions struct {
 	ConfigPath string
 	ValuesPath string
 }
 
+// Health prints cluster health status.
+//
 //nolint:funlen
 func Health(contextLogger *log.Entry, options HealthOptions) error {
 	lokoConfig, diags := config.LoadConfig(options.ConfigPath, options.ValuesPath)
@@ -88,7 +91,6 @@ func Health(contextLogger *log.Entry, options HealthOptions) error {
 	fmt.Fprintln(w, "\t\t\t\t")
 
 	for _, component := range components {
-
 		// The client-go library defines only one `ComponenetConditionType` at the moment,
 		// which is `ComponentHealthy`. However, iterating over the list keeps this from
 		// breaking in case client-go adds another `ComponentConditionType`.
@@ -101,7 +103,9 @@ func Health(contextLogger *log.Entry, options HealthOptions) error {
 			fmt.Fprintln(w, line)
 		}
 
-		w.Flush()
+		if err := w.Flush(); err != nil {
+			return fmt.Errorf("flushing output: %w", err)
+		}
 	}
 
 	return nil

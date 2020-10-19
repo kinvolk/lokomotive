@@ -44,6 +44,7 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println("Available components:")
+
 	comps := cluster.AvailableComponents()
 	sort.Strings(comps)
 	for _, name := range comps {

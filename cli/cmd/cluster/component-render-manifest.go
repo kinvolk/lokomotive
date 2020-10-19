@@ -23,11 +23,15 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
+// ComponentRenderManifestOptions controls ComponentRenderManifest() behavior.
 type ComponentRenderManifestOptions struct {
 	ConfigPath string
 	ValuesPath string
 }
 
+// ComponentRenderManifest prints selected components manifests.
+//
+//nolint:lll
 func ComponentRenderManifest(contextLogger *log.Entry, componentsList []string, options ComponentRenderManifestOptions) error {
 	lokoConfig, diags := config.LoadConfig(options.ConfigPath, options.ValuesPath)
 	if diags.HasErrors() {
@@ -64,6 +68,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames []string
 			for _, diagnostic := range diags {
 				contextLogger.Error(diagnostic.Error())
 			}
+
 			return diags
 		}
 
@@ -73,9 +78,11 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames []string
 		}
 
 		fmt.Printf("# manifests for component %s\n", componentName)
+
 		for filename, manifest := range manifests {
 			fmt.Printf("\n---\n# %s\n%s", filename, manifest)
 		}
 	}
+
 	return nil
 }
