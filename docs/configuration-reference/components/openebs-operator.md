@@ -37,7 +37,7 @@ To only use a subset of worker nodes for OpenEBS storage, you must manually labe
 configuring the OpenEBS operator component.
 
 Refer to the Kubernetes documentation on [adding labels to a
-node]https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/#add-a-label-to-a-node).
+node](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/#add-a-label-to-a-node).
 
 OpenEBS operator component configuration example:
 
