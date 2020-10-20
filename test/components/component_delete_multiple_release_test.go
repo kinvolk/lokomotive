@@ -21,13 +21,13 @@ import (
 	"testing"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
-	_ "github.com/kinvolk/lokomotive/pkg/components/headlamp"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	_ "github.com/kinvolk/lokomotive/pkg/components/web-ui"
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 func TestDeleteNamespaceMultipleRelease(t *testing.T) {
-	n := "headlamp"
+	n := "web-ui"
 
 	c, err := components.Get(n)
 	if err != nil {
