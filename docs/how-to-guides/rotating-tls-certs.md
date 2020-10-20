@@ -158,6 +158,13 @@ openssl req -newkey rsa:2048 -nodes \
 
 ### Update kube-controller-manager secret
 
+One of the things kube-controller-manager does is reconcile k8s secrets. Updating the
+kube-controller-manager secret affects the CA kube-controller-manager stores in SA token secrets.
+Any pod which talks to kube-apiserver ensures that the server certificate kube-apiserver presents
+is signed by this CA and refuses to trust kube-apiserver otherwise.
+
+**This includes the secret which kube-controller-manager itself uses to talk to kube-apiserver!**
+
 ```
 kubectl -n kube-system get secrets kube-controller-manager -ojson \
     | jq -r --arg key "$(cat ca.key | base64 -w0)" '.data["ca.key"]=$key' | kubectl apply -f -
@@ -179,6 +186,8 @@ kubectl -n kube-system delete pods kube-controller-manager-5f6bc6b89b-xxxxx
 kubectl -n kube-system delete pods kube-controller-manager-5f6bc6b89b-yyyyy
 ```
 
+TODO: kube-controller-manager stops trusting kube-apiserver here because 
+
 TODO
 
 ### Update existing SA tokens
@@ -191,6 +200,8 @@ for namespace in $(kubectl get ns --no-headers | awk '{print $1}'); do
         kubectl apply -f -
     done
 done
+
+# TODO: At this point any pod that gets deleted and re-created doesn't trust kube-apiserver anymore.
 
 # Verify all tokens have the new certificate
 for namespace in $(kubectl get ns --no-headers | awk '{print $1}'); do
@@ -223,15 +234,74 @@ sed -i "s/\(client-key-data: \).*/\1$(cat admin.key | base64 -w0)/" \
     ../assets/cluster-assets/auth/kubeconfig
 ```
 
-### Copy CA self-signed certificate to all node
+### Copy CA self-signed certificate to all nodes
 
 ```
 nodes=( $(kubectl get nodes -ojsonpath='{$.items[*].metadata.labels.lokomotive\.alpha\.kinvolk\.io/public-ipv4}'; echo) )
 for n in "${nodes[@]}"; do
   scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet \
-      combined.crt core@${n}:/tmp/combined.crt \
+      ca.crt core@${n}:/tmp/ca.crt \
       && ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet \
-        core@${n} 'sudo mv /tmp/combined.crt /etc/kubernetes/ca.crt;
+        core@${n} 'sudo mv /tmp/ca.crt /etc/kubernetes/ca.crt;
             sudo chown root:root /etc/kubernetes/ca.crt'
 done
+```
+
+## Recipe
+
+```
+# Update kube-controller-manager CA cert and key.
+kubectl -n kube-system get secrets kube-controller-manager -ojson \
+    | jq -r --arg key "$(cat ca.key | base64 -w0)" '.data["ca.key"]=$key' | kubectl apply -f -
+kubectl -n kube-system get secrets kube-controller-manager -ojson \
+    | jq -r --arg cert "$(cat ca.crt | base64 -w0)" '.data["ca.crt"]=$cert' | kubectl apply -f -
+
+# Kill kube-controller-manager pods one by one. The new pods may crashloop until we update
+# kube-apiserver - this is expected.
+# Killing the leader pod triggers a secret reconciliation. Any pod created *after* that no longer
+# trusts the kube-apiserver server cert.
+
+# Update kubeconfig with both old and new CAs so that we don't lose access to kube-apiserver during
+# the process.
+sed -i "s/\(certificate-authority-data: \).*/\1$(cat combined.crt | base64 -w0)/" \
+    ../assets/cluster-assets/auth/kubeconfig
+
+# Update kube-apiserver server cert.
+kubectl -n kube-system get secrets kube-apiserver -ojson \
+    | jq -r --arg cert "$(cat apiserver.crt | base64 -w0)" '.data["apiserver.crt"]=$cert' | kubectl apply -f -
+kubectl -n kube-system get secrets kube-apiserver -ojson \
+    | jq -r --arg key "$(cat apiserver.key | base64 -w0)" '.data["apiserver.key"]=$key' | kubectl apply -f -
+
+# Update the CA kube-apiserver trusts when verifying client certificates.
+# TODO: Can we use combined.crt here? This could help maintain working kubelets.
+# TODO: Maybe if we update this and restart kubelet we don't have to SCP the CA cert to the nodes.
+kubectl -n kube-system get secrets kube-apiserver -ojson \
+    | jq -r --arg cert "$(cat ca.crt | base64 -w0)" '.data["ca.crt"]=$cert' | kubectl apply -f -
+
+# kube-apiserver stops trusting kubectl after a while. Update kubeconfig with new client cert.
+sed -i "s/\(client-certificate-data: \).*/\1$(cat admin.crt | base64 -w0)/" \
+    ../assets/cluster-assets/auth/kubeconfig
+sed -i "s/\(client-key-data: \).*/\1$(cat admin.key | base64 -w0)/" \
+    ../assets/cluster-assets/auth/kubeconfig
+
+# Verify kube-controller-manager pods become ready again after a while.
+# kubelets stop trusting kube-apiserver and no longer update containers.
+# Cannot use `kubectl logs/exec` until we update kubelets.
+
+# Update CA kubelets use to trust kube-apiserver.
+nodes=( $(kubectl get nodes -ojsonpath='{$.items[*].metadata.labels.lokomotive\.alpha\.kinvolk\.io/public-ipv4}'; echo) )
+for n in "${nodes[@]}"; do
+  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet \
+      ca.crt core@${n}:/tmp/ca.crt \
+      && ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet \
+        core@${n} 'sudo mv /tmp/ca.crt /etc/kubernetes/ca.crt;
+            sudo chown root:root /etc/kubernetes/ca.crt'
+done
+
+# TODO: Updating the CA over SSH doesn't make self-hosted kubelets pick up the change. Killing the
+# kubelet pod using `docker stop` makes native kubelet take over, but native kubelet doesn't trust
+# kube-apiserver either. Restarting native kubelet **overwrites /etc/kubernetes/ca.crt**!
+# May be relevant: https://github.com/kubernetes/kubernetes/pull/90360
+# Need to update ca.crt on kube-apiserver and restart kube-apiserver. Need a functional kubelet for
+# this.
 ```
