@@ -34,7 +34,7 @@ build: update-assets build-slim
 .PHONY: build-in-docker
 build-in-docker:
 	# increase ulimit to workaround https://github.com/golang/go/issues/37436
-	docker run --ulimit memlock=1024000 --rm -ti -v $(shell pwd):/usr/src/lokomotive -w /usr/src/lokomotive golang:1.14 sh -c "make"
+	docker run --ulimit memlock=1024000 --rm -ti -v $(shell pwd):/usr/src/lokomotive -w /usr/src/lokomotive golang:1.15.3 sh -c "make"
 
 .PHONY: build-test
 build-test:
