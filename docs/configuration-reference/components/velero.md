@@ -60,20 +60,20 @@ component "velero" {
 
   # openebs {
   #   credentials = file("cloud-credentails-file")
-  #		provider		= "aws"
-	#
+  #   provider		= "aws"
+  #
   #   backup_storage_location {
   #     provider = "aws"
   #     region 	 = "my-region"
   #     bucket 	 = "my-bucket"
-  #			name     = "my-backup-location"
+  #     name     = "my-backup-location"
   #   }
   #
   #   volume_snapshot_location {
-  #			bucket 	 = "my-bucket"
-  #			region 	 = "my-region"
-  #			provider = "aws"
-  #			name 		 = "my-snapshot-location"
+  #     bucket   = "my-bucket"
+  #     region   = "my-region"
+  #     provider = "aws"
+  #     name     = "my-snapshot-location"
   #     prefix   = "backup-prefix"
   #     local    = false
   #
@@ -89,6 +89,7 @@ component "velero" {
   #   backup_storage_location {
   #     provider = "aws"
   #     bucket   = "my-bucket"
+  #     region   = "eu-west-1"
   #     name     = "my-backup-location"
   #   }
   # }
@@ -150,7 +151,7 @@ Example:
 | `restic.backup_storage_location.provider`            | Cloud provider name for storing backups.                                                                                    | -                                                 | string | false    |
 | `restic.backup_storage_location.bucket`              | Cloud storage bucket name for storing backups.                                                                              | -                                                 | string | true     |
 | `restic.backup_storage_location.name`                | Name for backup location object on the cluster.                                                                             | -                                                 | string | false    |
-| `restic.backup_storage_location.region`              | Cloud provider region for storing snapshots.                                                                                | `eu-west-1`                                       | string | false    |
+| `restic.backup_storage_location.region`              | Cloud provider region for storing snapshots.                                                                                | `eu-west-1`                                       | string | true     |
 
 ## Applying
 
