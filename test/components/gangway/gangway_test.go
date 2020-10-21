@@ -18,7 +18,10 @@
 package gangway
 
 import (
+	"context"
 	"testing"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
@@ -34,4 +37,25 @@ func TestGangwayDeployment(t *testing.T) {
 
 		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
+}
+
+func TestGangwayServiceAccount(t *testing.T) {
+	namespace := "gangway"
+	deployment := "gangway"
+	expectedServiceAccountName := "gangway"
+
+	client := testutil.CreateKubeClient(t)
+
+	testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
+
+	deploy, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), deployment, metav1.GetOptions{})
+	if err != nil {
+		t.Fatalf("Couldn't find gangway deployment")
+	}
+
+	if deploy.Spec.Template.Spec.ServiceAccountName != expectedServiceAccountName {
+		t.Fatalf("Expected serviceAccountName %q, got: %q",
+			deploy.Spec.Template.Spec.ServiceAccountName,
+			deploy.Spec.Template.Spec.ServiceAccountName)
+	}
 }

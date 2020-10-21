@@ -20,6 +20,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
+      serviceAccountName: gangway
       initContainers:
       - name: download-theme
         image: alpine/git:1.0.7
