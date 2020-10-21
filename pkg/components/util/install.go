@@ -184,7 +184,7 @@ func UninstallComponent(c components.Component, kubeconfig []byte, deleteNSBool 
 
 	cfg, err := HelmActionConfig(ns, kubeconfig)
 	if err != nil {
-		return fmt.Errorf("failed preparing helm client: %w", err)
+		return fmt.Errorf("preparing Helm client: %w", err)
 	}
 
 	history := action.NewHistory(cfg)
@@ -205,7 +205,16 @@ func UninstallComponent(c components.Component, kubeconfig []byte, deleteNSBool 
 		}
 	}
 
+	releasesList, err := action.NewList(cfg).Run()
+	if err != nil {
+		return fmt.Errorf("listing Helm releases: %w", err)
+	}
+
 	if deleteNSBool {
+		if len(releasesList) > 0 {
+			return fmt.Errorf("namespace %q may have other components installed, cannot remove namespace", ns)
+		}
+
 		if err := deleteNS(ns, kubeconfig); err != nil {
 			return err
 		}
