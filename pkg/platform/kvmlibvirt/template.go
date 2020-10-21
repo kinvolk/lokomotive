@@ -120,36 +120,23 @@ module "worker-pool-{{ $index }}" {
 }
 {{- end }}
 
+terraform {
+  required_providers {
+    libvirt = {
+			source = "dmacvicar/libvirt"
+			uri     = "qemu:///system"
+			version = "0.6.2"
+    }
+    ct = {
+			source  = "poseidon/ct"
+			version = "0.6.1"
+    }
+  }
+}
+
 provider "libvirt" {
-  uri     = "qemu:///system"
-  version = "~> 0.6.0"
+	uri     = "qemu:///system"
 }
-
-provider "ct" {
-  version = "~> 0.5.0"
-}
-
-provider "local" {
-  version = "~> 1.2"
-}
-
-provider "null" {
-  version = "~> 2.1"
-}
-
-provider "template" {
-  version = "~> 2.1"
-}
-
-provider "tls" {
-  version = "~> 2.0"
-}
-
-provider "random" {
-  version = "~> 2.2"
-}
-
-
 # Stub output, which indicates, that Terraform run at least once.
 # Used when checking, if we should ask user for confirmation, when
 # applying changes to the cluster.
