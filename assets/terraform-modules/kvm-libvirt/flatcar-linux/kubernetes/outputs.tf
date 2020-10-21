@@ -38,3 +38,15 @@ output "calico_values" {
 output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
 }
+
+output "ca_cert" {
+  value = module.bootkube.ca_cert
+}
+
+output "bootstrap-secrets_values" {
+  value = module.bootkube.bootstrap-secrets_values
+}
+
+output "apiserver" {
+  value = local.api_server
+}

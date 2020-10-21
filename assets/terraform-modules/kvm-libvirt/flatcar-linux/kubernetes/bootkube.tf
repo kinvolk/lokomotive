@@ -1,3 +1,8 @@
+locals {
+  # api_server = module.bootkube.api_servers
+  api_server = data.template_file.controllernames[0].rendered
+}
+
 module "bootkube" {
   source       = "../../../bootkube"
   cluster_name = var.cluster_name
@@ -23,6 +28,9 @@ module "bootkube" {
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
   # Extra flags to API server.
   kube_apiserver_extra_flags = var.kube_apiserver_extra_flags
+
+  bootstrap_tokens     = var.enable_tls_bootstrap ? concat([local.controller_bootstrap_token], var.worker_bootstrap_tokens) : []
+  enable_tls_bootstrap = var.enable_tls_bootstrap
 
   certs_validity_period_hours = var.certs_validity_period_hours
 }

@@ -66,6 +66,8 @@ cluster "kvm-libvirt" {
 
   certs_validity_period_hours = 8760
 
+  enable_tls_bootstrap = true
+
   worker_pool "worker-pool-1" {
     count = 2
 
@@ -116,6 +118,7 @@ EOF
 | `pod_cidr`                            | CIDR IPv4 range to assign Kubernetes pods.                                                                                                                                                                                                                                        |    "10.2.0.0/16"   |    string    |  false   |
 | `service_cidr`                        | CIDR IPv4 range to assign Kubernetes services.                                                                                                                                                                                                                                    |    "10.3.0.0/16"   |    string    |  false   |
 | `ssh_pubkeys`                         | List of SSH public keys for user `core`. Each element must be specified in a valid OpenSSH public key format, as defined in RFC 4253 Section 6.6, e.g. "ssh-rsa AAAAB3N...".                                                                                                      |          -         | list(string) |   true   |
+| `enable_tls_bootstrap`                | Enable TLS bootstrapping for Kubelet.                                                                                                                                                                                                                                             |        true        |     bool     |  false   |
 | `worker_pool.clc_snippets`            | Flatcar Container Linux Config snippets for nodes in the worker pool.                                                                                                                                                                                                             |          []        | list(string) |  false   |
 | `worker_pool`                         | Configuration block for worker pools. There can be more than one.                                                                                                                                                                                                                 |          -         | list(object) |   true   |
 | `worker_pool.count`                   | Number of workers in the worker pool. Can be changed afterwards to add or delete workers.                                                                                                                                                                                         |          1         |    number    |   true   |

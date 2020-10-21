@@ -129,3 +129,13 @@ variable "encrypt_pod_traffic" {
   type        = bool
   default     = false
 }
+
+variable "worker_bootstrap_tokens" {
+  description = "List of token-id and token-secret of each node."
+  type        = list(any)
+}
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}

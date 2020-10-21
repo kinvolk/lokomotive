@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 
+	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
@@ -60,6 +61,7 @@ type config struct {
 	EnableReporting              bool         `hcl:"enable_reporting,optional"`
 	EnableAggregation            bool         `hcl:"enable_aggregation,optional"`
 	CertsValidityPeriodHours     int          `hcl:"certs_validity_period_hours,optional"`
+	EnableTLSBootstrap           bool         `hcl:"enable_tls_bootstrap,optional"`
 }
 
 func init() {
@@ -91,7 +93,9 @@ func (c *config) Meta() platform.Meta {
 }
 
 func NewConfig() *config {
-	return &config{}
+	return &config{
+		EnableTLSBootstrap: true,
+	}
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {

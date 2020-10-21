@@ -83,10 +83,16 @@ data "template_file" "controller-configs" {
     etcd_name              = "${var.cluster_name}-controller-${count.index}"
     etcd_domain            = "${var.cluster_name}-controller-${count.index}.${var.machine_domain}"
     etcd_initial_cluster   = join(",", data.template_file.etcds.*.rendered)
-    kubeconfig             = indent(10, module.bootkube.kubeconfig-kubelet)
+    kubeconfig = var.enable_tls_bootstrap ? indent(10, templatefile("${path.module}/workers/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id[0].result
+      token_secret = random_string.bootstrap_token_secret[0].result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${local.api_server}:6443"
+    })) : indent(10, module.bootkube.kubeconfig-kubelet)
     ssh_keys               = jsonencode(var.ssh_keys)
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
+    enable_tls_bootstrap   = var.enable_tls_bootstrap
   }
 }
 

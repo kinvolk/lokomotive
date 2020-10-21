@@ -79,6 +79,14 @@ module "kvm-libvirt-{{.Config.ClusterName}}" {
   {{- if .Config.CertsValidityPeriodHours }}
   certs_validity_period_hours = {{.Config.CertsValidityPeriodHours}}
   {{- end }}
+
+ # Enable TLS Bootstrap
+   enable_tls_bootstrap = {{ .Config.EnableTLSBootstrap }}
+  worker_bootstrap_tokens = [
+    {{- range $index, $pool := .Config.WorkerPools }}
+    module.worker-pool-{{$index}}.worker_bootstrap_token,
+    {{- end }}
+  ]
 }
 
 {{ range $index, $pool := .Config.WorkerPools }}
@@ -98,6 +106,10 @@ module "worker-pool-{{ $index }}" {
   libvirtpool           = module.kvm-libvirt-{{$.Config.ClusterName}}.libvirtpool
   libvirtbaseid         = module.kvm-libvirt-{{$.Config.ClusterName}}.libvirtbaseid
   kubeconfig            = module.kvm-libvirt-{{$.Config.ClusterName}}.kubeconfig
+
+  ca_cert              = module.kvm-libvirt-{{ $.Config.ClusterName }}.ca_cert
+  apiserver            = module.kvm-libvirt-{{ $.Config.ClusterName }}.apiserver
+  enable_tls_bootstrap = {{ $.Config.EnableTLSBootstrap }}
 
   pool_name             = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
@@ -168,6 +180,11 @@ output "kubelet_values" {
 
 output "calico_values" {
   value     = module.kvm-libvirt-{{.Config.ClusterName}}.calico_values
+  sensitive = true
+}
+
+output "bootstrap-secrets_values" {
+  value     = module.kvm-libvirt-{{.Config.ClusterName}}.bootstrap-secrets_values
   sensitive = true
 }
 `
