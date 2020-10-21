@@ -54,8 +54,6 @@ component "external-dns" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                    | Description                                                                                                                                            |    Default     |     Type     | Required |
 |-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------:|:------------:|:--------:|
 | `sources`                   | Kubernetes resources type to be observed for new DNS entries by ExternalDNS.                                                                           |  ["ingress"]   | list(string) |  false   |

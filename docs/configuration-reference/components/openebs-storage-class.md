@@ -60,8 +60,6 @@ component "openebs-storage-class" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument        | Description                                                                                                                | Default |     Type     | Required |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------|:-------:|:------------:|:--------:|
 | `replica_count` | Defines the number of cStor volume replicas.                                                                               |    3    |    number    |  false   |

@@ -32,8 +32,6 @@ component "httpbin" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                     | Description                                                                                                                                   |         Default          |  Type  | Required |
 |------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|:------------------------:|:------:|:--------:|
 | `ingress_host`               | Used as the `hosts` domain in the ingress resource for httpbin that is automatically created.                                                 |            -             | string |   true   |

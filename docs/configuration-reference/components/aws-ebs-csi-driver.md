@@ -39,8 +39,6 @@ component "aws-ebs-csi-driver" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                       | Description                                                                  | Default |  Type   | Required |
 |--------------------------------|------------------------------------------------------------------------------|-------|-------|--------|
 | `enable_default_storage_class` | Use the storage class provided by the component as the default storage class |  true   | bool |  false   |

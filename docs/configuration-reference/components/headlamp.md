@@ -43,8 +43,6 @@ component "headlamp" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                             | Description                                                                                                                                   | Default                  | Type   | Required |
 |--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|--------|----------|
 | `namespace`                          | Namespace where Headlamp will be installed.                                                                                                   | "lokomotive-system"      | string | false    |

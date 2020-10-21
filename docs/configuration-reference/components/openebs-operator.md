@@ -57,8 +57,6 @@ considered by OpenEBS for storage.
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument             | Description             | Default |  Type  | Required |
 |----------------------|-------------------------|:-------:|:------:|:--------:|
 | `ndm_selector_label` | Name of the node label. |    -    | string |  false   |

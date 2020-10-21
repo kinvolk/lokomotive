@@ -37,8 +37,6 @@ component "cert-manager" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument          | Description                                                    |   Default    |  Type  | Required |
 |-------------------|----------------------------------------------------------------|:------------:|:------:|:--------:|
 | `email`           | Email used for certificates to receive expiry notifications.   |      -       | string |   true   |

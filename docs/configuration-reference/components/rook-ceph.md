@@ -67,8 +67,6 @@ desired.
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                | Description                                                                                                                                      | Default | Type                                                                                                           | Required |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
 | `namespace`             | Namespace to deploy the Ceph cluster into. Must be the same as the rook operator.                                                                | "rook"  | string                                                                                                         |  false   |
