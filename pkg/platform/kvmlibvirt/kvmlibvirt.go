@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package kvmlibvirt is a Platform implementation for creating a Lokomotive cluster
+// from virtual machines using Libvirt.
 package kvmlibvirt
 
 import (
@@ -40,32 +42,35 @@ type workerPool struct {
 }
 
 type config struct {
-	AssetDir                     string       `hcl:"asset_dir"`
-	ClusterName                  string       `hcl:"cluster_name"`
-	ControllerCount              int          `hcl:"controller_count,optional"`
-	MachineDomain                string       `hcl:"machine_domain"`
-	OSImage                      string       `hcl:"os_image"`
-	NodeIpPool                   string       `hcl:"node_ip_pool,optional"`
-	SSHPubKeys                   []string     `hcl:"ssh_pubkeys"`
-	WorkerPools                  []workerPool `hcl:"worker_pool,block"`
 	DisableSelfHostedKubelet     bool         `hcl:"disable_self_hosted_kubelet,optional"`
-	KubeAPIServerExtraFlags      []string     `hcl:"kube_apiserver_extra_flags,optional"`
+	EnableReporting              bool         `hcl:"enable_reporting,optional"`
+	EnableAggregation            bool         `hcl:"enable_aggregation,optional"`
+	EnableTLSBootstrap           bool         `hcl:"enable_tsl_bootstrap,optional"`
+	ControllerCount              int          `hcl:"controller_count,optional"`
 	ControllerVirtualCPUs        int          `hcl:"controller_virtual_cpus,optional"`
 	ControllerVirtualMemory      int          `hcl:"controller_virtual_memory,optional"`
-	ControllerCLCSnippets        []string     `hcl:"controller_clc_snippets,optional"`
 	NetworkMTU                   int          `hcl:"network_mtu,optional"`
-	NetworkIpAutodetectionMethod string       `hcl:"network_ip_autodetection_method,optional"`
+	CertsValidityPeriodHours     int          `hcl:"certs_validity_period_hours,optional"`
+	AssetDir                     string       `hcl:"asset_dir"`
+	ClusterName                  string       `hcl:"cluster_name"`
+	MachineDomain                string       `hcl:"machine_domain"`
+	OSImage                      string       `hcl:"os_image"`
+	NodeIPPool                   string       `hcl:"node_ip_pool,optional"`
+	NetworkIPAutodetectionMethod string       `hcl:"network_ip_autodetection_method,optional"`
 	PodCidr                      string       `hcl:"pod_cidr,optional"`
 	ServiceCidr                  string       `hcl:"service_cidr,optional"`
 	ClusterDomainSuffix          string       `hcl:"cluster_domain_suffix,optional"`
-	EnableReporting              bool         `hcl:"enable_reporting,optional"`
-	EnableAggregation            bool         `hcl:"enable_aggregation,optional"`
-	CertsValidityPeriodHours     int          `hcl:"certs_validity_period_hours,optional"`
-	EnableTLSBootstrap           bool         `hcl:"enable_tls_bootstrap,optional"`
+	SSHPubKeys                   []string     `hcl:"ssh_pubkeys"`
+	ControllerCLCSnippets        []string     `hcl:"controller_clc_snippets,optional"`
+	KubeAPIServerExtraFlags      []string     `hcl:"kube_apiserver_extra_flags,optional"`
+	WorkerPools                  []workerPool `hcl:"worker_pool,block"`
 }
 
-func init() {
-	platform.Register("kvm-libvirt", NewConfig())
+func init() { //nolint:gochecknoinits
+	c := &config{
+		EnableTLSBootstrap: true,
+	}
+	platform.Register("kvm-libvirt", c)
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -86,15 +91,10 @@ func (c *config) Meta() platform.Meta {
 	for _, workerpool := range c.WorkerPools {
 		nodes += workerpool.Count
 	}
+
 	return platform.Meta{
 		AssetDir:      c.AssetDir,
 		ExpectedNodes: nodes,
-	}
-}
-
-func NewConfig() *config {
-	return &config{
-		EnableTLSBootstrap: true,
 	}
 }
 
@@ -125,7 +125,9 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	// Extract control plane chart files to cluster assets directory.
 	for _, c := range platform.CommonControlPlaneCharts() {
 		src := filepath.Join(assets.ControlPlaneSource, c.Name)
+
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
+
 		if err := assets.Extract(src, dst); err != nil {
 			return fmt.Errorf("extracting charts: %w", err)
 		}
@@ -136,7 +138,9 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	// Extract self-hosted kubelet chart only when enabled in config.
 	if !c.DisableSelfHostedKubelet {
 		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
+
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
+
 		if err := assets.Extract(src, dst); err != nil {
 			return fmt.Errorf("extracting kubelet chart: %w", err)
 		}
@@ -150,17 +154,24 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 func createTerraformConfigFile(cfg *config, terraformRootDir string) error {
 	tmplName := "cluster.tf"
 	t := template.New(tmplName).Funcs(template.FuncMap{"StringsJoin": strings.Join})
+
 	t, err := t.Parse(terraformConfigTmpl)
 	if err != nil {
 		return fmt.Errorf("parsing template: %w", err)
 	}
 
 	path := filepath.Join(terraformRootDir, tmplName)
+
 	f, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("creating file %q: %w", path, err)
 	}
-	defer f.Close()
+
+	defer func() {
+		if ferr := f.Close(); ferr != nil {
+			err = ferr
+		}
+	}()
 
 	terraformCfg := struct {
 		Config config
@@ -209,9 +220,9 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 	for _, w := range c.WorkerPools {
 		if !dup[w.Name] {
 			dup[w.Name] = true
+
 			continue
 		}
-
 		// It is duplicated.
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
 			Severity: hcl.DiagError,

@@ -28,8 +28,8 @@ module "kvm-libvirt-{{.Config.ClusterName}}" {
 
   machine_domain = "{{.Config.MachineDomain}}"
 
-  {{- if .Config.NodeIpPool}}
-  node_ip_pool   = "{{.Config.NodeIpPool}}"
+  {{- if .Config.NodeIPPool}}
+  node_ip_pool   = "{{.Config.NodeIPPool}}"
   {{- end }}
 
   {{- if .Config.ControllerCount}}
@@ -48,8 +48,8 @@ module "kvm-libvirt-{{.Config.ClusterName}}" {
   network_mtu = {{.Config.NetworkMTU}}
   {{- end }}
 
-  {{- if .Config.NetworkIpAutodetectionMethod }}
-  network_ip_autodetection_method = {{ .Config.NetworkIpAutodetectionMethod }}
+  {{- if .Config.NetworkIPAutodetectionMethod }}
+  network_ip_autodetection_method = {{ .Config.NetworkIPAutodetectionMethod }}
   {{- end }}
 
   {{- if .Config.PodCidr }}
