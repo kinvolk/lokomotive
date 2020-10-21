@@ -38,7 +38,7 @@ type BackupStorageLocation struct {
 	Provider string `hcl:"provider"`
 	Bucket   string `hcl:"bucket"`
 	Name     string `hcl:"name,optional"`
-	Region   string `hcl:"region,optional"`
+	Region   string `hcl:"region"`
 }
 
 // NewConfiguration returns the default restic configuration.

@@ -164,6 +164,7 @@ component "velero" {
 
     backup_storage_location {
       bucket   = "foo"
+      region   = "us-west-1"
       provider = "aws"
     }
   }
