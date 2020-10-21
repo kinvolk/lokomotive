@@ -60,8 +60,6 @@ component "contour" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument            | Description                                                                                             |    Default     | Type                                                                                                           | Required |
 |---------------------|---------------------------------------------------------------------------------------------------------|:--------------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
 | `enable_monitoring` | Create Prometheus Operator configs to scrape Contour and Envoy metrics. Also deploys Grafana Dashboard. |     false      | bool                                                                                                           |  false   |

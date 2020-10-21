@@ -103,8 +103,6 @@ spec:
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                    | Description                                                                                | Default | Type                                                                                                           | Required |
 |-----------------------------|--------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
 | `address_pools`             | A map which allows specifying one or more CIDRs which MetalLB can use to expose services.  |    -    | map(list(string))                                                                                              |   true   |

@@ -68,8 +68,6 @@ component "cluster-autoscaler" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                     | Description                                                                              | Default        |  Type  | Required |
 |------------------------------|------------------------------------------------------------------------------------------|:---------------|:------:|:--------:|
 | `cluster_name`               | Name of the  cluster.                                                                    | -              | string |   true   |

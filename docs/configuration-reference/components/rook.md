@@ -55,8 +55,6 @@ component "rook" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                     | Description                                                                                              | Default | Type                                                                                                           | Required |
 |------------------------------|----------------------------------------------------------------------------------------------------------|:-------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
 | `namespace`                  | Namespace to deploy the rook operator into.                                                              | "rook"  | string                                                                                                         |  false   |

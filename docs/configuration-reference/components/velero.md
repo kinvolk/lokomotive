@@ -107,8 +107,6 @@ component "velero" {
 
 Table of all the arguments accepted by the component.
 
-Example:
-
 | Argument                                             | Description                                                                                                                 | Default                                           | Type   | Required |
 |------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|--------|----------|
 | `namespace`                                          | Namespace to install Velero.                                                                                                | "velero"                                          | string | false    |
