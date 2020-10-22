@@ -41,7 +41,7 @@ function replace_version() {
 NEXT=${1:1}             # 0.2.3
 NEXTGIT="${NEXT}+git"   # 0.2.3+git
 
-PREVGIT=$(grep -Po 'var Version = "\K[^\]]*(?=")' pkg/version/version.go) # 0.1.2+git
+PREVGIT=$(grep 'var Version = ' pkg/version/version.go | cut -d"=" -f2 | sed 's/ //g;s/"//g') # 0.1.2+git
 PREV=${PREVGIT::-4}     # 0.1.2
 
 replace_version $PREVGIT $NEXT
