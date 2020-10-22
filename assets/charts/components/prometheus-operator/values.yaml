@@ -1125,6 +1125,9 @@ prometheus-node-exporter:
   extraArgs:
     - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)
     - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
+    # Disables powersupply collector as the support for power class supply is disabled by default in Flatcar
+    # Issue tracked in #[215](flatcar-linux/Flatcar#215)
+    - --no-collector.powersupplyclass
 
 ## Manages Prometheus and Alertmanager components
 ##
