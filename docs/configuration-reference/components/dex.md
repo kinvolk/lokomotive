@@ -53,11 +53,11 @@ variable "github_client_secret" {
   type = "string"
 }
 
-variable "dex_static_client_gangway_id" {
+variable "dex_static_client_clusterauth_id" {
   type = "string"
 }
 
-variable "dex_static_client_gangway_secret" {
+variable "dex_static_client_clusterauth_secret" {
   type = "string"
 }
 
@@ -123,9 +123,9 @@ component "dex" {
   gsuite_json_config_path = "project-testing-123456-er12t34y56ui.json"
 
   static_client {
-    name   = "gangway"
-    id     = var.dex_static_client_gangway_id
-    secret = var.dex_static_client_gangway_secret
+    name   = "clusterauth"
+    id     = var.dex_static_client_clusterauth_id
+    secret = var.dex_static_client_clusterauth_secret
     redirect_uris = [var.gangway_redirect_url]
   }
 }
@@ -138,8 +138,8 @@ google_client_id     = "1234567890123-SqDIX1KFvKPYmuV9Sa8eL92cvxtS3TuP.apps.goog
 google_client_secret = "63zYPITtigLxLaYBEjNP9Taw"
 
 # A random secret key (create one with `openssl rand -base64 32`)
-dex_static_client_gangway_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
-dex_static_client_gangway_id     = "gangway"
+dex_static_client_clusterauth_secret = "2KBvQkjOZdc3iHt4KSb9GUECdenH/VDl04TwMdSyPcs="
+dex_static_client_clusterauth_id     = "clusterauth"
 
 gangway_redirect_url = "https://gangway.example.lokomotive-k8s.org/callback"
 ```

@@ -119,9 +119,9 @@ component "experimental-istio-operator" {
   enable_monitoring = true
 }
 
-component "headlamp" {
+component "web-ui" {
   ingress {
-    host                       = "headlamp.${var.cluster_name}.${var.aws_dns_zone}"
+    host                       = "web-ui.${var.cluster_name}.${var.aws_dns_zone}"
     certmanager_cluster_issuer = "letsencrypt-staging"
   }
 }

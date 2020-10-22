@@ -84,7 +84,7 @@ Available components:
 	 external-dns
 	 flatcar-linux-update-operator
 	 gangway
-	 headlamp
+	 web-ui
 	 httpbin
 	 metallb
 	 metrics-server

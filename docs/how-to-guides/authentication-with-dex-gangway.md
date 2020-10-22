@@ -93,11 +93,11 @@ variable "github_client_secret" {
   type = "string"
 }
 
-variable "dex_static_client_gangway_id" {
+variable "dex_static_client_clusterauth_id" {
   type = "string"
 }
 
-variable "dex_static_client_gangway_secret" {
+variable "dex_static_client_clusterauth_secret" {
   type = "string"
 }
 
@@ -143,11 +143,11 @@ component "dex" {
     }
   }
 
-  # Static client details - Gangway.
+  # Static client details - Cluster Auth.
   static_client {
-    name   = "gangway"
-    id     = var.dex_static_client_gangway_id
-    secret = var.dex_static_client_gangway_secret
+    name   = "clusterauth"
+    id     = var.dex_static_client_clusterauth_id
+    secret = var.dex_static_client_clusterauth_secret
 
     redirect_uris = [var.gangway_redirect_url]
   }
@@ -170,8 +170,8 @@ component "gangway" {
   token_url = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/token"
 
   # The static client id and secret.
-  client_id     = var.dex_static_client_gangway_id
-  client_secret = var.dex_static_client_gangway_secret
+  client_id     = var.dex_static_client_clusterauth_id
+  client_secret = var.dex_static_client_clusterauth_secret
 
   # Gangway's redirect URL.
   redirect_url = var.gangway_redirect_url
@@ -201,8 +201,8 @@ Create another file `lokocfg.vars` for variables and secrets that should be refe
 
 ```hcl
 # A random secret key (create one with `openssl rand -base64 32`)
-dex_static_client_gangway_secret="vJ09ouDw1BXEz6onT2+xW8PdofWIG8cN8+f0bv1zKZI="
-dex_static_client_gangway_id="gangway"
+dex_static_client_clusterauth_secret="vJ09ouDw1BXEz6onT2+xW8PdofWIG8cN8+f0bv1zKZI="
+dex_static_client_clusterauth_id="clusterauth"
 
 # A random secret key (create one with `openssl rand -base64 32`)
 gangway_session_key="PMXEGiQ7fScPxuKS/DAimsCHueeWxT7HBL6I16sZzHE="
@@ -257,7 +257,7 @@ cluster "aws" {
 
   oidc {
     issuer_url     = https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>
-    client_id      = gangway
+    client_id      = clusterauth
     username_claim = email
     groups_claim   = groups
   }

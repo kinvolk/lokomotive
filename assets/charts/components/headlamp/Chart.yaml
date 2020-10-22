@@ -1,7 +1,0 @@
-apiVersion: v2
-name: headlamp
-description: An easy-to-use and versatile dashboard for Kubernetes brought to you by Kinvolk.
-type: application
-
-version: 0.1.0
-appVersion: 0.0.0

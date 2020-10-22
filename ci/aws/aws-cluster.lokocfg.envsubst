@@ -193,8 +193,8 @@ component "dex" {
 
   static_client {
     name   = "gangway"
-    id     = "$DEX_STATIC_CLIENT_GANGWAY_ID"
-    secret = "$DEX_STATIC_CLIENT_GANGWAY_SECRET"
+    id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+    secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
 
     redirect_uris = ["$GANGWAY_REDIRECT_URL"]
   }
@@ -215,8 +215,8 @@ component "gangway" {
 
   token_url = "$TOKEN_URL"
 
-  client_id     = "$DEX_STATIC_CLIENT_GANGWAY_ID"
-  client_secret = "$DEX_STATIC_CLIENT_GANGWAY_SECRET"
+  client_id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+  client_secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
 
   redirect_url = "$GANGWAY_REDIRECT_URL"
 }
@@ -239,9 +239,14 @@ component "experimental-istio-operator" {
   enable_monitoring = true
 }
 
-component "headlamp" {
+component "web-ui" {
   ingress {
-    host                       = "headlamp.$CLUSTER_ID.$AWS_DNS_ZONE"
+    host                       = "web-ui.$CLUSTER_ID.$AWS_DNS_ZONE"
     certmanager_cluster_issuer = "letsencrypt-staging"
+  }
+  oidc {
+    client_id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+    client_secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
+    issuer_url    = "$ISSUER_HOST"
   }
 }
