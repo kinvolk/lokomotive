@@ -15,4 +15,4 @@
 package version
 
 // This variable is used by the "version" command and is set during build.
-var Version = "0.4.1+git"
+var Version = "0.5.0"
