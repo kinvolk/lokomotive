@@ -1,0 +1,26 @@
+{{ if .Values.rbac }}
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "inspektor-gadget.serviceAccountName" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "inspektor-gadget.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: inspektor-gadget-psp
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: ['policy']
+    resources: ['podsecuritypolicies']
+    verbs:     ['use']
+    resourceNames:
+    - inspektor-gadget
+{{ end }}

@@ -41,3 +41,5 @@ cluster "bare-metal" {
     "roleofnode" = "testing",
   }
 }
+
+component "inspektor-gadget" {}

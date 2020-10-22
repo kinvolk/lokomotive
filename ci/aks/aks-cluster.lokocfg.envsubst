@@ -125,3 +125,5 @@ component "web-ui" {
     certmanager_cluster_issuer = "letsencrypt-staging"
   }
 }
+
+component "inspektor-gadget" {}

@@ -250,3 +250,5 @@ component "web-ui" {
     issuer_url    = "$ISSUER_HOST"
   }
 }
+
+component "inspektor-gadget" {}
