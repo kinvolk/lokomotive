@@ -5,8 +5,8 @@ metadata:
   # If the pod must be defaulted or mutated, the first PodSecurityPolicy (ordered by name) to allow the pod is selected.
   name: pod-checkpointer-restricted
   annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
-    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'runtime/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'runtime/default'
 spec:
   privileged: false
   allowPrivilegeEscalation: true
