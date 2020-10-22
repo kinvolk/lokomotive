@@ -63,14 +63,24 @@ func runDelete(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if err := componentDelete(contextLogger, args); err != nil {
+	options := componentDeleteOptions{
+		confirm:         confirm,
+		deleteNamespace: deleteNamespace,
+	}
+
+	if err := componentDelete(contextLogger, args, options); err != nil {
 		contextLogger.Fatalf("Deleting components failed: %v", err)
 	}
 }
 
+type componentDeleteOptions struct {
+	confirm         bool
+	deleteNamespace bool
+}
+
 // componentDelete implements 'lokoctl component delete' separated from CLI
 // dependencies.
-func componentDelete(contextLogger *log.Entry, componentsList []string) error {
+func componentDelete(contextLogger *log.Entry, componentsList []string, options componentDeleteOptions) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		return diags
@@ -88,7 +98,7 @@ func componentDelete(contextLogger *log.Entry, componentsList []string) error {
 		strings.Join(componentsToDelete, "\n\t"),
 	)
 
-	if !confirm && !askForConfirmation(confirmationMessage) {
+	if !options.confirm && !askForConfirmation(confirmationMessage) {
 		contextLogger.Info("Components deletion cancelled.")
 
 		return nil
@@ -101,7 +111,7 @@ func componentDelete(contextLogger *log.Entry, componentsList []string) error {
 		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := deleteComponents(kubeconfig, componentObjects); err != nil {
+	if err := deleteComponents(kubeconfig, componentObjects, options.deleteNamespace); err != nil {
 		return fmt.Errorf("deleting components: %w", err)
 	}
 
@@ -139,7 +149,7 @@ func componentNamesToObjects(componentNames []string) ([]components.Component, e
 	return c, nil
 }
 
-func deleteComponents(kubeconfig []byte, componentObjects []components.Component) error {
+func deleteComponents(kubeconfig []byte, componentObjects []components.Component, deleteNamespace bool) error {
 	for _, compObj := range componentObjects {
 		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
 
