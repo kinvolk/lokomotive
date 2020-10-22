@@ -61,14 +61,22 @@ func runApply(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if err := componentApply(contextLogger, args); err != nil {
+	options := componentApplyOptions{
+		kubeconfigPath: kubeconfigFlag,
+	}
+
+	if err := componentApply(contextLogger, args, options); err != nil {
 		contextLogger.Fatalf("Applying components failed: %v", err)
 	}
 }
 
+type componentApplyOptions struct {
+	kubeconfigPath string
+}
+
 // componentApply implements 'lokoctl component apply' separated from CLI
 // dependencies.
-func componentApply(contextLogger *log.Entry, componentsList []string) error {
+func componentApply(contextLogger *log.Entry, componentsList []string, options componentApplyOptions) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		return diags
@@ -79,7 +87,12 @@ func componentApply(contextLogger *log.Entry, componentsList []string) error {
 		return fmt.Errorf("getting component objects: %w", err)
 	}
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+		path:             options.kubeconfigPath,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
 

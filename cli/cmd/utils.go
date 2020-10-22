@@ -83,11 +83,16 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 	return platform, platform.LoadConfig(&lokoConfig.RootConfig.Cluster.Config, lokoConfig.EvalContext)
 }
 
+type kubeconfigGetter struct {
+	platformRequired bool
+	path             string
+}
+
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
 //
 // If platform is required and user do not have it configured, an error is returned.
-func getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config, platformRequired bool) ([]byte, error) {
-	sources, err := getKubeconfigSource(contextLogger, lokoConfig, platformRequired)
+func (kg kubeconfigGetter) getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config) ([]byte, error) {
+	sources, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err != nil {
 		return nil, fmt.Errorf("selecting kubeconfig source: %w", err)
 	}
@@ -126,9 +131,9 @@ func getKubeconfig(contextLogger *log.Entry, lokoConfig *config.Config, platform
 //
 // - kubeconfig from ~/.kube/config file.
 //
-func getKubeconfigSource(contextLogger *log.Entry, lokoConfig *config.Config, platformRequired bool) ([]string, error) { //nolint:lll
+func (kg kubeconfigGetter) getKubeconfigSource(contextLogger *log.Entry, lokoConfig *config.Config) ([]string, error) { //nolint:lll
 	// Always try reading platform configuration.
-	p, diags := getConfiguredPlatform(lokoConfig, platformRequired)
+	p, diags := getConfiguredPlatform(lokoConfig, kg.platformRequired)
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
@@ -137,15 +142,8 @@ func getKubeconfigSource(contextLogger *log.Entry, lokoConfig *config.Config, pl
 		return nil, fmt.Errorf("loading cluster configuration")
 	}
 
-	for _, k := range viper.AllKeys() {
-		if k != kubeconfigFlag {
-			continue
-		}
-
-		// Viper takes precedence over all other options.
-		if path := viper.GetString(kubeconfigFlag); path != "" {
-			return []string{path}, nil
-		}
+	if kg.path != "" {
+		return []string{kg.path}, nil
 	}
 
 	// If platform is not configured and not required, fallback to global kubeconfig files.
@@ -187,7 +185,10 @@ func readKubeconfigFromTerraformState(contextLogger *log.Entry) ([]byte, error) 
 	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
 		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
 
-	c, err := initialize(contextLogger)
+	// TODO: Add Terraform verbose support back.
+	cc := clusterConfig{}
+
+	c, err := cc.initialize(contextLogger)
 	if err != nil {
 		return nil, fmt.Errorf("initializing: %w", err)
 	}

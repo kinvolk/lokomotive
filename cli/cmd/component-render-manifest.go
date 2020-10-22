@@ -40,29 +40,31 @@ func runComponentRender(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
+	if err := componentRenderManifest(contextLogger, args); err != nil {
+		contextLogger.Fatalf("Rendering component manifests failed: %v", err)
+	}
+}
+
+func componentRenderManifest(contextLogger *log.Entry, componentsList []string) error {
 	lokoConfig, diags := getLokoConfig()
 	if diags.HasErrors() {
 		for _, diagnostic := range diags {
 			contextLogger.Error(diagnostic.Error())
 		}
-		contextLogger.Fatal("Errors found while loading configuration")
+
+		return diags
 	}
 
-	var componentsToRender []string
-	if len(args) > 0 {
-		componentsToRender = append(componentsToRender, args...)
-	} else {
-		for _, component := range lokoConfig.RootConfig.Components {
-			componentsToRender = append(componentsToRender, component.Name)
-		}
+	componentsToRender := selectComponentNames(componentsList, *lokoConfig.RootConfig)
+
+	if err := renderComponentManifests(lokoConfig, componentsToRender); err != nil {
+		return fmt.Errorf("rendering component manifests: %w", err)
 	}
 
-	if err := renderComponentManifests(lokoConfig, componentsToRender...); err != nil {
-		contextLogger.Fatal(err)
-	}
+	return nil
 }
 
-func renderComponentManifests(lokoConfig *config.Config, componentNames ...string) error {
+func renderComponentManifests(lokoConfig *config.Config, componentNames []string) error {
 	for _, componentName := range componentNames {
 		contextLogger := log.WithFields(log.Fields{
 			"component": componentName,
@@ -70,7 +72,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 
 		component, err := components.Get(componentName)
 		if err != nil {
-			return err
+			return fmt.Errorf("getting component %q: %w", componentName, err)
 		}
 
 		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
@@ -84,7 +86,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames ...strin
 
 		manifests, err := component.RenderManifests()
 		if err != nil {
-			return err
+			return fmt.Errorf("rendering manifest of component %q: %w", componentName, err)
 		}
 
 		fmt.Printf("# manifests for component %s\n", componentName)

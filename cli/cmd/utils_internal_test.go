@@ -23,13 +23,11 @@ import (
 	"testing"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
 type kubeconfigSources struct {
-	flag       string
 	env        string
 	configFile string
 }
@@ -39,9 +37,6 @@ const (
 )
 
 func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) (*log.Entry, *config.Config) {
-	// Ensure viper flag is NOT empty.
-	viper.Set(kubeconfigFlag, k.flag)
-
 	if k.env == "" {
 		// Ensure KUBECONFIG is not set.
 		if err := os.Unsetenv(kubeconfigEnvVariable); err != nil {
@@ -96,7 +91,11 @@ func TestGetKubeconfigBadConfig(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err == nil {
 		t.Errorf("getting kubeconfig with bad configuration should fail")
 	}
@@ -108,13 +107,17 @@ func TestGetKubeconfigBadConfig(t *testing.T) {
 
 func TestGetKubeconfigNoConfigButRequired(t *testing.T) {
 	k := &kubeconfigSources{
-		env:  "/foo",
-		flag: "/bar",
+		env: "/foo",
 	}
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+		path:             "/bar",
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err == nil {
 		t.Errorf("getting kubeconfig with no configuration and platform required should fail")
 	}
@@ -148,7 +151,11 @@ func TestGetKubeconfig(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
@@ -180,13 +187,17 @@ func TestGetKubeconfigSourceFlag(t *testing.T) {
     count = 0
   }
 }`,
-		flag: expectedPath[0],
-		env:  "/badpath",
+		env: "/badpath",
 	}
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+		path:             expectedPath[0],
+	}
+
+	kubeconfig, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
@@ -223,7 +234,11 @@ func TestGetKubeconfigSourceConfigFile(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	kubeconfig, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
@@ -282,7 +297,11 @@ func TestGetKubeconfigFromAssetsDir(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
@@ -301,7 +320,11 @@ func TestGetKubeconfigSourceBadConfigFile(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	kubeconfig, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err == nil {
 		t.Errorf("getting kubeconfig with bad configuration should fail")
 	}
@@ -323,7 +346,11 @@ func TestGetKubeconfigSourceEnvVariable(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+	}
+
+	kubeconfig, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}
@@ -340,7 +367,11 @@ func TestGetKubeconfigSourceDefault(t *testing.T) {
 
 	contextLogger, lokoConfig := prepareKubeconfigSource(t, k)
 
-	kubeconfig, err := getKubeconfigSource(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+	}
+
+	kubeconfig, err := kg.getKubeconfigSource(contextLogger, lokoConfig)
 	if err != nil {
 		t.Fatalf("getting kubeconfig: %v", err)
 	}

@@ -63,16 +63,36 @@ func runDelete(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	lokoConfig, diags := getLokoConfig()
-	if diags.HasErrors() {
-		contextLogger.Fatal(diags)
+	options := componentDeleteOptions{
+		confirm:         confirm,
+		deleteNamespace: deleteNamespace,
+		kubeconfigPath:  kubeconfigFlag,
 	}
 
-	componentsToDelete := selectComponentNames(args, *lokoConfig.RootConfig)
+	if err := componentDelete(contextLogger, args, options); err != nil {
+		contextLogger.Fatalf("Deleting components failed: %v", err)
+	}
+}
+
+type componentDeleteOptions struct {
+	confirm         bool
+	deleteNamespace bool
+	kubeconfigPath  string
+}
+
+// componentDelete implements 'lokoctl component delete' separated from CLI
+// dependencies.
+func componentDelete(contextLogger *log.Entry, componentsList []string, options componentDeleteOptions) error {
+	lokoConfig, diags := getLokoConfig()
+	if diags.HasErrors() {
+		return diags
+	}
+
+	componentsToDelete := selectComponentNames(componentsList, *lokoConfig.RootConfig)
 
 	componentObjects, err := componentNamesToObjects(componentsToDelete)
 	if err != nil {
-		contextLogger.Fatalf("getting component objects: %v", err)
+		return fmt.Errorf("getting component objects: %v", err)
 	}
 
 	confirmationMessage := fmt.Sprintf(
@@ -80,21 +100,29 @@ func runDelete(cmd *cobra.Command, args []string) {
 		strings.Join(componentsToDelete, "\n\t"),
 	)
 
-	if !confirm && !askForConfirmation(confirmationMessage) {
+	if !options.confirm && !askForConfirmation(confirmationMessage) {
 		contextLogger.Info("Components deletion cancelled.")
 
-		return
+		return nil
 	}
 
-	kubeconfig, err := getKubeconfig(contextLogger, lokoConfig, false)
+	kg := kubeconfigGetter{
+		platformRequired: false,
+		path:             options.kubeconfigPath,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
 	if err != nil {
 		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-		contextLogger.Fatal("Suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
+
+		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := deleteComponents(kubeconfig, componentObjects); err != nil {
-		contextLogger.Fatal(err)
+	if err := deleteComponents(kubeconfig, componentObjects, options.deleteNamespace); err != nil {
+		return fmt.Errorf("deleting components: %w", err)
 	}
+
+	return nil
 }
 
 // selectComponentNames returns list of components to operate on. If explicit list is empty,
@@ -128,7 +156,7 @@ func componentNamesToObjects(componentNames []string) ([]components.Component, e
 	return c, nil
 }
 
-func deleteComponents(kubeconfig []byte, componentObjects []components.Component) error {
+func deleteComponents(kubeconfig []byte, componentObjects []components.Component, deleteNamespace bool) error {
 	for _, compObj := range componentObjects {
 		fmt.Printf("Deleting component '%s'...\n", compObj.Metadata().Name)
 

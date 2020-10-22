@@ -57,14 +57,32 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		"args":    args,
 	})
 
-	if err := clusterApply(contextLogger); err != nil {
+	options := clusterApplyOptions{
+		confirm:         confirm,
+		upgradeKubelets: upgradeKubelets,
+		skipComponents:  skipComponents,
+		verbose:         verbose,
+	}
+
+	if err := clusterApply(contextLogger, options); err != nil {
 		contextLogger.Fatalf("Applying cluster failed: %v", err)
 	}
 }
 
+type clusterApplyOptions struct {
+	confirm         bool
+	upgradeKubelets bool
+	skipComponents  bool
+	verbose         bool
+}
+
 //nolint:funlen
-func clusterApply(contextLogger *log.Entry) error {
-	c, err := initialize(contextLogger)
+func clusterApply(contextLogger *log.Entry, options clusterApplyOptions) error {
+	cc := clusterConfig{
+		verbose: options.verbose,
+	}
+
+	c, err := cc.initialize(contextLogger)
 	if err != nil {
 		return fmt.Errorf("initializing: %w", err)
 	}
@@ -74,7 +92,7 @@ func clusterApply(contextLogger *log.Entry) error {
 		return fmt.Errorf("checking if cluster exists: %w", err)
 	}
 
-	if exists && !confirm {
+	if exists && !options.confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := c.terraformExecutor.Plan(); err != nil {
 			return fmt.Errorf("reconciling cluster state: %v", err)
@@ -93,7 +111,11 @@ func clusterApply(contextLogger *log.Entry) error {
 
 	fmt.Printf("\nYour configurations are stored in %s\n", c.assetDir)
 
-	kubeconfig, err := getKubeconfig(contextLogger, c.lokomotiveConfig, true)
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, c.lokomotiveConfig)
 	if err != nil {
 		return fmt.Errorf("getting kubeconfig: %v", err)
 	}
@@ -121,7 +143,7 @@ func clusterApply(contextLogger *log.Entry) error {
 
 		charts := platform.CommonControlPlaneCharts()
 
-		if upgradeKubelets {
+		if options.upgradeKubelets {
 			charts = append(charts, helm.LokomotiveChart{
 				Name:      "kubelet",
 				Namespace: "kube-system",
@@ -141,7 +163,7 @@ func clusterApply(contextLogger *log.Entry) error {
 		}
 	}
 
-	if skipComponents {
+	if options.skipComponents {
 		return nil
 	}
 
