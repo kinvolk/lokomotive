@@ -1,0 +1,97 @@
+cluster "packet" {
+  asset_dir        = pathexpand("~/lokoctl-assets")
+  cluster_name     = "$CLUSTER_ID"
+  controller_count = 1
+  controller_type  = "t1.small.x86"
+
+  controller_clc_snippets = [
+    <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+  ]
+  dns {
+    provider = "route53"
+    zone     = "$AWS_DNS_ZONE"
+  }
+
+  facility = "$PACKET_LOCATION"
+
+  project_id = "$PACKET_PROJECT_ID"
+
+  ssh_pubkeys       = ["$PUB_KEY"]
+  management_cidrs  = ["0.0.0.0/0"]
+  node_private_cidr = "10.0.0.0/8"
+
+  worker_pool "general" {
+    count     = 1
+    node_type = "c2.medium.x86"
+  }
+
+  worker_pool "storage" {
+    count = 3
+    node_type = "c2.medium.x86"
+
+    labels = {
+      "storage.lokomotive.io" = "ceph"
+    }
+
+    taints = {
+      "storage.lokomotive.io" = "ceph:NoSchedule"
+    }
+  }
+}
+
+component "rook" {
+  node_selector = {
+    "storage.lokomotive.io" = "ceph"
+  }
+
+  toleration {
+    key      = "storage.lokomotive.io"
+    operator = "Equal"
+    value    = "ceph"
+    effect   = "NoSchedule"
+  }
+
+  agent_toleration_key    = "storage.lokomotive.io"
+  agent_toleration_effect = "NoSchedule"
+
+  discover_toleration_key    = "storage.lokomotive.io"
+  discover_toleration_effect = "NoSchedule"
+}
+
+component "rook-ceph" {
+  monitor_count = 3
+  enable_toolbox = true
+
+  node_affinity {
+    key      = "storage.lokomotive.io"
+    operator = "Exists"
+  }
+
+  toleration {
+    key      = "storage.lokomotive.io"
+    operator = "Equal"
+    value    = "ceph"
+    effect   = "NoSchedule"
+  }
+
+  storage_class {
+    enable = true
+    default = true
+  }
+}
+
+
+component "prometheus-operator" {}
+
