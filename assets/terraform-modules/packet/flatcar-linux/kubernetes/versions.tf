@@ -16,10 +16,6 @@ terraform {
       source  = "hashicorp/null"
       version = "2.1.2"
     }
-    template = {
-      source  = "hashicorp/template"
-      version = "2.1.2"
-    }
     packet = {
       source  = "packethost/packet"
       version = "3.0.1"
