@@ -82,10 +82,10 @@ spec:
     volumeMounts:
     - name: download-dir
       mountPath: /data
-  - image: fedora
+  - image: nginx
     name: download-linkerd
     command:
-    - bash
+    - /bin/sh
     args:
     - -c
     - 'curl -L https://run.linkerd.io/install | sh && cp -L /root/.linkerd2/bin/linkerd /data/linkerd'
