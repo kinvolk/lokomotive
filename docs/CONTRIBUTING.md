@@ -66,7 +66,7 @@ Commit and submit a PR.
 
 For the general guidelines on making PRs/commits easier to review, please check out
 Kinvolk's
-[contribution guidelines on git](https://github.com/kinvolk/contribution/tree/master/git).
+[contribution guidelines on git](https://github.com/kinvolk/contribution/tree/master/topics/git.md).
 
 ## Updating dependencies
 
