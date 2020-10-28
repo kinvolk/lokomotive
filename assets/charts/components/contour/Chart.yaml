@@ -13,11 +13,11 @@ type: application
 
 # This is the chart version. This version number is incremented each time changes are made
 # to the chart and its templates, including the app version.
-version: 0.3.0
+version: 0.3.1
 
 # This is the version number of the upstream Contour
 # https://github.com/projectcontour/contour/releases
-appVersion: v1.7.0
+appVersion: v1.9.0
 
 description: Contour is a Kubernetes ingress controller using Lyft's Envoy proxy.
 home: https://projectcontour.io/
