@@ -29,8 +29,9 @@ const indentation = 6
 
 // Configuration contains Restic specific parameters.
 type Configuration struct {
-	Credentials           string                 `hcl:"credentials"`
-	BackupStorageLocation *BackupStorageLocation `hcl:"backup_storage_location,block"`
+	Credentials             string                 `hcl:"credentials"`
+	RequireVolumeAnnotation bool                   `hcl:"require_volume_annotation,optional"`
+	BackupStorageLocation   *BackupStorageLocation `hcl:"backup_storage_location,block"`
 }
 
 // BackupStorageLocation configures the backup storage location.
