@@ -8,6 +8,6 @@ terraform {
     null     = "3.0.0"
     template = "2.1.2"
     libvirt  = "0.6.0"
-    random   = "2.3.0"
+    random   = "3.0.0"
   }
 }
