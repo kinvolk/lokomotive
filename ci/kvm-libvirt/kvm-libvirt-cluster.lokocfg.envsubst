@@ -1,0 +1,11 @@
+cluster "kvm-libvirt" {
+  asset_dir         = pathexpand("~/lokoctl-assets")
+  ssh_pubkeys       = [file(pathexpand("~/.ssh/id_rsa.pub"))]
+  cluster_name      = "vmcluster"
+  machine_domain    = "vmcluster.k8s"
+  os_image          = "file:///var/tmp/flatcar_production_qemu_image.img"
+
+  worker_pool "one" {
+    count = 2
+  }
+}

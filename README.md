@@ -35,6 +35,7 @@ Follow one of the quickstart guides for the supported platforms:
 * [Packet quickstart](docs/quickstarts/packet.md)
 * [AWS quickstart](docs/quickstarts/aws.md)
 * [Bare metal quickstart](docs/quickstarts/baremetal.md)
+* [KVM libvirt quickstart](docs/quickstarts/kvm-libvirt.md)
 
 ## Documentation
 

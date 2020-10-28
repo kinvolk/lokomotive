@@ -6,18 +6,6 @@ output "kubeconfig" {
   value = module.bootkube.kubeconfig-kubelet
 }
 
-output "machine_domain" {
-  value = var.machine_domain
-}
-
-output "cluster_name" {
-  value = var.cluster_name
-}
-
-output "ssh_keys" {
-  value = var.ssh_keys
-}
-
 output "libvirtpool" {
   value = libvirt_pool.volumetmp.name
 }
@@ -49,4 +37,16 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
+}
+
+output "ca_cert" {
+  value = module.bootkube.ca_cert
+}
+
+output "bootstrap-secrets_values" {
+  value = module.bootkube.bootstrap-secrets_values
+}
+
+output "apiserver" {
+  value = local.api_server
 }

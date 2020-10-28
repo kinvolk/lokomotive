@@ -6,7 +6,7 @@ variable "cluster_name" {
 }
 
 # Nodes
-variable "os_image_unpacked" {
+variable "os_image" {
   type        = string
   description = "Path to unpacked Flatcar Container Linux image flatcar_production_qemu_image.img (probably after a qemu-img resize IMG +5G)"
 }
@@ -105,6 +105,17 @@ variable "enable_aggregation" {
   default     = true
 }
 
+variable "kube_apiserver_extra_flags" {
+  description = "Extra flags passed to self-hosted kube-apiserver."
+  type        = list(string)
+  default     = []
+}
+
+variable "disable_self_hosted_kubelet" {
+  description = "Disable the self hosted kubelet installed by default"
+  type        = bool
+}
+
 # Certificates
 
 variable "certs_validity_period_hours" {
@@ -117,4 +128,14 @@ variable "encrypt_pod_traffic" {
   description = "Enable in-cluster pod traffic encryption."
   type        = bool
   default     = false
+}
+
+variable "worker_bootstrap_tokens" {
+  description = "List of token-id and token-secret of each node."
+  type        = list(any)
+}
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
 }
