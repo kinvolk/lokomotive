@@ -85,5 +85,6 @@ serviceAccount:
   snapshot:
     annotations: {}
 
+# Lokomotive specific addition.
 # False if you want to use a different storage option, e.g. OpenEBS
 enableDefaultStorageClass: true
