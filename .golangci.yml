@@ -1,5 +1,5 @@
 run:
-  build-tags: 
+  build-tags:
     - aws
     - packet
     - aks
@@ -7,6 +7,7 @@ run:
     - baremetal
     - disruptivee2e
     - poste2e
+    - packet_fluo
 
   modules-download-mode: vendor
 
