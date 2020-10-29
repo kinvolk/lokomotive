@@ -27,13 +27,16 @@ import (
 )
 
 const (
-	name                    = "contour"
+	// Name represents Contour component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "contour"
+
 	serviceTypeNodePort     = "NodePort"
 	serviceTypeLoadBalancer = "LoadBalancer"
 )
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(Name, newComponent())
 }
 
 // This annotation is added to Envoy service.
@@ -79,7 +82,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := components.Chart(name)
+	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
@@ -100,7 +103,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	// Generate YAML for the Contour deployment.
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, values)
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
 	if err != nil {
 		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
@@ -110,7 +113,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: "projectcontour",
 		},

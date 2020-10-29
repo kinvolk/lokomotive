@@ -70,7 +70,7 @@ func TestUserInputValues(t *testing.T) {
 func testRenderManifest(t *testing.T, configHCL string) {
 	component := newComponent()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

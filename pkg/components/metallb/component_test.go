@@ -39,7 +39,7 @@ func TestEmptyConfig(t *testing.T) {
 func renderManifest(t *testing.T, configHCL string) map[string]string {
 	component := newComponent()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

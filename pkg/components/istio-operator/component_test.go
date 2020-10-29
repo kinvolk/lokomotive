@@ -52,7 +52,7 @@ func TestConversion(t *testing.T) {
 			t.Parallel()
 
 			component := newComponent()
-			m := testutil.RenderManifests(t, component, name, tc.inputConfig)
+			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
 			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
@@ -66,6 +66,6 @@ func TestVerifyServiceMonitor(t *testing.T) {
 	}`
 
 	component := newComponent()
-	m := testutil.RenderManifests(t, component, name, inputConfig)
+	m := testutil.RenderManifests(t, component, Name, inputConfig)
 	testutil.ConfigFromMap(t, m, "istio-operator/templates/service-monitor.yaml")
 }

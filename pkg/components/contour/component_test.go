@@ -64,7 +64,7 @@ component "contour" {
 	}
 
 	for _, tc := range tests {
-		b, d := util.GetComponentBody(tc.hcl, name)
+		b, d := util.GetComponentBody(tc.hcl, Name)
 		if d != nil {
 			t.Errorf("%s - Error getting component body: %v", tc.desc, d)
 		}

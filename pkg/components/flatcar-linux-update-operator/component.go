@@ -25,10 +25,14 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-const name = "flatcar-linux-update-operator"
+const (
+	// Name represents Flatcar Linux Update Operator component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "flatcar-linux-update-operator"
+)
 
 func init() {
-	components.Register(name, &component{})
+	components.Register(Name, &component{})
 }
 
 type component struct{}
@@ -42,17 +46,17 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := components.Chart(name)
+	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("loading chart from assets: %w", err)
 	}
 
-	return util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, "")
+	return util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, "")
 }
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: "reboot-coordinator",
 		},

@@ -28,7 +28,7 @@ func TestStorageClassEmptyConfig(t *testing.T) {
 
 	component := newComponent()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -67,7 +67,7 @@ func TestStorageClassEnabled(t *testing.T) {
 
 	component := newComponent()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -106,7 +106,7 @@ func TestStorageClassDisabled(t *testing.T) {
 
 	component := newComponent()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

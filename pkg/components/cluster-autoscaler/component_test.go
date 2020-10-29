@@ -40,7 +40,7 @@ func TestEmptyBody(t *testing.T) {
 
 	config := `component "cluster-autoscaler" {}`
 
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -66,7 +66,7 @@ func TestRender(t *testing.T) {
 	}
   `
 
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

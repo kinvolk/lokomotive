@@ -26,10 +26,14 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-const name = "metallb"
+const (
+	// Name represents MetalLB component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "metallb"
+)
 
 func init() {
-	components.Register(name, newComponent())
+	components.Register(Name, newComponent())
 }
 
 type component struct {
@@ -138,7 +142,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: "metallb-system",
 		},

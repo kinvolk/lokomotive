@@ -26,10 +26,14 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-const name = "httpbin"
+const (
+	// Name represents httpbin component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "httpbin"
+)
 
 func init() { //nolint:gochecknoinits
-	components.Register(name, newComponent())
+	components.Register(Name, newComponent())
 }
 
 type component struct {
@@ -54,7 +58,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 }
 
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := components.Chart(name)
+	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
@@ -65,7 +69,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	// Generate YAML for the httpbin deployment.
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, values)
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
 	if err != nil {
 		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
@@ -75,9 +79,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
-			Name: name,
+			Name: Name,
 		},
 	}
 }
