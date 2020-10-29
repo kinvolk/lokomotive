@@ -27,6 +27,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/platform/aks"
+	"github.com/kinvolk/lokomotive/pkg/platform/aws"
+	"github.com/kinvolk/lokomotive/pkg/platform/baremetal"
+	"github.com/kinvolk/lokomotive/pkg/platform/packet"
+	"github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
 )
 
 const (
@@ -54,6 +59,22 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 	return backend, backend.LoadConfig(&lokoConfig.RootConfig.Backend.Config, lokoConfig.EvalContext)
 }
 
+func getPlatform(name string) (platform.Platform, error) {
+	platforms := map[string]platform.Platform{
+		aks.Name:        aks.NewConfig(),
+		aws.Name:        aws.NewConfig(),
+		packet.Name:     packet.NewConfig(),
+		baremetal.Name:  baremetal.NewConfig(),
+		tinkerbell.Name: tinkerbell.NewConfig(),
+	}
+
+	if p, ok := platforms[name]; ok {
+		return p, nil
+	}
+
+	return nil, fmt.Errorf("platform %q not found", name)
+}
+
 // getConfiguredPlatform loads a platform from the given configuration file.
 func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Platform, hcl.Diagnostics) {
 	if lokoConfig.RootConfig.Cluster == nil && !require {
@@ -70,7 +91,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 		}
 	}
 
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
+	platform, err := getPlatform(lokoConfig.RootConfig.Cluster.Name)
 	if err != nil {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,

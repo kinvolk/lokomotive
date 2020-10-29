@@ -86,11 +86,6 @@ const (
 	kubernetesVersion = "1.18.10"
 )
 
-// init registers AKS as a platform.
-func init() { //nolint:gochecknoinits
-	platform.Register(Name, NewConfig())
-}
-
 // NewConfig returns new AKS platform configuration with default values set.
 //
 //nolint:golint

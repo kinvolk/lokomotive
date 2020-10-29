@@ -94,11 +94,6 @@ func (w *WorkerPool) Name() string {
 	return w.PoolName
 }
 
-// init registers tinkerbell as a platform.
-func init() { //nolint:gochecknoinits
-	platform.Register(Name, NewConfig())
-}
-
 // LoadConfig loads platform configuration using given HCL structs.
 func (c *Config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {

@@ -93,11 +93,6 @@ const (
 	Name = "aws"
 )
 
-// init registers aws as a platform
-func init() {
-	platform.Register(Name, NewConfig())
-}
-
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
 	if configBody == nil {
 		return hcl.Diagnostics{}
