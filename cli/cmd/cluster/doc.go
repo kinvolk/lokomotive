@@ -12,24 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
-
-import (
-	"fmt"
-
-	"github.com/spf13/cobra"
-
-	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
-)
-
-func init() {
-	RootCmd.AddCommand(versionCmd)
-}
-
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print version information",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cluster.Version())
-	},
-}
+// Package cluster implements lokoctl subcommands logic.
+package cluster

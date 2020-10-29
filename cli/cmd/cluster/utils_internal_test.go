@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package cluster
 
 import (
 	"fmt"
@@ -74,7 +74,7 @@ func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) (*log.Entry, *c
 		}
 	}
 
-	lokoConfig, diags := getLokoConfig()
+	lokoConfig, diags := config.LoadConfig(tmpDir, "")
 	if diags.HasErrors() {
 		t.Fatalf("getting lokomotive configuration: %v", err)
 	}

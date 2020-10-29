@@ -16,29 +16,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	// Register a component by adding an anonymous import
-	_ "github.com/kinvolk/lokomotive/pkg/components/aws-ebs-csi-driver"
-	_ "github.com/kinvolk/lokomotive/pkg/components/cert-manager"
-	_ "github.com/kinvolk/lokomotive/pkg/components/cluster-autoscaler"
-	_ "github.com/kinvolk/lokomotive/pkg/components/contour"
-	_ "github.com/kinvolk/lokomotive/pkg/components/dex"
-	_ "github.com/kinvolk/lokomotive/pkg/components/external-dns"
-	_ "github.com/kinvolk/lokomotive/pkg/components/flatcar-linux-update-operator"
-	_ "github.com/kinvolk/lokomotive/pkg/components/gangway"
-	_ "github.com/kinvolk/lokomotive/pkg/components/httpbin"
-	_ "github.com/kinvolk/lokomotive/pkg/components/inspektor-gadget"
-	_ "github.com/kinvolk/lokomotive/pkg/components/istio-operator"
-	_ "github.com/kinvolk/lokomotive/pkg/components/linkerd"
-	_ "github.com/kinvolk/lokomotive/pkg/components/metallb"
-	_ "github.com/kinvolk/lokomotive/pkg/components/metrics-server"
-	_ "github.com/kinvolk/lokomotive/pkg/components/openebs-operator"
-	_ "github.com/kinvolk/lokomotive/pkg/components/openebs-storage-class"
-	_ "github.com/kinvolk/lokomotive/pkg/components/prometheus-operator"
-	_ "github.com/kinvolk/lokomotive/pkg/components/rook"
-	_ "github.com/kinvolk/lokomotive/pkg/components/rook-ceph"
-	_ "github.com/kinvolk/lokomotive/pkg/components/velero"
-	_ "github.com/kinvolk/lokomotive/pkg/components/web-ui"
 )
 
 var componentCmd = &cobra.Command{

@@ -15,15 +15,11 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"text/tabwriter"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-	"github.com/kinvolk/lokomotive/pkg/k8sutil"
-	"github.com/kinvolk/lokomotive/pkg/lokomotive"
+	"github.com/kinvolk/lokomotive/cli/cmd/cluster"
 )
 
 var healthCmd = &cobra.Command{
@@ -49,83 +45,12 @@ func runHealth(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if err := health(contextLogger); err != nil {
+	options := cluster.HealthOptions{
+		ConfigPath: viper.GetString("lokocfg"),
+		ValuesPath: viper.GetString("lokocfg-vars"),
+	}
+
+	if err := cluster.Health(contextLogger, options); err != nil {
 		contextLogger.Fatalf("Checking cluster health failed: %v", err)
 	}
-}
-
-//nolint:funlen
-func health(contextLogger *log.Entry) error {
-	lokoConfig, diags := getLokoConfig()
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
-		}
-
-		return diags
-	}
-
-	kg := kubeconfigGetter{
-		platformRequired: true,
-	}
-
-	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
-	if err != nil {
-		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
-
-		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
-	}
-
-	cs, err := k8sutil.NewClientset(kubeconfig)
-	if err != nil {
-		return fmt.Errorf("creating Kubernetes client: %w", err)
-	}
-
-	// We can skip error checking here, as getKubeconfig() already checks it.
-	p, _ := getConfiguredPlatform(lokoConfig, true)
-
-	cluster := lokomotive.NewCluster(cs, p.Meta().ExpectedNodes)
-
-	ns, err := cluster.GetNodeStatus()
-	if err != nil {
-		return fmt.Errorf("getting node status: %w", err)
-	}
-
-	ns.PrettyPrint()
-
-	if !ns.Ready() {
-		return fmt.Errorf("cluster is not completely ready")
-	}
-
-	components, err := cluster.Health()
-	if err != nil {
-		return fmt.Errorf("getting Lokomotive cluster health: %w", err)
-	}
-
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
-
-	// Print the header.
-	fmt.Fprintln(w, "Name\tStatus\tMessage\tError\t")
-
-	// An empty line between header and the body.
-	fmt.Fprintln(w, "\t\t\t\t")
-
-	for _, component := range components {
-
-		// The client-go library defines only one `ComponenetConditionType` at the moment,
-		// which is `ComponentHealthy`. However, iterating over the list keeps this from
-		// breaking in case client-go adds another `ComponentConditionType`.
-		for _, condition := range component.Conditions {
-			line := fmt.Sprintf(
-				"%s\t%s\t%s\t%s\t",
-				component.Name, condition.Status, condition.Message, condition.Error,
-			)
-
-			fmt.Fprintln(w, line)
-		}
-
-		w.Flush()
-	}
-
-	return nil
 }
