@@ -10,11 +10,11 @@ terraform {
     }
     null = {
       source  = "hashicorp/null"
-      version = "2.1.2"
+      version = "3.0.0"
     }
     template = {
       source  = "hashicorp/template"
-      version = "2.1.2"
+      version = "2.2.0"
     }
     ct = {
       source = "poseidon/ct"

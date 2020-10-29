@@ -10,15 +10,15 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "1.35.0"
+      version = "2.33.0"
     }
     null = {
       source  = "hashicorp/null"
-      version = "2.1.2"
+      version = "3.0.0"
     }
     template = {
       source  = "hashicorp/template"
-      version = "2.1.2"
+      version = "2.2.0"
     }
   }
 }

@@ -10,11 +10,11 @@ terraform {
     }
     local = {
       source  = "hashicorp/local"
-      version = "1.4.0"
+      version = "2.0.0"
     }
     null = {
       source  = "hashicorp/null"
-      version = "2.1.2"
+      version = "3.0.0"
     }
     packet = {
       source  = "packethost/packet"
@@ -22,7 +22,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "2.3.0"
+      version = "3.0.0"
     }
   }
 }

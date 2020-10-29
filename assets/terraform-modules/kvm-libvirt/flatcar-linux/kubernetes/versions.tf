@@ -5,9 +5,9 @@ terraform {
 
   required_providers {
     ct       = "0.6.0"
-    null     = "2.1.2"
-    template = "2.1.2"
+    null     = "3.0.0"
+    template = "2.2.0"
     libvirt  = "0.6.0"
-    random   = "2.3.0"
+    random   = "3.0.0"
   }
 }

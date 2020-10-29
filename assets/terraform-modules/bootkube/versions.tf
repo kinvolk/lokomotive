@@ -5,11 +5,11 @@ terraform {
   required_providers {
     local = {
       source  = "hashicorp/local"
-      version = "1.4.0"
+      version = "2.0.0"
     }
     template = {
       source  = "hashicorp/template"
-      version = "2.1.2"
+      version = "2.2.0"
     }
     tls = {
       source  = "hashicorp/tls"
