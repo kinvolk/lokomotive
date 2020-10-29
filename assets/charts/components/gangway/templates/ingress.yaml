@@ -8,7 +8,7 @@ metadata:
     kubernetes.io/ingress.class: contour
 spec:
   tls:
-  - secretName: gangway
+  - secretName: {{ .Values.ingressHost }}-tls
     hosts:
     - {{ .Values.ingressHost }}
   rules:
