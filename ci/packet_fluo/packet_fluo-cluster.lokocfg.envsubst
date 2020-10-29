@@ -35,6 +35,10 @@ EOF
   worker_pool "general" {
     count     = 1
     node_type = "c2.medium.x86"
+
+    labels = {
+      "fluo-test-pool" = "true"
+    }
   }
 
   worker_pool "storage" {
