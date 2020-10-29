@@ -67,8 +67,15 @@ spec:
             - --node-group-auto-discovery=mig:namePrefix={{ .name }},min={{ .minSize }},max={{ .maxSize }}
             {{- end }}
           {{- end }}
+          {{- else if eq .Values.cloudProvider "magnum" }}
+            {{- if .Values.autoDiscovery.clusterName }}
+            - --cluster-name={{ .Values.autoDiscovery.clusterName }}
+            - --node-group-auto-discovery=magnum:role={{ tpl (join "," .Values.autoDiscovery.roles) . }}
+            {{- else }}
+            - --cluster-name={{ .Values.magnumClusterName }}
+            {{- end }}
           {{- end }}
-          {{- if eq .Values.cloudProvider "gce" }}
+          {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "magnum") }}
             - --cloud-config={{ .Values.cloudConfigPath }}
           {{- else if eq .Values.cloudProvider "packet" }}
             - --cloud-config={{ .Values.cloudConfigPath }}/cloud-config
@@ -76,7 +83,6 @@ spec:
           {{- range $key, $value := .Values.extraArgs }}
             - --{{ $key }}={{ $value }}
           {{- end }}
-
           env:
           {{- if and (eq .Values.cloudProvider "aws") (ne .Values.awsRegion "") }}
             - name: AWS_REGION
@@ -188,11 +194,16 @@ spec:
           securityContext:
             {{ toYaml .Values.containerSecurityContext | nindent 12 | trim }}
           {{- end }}
-          {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "packet") }}
+          {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "magnum") (eq .Values.cloudProvider "packet") }}
           volumeMounts:
             - name: cloudconfig
               mountPath: {{ .Values.cloudConfigPath }}
               readOnly: true
+          {{- if and (eq .Values.cloudProvider "magnum") (.Values.magnumCABundlePath) }}
+            - name: ca-bundle
+              mountPath: {{ .Values.magnumCABundlePath }}
+              readOnly: true
+          {{- end }}
           {{- end }}
     {{- if .Values.affinity }}
       affinity:
@@ -210,7 +221,7 @@ spec:
         {{ toYaml .Values.securityContext | nindent 8 | trim }}
       {{- end }}
       volumes:
-      {{- if eq .Values.cloudProvider "gce" }}
+      {{- if or (eq .Values.cloudProvider "gce") (eq .Values.cloudProvider "magnum") }}
         - name: cloudconfig
           hostPath:
             path: {{ .Values.cloudConfigPath }}
@@ -218,6 +229,11 @@ spec:
         - name: cloudconfig
           secret:
             secretName: {{ template "cluster-autoscaler.fullname" . }}
+      {{- if and (eq .Values.cloudProvider "magnum") (.Values.magnumCABundlePath) }}
+        - name: ca-bundle
+          hostPath:
+            path: {{ .Values.magnumCABundlePath }}
+      {{- end }}
       {{- end }}
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
