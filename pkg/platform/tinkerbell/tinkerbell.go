@@ -29,6 +29,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
+const (
+	// Name represents Tinkerbell platform name as it should be referenced in function calls and configuration.
+	Name = "tinkerbell"
+)
+
 // Config represents Tinkerbell platform configuration.
 type Config struct { //nolint:maligned
 	AssetDir              string   `hcl:"asset_dir"`
@@ -91,7 +96,7 @@ func (w *WorkerPool) Name() string {
 
 // init registers tinkerbell as a platform.
 func init() { //nolint:gochecknoinits
-	platform.Register("tinkerbell", NewConfig())
+	platform.Register(Name, NewConfig())
 }
 
 // LoadConfig loads platform configuration using given HCL structs.

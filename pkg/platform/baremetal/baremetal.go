@@ -60,9 +60,14 @@ type config struct {
 	KubeAPIServerExtraFlags  []string
 }
 
+const (
+	// Name represents Bare Metal platform name as it should be referenced in function calls and configuration.
+	Name = "bare-metal"
+)
+
 // init registers bare-metal as a platform
 func init() {
-	platform.Register("bare-metal", NewConfig())
+	platform.Register(Name, NewConfig())
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {

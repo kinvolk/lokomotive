@@ -105,9 +105,14 @@ type config struct {
 	NodesDependOn           []string
 }
 
+const (
+	// Name represents Packet platform name as it should be referenced in function calls and configuration.
+	Name = "packet"
+)
+
 // init registers packet as a platform
 func init() {
-	platform.Register("packet", NewConfig())
+	platform.Register(Name, NewConfig())
 }
 
 func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
