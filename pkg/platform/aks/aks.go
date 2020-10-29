@@ -87,13 +87,18 @@ const (
 
 // init registers AKS as a platform.
 func init() { //nolint:gochecknoinits
-	c := &config{
+	platform.Register(name, NewConfig())
+}
+
+// NewConfig returns new AKS platform configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *config {
+	return &config{
 		Location:            "West Europe",
 		ManageResourceGroup: true,
 		KubernetesVersion:   kubernetesVersion,
 	}
-
-	platform.Register(name, c)
 }
 
 // LoadConfig loads configuration values into the config struct from given HCL configuration.
