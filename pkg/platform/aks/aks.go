@@ -74,7 +74,8 @@ type config struct {
 }
 
 const (
-	name = "aks"
+	// Name represents AKS platform name as it should be referenced in function calls and configuration.
+	Name = "aks"
 
 	// Environment variables used to load sensitive parts of the configuration.
 	clientIDEnv       = "LOKOMOTIVE_AKS_CLIENT_ID"
@@ -87,7 +88,7 @@ const (
 
 // init registers AKS as a platform.
 func init() { //nolint:gochecknoinits
-	platform.Register(name, NewConfig())
+	platform.Register(Name, NewConfig())
 }
 
 // NewConfig returns new AKS platform configuration with default values set.
