@@ -95,3 +95,4 @@ component "rook-ceph" {
 
 component "prometheus-operator" {}
 
+component "flatcar-linux-update-operator" {}
