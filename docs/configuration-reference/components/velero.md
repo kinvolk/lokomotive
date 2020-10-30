@@ -147,10 +147,10 @@ Table of all the arguments accepted by the component.
 | `openebs.volume_snapshot_location.s3_url`            | S3 API URL.                                                                                                                 | -                                                 | string | false    |
 | `restic`                                             | Configure Restic provider for Velero.                                                                                       | -                                                 | object | false    |
 | `restic.credentials`                                 | Content of cloud provider credentials.                                                                                      | -                                                 | string | true     |
-| `restic.backup_storage_location.provider`            | Cloud provider name for storing backups.                                                                                    | -                                                 | string | false    |
+| `restic.backup_storage_location.provider`            | Cloud provider name for storing backups.                                                                                    | -                                                 | string | true     |
 | `restic.backup_storage_location.bucket`              | Cloud storage bucket name for storing backups.                                                                              | -                                                 | string | true     |
-| `restic.backup_storage_location.name`                | Name for backup location object on the cluster.                                                                             | -                                                 | string | false    |
-| `restic.backup_storage_location.region`              | Cloud provider region for storing snapshots.                                                                                | `eu-west-1`                                       | string | false    |
+| `restic.backup_storage_location.name`                | Name for backup location object on the cluster.                                                                             | "default"                                         | string | false    |
+| `restic.backup_storage_location.region`              | Cloud provider region for storing snapshots. Required if `restic.backup_storage_location.provider = aws`.                   | -                                                 | string | false    |
 
 ## Applying
 

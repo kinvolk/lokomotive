@@ -44,11 +44,7 @@ type BackupStorageLocation struct {
 // NewConfiguration returns the default restic configuration.
 func NewConfiguration() *Configuration {
 	return &Configuration{
-		BackupStorageLocation: &BackupStorageLocation{
-			Provider: "aws",
-			Name:     "default",
-			Region:   "eu-west-1",
-		},
+		BackupStorageLocation: &BackupStorageLocation{},
 	}
 }
 
