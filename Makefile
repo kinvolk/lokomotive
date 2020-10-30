@@ -6,7 +6,7 @@ VERSION :=
 MOD ?= vendor
 DOCS_DIR ?= docs/cli
 
-ALL_BUILD_TAGS := "aws,packet,aks,e2e,baremetal,disruptivee2e,poste2e"
+ALL_BUILD_TAGS := "aws,packet,aks,e2e,baremetal,disruptivee2e,poste2e,packet_fluo"
 
 ADMISSION_WEBHOOK_SERVER := "quay.io/kinvolk/lokomotive-admission-webhook-server"
 
