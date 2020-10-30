@@ -15,7 +15,7 @@
 package rookceph
 
 // CephCluster resource definition was taken from:
-// https://github.com/rook/rook/blob/v1.4.2/cluster/examples/kubernetes/ceph/cluster.yaml
+// https://github.com/rook/rook/blob/v1.4.6/cluster/examples/kubernetes/ceph/cluster.yaml
 var template = map[string]string{
 	"ceph-cluster.yaml": `
 apiVersion: ceph.rook.io/v1
@@ -25,7 +25,7 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   cephVersion:
-    image: ceph/ceph:v15.2.4-20200630
+    image: ceph/ceph:v15.2.5-20200916
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
@@ -52,6 +52,7 @@ spec:
       method: quick
       dataSource: zero
       iteration: 1
+    allowUninstallWithVolumes: false
   placement:
     all:
       {{- if .NodeAffinity }}
@@ -186,7 +187,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: rook-ceph-tools
-        image: rook/ceph:v1.4.2
+        image: rook/ceph:v1.4.6
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
         imagePullPolicy: IfNotPresent

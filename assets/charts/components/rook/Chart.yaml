@@ -4,4 +4,4 @@ icon: https://rook.io/images/rook-logo.svg
 name: rook-ceph
 sources:
 - https://github.com/rook/rook
-version: v1.4.2
+version: v1.4.6
