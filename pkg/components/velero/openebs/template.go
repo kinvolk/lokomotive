@@ -57,7 +57,7 @@ credentials:
 {{ .CredentialsIndented }}
   {{- end }}
 initContainers:
-- image: openebs/velero-plugin:2.0.0
+- image: openebs/velero-plugin:2.2.0
   imagePullPolicy: IfNotPresent
   name: velero-plugin-for-openebs
   resources: {}

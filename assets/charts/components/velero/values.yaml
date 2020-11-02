@@ -6,18 +6,21 @@
 # enabling restic). Required.
 image:
   repository: velero/velero
-  tag: v1.4.2
+  tag: v1.5.2
   # Digest value example: sha256:d238835e151cec91c6a811fe3a89a66d3231d9f64d09e5f3c49552672d271f38. If used, it will
   # take precedence over the image.tag.
   # digest:
   pullPolicy: IfNotPresent
+  # One or more secrets to be used when pulling images
+  imagePullSecrets: []
+  # - registrySecretName
 
 # Annotations to add to the Velero deployment's pod template. Optional.
 #
 # If using kube2iam or kiam, use the following annotation with your AWS_ACCOUNT_ID
 # and VELERO_ROLE_NAME filled in:
-#  iam.amazonaws.com/role: arn:aws:iam::<AWS_ACCOUNT_ID>:role/<VELERO_ROLE_NAME>
 podAnnotations: {}
+  #  iam.amazonaws.com/role: "arn:aws:iam::<AWS_ACCOUNT_ID>:role/<VELERO_ROLE_NAME>"
 
 # Additional pod labels for Velero deployment's template. Optional
 # ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
@@ -40,6 +43,9 @@ initContainers: []
 # see more informations at: https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html
 securityContext: {}
   # fsGroup: 1337
+
+# Pod priority class name to use for the Velero deployment. Optional.
+priorityClassName: ""
 
 # Tolerations to use for the Velero deployment. Optional.
 tolerations: []
@@ -83,7 +89,7 @@ configuration:
   provider:
 
   # Parameters for the `default` BackupStorageLocation. See
-  # https://velero.io/docs/v1.4/api-types/backupstoragelocation/
+  # https://velero.io/docs/v1.5/api-types/backupstoragelocation/
   backupStorageLocation:
     # name is the name of the backup storage location where backups should be stored. If a name is not provided,
     # a backup storage location will be created with the name "default". Optional.
@@ -114,7 +120,7 @@ configuration:
     #  serviceAccount:
 
   # Parameters for the `default` VolumeSnapshotLocation. See
-  # https://velero.io/docs/v1.4/api-types/volumesnapshotlocation/
+  # https://velero.io/docs/v1.5/api-types/volumesnapshotlocation/
   volumeSnapshotLocation:
     # name is the name of the volume snapshot location where snapshots are being taken. Required.
     name:
@@ -157,6 +163,9 @@ configuration:
 
   # Set log-format for Velero pod. Default: text. Other option: json.
   logFormat:
+
+  # Set true for backup all pod volumes without having to apply annotation on the pod when used restic Default: false. Other option: false.
+  defaultVolumesToRestic:
 
 ##
 ## End of backup/snapshot location settings.
@@ -210,7 +219,7 @@ restic:
   podVolumePath: /var/lib/kubelet/pods
   privileged: false
   # Pod priority class name to use for the Restic daemonset. Optional.
-  priorityClassName: {}
+  priorityClassName: ""
   # Resource requests/limits to specify for the Restic daemonset deployment. Optional.
   resources: {}
   # Tolerations to use for the Restic daemonset. Optional.
@@ -232,13 +241,13 @@ restic:
 # Eg:
 # schedules:
 #   mybackup:
-#      labels:
-#        myenv: foo
+#     labels:
+#       myenv: foo
 #     schedule: "0 0 * * *"
 #     template:
 #       ttl: "240h"
 #       includedNamespaces:
-#        - foo
+#       - foo
 schedules: {}
 
 # Velero ConfigMaps.
