@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 
 	"github.com/kinvolk/lokomotive/internal/template"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 )
 
 type local struct {
@@ -31,11 +30,6 @@ const (
 	// and in configuration.
 	Name = "local"
 )
-
-// init registers local as a backend.
-func init() {
-	backend.Register(Name, NewConfig())
-}
 
 // LoadConfig loads the configuration for the local backend.
 func (l *local) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {

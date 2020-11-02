@@ -22,7 +22,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 
 	"github.com/kinvolk/lokomotive/internal/template"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 )
 
 type s3 struct {
@@ -38,11 +37,6 @@ const (
 	// and in configuration.
 	Name = "s3"
 )
-
-// init registers s3 as a backend.
-func init() {
-	backend.Register(Name, NewConfig())
-}
 
 // LoadConfig loads the configuration for the s3 backend.
 func (s *s3) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
