@@ -5,7 +5,7 @@ metadata:
   name: contour-certgen
   namespace: projectcontour
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: contour
@@ -19,7 +19,7 @@ subjects:
   name: contour-certgen
   namespace: projectcontour
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: contour-certgen
@@ -36,7 +36,7 @@ rules:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: contour-certgen-v1.7.0
+  name: contour-certgen-v1.9.0
   namespace: projectcontour
 spec:
   ttlSecondsAfterFinished: 0
@@ -48,9 +48,6 @@ spec:
       containers:
       - name: contour
         # This version is set to latest because Job specs are immutable;
-        # if we change this on each version, you can no longer upgrade
-        # just by applying the deployment YAML.
-        # See #2423, #2395, #2150, and #2030 for earlier questions about this.
         image: {{.Values.contour.image}}:latest
         imagePullPolicy: Always
         command:
