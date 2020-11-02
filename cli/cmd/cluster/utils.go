@@ -24,7 +24,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/backend/s3"
 	"github.com/kinvolk/lokomotive/pkg/config"
@@ -42,14 +41,24 @@ const (
 	kubeconfigTerraformOutputKey = "kubeconfig"
 )
 
+// backend describes the Terraform state storage location.
+type backend interface {
+	// LoadConfig loads the backend config provided by the user.
+	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
+	// Render renders the backend template with user backend configuration.
+	Render() (string, error)
+	// Validate validates backend configuration.
+	Validate() error
+}
+
 // getConfiguredBackend loads a backend from the given configuration file.
-func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
+func getConfiguredBackend(lokoConfig *config.Config) (backend, hcl.Diagnostics) {
 	if lokoConfig.RootConfig.Backend == nil {
 		// No backend defined and no configuration error
 		return nil, hcl.Diagnostics{}
 	}
 
-	backends := map[string]backend.Backend{
+	backends := map[string]backend{
 		s3.Name:    s3.NewConfig(),
 		local.Name: local.NewConfig(),
 	}

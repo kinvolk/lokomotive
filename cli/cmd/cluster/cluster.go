@@ -27,7 +27,6 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
@@ -125,7 +124,7 @@ func (c *cluster) unpackControlplaneCharts() error {
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func (cc clusterConfig) initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
+func (cc clusterConfig) initializeTerraform(p platform.Platform, b backend) (*terraform.Executor, error) {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		return nil, fmt.Errorf("expanding path %q: %w", p.Meta().AssetDir, err)
