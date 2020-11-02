@@ -32,7 +32,14 @@ const (
 )
 
 func init() {
-	components.Register(Name, &component{})
+	components.Register(Name, NewConfig())
+}
+
+// NewConfig returns new Flatcar Linux Update Operator component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
+	return &component{}
 }
 
 type component struct{}
