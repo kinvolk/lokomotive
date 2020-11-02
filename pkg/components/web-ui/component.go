@@ -35,7 +35,7 @@ const (
 
 //nolint:gochecknoinits
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type oidc struct {
@@ -50,7 +50,10 @@ type component struct {
 	OIDC      *oidc          `hcl:"oidc,block"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Web UI component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace: "lokomotive-system",
 	}

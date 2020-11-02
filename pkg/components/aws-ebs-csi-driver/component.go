@@ -38,14 +38,17 @@ enableDefaultStorageClass: {{ .EnableDefaultStorageClass }}
 
 //nolint:gochecknoinits
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
 	EnableDefaultStorageClass bool `hcl:"enable_default_storage_class,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new AWS EBS CSI driver component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		EnableDefaultStorageClass: true,
 	}

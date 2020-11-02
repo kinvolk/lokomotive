@@ -33,7 +33,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -43,7 +43,10 @@ type component struct {
 	ServiceMonitor bool   `hcl:"service_monitor,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new cert-manager component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace:      "cert-manager",
 		Webhooks:       true,

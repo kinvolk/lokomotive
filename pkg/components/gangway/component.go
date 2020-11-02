@@ -33,7 +33,7 @@ const (
 )
 
 func init() { //nolint:gochecknoinits
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -49,7 +49,10 @@ type component struct {
 	CertManagerClusterIssuer string `hcl:"certmanager_cluster_issuer,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Gangway component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		CertManagerClusterIssuer: "letsencrypt-production",
 	}

@@ -79,7 +79,7 @@ serviceMonitor:
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -118,7 +118,10 @@ type packetConfiguration struct {
 	AuthToken     string
 }
 
-func newComponent() *component {
+// NewConfig returns new Cluster Autoscaler component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	c := &component{
 		Provider:               "packet",
 		Namespace:              "kube-system",

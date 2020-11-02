@@ -69,7 +69,7 @@ component "contour" {
 			t.Errorf("%s - Error getting component body: %v", tc.desc, d)
 		}
 
-		c := newComponent()
+		c := NewConfig()
 		d = c.LoadConfig(b, nil)
 
 		if !tc.wantErr && d.HasErrors() {

@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
 	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
@@ -33,7 +33,7 @@ func TestEmptyConfig(t *testing.T) {
 }
 
 func TestEmptyBody(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `component "external-dns" {}`
 	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
@@ -44,7 +44,7 @@ func TestEmptyBody(t *testing.T) {
 	}
 }
 func TestDefaultValues(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	if c.Namespace != "external-dns" {
 		t.Fatal("Default namespace for installation should be external-dns.")
 	}
@@ -64,7 +64,7 @@ func TestDefaultValues(t *testing.T) {
 }
 
 func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
  component "external-dns" {
    sources = ["ingress"]
@@ -94,7 +94,7 @@ func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
 }
 
 func TestAwsConfigBySettingEnvVariables(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
   component "external-dns" {
     sources = ["ingress"]
@@ -132,7 +132,7 @@ func TestAwsConfigBySettingEnvVariables(t *testing.T) {
 }
 
 func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
   component "external-dns" {
     sources = ["ingress"]
@@ -169,7 +169,7 @@ func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
 }
 
 func TestAwsConfigBySettingConfigFields(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
   component "external-dns" {
     sources = ["ingress"]

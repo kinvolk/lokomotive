@@ -51,7 +51,7 @@ func TestConversion(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			component := newComponent()
+			component := NewConfig()
 			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
@@ -65,7 +65,7 @@ func TestVerifyServiceMonitor(t *testing.T) {
 		enable_monitoring = true
 	}`
 
-	component := newComponent()
+	component := NewConfig()
 	m := testutil.RenderManifests(t, component, Name, inputConfig)
 	testutil.ConfigFromMap(t, m, "istio-operator/templates/service-monitor.yaml")
 }

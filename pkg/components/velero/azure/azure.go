@@ -149,7 +149,7 @@ func (c *Configuration) Validate() hcl.Diagnostics {
 	// Since nested blocks in hcl2 does not support default values during DecodeBody,
 	// we need to set the default value here, rather than adding diagnostics.
 	// Once PR https://github.com/hashicorp/hcl2/pull/120 is released, this value can be set in
-	// newComponent() and diagnostic can be added.
+	// NewConfig() and diagnostic can be added.
 	defaultAPITimeout := "10m"
 	if c.VolumeSnapshotLocation == nil {
 		c.VolumeSnapshotLocation = &VolumeSnapshotLocation{

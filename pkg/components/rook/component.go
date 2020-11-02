@@ -34,7 +34,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -55,7 +55,10 @@ type component struct {
 	CSIPluginTolerationsRaw  string
 }
 
-func newComponent() *component {
+// NewConfig returns new Rook component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace: "rook",
 	}

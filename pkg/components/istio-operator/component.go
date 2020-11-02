@@ -36,7 +36,7 @@ const (
 
 //nolint:gochecknoinits
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -44,7 +44,10 @@ type component struct {
 	EnableMonitoring bool   `hcl:"enable_monitoring,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Istio Operator component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Profile:          "minimal",
 		EnableMonitoring: false,

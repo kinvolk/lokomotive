@@ -34,7 +34,7 @@ const (
 )
 
 func init() { //nolint:gochecknoinits
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type org struct {
@@ -81,7 +81,10 @@ type component struct {
 	StaticClientsRaw string
 }
 
-func newComponent() *component {
+// NewConfig returns new Dex component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		CertManagerClusterIssuer: "letsencrypt-production",
 	}

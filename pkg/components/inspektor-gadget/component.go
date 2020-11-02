@@ -34,7 +34,7 @@ const (
 
 //nolint:gochecknoinits
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -42,7 +42,10 @@ type component struct {
 	EnableTraceloop bool   `hcl:"enable_traceloop,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Inspektor Gadget component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace:       "kube-system",
 		EnableTraceloop: true,

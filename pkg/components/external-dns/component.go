@@ -66,7 +66,7 @@ metrics:
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 // AwsConfig provides configuration for AWS Route53 DNS.
@@ -88,7 +88,10 @@ type component struct {
 	OwnerID        string    `hcl:"owner_id"`
 }
 
-func newComponent() *component {
+// NewConfig returns new ExternalDNS component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace: "external-dns",
 		Sources:   []string{"ingress"},

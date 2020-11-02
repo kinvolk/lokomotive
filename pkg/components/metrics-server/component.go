@@ -53,14 +53,17 @@ args:
 `
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
 	Namespace string `hcl:"namespace,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new metrics-server component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace: "kube-system",
 	}

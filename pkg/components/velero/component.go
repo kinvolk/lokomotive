@@ -38,7 +38,7 @@ const (
 
 // init registers velero component to components list, so it shows up as available to install
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 // component represents component configuration data
@@ -69,8 +69,10 @@ type provider interface {
 	Validate() hcl.Diagnostics
 }
 
-// newComponent creates new velero component struct with default values initialized
-func newComponent() *component {
+// NewConfig returns new Velero component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace: "velero",
 		Metrics: &Metrics{

@@ -33,7 +33,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -48,7 +48,10 @@ type component struct {
 	SpeakerTolerationsJSON    string
 }
 
-func newComponent() *component {
+// NewConfig returns new MetalLB component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{}
 }
 

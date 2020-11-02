@@ -35,7 +35,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type Storageclass struct {
@@ -61,7 +61,10 @@ func defaultStorageClass() *Storageclass {
 	}
 }
 
-func newComponent() *component {
+// NewConfig returns new OpenEBS Storage Class component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Storageclasses: []*Storageclass{},
 	}

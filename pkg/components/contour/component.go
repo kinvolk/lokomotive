@@ -36,7 +36,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 // This annotation is added to Envoy service.
@@ -49,7 +49,10 @@ type component struct {
 	TolerationsRaw   string
 }
 
-func newComponent() *component {
+// NewConfig returns new Contour component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		ServiceType: serviceTypeLoadBalancer,
 	}

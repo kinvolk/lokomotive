@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
@@ -54,7 +54,7 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
@@ -99,7 +99,7 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
@@ -130,7 +130,7 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, d := util.GetComponentBody(configHCL, Name)
 	if d != nil {
@@ -147,7 +147,7 @@ func TestRenderManifestNoProviderConfigured(t *testing.T) {
 component "velero" {}
 `
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, d := util.GetComponentBody(configHCL, Name)
 	if d != nil {
@@ -174,7 +174,7 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, d := util.GetComponentBody(configHCL, Name)
 	if d != nil {

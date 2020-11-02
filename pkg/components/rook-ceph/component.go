@@ -33,7 +33,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -53,7 +53,10 @@ type StorageClass struct {
 	Default bool `hcl:"default,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Rook Ceph component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace:    "rook",
 		MonitorCount: 1,

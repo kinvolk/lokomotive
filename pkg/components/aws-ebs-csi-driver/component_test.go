@@ -26,7 +26,7 @@ import (
 func TestStorageClassEmptyConfig(t *testing.T) {
 	configHCL := `component "aws-ebs-csi-driver" {}`
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
@@ -65,7 +65,7 @@ func TestStorageClassEnabled(t *testing.T) {
 		enable_default_storage_class = true
 	}`
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
@@ -104,7 +104,7 @@ func TestStorageClassDisabled(t *testing.T) {
 		enable_default_storage_class = false
 	}`
 
-	component := newComponent()
+	component := NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {

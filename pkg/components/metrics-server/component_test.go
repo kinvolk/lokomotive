@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
 	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)

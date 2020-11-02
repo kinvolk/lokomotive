@@ -33,7 +33,7 @@ const (
 )
 
 func init() {
-	components.Register(Name, newComponent())
+	components.Register(Name, NewConfig())
 }
 
 type component struct {
@@ -92,7 +92,10 @@ webhook:
 {{- end }}
 `
 
-func newComponent() *component {
+// NewConfig returns new OpenEBS Operator component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{}
 }
 

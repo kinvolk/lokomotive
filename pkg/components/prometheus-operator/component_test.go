@@ -101,7 +101,7 @@ component "prometheus-operator" {
 				t.Fatalf("error getting component body: %v", d)
 			}
 
-			c := newComponent()
+			c := NewConfig()
 			d = c.LoadConfig(b, nil)
 
 			if !tc.wantErr && d.HasErrors() {
@@ -208,7 +208,7 @@ providers:
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			component := newComponent()
+			component := NewConfig()
 			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
