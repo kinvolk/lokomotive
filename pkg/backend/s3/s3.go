@@ -33,9 +33,15 @@ type s3 struct {
 	DynamoDBTable string `hcl:"dynamodb_table,optional"`
 }
 
+const (
+	// Name represents S3 backend name as it should be referenced in function calls
+	// and in configuration.
+	Name = "s3"
+)
+
 // init registers s3 as a backend.
 func init() {
-	backend.Register("s3", NewConfig())
+	backend.Register(Name, NewConfig())
 }
 
 // LoadConfig loads the configuration for the s3 backend.

@@ -26,9 +26,15 @@ type local struct {
 	Path string `hcl:"path,optional"`
 }
 
+const (
+	// Name represents Local backend name as it should be referenced in function calls
+	// and in configuration.
+	Name = "local"
+)
+
 // init registers local as a backend.
 func init() {
-	backend.Register("local", NewConfig())
+	backend.Register(Name, NewConfig())
 }
 
 // LoadConfig loads the configuration for the local backend.
