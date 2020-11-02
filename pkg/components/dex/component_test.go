@@ -17,7 +17,7 @@ package dex_test
 import (
 	"testing"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/dex"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -110,10 +110,7 @@ func TestRenderManifest(t *testing.T) {
 			t.Fatalf("%s - Error getting component body: %v", tc.desc, d)
 		}
 
-		c, err := components.Get(name)
-		if err != nil {
-			t.Fatalf("failed getting component: %v", err)
-		}
+		c := dex.NewConfig()
 
 		d = c.LoadConfig(b, nil)
 
@@ -145,10 +142,7 @@ func TestDeploymentAnnotationHashChange(t *testing.T) {
 			t.Fatalf("%s - Error getting component body: %v", tc.desc, d)
 		}
 
-		c, err := components.Get(name)
-		if err != nil {
-			t.Fatalf("failed getting component: %v", err)
-		}
+		c := dex.NewConfig()
 
 		d = c.LoadConfig(b, nil)
 		if !tc.wantErr && d.HasErrors() {
