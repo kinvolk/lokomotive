@@ -35,7 +35,7 @@ type s3 struct {
 
 // init registers s3 as a backend.
 func init() {
-	backend.Register("s3", NewS3Backend())
+	backend.Register("s3", NewConfig())
 }
 
 // LoadConfig loads the configuration for the s3 backend.
@@ -46,7 +46,10 @@ func (s *s3) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.
 	return gohcl.DecodeBody(*configBody, evalContext, s)
 }
 
-func NewS3Backend() *s3 {
+// NewConfig returns new Local backend configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *s3 {
 	return &s3{}
 }
 

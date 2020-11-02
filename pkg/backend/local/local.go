@@ -28,7 +28,7 @@ type local struct {
 
 // init registers local as a backend.
 func init() {
-	backend.Register("local", NewLocalBackend())
+	backend.Register("local", NewConfig())
 }
 
 // LoadConfig loads the configuration for the local backend.
@@ -39,7 +39,10 @@ func (l *local) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) h
 	return gohcl.DecodeBody(*configBody, evalContext, l)
 }
 
-func NewLocalBackend() *local {
+// NewConfig returns new Local backend configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *local {
 	return &local{}
 }
 

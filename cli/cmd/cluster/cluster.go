@@ -82,7 +82,7 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 
 	// Use a local backend if no backend is configured.
 	if b == nil {
-		b = local.NewLocalBackend()
+		b = local.NewConfig()
 	}
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
