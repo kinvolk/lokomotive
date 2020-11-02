@@ -96,7 +96,12 @@ component "rook-ceph" {
   }
 }
 
-
-component "prometheus-operator" {}
+component "prometheus-operator" {
+  grafana {
+    secret_env = {
+      "LOKOMOTIVE_VERY_SECRET_PASSWORD" = "VERY_VERY_SECRET"
+    }
+  }
+}
 
 component "flatcar-linux-update-operator" {}
