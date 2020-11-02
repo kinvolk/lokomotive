@@ -20,19 +20,13 @@ package components_test
 import (
 	"testing"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
-	_ "github.com/kinvolk/lokomotive/pkg/components/web-ui"
+	webui "github.com/kinvolk/lokomotive/pkg/components/web-ui"
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
 func TestDeleteNamespaceMultipleRelease(t *testing.T) {
-	n := "web-ui"
-
-	c, err := components.Get(n)
-	if err != nil {
-		t.Fatalf("failed getting component: %v", err)
-	}
+	c := webui.NewConfig()
 
 	k := testutil.Kubeconfig(t)
 
