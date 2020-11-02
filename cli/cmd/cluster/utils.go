@@ -25,6 +25,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/backend/local"
+	"github.com/kinvolk/lokomotive/pkg/backend/s3"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/aks"
@@ -47,11 +49,16 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagn
 		return nil, hcl.Diagnostics{}
 	}
 
-	backend, err := backend.GetBackend(lokoConfig.RootConfig.Backend.Name)
-	if err != nil {
+	backends := map[string]backend.Backend{
+		s3.Name:    s3.NewConfig(),
+		local.Name: local.NewConfig(),
+	}
+
+	backend, ok := backends[lokoConfig.RootConfig.Backend.Name]
+	if !ok {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  err.Error(),
+			Summary:  fmt.Sprintf("no backend with name %q found", lokoConfig.RootConfig.Backend.Name),
 		}
 		return nil, hcl.Diagnostics{diag}
 	}
