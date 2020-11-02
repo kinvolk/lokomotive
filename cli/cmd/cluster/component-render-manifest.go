@@ -19,7 +19,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/config"
 )
 
@@ -57,7 +56,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames []string
 			"component": componentName,
 		})
 
-		component, err := components.Get(componentName)
+		component, err := componentConfig(componentName)
 		if err != nil {
 			return fmt.Errorf("getting component %q: %w", componentName, err)
 		}
