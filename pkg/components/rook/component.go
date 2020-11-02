@@ -33,10 +33,6 @@ const (
 	Name = "rook"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	Namespace                string            `hcl:"namespace,optional"`
 	NodeSelector             util.NodeSelector `hcl:"node_selector,optional"`

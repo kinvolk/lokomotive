@@ -78,10 +78,6 @@ serviceMonitor:
 `
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	// required parameters
 	Provider    string `hcl:"provider,optional"`

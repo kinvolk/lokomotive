@@ -32,11 +32,6 @@ const (
 	Name = "inspektor-gadget"
 )
 
-//nolint:gochecknoinits
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	Namespace       string `hcl:"namespace,optional"`
 	EnableTraceloop bool   `hcl:"enable_traceloop,optional"`

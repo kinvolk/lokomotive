@@ -34,10 +34,6 @@ const (
 	Name = "prometheus-operator"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 // Monitor holds information about which Kubernetes components should be monitored with the default Prometheus instance.
 type Monitor struct {
 	Etcd                  bool `hcl:"etcd,optional"`

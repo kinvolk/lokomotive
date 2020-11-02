@@ -31,10 +31,6 @@ const (
 	Name = "flatcar-linux-update-operator"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 // NewConfig returns new Flatcar Linux Update Operator component configuration with default values set.
 //
 //nolint:golint

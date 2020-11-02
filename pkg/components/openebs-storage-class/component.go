@@ -34,10 +34,6 @@ const (
 	poolName = "openebs-storage-pool"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type Storageclass struct {
 	Name         string   `hcl:"name,label"`
 	ReplicaCount int      `hcl:"replica_count,optional"`

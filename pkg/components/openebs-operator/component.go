@@ -32,10 +32,6 @@ const (
 	Name = "openebs-operator"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	NDMSelectorLabel string `hcl:"ndm_selector_label,optional"`
 	NDMSelectorValue string `hcl:"ndm_selector_value,optional"`

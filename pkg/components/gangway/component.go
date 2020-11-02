@@ -32,10 +32,6 @@ const (
 	Name = "gangway"
 )
 
-func init() { //nolint:gochecknoinits
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	ClusterName              string `hcl:"cluster_name,attr"`
 	IngressHost              string `hcl:"ingress_host,attr"`

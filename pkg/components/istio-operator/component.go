@@ -34,11 +34,6 @@ const (
 	namespace = "istio-operator"
 )
 
-//nolint:gochecknoinits
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	Profile          string `hcl:"profile,optional"`
 	EnableMonitoring bool   `hcl:"enable_monitoring,optional"`

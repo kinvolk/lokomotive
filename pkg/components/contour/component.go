@@ -35,10 +35,6 @@ const (
 	serviceTypeLoadBalancer = "LoadBalancer"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 // This annotation is added to Envoy service.
 type component struct {
 	EnableMonitoring bool                `hcl:"enable_monitoring,optional"`

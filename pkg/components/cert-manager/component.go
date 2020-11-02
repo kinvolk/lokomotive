@@ -32,10 +32,6 @@ const (
 	Name = "cert-manager"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	Email          string `hcl:"email,attr"`
 	Namespace      string `hcl:"namespace,optional"`

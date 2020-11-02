@@ -33,10 +33,6 @@ const (
 	Name = "dex"
 )
 
-func init() { //nolint:gochecknoinits
-	components.Register(Name, NewConfig())
-}
-
 type org struct {
 	Name  string   `hcl:"name,attr" json:"name"`
 	Teams []string `hcl:"teams,attr" json:"teams"`

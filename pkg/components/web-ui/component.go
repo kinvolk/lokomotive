@@ -33,11 +33,6 @@ const (
 	Name = "web-ui"
 )
 
-//nolint:gochecknoinits
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type oidc struct {
 	ClientID     string `hcl:"client_id"`
 	ClientSecret string `hcl:"client_secret"`

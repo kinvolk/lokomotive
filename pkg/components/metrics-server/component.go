@@ -52,10 +52,6 @@ args:
 - --kubelet-preferred-address-types=InternalIP
 `
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	Namespace string `hcl:"namespace,optional"`
 }

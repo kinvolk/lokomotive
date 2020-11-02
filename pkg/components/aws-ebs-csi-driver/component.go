@@ -36,11 +36,6 @@ enableDefaultStorageClass: {{ .EnableDefaultStorageClass }}
 `
 )
 
-//nolint:gochecknoinits
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	EnableDefaultStorageClass bool `hcl:"enable_default_storage_class,optional"`
 }

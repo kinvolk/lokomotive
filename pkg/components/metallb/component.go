@@ -32,10 +32,6 @@ const (
 	Name = "metallb"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	AddressPools            map[string][]string `hcl:"address_pools"`
 	ControllerNodeSelectors map[string]string   `hcl:"controller_node_selectors,optional"`

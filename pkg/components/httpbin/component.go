@@ -32,10 +32,6 @@ const (
 	Name = "httpbin"
 )
 
-func init() { //nolint:gochecknoinits
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	IngressHost              string `hcl:"ingress_host,attr"`
 	CertManagerClusterIssuer string `hcl:"certmanager_cluster_issuer,optional"`

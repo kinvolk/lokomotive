@@ -32,10 +32,6 @@ const (
 	Name = "rook-ceph"
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 type component struct {
 	Namespace      string              `hcl:"namespace,optional"`
 	MonitorCount   int                 `hcl:"monitor_count,optional"`

@@ -65,10 +65,6 @@ metrics:
 `
 )
 
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 // AwsConfig provides configuration for AWS Route53 DNS.
 type AwsConfig struct {
 	ZoneID          string `hcl:"zone_id"`

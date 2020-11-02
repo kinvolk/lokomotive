@@ -36,11 +36,6 @@ const (
 	Name = "velero"
 )
 
-// init registers velero component to components list, so it shows up as available to install
-func init() {
-	components.Register(Name, NewConfig())
-}
-
 // component represents component configuration data
 type component struct {
 	// Namespace where velero resources should be installed. Defaults to 'velero'.
