@@ -11,7 +11,9 @@ maintainers:
   name: rtluckie
 - email: maor.friedman@redhat.com
   name: maorfr
+- email: miroslav.hadzhiev@gmail.com
+  name: Xtigyro
 name: grafana
 sources:
 - https://github.com/grafana/grafana
-version: 5.7.10
+version: 5.8.16

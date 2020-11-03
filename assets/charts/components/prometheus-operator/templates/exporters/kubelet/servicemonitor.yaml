@@ -2,11 +2,11 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ template "prometheus-operator.fullname" . }}-kubelet
-  namespace: {{ template "prometheus-operator.namespace" . }}
+  name: {{ template "kube-prometheus-stack.fullname" . }}-kubelet
+  namespace: {{ template "kube-prometheus-stack.namespace" . }}
   labels:
-    app: {{ template "prometheus-operator.name" . }}-kubelet
-{{- include "prometheus-operator.labels" . | indent 4 }}
+    app: {{ template "kube-prometheus-stack.name" . }}-kubelet
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
   endpoints:
   {{- if .Values.kubelet.serviceMonitor.https }}

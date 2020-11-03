@@ -27,6 +27,7 @@ initContainers:
     {{- end }}
     imagePullPolicy: {{ .Values.initChownData.image.pullPolicy }}
     securityContext:
+      runAsNonRoot: false
       runAsUser: 0
     command: ["chown", "-R", "{{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.runAsGroup }}", "/var/lib/grafana"]
     resources:
@@ -178,6 +179,10 @@ containers:
       {{- if .Values.sidecar.skipTlsVerify }}
       - name: SKIP_TLS_VERIFY
         value: "{{ .Values.sidecar.skipTlsVerify }}"
+      {{- end }}
+      {{- if .Values.sidecar.dashboards.folderAnnotation }}
+      - name: FOLDER_ANNOTATION
+        value: "{{ .Values.sidecar.dashboards.folderAnnotation }}"
       {{- end }}
     resources:
 {{ toYaml .Values.sidecar.resources | indent 6 }}

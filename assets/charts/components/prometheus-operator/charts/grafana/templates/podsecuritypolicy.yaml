@@ -7,7 +7,6 @@ metadata:
   labels:
     {{- include "grafana.labels" . | nindent 4 }}
   annotations:
-    # XXX: Lokomotive specific change
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
     seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
     {{- if .Values.rbac.pspUseAppArmor }}
