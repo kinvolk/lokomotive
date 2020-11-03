@@ -83,6 +83,14 @@ func checkIngressHost(client kubernetes.Interface, tc componentTestCase) wait.Co
 			return false, fmt.Errorf("error getting ingress: %v", err)
 		}
 
+		if len(ing.Status.LoadBalancer.Ingress) == 0 {
+			return false, fmt.Errorf("got empty Status.LoadBalancer.Ingress")
+		}
+
+		if len(ing.Spec.Rules) == 0 {
+			return false, fmt.Errorf("obtained Ingress has no rules configured")
+		}
+
 		// DNS records are added using external-dns
 		// which is configured to use Route53
 
