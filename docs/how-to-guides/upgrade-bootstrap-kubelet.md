@@ -8,6 +8,7 @@
   - [Step 2: Find out the IP and SSH](#step-2-find-out-the-ip-and-ssh)
   - [Step 3: Upgrade kubelet on node](#step-3-upgrade-kubelet-on-node)
   - [Step 4: Verify](#step-4-verify)
+  - [Step 5: Uncordon the node](#step-5-uncordon-the-node)
 - [Caveats](#caveats)
 
 ## Introduction
@@ -103,6 +104,14 @@ and you see the following logs:
 ```
 Version: <latest_kube>
 acquiring file lock on "/var/run/lock/kubelet.lock"
+```
+
+### Step 5: Uncordon the node
+
+To finish the upgrade process, uncordon upgraded node to mark it as schedulable for pods, using
+the following command:
+```bash
+kubectl uncordon <node name>
 ```
 
 ## Caveats
