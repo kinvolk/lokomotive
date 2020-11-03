@@ -43,7 +43,8 @@ type component struct {
 	Namespace string `hcl:"namespace,optional"`
 	// Metrics specific configuration
 	Metrics *Metrics `hcl:"metrics,block"`
-
+	// Provider specifies which Velero plugin is to be configured.
+	Provider string `hcl:"provider"`
 	// Azure specific parameters
 	Azure *azure.Configuration `hcl:"azure,block"`
 	// OpenEBS specific parameters.
@@ -72,6 +73,9 @@ func newComponent() *component {
 			Enabled:        false,
 			ServiceMonitor: false,
 		},
+		Azure:   &azure.Configuration{},
+		OpenEBS: &openebs.Configuration{},
+		Restic:  restic.NewConfiguration(),
 	}
 }
 
@@ -187,29 +191,16 @@ func (c *component) getSupportedProviders() []string {
 // If no providers are configured or there is more than one provider configured, error
 // is returned.
 func (c *component) getProvider() (provider, error) {
-	providers := []provider{}
-
-	if c.Azure != nil {
-		providers = append(providers, c.Azure)
+	switch c.Provider {
+	case "azure":
+		return c.Azure, nil
+	case "openebs":
+		return c.OpenEBS, nil
+	case "restic":
+		return c.Restic, nil
+	default:
+		return nil, fmt.Errorf("unknown provider: %s", c.Provider)
 	}
-
-	if c.OpenEBS != nil {
-		providers = append(providers, c.OpenEBS)
-	}
-
-	if c.Restic != nil {
-		providers = append(providers, c.Restic)
-	}
-
-	if len(providers) > 1 {
-		return nil, fmt.Errorf("more than one provider configured")
-	}
-
-	if len(providers) == 0 {
-		return nil, fmt.Errorf("no providers configured")
-	}
-
-	return providers[0], nil
 }
 
 func (c *component) Metadata() components.Metadata {

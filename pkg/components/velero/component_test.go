@@ -37,6 +37,7 @@ func TestEmptyConfig(t *testing.T) {
 func TestRenderManifestAzure(t *testing.T) {
 	configHCL := `
 component "velero" {
+  provider = "azure"
   azure {
     subscription_id  = "foo"
     tenant_id        = "foo"
@@ -78,6 +79,7 @@ component "velero" {
 func TestRenderManifestOpenEBS(t *testing.T) {
 	configHCL := `
 component "velero" {
+  provider = "openebs"
   openebs {
     credentials = "foo"
     provider    = "aws"
@@ -122,6 +124,7 @@ component "velero" {
 func TestRenderManifestConflictingProviders(t *testing.T) {
 	configHCL := `
 component "velero" {
+  provider = "azure"
   azure {}
   openebs {}
 }
@@ -159,6 +162,7 @@ component "velero" {}
 func TestRenderManifestRestic(t *testing.T) {
 	configHCL := `
 component "velero" {
+  provider = "restic"
   restic {
     credentials = "foo"
 
