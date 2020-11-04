@@ -162,6 +162,10 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
 	}
 
+	if c.AuthToken == "" {
+		c.AuthToken = os.Getenv("PACKET_AUTH_TOKEN")
+	}
+
 	if err := c.DNS.Validate(); err != nil {
 		return fmt.Errorf("parsing DNS configuration: %w", err)
 	}
