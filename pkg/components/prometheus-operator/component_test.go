@@ -146,7 +146,7 @@ component "prometheus-operator" {
   }
 }
 `,
-			expectedManifestName: "prometheus-operator/templates/prometheus/prometheus.yaml",
+			expectedManifestName: "kube-prometheus-stack/templates/prometheus/prometheus.yaml",
 			expected:             "https://prometheus.externalurl.net",
 			jsonPath:             "{.spec.externalUrl}",
 		},
@@ -163,7 +163,7 @@ component "prometheus-operator" {
 		  }
 		}
 		`,
-			expectedManifestName: "prometheus-operator/templates/prometheus/prometheus.yaml",
+			expectedManifestName: "kube-prometheus-stack/templates/prometheus/prometheus.yaml",
 			expected:             "https://prometheus.mydomain.net",
 			jsonPath:             "{.spec.externalUrl}",
 		},
@@ -180,14 +180,14 @@ component "prometheus-operator" {
 		  }
 		}
 		`,
-			expectedManifestName: "prometheus-operator/templates/prometheus/ingress.yaml",
+			expectedManifestName: "kube-prometheus-stack/templates/prometheus/ingress.yaml",
 			expected:             "prometheus.mydomain.net",
 			jsonPath:             "{.spec.rules[0].host}",
 		},
 		{
 			name:                 "verify foldersFromFilesStructure in configmap",
 			inputConfig:          `component "prometheus-operator" {}`,
-			expectedManifestName: "prometheus-operator/charts/grafana/templates/configmap-dashboard-provider.yaml",
+			expectedManifestName: "kube-prometheus-stack/charts/grafana/templates/configmap-dashboard-provider.yaml",
 			expected: `apiVersion: 1
 providers:
 - name: 'sidecarProvider'

@@ -39,7 +39,7 @@ func TestAWSIngress(t *testing.T) {
 		{
 			Component: "prometheus-operator",
 			Namespace: "monitoring",
-			Ingress:   "prometheus-operator-prometheus",
+			Ingress:   "prometheus-operator-kube-p-prometheus",
 			Subpath:   "graph",
 		},
 	}

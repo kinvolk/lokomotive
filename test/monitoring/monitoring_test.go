@@ -31,7 +31,7 @@ func TestPrometheus(t *testing.T) {
 	const prometheusPodPort = 9090
 
 	p := &testutil.PortForwardInfo{
-		PodName:   "prometheus-prometheus-operator-prometheus-0",
+		PodName:   "prometheus-prometheus-operator-kube-p-prometheus-0",
 		Namespace: "monitoring",
 		PodPort:   prometheusPodPort,
 	}

@@ -36,16 +36,27 @@ import (
 )
 
 const (
-	namespace         = "monitoring"
-	grafanaDeployment = "prometheus-operator-grafana"
+	namespace = "monitoring"
+
+	grafanaDeployment             = "prometheus-operator-grafana"
+	kubeStateMetricsDeployment    = "prometheus-operator-kube-state-metrics"
+	kubePrometheusStackDeployment = "prometheus-operator-kube-p-operator"
+
+	alertManagerStatefulSet        = "alertmanager-prometheus-operator-kube-p-alertmanager"
+	kubePrometheusStackStatefulset = "prometheus-prometheus-operator-kube-p-prometheus"
+
+	nodeExporterDaemonSet = "prometheus-operator-prometheus-node-exporter"
+
+	alertManagerPvc        = "data-alertmanager-prometheus-operator-kube-p-alertmanager-0"
+	kubePrometheusStackPvc = "data-prometheus-prometheus-operator-kube-p-prometheus-0"
 )
 
 func TestPrometheusOperatorDeployment(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
 	deployments := []string{
-		"prometheus-operator-operator",
-		"prometheus-operator-kube-state-metrics",
+		kubeStateMetricsDeployment,
+		kubePrometheusStackDeployment,
 		grafanaDeployment,
 	}
 
@@ -59,8 +70,8 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 	}
 
 	statefulSets := []string{
-		"alertmanager-prometheus-operator-alertmanager",
-		"prometheus-prometheus-operator-prometheus",
+		alertManagerStatefulSet,
+		kubePrometheusStackStatefulset,
 	}
 
 	for _, statefulset := range statefulSets {
@@ -73,7 +84,7 @@ func TestPrometheusOperatorDeployment(t *testing.T) {
 		})
 	}
 
-	testutil.WaitForDaemonSet(t, client, namespace, "prometheus-operator-prometheus-node-exporter", testutil.RetryInterval, testutil.TimeoutSlow) //nolint:lll
+	testutil.WaitForDaemonSet(t, client, namespace, nodeExporterDaemonSet, testutil.RetryInterval, testutil.TimeoutSlow) //nolint:lll
 }
 
 //nolint:funlen
@@ -163,8 +174,8 @@ func TestGrafanaLoadsEnvVars(t *testing.T) {
 
 func TestPrometheusOperatorPVC(t *testing.T) {
 	pvcs := []string{
-		"data-alertmanager-prometheus-operator-alertmanager-0",
-		"data-prometheus-prometheus-operator-prometheus-0",
+		alertManagerPvc,
+		kubePrometheusStackPvc,
 	}
 
 	client := testutil.CreateKubeClient(t)
