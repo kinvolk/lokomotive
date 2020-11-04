@@ -88,13 +88,7 @@ resource "local_file" "kubernetes" {
 
 locals {
   bootstrap_secrets = templatefile("${path.module}/resources/charts/bootstrap-secrets.yaml", {
-    bootstrap_tokens = [
-      for token in var.bootstrap_tokens :
-      {
-        token_id     = token.token_id
-        token_secret = token.token_secret
-      }
-    ]
+    bootstrap_tokens = var.bootstrap_tokens
   })
 }
 
