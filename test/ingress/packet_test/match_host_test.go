@@ -65,7 +65,7 @@ func TestIngressHost(t *testing.T) {
 			}
 
 			if err := wait.PollImmediate(
-				testutil.RetryInterval, testutil.Timeout, checkIngressHost(client, tc),
+				testutil.RetryInterval, testutil.Timeout, checkIngressHost(t, client, tc),
 			); err != nil {
 				t.Fatalf("%v", err)
 			}
@@ -73,7 +73,7 @@ func TestIngressHost(t *testing.T) {
 	}
 }
 
-func checkIngressHost(client kubernetes.Interface, tc componentTestCase) wait.ConditionFunc {
+func checkIngressHost(t *testing.T, client kubernetes.Interface, tc componentTestCase) wait.ConditionFunc {
 	return func() (done bool, err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout*time.Second)
 		defer cancel()
@@ -84,7 +84,9 @@ func checkIngressHost(client kubernetes.Interface, tc componentTestCase) wait.Co
 		}
 
 		if len(ing.Status.LoadBalancer.Ingress) == 0 {
-			return false, fmt.Errorf("got empty Status.LoadBalancer.Ingress")
+			t.Log("Status.LoadBalancer.Ingress is not populated yet")
+
+			return false, nil
 		}
 
 		if len(ing.Spec.Rules) == 0 {
