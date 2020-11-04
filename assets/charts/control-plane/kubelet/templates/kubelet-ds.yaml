@@ -36,6 +36,9 @@ spec:
           --authorization-mode=Webhook \
           --client-ca-file=/etc/kubernetes/ca.crt \
           --cluster_dns={{ .Values.clusterDNS }} \
+          {{- if .Values.cloudProvider }}
+          --cloud-provider={{ .Values.cloudProvider }} \
+          {{- end }}
           --cluster_domain={{ .Values.clusterDomain }} \
           --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
