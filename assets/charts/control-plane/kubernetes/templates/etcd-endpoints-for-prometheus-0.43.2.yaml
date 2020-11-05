@@ -1,0 +1,49 @@
+# These resources are created to scrape etcd metrics after the Prometheus
+# operator component is updated.  Only difference between the
+# `etcd-endpoints.yaml` and this is the name and the value of the label key
+# `app`.  This is done so that once the Prometheus operator component is updated
+# scraping of etcd metrics is not interrupted.
+{{- if .Values.etcd.endpoints }}
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: etcd-updated-for-prometheus-operator-0-43-2
+  labels:
+    generatedby: bootkube
+    # These labels are to make sure that the Prometheus Operator ServiceMonitor picks this
+    # endpoints correctly.
+    app: kube-prometheus-stack-kube-etcd
+    release: prometheus-operator
+  namespace: kube-system
+subsets:
+- addresses:
+  {{- range .Values.etcd.endpoints }}
+  - ip: {{ . }}
+  {{- end }}
+  ports:
+  - name: http-metrics
+    port: 2381
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-updated-for-prometheus-operator-0-43-2
+  labels:
+    jobLabel: kube-etcd
+    generatedby: bootkube
+    # These labels are to make sure that the Prometheus Operator ServiceMonitor picks this
+    # endpoints correctly.
+    app: kube-prometheus-stack-kube-etcd
+    release: prometheus-operator
+  namespace: kube-system
+spec:
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 2381
+    protocol: TCP
+    targetPort: 2381
+  type: ClusterIP
+
+{{- end }}

@@ -6,7 +6,7 @@ metadata:
   namespace: projectcontour
   labels:
     release: prometheus-operator
-    app: kube-prometheus-stack
+    app: prometheus-operator
 spec:
   groups:
   - name: contour-rules

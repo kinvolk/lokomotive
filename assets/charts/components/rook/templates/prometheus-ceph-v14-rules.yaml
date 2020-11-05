@@ -6,7 +6,7 @@ metadata:
     prometheus: rook-prometheus
     role: alert-rules
     release: prometheus-operator
-    app: kube-prometheus-stack
+    app: prometheus-operator
   name: prometheus-ceph-rules
   namespace: {{ .Release.Namespace }}
 spec:
