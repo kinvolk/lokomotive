@@ -202,7 +202,7 @@ Create a PrometheuRule object with the required configuration and make sure to a
 metadata:
   labels:
     release: prometheus-operator
-    app: prometheus-operator
+    app: kube-prometheus-stack
 ```
 
 ### Custom Prometheus operator setting
