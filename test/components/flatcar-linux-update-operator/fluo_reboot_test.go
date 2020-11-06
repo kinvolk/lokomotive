@@ -73,7 +73,7 @@ func TestNodeCanReachIdleState(t *testing.T) {
 	statusAnnotationKey := "flatcar-linux-update.v1.flatcar-linux.net/status"
 	statusAnnotationVal := "UPDATE_STATUS_IDLE"
 
-	if err := wait.PollImmediate(testutil.RetryInterval, testutil.Timeout, func() (done bool, err error) {
+	if err := wait.PollImmediate(testutil.RetryInterval, testutil.TimeoutSlow, func() (done bool, err error) {
 		node, err := client.CoreV1().Nodes().Get(context.Background(), chosenNode.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, fmt.Errorf("Getting node %q: %v", chosenNode.Name, err)
