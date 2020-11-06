@@ -56,15 +56,15 @@ func TestNodeCanReachIdleState(t *testing.T) {
 
 	// This annotation should be set on the node during the cluster creation, if it is not set then
 	// something changed in the cluster setup process in the CI.
-	if _, ok := chosenNode.Annotations[annotation]; !ok {
-		t.Fatalf("Annotation %q not found on the node.", annotation)
-	}
+	if _, ok := chosenNode.Annotations[annotation]; ok {
+		t.Logf("Annotation %q found on the node, removing.", annotation)
 
-	// Remove the annotation that disables node reboot.
-	delete(chosenNode.Annotations, annotation)
+		// Remove the annotation that disables node reboot.
+		delete(chosenNode.Annotations, annotation)
 
-	if _, err := client.CoreV1().Nodes().Update(context.Background(), &chosenNode, metav1.UpdateOptions{}); err != nil {
-		t.Fatalf("Removing node annotation %q: %v", annotation, err)
+		if _, err := client.CoreV1().Nodes().Update(context.Background(), &chosenNode, metav1.UpdateOptions{}); err != nil {
+			t.Fatalf("Removing node annotation %q: %v", annotation, err)
+		}
 	}
 
 	// Wait for the FLUO to add following annotation key value pair to the chosen node. This may
