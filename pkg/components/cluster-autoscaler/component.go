@@ -169,14 +169,15 @@ func getClusterWorkers(clusterName, facility string, devices []packngo.Device) [
 func findDuplicatedDevices(devices []packngo.Device) []packngo.Device {
 	duplicatedDevices := []packngo.Device{}
 
-	deviceMap := map[string]struct{}{}
+	deviceMap := map[string]string{}
 
 	for _, d := range devices {
-		if _, ok := deviceMap[d.Hostname]; ok {
+		id, ok := deviceMap[d.Hostname]
+		if ok && d.ID != id {
 			duplicatedDevices = append(duplicatedDevices, d)
 		}
 
-		deviceMap[d.Hostname] = struct{}{}
+		deviceMap[d.Hostname] = d.ID
 	}
 
 	return duplicatedDevices

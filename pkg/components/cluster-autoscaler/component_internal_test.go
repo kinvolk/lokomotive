@@ -108,44 +108,49 @@ func TestGetClusterWorkersFilterNonWorkers(t *testing.T) {
 	}
 }
 
-func TestFindDuplicatedDevicesNonUniqueHostname(t *testing.T) {
-	device := packngo.Device{
-		DeviceRaw: packngo.DeviceRaw{
-			Hostname: "foo",
-		},
-	}
-
-	d := []packngo.Device{
-		device,
-		device,
-		{
-			DeviceRaw: packngo.DeviceRaw{
-				Hostname: "bar",
-			},
-		},
-	}
-
-	if w := findDuplicatedDevices(d); len(w) != 1 {
-		t.Fatalf("two devices with the same hostname should be treated as duplicates")
-	}
-}
-
-func TestFindDuplicatedDevicesUniqueHostname(t *testing.T) {
+// Packet API seems to have a bug, that when you use Project API key for querying devices,
+// it returns duplicated entries. However IDs of the devices should be the same, so it should
+// be safe to relax the check on those, as if there would actually be 2 different devices with
+// the same name, they should have different IDs.
+func TestFindDuplicatedDevicesDuplicateHostnamesAndIDs(t *testing.T) {
 	d := []packngo.Device{
 		{
 			DeviceRaw: packngo.DeviceRaw{
-				Hostname: "bar",
+				ID:       "bar",
+				Hostname: "foo",
 			},
 		},
 		{
 			DeviceRaw: packngo.DeviceRaw{
+				ID:       "bar",
 				Hostname: "foo",
 			},
 		},
 	}
 
 	if w := findDuplicatedDevices(d); len(w) != 0 {
-		t.Fatalf("two devices with the different hostname should not be treated as duplicates")
+		t.Fatalf("two devices with the same hostname and same IDs should not be treated as duplicates")
+	}
+}
+
+func TestFindDuplicatedDevicesDuplicateHostnamesUniqueIDs(t *testing.T) {
+	d := []packngo.Device{
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "baz",
+				Hostname: "foo",
+			},
+		},
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "bar",
+				Hostname: "foo",
+			},
+		},
+	}
+
+	if w := findDuplicatedDevices(d); len(w) == 0 {
+		t.Fatalf("two devices with the same hostname but different IDs should be treated as duplicates")
 	}
 }
 
@@ -182,16 +187,21 @@ func TestGetWorkerUserdataNoUserdataOnError(t *testing.T) {
 }
 
 func TestGetWorkerUserdataDuplicatedWorkers(t *testing.T) {
-	device := packngo.Device{
-		DeviceRaw: packngo.DeviceRaw{
-			Hostname: "worker",
-			Facility: &packngo.Facility{},
-		},
-	}
-
 	d := []packngo.Device{
-		device,
-		device,
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "foo",
+				Hostname: "worker",
+				Facility: &packngo.Facility{},
+			},
+		},
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "bar",
+				Hostname: "worker",
+				Facility: &packngo.Facility{},
+			},
+		},
 	}
 
 	if _, err := getWorkerUserdata("", "", d); err == nil {
@@ -202,6 +212,7 @@ func TestGetWorkerUserdataDuplicatedWorkers(t *testing.T) {
 func TestGetWorkerUserdataEmptyUserdata(t *testing.T) {
 	device := packngo.Device{
 		DeviceRaw: packngo.DeviceRaw{
+			ID:       "foo",
 			Hostname: "worker",
 			Facility: &packngo.Facility{},
 		},
@@ -223,6 +234,7 @@ func TestGetWorkerUserdataFirstDevice(t *testing.T) {
 	d := []packngo.Device{
 		{
 			DeviceRaw: packngo.DeviceRaw{
+				ID:       "foo",
 				UserData: expected,
 				Hostname: "worker",
 				Facility: &packngo.Facility{},
@@ -230,6 +242,7 @@ func TestGetWorkerUserdataFirstDevice(t *testing.T) {
 		},
 		{
 			DeviceRaw: packngo.DeviceRaw{
+				ID:       "bar",
 				UserData: "bar",
 				Hostname: "worker2",
 				Facility: &packngo.Facility{},
@@ -248,6 +261,7 @@ func TestGetWorkerUserdataReturnBase64(t *testing.T) {
 	d := []packngo.Device{
 		{
 			DeviceRaw: packngo.DeviceRaw{
+				ID:       "foo",
 				UserData: expected,
 				Hostname: "worker",
 				Facility: &packngo.Facility{},
@@ -266,6 +280,7 @@ func TestGetWorkerUserdataDuplicatedWorkersDifferentClusters(t *testing.T) {
 
 	device := packngo.Device{
 		DeviceRaw: packngo.DeviceRaw{
+			ID:       "foo",
 			UserData: "foo",
 			Hostname: "worker",
 			Facility: &packngo.Facility{
@@ -279,6 +294,7 @@ func TestGetWorkerUserdataDuplicatedWorkersDifferentClusters(t *testing.T) {
 		device,
 		{
 			DeviceRaw: packngo.DeviceRaw{
+				ID:       "bar",
 				UserData: "foo",
 				Hostname: "worker",
 				Facility: &packngo.Facility{
@@ -299,33 +315,51 @@ func TestGetWorkerUserdataDuplicatedWorkersIncludeHostnames(t *testing.T) {
 	hostnameA := "worker1"
 	hostnameB := "worker2"
 
-	deviceA := packngo.Device{
-		DeviceRaw: packngo.DeviceRaw{
-			Hostname: hostnameA,
-			Facility: &packngo.Facility{
-				Code: facility,
-			},
-		},
-	}
-
-	deviceB := packngo.Device{
-		DeviceRaw: packngo.DeviceRaw{
-			Hostname: hostnameB,
-			Facility: &packngo.Facility{
-				Code: facility,
-			},
-		},
-	}
-
 	d := []packngo.Device{
-		deviceA,
-		deviceA,
-		deviceB,
-		deviceB,
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "foo",
+				Hostname: hostnameA,
+				Facility: &packngo.Facility{
+					Code: facility,
+				},
+			},
+		},
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "bar",
+				Hostname: hostnameA,
+				Facility: &packngo.Facility{
+					Code: facility,
+				},
+			},
+		},
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "baz",
+				Hostname: hostnameB,
+				Facility: &packngo.Facility{
+					Code: facility,
+				},
+			},
+		},
+		{
+			DeviceRaw: packngo.DeviceRaw{
+				ID:       "doh",
+				Hostname: hostnameA,
+				Facility: &packngo.Facility{
+					Code: facility,
+				},
+			},
+		},
 	}
 
 	_, err := getWorkerUserdata("", facility, d)
+	if err == nil {
+		t.Fatalf("expected duplicate device error")
+	}
+
 	if !strings.Contains(err.Error(), hostnameA) && !strings.Contains(err.Error(), hostnameB) {
-		t.Fatalf("error should include all duplicated hostnames, got: %v", err)
+		t.Fatalf("error should include all duplicated hostnames, got: %q", err)
 	}
 }

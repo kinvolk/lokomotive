@@ -15,7 +15,7 @@
 // +build aws aws_edge packet
 // +build e2e
 
-package fluo
+package fluo_test
 
 import (
 	"testing"
