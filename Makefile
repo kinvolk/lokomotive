@@ -162,7 +162,7 @@ build-and-publish-release:
 	goreleaser release --release-notes <(./scripts/print-version-changelog.sh)
 
 .PHONY: codespell
-codespell: CODESPELL_SKIP := $(shell cat .codespell.skip | tr \\n ',')
+codespell: CODESPELL_SKIP := $(shell cat .codespell.skip | tr \\n ',' | sed 's/,$$//g')
 codespell: CODESPELL_BIN := codespell
 codespell:
 	which $(CODESPELL_BIN) >/dev/null 2>&1 || (echo "$(CODESPELL_BIN) binary not found, skipping spell checking"; exit 0)
