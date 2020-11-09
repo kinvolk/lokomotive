@@ -48,7 +48,6 @@ global:
   proxy:
     resources:
       cpu:
-        limit: "1"
         request: 100m
       memory:
         limit: 250Mi
@@ -58,7 +57,7 @@ global:
 controllerReplicas: 3
 controllerResources: &controller_resources
   cpu: &controller_resources_cpu
-    limit: "1"
+    limit: ""
     request: 100m
   memory:
     limit: 250Mi
@@ -88,7 +87,7 @@ heartbeatResources: *controller_resources
 prometheus:
   resources:
     cpu:
-      limit: "4"
+      limit: ""
       request: 300m
     memory:
       limit: 8192Mi
@@ -96,7 +95,6 @@ prometheus:
 
 # proxy injector configuration
 proxyInjectorResources: *controller_resources
-
 webhookFailurePolicy: Fail
 
 # service profile validator configuration
