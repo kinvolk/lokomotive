@@ -70,6 +70,7 @@ resource "null_resource" "copy-assets-dir" {
     module.bootkube,
     null_resource.copy-controller-secrets,
     local_file.calico_host_protection,
+    local_file.calico_crds,
   ]
 
   connection {
@@ -102,7 +103,10 @@ resource "null_resource" "bootkube-start" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo mv $HOME/assets /opt/bootkube",
+      "sudo mv $HOME/assets /opt/bootkube/",
+      # This is needed, as the bootkube-start script will move all files matching
+      # /opt/bootkube/asssets/manifests-*/*.yaml into /opt/bootkube/assets/manifests.
+      "sudo mkdir /opt/bootkube/assets/manifests",
       "sudo systemctl start bootkube || (sudo journalctl -u bootkube --no-pager; exit 1)",
     ]
   }
