@@ -77,8 +77,12 @@ ndmOperator:
     "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
 {{- end }}
 
-{{- if and .NDMSelectorLabel .NDMSelectorValue }}
 webhook:
+  # OpenEBS by default ships the failurePolicy as 'Fail', however this causes sometimes to unexpectedly
+  # hit a known bug in OpenEBS https://github.com/openebs/openebs/issues/3046.
+  # One of the workarounds suggested is to change the failurePolicy to "Ignore".
+  failurePolicy: 'Ignore'
+{{- if and .NDMSelectorLabel .NDMSelectorValue }}
   nodeSelector:
     "{{ .NDMSelectorLabel }}": "{{ .NDMSelectorValue }}"
 {{- end }}
