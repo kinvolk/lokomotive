@@ -41,8 +41,9 @@ func init() {
 }
 
 type component struct {
-	ControllerReplicas int  `hcl:"controller_replicas,optional"`
-	EnableMonitoring   bool `hcl:"enable_monitoring,optional"`
+	ControllerReplicas int    `hcl:"controller_replicas,optional"`
+	EnableMonitoring   bool   `hcl:"enable_monitoring,optional"`
+	PrometheusURL      string `hcl:"prometheus_url,optional"`
 
 	Cert cert
 }

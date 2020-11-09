@@ -18,6 +18,7 @@ package linkerd
 const chartValuesTmpl = `
 enableMonitoring: {{.EnableMonitoring}}
 global:
+  prometheusUrl: {{ .PrometheusURL }}
   identityTrustAnchorsPEM: |
 {{ .Cert.CA }}
 
@@ -29,6 +30,12 @@ identity:
 {{ .Cert.Cert }}
       keyPEM: |
 {{ .Cert.Key }}
+
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
 
 # controller configuration
 controllerReplicas: {{.ControllerReplicas}}
