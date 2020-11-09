@@ -16,6 +16,7 @@ package linkerd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -158,6 +159,6 @@ func generateCertificates() (cert, error) {
 		Key:    internal.Indent(root.Cred.EncodePrivateKeyPEM(), 8),
 		Cert:   internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 8),
 		CA:     internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 4),
-		Expiry: root.Cred.Crt.Certificate.NotAfter.String(),
+		Expiry: root.Cred.Crt.Certificate.NotAfter.Format(time.RFC3339),
 	}, nil
 }
