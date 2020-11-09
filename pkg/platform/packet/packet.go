@@ -149,6 +149,11 @@ func (c *config) Meta() platform.Meta {
 		Namespace: "kube-system",
 	})
 
+	charts = append(charts, helm.LokomotiveChart{
+		Name:      "packet-ccm",
+		Namespace: "kube-system",
+	})
+
 	return platform.Meta{
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      nodes,

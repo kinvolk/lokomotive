@@ -23,6 +23,8 @@ module "packet-{{.Config.ClusterName}}" {
   ssh_keys  = {{.SSHPublicKeys}}
   asset_dir = "../cluster-assets"
 
+  auth_token = "{{.Config.AuthToken}}"
+
   cluster_name = "{{.Config.ClusterName}}"
   tags         = {{.Tags}}
   project_id   = "{{.Config.ProjectID}}"

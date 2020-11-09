@@ -48,4 +48,6 @@ module "bootkube" {
   ignore_x509_cn_check = var.ignore_x509_cn_check
 
   conntrack_max_per_core = var.conntrack_max_per_core
+
+  cloud_provider = "external"
 }

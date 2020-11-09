@@ -71,6 +71,7 @@ resource "null_resource" "copy-assets-dir" {
     null_resource.copy-controller-secrets,
     local_file.calico_host_protection,
     local_file.calico_crds,
+    local_file.packet-ccm,
   ]
 
   connection {

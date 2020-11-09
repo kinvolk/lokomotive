@@ -34,20 +34,6 @@ systemd:
         ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done; /opt/wait-for-dns ${dns_zone} ${cluster_name}-private 3600'
         [Install]
         RequiredBy=kubelet.service
-    %{~ if bgp_node_labels != "" ~}
-    - name: bgp-metadata.service
-      enable: true
-      contents: |
-        [Unit]
-        Description=Write BGP metadata to disk
-        Before=kubelet.service
-        [Service]
-        Type=oneshot
-        RemainAfterExit=true
-        ExecStart=/opt/bgp-metadata
-        [Install]
-        RequiredBy=kubelet.service
-    %{~ endif ~}
     - name: coreos-metadata.service
       enable: true
       contents: |
@@ -69,7 +55,6 @@ systemd:
         Wants=rpc-statd.service
         [Service]
         EnvironmentFile=/run/metadata/flatcar
-        EnvironmentFile=-/run/metadata/bgp
         EnvironmentFile=/etc/kubernetes/kubelet.env
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
@@ -107,6 +92,7 @@ systemd:
           --client-ca-file=/etc/kubernetes/ca.crt \
           --cluster_dns=${k8s_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
+          --cloud-provider=external \
           --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
           --exit-on-lock-contention \
@@ -121,11 +107,7 @@ systemd:
           --network-plugin=cni \
           --node-labels=$${NODE_LABELS} \
           --node-labels=lokomotive.alpha.kinvolk.io/public-ipv4=$${COREOS_PACKET_IPV4_PUBLIC_0} \
-          %{~ if bgp_node_labels != "" ~}
-          --node-labels=$${BGP_NODE_LABELS} \
-          --node-labels=metallb.lokomotive.io/peer-address=$${BGP_PEER_ADDRESS_0} \
           --node-labels=metallb.lokomotive.io/src-address=$${COREOS_PACKET_IPV4_PRIVATE_0} \
-          %{~ endif ~}
           --pod-manifest-path=/etc/kubernetes/manifests \
           --read-only-port=0 \
           --register-with-taints=$${NODE_TAINTS} \
@@ -302,7 +284,6 @@ storage:
           KUBELET_IMAGE_URL=quay.io/poseidon/kubelet
           KUBELET_IMAGE_TAG=v1.19.4-${os_arch}
           NODE_LABELS="${join(",", [for k, v in node_labels : "${k}=${v}"])}"
-          BGP_NODE_LABELS="${bgp_node_labels}"
           NODE_TAINTS="${join(",", [for k, v in taints : "${k}=${v}"])}"
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
@@ -429,41 +410,6 @@ storage:
           done
           echo "$record.$zone is available on all nameservers"
           exit 0
-    - path: /opt/bgp-metadata
-      filesystem: root
-      mode: 0544
-      contents:
-        inline: |
-          #!/bin/bash
-          set -o pipefail
-          max_attempts=3600
-          target=/run/metadata/bgp
-          echo "Polling metadata service for BGP information"
-          counter=0
-          while [[ $counter -lt $max_attempts ]]; do
-              out=$(curl -s -f --connect-timeout 5 \
-                  https://metadata.packet.net/metadata | jq -r .bgp_neighbors[0].peer_ips[0])
-              ret=$?
-              if [[ $ret -ne 0 ]]; then
-                  echo "Non-zero exit code: $ret"
-              elif [[ "$out" = "" ]]; then
-                  echo "Empty response"
-              elif [[ "$out" = "null" ]]; then
-                  echo "Null response"
-              else
-                  echo "BGP metadata is available!"
-                  if [[ ! "$out" =~ ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$ ]]; then
-                      echo "Invalid IP $out"
-                      exit 1
-                  fi
-                  echo "BGP_PEER_ADDRESS_0=$out" > "$target"
-                  exit $?
-              fi
-              sleep 1
-              counter=$((counter+1))
-          done
-          echo "BGP metadata did not become available in time"
-          exit 1
 passwd:
   users:
   - name: core
