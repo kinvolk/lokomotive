@@ -103,7 +103,7 @@ resource "null_resource" "bootkube-start" {
   provisioner "remote-exec" {
     inline = [
       "sudo mv $HOME/assets /opt/bootkube",
-      "sudo systemctl start bootkube",
+      "sudo systemctl start bootkube || (sudo journalctl -u bootkube --no-pager; exit 1)",
     ]
   }
 }
