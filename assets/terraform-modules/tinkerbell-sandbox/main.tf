@@ -175,8 +175,8 @@ resource "libvirt_volume" "provisioner" {
 
 resource "libvirt_domain" "provisioner" {
   name   = "${local.base_name}-provisioner"
-  vcpu   = 4
-  memory = 4096
+  vcpu   = 2
+  memory = 2048
 
   disk {
     volume_id = libvirt_volume.provisioner.id
