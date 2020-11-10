@@ -38,7 +38,10 @@ EOF
 
     labels = {
       "fluo-test-pool" = "true"
+      "bgp-disabled"   = "true"
     }
+
+    disable_bgp = true
   }
 
   worker_pool "storage" {
