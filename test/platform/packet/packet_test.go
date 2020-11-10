@@ -41,7 +41,7 @@ func TestBGPDisabled(t *testing.T) {
 		t.Fatalf("Packet project ID can't be empty. Is %q environment variable set?", "PACKET_PROJECT_ID")
 	}
 
-	nodeLabel := "bgp-disabled=true"
+	nodeLabel := "lokomotive.alpha.kinvolk.io/bgp-enabled=false"
 
 	// Select a node from the general worker pool.
 	nodesList, err := client.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{
