@@ -26,6 +26,10 @@ spec:
         app: calico-hostendpoint-controller
     spec:
       serviceAccountName: calico-hostendpoint-controller
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
       containers:
       - image: quay.io/kinvolk/calico-hostendpoint-controller:v0.0.4
         name: calico-hostendpoint-controller
