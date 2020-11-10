@@ -1,3 +1,16 @@
+# Following relabel config is taking from:  https://linkerd.io/2/tasks/external-prometheus/
+{{- define "controllerRelabels" }}
+    relabelings:
+    - sourceLabels:
+      - __meta_kubernetes_pod_label_linkerd_io_control_plane_component
+      - __meta_kubernetes_pod_container_port_name
+      action: keep
+      regex: (.*);admin-http$
+    - sourceLabels:
+      - __meta_kubernetes_pod_container_name
+      action: replace
+      targetLabel: component
+{{ end }}
 {{ if .Values.enableMonitoring }}
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -14,6 +27,7 @@ spec:
       linkerd.io/control-plane-component: web
   endpoints:
   - targetPort: 9994
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -29,6 +43,7 @@ spec:
       linkerd.io/control-plane-component: sp-validator
   endpoints:
   - targetPort: 9997
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -44,6 +59,7 @@ spec:
       linkerd.io/control-plane-component: controller
   endpoints:
   - targetPort: 9995
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -59,6 +75,7 @@ spec:
       linkerd.io/control-plane-component: identity
   endpoints:
   - targetPort: 9990
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -74,6 +91,7 @@ spec:
       linkerd.io/control-plane-component: proxy-injector
   endpoints:
   - targetPort: 9995
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -89,6 +107,7 @@ spec:
       linkerd.io/control-plane-component: tap
   endpoints:
   - targetPort: 9998
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -104,6 +123,7 @@ spec:
       linkerd.io/control-plane-component: destination
   endpoints:
   - targetPort: 9996
+{{- template "controllerRelabels" . }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -119,5 +139,40 @@ spec:
       linkerd.io/control-plane-ns: linkerd
   endpoints:
   - targetPort: 4191
+    # # Following relabel config is taking from:  https://linkerd.io/2/tasks/external-prometheus/
+    relabelings:
+    - sourceLabels:
+      - __meta_kubernetes_pod_container_name
+      - __meta_kubernetes_pod_container_port_name
+      - __meta_kubernetes_pod_label_linkerd_io_control_plane_ns
+      action: keep
+      regex: ^{{default .Values.global.proxyContainerName "linkerd-proxy" .Values.global.proxyContainerName}};linkerd-admin;{{.Values.global.namespace}}$
+    - sourceLabels: [__meta_kubernetes_namespace]
+      action: replace
+      targetLabel: namespace
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      action: replace
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_pod_label_linkerd_io_proxy_job]
+      action: replace
+      targetLabel: k8s_job
+    - action: labeldrop
+      regex: __meta_kubernetes_pod_label_linkerd_io_proxy_job
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_linkerd_io_proxy_(.+)
+    - action: labeldrop
+      regex: __meta_kubernetes_pod_label_linkerd_io_proxy_(.+)
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_linkerd_io_(.+)
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
+      replacement: __tmp_pod_label_$1
+    - action: labelmap
+      regex: __tmp_pod_label_linkerd_io_(.+)
+      replacement:  __tmp_pod_label_$1
+    - action: labeldrop
+      regex: __tmp_pod_label_linkerd_io_(.+)
+    - action: labelmap
+      regex: __tmp_pod_label_(.+)
 ---
 {{end}}
