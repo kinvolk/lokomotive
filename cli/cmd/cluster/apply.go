@@ -118,10 +118,6 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		return fmt.Errorf("getting kubeconfig: %v", err)
 	}
 
-	if err := verifyCluster(kubeconfig, c.platform.Meta().ExpectedNodes); err != nil {
-		return fmt.Errorf("verifying cluster: %v", err)
-	}
-
 	// Update all the pre installed namespaces with lokomotive specific label.
 	// `lokomotive.kinvolk.io/name: <namespace_name>`.
 	if err := updateInstalledNamespaces(kubeconfig); err != nil {
@@ -154,6 +150,10 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		if err := ph.PostApplyHook(kubeconfig); err != nil {
 			return fmt.Errorf("running platform post install hook: %v", err)
 		}
+	}
+
+	if err := verifyCluster(kubeconfig, c.platform.Meta().ExpectedNodes); err != nil {
+		return fmt.Errorf("verifying cluster: %v", err)
 	}
 
 	if options.SkipComponents {
