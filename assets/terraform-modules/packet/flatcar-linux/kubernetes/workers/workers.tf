@@ -70,16 +70,19 @@ data "ct_config" "ignitions" {
       ssh_keys              = jsonencode(var.ssh_keys)
       k8s_dns_service_ip    = cidrhost(var.service_cidr, 10)
       cluster_domain_suffix = var.cluster_domain_suffix
-      node_labels           = merge({ "node.kubernetes.io/node" = "" }, var.labels)
-      bgp_node_labels       = var.disable_bgp ? "" : format("%s,%s", local.my_asn, local.peer_asn)
-      taints                = var.taints
-      setup_raid            = var.setup_raid
-      setup_raid_hdd        = var.setup_raid_hdd
-      setup_raid_ssd        = var.setup_raid_ssd
-      setup_raid_ssd_fs     = var.setup_raid_ssd_fs
-      cluster_name          = var.cluster_name
-      dns_zone              = var.dns_zone
-      enable_tls_bootstrap  = var.enable_tls_bootstrap
+      node_labels = merge({
+        "node.kubernetes.io/node"                 = "",
+        "lokomotive.alpha.kinvolk.io/bgp-enabled" = format("%t", ! var.disable_bgp),
+      }, var.labels)
+      bgp_node_labels      = var.disable_bgp ? "" : format("%s,%s", local.my_asn, local.peer_asn)
+      taints               = var.taints
+      setup_raid           = var.setup_raid
+      setup_raid_hdd       = var.setup_raid_hdd
+      setup_raid_ssd       = var.setup_raid_ssd
+      setup_raid_ssd_fs    = var.setup_raid_ssd_fs
+      cluster_name         = var.cluster_name
+      dns_zone             = var.dns_zone
+      enable_tls_bootstrap = var.enable_tls_bootstrap
     }
   )
   platform = "packet"
