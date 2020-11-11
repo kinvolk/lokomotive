@@ -9,9 +9,9 @@ This document enumerates the steps required to run conformance tests for various
 
 ## AWS
 
-For AWS you need to make sure that node ports are allowed in the security group. To do so make sure you set the `expose_nodeports` cluster property to `true` in the AWS config. Read more about this flag in the [AWS reference docs](configuration-reference/platforms/aws.md).
+For AWS you need to make sure that node ports are allowed in the security group. To do so make sure you set the `expose_nodeports` cluster property to `true` in the AWS config. Read more about this flag in the [AWS reference docs](../configuration-reference/platforms/aws).
 
-To install the cluster on AWS follow the [AWS quick start guide](quickstarts/aws.md).
+To install the cluster on AWS follow the [AWS quick start guide](../quickstarts/aws).
 
 ## Running conformance tests
 

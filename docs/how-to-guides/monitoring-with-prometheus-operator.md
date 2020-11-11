@@ -15,15 +15,15 @@ This guide provides the steps for deploying a monitoring stack using the `promet
 TODO: Once we have tutorials on how to deploy and configure OpenEBS, point the following to those tutorials.
 -->
 
-* A storage provider component ([`rook` and `rook-ceph`](./rook-ceph-storage.md), or `openebs-operator` and `openebs-storage-class`) deployed with a default storage class that can provision volumes for the [PVCs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) created by Alertmanager and Prometheus.
+* A storage provider component ([`rook` and `rook-ceph`](../rook-ceph-storage), or `openebs-operator` and `openebs-storage-class`) deployed with a default storage class that can provision volumes for the [PVCs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) created by Alertmanager and Prometheus.
 
 <!---
 TODO: Once we have a tutorial on how to deploy and configure Contour and cert-manager, point the following to that tutorial.
 -->
 > **NOTE**: If you wish to [expose Grafana to the public internet](#using-ingress), the following Lokomotive components should be installed:
-> * [`metallb`](./ingress-with-contour-metallb.md) (only on Packet and bare-metal)
-> * [`contour`](../configuration-reference/components/contour.md)
-> * [`cert-manager`](../configuration-reference/components/cert-manager.md)
+> * [`metallb`](../ingress-with-contour-metallb) (only on Packet and bare-metal)
+> * [`contour`](../../configuration-reference/components/contour)
+> * [`cert-manager`](../../configuration-reference/components/cert-manager)
 
 
 ## Steps: Deploy Prometheus Operator
@@ -36,7 +36,7 @@ Create a file named `monitoring.lokocfg` with the following contents:
 component "prometheus-operator" {}
 ```
 
-For information about all the available configuration options for the `prometheus-operator` component, visit the component's [configuration reference](../configuration-reference/components/prometheus-operator.md). If you would like to add custom Alerts and Grafana dashboards then look at the section ["Add custom Grafana dashboards"](#add-custom-grafana-dashboards) and subsequent sections.
+For information about all the available configuration options for the `prometheus-operator` component, visit the component's [configuration reference](../../configuration-reference/components/prometheus-operator). If you would like to add custom Alerts and Grafana dashboards then look at the section ["Add custom Grafana dashboards"](#add-custom-grafana-dashboards) and subsequent sections.
 
 ### Step 2: Install Prometheus Operator
 
@@ -82,7 +82,7 @@ component "prometheus-operator" {
 }
 ```
 
-> **NOTE**: On Packet, you either need to create a DNS entry for `prometheus.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
+> **NOTE**: On Packet, you either need to create a DNS entry for `prometheus.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](../ingress-with-contour-metallb)) or use the [External DNS component](../../configuration-reference/components/external-dns).
 
 Open the following URL: `https://prometheus.<cluster name>.<DNS zone>`.
 
@@ -128,7 +128,7 @@ component "prometheus-operator" {
 }
 ```
 
-> **NOTE**: On Packet, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
+> **NOTE**: On Packet, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](../ingress-with-contour-metallb)) or use the [External DNS component](../../configuration-reference/components/external-dns).
 
 Obtain the password for the `admin` Grafana user by running the following command:
 
@@ -217,6 +217,6 @@ Then there is no need to add any label to PrometheusRule, at all. Create a Prome
 
 ## Additional resources
 
-- `prometheus-operator` component [configuration reference](../configuration-reference/components/prometheus-operator.md).
+- `prometheus-operator` component [configuration reference](../../configuration-reference/components/prometheus-operator).
 - ServiceMonitor API docs https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#servicemonitor
 - PrometheusRule API docs https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusrule

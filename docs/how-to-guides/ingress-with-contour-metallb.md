@@ -31,7 +31,7 @@ Upon completion of this guide, you will be able to use Service type `LoadBalance
 
 To set up HTTP load balancing, we need the following:
 
-* A Lokomotive cluster accessible via `kubectl` [deployed on Packet](../quickstarts/packet.md).
+* A Lokomotive cluster accessible via `kubectl` [deployed on Packet](../../quickstarts/packet).
 
 * IPv4 address pools for MetalLB to allocate — one address per LoadBalancer Service. On Packet, you need to create [Public Elastic IPs](https://support.packet.com/kb/articles/elastic-ips).
 

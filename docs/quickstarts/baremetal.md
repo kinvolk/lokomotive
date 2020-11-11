@@ -30,7 +30,7 @@ Note that the machines should only be powered on after starting the installation
 
 lokoctl is a command-line interface for Lokomotive.
 
-To install `lokoctl`, follow the instructions in the [lokoctl installation](../installer/lokoctl.md)
+To install `lokoctl`, follow the instructions in the [lokoctl installation](../../installer/lokoctl)
 guide.
 
 ### Step 2: Set up a working directory
@@ -175,12 +175,12 @@ cluster "bare-metal" {
 
 ```
 
-Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
-or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
+Lokomotive can store Terraform state [locally](../../configuration-reference/backend/local)
+or remotely within an [AWS S3 bucket](../../configuration-reference/backend/s3). By default, Lokomotive
 stores Terraform state locally.
 
 For advanced cluster configurations and more information refer to the [Bare Metal configuration
-guide](../configuration-reference/platforms/baremetal.md).
+guide](../../configuration-reference/platforms/baremetal).
 
 ### Step 5: Create Lokomotive Cluster
 
@@ -243,7 +243,7 @@ to learn about its usage.
 
 **Note**: Lokomotive sets up a pretty restrictive Pod Security Policy that
 disallows running containers as root by default, check the [Pod Security Policy
-documentation](../concepts/securing-lokomotive-cluster.md#cluster-wide-pod-security-policy)
+documentation](../../concepts/securing-lokomotive-cluster#cluster-wide-pod-security-policy)
 for more details.
 
 ## Cleanup
@@ -289,4 +289,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component configuration
-guides](../configuration-reference/components).
+guides](../../configuration-reference/components).

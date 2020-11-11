@@ -35,4 +35,4 @@ spec:
 ## Flatcar Linux Customization
 
 Flatcar Container Linux deployments on Packet can be customized with Container Linux Configs.
-For more information, see [Flatcar Container Linux Customization](/docs/concepts/flatcar-container-linux.md#Customization).
+For more information, see [Flatcar Container Linux Customization](../flatcar-container-linux#Customization).

@@ -42,7 +42,7 @@ Generate the completion code for the specified shell
 
 ### SEE ALSO
 
-* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
-* [lokoctl completion bash](lokoctl_completion_bash.md)	 - Generate the completion code for Bash
-* [lokoctl completion zsh](lokoctl_completion_zsh.md)	 - Generate the completion code for zsh
+* [lokoctl](../lokoctl)	 - Manage Lokomotive clusters
+* [lokoctl completion bash](../lokoctl_completion_bash)	 - Generate the completion code for Bash
+* [lokoctl completion zsh](../lokoctl_completion_zsh)	 - Generate the completion code for zsh
 

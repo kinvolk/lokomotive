@@ -10,7 +10,7 @@ the configuration options available to the user.
 
 ## Prerequisites
 
-* `lokoctl` [installed locally.](../../installer/lokoctl.md)
+* `lokoctl` [installed locally.](../../../installer/lokoctl)
 * `kubectl` installed locally to access the Kubernetes cluster.
 
 ## Configuration
