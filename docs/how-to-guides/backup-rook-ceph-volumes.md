@@ -1,22 +1,7 @@
-# Backup Rook Ceph volume on S3 using Velero
-
-## Contents
-
-- [Introduction](#introduction)
-- [Learning objectives](#learning-objectives)
-- [Prerequisites](#prerequisites)
-- [Steps](#steps)
-  - [Step 1: Deploy Velero](#step-1-deploy-velero)
-    - [Config](#config)
-    - [Deploy](#deploy)
-  - [Step 2: Deploy sample workload](#step-2-deploy-sample-workload)
-  - [Step 3: Annotate pods](#step-3-annotate-pods)
-  - [Step 4: Backup entire namespace](#step-4-backup-entire-namespace)
-  - [Step 5: Restore Volumes](#step-5-restore-volumes)
-    - [Same Cluster](#same-cluster)
-    - [Different Cluster](#different-cluster)
-    - [Restore](#restore)
-- [Additional resources](#additional-resources)
+---
+title: Backup Rook Ceph volume on S3 using Velero
+weight: 10
+---
 
 ## Introduction
 

@@ -1,15 +1,7 @@
-# Upgrading bootstrap kubelet
-
-## Contents
-
-- [Introduction](#introduction)
-- [Steps](#steps)
-  - [Step 1: Drain the node](#step-1-drain-the-node)
-  - [Step 2: Find out the IP and SSH](#step-2-find-out-the-ip-and-ssh)
-  - [Step 3: Upgrade kubelet on node](#step-3-upgrade-kubelet-on-node)
-  - [Step 4: Verify](#step-4-verify)
-  - [Step 5: Uncordon the node](#step-5-uncordon-the-node)
-- [Caveats](#caveats)
+---
+title: Upgrading bootstrap kubelet
+weight: 10
+---
 
 ## Introduction
 

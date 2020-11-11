@@ -1,14 +1,7 @@
-# Upgrading etcd
-
-## Contents
-
-- [Introduction](#introduction)
-- [Steps](#steps)
-  - [Step 1: SSH into the controller node](#step-1-ssh-into-the-controller-node)
-  - [Step 2: Create necessary directories with correct permissions](#step-2-create-necessary-directories-with-correct-permissions)
-  - [Step 3: Upgrade etcd](#step-3-upgrade-etcd)
-  - [Step 4: Verify upgrade](#step-4-verify-upgrade)
-  - [Step 5: Verify using `etcdctl`](#step-5-verify-using-etcdctl)
+---
+title: Upgrading etcd
+weight: 10
+---
 
 ## Introduction
 

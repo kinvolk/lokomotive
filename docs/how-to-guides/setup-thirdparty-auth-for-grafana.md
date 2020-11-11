@@ -1,15 +1,7 @@
-# Setting up third party OAuth for Grafana
-
-## Contents
-
-- [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
-- [Steps](#steps)
-  - [Step 1: Create Github application](#step-1-create-github-application)
-  - [Step 2: Add `prometheus-operator` component configuration](#step-2-add-prometheus-operator-component-configuration)
-  - [Step 3: Add secret information](#step-3-add-secret-information)
-  - [Step 4: Deploy and access the dashboard](#step-4-deploy-and-access-the-dashboard)
-- [Additional resources](#additional-resources)
+---
+title: Setting up third party OAuth for Grafana
+weight: 10
+---
 
 ## Introduction
 
