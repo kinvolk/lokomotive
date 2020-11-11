@@ -1,4 +1,7 @@
-# Lokomotive coding style guide
+---
+title: Lokomotive coding style guide
+weight: 10
+---
 
 This document describes the coding style that's enforced in the Lokomotive codebase. The guidelines
 in this document should be followed by Lokomotive maintainers and contributors alike. The guide is

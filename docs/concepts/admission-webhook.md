@@ -1,4 +1,7 @@
-# Lokomotive admission webhooks
+---
+title: Lokomotive admission webhooks
+weight: 10
+---
 
 As part of the cluster control plane Lokomotive creates additional admission webhooks, which add extra features to the cluster. This document describes the webhooks we install and what they do.
 
