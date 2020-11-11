@@ -520,6 +520,10 @@ data:
         src-address: metallb.lokomotive.io/src-address
         hold-time: metallb.lokomotive.io/hold-time
         router-id: metallb.lokomotive.io/router-id
+      from-annotations:
+        my-asn: metallb.lokomotive.io/my-asn
+        peer-address: metallb.lokomotive.io/peer-address
+        peer-asn: metallb.lokomotive.io/peer-asn
     address-pools:
     {{- range $k, $v := .AddressPools }}
     - name: {{ $k }}
