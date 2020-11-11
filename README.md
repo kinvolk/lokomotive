@@ -5,7 +5,7 @@ Kubernetes.
 It focuses on being minimal, easy to use, and secure by default.
 
 Lokomotive is fully self-hosted and includes [Lokomotive
-Components](docs/concepts/components.md) adding essential functionality for production
+Components](https://kinvolk.io/docs/lokomotive/0.5/concepts/components) adding essential functionality for production
 not shipped with upstream Kubernetes.
 
 <img src="docs/images/lokomotive-example.gif" alt="Example gif showing `lokoctl cluster apply --confirm`" width="700"/>
@@ -26,28 +26,28 @@ not shipped with upstream Kubernetes.
 ## Installation
 
 Lokomotive provides the lokoctl CLI tool to manage clusters.
-Check the [installation guide](docs/installer/lokoctl.md) to install it.
+Check the [installation guide](https://kinvolk.io/docs/lokomotive/0.5/installer/lokoctl) to install it.
 
 ## Getting started
 
 Follow one of the quickstart guides for the supported platforms:
 
-* [Packet quickstart](docs/quickstarts/packet.md)
-* [AWS quickstart](docs/quickstarts/aws.md)
-* [Bare metal quickstart](docs/quickstarts/baremetal.md)
+* [Packet quickstart](https://kinvolk.io/docs/lokomotive/0.5/quickstarts/packet)
+* [AWS quickstart](https://kinvolk.io/docs/lokomotive/0.5/quickstarts/aws)
+* [Bare metal quickstart](https://kinvolk.io/docs/lokomotive/0.5/quickstarts/baremetal)
 
 ## Documentation
 
 ### Reference guides
 
-* [Platform configuration references](docs/configuration-reference/platforms)
-* [Component configuration references](docs/configuration-reference/components)
-* [CLI reference](docs/cli/lokoctl.md)
+* [Platform configuration references](https://kinvolk.io/docs/lokomotive/0.5/configuration-reference/platforms)
+* [Component configuration references](https://kinvolk.io/docs/lokomotive/0.5/configuration-reference/components)
+* [CLI reference](https://kinvolk.io/docs/lokomotive/0.5/cli/lokoctl/)
 
 ### How to guides
 
-* [Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway](docs/how-to-guides/authentication-with-dex-gangway.md)
-* [Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet](docs/how-to-guides/ingress-with-contour-metallb.md))
+* [Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway](https://kinvolk.io/docs/lokomotive/0.5/how-to-guides/authentication-with-dex-gangway)
+* [Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet](https://kinvolk.io/docs/lokomotive/0.5/how-to-guides/ingress-with-contour-metallb))
 
 ## Issues
 
@@ -65,7 +65,7 @@ have it assigned to yourself.
 
 ## Contributing
 
-Check out our [contributing guidelines](docs/CONTRIBUTING.md).
+Check out our [contributing guidelines](https://kinvolk.io/docs/lokomotive/0.5/contributing).
 
 ## License
 
