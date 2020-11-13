@@ -37,8 +37,8 @@ const (
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
 // platforms.
-func CommonControlPlaneCharts() []helm.LokomotiveChart {
-	return []helm.LokomotiveChart{
+func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
+	charts := []helm.LokomotiveChart{
 		{
 			Name:      "pod-checkpointer",
 			Namespace: "kube-system",
@@ -64,6 +64,15 @@ func CommonControlPlaneCharts() []helm.LokomotiveChart {
 			Namespace: "kube-system",
 		},
 	}
+
+	if includeKubeletChart {
+		charts = append(charts, helm.LokomotiveChart{
+			Name:      "kubelet",
+			Namespace: "kube-system",
+		})
+	}
+
+	return charts
 }
 
 // ControlPlaneChart is a convenience function which returns a pointer to a chart.Chart

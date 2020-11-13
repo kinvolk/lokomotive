@@ -122,22 +122,11 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	// TODO: A transient change which shall be reverted in a follow up PR to handle
 	// https://github.com/kinvolk/lokomotive/issues/716.
 	// Extract control plane chart files to cluster assets directory.
-	for _, c := range platform.CommonControlPlaneCharts() {
+	for _, c := range platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet) {
 		src := filepath.Join(assets.ControlPlaneSource, c.Name)
 		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
 		if err := assets.Extract(src, dst); err != nil {
 			return fmt.Errorf("extracting charts: %w", err)
-		}
-	}
-
-	// TODO: A transient change which shall be reverted in a follow up PR to handle
-	// https://github.com/kinvolk/lokomotive/issues/716.
-	// Extract self-hosted kubelet chart only when enabled in config.
-	if !c.DisableSelfHostedKubelet {
-		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
-		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
-		if err := assets.Extract(src, dst); err != nil {
-			return fmt.Errorf("extracting kubelet chart: %w", err)
 		}
 	}
 

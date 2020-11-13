@@ -20,7 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kinvolk/lokomotive/internal"
-	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -105,14 +104,7 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 			ex:            c.terraformExecutor,
 		}
 
-		charts := platform.CommonControlPlaneCharts()
-
-		if options.UpgradeKubelets {
-			charts = append(charts, helm.LokomotiveChart{
-				Name:      "kubelet",
-				Namespace: "kube-system",
-			})
-		}
+		charts := platform.CommonControlPlaneCharts(options.UpgradeKubelets)
 
 		for _, c := range charts {
 			if err := cu.upgradeComponent(c.Name, c.Namespace); err != nil {

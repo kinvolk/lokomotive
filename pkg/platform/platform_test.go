@@ -55,9 +55,10 @@ func TestCommonControlPlaneChartsOrder(t *testing.T) {
 		"calico",
 		"lokomotive",
 		"bootstrap-secrets",
+		"kubelet",
 	}
 
-	commonControlPlaneCharts := platform.CommonControlPlaneCharts()
+	commonControlPlaneCharts := platform.CommonControlPlaneCharts(true)
 
 	actualOrder := []string{}
 
