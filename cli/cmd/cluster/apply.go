@@ -55,6 +55,11 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		return fmt.Errorf("checking if cluster exists: %w", err)
 	}
 
+	// Unpack controlplane charts before we return potential errors to the user early.
+	if err := c.unpackControlplaneCharts(); err != nil {
+		return fmt.Errorf("unpacking controlplane assets: %w", err)
+	}
+
 	if exists && !options.Confirm {
 		// TODO: We could plan to a file and use it when installing.
 		if err := c.terraformExecutor.Plan(); err != nil {

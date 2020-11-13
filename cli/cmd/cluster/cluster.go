@@ -26,6 +26,7 @@ import (
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/yaml"
 
+	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
@@ -111,6 +112,21 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 		lokomotiveConfig:  lokoConfig,
 		assetDir:          assetDir,
 	}, nil
+}
+
+// unpackControlplaneCharts extracts controlplane Helm charts of given platform from binary
+// assets into user assets on disk.
+func (c *cluster) unpackControlplaneCharts() error {
+	for _, chart := range c.platform.Meta().ControlplaneCharts {
+		src := filepath.Join(assets.ControlPlaneSource, chart.Name)
+		dst := filepath.Join(c.assetDir, "cluster-assets", "charts", chart.Namespace, chart.Name)
+
+		if err := assets.Extract(src, dst); err != nil {
+			return fmt.Errorf("extracting chart '%s/%s' from path %q: %w", chart.Namespace, chart.Name, dst, err)
+		}
+	}
+
+	return nil
 }
 
 // initializeTerraform initialized Terraform directory using given backend and platform
