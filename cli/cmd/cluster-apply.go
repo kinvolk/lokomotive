@@ -23,9 +23,10 @@ import (
 )
 
 var (
-	verbose         bool
-	skipComponents  bool
-	upgradeKubelets bool
+	verbose                  bool
+	skipComponents           bool
+	skipPreUpdateHealthCheck bool
+	upgradeKubelets          bool
 )
 
 var clusterApplyCmd = &cobra.Command{
@@ -43,6 +44,10 @@ func init() {
 	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&verbose, "verbose", "v", false, "Show output from Terraform")
 	pf.BoolVarP(&skipComponents, "skip-components", "", false, "Skip applying component configuration")
+
+	pf.BoolVarP(&skipPreUpdateHealthCheck, "skip-pre-update-health-check", "", false,
+		"Skip ensuring that cluster is healthy before updating (not recommended)")
+
 	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
 
@@ -53,12 +58,13 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 	})
 
 	options := cluster.ApplyOptions{
-		Confirm:         confirm,
-		UpgradeKubelets: upgradeKubelets,
-		SkipComponents:  skipComponents,
-		Verbose:         verbose,
-		ConfigPath:      viper.GetString("lokocfg"),
-		ValuesPath:      viper.GetString("lokocfg-vars"),
+		Confirm:                  confirm,
+		UpgradeKubelets:          upgradeKubelets,
+		SkipComponents:           skipComponents,
+		SkipPreUpdateHealthCheck: skipPreUpdateHealthCheck,
+		Verbose:                  verbose,
+		ConfigPath:               viper.GetString("lokocfg"),
+		ValuesPath:               viper.GetString("lokocfg-vars"),
 	}
 
 	if err := cluster.Apply(contextLogger, options); err != nil {

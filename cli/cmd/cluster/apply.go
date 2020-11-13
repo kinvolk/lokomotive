@@ -27,12 +27,13 @@ import (
 
 // ApplyOptions defines how cluster apply operation will behave.
 type ApplyOptions struct {
-	Confirm         bool
-	UpgradeKubelets bool
-	SkipComponents  bool
-	Verbose         bool
-	ConfigPath      string
-	ValuesPath      string
+	Confirm                  bool
+	UpgradeKubelets          bool
+	SkipComponents           bool
+	SkipPreUpdateHealthCheck bool
+	Verbose                  bool
+	ConfigPath               string
+	ValuesPath               string
 }
 
 // Apply applies cluster configuration together with components.
@@ -55,9 +56,27 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		return fmt.Errorf("checking if cluster exists: %w", err)
 	}
 
-	// Unpack controlplane charts before we return potential errors to the user early.
-	if err := c.unpackControlplaneCharts(); err != nil {
-		return fmt.Errorf("unpacking controlplane assets: %w", err)
+	// Prepare for getting kubeconfig.
+	kg := kubeconfigGetter{
+		platformRequired: true,
+	}
+
+	var kubeconfig []byte
+
+	// Prepare controlplane updater.
+	cu := controlplaneUpdater{
+		kubeconfig:    kubeconfig,
+		assetDir:      c.assetDir,
+		contextLogger: *contextLogger,
+		ex:            c.terraformExecutor,
+	}
+
+	charts := platform.CommonControlPlaneCharts(options.UpgradeKubelets)
+
+	if !exists {
+		if err := c.unpackControlplaneCharts(); err != nil {
+			return fmt.Errorf("unpacking controlplane assets: %w", err)
+		}
 	}
 
 	if exists && !options.Confirm {
@@ -73,17 +92,28 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		}
 	}
 
+	if exists && !options.SkipPreUpdateHealthCheck {
+		var err error
+
+		cu.kubeconfig, err = kg.getKubeconfig(contextLogger, c.lokomotiveConfig)
+		if err != nil {
+			return fmt.Errorf("getting kubeconfig: %v", err)
+		}
+
+		for _, c := range charts {
+			if err := cu.ensureComponent(c.Name, c.Namespace); err != nil {
+				return fmt.Errorf("ensuring controlplane component %q: %w", c.Name, err)
+			}
+		}
+	}
+
 	if err := c.platform.Apply(&c.terraformExecutor); err != nil {
 		return fmt.Errorf("applying platform: %v", err)
 	}
 
 	fmt.Printf("\nYour configurations are stored in %s\n", c.assetDir)
 
-	kg := kubeconfigGetter{
-		platformRequired: true,
-	}
-
-	kubeconfig, err := kg.getKubeconfig(contextLogger, c.lokomotiveConfig)
+	kubeconfig, err = kg.getKubeconfig(contextLogger, c.lokomotiveConfig)
 	if err != nil {
 		return fmt.Errorf("getting kubeconfig: %v", err)
 	}
@@ -109,7 +139,9 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 			ex:            c.terraformExecutor,
 		}
 
-		charts := platform.CommonControlPlaneCharts(options.UpgradeKubelets)
+		if err := c.unpackControlplaneCharts(); err != nil {
+			return fmt.Errorf("unpacking controlplane assets: %w", err)
+		}
 
 		for _, c := range charts {
 			if err := cu.upgradeComponent(c.Name, c.Namespace); err != nil {
