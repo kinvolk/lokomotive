@@ -40,6 +40,10 @@ const (
 func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 	charts := []helm.LokomotiveChart{
 		{
+			Name:      "bootstrap-secrets",
+			Namespace: "kube-system",
+		},
+		{
 			Name:      "pod-checkpointer",
 			Namespace: "kube-system",
 		},
@@ -58,10 +62,6 @@ func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 		{
 			Name:      "lokomotive",
 			Namespace: "lokomotive-system",
-		},
-		{
-			Name:      "bootstrap-secrets",
-			Namespace: "kube-system",
 		},
 	}
 

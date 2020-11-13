@@ -49,12 +49,12 @@ func TestAppendVersionTag(t *testing.T) {
 
 func TestCommonControlPlaneChartsOrder(t *testing.T) {
 	expectedOrder := []string{
+		"bootstrap-secrets",
 		"pod-checkpointer",
 		"kube-apiserver",
 		"kubernetes",
 		"calico",
 		"lokomotive",
-		"bootstrap-secrets",
 		"kubelet",
 	}
 
