@@ -33,6 +33,12 @@ const (
 
 	// ConntrackMaxPerCore is the default conntrack table size per core inherited from upstream kube-proxy.
 	ConntrackMaxPerCore = 32768
+
+	// KubernetesChartName is the expected name for the Kubernetes Helm chart.
+	KubernetesChartName = "kubernetes"
+
+	// KubeletChartName is the expected name for the Kubelet Helm chart.
+	KubeletChartName = "kubelet"
 )
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
@@ -52,7 +58,7 @@ func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 			Namespace: "kube-system",
 		},
 		{
-			Name:      "kubernetes",
+			Name:      KubernetesChartName,
 			Namespace: "kube-system",
 		},
 		{
@@ -67,7 +73,7 @@ func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 
 	if includeKubeletChart {
 		charts = append(charts, helm.LokomotiveChart{
-			Name:      "kubelet",
+			Name:      KubeletChartName,
 			Namespace: "kube-system",
 		})
 	}

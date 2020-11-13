@@ -81,7 +81,7 @@ func TestKubeApiserverIsUpdatedBeforeOtherKubernetesComponents(t *testing.T) {
 			kubeAPIServerFound = true
 		}
 
-		if c.Name == "kubernetes" && !kubeAPIServerFound {
+		if c.Name == platform.KubernetesChartName && !kubeAPIServerFound {
 			t.Fatalf("Kube-apiserver must be updated before other Kubernetes components to ensure " +
 				"Kubernetes version skew support policy")
 		}
@@ -92,7 +92,7 @@ func TestCalicoIsUpdatedAfterKubernetesComponents(t *testing.T) {
 	kubernetesFound := false
 
 	for _, c := range platform.CommonControlPlaneCharts(true) {
-		if c.Name == "kubernetes" {
+		if c.Name == platform.KubernetesChartName {
 			kubernetesFound = true
 		}
 
@@ -107,11 +107,11 @@ func TestKubeletIsUpdatedAfterOtherKubernetesComponents(t *testing.T) {
 	kubernetesFound := false
 
 	for _, c := range platform.CommonControlPlaneCharts(true) {
-		if c.Name == "kubernetes" {
+		if c.Name == platform.KubernetesChartName {
 			kubernetesFound = true
 		}
 
-		if c.Name == "kubelet" && !kubernetesFound {
+		if c.Name == platform.KubeletChartName && !kubernetesFound {
 			t.Fatalf("kubelet must be updated after Kubernetes component to ensure Kubernetes version skew support policy")
 		}
 	}
@@ -133,7 +133,7 @@ func TestLokomotiveIsUpdatedAfterCalico(t *testing.T) {
 
 func TestKubeletIsExcludedFromUpdatesWhenNotRequested(t *testing.T) {
 	for _, c := range platform.CommonControlPlaneCharts(false) {
-		if c.Name == "kubelet" {
+		if c.Name == platform.KubeletChartName {
 			t.Fatalf("Kubelet should not be included in charts list when not requested")
 		}
 	}
@@ -143,7 +143,7 @@ func TestKubeletIsIncludedInCommonChartsWhenRequested(t *testing.T) {
 	kubeletFound := false
 
 	for _, c := range platform.CommonControlPlaneCharts(true) {
-		if c.Name == "kubelet" {
+		if c.Name == platform.KubeletChartName {
 			kubeletFound = true
 
 			break
