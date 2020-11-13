@@ -92,9 +92,10 @@ type PlatformWithPostApplyHook interface { //nolint:golint
 
 // Meta is a generic information format about the platform.
 type Meta struct {
-	AssetDir      string
-	ExpectedNodes int
-	Managed       bool
+	AssetDir           string
+	ExpectedNodes      int
+	Managed            bool
+	ControlplaneCharts []helm.LokomotiveChart
 }
 
 // platforms is a collection where all platforms gets automatically registered
