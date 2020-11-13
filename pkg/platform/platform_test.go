@@ -48,7 +48,14 @@ func TestAppendVersionTag(t *testing.T) {
 }
 
 func TestCommonControlPlaneChartsOrder(t *testing.T) {
-	expectedOrder := []string{"pod-checkpointer", "kube-apiserver", "kubernetes", "calico", "lokomotive", "bootstrap-secrets"} //nolint:lll
+	expectedOrder := []string{
+		"pod-checkpointer",
+		"kube-apiserver",
+		"kubernetes",
+		"calico",
+		"lokomotive",
+		"bootstrap-secrets",
+	}
 
 	commonControlPlaneCharts := platform.CommonControlPlaneCharts()
 
