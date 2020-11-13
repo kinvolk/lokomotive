@@ -25,7 +25,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -118,17 +117,6 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
-	}
-
-	// TODO: A transient change which shall be reverted in a follow up PR to handle
-	// https://github.com/kinvolk/lokomotive/issues/716.
-	// Extract control plane chart files to cluster assets directory.
-	for _, c := range platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet) {
-		src := filepath.Join(assets.ControlPlaneSource, c.Name)
-		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
-		if err := assets.Extract(src, dst); err != nil {
-			return fmt.Errorf("extracting charts: %w", err)
-		}
 	}
 
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
