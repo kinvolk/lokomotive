@@ -16,11 +16,13 @@ package cluster
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
+	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/yaml"
 
@@ -171,10 +173,11 @@ type controlplaneUpdater struct {
 	ex            terraform.Executor
 }
 
-func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, error) {
-	chart, err := platform.ControlPlaneChart(name)
+func (c controlplaneUpdater) getControlplaneChart(name, namespace string) (*chart.Chart, error) {
+	path := filepath.Join(c.assetDir, "cluster-assets", "charts", namespace, name)
+	chart, err := loader.Load(path)
 	if err != nil {
-		return nil, fmt.Errorf("loading chart from assets failed: %w", err)
+		return nil, fmt.Errorf("loading chart from asset directory %q: %w", path, err)
 	}
 
 	if err := chart.Validate(); err != nil {
@@ -204,7 +207,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 		return fmt.Errorf("initializing Helm action: %w", err)
 	}
 
-	helmChart, err := c.getControlplaneChart(component)
+	helmChart, err := c.getControlplaneChart(component, namespace)
 	if err != nil {
 		return fmt.Errorf("loading chart from assets: %w", err)
 	}
@@ -279,7 +282,7 @@ func (c controlplaneUpdater) ensureComponent(component, namespace string) error 
 	if !exists {
 		fmt.Printf("Controlplane component '%s' is missing, reinstalling...", component)
 
-		helmChart, err := c.getControlplaneChart(component)
+		helmChart, err := c.getControlplaneChart(component, namespace)
 		if err != nil {
 			return fmt.Errorf("loading chart from assets: %w", err)
 		}
