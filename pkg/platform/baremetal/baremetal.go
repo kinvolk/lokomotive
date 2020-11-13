@@ -81,8 +81,9 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 // Meta is part of Platform interface and returns common information about the platform configuration.
 func (c *config) Meta() platform.Meta {
 	return platform.Meta{
-		AssetDir:      c.AssetDir,
-		ExpectedNodes: len(c.ControllerMacs) + len(c.WorkerMacs),
+		AssetDir:           c.AssetDir,
+		ExpectedNodes:      len(c.ControllerMacs) + len(c.WorkerMacs),
+		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
 	}
 }
 

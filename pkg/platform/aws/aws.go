@@ -128,8 +128,9 @@ func (c *config) Meta() platform.Meta {
 	}
 
 	return platform.Meta{
-		AssetDir:      c.AssetDir,
-		ExpectedNodes: nodes,
+		AssetDir:           c.AssetDir,
+		ExpectedNodes:      nodes,
+		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
 	}
 }
 

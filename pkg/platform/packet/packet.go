@@ -31,6 +31,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/dns"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -142,9 +143,17 @@ func (c *config) Meta() platform.Meta {
 		nodes += workerpool.Count
 	}
 
+	charts := platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet)
+
+	charts = append(charts, helm.LokomotiveChart{
+		Name:      "calico-host-protection",
+		Namespace: "kube-system",
+	})
+
 	return platform.Meta{
-		AssetDir:      c.AssetDir,
-		ExpectedNodes: nodes,
+		AssetDir:           c.AssetDir,
+		ExpectedNodes:      nodes,
+		ControlplaneCharts: charts,
 	}
 }
 
