@@ -492,11 +492,11 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 func (c *config) checkReservationIDs() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
-	d := checkEachReservation(c.ReservationIDs, c.ReservationIDsDefault, c.ClusterName, controller)
+	d := checkEachReservation(c.ReservationIDs, c.ReservationIDsDefault, c.ClusterName, controller, c.ControllerCount)
 	diagnostics = append(diagnostics, d...)
 
 	for _, w := range c.WorkerPools {
-		d := checkEachReservation(w.ReservationIDs, w.ReservationIDsDefault, w.Name, worker)
+		d := checkEachReservation(w.ReservationIDs, w.ReservationIDsDefault, w.Name, worker, w.Count)
 		diagnostics = append(diagnostics, d...)
 	}
 
@@ -534,7 +534,9 @@ func (c *config) validateOSVersion() hcl.Diagnostics {
 // pool are not mixed between using "next-available" and specific UUIDs, as this
 // can't work reliably.
 // For more info, see comment when calling terraformCreateReservations().
-func checkEachReservation(reservationIDs map[string]string, resDefault, name string, role nodeRole) hcl.Diagnostics {
+//
+//nolint:funlen,lll
+func checkEachReservation(reservationIDs map[string]string, resDefault, name string, role nodeRole, count int) hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
 	errorPrefix := "Worker pool"
@@ -596,6 +598,14 @@ func checkEachReservation(reservationIDs map[string]string, resDefault, name str
 	d := checkResFormat(reservationIDs, name, errorPrefix, resPrefix)
 	diagnostics = append(diagnostics, d...)
 
+	if len(reservationIDs) > 0 && len(reservationIDs) != count {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("%v reservations_ids does not match count field", errorPrefix),
+			Detail:   fmt.Sprintf("%v: %q all nodes in pool must have reservation IDs set", errorPrefix, name),
+		})
+	}
+
 	return diagnostics
 }
 
@@ -610,7 +620,7 @@ func checkResFormat(reservationIDs map[string]string, name, errorPrefix, resPref
 
 	for key := range reservationIDs {
 		expectedIndexes = append(expectedIndexes, index)
-		index += 1
+		index++
 
 		hclErr := &hcl.Diagnostic{
 			Severity: hcl.DiagError,

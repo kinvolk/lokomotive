@@ -167,6 +167,7 @@ func TestCheckValidConfig(t *testing.T) {
 		},
 		"reservation_IDs_for_controller_nodes_must_be_prefixed_with_'controller'": {
 			mutateF: func(c *config) {
+				c.ControllerCount = 1
 				c.ReservationIDs = map[string]string{"controller-0": "bar"}
 			},
 		},
@@ -178,6 +179,7 @@ func TestCheckValidConfig(t *testing.T) {
 		},
 		"reservation_IDs_for_worker_nodes_must_be_prefixed_with_'worker'": {
 			mutateF: func(c *config) {
+				c.WorkerPools[0].Count = 1
 				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "bar"}
 			},
 		},
@@ -202,6 +204,7 @@ func TestCheckValidConfig(t *testing.T) {
 		},
 		"reservation_IDs_must_be_sequential": {
 			mutateF: func(c *config) {
+				c.WorkerPools[0].Count = 2
 				c.WorkerPools[0].ReservationIDs = map[string]string{
 					"worker-0": "foo",
 					"worker-1": "bar",
