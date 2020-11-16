@@ -15,7 +15,7 @@
 package packet
 
 import (
-	"sort"
+	"reflect"
 	"testing"
 )
 
@@ -250,18 +250,8 @@ func TestCheckEachReservationInvalidInput(t *testing.T) {
 	}
 }
 
-//nolint: funlen
-func TestTerraformAddDeps(t *testing.T) {
-	type testCase struct {
-		// Config to test
-		cfg config
-		// Expected config after running the test
-		exp config
-	}
-
-	var cases []testCase
-
-	base := config{
+func baseConfig() *config {
+	return &config{
 		ClusterName: "c",
 		WorkerPools: []workerPool{
 			{
@@ -272,86 +262,91 @@ func TestTerraformAddDeps(t *testing.T) {
 			},
 		},
 	}
-
-	// Test WorkerPool w/o res depends on 1 WorkerPool with res
-	test := base
-	test.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
-	exp := test
-	exp.WorkerPools[1].NodesDependOn = []string{poolTarget("1", "worker_nodes_ids")}
-
-	cases = append(cases, testCase{test, exp})
-
-	// Test 2 WorkerPools w/o res depend on 2 WorkerPool with rest
-	test = base
-	test.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
-	test.WorkerPools = append(test.WorkerPools, workerPool{Name: "3"})
-	exp = test
-	exp.WorkerPools[1].NodesDependOn = []string{poolTarget("1", "worker_nodes_ids")}
-
-	cases = append(cases, testCase{test, exp})
-
-	// Test 1 WorkerPools w/o res depend on 2 WorkerPool with res
-	test = base
-	test.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
-	test.WorkerPools[1].ReservationIDs = map[string]string{"worker-0": "dummy"}
-	test.WorkerPools = append(test.WorkerPools, workerPool{Name: "3"})
-	exp = test
-	exp.WorkerPools[2].NodesDependOn = []string{
-		poolTarget("1", "worker_nodes_ids"),
-		poolTarget("2", "worker_nodes_ids"),
-	}
-
-	cases = append(cases, testCase{test, exp})
-
-	// Test 2 WorkerPools w/o res depend on controllers
-	test = base
-	test.ReservationIDs = map[string]string{"controller-0": "dummy"}
-	exp = test
-	exp.WorkerPools[0].NodesDependOn = []string{clusterTarget("1", "device_ids")}
-	exp.WorkerPools[1].NodesDependOn = []string{clusterTarget("1", "device_ids")}
-
-	cases = append(cases, testCase{test, exp})
-
-	// Test 1 WorkerPools w/o res depends on controllers and WorkerPool with
-	// res
-	test = base
-	test.ReservationIDs = map[string]string{"controller-0": "dummy"}
-	test.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
-	exp = test
-	exp.WorkerPools[1].NodesDependOn = []string{clusterTarget("1", "device_ids"), poolTarget("1", "device_ids")}
-
-	cases = append(cases, testCase{test, exp})
-
-	for tcIdx, tc := range cases {
-		test := tc.cfg
-		exp := tc.exp
-
-		test.terraformAddDeps()
-
-		for i, w := range test.WorkerPools {
-			ret := w.NodesDependOn
-			expRet := exp.WorkerPools[i].NodesDependOn
-
-			if equal := cmpSliceString(ret, expRet); !equal {
-				t.Errorf("In test %v, expected %v, got %v", tcIdx, expRet, ret)
-			}
-		}
-	}
 }
 
-func cmpSliceString(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
+//nolint: funlen
+func TestTerraformAddDeps(t *testing.T) {
+	cases := map[string]struct {
+		configF         func(*config)
+		expectedConfigF func(*config)
+	}{
+		"worker pool without reservation IDs depends on worker pool with reservation ID": {
+			func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
+			},
+			func(c *config) {
+				c.WorkerPools[1].NodesDependOn = []string{poolTarget("1", "worker_nodes_ids")}
+			},
+		},
+		"all worker pools without reservation IDs depends on worker pool with reservation ID": {
+			func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
+				c.WorkerPools = append(c.WorkerPools, workerPool{Name: "3"})
+			},
+			func(c *config) {
+				c.WorkerPools[1].NodesDependOn = []string{poolTarget("1", "worker_nodes_ids")}
+			},
+		},
+		"worker pool without reservation IDs depends on all worker pools with reservation IDs": {
+			func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
+				c.WorkerPools[1].ReservationIDs = map[string]string{"worker-0": "dummy"}
+				c.WorkerPools = append(c.WorkerPools, workerPool{Name: "3"})
+			},
+			func(c *config) {
+				c.WorkerPools[2].NodesDependOn = []string{
+					poolTarget("1", "worker_nodes_ids"),
+					poolTarget("2", "worker_nodes_ids"),
+				}
+			},
+		},
+		"worker pools without reservation IDs depends on controller nodes with reservation IDs": {
+			func(c *config) {
+				c.ReservationIDs = map[string]string{"controller-0": "dummy"}
+			},
+			func(c *config) {
+				c.WorkerPools[0].NodesDependOn = []string{clusterTarget("1", "device_ids")}
+				c.WorkerPools[1].NodesDependOn = []string{clusterTarget("1", "device_ids")}
+			},
+		},
+		"worker pool without reservation IDs depends on controller nodes and worker pools with reservation IDs": {
+			func(c *config) {
+				c.ReservationIDs = map[string]string{"controller-0": "dummy"}
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "dummy"}
+			},
+			func(c *config) {
+				c.WorkerPools[1].NodesDependOn = []string{clusterTarget("1", "device_ids"), poolTarget("1", "device_ids")}
+			},
+		},
 	}
 
-	sort.Strings(a)
-	sort.Strings(b)
+	for name, c := range cases {
+		c := c
 
-	for index, elem := range a {
-		if elem != b[index] {
-			return false
-		}
+		t.Run(name, func(t *testing.T) {
+			// Create copy of base config.
+			config := baseConfig()
+
+			// Mutate it.
+			c.configF(config)
+
+			// Copy mutated config.
+			expectedConfig := config
+
+			// Mutate to expected config.
+			c.expectedConfigF(expectedConfig)
+
+			// Add dependencies.
+			config.terraformAddDeps()
+
+			for i, workerPool := range config.WorkerPools {
+				dependencies := workerPool.NodesDependOn
+				expectedDependencies := expectedConfig.WorkerPools[i].NodesDependOn
+
+				if !reflect.DeepEqual(dependencies, expectedDependencies) {
+					t.Fatalf("Expected %v, got %v", expectedDependencies, dependencies)
+				}
+			}
+		})
 	}
-
-	return true
 }
