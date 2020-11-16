@@ -15,6 +15,7 @@
 // +build aws aws_edge packet
 // +build e2e
 
+//nolint:dupl
 package system_test
 
 import (

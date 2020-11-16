@@ -57,6 +57,7 @@ type config struct {
 	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
 	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
 	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
+	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -87,11 +88,12 @@ func (c *config) Meta() platform.Meta {
 
 func NewConfig() *config {
 	return &config{
-		CachedInstall:      "false",
-		OSChannel:          "flatcar-stable",
-		OSVersion:          "current",
-		EnableTLSBootstrap: true,
-		NetworkMTU:         platform.NetworkMTU,
+		CachedInstall:       "false",
+		OSChannel:           "flatcar-stable",
+		OSVersion:           "current",
+		EnableTLSBootstrap:  true,
+		NetworkMTU:          platform.NetworkMTU,
+		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
 	}
 }
 
@@ -238,6 +240,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		EnableTLSBootstrap       bool
 		EncryptPodTraffic        bool
 		IgnoreX509CNCheck        bool
+		ConntrackMaxPerCore      int
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -263,6 +266,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		EnableTLSBootstrap:       cfg.EnableTLSBootstrap,
 		EncryptPodTraffic:        cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:        cfg.IgnoreX509CNCheck,
+		ConntrackMaxPerCore:      cfg.ConntrackMaxPerCore,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
@@ -275,6 +279,14 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 // checkValidConfig validates cluster configuration.
 func (c *config) checkValidConfig() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
+
+	if c.ConntrackMaxPerCore < 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "conntrack_max_per_core can't be negative value",
+			Detail:   fmt.Sprintf("'conntrack_max_per_core' value is %d", c.ConntrackMaxPerCore),
+		})
+	}
 
 	if c.OIDC != nil {
 		_, diags := c.OIDC.ToKubeAPIServerFlags(c.K8sDomainName)

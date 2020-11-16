@@ -12,6 +12,7 @@ kubeProxy:
   image: ${kube_proxy_image}
   podCIDR: ${pod_cidr}
   trustedCertsDir: ${trusted_certs_dir}
+  conntrackMaxPerCore: ${conntrack_max_per_core}
 kubeScheduler:
   image: ${kube_scheduler_image}
   controlPlaneReplicas: ${control_plane_replicas}

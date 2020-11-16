@@ -82,6 +82,7 @@ resource "local_file" "kubernetes" {
     serviceaccount_key            = base64encode(tls_private_key.service-account.private_key_pem)
     etcd_endpoints                = var.etcd_endpoints
     enable_tls_bootstrap          = var.enable_tls_bootstrap
+    conntrack_max_per_core        = var.conntrack_max_per_core
   })
 }
 

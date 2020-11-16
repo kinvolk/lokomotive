@@ -220,6 +220,18 @@ func TestCheckValidConfig(t *testing.T) {
 			},
 			expectError: true,
 		},
+		"negative_conntrack_max_per_core_is_invalid": {
+			mutateF: func(c *config) {
+				c.ConntrackMaxPerCore = -1
+			},
+			expectError: true,
+		},
+		"positive_conntrack_max_per_core_is_valid": {
+			mutateF: func(c *config) {
+				c.ConntrackMaxPerCore = 10
+			},
+			expectError: false,
+		},
 	}
 
 	for name, c := range cases {

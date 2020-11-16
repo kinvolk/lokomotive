@@ -33,4 +33,6 @@ module "bootkube" {
   encrypt_pod_traffic  = var.encrypt_pod_traffic
 
   ignore_x509_cn_check = var.ignore_x509_cn_check
+
+  conntrack_max_per_core = var.conntrack_max_per_core
 }

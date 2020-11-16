@@ -167,3 +167,58 @@ func TestWorkerPoolPort(t *testing.T) {
 		}
 	}
 }
+
+func validConfig() *config {
+	return &config{
+		WorkerPools: []workerPool{
+			{
+				Name: "pool-1",
+			},
+		},
+	}
+}
+
+func TestConfigurationIsInvalidWhen(t *testing.T) {
+	cases := map[string]func(c *config){
+		"conntrack_max_per_core_is_negative": func(c *config) {
+			c.ConntrackMaxPerCore = -1
+		},
+	}
+
+	for n, c := range cases {
+		c := c
+
+		t.Run(n, func(t *testing.T) {
+			config := validConfig()
+
+			c(config)
+
+			if d := config.checkValidConfig(); !d.HasErrors() {
+				t.Fatalf("Validating configuration did not return expected error")
+			}
+		})
+	}
+}
+
+func TestConfigurationIsValidWhen(t *testing.T) {
+	cases := map[string]func(c *config){
+		"all_required_fields_are_set": func(c *config) {},
+		"conntrack_max_per_core_is_a_positive_value": func(c *config) {
+			c.ConntrackMaxPerCore = 10
+		},
+	}
+
+	for n, c := range cases {
+		c := c
+
+		t.Run(n, func(t *testing.T) {
+			config := validConfig()
+
+			c(config)
+
+			if d := config.checkValidConfig(); d.HasErrors() {
+				t.Fatalf("Validating configuration returned expected error: %v", d)
+			}
+		})
+	}
+}
