@@ -1,16 +1,7 @@
-# Lokomotive Packet quickstart guide
-
-## Contents
-
-* [Introduction](#introduction)
-* [Requirements](#requirements)
-* [Step 1: Install lokoctl](#step-1-install-lokoctl)
-* [Step 2: Create a cluster configuration](#step-2-create-a-cluster-configuration)
-* [Step 3: Deploy the cluster](#step-3-deploy-the-cluster)
-* [Verification](#verification)
-* [Cleanup](#cleanup)
-* [Troubleshooting](#troubleshooting)
-* [Next steps](#next-steps)
+---
+title: Lokomotive Packet quickstart guide
+weight: 10
+---
 
 ## Introduction
 
@@ -28,13 +19,13 @@ Lokomotive runs on top of [Flatcar Container Linux](https://www.flatcar-linux.or
 uses the `stable` channel.
 
 The guide uses [Amazon Route 53](https://aws.amazon.com/route53/) as a DNS provider. For more
-information on how Lokomotive handles DNS, refer to [this](../concepts/dns.md) document.
+information on how Lokomotive handles DNS, refer to [this](../../concepts/dns) document.
 
-Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
-or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
+Lokomotive can store Terraform state [locally](../../configuration-reference/backend/local)
+or remotely within an [AWS S3 bucket](../../configuration-reference/backend/s3). By default, Lokomotive
 stores Terraform state locally.
 
-[Lokomotive components](../concepts/components.md) complement the "stock" Kubernetes functionality
+[Lokomotive components](../../concepts/components) complement the "stock" Kubernetes functionality
 by adding features such as load balancing, persistent storage and monitoring to a cluster. To keep
 this guide short you will deploy a single component - `httpbin` - which serves as a demo
 application to verify the cluster behaves as expected.
@@ -52,7 +43,7 @@ application to verify the cluster behaves as expected.
 * An AWS
   [access key ID and secret](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
   of a user with
-  [permissions](https://github.com/kinvolk/lokomotive/blob/master/docs/concepts/dns.md#aws-route-53)
+  [permissions](../../../dns#aws-route-53)
   to edit Route 53 records.
 * An AWS Route 53 zone (can be a subdomain).
 * An SSH key pair for accessing the cluster nodes.
@@ -143,7 +134,7 @@ Replace the parameters above using the following information:
   be authorized on cluster nodes.
 
 The rest of the parameters may be left as-is. For more information about the configuration options
-see the [configuration reference](../configuration-reference/platforms/packet.md).
+see the [configuration reference](../../configuration-reference/platforms/packet).
 
 ### Step 3: Deploy the cluster
 
@@ -248,7 +239,7 @@ Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy
 
 >NOTE: Lokomotive uses a relatively restrictive Pod Security Policy by default. This policy
 >disallows running containers as root. Refer to the
->[Pod Security Policy documentation](../concepts/securing-lokomotive-cluster.md#cluster-wide-pod-security-policy)
+>[Pod Security Policy documentation](../../concepts/securing-lokomotive-cluster#cluster-wide-pod-security-policy)
 >for more details.
 
 ## Cleanup
@@ -316,7 +307,7 @@ the AWS API credentials has permissions to create records on Route 53.
 
 In this guide you used port forwarding to communicate with a sample application on the cluster.
 However, in real-world cases you may want to expose your applications to the internet.
-[This](../how-to-guides/ingress-with-contour-metallb.md) guide explains how to use MetalLB and
+[This](../../how-to-guides/ingress-with-contour-metallb) guide explains how to use MetalLB and
 Contour to expose applications on Packet clusters to the internet.
 
 [releases]: https://github.com/kinvolk/lokomotive/releases

@@ -1,12 +1,7 @@
-# Using Cloudflare as a DNS provider for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Step 1: Configure Cloudflare as the DNS provider](#step-1-configure-cloudflare-as-the-dns-provider)
-* [Step 2: Deploy the cluster](#step-2-deploy-the-cluster)
-* [Additional resources](#additional-resources)
+---
+title: Using Cloudflare as a DNS provider for Lokomotive
+weight: 10
+---
 
 ## Introduction
 
@@ -63,5 +58,5 @@ lokoctl cluster apply
 ## Additional resources
 
 For full information about how to deploy a Lokomotive cluster, refer to the
-[configuration reference](../configuration-reference) or to one of the
-[quickstart guides](../quickstarts).
+[configuration reference](../../configuration-reference) or to one of the
+[quickstart guides](../../quickstarts).

@@ -1,22 +1,7 @@
-# Backup Rook Ceph volume on S3 using Velero
-
-## Contents
-
-- [Introduction](#introduction)
-- [Learning objectives](#learning-objectives)
-- [Prerequisites](#prerequisites)
-- [Steps](#steps)
-  - [Step 1: Deploy Velero](#step-1-deploy-velero)
-    - [Config](#config)
-    - [Deploy](#deploy)
-  - [Step 2: Deploy sample workload](#step-2-deploy-sample-workload)
-  - [Step 3: Annotate pods](#step-3-annotate-pods)
-  - [Step 4: Backup entire namespace](#step-4-backup-entire-namespace)
-  - [Step 5: Restore Volumes](#step-5-restore-volumes)
-    - [Same Cluster](#same-cluster)
-    - [Different Cluster](#different-cluster)
-    - [Restore](#restore)
-- [Additional resources](#additional-resources)
+---
+title: Backup Rook Ceph volume on S3 using Velero
+weight: 10
+---
 
 ## Introduction
 
@@ -35,7 +20,7 @@ it.
 
 - A Lokomotive cluster deployed on a Packet cloud and accessible via `kubectl`.
 
-- Rook Ceph installed by following [this guide](./rook-ceph-storage.md).
+- Rook Ceph installed by following [this guide](../rook-ceph-storage).
 
 - `aws` CLI tool [installed](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
 
@@ -247,8 +232,8 @@ $ kubectl -n demo-ns exec -it demo-app-0 -- /bin/sh -c 'du -s /data'
 
 - Velero [Restic Docs](https://velero.io/docs/v1.4/restic/).
 - Lokomotive `velero` component [configuration reference
-  document](../configuration-reference/components/velero.md).
+  document](../../configuration-reference/components/velero).
 - Lokomotive `rook` component [configuration reference
-  document](../configuration-reference/components/rook.md).
+  document](../../configuration-reference/components/rook).
 - Lokomotive `rook-ceph` component [configuration reference
-  document](../configuration-reference/components/rook-ceph.md).
+  document](../../configuration-reference/components/rook-ceph).

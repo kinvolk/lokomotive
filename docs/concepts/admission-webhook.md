@@ -1,4 +1,7 @@
-# Lokomotive admission webhooks
+---
+title: Lokomotive admission webhooks
+weight: 10
+---
 
 As part of the cluster control plane Lokomotive creates additional admission webhooks, which add extra features to the cluster. This document describes the webhooks we install and what they do.
 
@@ -8,7 +11,7 @@ When you create a pod, if you do not specify a service account, the pod is autom
 
 By default, created pods can authenticate to the Kubernetes API, which is a potential security threat. Not every pod needs the ability to utilize the API. If your application doesn't integrate with Kubernetes and doesn't utilize its API, the application shouldn't have access to API credentials.
 
-To avoid having to manually disable automounting of the `default` service account, we have a webhook server that patches `default` service accounts whenever you either apply any [lokomotive component](./components.md) or create a new namespace. To see how it works, follow the steps below.
+To avoid having to manually disable automounting of the `default` service account, we have a webhook server that patches `default` service accounts whenever you either apply any [lokomotive component](../components) or create a new namespace. To see how it works, follow the steps below.
 
 ```bash
 # Create a namespace.

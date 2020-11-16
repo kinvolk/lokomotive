@@ -1,4 +1,7 @@
-## lokoctl component render-manifest
+---
+title: lokoctl component render-manifest
+weight: 10
+---
 
 Print the manifests for a component
 
@@ -21,5 +24,5 @@ lokoctl component render-manifest [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage components
+* [lokoctl component](../lokoctl_component)	 - Manage components
 

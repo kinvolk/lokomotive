@@ -1,4 +1,7 @@
-## Release process
+---
+title: Release process
+weight: 40
+---
 
 This section shows how to perform a release of Lokomotive. Only parts of the
 procedure are automated; this is somewhat intentional (manual steps for sanity
@@ -25,13 +28,13 @@ for details on how to identify what the next version should be.
   - `git clean -ffdx && make all` should work.
   - CI should be green.
 
-- Update the [release notes](../CHANGELOG.md). Try to capture most of the salient
+- Update the [release notes](https://github.com/kinvolk/lokomotive/blob/master/CHANGELOG.md). Try to capture most of the salient
   changes since the last release, but don't go into unnecessary detail (better
   to link/reference the documentation wherever possible).
   `scripts/changelog.sh` will help generating an initial list of changes.
   Correct/fix entries if necessary, and group them by category.
 
-- Update [installation guide](../docs/installer/lokoctl.md) to reference to new
+- Update [installation guide](../installer/lokoctl) to reference to new
   version.
 
 Even though it is set at build time, the Lokomotive version is also hardcoded
@@ -68,7 +71,7 @@ Now we'll tag the release.
 - Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for details).
   - `export GITHUB_TOKEN=<GitHub token>`
 
-- Export your GPG Key Signature. Find your signature in the [KEYS](KEYS.md) file.
+- Export your GPG Key Signature. Find your signature in the [Trusted keys](../keys).
   - `export GPG_FINGERPRINT=<GPG Signature>`
 
 - Build the binary, sign it, upload it to GitHub, create draft GitHub release.
@@ -136,4 +139,4 @@ for generating new keys for signing.
 ## Adding new GPG key to list of trusted keys
 
 Before signing a release with a new GPG key, it should be signed by other trusted
-keys and added to the [list of trusted keys in the repository](KEYS.md).
+keys and added to the [list of trusted keys in the repository](../keys).

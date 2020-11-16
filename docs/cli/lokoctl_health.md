@@ -1,4 +1,7 @@
-## lokoctl health
+---
+title: lokoctl health
+weight: 10
+---
 
 Get the health of a cluster
 
@@ -22,5 +25,5 @@ lokoctl health [flags]
 
 ### SEE ALSO
 
-* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
+* [lokoctl](../lokoctl)	 - Manage Lokomotive clusters
 

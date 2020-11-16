@@ -1,4 +1,7 @@
-## lokoctl cluster destroy
+---
+title: lokoctl cluster destroy
+weight: 10
+---
 
 Destroy a cluster
 
@@ -23,5 +26,5 @@ lokoctl cluster destroy [flags]
 
 ### SEE ALSO
 
-* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a cluster
+* [lokoctl cluster](../lokoctl_cluster)	 - Manage a cluster
 

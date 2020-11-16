@@ -1,13 +1,7 @@
-# ExternalDNS configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: ExternalDNS configuration reference for Lokomotive
+weight: 10
+---
 
 ## Introduction
 
@@ -18,7 +12,7 @@ synchronizes exposed Kubernetes Services and Ingresses with DNS providers to mak
 
 * A Lokomotive cluster accessible via `kubectl`.
 
-* An ingress controller such as [Contour](contour.md) for HTTP ingress.
+* An ingress controller such as [Contour](../contour) for HTTP ingress.
 
 ## Configuration
 
@@ -59,7 +53,7 @@ Table of all the arguments accepted by the component.
 | `sources`                   | Kubernetes resources type to be observed for new DNS entries by ExternalDNS.                                                                           |  ["ingress"]   | list(string) |  false   |
 | `namespace`                 | Namespace to install ExternalDNS.                                                                                                                      | "external-dns" |    string    |  false   |
 | `policy`                    | Modify how DNS records are sychronized between sources and providers (options: sync, upsert-only).                                                     | "upsert-only"  |    string    |  false   |
-| `metrics`                   | Enable metrics collection by Prometheus. Needs [Prometheus Operator component](prometheus-operator.md) installed.                                      |     false      |     bool     |  false   |
+| `metrics`                   | Enable metrics collection by Prometheus. Needs [Prometheus Operator component](../prometheus-operator) installed.                                      |     false      |     bool     |  false   |
 | `owner_id`                  | A name that identifies this instance of ExternalDNS. Set it to a unique value across the DNS zone that doesn't change for the lifetime of the cluster. |       -        |    string    |   true   |
 | `aws`                       | Configuration block for AWS Route53 DNS provider.                                                                                                      |       -        |    object    |   true   |
 | `aws.zone_type`             | Filter for zones of this type (options: public, private).                                                                                              |    "public"    |    string    |  false   |

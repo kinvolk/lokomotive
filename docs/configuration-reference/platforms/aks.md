@@ -1,13 +1,7 @@
-# Lokomotive AKS configuration reference
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Destroying](#destroying)
+---
+title: Lokomotive AKS configuration reference
+weight: 10
+---
 
 ## Introduction
 
@@ -15,7 +9,7 @@ This configuration reference provides information on configuring a Lokomotive cl
 
 ## Prerequisites
 
-* `lokoctl` [installed locally](../../installer/lokoctl.md).
+* `lokoctl` [installed locally](../../../installer/lokoctl).
 * `kubectl` installed locally to access the Kubernetes cluster.
 
 ## Configuration

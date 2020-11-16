@@ -1,4 +1,7 @@
-## lokoctl cluster apply
+---
+title: lokoctl cluster apply
+weight: 10
+---
 
 Deploy or update a cluster
 
@@ -31,5 +34,5 @@ lokoctl cluster apply [flags]
 
 ### SEE ALSO
 
-* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a cluster
+* [lokoctl cluster](../lokoctl_cluster)	 - Manage a cluster
 

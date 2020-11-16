@@ -1,4 +1,7 @@
-# AWS
+---
+title: AWS
+weight: 10
+---
 
 AWS is one of the cloud platforms supported by Lokomotive. This document explains various architecture decisions and details specific to this platform.
 
@@ -46,4 +49,4 @@ There is ongoing [upstream](https://github.com/kubernetes/kubernetes/pull/91277)
 ## Flatcar Linux Customization
 
 Flatcar Container Linux deployments on AWS can be customized with Container Linux Configs.
-For more information, see [Flatcar Container Linux Customization](/docs/concepts/flatcar-container-linux.md#Customization).
+For more information, see [Flatcar Container Linux Customization](../flatcar-container-linux#Customization).

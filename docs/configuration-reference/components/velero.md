@@ -1,13 +1,7 @@
-# Velero configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: Velero configuration reference for Lokomotive
+weight: 10
+---
 
 ## Introduction
 
@@ -112,7 +106,7 @@ Table of all the arguments accepted by the component.
 |------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|--------|----------|
 | `namespace`                                          | Namespace to install Velero.                                                                                                | "velero"                                          | string | false    |
 | `provider`                                           | Provider sets which provider block to use for the configuration. Supported values are: `azure`, `openebs` and `restic`.     | -                                                 | string | true     |
-| `metrics`                                            | Configure Prometheus to scrape Velero metrics. Needs the [Prometheus Operator component](prometheus-operator.md) installed. | -                                                 | object | false    |
+| `metrics`                                            | Configure Prometheus to scrape Velero metrics. Needs the [Prometheus Operator component](../prometheus-operator) installed. | -                                                 | object | false    |
 | `metrics.enabled`                                    | Adds Prometheus annotations to Velero deployment if enabled.                                                                | false                                             | bool   | false    |
 | `metrics.service_monitor`                            | Adds ServiceMonitor resource for Prometheus. Requires `metrics.enabled` as true.                                            | false                                             | bool   | false    |
 | `azure`                                              | Configure Azure provider for Velero.                                                                                        | -                                                 | object | false    |

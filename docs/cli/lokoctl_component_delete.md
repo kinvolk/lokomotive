@@ -1,4 +1,7 @@
-## lokoctl component delete
+---
+title: lokoctl component delete
+weight: 10
+---
 
 Delete an installed component
 
@@ -33,5 +36,5 @@ lokoctl component delete [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage components
+* [lokoctl component](../lokoctl_component)	 - Manage components
 

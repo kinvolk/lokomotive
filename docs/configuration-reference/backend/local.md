@@ -1,11 +1,7 @@
-# Local backend configuration reference
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
+---
+title: Local backend configuration reference
+weight: 10
+---
 
 ## Introduction
 

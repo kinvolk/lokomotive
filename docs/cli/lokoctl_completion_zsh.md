@@ -1,4 +1,7 @@
-## lokoctl completion zsh
+---
+title: lokoctl completion zsh
+weight: 10
+---
 
 Generate the completion code for zsh
 
@@ -37,5 +40,5 @@ lokoctl completion zsh
 
 ### SEE ALSO
 
-* [lokoctl completion](lokoctl_completion.md)	 - Generate the completion code for the specified shell
+* [lokoctl completion](../lokoctl_completion)	 - Generate the completion code for the specified shell
 

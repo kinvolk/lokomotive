@@ -1,13 +1,7 @@
-# Prometheus Operator configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: Prometheus Operator configuration reference for Lokomotive
+weight: 10
+---
 
 ## Introduction
 
@@ -19,13 +13,13 @@ instances.
 
 * A Lokomotive cluster with a
   [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) plugin, e.g.
-  [OpenEBS](openebs-operator.md) or one of the
+  [OpenEBS](../openebs-operator) or one of the
   [built-in](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
   plugins.
 
-* An ingress controller such as [Contour](contour.md) for HTTP ingress.
+* An ingress controller such as [Contour](../contour) for HTTP ingress.
 
-* The [cert-manager component](cert-manager.md) is required for enabling HTTPS.
+* The [cert-manager component](../cert-manager) is required for enabling HTTPS.
 
 ## Configuration
 

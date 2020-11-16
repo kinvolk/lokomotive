@@ -1,4 +1,7 @@
-## lokoctl component apply
+---
+title: lokoctl component apply
+weight: 10
+---
 
 Deploy or update a component
 
@@ -32,5 +35,5 @@ lokoctl component apply [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage components
+* [lokoctl component](../lokoctl_component)	 - Manage components
 

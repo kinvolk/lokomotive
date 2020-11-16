@@ -1,4 +1,7 @@
-## lokoctl component list
+---
+title: lokoctl component list
+weight: 10
+---
 
 List all available components
 
@@ -21,5 +24,5 @@ lokoctl component list [flags]
 
 ### SEE ALSO
 
-* [lokoctl component](lokoctl_component.md)	 - Manage components
+* [lokoctl component](../lokoctl_component)	 - Manage components
 

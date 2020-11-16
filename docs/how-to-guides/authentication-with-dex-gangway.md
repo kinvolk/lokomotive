@@ -1,21 +1,7 @@
-# Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Step 1: Configure Dex and Gangway](#step-1-configure-dex-and-gangway)
-* [Step 2: Register a new OAuth application](#step-2-register-a-new-oauth-application)
-* [Step 3: Create variables file](#step-3-create-variables-file)
-* [Step 4: Install Dex and Gangway](#step-4-install-dex-and-gangway)
-* [Step 5: Configure the API server to use Dex as an OIDC
-   authenticator](#step-5-configure-the-api-server-to-use-dex-as-an-oidc-authenticator)
-* [Step 6: Authenticate with Gangway (for users)](#step-6-authenticate-with-gangway-for-users)
-* [Step 7: Authorize users (for cluster
-   administrators)](#step-7-authorize-users-for-cluster-administrators)
-* [Summary](#summary)
-* [Troubleshooting](#troubleshooting)
-* [Additional resources](#additional-resources)
+---
+title: Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway
+weight: 10
+---
 
 ## Introduction
 
@@ -60,21 +46,21 @@ To create a fully functioning OIDC authentication infrastructure, we need the fo
 
 * [cert-manager](https://cert-manager.io/docs/) deployed on the cluster.
 
-  Installation instructions for [cert-manager](../configuration-reference/components/cert-manager.md) Lokomotive component.
+  Installation instructions for [cert-manager](../../configuration-reference/components/cert-manager) Lokomotive component.
 
 * [MetalLB](https://metallb.universe.tf/) deployed on the cluster.
 
   **NOTE**: Required only for the bare metal and Packet providers.
 
-   Installation instructions for [MetalLB](../configuration-reference/components/metallb.md) component.
+   Installation instructions for [MetalLB](../../configuration-reference/components/metallb) component.
 
 * [Contour](https://projectcontour.io/) deployed on the cluster.
 
-  Installation instructions for [Contour](../configuration-reference/components/contour.md) component.
+  Installation instructions for [Contour](../../configuration-reference/components/contour) component.
 
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) deployed on the cluster.
 
-   Installation instructions for [ExternalDNS](../configuration-reference/components/external-dns.md) component.
+   Installation instructions for [ExternalDNS](../../configuration-reference/components/external-dns) component.
 
 ## Steps
 
@@ -330,7 +316,7 @@ Verify you've configured RBAC correctly in step 7.
 ## Additional resources
 
 To configure authentication with Google as an identity provider,visit the [Dex component
-documentation](../configuration-reference/components/dex.md) for configuration changes.
+documentation](../../configuration-reference/components/dex) for configuration changes.
 
 For more information about OpenID Connect, see [OpenID Connect](https://openid.net/connect)
 website.

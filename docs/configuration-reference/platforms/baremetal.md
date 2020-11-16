@@ -1,13 +1,7 @@
-# Lokomotive bare metal configuration reference
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Destroying](#destroying)
+---
+title: Lokomotive bare metal configuration reference
+weight: 10
+---
 
 ## Introduction
 
@@ -16,7 +10,7 @@ the configuration options available to the user.
 
 ## Prerequisites
 
-* `lokoctl` [installed locally.](../../installer/lokoctl.md)
+* `lokoctl` [installed locally.](../../../installer/lokoctl)
 * `kubectl` installed locally to access the Kubernetes cluster.
 
 ### Configuration

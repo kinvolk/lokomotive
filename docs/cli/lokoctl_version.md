@@ -1,4 +1,7 @@
-## lokoctl version
+---
+title: lokoctl version
+weight: 10
+---
 
 Print version information
 
@@ -21,5 +24,5 @@ lokoctl version [flags]
 
 ### SEE ALSO
 
-* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
+* [lokoctl](../lokoctl)	 - Manage Lokomotive clusters
 

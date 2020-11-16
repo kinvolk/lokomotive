@@ -1,13 +1,7 @@
-# OpenEBS storage class configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: OpenEBS storage class configuration reference for Lokomotive
+weight: 10
+---
 
 ## Introduction
 

@@ -1,13 +1,7 @@
-# Web UI configuration reference for Lokomotive
-
-## Contents
-
-* [Introduction](#introduction)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Attribute reference](#attribute-reference)
-* [Applying](#applying)
-* [Deleting](#deleting)
+---
+title: Web UI configuration reference for Lokomotive
+weight: 10
+---
 
 ## Introduction
 
@@ -22,11 +16,11 @@ Kubernetes clusters.
 
 * A Kubernetes cluster accessible via `kubectl`.
 
-* An ingress controller such as [Contour](contour.md) for HTTP ingress.
+* An ingress controller such as [Contour](../contour) for HTTP ingress.
 
-* [cert-manager](cert-manager.md) to generate TLS certificates.
+* [cert-manager](../cert-manager) to generate TLS certificates.
 
-* Optionally [dex](dex.md) to use OIDC for authentication.
+* Optionally [dex](../dex) to use OIDC for authentication.
 
 ## Configuration
 
@@ -58,7 +52,7 @@ dex_static_client_clusterauth_id     = "clusterauth"
 ### OIDC
 
 To use OIDC for authentication make sure you first have [authentication with
-Dex and Gangway](../../how-to-guides/authentication-with-dex-gangway.md)
+Dex and Gangway](../../../how-to-guides/authentication-with-dex-gangway)
 configured. Additionally, you need to add the Web UI redirect URL to the
 `static_client.redirect_uris` argument in the dex configuration.
 
