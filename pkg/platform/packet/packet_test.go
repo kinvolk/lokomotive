@@ -150,103 +150,70 @@ func TestValidateOSVersion(t *testing.T) {
 	}
 }
 
-func TestCheckResFormatPrefixValidInput(t *testing.T) {
-	r := map[string]string{"worker-2": "", "worker-3": ""}
-
-	if d := checkResFormat(r, "", "", "worker"); d.HasErrors() {
-		t.Errorf("Validation failed and shouldn't for: %v", r)
-	}
-}
-
-func TestCheckResFormatPrefixInvalidInput(t *testing.T) {
-	r := map[string]string{"broken-1": "", "worker-1-2": "", "worker-a": ""}
-
-	if d := checkResFormat(r, "", "", "worker"); !d.HasErrors() {
-		t.Errorf("Should fail with res: %v", r)
-	}
-}
-
-func TestCheckEachReservationValidInput(t *testing.T) {
-	cases := []struct {
-		role           nodeRole
-		resDefault     string
-		reservationIDs map[string]string
+//nolint:funlen
+func TestCheckValidConfig(t *testing.T) {
+	cases := map[string]struct {
+		mutateF     func(*config)
+		expectError bool
 	}{
-		{
-			// Test validates worker config.
-			role: worker,
-			reservationIDs: map[string]string{
-				"worker-2": "",
-				"worker-3": "",
+		"base_config_is_valid": {
+			mutateF: func(*config) {},
+		},
+		"reservation_IDs_for_controller_nodes_can't_have_random_prefix": {
+			mutateF: func(c *config) {
+				c.ReservationIDs = map[string]string{"foo-1": "bar"}
+			},
+			expectError: true,
+		},
+		"reservation_IDs_for_controller_nodes_must_be_prefixed_with_'controller'": {
+			mutateF: func(c *config) {
+				c.ReservationIDs = map[string]string{"controller-1": "bar"}
 			},
 		},
-		{
-			// Test validates controller config.
-			role: controller,
-			reservationIDs: map[string]string{
-				"controller-2": "",
-				"controller-3": "",
+		"reservation_IDs_for_worker_nodes_can't_have_random_prefix": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"foo-1": "bar"}
+			},
+			expectError: true,
+		},
+		"reservation_IDs_for_worker_nodes_must_be_prefixed_with_'worker'": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": "bar"}
 			},
 		},
-		{
-			// Test works if resDefault is set and no
-			// reservationIDs.
-			role:       controller,
-			resDefault: "next-available",
+		"reservation_IDs_for_worker_nodes_can't_be_mixed_default_reservation_ID": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDsDefault = "next-available"
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": "bar"}
+			},
+			expectError: true,
+		},
+		"reservation_IDs_for_worker_nodes_can't_be_set_to_'next-available'": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": "next-available"}
+			},
+			expectError: true,
 		},
 	}
 
-	for _, tc := range cases {
-		if d := checkEachReservation(tc.reservationIDs, tc.resDefault, "", tc.role); d.HasErrors() {
-			t.Errorf("Should not fail with valid input: %v", tc)
-		}
-	}
-}
+	for name, c := range cases {
+		c := c
 
-func TestCheckEachReservationInvalidInput(t *testing.T) {
-	cases := []struct {
-		role           nodeRole
-		resDefault     string
-		reservationIDs map[string]string
-	}{
-		{
-			// Test if nodeRole is worker, reservation should be
-			// "worker-" not "controller".
-			role: worker,
-			reservationIDs: map[string]string{
-				"controller-1": "",
-			},
-		},
-		{
-			// Idem previous but vice-versa.
-			role: controller,
-			reservationIDs: map[string]string{
-				"worker-3": "",
-			},
-		},
-		{
-			// Test if resDefault is set to next-available,
-			// reservationIDs should be empty.
-			role:       worker,
-			resDefault: "next-available",
-			reservationIDs: map[string]string{
-				"worker-3": "",
-			},
-		},
-		{
-			// Test reservationIDs should never be set to
-			// "next-available".
-			role: worker,
-			reservationIDs: map[string]string{
-				"worker-3": "next-available",
-			},
-		},
-	}
+		t.Run(name, func(t *testing.T) {
+			config := baseConfig()
 
-	for _, tc := range cases {
-		if d := checkEachReservation(tc.reservationIDs, tc.resDefault, "", tc.role); !d.HasErrors() {
-			t.Errorf("No error detected in invalid input: %v", tc)
-		}
+			c.mutateF(config)
+
+			diagnostics := config.checkValidConfig()
+
+			if diagnostics.HasErrors() && !c.expectError {
+				t.Fatalf("unexpected validation error: %v", diagnostics)
+			}
+
+			if !diagnostics.HasErrors() && c.expectError {
+				t.Fatalf("expected error, but validation passed")
+			}
+		})
 	}
 }
 
