@@ -194,6 +194,12 @@ func TestCheckValidConfig(t *testing.T) {
 			},
 			expectError: true,
 		},
+		"reservation_IDs_can't_be_empty": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": ""}
+			},
+			expectError: true,
+		},
 	}
 
 	for name, c := range cases {

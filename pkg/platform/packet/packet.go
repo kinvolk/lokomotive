@@ -567,15 +567,21 @@ func checkEachReservation(reservationIDs map[string]string, resDefault, name str
 
 	// Check reservation_ids map doesn't use "next-available" as a value.
 	for _, v := range reservationIDs {
-		if v != "next-available" {
-			continue
+		if v == "next-available" {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("%v reservations_ids entries can't use \"next-available\"", errorPrefix),
+				Detail:   fmt.Sprintf("%v: %q uses it, use specific UUIDs or reservations_ids_default only", errorPrefix, name),
+			})
 		}
 
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("%v reservations_ids entries can't use \"next-available\"", errorPrefix),
-			Detail:   fmt.Sprintf("%v: %q uses it, use specific UUIDs or reservations_ids_default only", errorPrefix, name),
-		})
+		if v == "" {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("%v reservations_ids entries can't be empty", errorPrefix),
+				Detail:   fmt.Sprintf("%v: %q is empty", errorPrefix, name),
+			})
+		}
 	}
 
 	// Check format is:
