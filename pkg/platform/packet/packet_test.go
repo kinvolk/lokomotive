@@ -167,36 +167,53 @@ func TestCheckValidConfig(t *testing.T) {
 		},
 		"reservation_IDs_for_controller_nodes_must_be_prefixed_with_'controller'": {
 			mutateF: func(c *config) {
-				c.ReservationIDs = map[string]string{"controller-1": "bar"}
+				c.ReservationIDs = map[string]string{"controller-0": "bar"}
 			},
 		},
 		"reservation_IDs_for_worker_nodes_can't_have_random_prefix": {
 			mutateF: func(c *config) {
-				c.WorkerPools[0].ReservationIDs = map[string]string{"foo-1": "bar"}
+				c.WorkerPools[0].ReservationIDs = map[string]string{"foo-0": "bar"}
 			},
 			expectError: true,
 		},
 		"reservation_IDs_for_worker_nodes_must_be_prefixed_with_'worker'": {
 			mutateF: func(c *config) {
-				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": "bar"}
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "bar"}
 			},
 		},
 		"reservation_IDs_for_worker_nodes_can't_be_mixed_default_reservation_ID": {
 			mutateF: func(c *config) {
 				c.WorkerPools[0].ReservationIDsDefault = "next-available"
-				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": "bar"}
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "bar"}
 			},
 			expectError: true,
 		},
 		"reservation_IDs_for_worker_nodes_can't_be_set_to_'next-available'": {
 			mutateF: func(c *config) {
-				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": "next-available"}
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": "next-available"}
 			},
 			expectError: true,
 		},
 		"reservation_IDs_can't_be_empty": {
 			mutateF: func(c *config) {
-				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-1": ""}
+				c.WorkerPools[0].ReservationIDs = map[string]string{"worker-0": ""}
+			},
+			expectError: true,
+		},
+		"reservation_IDs_must_be_sequential": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{
+					"worker-0": "foo",
+					"worker-1": "bar",
+				}
+			},
+		},
+		"not_sequential_reservation_IDs_are_invalid": {
+			mutateF: func(c *config) {
+				c.WorkerPools[0].ReservationIDs = map[string]string{
+					"worker-0": "foo",
+					"worker-2": "bar",
+				}
 			},
 			expectError: true,
 		},
