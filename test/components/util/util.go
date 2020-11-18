@@ -164,7 +164,9 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 				return false, nil
 			}
 
-			return false, fmt.Errorf("getting DaemonSet %q: %w", name, err)
+			t.Logf("getting DaemonSet %q: %v", name, err)
+
+			return false, nil
 		}
 		replicas := ds.Status.DesiredNumberScheduled
 
@@ -204,7 +206,9 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 				return false, nil
 			}
 
-			return false, fmt.Errorf("getting Deployment %q: %w", name, err)
+			t.Logf("getting Deployment %q: %v", name, err)
+
+			return false, nil
 		}
 
 		replicas := deploy.Status.Replicas
