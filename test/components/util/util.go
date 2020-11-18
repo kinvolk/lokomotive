@@ -205,7 +205,7 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 			return false, fmt.Errorf("getting Deployment %q: %w", name, err)
 		}
 
-		replicas := int(deploy.Status.Replicas)
+		replicas := deploy.Status.Replicas
 
 		if replicas == 0 {
 			t.Logf("no replicas scheduled for deployment %s", name)
@@ -215,7 +215,7 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 
 		t.Logf("deployment: %s, replicas: %d/%d", name, int(deploy.Status.AvailableReplicas), replicas)
 
-		if int(deploy.Status.AvailableReplicas) == replicas {
+		if deploy.Status.AvailableReplicas == replicas {
 			t.Logf("found required replicas")
 			return true, nil
 		}
