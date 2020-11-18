@@ -69,7 +69,7 @@ resource "local_file" "kubernetes" {
     kube_scheduler_image          = var.container_images["kube_scheduler"]
     kube_proxy_image              = var.container_images["kube_proxy"]
     coredns_image                 = var.container_images["coredns"]
-    control_plane_replicas        = max(2, length(var.etcd_servers))
+    control_plane_replicas        = length(var.etcd_servers)
     cloud_provider                = var.cloud_provider
     pod_cidr                      = var.pod_cidr
     service_cidr                  = var.service_cidr
