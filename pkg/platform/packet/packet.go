@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -491,11 +492,11 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 func (c *config) checkReservationIDs() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
-	d := checkEachReservation(c.ReservationIDs, c.ReservationIDsDefault, c.ClusterName, controller)
+	d := checkEachReservation(c.ReservationIDs, c.ReservationIDsDefault, c.ClusterName, controller, c.ControllerCount)
 	diagnostics = append(diagnostics, d...)
 
 	for _, w := range c.WorkerPools {
-		d := checkEachReservation(w.ReservationIDs, w.ReservationIDsDefault, w.Name, worker)
+		d := checkEachReservation(w.ReservationIDs, w.ReservationIDsDefault, w.Name, worker, w.Count)
 		diagnostics = append(diagnostics, d...)
 	}
 
@@ -533,7 +534,9 @@ func (c *config) validateOSVersion() hcl.Diagnostics {
 // pool are not mixed between using "next-available" and specific UUIDs, as this
 // can't work reliably.
 // For more info, see comment when calling terraformCreateReservations().
-func checkEachReservation(reservationIDs map[string]string, resDefault, name string, role nodeRole) hcl.Diagnostics {
+//
+//nolint:funlen,lll
+func checkEachReservation(reservationIDs map[string]string, resDefault, name string, role nodeRole, count int) hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
 	errorPrefix := "Worker pool"
@@ -567,15 +570,21 @@ func checkEachReservation(reservationIDs map[string]string, resDefault, name str
 
 	// Check reservation_ids map doesn't use "next-available" as a value.
 	for _, v := range reservationIDs {
-		if v != "next-available" {
-			continue
+		if v == "next-available" {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("%v reservations_ids entries can't use \"next-available\"", errorPrefix),
+				Detail:   fmt.Sprintf("%v: %q uses it, use specific UUIDs or reservations_ids_default only", errorPrefix, name),
+			})
 		}
 
-		diagnostics = append(diagnostics, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("%v reservations_ids entries can't use \"next-available\"", errorPrefix),
-			Detail:   fmt.Sprintf("%v: %q uses it, use specific UUIDs or reservations_ids_default only", errorPrefix, name),
-		})
+		if v == "" {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("%v reservations_ids entries can't be empty", errorPrefix),
+				Detail:   fmt.Sprintf("%v: %q is empty", errorPrefix, name),
+			})
+		}
 	}
 
 	// Check format is:
@@ -589,6 +598,14 @@ func checkEachReservation(reservationIDs map[string]string, resDefault, name str
 	d := checkResFormat(reservationIDs, name, errorPrefix, resPrefix)
 	diagnostics = append(diagnostics, d...)
 
+	if len(reservationIDs) > 0 && len(reservationIDs) != count {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("%v reservations_ids does not match count field", errorPrefix),
+			Detail:   fmt.Sprintf("%v: %q all nodes in pool must have reservation IDs set", errorPrefix, name),
+		})
+	}
+
 	return diagnostics
 }
 
@@ -597,7 +614,14 @@ func checkEachReservation(reservationIDs map[string]string, resDefault, name str
 func checkResFormat(reservationIDs map[string]string, name, errorPrefix, resPrefix string) hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
 
+	deviceIndexes := []int{}
+	expectedIndexes := []int{}
+	index := 0
+
 	for key := range reservationIDs {
+		expectedIndexes = append(expectedIndexes, index)
+		index++
+
 		hclErr := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Invalid reservation ID",
@@ -624,11 +648,24 @@ func checkResFormat(reservationIDs map[string]string, name, errorPrefix, resPref
 		// Check a valid number is used after "controller-" or
 		// "worker-".
 		index := resEntry[1]
-		if _, err := strconv.Atoi(index); err != nil {
-			diagnostics = append(diagnostics, hclErr)
-			// Don't duplicate the same error, show it one per key.
+
+		i, err := strconv.Atoi(index)
+		if err == nil {
+			deviceIndexes = append(deviceIndexes, i)
 			continue
 		}
+
+		diagnostics = append(diagnostics, hclErr)
+	}
+
+	sort.Ints(deviceIndexes)
+
+	if !reflect.DeepEqual(deviceIndexes, expectedIndexes) {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Invalid reservation ID",
+			Detail:   fmt.Sprintf("%v: reservation IDs must be sequential and start from 0", errorPrefix),
+		})
 	}
 
 	return diagnostics
