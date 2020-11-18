@@ -174,8 +174,10 @@ func WaitForDaemonSet(t *testing.T, client kubernetes.Interface, ns, name string
 			return false, nil
 		}
 
-		t.Logf("daemonset: %s, replicas: %d/%d", name, ds.Status.DesiredNumberScheduled, replicas)
-		if ds.Status.NumberReady == replicas {
+		t.Logf("daemonset: %s/%s, expected: %d desired: %d ready: %d updated: %d",
+			ns, name, replicas, ds.Status.DesiredNumberScheduled, ds.Status.NumberReady, ds.Status.UpdatedNumberScheduled)
+
+		if ds.Status.NumberReady == replicas && ds.Status.UpdatedNumberScheduled == replicas {
 			t.Logf("found required replicas")
 			return true, nil
 		}
@@ -213,9 +215,10 @@ func WaitForDeployment(t *testing.T, client kubernetes.Interface, ns, name strin
 			return false, nil
 		}
 
-		t.Logf("deployment: %s, replicas: %d/%d", name, int(deploy.Status.AvailableReplicas), replicas)
+		t.Logf("deployment: %s/%s, expected: %d desired: %d ready: %d updated: %d",
+			ns, name, replicas, deploy.Status.Replicas, deploy.Status.AvailableReplicas, deploy.Status.UpdatedReplicas)
 
-		if deploy.Status.AvailableReplicas == replicas {
+		if deploy.Status.AvailableReplicas == replicas && deploy.Status.UpdatedReplicas == replicas {
 			t.Logf("found required replicas")
 			return true, nil
 		}
