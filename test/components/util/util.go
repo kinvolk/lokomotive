@@ -59,6 +59,17 @@ func KubeconfigPath(t *testing.T) string {
 	return kubeconfig
 }
 
+// LokocfgPath gives the LOKOCFG_LOCATION value.
+func LokocfgPath(t *testing.T) string {
+	lokocfg := os.ExpandEnv(os.Getenv("LOKOCFG_LOCATION"))
+
+	if lokocfg == "" {
+		t.Fatalf("env var LOKOCFG_LOCATION was not set")
+	}
+
+	return lokocfg
+}
+
 // Kubeconfig returns content of kubeconfig file defined with KUBECONFIG
 // environment variable.
 func Kubeconfig(t *testing.T) []byte {
@@ -504,6 +515,17 @@ func IsPlatformSupported(t *testing.T, platforms []Platform) bool {
 	}
 
 	return false
+}
+
+// GetPlatform gives the current testing platform,
+func GetPlatform(t *testing.T) string {
+	platform := os.ExpandEnv(os.Getenv("PLATFORM"))
+
+	if platform == "" {
+		t.Fatalf("env var PLATFORM was not set")
+	}
+
+	return platform
 }
 
 // TestNamespacePrefix is testing namespace prefix.

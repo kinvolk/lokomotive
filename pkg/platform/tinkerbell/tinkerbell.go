@@ -137,6 +137,9 @@ func (c *Config) Meta() platform.Meta {
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      nodes,
 		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		Deployments:        platform.CommonDeployments(len(c.ControllerIPAddresses)),
+		DaemonSets:         platform.CommonDaemonSets(len(c.ControllerIPAddresses), c.DisableSelfHostedKubelet),
+		Name:               Name,
 	}
 }
 
@@ -160,6 +163,15 @@ func (c *Config) Apply(ex *terraform.Executor) error {
 	}
 
 	return ex.Apply()
+}
+
+// ApplyWithoutParallel applies Terraform configuration without parallel executions.
+func (c *Config) ApplyWithoutParallel(ex *terraform.Executor) error {
+	if err := c.Initialize(ex); err != nil {
+		return err
+	}
+
+	return ex.ApplyWithoutParallel()
 }
 
 // Destroy destroys Terraform managed resources.

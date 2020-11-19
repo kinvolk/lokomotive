@@ -170,6 +170,14 @@ func (ex *Executor) Apply() error {
 	})
 }
 
+// ApplyWithoutParallel is a wrapper function that runs `terraform apply -auto-approve -parallelism=1`.
+func (ex *Executor) ApplyWithoutParallel() error {
+	return ex.Execute(ExecutionStep{
+		Description: "create infrastructure",
+		Args:        []string{"apply", "-auto-approve", "-parallelism=1"},
+	})
+}
+
 // Destroy is a wrapper function that runs `terraform destroy -auto-approve`.
 func (ex *Executor) Destroy() error {
 	return ex.Execute(ExecutionStep{
