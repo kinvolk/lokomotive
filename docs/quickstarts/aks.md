@@ -75,7 +75,7 @@ You also need Service Principal credentials, as explained in [#subscription-coll
 
 To create a Lokomotive cluster, you need to define a configuration.
 
-A [production-ready configuration](../../examples/aks-production) is already provided for ease of
+A [production-ready configuration](https://github.com/kinvolk/lokomotive/blob/v0.5.0/examples/aks-production/cluster.lokocfg) is already provided for ease of
 use. Copy the example configuration to the working directory and modify accordingly.
 
 The provided configuration installs the Lokomotive cluster and the following components:

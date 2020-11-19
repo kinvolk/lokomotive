@@ -64,7 +64,7 @@ export AWS_DEFAULT_REGION=us-east-1
 
 To create a Lokomotive cluster, we need to define a configuration.
 
-A [production-ready configuration](../../examples/aws-production) is already provided for ease of
+A [production-ready configuration](https://github.com/kinvolk/lokomotive/blob/v0.5.0/examples/aws-production/cluster.lokocfg) is already provided for ease of
 use. Copy the example configuration to the working directory and modify accordingly.
 
 The provided configuration installs the Lokomotive cluster and the following components:
