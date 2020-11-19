@@ -13,16 +13,16 @@ This component installs the in-cluster part of Inspektor Gadget. To use the
 tracing gadgets you need to install the [Inspektor Gadget kubectl
 plugin](https://github.com/kinvolk/inspektor-gadget/blob/master/Documentation/install.md#installing-kubectl-gadget).
 
-The [Kinvolk Web UI](../web-ui) has integration with the traceloop gadget. When both
-the Web UI and Inspektor Gadget components are installed in the cluster, a
-new "Traces" menu is available on the Web UI which provides access to pod's
+[Headlamp](headlamp.md) has integration with the traceloop gadget. When both
+the Headlamp and Inspektor Gadget components are installed in the cluster, a
+new "Traces" menu is available on Headlamp which provides access to pod's
 traces via [traceloop](https://github.com/kinvolk/traceloop).
 
 ## Prerequisites
 
 * A Kubernetes cluster accessible via `kubectl`.
 
-* Optionally Lokomotive Web UI to use the traceloop integration.
+* Optionally Headlamp to use the traceloop integration.
 
 ## Configuration
 

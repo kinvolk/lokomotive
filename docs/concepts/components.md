@@ -15,54 +15,54 @@ others.
 
 ### User Authentication
 
-Lokomotive provides the [Dex](../../configuration-reference/components/dex) and
-[Gangway](../../configuration-reference/components/gangway) components for user authentication via
+Lokomotive provides the [Dex](../configuration-reference/components/dex.md) and
+[Gangway](../configuration-reference/components/gangway.md) components for user authentication via
 OpenID Connect (OIDC). With these components, you can securely manage access to the Kubernetes
 cluster and resources.
 
-Lokomotive also provides the [cert-manager](../../configuration-reference/components/cert-manager)
+Lokomotive also provides the [cert-manager](../configuration-reference/components/cert-manager.md)
 component for automating the management and issuance of TLS certificates from various issuing
 sources.
 
 ### Monitoring/Metrics
 
 Lokomotive provides a
-[prometheus-operator](../../configuration-reference/components/prometheus-operator) component that
+[prometheus-operator](../configuration-reference/components/prometheus-operator.md) component that
 creates, configures and manages [Prometheus](https://prometheus.io/) atop Kubernetes.
 
-Lokomotive also provides a [metrics-server](../../configuration-reference/components/metrics-server)
+Lokomotive also provides a [metrics-server](../configuration-reference/components/metrics-server.md)
 component responsible for collecting resource metrics from nodes and pods and exposing them in the
 Kubernetes API server through the [metrics API](https://github.com/kubernetes/metrics).
 
 ### Storage
 
-Lokomotive provides the [openebs-operator](../../configuration-reference/components/openebs-operator) and
-[openebs-storage-class](../../configuration-reference/components/openebs-storage-class) components to
+Lokomotive provides the [openebs-operator](../configuration-reference/components/openebs-operator.md) and
+[openebs-storage-class](../configuration-reference/components/openebs-storage-class.md) components to
 use OpenEBS as the block storage solution for the cluster.
 
-Lokomotive also provides the [rook](../../configuration-reference/components/rook) and
-[rook-ceph](../../configuration-reference/components/rook-ceph) components for using Rook as the storage
+Lokomotive also provides the [rook](../configuration-reference/components/rook.md) and
+[rook-ceph](../configuration-reference/components/rook-ceph.md) components for using Rook as the storage
 solution for Lokomotive cluster.
 
 ### Load Balancing/Ingress (for Packet platform only)
 
-Lokomotive provides the [MetalLB](../../configuration-reference/components/metallb) component for load
+Lokomotive provides the [MetalLB](../configuration-reference/components/metallb.md) component for load
 balancing in platforms without network load-balancers and
-[Contour](../../configuration-reference/components/contour) component for Ingress control.
+[Contour](../configuration-reference/components/contour.md) component for Ingress control.
 
-Lokomotive also provides the [external-dns](../../configuration-reference/components/external-dns)
+Lokomotive also provides the [external-dns](../configuration-reference/components/external-dns.md)
 component for automatic management of DNS entries for Ingress resources.
 
 ### Node management
 
 Lokomotive provides the
-[cluster-autoscaler](../../configuration-reference/components/cluster-autoscaler) component for adjusting
+[cluster-autoscaler](../configuration-reference/components/cluster-autoscaler.md) component for adjusting
 the size of Lokomotive cluster.
 
 ### Update
 
 Lokomotive provides the
-[flatcar-linux-update-operator](../../configuration-reference/components/flatcar-linux-update-operator)
+[flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-update-operator.md)
 component for orchestrating updates of the Flatcar Container Linux OS on cluster nodes.
 
 ## Listing Available Components
@@ -124,7 +124,7 @@ lokoctl component apply <component_name>
 >To use specific `kubeconfig` file, `--kubeconfig` flag can be used.
 
 You can pass configuration parameters to components, check the [component reference
-documentation](../../configuration-reference/components) for details.
+documentation](../configuration-reference/components) for details.
 
 To install all the components listed in a `.lokocfg` file, omit the component name:
 

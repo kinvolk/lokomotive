@@ -24,5 +24,5 @@ lokoctl version [flags]
 
 ### SEE ALSO
 
-* [lokoctl](../lokoctl)	 - Manage Lokomotive clusters
+* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
 

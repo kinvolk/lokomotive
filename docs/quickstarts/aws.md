@@ -25,7 +25,7 @@ By the end of this guide, you'll have a production-ready Kubernetes cluster runn
 
 lokoctl is a command-line interface for Lokomotive.
 
-To install `lokoctl`, follow the instructions in the [lokoctl installation](../../installer/lokoctl)
+To install `lokoctl`, follow the instructions in the [lokoctl installation](../installer/lokoctl.md)
 guide.
 
 ### Step 2: Set up a working directory
@@ -64,21 +64,21 @@ export AWS_DEFAULT_REGION=us-east-1
 
 To create a Lokomotive cluster, we need to define a configuration.
 
-A [production-ready configuration](https://github.com/kinvolk/lokomotive/blob/v0.5.0/examples/aws-production/cluster.lokocfg) is already provided for ease of
+A [production-ready configuration](../../examples/aws-production) is already provided for ease of
 use. Copy the example configuration to the working directory and modify accordingly.
 
 The provided configuration installs the Lokomotive cluster and the following components:
 
-* [metrics-server](../../configuration-reference/components/metrics-server)
-* [openebs-operator](../../configuration-reference/components/openebs-operator)
-* [flatcar-linux-update-operator](../../configuration-reference/components/flatcar-linux-update-operator)
-* [openebs-storage-class](../../configuration-reference/components/openebs-storage-class)
-* [prometheus-operator](../../configuration-reference/components/prometheus-operator)
+* [metrics-server](../configuration-reference/components/metrics-server.md)
+* [openebs-operator](../configuration-reference/components/openebs-operator.md)
+* [flatcar-linux-update-operator](../configuration-reference/components/flatcar-linux-update-operator.md)
+* [openebs-storage-class](../configuration-reference/components/openebs-storage-class.md)
+* [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
 
 You can configure the components as per your requirements.
 
-Lokomotive can store Terraform state [locally](../../configuration-reference/backend/local)
-or remotely within an [AWS S3 bucket](../../configuration-reference/backend/s3). By default, Lokomotive
+Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
+or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
 stores Terraform state locally.
 
 Create a variables file named `lokocfg.vars` in the working directory to set values for variables
@@ -108,7 +108,7 @@ cluster.lokocfg  prometheus-operator.lokocfg  lokocfg.vars
 ```
 
 For advanced cluster configurations and more information refer to the [AWS configuration
-guide](../../configuration-reference/platforms/aws).
+guide](../configuration-reference/platforms/aws.md).
 
 ### Step 5: Create Lokomotive cluster
 
@@ -171,7 +171,7 @@ to learn about its usage.
 
 **Note**: Lokomotive sets up a pretty restrictive Pod Security Policy that
 disallows running containers as root by default, check the [Pod Security Policy
-documentation](../../concepts/securing-lokomotive-cluster#cluster-wide-pod-security-policy)
+documentation](../concepts/securing-lokomotive-cluster.md#cluster-wide-pod-security-policy)
 for more details.
 
 ## Cleanup
@@ -220,4 +220,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component
-configuration references](../../configuration-reference/components).
+configuration references](../configuration-reference/components).

@@ -9,7 +9,7 @@ This configuration reference provides information on configuring a Lokomotive cl
 
 ## Prerequisites
 
-* `lokoctl` [installed locally](../../../installer/lokoctl).
+* `lokoctl` [installed locally](../../installer/lokoctl.md).
 * `kubectl` installed locally to access the Kubernetes cluster.
 
 ## Configuration

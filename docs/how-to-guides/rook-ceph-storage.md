@@ -86,7 +86,7 @@ component "rook" {
 - `agent_toleration_key` and `discover_toleration_key` should match the `key` of the `taints` attribute provided in the `worker_pool`.
 - `agent_toleration_effect` and `discover_toleration_effect` should match the `effect` of the `taints` attribute provided in the `worker_pool`.
 
-For more information on available configuration options for the `rook` component, visit the component's [configuration reference](../../configuration-reference/components/rook).
+For more information on available configuration options for the `rook` component, visit the component's [configuration reference](../configuration-reference/components/rook.md).
 
 #### Deploy the component
 
@@ -136,7 +136,7 @@ component "rook-ceph" {
 - `node_affinity` should match the `labels` attribute provided in the `worker_pool`.
 - `toleration` should match the `taints` attribute provided in the `worker_pool`.
 
-For more information on available configuration options for the `rook-ceph` component, visit the component's [configuration reference](../../configuration-reference/components/rook-ceph).
+For more information on available configuration options for the `rook-ceph` component, visit the component's [configuration reference](../configuration-reference/components/rook-ceph.md).
 
 #### Deploy the component
 
@@ -226,7 +226,7 @@ rados df
 
 Monitor `rook` and `rook-ceph` components using the `prometheus-operator` component. To enable your `rook` component config should have the attribute `enable_monitoring` set to `true`.
 
-> **NOTE:** Deploy the `prometheus-operator` component before. For more information follow this [doc](../monitoring-with-prometheus-operator).
+> **NOTE:** Deploy the `prometheus-operator` component before. For more information follow this [doc](./monitoring-with-prometheus-operator.md).
 
 ```tf
 component "rook" {
@@ -272,8 +272,8 @@ rook-ceph-block (default)   rook.rbd.csi.ceph.com   Delete          Immediate   
 
 ## Additional resources
 
-- `rook` component [configuration reference](../../configuration-reference/components/rook) guide.
-- `rook-ceph` component [configuration reference](../../configuration-reference/components/rook-ceph) guide.
+- `rook` component [configuration reference](../configuration-reference/components/rook.md) guide.
+- `rook-ceph` component [configuration reference](../configuration-reference/components/rook-ceph.md) guide.
 - Rook docs:
 
   - [Ceph toolbox](https://rook.io/docs/rook/master/ceph-toolbox.html).

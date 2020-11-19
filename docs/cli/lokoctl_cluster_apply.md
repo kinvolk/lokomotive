@@ -34,5 +34,5 @@ lokoctl cluster apply [flags]
 
 ### SEE ALSO
 
-* [lokoctl cluster](../lokoctl_cluster)	 - Manage a cluster
+* [lokoctl cluster](lokoctl_cluster.md)	 - Manage a cluster
 

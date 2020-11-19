@@ -25,5 +25,5 @@ lokoctl health [flags]
 
 ### SEE ALSO
 
-* [lokoctl](../lokoctl)	 - Manage Lokomotive clusters
+* [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
 

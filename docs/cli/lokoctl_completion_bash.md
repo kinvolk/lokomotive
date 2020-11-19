@@ -47,5 +47,5 @@ lokoctl completion bash
 
 ### SEE ALSO
 
-* [lokoctl completion](../lokoctl_completion)	 - Generate the completion code for the specified shell
+* [lokoctl completion](lokoctl_completion.md)	 - Generate the completion code for the specified shell
 

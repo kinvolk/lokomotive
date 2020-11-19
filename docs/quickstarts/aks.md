@@ -23,7 +23,7 @@ _Note: Lokomotive on AKS currently provides Kubernetes 1.16 as opposed to other 
 
 lokoctl is a command-line interface for Lokomotive.
 
-To install `lokoctl`, follow the instructions in the [lokoctl installation](../../installer/lokoctl)
+To install `lokoctl`, follow the instructions in the [lokoctl installation](../installer/lokoctl.md)
 guide.
 
 ### Step 2: Set up a working directory
@@ -62,7 +62,7 @@ If you are a user with full administrative access to your subscription, then you
 Azure AD application for you and provide you a Service Principal Client ID and a Client secret, which will be used by AKS cluster.
 
 You can then provide them to the configuration using either `LOKOMOTIVE_AKS_CLIENT_ID` and `LOKOMOTIVE_AKS_CLIENT_SECRET` environment
-variables or via `client_id` and `client_secret` parameters. See [AKS attribute reference](../../configuration-reference/platforms/aks#attribute-reference) for more details.
+variables or via `client_id` and `client_secret` parameters. See [AKS attribute reference](../configuration-reference/platforms/aks.md#attribute-reference) for more details.
 
 #### Resource group collaborator
 
@@ -75,19 +75,19 @@ You also need Service Principal credentials, as explained in [#subscription-coll
 
 To create a Lokomotive cluster, you need to define a configuration.
 
-A [production-ready configuration](https://github.com/kinvolk/lokomotive/blob/v0.5.0/examples/aks-production/cluster.lokocfg) is already provided for ease of
+A [production-ready configuration](../../examples/aks-production) is already provided for ease of
 use. Copy the example configuration to the working directory and modify accordingly.
 
 The provided configuration installs the Lokomotive cluster and the following components:
 
-* [prometheus-operator](../../configuration-reference/components/prometheus-operator)
-* [cert-manager](../../configuration-reference/components/cert-manager)
-* [contour](../../configuration-reference/components/contour)
+* [prometheus-operator](../configuration-reference/components/prometheus-operator.md)
+* [cert-manager](../configuration-reference/components/cert-manager.md)
+* [contour](../configuration-reference/components/contour.md)
 
 You can configure the components as per your requirements.
 
-Lokomotive can store Terraform state [locally](../../configuration-reference/backend/local)
-or remotely within an [AWS S3 bucket](../../configuration-reference/backend/s3). By default, Lokomotive
+Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
+or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
 stores Terraform state locally.
 
 Create a variables file named `lokocfg.vars` in the working directory to set values for variables
@@ -112,7 +112,7 @@ cluster.lokocfg  prometheus-operator.lokocfg  lokocfg.vars
 ```
 
 For advanced cluster configurations and more information refer to the [AKS configuration
-guide](../../configuration-reference/platforms/aks).
+guide](../configuration-reference/platforms/aks.md).
 
 ### Step 6: Create Lokomotive cluster
 
@@ -189,4 +189,4 @@ After walking through this guide, you've learned how to set up a Lokomotive clus
 You can now start deploying your workloads on the cluster.
 
 For more information on installing supported Lokomotive components, you can visit the [component
-configuration references](../../configuration-reference/components).
+configuration references](../configuration-reference/components).
