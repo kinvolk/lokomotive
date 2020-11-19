@@ -34,7 +34,7 @@ for details on how to identify what the next version should be.
   `scripts/changelog.sh` will help generating an initial list of changes.
   Correct/fix entries if necessary, and group them by category.
 
-- Update [installation guide](../docs/installer/lokoctl.md) to reference to new
+- Update [installation guide](./installer/lokoctl.md) to reference to new
   version.
 
 Even though it is set at build time, the Lokomotive version is also hardcoded
