@@ -70,11 +70,15 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo mv etcd-peer.key /etc/ssl/etcd/etcd/peer.key",
       "sudo chown -R etcd:etcd /etc/ssl/etcd",
       "sudo chmod -R 500 /etc/ssl/etcd",
+      "sudo systemctl restart etcd",
     ]
   }
 
   triggers = {
-    controller_id = aws_instance.controllers[count.index].id
+    controller_id    = aws_instance.controllers[count.index].id
+    etcd_ca_cert     = module.bootkube.etcd_ca_cert
+    etcd_server_cert = module.bootkube.etcd_server_cert
+    etcd_peer_cert   = module.bootkube.etcd_peer_cert
   }
 }
 

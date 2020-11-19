@@ -25,6 +25,8 @@ spec:
       annotations:
         checkpointer.alpha.coreos.com/checkpoint: "true"
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+        # Automatically rolls update when secret changes.
+        checksum/secret: {{ include (print $.Template.BasePath "/kube-apiserver-secret.yaml") . | sha256sum }}
     spec:
 {{- template "containers" . }}
 {{- end }}

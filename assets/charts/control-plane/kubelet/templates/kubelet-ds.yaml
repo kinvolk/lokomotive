@@ -17,7 +17,23 @@ spec:
         tier: node
         k8s-app: kubelet
     spec:
-      automountServiceAccountToken: false
+      initContainers:
+      - name: ca-syncer
+        image: {{ .Values.image }}
+        command:
+        - bash
+        - -c
+        - |
+          sed -i "s/^    certificate-authority-data:.*$/    certificate-authority-data: {{ .Values.kubernetesCACert }}/g" /var/lib/kubelet/kubeconfig /etc/kubernetes/kubeconfig
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: var-lib-kubelet
+          mountPath: /var/lib/kubelet
+          readOnly: false
+        - name: etc-kubernetes
+          mountPath: /etc/kubernetes
+          readOnly: false
       containers:
       - name: kubelet
         image: {{ .Values.image }}

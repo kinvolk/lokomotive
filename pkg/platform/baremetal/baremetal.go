@@ -83,6 +83,8 @@ func (c *config) Meta() platform.Meta {
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      len(c.ControllerMacs) + len(c.WorkerMacs),
 		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		Deployments:        platform.CommonDeployments(len(c.ControllerMacs)),
+		DaemonSets:         platform.CommonDaemonSets(len(c.ControllerMacs), !c.DisableSelfHostedKubelet),
 	}
 }
 

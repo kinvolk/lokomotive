@@ -30,6 +30,8 @@ cluster "aws" {
   dns_zone_id      = var.route53_zone_id
   ssh_pubkeys      = var.ssh_public_keys
 
+  certs_validity_period_hours = 1
+
   //os_channel       = "stable"
   //os_version       = "current"
 

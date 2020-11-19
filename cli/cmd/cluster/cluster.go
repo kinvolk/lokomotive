@@ -15,6 +15,7 @@
 package cluster
 
 import (
+	"encoding/base64"
 	"fmt"
 	"path/filepath"
 
@@ -331,4 +332,65 @@ func (c controlplaneUpdater) ensureComponent(component, namespace string) error 
 	fmt.Println("Done.")
 
 	return nil
+}
+
+// taintCertificates taints all certificate resources in existing Terraform state.
+func (c *cluster) taintCertificates() error {
+	f := func(resourceName string) string {
+		m := c.platform.Meta()
+
+		return fmt.Sprintf("module.%s-%s.module.bootkube.%s", m.Name, m.ClusterName, resourceName)
+	}
+
+	steps := []terraform.ExecutionStep{}
+	targets := []string{
+		"tls_locally_signed_cert.admin",
+		"tls_locally_signed_cert.admission-webhook-server",
+		"tls_locally_signed_cert.aggregation-client[0]",
+		"tls_locally_signed_cert.apiserver",
+		"tls_locally_signed_cert.client",
+		"tls_locally_signed_cert.kubelet",
+		"tls_locally_signed_cert.peer",
+		"tls_locally_signed_cert.server",
+		"tls_self_signed_cert.aggregation-ca[0]",
+		"tls_self_signed_cert.etcd-ca",
+		"tls_self_signed_cert.kube-ca",
+	}
+
+	for _, t := range targets {
+		steps = append(steps, terraform.ExecutionStep{
+			Args: []string{"taint", f(t)},
+		})
+	}
+
+	if err := c.terraformExecutor.Execute(steps...); err != nil {
+		return fmt.Errorf("tainting existing certificates: %w", err)
+	}
+
+	return nil
+}
+
+func (c *cluster) readKubernetesCAFromTerraformOutput() (string, error) {
+	valuesRaw := ""
+
+	if err := c.terraformExecutor.Output("kubernetes_values", &valuesRaw); err != nil {
+		return "", fmt.Errorf("getting %q release values from Terraform output: %w", "kubernetes", err)
+	}
+
+	values := &struct {
+		ControllerManager struct {
+			CACert string `json:"caCert"`
+		} `json:"controllerManager"`
+	}{}
+
+	if err := yaml.Unmarshal([]byte(valuesRaw), values); err != nil {
+		return "", fmt.Errorf("parsing kubeconfig values: %w", err)
+	}
+
+	caCert, err := base64.StdEncoding.DecodeString(values.ControllerManager.CACert)
+	if err != nil {
+		return "", fmt.Errorf("base64 decode: %w", err)
+	}
+
+	return string(caCert), nil
 }

@@ -55,6 +55,7 @@
         - --pod-eviction-timeout=1m
         - --root-ca-file=/etc/kubernetes/secrets/ca.crt
         - --service-account-private-key-file=/etc/kubernetes/secrets/service-account.key
+        - --cluster-signing-duration=45m
         livenessProbe:
           httpGet:
             scheme: HTTPS

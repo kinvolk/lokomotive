@@ -108,6 +108,13 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		}
 	}
 
+	// If we are not on managed platform, rotate all certificates while upgrading.
+	if exists && !c.platform.Meta().Managed {
+		if err := c.taintCertificates(); err != nil {
+			return fmt.Errorf("tainting certificate resources: %w", err)
+		}
+	}
+
 	if err := c.platform.Apply(&c.terraformExecutor); err != nil {
 		return fmt.Errorf("applying platform: %v", err)
 	}
@@ -144,6 +151,33 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 			if err := cu.upgradeComponent(c.Name, c.Namespace); err != nil {
 				return fmt.Errorf("upgrading controlplane component %q: %w", c.Name, err)
 			}
+		}
+
+		cs, err := k8sutil.NewClientset(kubeconfig)
+		if err != nil {
+			return fmt.Errorf("creating clientset from kubeconfig: %w", err)
+		}
+
+		newCACert, err := c.readKubernetesCAFromTerraformOutput()
+		if err != nil {
+			return fmt.Errorf("reading Kubernetes CA certificate from Terraform output: %w", err)
+		}
+
+		crConfig := certificateRotatorConfig{
+			clientSet:            cs,
+			newCACert:            newCACert,
+			logger:               contextLogger,
+			daemonSetsToRestart:  c.platform.Meta().DaemonSets,
+			deploymentsToRestart: c.platform.Meta().Deployments,
+		}
+
+		cr, err := newCertificateRotator(crConfig)
+		if err != nil {
+			return fmt.Errorf("preparing certificate rotator: %w", err)
+		}
+
+		if err := cr.rotate(); err != nil {
+			return fmt.Errorf("rotating certificates: %w", err)
 		}
 	}
 
