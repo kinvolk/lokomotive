@@ -27,6 +27,9 @@ configuration:
     bucket: {{ .Configuration.BackupStorageLocation.Bucket }}
     config:
       region: {{ .Configuration.BackupStorageLocation.Region }}
+  {{- if not .Configuration.RequireVolumeAnnotation }}
+  defaultVolumesToRestic: true
+  {{- end }}
 deployRestic: true
 snapshotsEnabled: false
 restic:
