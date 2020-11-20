@@ -154,7 +154,6 @@ docker-update-dependencies: docker-build
 .PHONY: docs
 docs:
 	GO111MODULE=on go run -mod=$(MOD) -buildmode=exe cli/cmd/document/main.go $(DOCS_DIR)
-	for f in $(DOCS_DIR)/lokoctl*md; do sed -i 's/\[\(lokoctl.*\)\](\(.*\)\.md)/\[\1\](\.\.\/\2)/g' $$f; done
 	for f in $(DOCS_DIR)/lokoctl*md; do sed -i '1s/^## \(lokoctl.*\)$$/---\ntitle: \1\nweight: 10\n---/' $$f; done
 
 .PHONY: build-and-publish-release

@@ -19,21 +19,21 @@ This document explains how to enable any supported auth provider on Grafana.
 
   **NOTE**: Required only for the Packet provider.
 
-  Installation instructions for [MetalLB](../ingress-with-contour-metallb) component.
+  Installation instructions for [MetalLB](./ingress-with-contour-metallb.md) component.
 
 - [Contour](https://projectcontour.io/) deployed on the cluster.
 
-  Installation instructions for [Contour](../../configuration-reference/components/contour)
+  Installation instructions for [Contour](../configuration-reference/components/contour.md)
   component.
 
 - [cert-manager](https://cert-manager.io/docs/) deployed on the cluster.
 
   Installation instructions for
-  [cert-manager](../../configuration-reference/components/cert-manager) Lokomotive component.
+  [cert-manager](../configuration-reference/components/cert-manager.md) Lokomotive component.
 
 - [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) deployed on the cluster.
 
-  Installation instructions for [ExternalDNS](../../configuration-reference/components/external-dns)
+  Installation instructions for [ExternalDNS](../configuration-reference/components/external-dns.md)
   component.
 
 ## Steps
@@ -91,8 +91,8 @@ component "prometheus-operator" {
 
 > **NOTE**: On Packet, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>`
 > and point it to the Packet external IP for the contour service (see the [Packet ingress guide for
-> more details](../ingress-with-contour-metallb)) or use the [External DNS
-> component](../../configuration-reference/components/external-dns).
+> more details](./ingress-with-contour-metallb.md)) or use the [External DNS
+> component](../configuration-reference/components/external-dns.md).
 
 > **NOTE**: In the above configuration, boolean values are set to `"'true'"` instead of bare
 > `"true"` because Kubernetes expects the key-value pair to be of type `map[string]string` and not
@@ -130,7 +130,7 @@ sign in with Github.
   https://grafana.com/docs/grafana/latest/auth/overview/#user-authentication-overview
 
 - Component `prometheus-operator`'s configuration reference can be found
-  [here](../../configuration-reference/components/prometheus-operator).
+  [here](../configuration-reference/components/prometheus-operator.md).
 
 - Find details on how to setup monitoring with the `prometheus-operator` component
-  [here](../monitoring-with-prometheus-operator).
+  [here](./monitoring-with-prometheus-operator.md).

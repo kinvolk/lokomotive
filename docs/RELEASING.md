@@ -34,7 +34,7 @@ for details on how to identify what the next version should be.
   `scripts/changelog.sh` will help generating an initial list of changes.
   Correct/fix entries if necessary, and group them by category.
 
-- Update [installation guide](../installer/lokoctl) to reference to new
+- Update [installation guide](./installer/lokoctl.md) to reference to new
   version.
 
 Even though it is set at build time, the Lokomotive version is also hardcoded
@@ -71,7 +71,7 @@ Now we'll tag the release.
 - Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for details).
   - `export GITHUB_TOKEN=<GitHub token>`
 
-- Export your GPG Key Signature. Find your signature in the [Trusted keys](../keys).
+- Export your GPG Key Signature. Find your signature in the [KEYS](KEYS.md) file.
   - `export GPG_FINGERPRINT=<GPG Signature>`
 
 - Build the binary, sign it, upload it to GitHub, create draft GitHub release.
@@ -139,4 +139,4 @@ for generating new keys for signing.
 ## Adding new GPG key to list of trusted keys
 
 Before signing a release with a new GPG key, it should be signed by other trusted
-keys and added to the [list of trusted keys in the repository](../keys).
+keys and added to the [list of trusted keys in the repository](KEYS.md).

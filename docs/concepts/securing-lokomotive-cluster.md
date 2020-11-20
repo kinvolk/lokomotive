@@ -31,7 +31,7 @@ default PSPs for general purpose application usage:
     [documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) on creating a
     Pod Security Policy.
 
-  * [privileged](https://github.com/kinvolk/lokomotive/blob/v0.5.0/assets/charts/control-plane/kubernetes/templates/psp-restricted.yaml)
+  * [privileged](https://github.com/kinvolk/lokomotive/blob/v0.5.0/assets/charts/control-plane/kubernetes/templates/psp-privileged.yaml)
 
     Allowed to workloads in `kube-system` namespace only. This PSP does not restrict any workloads
     from any required permissions.

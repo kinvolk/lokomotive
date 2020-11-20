@@ -58,5 +58,5 @@ lokoctl cluster apply
 ## Additional resources
 
 For full information about how to deploy a Lokomotive cluster, refer to the
-[configuration reference](../../configuration-reference) or to one of the
-[quickstart guides](../../quickstarts).
+[configuration reference](../configuration-reference) or to one of the
+[quickstart guides](../quickstarts).

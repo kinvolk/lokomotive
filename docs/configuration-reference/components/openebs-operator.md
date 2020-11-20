@@ -66,7 +66,7 @@ lokoctl component apply openebs-operator
 ```
 
 This component only concerns with the installation of openebs-operator. To configure the storage
-class and storage pool claim, check out the [openebs-storage-class](../openebs-storage-class)
+class and storage pool claim, check out the [openebs-storage-class](openebs-storage-class.md)
 component.
 
 ## Deleting
