@@ -116,10 +116,6 @@ install-slim:
 		-buildmode=exe \
 		./cmd/lokoctl
 
-.PHONY: install-packr2
-install-packr2:
-	echo "This target has been removed. This is here only to satisfy CI and will be removed later."
-
 .PHONY: update
 update: update-dependencies tidy vendor
 
