@@ -84,12 +84,6 @@ variable "cluster_domain_suffix" {
   default     = "cluster.local"
 }
 
-variable "container_arch" {
-  description = "Architecture suffix for the container image coredns/coredns:coredns- (e.g., arm64)"
-  type        = string
-  default     = "amd64"
-}
-
 variable "container_images" {
   description = "Container images to use"
   type        = map(string)
