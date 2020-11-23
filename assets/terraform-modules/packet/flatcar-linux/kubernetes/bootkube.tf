@@ -26,8 +26,6 @@ module "bootkube" {
 
   certs_validity_period_hours = var.certs_validity_period_hours
 
-  container_arch = var.os_arch
-
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
   # Extra flags to API server.

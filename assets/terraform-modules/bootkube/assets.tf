@@ -68,7 +68,7 @@ resource "local_file" "kubernetes" {
     kube_controller_manager_image = var.container_images["kube_controller_manager"]
     kube_scheduler_image          = var.container_images["kube_scheduler"]
     kube_proxy_image              = var.container_images["kube_proxy"]
-    coredns_image                 = "${var.container_images["coredns"]}${var.container_arch}"
+    coredns_image                 = var.container_images["coredns"]
     control_plane_replicas        = max(2, length(var.etcd_servers))
     cloud_provider                = var.cloud_provider
     pod_cidr                      = var.pod_cidr
@@ -109,7 +109,7 @@ locals {
   kubelet = var.disable_self_hosted_kubelet == false ? 1 : 0
   # Render kubelet.yaml for kubelet chart
   kubelet_content = templatefile("${path.module}/resources/charts/kubelet.yaml", {
-    kubelet_image          = "${var.container_images["kubelet_image"]}-${var.container_arch}"
+    kubelet_image          = var.container_images["kubelet_image"]
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
     enable_tls_bootstrap   = var.enable_tls_bootstrap
