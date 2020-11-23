@@ -109,7 +109,7 @@ locals {
   kubelet = var.disable_self_hosted_kubelet == false ? 1 : 0
   # Render kubelet.yaml for kubelet chart
   kubelet_content = templatefile("${path.module}/resources/charts/kubelet.yaml", {
-    kubelet_image          = "${var.container_images["kubelet_image"]}-${var.container_arch}"
+    kubelet_image          = var.container_images["kubelet_image"]
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
     enable_tls_bootstrap   = var.enable_tls_bootstrap
