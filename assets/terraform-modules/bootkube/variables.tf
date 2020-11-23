@@ -91,7 +91,7 @@ variable "container_arch" {
 }
 
 variable "container_images" {
-  description = "Container images to use (the coredns entry will get -$${var.container_arch} appended)"
+  description = "Container images to use"
   type        = map(string)
 
   default = {
@@ -100,7 +100,7 @@ variable "container_images" {
     calico_controllers      = "calico/kube-controllers:v3.16.4"
     flexvol_driver_image    = "calico/pod2daemon-flexvol:v3.16.4"
     kubelet_image           = "quay.io/poseidon/kubelet:v1.19.4"
-    coredns                 = "coredns/coredns:coredns-"
+    coredns                 = "coredns/coredns:1.8.0"
     pod_checkpointer        = "kinvolk/pod-checkpointer:d1c58443fe7d7d33aa5bf7d80d65d299be6e5847"
     kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.19.4"
     kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.19.4"
