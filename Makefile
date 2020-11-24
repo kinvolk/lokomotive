@@ -197,4 +197,4 @@ check-docs: check-working-tree-clean docs
 	@test -z "$$(git status --porcelain)" || (echo "Please run make docs and commit the changes."; git status; exit 1)
 
 .PHONY: ci
-ci: build test check-update-assets check-vendor check-docs
+ci: build build-test test check-update-assets check-vendor check-docs
