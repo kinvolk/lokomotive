@@ -41,9 +41,7 @@ func TestLinkerdDeployment(t *testing.T) {
 	deployments := []string{
 		"linkerd-controller",
 		"linkerd-destination",
-		"linkerd-grafana",
 		"linkerd-identity",
-		"linkerd-prometheus",
 		"linkerd-proxy-injector",
 		"linkerd-sp-validator",
 		"linkerd-tap",

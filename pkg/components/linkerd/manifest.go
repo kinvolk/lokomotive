@@ -18,6 +18,7 @@ package linkerd
 const chartValuesTmpl = `
 enableMonitoring: {{.EnableMonitoring}}
 global:
+  prometheusUrl: {{ .PrometheusURL }}
   identityTrustAnchorsPEM: |
 {{ .Cert.CA }}
 
@@ -29,6 +30,12 @@ identity:
 {{ .Cert.Cert }}
       keyPEM: |
 {{ .Cert.Key }}
+
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
 
 # controller configuration
 controllerReplicas: {{.ControllerReplicas}}
@@ -48,7 +55,6 @@ global:
   proxy:
     resources:
       cpu:
-        limit: "1"
         request: 100m
       memory:
         limit: 250Mi
@@ -58,7 +64,7 @@ global:
 controllerReplicas: 3
 controllerResources: &controller_resources
   cpu: &controller_resources_cpu
-    limit: "1"
+    limit: ""
     request: 100m
   memory:
     limit: 250Mi
@@ -85,17 +91,17 @@ grafana:
 heartbeatResources: *controller_resources
 
 # prometheus configuration
-prometheusResources:
-  cpu:
-    limit: "4"
-    request: 300m
-  memory:
-    limit: 8192Mi
-    request: 300Mi
+prometheus:
+  resources:
+    cpu:
+      limit: ""
+      request: 300m
+    memory:
+      limit: 8192Mi
+      request: 300Mi
 
 # proxy injector configuration
 proxyInjectorResources: *controller_resources
-
 webhookFailurePolicy: Fail
 
 # service profile validator configuration
