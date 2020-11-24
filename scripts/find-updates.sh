@@ -144,7 +144,7 @@ current_version=$(grep version assets/charts/components/metrics-server/Chart.yam
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 
-helm repo add stable https://kubernetes-charts.storage.googleapis.com >/dev/null 2>&1
+helm repo add stable https://charts.helm.sh/stable >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
 helm fetch --untar --untardir ./ stable/metrics-server
 version=$(grep version "${tmpdir}/metrics-server/Chart.yaml" | cut -d":" -f2)
@@ -236,7 +236,7 @@ printf "${format}" "Packet" "${current_version}" "${version}"
 cd "${workdir}"
 current_version=$(grep aws -A1 assets/terraform-modules/aws/flatcar-linux/kubernetes/versions.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
 
-get_latest_release terraform-providers/terraform-provider-aws
+get_latest_release hashicorp/terraform-provider-aws
 printf "${format}" "AWS" "${current_version}" "${version}"
 
 ###########################
