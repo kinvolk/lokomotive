@@ -944,7 +944,7 @@ metadata:
   namespace: metallb-system
   labels:
     release: prometheus-operator
-    app: prometheus-operator
+    app: kube-prometheus-stack
 spec:
   groups:
   - name: metallb-rules

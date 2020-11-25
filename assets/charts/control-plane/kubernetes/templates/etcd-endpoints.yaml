@@ -7,7 +7,7 @@ metadata:
     generatedby: bootkube
     # These labels are to make sure that the Prometheus Operator ServiceMonitor picks this
     # endpoints correctly.
-    app: prometheus-operator-kube-etcd
+    app: kube-prometheus-stack-kube-etcd
     release: prometheus-operator
   namespace: kube-system
 subsets:
@@ -29,7 +29,7 @@ metadata:
     generatedby: bootkube
     # These labels are to make sure that the Prometheus Operator ServiceMonitor picks this
     # endpoints correctly.
-    app: prometheus-operator-kube-etcd
+    app: kube-prometheus-stack-kube-etcd
     release: prometheus-operator
   namespace: kube-system
 spec:
