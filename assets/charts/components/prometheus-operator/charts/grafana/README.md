@@ -127,7 +127,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `podLabels`                               | Pod labels                                    | `{}`                                                    |
 | `podPortName`                             | Name of the grafana port on the pod           | `grafana`                                               |
 | `sidecar.image.repository`                | Sidecar image repository                      | `kiwigrid/k8s-sidecar`                                  |
-| `sidecar.image.tag`                       | Sidecar image tag                             | `0.1.151`                                               |
+| `sidecar.image.tag`                       | Sidecar image tag                             | `1.1.0`                                                 |
 | `sidecar.image.sha`                       | Sidecar image sha (optional)                  | `""`                                                    |
 | `sidecar.imagePullPolicy`                 | Sidecar image pull policy                     | `IfNotPresent`                                          |
 | `sidecar.resources`                       | Sidecar resources                             | `{}`                                                    |
@@ -145,6 +145,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `sidecar.skipTlsVerify`                   | Set to true to skip tls verification for kube api calls | `nil`                                         |
 | `sidecar.dashboards.label`                | Label that config maps with dashboards should have to be added | `grafana_dashboard`                                |
 | `sidecar.dashboards.folder`               | Folder in the pod that should hold the collected dashboards (unless `sidecar.dashboards.defaultFolderName` is set). This path will be mounted. | `/tmp/dashboards`    |
+| `sidecar.dashboards.folderAnnotation`     | The annotation the sidecar will look for in configmaps to override the destination folder for files | `nil`                                                  |
 | `sidecar.dashboards.defaultFolderName`    | The default folder name, it will create a subfolder under the `sidecar.dashboards.folder` and put dashboards in there instead | `nil`                                |
 | `sidecar.dashboards.searchNamespace`      | If specified, the sidecar will search for dashboard config-maps inside this namespace. Otherwise the namespace in which the sidecar is running will be used. It's also possible to specify ALL to search in all namespaces | `nil`                                |
 | `sidecar.datasources.enabled`             | Enables the cluster wide search for datasources and adds/updates/deletes them in grafana |`false`       |
@@ -165,6 +166,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `serviceAccount.nameTest`                 | Service account name to use for test, when empty will be set to created account if `serviceAccount.create` is set else to `default` | `nil` |
 | `rbac.create`                             | Create and use RBAC resources                 | `true`                                                  |
 | `rbac.namespaced`                         | Creates Role and Rolebinding instead of the default ClusterRole and ClusteRoleBindings for the grafana instance  | `false` |
+| `rbac.useExistingRole`                    | Set to a rolename to use existing role - skipping role creating - but still doing serviceaccount and rolebinding to the rolename set here. | `nil` |
 | `rbac.pspEnabled`                         | Create PodSecurityPolicy (with `rbac.create`, grant roles permissions as well) | `true`                 |
 | `rbac.pspUseAppArmor`                     | Enforce AppArmor in created PodSecurityPolicy (requires `rbac.pspEnabled`)  | `true`                    |
 | `rbac.extraRoleRules`                     | Additional rules to add to the Role           | []                                                      |
@@ -178,7 +180,7 @@ You have to add --force to your helm upgrade command as the labels of the chart 
 | `downloadDashboards.env`                  | Environment variables to be passed to the `download-dashboards` container | `{}`                        |
 | `downloadDashboards.resources`            | Resources of `download-dashboards` container  | `{}`                                                    |
 | `downloadDashboardsImage.repository`      | Curl docker image repo                        | `curlimages/curl`                                       |
-| `downloadDashboardsImage.tag`             | Curl docker image tag                         | `7.70.0`                                                |
+| `downloadDashboardsImage.tag`             | Curl docker image tag                         | `7.73.0`                                                |
 | `downloadDashboardsImage.sha`             | Curl docker image sha (optional)              | `""`                                                    |
 | `downloadDashboardsImage.pullPolicy`      | Curl docker image pull policy                 | `IfNotPresent`                                          |
 | `namespaceOverride`                       | Override the deployment namespace             | `""` (`Release.Namespace`)                              |

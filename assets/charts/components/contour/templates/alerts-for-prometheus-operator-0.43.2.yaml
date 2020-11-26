@@ -1,0 +1,33 @@
+# This resource is created to scrape contour metrics once Contour component is
+# updated. Only difference between the `alerts.yaml` and this is the name and
+# the value of the label key `app`.  This is done so that even if the just the
+# Promtheus operator component is updated and not Contour, scraping of contour
+# metrics is not interrupted.
+{{- if .Values.monitoring.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alertmanager-rules-for-prometheus-0-43-2
+  namespace: projectcontour
+  labels:
+    release: prometheus-operator
+    app: kube-prometheus-stack
+spec:
+  groups:
+  - name: contour-rules
+    rules:
+    - alert: ContourPodsAvailability
+      expr: kube_deployment_status_replicas_unavailable{deployment="contour",namespace="projectcontour"} != 0
+      for: 1m
+      annotations:
+        description: '"{{ `{{ $labels.instance }}` }}": Contour pod is not available for last one minute.'
+        summary: '"{{ `{{ $labels.instance }}` }}": Contour deployment pods.'
+  - name: envoy-rules
+    rules:
+    - alert: EnvoyPodsAvailability
+      expr: kube_daemonset_status_number_unavailable{daemonset="envoy",namespace="projectcontour"} != 0
+      for: 1m
+      annotations:
+        description: '"{{ `{{ $labels.instance }}` }}": Envoy pod is not available for last one minute.'
+        summary: '"{{ `{{ $labels.instance }}` }}": Envoy deployment pods.'
+{{- end }}
