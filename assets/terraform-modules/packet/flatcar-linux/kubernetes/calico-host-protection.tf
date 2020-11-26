@@ -1,5 +1,5 @@
 // TODO: Currently, bootkube installs all charts in parallel, which causes
-// calico-host-protection chart installation to fail ocasionally, as it
+// calico-host-protection chart installation to fail occasionally, as it
 // gets installed before the Calico chart itself.
 //
 // To workaround this issue, we make an extra copy of the Calico CRDs into

@@ -9,5 +9,6 @@
 ./assets/charts/components/cluster-autoscaler
 ./assets/charts/components/contour/crds
 ./assets/charts/components/openebs-operator/README.md
+./assets/charts/components/external-dns
 ./assets/charts/control-plane/calico/crds
 ./docs/images/lokomotive-example.gif
