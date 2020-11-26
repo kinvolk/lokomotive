@@ -59,6 +59,7 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 	// Prepare for getting kubeconfig.
 	kg := kubeconfigGetter{
 		platformRequired: true,
+		clusterConfig:    cc,
 	}
 
 	var kubeconfig []byte

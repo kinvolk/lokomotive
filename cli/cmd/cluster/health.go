@@ -47,6 +47,10 @@ func Health(contextLogger *log.Entry, options HealthOptions) error {
 
 	kg := kubeconfigGetter{
 		platformRequired: true,
+		clusterConfig: clusterConfig{
+			configPath: options.ConfigPath,
+			valuesPath: options.ValuesPath,
+		},
 	}
 
 	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)

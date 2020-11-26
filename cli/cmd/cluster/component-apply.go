@@ -47,6 +47,10 @@ func ComponentApply(contextLogger *log.Entry, componentsList []string, options C
 	kg := kubeconfigGetter{
 		platformRequired: false,
 		path:             options.KubeconfigPath,
+		clusterConfig: clusterConfig{
+			configPath: options.ConfigPath,
+			valuesPath: options.ValuesPath,
+		},
 	}
 
 	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
