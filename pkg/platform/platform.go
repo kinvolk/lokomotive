@@ -62,7 +62,7 @@ func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 			Namespace: "kube-system",
 		},
 		{
-			Name:      "calico",
+			Name:      "cilium",
 			Namespace: "kube-system",
 		},
 		{

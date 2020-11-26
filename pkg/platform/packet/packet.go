@@ -145,11 +145,6 @@ func (c *config) Meta() platform.Meta {
 	charts := platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet)
 
 	charts = append(charts, helm.LokomotiveChart{
-		Name:      "calico-host-protection",
-		Namespace: "kube-system",
-	})
-
-	charts = append(charts, helm.LokomotiveChart{
 		Name:      "packet-ccm",
 		Namespace: "kube-system",
 	})

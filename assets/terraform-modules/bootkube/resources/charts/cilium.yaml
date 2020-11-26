@@ -1,0 +1,16 @@
+debug:
+  enabled: false
+image:
+  repository: quay.io/cilium/cilium
+  tag: v1.9.0
+ipam:
+  operator:
+    clusterPoolIPv4PodCIDR: "10.0.0.0/8"
+    clusterPoolIPv4MaskSize: 24
+bpf:
+  policyMapMax: 65536
+hostFirewall: true
+devices: "bond0"
+enableCnpStatusUpdates: true
+operator:
+  endpointGCInterval: "1m0s"

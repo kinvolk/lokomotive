@@ -26,3 +26,9 @@ resource "local_file" "calico" {
   })
   filename = "${var.asset_dir}/charts/kube-system/calico.yaml"
 }
+
+resource "local_file" "cilium" {
+  content = templatefile("${path.module}/resources/charts/cilium.yaml", {})
+  filename = "${var.asset_dir}/charts/kube-system/cilium.yaml"
+}
+

@@ -1,0 +1,8 @@
+apiVersion: v2
+appVersion: 1.9.0
+description: Helm chart for Cilium
+home: https://cilium.io/
+name: cilium
+sources:
+- https://github.com/cilium/cilium
+version: 1.9.0
