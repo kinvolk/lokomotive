@@ -156,6 +156,14 @@ storage:
             %{~ else ~}
             --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)
             %{ endif }
+    - path: /etc/docker/daemon.json
+      filesystem: root
+      mode: 0500
+      contents:
+        inline: |
+          {
+            "live-restore": true
+          }
 passwd:
   users:
     - name: core
