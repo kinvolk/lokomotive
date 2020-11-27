@@ -139,7 +139,11 @@ storage:
       contents:
         inline: |
           {
-            "live-restore": true
+            "live-restore": true,
+            "log-opts": {
+              "max-size": "100m",
+              "max-file": "3"
+            }
           }
 passwd:
   users:
