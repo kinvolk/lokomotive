@@ -119,6 +119,8 @@ EOF
 
   ignore_x509_cn_check = {{.Config.IgnoreX509CNCheck}}
 
+  conntrack_max_per_core = {{.Config.ConntrackMaxPerCore}}
+
   worker_bootstrap_tokens = [
     {{- range $index, $pool := .Config.WorkerPools }}
     module.worker-{{$pool.Name}}.worker_bootstrap_token,

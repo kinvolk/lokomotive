@@ -98,6 +98,8 @@ type config struct {
 	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
 	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
+	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
+
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
 	NodesDependOn           []string
@@ -122,9 +124,10 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		EnableAggregation:  true,
-		EnableTLSBootstrap: true,
-		NetworkMTU:         platform.NetworkMTU,
+		EnableAggregation:   true,
+		EnableTLSBootstrap:  true,
+		NetworkMTU:          platform.NetworkMTU,
+		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
 	}
 }
 
@@ -440,6 +443,14 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkReservationIDs()...)
 	diagnostics = append(diagnostics, c.validateOSVersion()...)
+
+	if c.ConntrackMaxPerCore < 0 {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "conntrack_max_per_core can't be negative value",
+			Detail:   fmt.Sprintf("'conntrack_max_per_core' value is %d", c.ConntrackMaxPerCore),
+		})
+	}
 
 	if c.OIDC != nil {
 		_, diags := c.OIDC.ToKubeAPIServerFlags(c.clusterDomain())

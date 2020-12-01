@@ -12,6 +12,7 @@ kubeProxy:
   image: k8s.gcr.io/kube-proxy:v1.19.4
   podCIDR: 10.2.0.0/16
   trustedCertsDir: /usr/share/ca-certificates
+  conntrackMaxPerCore: 32768
 kubeScheduler:
   image: k8s.gcr.io/kube-scheduler:v1.19.4
   controlPlaneReplicas: 1

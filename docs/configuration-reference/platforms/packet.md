@@ -120,6 +120,8 @@ cluster "packet" {
 
   certs_validity_period_hours = 8760
 
+  conntrack_max_per_core = 32768
+
   oidc {
     issuer_url     = var.oidc_issuer_url
     client_id      = var.oidc_client_id
@@ -230,6 +232,7 @@ node_type = var.custom_default_worker_type
 | `reservation_ids`                     | Block with Packet hardware reservation IDs for controller nodes. Each key must have the format `controller-${index}` and the value is the reservation UUID. Can't be combined with `reservation_ids_default`. Key indexes must be sequential and start from 0. Example: `reservation_ids = { controller-0 = "<reservation_id>" }`. | -               | map(string)  | false    |
 | `reservation_ids_default`             | Default reservation ID for controllers. The value`next-available` will choose any reservation that matches the pool's device type and facility. Can't be combined with `reservation_ids`                                                                                                                                           | -               | string       | false    |
 | `certs_validity_period_hours`         | Validity of all the certificates in hours.                                                                                                                                                                                                                                                                                         | 8760            | number       | false    |
+| `conntrack_max_per_core`      				| Maximum number of entries in conntrack table per CPU on all nodes in the cluster. If you require more fain-grained control over this value, set it to 0 and add CLC snippet setting `net.netfilter.nf_conntrack_max sysctl setting per node pool. See [Flatcar documentation about sysctl] for more details.                       | 32768           | number       | false    |
 | `worker_pool`                         | Configuration block for worker pools. There can be more than one.                                                                                                                                                                                                                                                                  | -               | list(object) | true     |
 | `worker_pool.count`                   | Number of workers in the worker pool. Can be changed afterwards to add or delete workers.                                                                                                                                                                                                                                          | 1               | number       | true     |
 | `worker_pool.clc_snippets`            | Flatcar Container Linux Config snippets for nodes in the worker pool.                                                                                                                                                                                                                                                              | []              | list(string) | false    |

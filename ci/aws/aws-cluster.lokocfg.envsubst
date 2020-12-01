@@ -42,8 +42,9 @@ EOF
     instance_type = "i3.large"
     spot_price    = "0.08"
     labels        = {
-      "testing.io" = "yes",
-      "roleofnode" = "testing",
+      "testing.io"          = "yes",
+      "roleofnode"          = "testing",
+      "conntrack-modified"  = "true",
     }
     tags = {
       "deployment" = "ci"
@@ -62,6 +63,24 @@ storage:
       group:
         id: 500
 EOF
+      ,
+      <<EOF
+storage:
+  files:
+    - path: /etc/modules-load.d/nf.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          nf_conntrack
+    - path: /etc/sysctl.d/nf.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          net.netfilter.nf_conntrack_max=50000
+EOF
+      ,
     ]
   }
 
@@ -72,8 +91,9 @@ EOF
     instance_type = "t2.small"
     spot_price    = "0.01"
     labels        = {
-      "testing.io" = "yes",
-      "roleofnode" = "testing",
+      "testing.io"          = "yes",
+      "roleofnode"          = "testing",
+      "conntrack-modified"  = "true",
     }
     taints        = {
       "nodeType" = "storage:NoSchedule"
@@ -99,6 +119,24 @@ storage:
       group:
         id: 500
 EOF
+      ,
+      <<EOF
+storage:
+  files:
+    - path: /etc/modules-load.d/nf.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          nf_conntrack
+    - path: /etc/sysctl.d/nf.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          net.netfilter.nf_conntrack_max=50000
+EOF
+      ,
     ]
   }
 
@@ -106,6 +144,10 @@ EOF
   # Acts as a smoke test to check if API server is functional after addition
   # of extra flags.
   oidc {}
+
+  # Disable kube-proxy setting net.netfilter.nf_conntrack_max so we can
+  # set it per worker pool via CLC snippet.
+  conntrack_max_per_core = 0
 }
 
 component "metrics-server" {}

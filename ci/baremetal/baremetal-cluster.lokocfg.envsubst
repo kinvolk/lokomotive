@@ -40,6 +40,8 @@ cluster "bare-metal" {
     "testing.io" = "yes",
     "roleofnode" = "testing",
   }
+
+  conntrack_max_per_core = 65000
 }
 
 component "inspektor-gadget" {}

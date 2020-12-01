@@ -68,7 +68,8 @@ module "bare-metal-{{.ClusterName}}" {
   }
   {{- end}}
 
-  ignore_x509_cn_check = {{.IgnoreX509CNCheck}}
+  ignore_x509_cn_check   = {{.IgnoreX509CNCheck}}
+  conntrack_max_per_core = {{.ConntrackMaxPerCore}}
 }
 
 terraform {

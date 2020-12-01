@@ -31,26 +31,26 @@ resource "local_file" "bootstrap-scheduler" {
 resource "local_file" "kube-apiserver" {
   filename = "${var.asset_dir}/charts/kube-system/kube-apiserver.yaml"
   content = templatefile("${path.module}/resources/charts/kube-apiserver.yaml", {
-    kube_apiserver_image     = var.container_images["kube_apiserver"]
-    etcd_servers             = join(",", formatlist("https://%s:2379", var.etcd_servers))
-    cloud_provider           = var.cloud_provider
-    service_cidr             = var.service_cidr
-    trusted_certs_dir        = var.trusted_certs_dir
-    ca_cert                  = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
-    apiserver_key            = base64encode(tls_private_key.apiserver.private_key_pem)
-    apiserver_cert           = base64encode(tls_locally_signed_cert.apiserver.cert_pem)
-    serviceaccount_pub       = base64encode(tls_private_key.service-account.public_key_pem)
-    etcd_ca_cert             = base64encode(tls_self_signed_cert.etcd-ca.cert_pem)
-    etcd_client_cert         = base64encode(tls_locally_signed_cert.client.cert_pem)
-    etcd_client_key          = base64encode(tls_private_key.client.private_key_pem)
-    enable_aggregation       = var.enable_aggregation
-    aggregation_ca_cert      = var.enable_aggregation == true ? base64encode(join(" ", tls_self_signed_cert.aggregation-ca.*.cert_pem)) : ""
-    aggregation_client_cert  = var.enable_aggregation == true ? base64encode(join(" ", tls_locally_signed_cert.aggregation-client.*.cert_pem)) : ""
-    aggregation_client_key   = var.enable_aggregation == true ? base64encode(join(" ", tls_private_key.aggregation-client.*.private_key_pem)) : ""
-    replicas                 = length(var.etcd_servers)
-    extra_flags              = var.kube_apiserver_extra_flags
-    enable_tls_bootstrap     = var.enable_tls_bootstrap
-    ignore_x509_cn_check     = var.ignore_x509_cn_check
+    kube_apiserver_image    = var.container_images["kube_apiserver"]
+    etcd_servers            = join(",", formatlist("https://%s:2379", var.etcd_servers))
+    cloud_provider          = var.cloud_provider
+    service_cidr            = var.service_cidr
+    trusted_certs_dir       = var.trusted_certs_dir
+    ca_cert                 = base64encode(tls_self_signed_cert.kube-ca.cert_pem)
+    apiserver_key           = base64encode(tls_private_key.apiserver.private_key_pem)
+    apiserver_cert          = base64encode(tls_locally_signed_cert.apiserver.cert_pem)
+    serviceaccount_pub      = base64encode(tls_private_key.service-account.public_key_pem)
+    etcd_ca_cert            = base64encode(tls_self_signed_cert.etcd-ca.cert_pem)
+    etcd_client_cert        = base64encode(tls_locally_signed_cert.client.cert_pem)
+    etcd_client_key         = base64encode(tls_private_key.client.private_key_pem)
+    enable_aggregation      = var.enable_aggregation
+    aggregation_ca_cert     = var.enable_aggregation == true ? base64encode(join(" ", tls_self_signed_cert.aggregation-ca.*.cert_pem)) : ""
+    aggregation_client_cert = var.enable_aggregation == true ? base64encode(join(" ", tls_locally_signed_cert.aggregation-client.*.cert_pem)) : ""
+    aggregation_client_key  = var.enable_aggregation == true ? base64encode(join(" ", tls_private_key.aggregation-client.*.private_key_pem)) : ""
+    replicas                = length(var.etcd_servers)
+    extra_flags             = var.kube_apiserver_extra_flags
+    enable_tls_bootstrap    = var.enable_tls_bootstrap
+    ignore_x509_cn_check    = var.ignore_x509_cn_check
   })
 }
 
@@ -82,6 +82,7 @@ resource "local_file" "kubernetes" {
     serviceaccount_key            = base64encode(tls_private_key.service-account.private_key_pem)
     etcd_endpoints                = var.etcd_endpoints
     enable_tls_bootstrap          = var.enable_tls_bootstrap
+    conntrack_max_per_core        = var.conntrack_max_per_core
   })
 }
 

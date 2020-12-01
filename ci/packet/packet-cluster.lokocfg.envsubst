@@ -62,6 +62,8 @@ EOF
   oidc {}
 
   ignore_x509_cn_check = true
+
+  conntrack_max_per_core = 65000
 }
 
 component "metrics-server" {}

@@ -42,6 +42,9 @@ spec:
         - --proxy-mode=iptables
         - --metrics-bind-address=$(HOST_IP)
         - --healthz-bind-address=$(HOST_IP)
+        {{- if not (eq (int .Values.kubeProxy.conntrackMaxPerCore) 32768) }}
+        - --conntrack-max-per-core={{ .Values.kubeProxy.conntrackMaxPerCore }}
+        {{- end }}
         env:
           - name: NODE_NAME
             valueFrom:

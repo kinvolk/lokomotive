@@ -27,8 +27,13 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
-// NetworkMTU is the default host network MTU.
-const NetworkMTU = 1500
+const (
+	// NetworkMTU is the default host network MTU.
+	NetworkMTU = 1500
+
+	// ConntrackMaxPerCore is the default conntrack table size per core inherited from upstream kube-proxy.
+	ConntrackMaxPerCore = 32768
+)
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
 // platforms.

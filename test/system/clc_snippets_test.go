@@ -15,7 +15,8 @@
 // +build aws aws_edge packet
 // +build e2e
 
-package system //nolint:testpackage
+//nolint:dupl
+package system_test
 
 import (
 	"context"
