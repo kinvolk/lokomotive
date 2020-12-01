@@ -78,12 +78,14 @@ spec:
       terminationGracePeriodSeconds: 1
       containers:
       - name: test-ssh-keys
-        image: ubuntu
-        command: ["bash"]
+        image: quay.io/bitnami/nginx
+        command: ["/bin/bash"]
         volumeMounts:
         - name: ssh
           mountPath: /home/core/.ssh
           readOnly: true
+        securityContext:
+          runAsUser: 0
       volumes:
       - name: ssh
         hostPath:
