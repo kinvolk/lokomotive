@@ -34,6 +34,7 @@ const (
 	poolName = "openebs-storage-pool"
 )
 
+// StorageClass represents single OpenEBS storage class with properties.
 type StorageClass struct {
 	Name         string   `hcl:"name,label"`
 	ReplicaCount int      `hcl:"replica_count,optional"`
@@ -95,6 +96,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) validateConfig() error {
 	maxDefaultStorageClass := 0
+
 	for _, sc := range c.StorageClasses {
 		if sc.Default == true {
 			maxDefaultStorageClass++
