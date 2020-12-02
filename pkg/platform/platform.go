@@ -33,12 +33,22 @@ const (
 
 	// ConntrackMaxPerCore is the default conntrack table size per core inherited from upstream kube-proxy.
 	ConntrackMaxPerCore = 32768
+
+	// KubernetesChartName is the expected name for the Kubernetes Helm chart.
+	KubernetesChartName = "kubernetes"
+
+	// KubeletChartName is the expected name for the Kubelet Helm chart.
+	KubeletChartName = "kubelet"
 )
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
 // platforms.
-func CommonControlPlaneCharts() []helm.LokomotiveChart {
-	return []helm.LokomotiveChart{
+func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
+	charts := []helm.LokomotiveChart{
+		{
+			Name:      "bootstrap-secrets",
+			Namespace: "kube-system",
+		},
 		{
 			Name:      "pod-checkpointer",
 			Namespace: "kube-system",
@@ -48,7 +58,7 @@ func CommonControlPlaneCharts() []helm.LokomotiveChart {
 			Namespace: "kube-system",
 		},
 		{
-			Name:      "kubernetes",
+			Name:      KubernetesChartName,
 			Namespace: "kube-system",
 		},
 		{
@@ -59,11 +69,16 @@ func CommonControlPlaneCharts() []helm.LokomotiveChart {
 			Name:      "lokomotive",
 			Namespace: "lokomotive-system",
 		},
-		{
-			Name:      "bootstrap-secrets",
-			Namespace: "kube-system",
-		},
 	}
+
+	if includeKubeletChart {
+		charts = append(charts, helm.LokomotiveChart{
+			Name:      KubeletChartName,
+			Namespace: "kube-system",
+		})
+	}
+
+	return charts
 }
 
 // ControlPlaneChart is a convenience function which returns a pointer to a chart.Chart
@@ -97,9 +112,10 @@ type WorkerPool interface {
 
 // Meta is a generic information format about the platform.
 type Meta struct {
-	AssetDir      string
-	ExpectedNodes int
-	Managed       bool
+	AssetDir           string
+	ExpectedNodes      int
+	Managed            bool
+	ControlplaneCharts []helm.LokomotiveChart
 }
 
 // platforms is a collection where all platforms gets automatically registered

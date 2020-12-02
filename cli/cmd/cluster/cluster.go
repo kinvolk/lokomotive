@@ -16,13 +16,17 @@ package cluster
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
+	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/yaml"
 
+	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
@@ -111,6 +115,21 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 	}, nil
 }
 
+// unpackControlplaneCharts extracts controlplane Helm charts of given platform from binary
+// assets into user assets on disk.
+func (c *cluster) unpackControlplaneCharts() error {
+	for _, chart := range c.platform.Meta().ControlplaneCharts {
+		src := filepath.Join(assets.ControlPlaneSource, chart.Name)
+		dst := filepath.Join(c.assetDir, "cluster-assets", "charts", chart.Namespace, chart.Name)
+
+		if err := assets.Extract(src, dst); err != nil {
+			return fmt.Errorf("extracting chart '%s/%s' from path %q: %w", chart.Namespace, chart.Name, dst, err)
+		}
+	}
+
+	return nil
+}
+
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
 func (cc clusterConfig) initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
@@ -171,10 +190,11 @@ type controlplaneUpdater struct {
 	ex            terraform.Executor
 }
 
-func (c controlplaneUpdater) getControlplaneChart(name string) (*chart.Chart, error) {
-	chart, err := platform.ControlPlaneChart(name)
+func (c controlplaneUpdater) getControlplaneChart(name, namespace string) (*chart.Chart, error) {
+	path := filepath.Join(c.assetDir, "cluster-assets", "charts", namespace, name)
+	chart, err := loader.Load(path)
 	if err != nil {
-		return nil, fmt.Errorf("loading chart from assets failed: %w", err)
+		return nil, fmt.Errorf("loading chart from asset directory %q: %w", path, err)
 	}
 
 	if err := chart.Validate(); err != nil {
@@ -204,7 +224,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 		return fmt.Errorf("initializing Helm action: %w", err)
 	}
 
-	helmChart, err := c.getControlplaneChart(component)
+	helmChart, err := c.getControlplaneChart(component, namespace)
 	if err != nil {
 		return fmt.Errorf("loading chart from assets: %w", err)
 	}
@@ -247,6 +267,76 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 		fmt.Println("Failed!")
 
 		return fmt.Errorf("updating controlplane component: %w", err)
+	}
+
+	fmt.Println("Done.")
+
+	return nil
+}
+
+// ensureComponent makes sure that given controlplane component is installed and properly configured.
+//
+// Configuration is ensured by forcing a Helm rollback to the latest known version, which should revert
+// all changes done manually to managed resources (restore removed resources etc.).
+//
+//nolint:funlen
+func (c controlplaneUpdater) ensureComponent(component, namespace string) error {
+	actionConfig, err := util.HelmActionConfig(namespace, c.kubeconfig)
+	if err != nil {
+		return fmt.Errorf("initializing Helm action: %w", err)
+	}
+
+	histClient := action.NewHistory(actionConfig)
+	histClient.Max = 1
+
+	history, err := histClient.Run(component)
+	if err != nil && err != driver.ErrReleaseNotFound {
+		return fmt.Errorf("checking for chart history: %w", err)
+	}
+
+	exists := err != driver.ErrReleaseNotFound
+
+	if !exists {
+		fmt.Printf("Controlplane component '%s' is missing, reinstalling...", component)
+
+		helmChart, err := c.getControlplaneChart(component, namespace)
+		if err != nil {
+			return fmt.Errorf("loading chart from assets: %w", err)
+		}
+
+		values, err := c.getControlplaneValues(component)
+		if err != nil {
+			return fmt.Errorf("getting chart values from Terraform: %w", err)
+		}
+
+		install := action.NewInstall(actionConfig)
+		install.ReleaseName = component
+		install.Namespace = namespace
+		install.Atomic = true
+		install.CreateNamespace = true
+
+		if _, err := install.Run(helmChart, values); err != nil {
+			fmt.Println("Failed!")
+
+			return fmt.Errorf("installing controlplane component: %w", err)
+		}
+
+		fmt.Println("Done.")
+
+		return nil
+	}
+
+	rollback := action.NewRollback(actionConfig)
+
+	rollback.Wait = true
+	rollback.Version = history[0].Version
+
+	fmt.Printf("Ensuring controlplane component '%s' is properly configured... ", component)
+
+	if err := rollback.Run(component); err != nil {
+		fmt.Println("Failed!")
+
+		return fmt.Errorf("ensuring controlplane component: %w", err)
 	}
 
 	fmt.Println("Done.")

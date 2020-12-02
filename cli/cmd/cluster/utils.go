@@ -85,6 +85,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 type kubeconfigGetter struct {
 	platformRequired bool
 	path             string
+	clusterConfig    clusterConfig
 }
 
 // getKubeconfig finds the right kubeconfig file to use for an action and returns it's content.
@@ -98,7 +99,7 @@ func (kg kubeconfigGetter) getKubeconfig(contextLogger *log.Entry, lokoConfig *c
 
 	// If no sources has been returned, it means we should read from Terraform state.
 	if len(sources) == 0 {
-		return readKubeconfigFromTerraformState(contextLogger)
+		return kg.readKubeconfigFromTerraformState(contextLogger)
 	}
 
 	// Select first non-empty source and read it.
@@ -176,14 +177,11 @@ func assetsKubeconfig(assetDir string) string {
 
 // readKubeconfigFromTerraformState initializes Terraform and
 // reads content of cluster kubeconfig file from the Terraform.
-func readKubeconfigFromTerraformState(contextLogger *log.Entry) ([]byte, error) {
+func (kg kubeconfigGetter) readKubeconfigFromTerraformState(contextLogger *log.Entry) ([]byte, error) {
 	contextLogger.Warn("Kubeconfig file not found in assets directory, pulling kubeconfig from " +
 		"Terraform state, this might be slow. Run 'lokoctl cluster apply' to fix it.")
 
-	// TODO: Add Terraform verbose support back.
-	cc := clusterConfig{}
-
-	c, err := cc.initialize(contextLogger)
+	c, err := kg.clusterConfig.initialize(contextLogger)
 	if err != nil {
 		return nil, fmt.Errorf("initializing: %w", err)
 	}
