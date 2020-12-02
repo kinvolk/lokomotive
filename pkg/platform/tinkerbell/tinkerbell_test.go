@@ -15,9 +15,6 @@
 package tinkerbell_test
 
 import (
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -27,7 +24,6 @@ import (
 
 	lokoconfig "github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
-	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
 func baseConfig() *tinkerbell.Config {
@@ -246,52 +242,5 @@ func TestMeta(t *testing.T) {
 	expectedNodes := 6
 	if m.ExpectedNodes != expectedNodes {
 		t.Errorf("Expected %d nodes, got %d", expectedNodes, m.ExpectedNodes)
-	}
-}
-
-func TestInitialize(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "lokoctl-tests-")
-	if err != nil {
-		t.Fatalf("Creating tmp dir should succeed, got: %v", err)
-	}
-
-	t.Cleanup(func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			t.Logf("Failed to remove temp dir %q: %v", tmpDir, err)
-		}
-	})
-
-	c := baseConfig()
-	c.AssetDir = tmpDir
-
-	path := filepath.Join(tmpDir, "terraform")
-	if err := os.MkdirAll(path, 0o700); err != nil {
-		t.Fatalf("Failed creating directory %q: %v", path, err)
-	}
-
-	if err := c.Initialize(nil); err != nil {
-		t.Fatalf("Initializing should work, got: %v", err)
-	}
-
-	tfDir := terraform.GetTerraformRootDir(tmpDir)
-
-	content, err := ioutil.ReadFile(filepath.Join(tfDir, "cluster.tf")) // #nosec G304
-	if err != nil {
-		t.Fatalf("Reading Terraform source file: %v", err)
-	}
-
-	if len(content) == 0 {
-		t.Fatal("Terraform source file should not be empty")
-	}
-
-	path = filepath.Join(tmpDir, "cluster-assets", "charts", "kube-system")
-
-	dirs, err := ioutil.ReadDir(path)
-	if err != nil {
-		t.Fatalf("Listing files in %q: %v", path, err)
-	}
-
-	if len(dirs) == 0 {
-		t.Fatalf("Initialize should extract control plane helm charts, no files found in %q", dirs)
 	}
 }

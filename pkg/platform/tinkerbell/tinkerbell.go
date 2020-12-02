@@ -25,7 +25,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
@@ -135,8 +134,9 @@ func (c *Config) Meta() platform.Meta {
 	}
 
 	return platform.Meta{
-		AssetDir:      c.AssetDir,
-		ExpectedNodes: nodes,
+		AssetDir:           c.AssetDir,
+		ExpectedNodes:      nodes,
+		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
 	}
 }
 
@@ -146,30 +146,6 @@ func (c *Config) Initialize(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
-	}
-
-	// TODO: A transient change which shall be reverted in a follow up PR to handle
-	// https://github.com/kinvolk/lokomotive/issues/716.
-	// Extract control plane chart files to cluster assets directory.
-	for _, c := range platform.CommonControlPlaneCharts() {
-		src := filepath.Join(assets.ControlPlaneSource, c.Name)
-		dst := filepath.Join(assetDir, "cluster-assets", "charts", c.Namespace, c.Name)
-
-		if err := assets.Extract(src, dst); err != nil {
-			return fmt.Errorf("extracting charts: %w", err)
-		}
-	}
-
-	// TODO: A transient change which shall be reverted in a follow up PR to handle
-	// https://github.com/kinvolk/lokomotive/issues/716.
-	// Extract self-hosted kubelet chart only when enabled in config.
-	if !c.DisableSelfHostedKubelet {
-		src := filepath.Join(assets.ControlPlaneSource, "kubelet")
-		dst := filepath.Join(assetDir, "cluster-assets", "charts", "kube-system", "kubelet")
-
-		if err := assets.Extract(src, dst); err != nil {
-			return fmt.Errorf("extracting kubelet chart: %w", err)
-		}
 	}
 
 	terraformRootDir := terraform.GetTerraformRootDir(assetDir)
