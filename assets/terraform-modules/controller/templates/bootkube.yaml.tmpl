@@ -1,0 +1,39 @@
+systemd:
+  units:
+  - name: bootkube.service
+    contents: |
+      [Unit]
+      Description=Bootstrap a Kubernetes cluster
+      ConditionPathExists=!/opt/bootkube/init_bootkube.done
+      [Service]
+      Type=oneshot
+      RemainAfterExit=true
+      WorkingDirectory=/opt/bootkube
+      ExecStart=/opt/bootkube/bootkube-start
+      ExecStartPost=/bin/touch /opt/bootkube/init_bootkube.done
+      [Install]
+      WantedBy=multi-user.target
+storage:
+  files:
+  - path: /opt/bootkube/bootkube-start
+    filesystem: root
+    mode: 0544
+    user:
+      id: 500
+    group:
+      id: 500
+    contents:
+      inline: |
+        #!/bin/bash
+        # Wrapper for bootkube start
+        set -e
+        # Pre-pull hyperkube image because when it is later pulled but takes too long it times out
+        docker pull ${kubelet_image_name}:${kubelet_image_tag}
+        # Move experimental manifests
+        [ -n "$(ls /opt/bootkube/assets/manifests-*/* 2>/dev/null)" ] && mv /opt/bootkube/assets/manifests-*/* /opt/bootkube/assets/manifests && rm -rf /opt/bootkube/assets/manifests-*
+        exec docker run \
+          -v /opt/bootkube/assets:/assets:ro \
+          -v /etc/kubernetes:/etc/kubernetes:rw \
+          --network=host \
+          ${bootkube_image_name}:${bootkube_image_tag} \
+          /bootkube start --asset-dir=/assets

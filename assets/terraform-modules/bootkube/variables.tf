@@ -160,7 +160,10 @@ variable "blocked_metadata_cidrs" {
 
 variable "bootstrap_tokens" {
   description = "List of bootstrap tokens for all the nodes in the cluster in the form token-id and token-secret."
-  type        = list(any)
+  type = list(object({
+    token_id     = string
+    token_secret = string
+  }))
 }
 
 variable "enable_tls_bootstrap" {

@@ -1,0 +1,27 @@
+cluster "tinkerbell" {
+  asset_dir       = pathexpand("~/lokoctl-assets")
+  ssh_public_keys = [file(pathexpand("~/.ssh/id_rsa.pub"))]
+
+  experimental_sandbox {
+    hosts_cidr         = "10.17.3.0/24"
+    flatcar_image_path = "/var/tmp/flatcar_production_qemu_image.img"
+    pool_path          = "/var/tmp/pool"
+  }
+
+  # Tinkerbell hardware entry must exist with this IP address.
+  controller_ip_addresses = [
+    "10.17.3.4",
+  ]
+
+  name = "tink"
+
+  dns_zone = "example.com"
+
+  worker_pool "foo" {
+    ip_addresses = [
+      "10.17.3.5"
+    ]
+
+    ssh_public_keys = [file(pathexpand("~/.ssh/id_rsa.pub"))]
+  }
+}

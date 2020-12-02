@@ -1,0 +1,60 @@
+variable "dns_zone" {}
+variable "ssh_public_keys" {}
+variable "flatcar_image_path" {}
+
+variable "asset_dir" {
+  default = "./lokomotive-assets"
+}
+
+variable "pool_path" {
+  default = "./pool"
+}
+
+variable "cluster_name" {
+  default = "lokomotive-cluster"
+}
+
+variable "controller_ips" {
+  default = [
+    "10.17.3.4",
+  ]
+}
+
+variable "worker_ips" {
+  default = [
+    "10.17.3.5",
+  ]
+}
+
+variable "hosts_cidr" {
+  default = "10.17.3.0/24"
+}
+
+cluster "tinkerbell" {
+  asset_dir               = pathexpand(var.asset_dir)
+  name                    = var.cluster_name
+  dns_zone                = var.dns_zone
+  ssh_public_keys         = var.ssh_public_keys
+  controller_ip_addresses = var.controller_ips
+
+  //os_channel       = "stable"
+  //os_version       = "current"
+
+  experimental_sandbox {
+    pool_path          = pathexpand(var.pool_path)
+    flatcar_image_path = pathexpand(var.flatcar_image_path)
+    hosts_cidr         = var.hosts_cidr
+  }
+
+  worker_pool "my-wp-name" {
+    ip_addresses    = var.worker_ips
+    ssh_public_keys = var.ssh_public_keys
+
+    //os_channel    = "stable"
+    //os_version    = "current"
+  }
+}
+
+component "metrics-server" {}
+
+component "flatcar-linux-update-operator" {}
