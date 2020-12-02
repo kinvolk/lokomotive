@@ -44,6 +44,11 @@ type component struct {
 	ServiceType      string            `hcl:"service_type,optional"`
 	Tolerations      []util.Toleration `hcl:"toleration,block"`
 	TolerationsRaw   string
+	Envoy            *envoy `hcl:"envoy,block"`
+}
+
+type envoy struct {
+	MetricsScrapeInterval string `hcl:"metrics_scrape_interval,optional"`
 }
 
 func newComponent() *component {

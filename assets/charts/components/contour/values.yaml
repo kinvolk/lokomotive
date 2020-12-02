@@ -9,6 +9,7 @@ envoy:
   image: docker.io/envoyproxy/envoy
   tag: v1.16.0
   serviceType:
+  metricsScrapeInterval:
 
 nodeAffinity: {}
 # nodeAffinity:
