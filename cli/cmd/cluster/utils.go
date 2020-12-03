@@ -24,9 +24,15 @@ import (
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kinvolk/lokomotive/pkg/backend"
+	"github.com/kinvolk/lokomotive/pkg/backend/local"
+	"github.com/kinvolk/lokomotive/pkg/backend/s3"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
+	"github.com/kinvolk/lokomotive/pkg/platform/aks"
+	"github.com/kinvolk/lokomotive/pkg/platform/aws"
+	"github.com/kinvolk/lokomotive/pkg/platform/baremetal"
+	"github.com/kinvolk/lokomotive/pkg/platform/packet"
+	"github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
 )
 
 const (
@@ -35,23 +41,54 @@ const (
 	kubeconfigTerraformOutputKey = "kubeconfig"
 )
 
+// backend describes the Terraform state storage location.
+type backend interface {
+	// LoadConfig loads the backend config provided by the user.
+	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
+	// Render renders the backend template with user backend configuration.
+	Render() (string, error)
+	// Validate validates backend configuration.
+	Validate() error
+}
+
 // getConfiguredBackend loads a backend from the given configuration file.
-func getConfiguredBackend(lokoConfig *config.Config) (backend.Backend, hcl.Diagnostics) {
+func getConfiguredBackend(lokoConfig *config.Config) (backend, hcl.Diagnostics) {
 	if lokoConfig.RootConfig.Backend == nil {
 		// No backend defined and no configuration error
 		return nil, hcl.Diagnostics{}
 	}
 
-	backend, err := backend.GetBackend(lokoConfig.RootConfig.Backend.Name)
-	if err != nil {
+	backends := map[string]backend{
+		s3.Name:    s3.NewConfig(),
+		local.Name: local.NewConfig(),
+	}
+
+	backend, ok := backends[lokoConfig.RootConfig.Backend.Name]
+	if !ok {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  err.Error(),
+			Summary:  fmt.Sprintf("no backend with name %q found", lokoConfig.RootConfig.Backend.Name),
 		}
 		return nil, hcl.Diagnostics{diag}
 	}
 
 	return backend, backend.LoadConfig(&lokoConfig.RootConfig.Backend.Config, lokoConfig.EvalContext)
+}
+
+func getPlatform(name string) (platform.Platform, error) {
+	platforms := map[string]platform.Platform{
+		aks.Name:        aks.NewConfig(),
+		aws.Name:        aws.NewConfig(),
+		packet.Name:     packet.NewConfig(),
+		baremetal.Name:  baremetal.NewConfig(),
+		tinkerbell.Name: tinkerbell.NewConfig(),
+	}
+
+	if p, ok := platforms[name]; ok {
+		return p, nil
+	}
+
+	return nil, fmt.Errorf("platform %q not found", name)
 }
 
 // getConfiguredPlatform loads a platform from the given configuration file.
@@ -70,7 +107,7 @@ func getConfiguredPlatform(lokoConfig *config.Config, require bool) (platform.Pl
 		}
 	}
 
-	platform, err := platform.GetPlatform(lokoConfig.RootConfig.Cluster.Name)
+	platform, err := getPlatform(lokoConfig.RootConfig.Cluster.Name)
 	if err != nil {
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,

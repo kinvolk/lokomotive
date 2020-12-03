@@ -26,11 +26,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-const name = "rook-ceph"
-
-func init() {
-	components.Register(name, newComponent())
-}
+const (
+	// Name represents Rook Ceph component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "rook-ceph"
+)
 
 type component struct {
 	Namespace      string              `hcl:"namespace,optional"`
@@ -49,7 +49,10 @@ type StorageClass struct {
 	Default bool `hcl:"default,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Rook Ceph component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace:    "rook",
 		MonitorCount: 1,
@@ -91,7 +94,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: c.Namespace,
 		},

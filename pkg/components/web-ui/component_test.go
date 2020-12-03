@@ -24,15 +24,12 @@ import (
 	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	webui "github.com/kinvolk/lokomotive/pkg/components/web-ui"
 )
 
 func renderManifests(configHCL string) (map[string]string, error) {
-	component, err := components.Get("web-ui")
-	if err != nil {
-		return nil, err
-	}
+	component := webui.NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, "web-ui")
 	if diagnostics != nil {

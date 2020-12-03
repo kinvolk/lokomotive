@@ -103,7 +103,7 @@ func componentNamesToObjects(componentNames []string) ([]components.Component, e
 	c := []components.Component{}
 
 	for _, componentName := range componentNames {
-		component, err := components.Get(componentName)
+		component, err := componentConfig(componentName)
 		if err != nil {
 			return nil, fmt.Errorf("getting component %q: %w", componentName, err)
 		}

@@ -15,43 +15,12 @@
 package components
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
 	"github.com/kinvolk/lokomotive/pkg/helm"
 	"helm.sh/helm/v3/pkg/chart"
 )
-
-// components is the map of registered components
-var components map[string]Component
-
-func init() {
-	components = make(map[string]Component)
-}
-
-func Register(name string, obj Component) {
-	if _, exists := components[name]; exists {
-		panic(fmt.Sprintf("component with name %q registered already", name))
-	}
-	components[name] = obj
-}
-
-func ListNames() []string {
-	var componentList []string
-	for name := range components {
-		componentList = append(componentList, name)
-	}
-	return componentList
-}
-
-func Get(name string) (Component, error) {
-	component, exists := components[name]
-	if !exists {
-		return nil, fmt.Errorf("no component with name %q found", name)
-	}
-	return component, nil
-}
 
 // Chart is a convenience function which returns a pointer to a chart.Chart representing the
 // component named name.

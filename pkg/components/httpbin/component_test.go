@@ -17,7 +17,7 @@ package httpbin_test
 import (
 	"testing"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/httpbin"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -54,10 +54,7 @@ component "httpbin" {
 			t.Errorf("%s - Error getting component body: %v", tc.desc, d)
 		}
 
-		c, err := components.Get(name)
-		if err != nil {
-			t.Fatalf("failed getting component: %v", err)
-		}
+		c := httpbin.NewConfig()
 
 		d = c.LoadConfig(b, nil)
 

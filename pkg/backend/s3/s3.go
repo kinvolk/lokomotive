@@ -22,7 +22,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 
 	"github.com/kinvolk/lokomotive/internal/template"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 )
 
 type s3 struct {
@@ -33,10 +32,11 @@ type s3 struct {
 	DynamoDBTable string `hcl:"dynamodb_table,optional"`
 }
 
-// init registers s3 as a backend.
-func init() {
-	backend.Register("s3", NewS3Backend())
-}
+const (
+	// Name represents S3 backend name as it should be referenced in function calls
+	// and in configuration.
+	Name = "s3"
+)
 
 // LoadConfig loads the configuration for the s3 backend.
 func (s *s3) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.Diagnostics {
@@ -46,7 +46,10 @@ func (s *s3) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) hcl.
 	return gohcl.DecodeBody(*configBody, evalContext, s)
 }
 
-func NewS3Backend() *s3 {
+// NewConfig returns new Local backend configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *s3 {
 	return &s3{}
 }
 

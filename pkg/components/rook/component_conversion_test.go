@@ -23,7 +23,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/rook"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -102,10 +102,7 @@ component "rook" {
 func renderManifests(t *testing.T, configHCL string) map[string]string {
 	name := "rook"
 
-	component, err := components.Get(name)
-	if err != nil {
-		t.Fatalf("Getting component %q: %v", name, err)
-	}
+	component := rook.NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, name)
 	if diagnostics != nil {

@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
@@ -54,9 +54,9 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -99,9 +99,9 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -130,9 +130,9 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
-	body, d := util.GetComponentBody(configHCL, name)
+	body, d := util.GetComponentBody(configHCL, Name)
 	if d != nil {
 		t.Fatalf("Error getting component body: %v", d)
 	}
@@ -147,9 +147,9 @@ func TestRenderManifestNoProviderConfigured(t *testing.T) {
 component "velero" {}
 `
 
-	component := newComponent()
+	component := NewConfig()
 
-	body, d := util.GetComponentBody(configHCL, name)
+	body, d := util.GetComponentBody(configHCL, Name)
 	if d != nil {
 		t.Fatalf("Error getting component body: %v", d)
 	}
@@ -174,9 +174,9 @@ component "velero" {
 }
 `
 
-	component := newComponent()
+	component := NewConfig()
 
-	body, d := util.GetComponentBody(configHCL, name)
+	body, d := util.GetComponentBody(configHCL, Name)
 	if d != nil {
 		t.Fatalf("Error getting component body: %v", d)
 	}

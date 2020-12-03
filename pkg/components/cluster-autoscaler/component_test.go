@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 
 	emptyConfig := hcl.EmptyBody()
 
@@ -36,11 +36,11 @@ func TestEmptyConfig(t *testing.T) {
 }
 
 func TestEmptyBody(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 
 	config := `component "cluster-autoscaler" {}`
 
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -51,7 +51,7 @@ func TestEmptyBody(t *testing.T) {
 }
 
 func TestRender(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 
 	config := `
   component "cluster-autoscaler" {
@@ -66,7 +66,7 @@ func TestRender(t *testing.T) {
 	}
   `
 
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

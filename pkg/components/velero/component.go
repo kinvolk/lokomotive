@@ -30,12 +30,11 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-const name = "velero"
-
-// init registers velero component to components list, so it shows up as available to install
-func init() {
-	components.Register(name, newComponent())
-}
+const (
+	// Name represents Velero component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "velero"
+)
 
 // component represents component configuration data
 type component struct {
@@ -65,8 +64,10 @@ type provider interface {
 	Validate() hcl.Diagnostics
 }
 
-// newComponent creates new velero component struct with default values initialized
-func newComponent() *component {
+// NewConfig returns new Velero component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Namespace: "velero",
 		Metrics: &Metrics{
@@ -123,7 +124,7 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 // RenderManifest read helm chart from assets and renders it into list of files
 func (c *component) RenderManifests() (map[string]string, error) {
-	helmChart, err := components.Chart(name)
+	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
@@ -133,7 +134,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, fmt.Errorf("getting values: %w", err)
 	}
 
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Namespace, values)
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Namespace, values)
 	if err != nil {
 		return nil, fmt.Errorf("rendering chart: %w", err)
 	}
@@ -205,7 +206,7 @@ func (c *component) getProvider() (provider, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: c.Namespace,
 		},

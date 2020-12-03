@@ -31,14 +31,12 @@ import (
 )
 
 const (
-	name           = "experimental-linkerd"
+	// Name represents Linkerd component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "experimental-linkerd"
+
 	certCommonName = "identity.linkerd.cluster.local"
 )
-
-//nolint:gochecknoinits
-func init() {
-	components.Register(name, newComponent())
-}
 
 type component struct {
 	ControllerReplicas int    `hcl:"controller_replicas,optional"`
@@ -55,7 +53,10 @@ type cert struct {
 	Expiry string
 }
 
-func newComponent() *component {
+// NewConfig returns new Linkerd component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		ControllerReplicas: 1,
 		EnableMonitoring:   false,
@@ -108,7 +109,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	// Generate YAML for the Linkerd deployment.
-	renderedFiles, err := util.RenderChart(helmChart, name, c.Metadata().Namespace.Name, values)
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
 	if err != nil {
 		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
@@ -118,7 +119,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: "linkerd",
 			Annotations: map[string]string{

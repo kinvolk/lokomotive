@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
 	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
@@ -39,7 +39,7 @@ component "metrics-server" {}
 
 	component := &component{}
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

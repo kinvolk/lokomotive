@@ -74,7 +74,8 @@ type config struct {
 }
 
 const (
-	name = "aks"
+	// Name represents AKS platform name as it should be referenced in function calls and configuration.
+	Name = "aks"
 
 	// Environment variables used to load sensitive parts of the configuration.
 	clientIDEnv       = "LOKOMOTIVE_AKS_CLIENT_ID"
@@ -85,15 +86,15 @@ const (
 	kubernetesVersion = "1.18.10"
 )
 
-// init registers AKS as a platform.
-func init() { //nolint:gochecknoinits
-	c := &config{
+// NewConfig returns new AKS platform configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *config {
+	return &config{
 		Location:            "West Europe",
 		ManageResourceGroup: true,
 		KubernetesVersion:   kubernetesVersion,
 	}
-
-	platform.Register(name, c)
 }
 
 // LoadConfig loads configuration values into the config struct from given HCL configuration.

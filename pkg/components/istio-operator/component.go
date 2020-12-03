@@ -27,21 +27,22 @@ import (
 )
 
 const (
-	name      = "experimental-istio-operator"
+	// Name represents Istio Operator component name as it should be referenced in function calls
+	// and in configuration.
+	Name = "experimental-istio-operator"
+
 	namespace = "istio-operator"
 )
-
-//nolint:gochecknoinits
-func init() {
-	components.Register(name, newComponent())
-}
 
 type component struct {
 	Profile          string `hcl:"profile,optional"`
 	EnableMonitoring bool   `hcl:"enable_monitoring,optional"`
 }
 
-func newComponent() *component {
+// NewConfig returns new Istio Operator component configuration with default values set.
+//
+//nolint:golint
+func NewConfig() *component {
 	return &component{
 		Profile:          "minimal",
 		EnableMonitoring: false,
@@ -75,7 +76,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 
 	// Generate YAML for the istio deployment.
-	renderedFiles, err := util.RenderChart(helmChart, name, namespace, values)
+	renderedFiles, err := util.RenderChart(helmChart, Name, namespace, values)
 	if err != nil {
 		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
@@ -85,7 +86,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
-		Name: name,
+		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: namespace,
 			Labels: map[string]string{

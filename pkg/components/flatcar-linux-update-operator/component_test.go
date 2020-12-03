@@ -29,7 +29,7 @@ component "flatcar-linux-update-operator" {}
 
 	component := &component{}
 
-	body, diagnostics := util.GetComponentBody(configHCL, name)
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

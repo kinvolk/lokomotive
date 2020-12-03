@@ -27,22 +27,11 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/pkg/assets"
-	"github.com/kinvolk/lokomotive/pkg/backend"
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
-
-	// Register platforms by adding an anonymous import.
-	_ "github.com/kinvolk/lokomotive/pkg/platform/aks"
-	_ "github.com/kinvolk/lokomotive/pkg/platform/aws"
-	_ "github.com/kinvolk/lokomotive/pkg/platform/baremetal"
-	_ "github.com/kinvolk/lokomotive/pkg/platform/packet"
-	_ "github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
-
-	// Register backends by adding an anonymous import.
-	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
 )
 
 // cluster is a temporary helper struct to aggregate objects which are used
@@ -89,7 +78,7 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 
 	// Use a local backend if no backend is configured.
 	if b == nil {
-		b = local.NewLocalBackend()
+		b = local.NewConfig()
 	}
 
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
@@ -132,7 +121,7 @@ func (c *cluster) unpackControlplaneCharts() error {
 
 // initializeTerraform initialized Terraform directory using given backend and platform
 // and returns configured executor.
-func (cc clusterConfig) initializeTerraform(p platform.Platform, b backend.Backend) (*terraform.Executor, error) {
+func (cc clusterConfig) initializeTerraform(p platform.Platform, b backend) (*terraform.Executor, error) {
 	assetDir, err := homedir.Expand(p.Meta().AssetDir)
 	if err != nil {
 		return nil, fmt.Errorf("expanding path %q: %w", p.Meta().AssetDir, err)

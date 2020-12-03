@@ -23,7 +23,7 @@ import (
 )
 
 func TestEmptyConfig(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	emptyConfig := hcl.EmptyBody()
 	evalContext := hcl.EvalContext{}
 	diagnostics := c.LoadConfig(&emptyConfig, &evalContext)
@@ -33,9 +33,9 @@ func TestEmptyConfig(t *testing.T) {
 }
 
 func TestEmptyBody(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `component "external-dns" {}`
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -44,7 +44,7 @@ func TestEmptyBody(t *testing.T) {
 	}
 }
 func TestDefaultValues(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	if c.Namespace != "external-dns" {
 		t.Fatal("Default namespace for installation should be external-dns.")
 	}
@@ -64,7 +64,7 @@ func TestDefaultValues(t *testing.T) {
 }
 
 func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
  component "external-dns" {
    sources = ["ingress"]
@@ -81,7 +81,7 @@ func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
 	os.Unsetenv("AWS_ACCESS_KEY_ID")
 	os.Unsetenv("AWS_SECRET_ACCESS_KEY")
 
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -94,7 +94,7 @@ func TestAwsConfigWithoutProvidingCredentials(t *testing.T) {
 }
 
 func TestAwsConfigBySettingEnvVariables(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
   component "external-dns" {
     sources = ["ingress"]
@@ -114,7 +114,8 @@ func TestAwsConfigBySettingEnvVariables(t *testing.T) {
 	if err := os.Setenv("AWS_SECRET_ACCESS_KEY", "TESTSECRETACCESSKEY"); err != nil {
 		t.Fatalf("Error setting env variable: %s", err)
 	}
-	body, diagnostics := util.GetComponentBody(config, name)
+
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -131,7 +132,7 @@ func TestAwsConfigBySettingEnvVariables(t *testing.T) {
 }
 
 func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
   component "external-dns" {
     sources = ["ingress"]
@@ -153,7 +154,8 @@ func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error setting env variable: %s", err)
 	}
-	body, diagnostics := util.GetComponentBody(config, name)
+
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}
@@ -167,7 +169,7 @@ func TestAwsConfigBySettingEmptyEnvVariables(t *testing.T) {
 }
 
 func TestAwsConfigBySettingConfigFields(t *testing.T) {
-	c := newComponent()
+	c := NewConfig()
 	config := `
   component "external-dns" {
     sources = ["ingress"]
@@ -182,7 +184,7 @@ func TestAwsConfigBySettingConfigFields(t *testing.T) {
     }
   }
   `
-	body, diagnostics := util.GetComponentBody(config, name)
+	body, diagnostics := util.GetComponentBody(config, Name)
 	if diagnostics != nil {
 		t.Fatalf("Error getting component body: %v", diagnostics)
 	}

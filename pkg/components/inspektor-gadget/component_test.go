@@ -23,15 +23,12 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
+	inspektorgadget "github.com/kinvolk/lokomotive/pkg/components/inspektor-gadget"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 func renderManifests(configHCL string) (map[string]string, error) {
-	component, err := components.Get("inspektor-gadget")
-	if err != nil {
-		return nil, err
-	}
+	component := inspektorgadget.NewConfig()
 
 	body, diagnostics := util.GetComponentBody(configHCL, "inspektor-gadget")
 	if diagnostics != nil {

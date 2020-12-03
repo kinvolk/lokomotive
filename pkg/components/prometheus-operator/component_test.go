@@ -96,12 +96,12 @@ component "prometheus-operator" {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			b, d := util.GetComponentBody(tc.hcl, name)
+			b, d := util.GetComponentBody(tc.hcl, Name)
 			if d != nil {
 				t.Fatalf("error getting component body: %v", d)
 			}
 
-			c := newComponent()
+			c := NewConfig()
 			d = c.LoadConfig(b, nil)
 
 			if !tc.wantErr && d.HasErrors() {
@@ -208,8 +208,8 @@ providers:
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			component := newComponent()
-			m := testutil.RenderManifests(t, component, name, tc.inputConfig)
+			component := NewConfig()
+			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
 			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)

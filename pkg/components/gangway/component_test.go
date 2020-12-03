@@ -17,7 +17,7 @@ package gangway_test
 import (
 	"testing"
 
-	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/gangway"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -62,10 +62,7 @@ component "gangway" {
 			t.Errorf("%s - Error getting component body: %v", tc.desc, d)
 		}
 
-		c, err := components.Get(name)
-		if err != nil {
-			t.Fatalf("failed getting component: %v", err)
-		}
+		c := gangway.NewConfig()
 
 		d = c.LoadConfig(b, nil)
 
