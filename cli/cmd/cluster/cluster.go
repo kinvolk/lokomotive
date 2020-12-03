@@ -32,9 +32,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/config"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
-
-	// Register backends by adding an anonymous import.
-	_ "github.com/kinvolk/lokomotive/pkg/backend/s3"
 )
 
 // cluster is a temporary helper struct to aggregate objects which are used
