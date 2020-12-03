@@ -21,7 +21,6 @@ nodeSelector:
   beta.kubernetes.io/os: linux
 image:
   repository: quay.io/kinvolk/lokomotive-web-ui
-  tag: v0.1.1
   pullPolicy: Always
 securityContext:
   capabilities:
