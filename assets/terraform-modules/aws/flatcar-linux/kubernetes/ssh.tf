@@ -102,7 +102,10 @@ resource "null_resource" "bootkube-start" {
   provisioner "remote-exec" {
     inline = [
       "sudo mv $HOME/assets /opt/bootkube",
-      "sudo systemctl start bootkube || (sudo journalctl -u bootkube --no-pager; exit 1)",
+      # Use stdbuf to disable the buffer while printing logs to make sure everything is transmitted back to
+      # Terraform before we return error. We should be able to remove it once
+      # https://github.com/hashicorp/terraform/issues/27121 is resolved.
+      "sudo systemctl start bootkube || (stdbuf -i0 -o0 -e0 sudo journalctl -u bootkube --no-pager; exit 1)",
     ]
   }
 }
