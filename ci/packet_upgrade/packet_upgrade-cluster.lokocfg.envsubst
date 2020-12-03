@@ -1,0 +1,228 @@
+cluster "packet" {
+  asset_dir        = pathexpand("~/lokoctl-assets")
+  cluster_name     = "$CLUSTER_ID"
+  controller_count = 2
+  controller_type  = "t1.small.x86"
+
+  controller_clc_snippets = [
+    <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+  ]
+  dns {
+    provider = "route53"
+    zone     = "$AWS_DNS_ZONE"
+  }
+
+  facility = "$PACKET_LOCATION"
+
+  project_id = "$PACKET_PROJECT_ID"
+
+  ssh_pubkeys       = ["$PUB_KEY"]
+  management_cidrs  = ["0.0.0.0/0"]
+  node_private_cidr = "10.0.0.0/8"
+
+  worker_pool "pool-1" {
+    count     = 2
+    node_type = "c2.medium.x86"
+    labels        = {
+      "testing.io" = "yes",
+      "roleofnode" = "testing",
+    }
+    clc_snippets = [
+      <<EOF
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
+EOF
+    ]
+  }
+
+  # Adds oidc flags to API server with default values.
+  # Acts as a smoke test to check if API server is functional after addition
+  # of extra flags.
+  oidc {}
+
+  ignore_x509_cn_check = true
+
+  conntrack_max_per_core = 65000
+}
+
+component "metrics-server" {}
+
+component "openebs-operator" {}
+
+# openebs-storage-class component should always be the last to be installed
+# pending when https://github.com/kinvolk/lokoctl/issues/374 is fixed
+# because when the discovery failure for creating StoragePoolClaim happens,
+# lokoctl install errors out and moves on with running the tests
+# causing subsequent components below this to be skipped.
+component "openebs-storage-class" {
+  storage-class "openebs-test-sc" {
+    replica_count = 1
+    default       = true
+  }
+}
+
+component "prometheus-operator" {
+  grafana {
+    secret_env = {
+      "LOKOMOTIVE_VERY_SECRET_PASSWORD" = "VERY_VERY_SECRET"
+    }
+  }
+}
+
+component "experimental-linkerd" {
+  controller_replicas = 2
+  enable_monitoring   = true
+}
+
+component "contour" {
+  enable_monitoring = true
+}
+
+component "metallb" {
+  address_pools = {
+    default = ["10.1.1.1/32"]
+  }
+
+  service_monitor = true
+}
+
+component "cert-manager" {
+  email           = "$EMAIL"
+  service_monitor = true
+}
+
+component "external-dns" {
+  policy   = "sync"
+  owner_id = "$CLUSTER_ID"
+  aws {
+    zone_id               = "$AWS_DNS_ZONE_ID"
+    aws_access_key_id     = "$AWS_ACCESS_KEY_ID"
+    aws_secret_access_key = "$AWS_SECRET_ACCESS_KEY"
+  }
+
+  service_monitor = true
+}
+
+component "dex" {
+  ingress_host = "$DEX_INGRESS_HOST"
+
+  issuer_host = "$ISSUER_HOST"
+
+  certmanager_cluster_issuer = "letsencrypt-staging"
+
+  connector "github" {
+    id   = "github"
+    name = "GitHub"
+
+    config {
+      client_id     = "$GITHUB_CLIENT_ID"
+      client_secret = "$GITHUB_CLIENT_SECRET"
+      redirect_uri  = "$REDIRECT_URI"
+
+      team_name_field = "slug"
+
+      org {
+        name = "kinvolk"
+        teams = [
+          "lokomotive-developers",
+        ]
+      }
+    }
+  }
+
+  static_client {
+    name   = "gangway"
+    id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+    secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
+
+    redirect_uris = ["$GANGWAY_REDIRECT_URL"]
+  }
+}
+
+component "gangway" {
+  cluster_name = "$CLUSTER_ID"
+
+  ingress_host = "$GANGWAY_INGRESS_HOST"
+
+  certmanager_cluster_issuer = "letsencrypt-staging"
+
+  session_key = "$GANGWAY_SESSION_KEY"
+
+  api_server_url = "$API_SERVER_URL"
+
+  authorize_url = "$AUTHORIZE_URL"
+
+  token_url = "$TOKEN_URL"
+
+  client_id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+  client_secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
+
+  redirect_url = "$GANGWAY_REDIRECT_URL"
+}
+
+component "rook" {
+  enable_monitoring = true
+}
+
+component "flatcar-linux-update-operator" {}
+
+component "cluster-autoscaler" {
+  cluster_name = "$CLUSTER_ID"
+
+  worker_pool = "pool-1"
+
+  min_workers = 2
+  max_workers = 2
+
+  packet {
+    project_id = "$PACKET_PROJECT_ID"
+    facility   = "$PACKET_LOCATION"
+  }
+
+  service_monitor = true
+}
+
+component "httpbin" {
+  ingress_host = "httpbin.$CLUSTER_ID.$AWS_DNS_ZONE"
+
+  certmanager_cluster_issuer = "letsencrypt-staging"
+}
+
+component "experimental-istio-operator" {
+  enable_monitoring = true
+}
+
+component "web-ui" {
+  ingress {
+    host                       = "web-ui.$CLUSTER_ID.$AWS_DNS_ZONE"
+    certmanager_cluster_issuer = "letsencrypt-staging"
+  }
+  oidc {
+    client_id     = "$DEX_STATIC_CLIENT_CLUSTERAUTH_ID"
+    client_secret = "$DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET"
+    issuer_url    = "$ISSUER_HOST"
+  }
+}
+
+component "inspektor-gadget" {}
