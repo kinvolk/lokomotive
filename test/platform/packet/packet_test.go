@@ -28,7 +28,7 @@ import (
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func TestBGPDisabled(t *testing.T) {
+func bgpSessionsForNode(t *testing.T, labelSelector string) []packngo.BGPSession {
 	client := testutil.CreateKubeClient(t)
 
 	cl, err := packngo.NewClient()
@@ -41,19 +41,17 @@ func TestBGPDisabled(t *testing.T) {
 		t.Fatalf("Packet project ID can't be empty. Is %q environment variable set?", "PACKET_PROJECT_ID")
 	}
 
-	nodeLabel := "bgp-disabled=true"
-
 	// Select a node from the general worker pool.
 	nodesList, err := client.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{
-		LabelSelector: nodeLabel,
+		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		t.Fatalf("Listing nodes with label %q: %v", nodeLabel, err)
+		t.Fatalf("Listing nodes with label %q: %v", labelSelector, err)
 	}
 
 	nodes := nodesList.Items
 	if len(nodes) < 1 {
-		t.Fatalf("Wanted one or more nodes with label %q, found none.", nodeLabel)
+		t.Fatalf("Wanted one or more nodes with label %q, found none.", labelSelector)
 	}
 
 	hostname := nodes[0].Name
@@ -82,7 +80,21 @@ func TestBGPDisabled(t *testing.T) {
 		t.Fatalf("Getting BGP sessions for device %q: %v", deviceID, err)
 	}
 
+	return sessions
+}
+
+func TestWhenBGPIsDisabledInConfigurationServersHasNoBGPSessionsCreated(t *testing.T) {
+	sessions := bgpSessionsForNode(t, "lokomotive.alpha.kinvolk.io/bgp-enabled=false")
+
 	if len(sessions) != 0 {
 		t.Fatalf("Worker pool with BGP disabled should not have any BGP sessions")
+	}
+}
+
+func TestWhenBGPIsNotDisabledInConfigurationServersHasBGPSessionCreated(t *testing.T) {
+	sessions := bgpSessionsForNode(t, "lokomotive.alpha.kinvolk.io/bgp-enabled=true")
+
+	if len(sessions) == 0 {
+		t.Fatalf("Worker pool with BGP not disabled should have at least one BGP session")
 	}
 }

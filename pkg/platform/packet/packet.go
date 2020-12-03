@@ -149,6 +149,11 @@ func (c *config) Meta() platform.Meta {
 		Namespace: "kube-system",
 	})
 
+	charts = append(charts, helm.LokomotiveChart{
+		Name:      "packet-ccm",
+		Namespace: "kube-system",
+	})
+
 	return platform.Meta{
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      nodes,
@@ -160,6 +165,10 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	if c.AuthToken == "" && os.Getenv("PACKET_AUTH_TOKEN") == "" {
 		return fmt.Errorf("cannot find the Packet authentication token:\n" +
 			"either specify AuthToken or use the PACKET_AUTH_TOKEN environment variable")
+	}
+
+	if c.AuthToken == "" {
+		c.AuthToken = os.Getenv("PACKET_AUTH_TOKEN")
 	}
 
 	if err := c.DNS.Validate(); err != nil {

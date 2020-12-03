@@ -1,0 +1,183 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: packet-cloud-controller-manager
+  labels:
+    app: packet-cloud-controller-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: packet-cloud-controller-manager
+  template:
+    metadata:
+      labels:
+        app: packet-cloud-controller-manager
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      dnsPolicy: Default
+      hostNetwork: true
+      serviceAccountName: cloud-controller-manager
+      tolerations:
+        # This taint is set by all kubelets running `--cloud-provider=external`
+        # so we should tolerate it to schedule the Packet CCM.
+        - key: "node.cloudprovider.kubernetes.io/uninitialized"
+          value: "true"
+          effect: "NoSchedule"
+        - key: "CriticalAddonsOnly"
+          operator: "Exists"
+        # Cloud controller manager should be able to run on masters.
+        - key: "node-role.kubernetes.io/master"
+          effect: NoSchedule
+      containers:
+      # Use our own image until https://github.com/packethost/packet-ccm/pull/101 and
+      # https://github.com/packethost/packet-ccm/pull/107 are merged and released.
+      # This image must also support amd64 and arm64 architectures.
+      - image: quay.io/kinvolk/packet-ccm:kinvolk
+        name: packet-cloud-controller-manager
+        command:
+          - "./packet-cloud-controller-manager"
+          - "--cloud-provider=packet"
+          # This should allow running multiple instances of the Packet CCM when HA is needed.
+          - "--leader-elect=true"
+          - "--provider-config=/etc/cloud-sa/cloud-sa.json"
+          - "--v=2"
+        env:
+        # Enable BGP only on node pools, which are configured by Lokomotive to have BGP enabled.
+        - name: PACKET_BGP_NODE_SELECTOR
+          value: lokomotive.alpha.kinvolk.io/bgp-enabled=true
+        # Set right annotations for compatibility with MetalLB component.
+        - name: PACKET_ANNOTATION_LOCAL_ASN
+          value: metallb.lokomotive.io/my-asn
+        - name: PACKET_ANNOTATION_PEER_ASNS
+          value: metallb.lokomotive.io/peer-asn
+        - name: PACKET_ANNOTATION_PEER_IPS
+          value: metallb.lokomotive.io/peer-address
+        # Disable MetalLB ConfigMap management, as it is managed by MetalLB component itself.
+        - name: PACKET_LB_CONFIGMAP
+          value: disabled
+        resources:
+          requests:
+            cpu: 100m
+            memory: 50Mi
+        volumeMounts:
+          - name: cloud-sa-volume
+            readOnly: true
+            mountPath: "/etc/cloud-sa"
+      volumes:
+        - name: cloud-sa-volume
+          secret:
+            secretName: packet-cloud-config
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloud-controller-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:cloud-controller-manager
+rules:
+- apiGroups:
+  # reason: so ccm can read and update nodes and annotations
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - '*'
+- apiGroups:
+  # reason: so ccm can update the status of nodes
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - patch
+- apiGroups:
+  # This is not really used at the moment, but without this CCM prints warnings every second
+  # trying to enable the watch.
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  # Reason: So CCM can publish for example leader election or node removal events.
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: system:cloud-controller-manager
+rules:
+- apiGroups:
+  # Reason: So ccm can read and update lease.
+  - "coordination.k8s.io"
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  # Reason: Required for leader election.
+  - ""
+  resources:
+  - endpoints
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: system:cloud-controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:cloud-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: cloud-controller-manager
+  namespace: {{ .Release.Namespace }}
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: system:cloud-controller-manager-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: cloud-controller-manager
+  namespace: {{ .Release.Namespace }}
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: system:cloud-controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: system:cloud-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: cloud-controller-manager
+  namespace: {{ .Release.Namespace }}
