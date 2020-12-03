@@ -147,7 +147,7 @@ storage:
             -v /etc/kubernetes:/etc/kubernetes:ro \
             -v /var/lib/kubelet:/var/lib/kubelet:ro \
             --entrypoint=/usr/local/bin/kubectl \
-            quay.io/poseidon/kubelet:v1.18.8 \
+            quay.io/poseidon/kubelet:v1.19.4 \
             %{~ if enable_tls_bootstrap ~}
             --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
             %{~ else ~}
