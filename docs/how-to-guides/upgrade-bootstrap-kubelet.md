@@ -51,6 +51,7 @@ Run the following commands:
 
 ```bash
 export latest_kube=<latest kubernetes version e.g. v1.18.0>
+sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=quay.io/poseidon/kubelet|g" /etc/kubernetes/kubelet.env
 sudo sed -i "s|.*KUBELET_IMAGE_TAG.*|KUBELET_IMAGE_TAG=${latest_kube}|g" /etc/kubernetes/kubelet.env
 sudo systemctl restart kubelet
 sudo journalctl -fu kubelet
