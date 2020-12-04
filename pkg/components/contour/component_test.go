@@ -119,8 +119,8 @@ func TestConversion(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			component := newComponent()
-			m := testutil.RenderManifests(t, component, name, tc.inputConfig)
+			component := NewConfig()
+			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
 			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
