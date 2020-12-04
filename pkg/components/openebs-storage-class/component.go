@@ -34,18 +34,20 @@ const (
 	poolName = "openebs-storage-pool"
 )
 
-type Storageclass struct {
+// StorageClass represents single OpenEBS storage class with properties.
+type StorageClass struct {
 	Name         string   `hcl:"name,label"`
 	ReplicaCount int      `hcl:"replica_count,optional"`
 	Default      bool     `hcl:"default,optional"`
 	Disks        []string `hcl:"disks,optional"`
 }
+
 type component struct {
-	Storageclasses []*Storageclass `hcl:"storage-class,block"`
+	StorageClasses []StorageClass `hcl:"storage-class,block"`
 }
 
-func defaultStorageClass() *Storageclass {
-	return &Storageclass{
+func defaultStorageClass() StorageClass {
+	return StorageClass{
 		// Name of the storage class
 		Name: "openebs-cstor-disk-replica-3",
 		// Default replica count value is set to 3
@@ -62,7 +64,7 @@ func defaultStorageClass() *Storageclass {
 //nolint:golint
 func NewConfig() *component {
 	return &component{
-		Storageclasses: []*Storageclass{},
+		StorageClasses: []StorageClass{},
 	}
 }
 
@@ -75,8 +77,8 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 		return diagnostics
 	}
 	// if empty config body is provided, default component storage details are still preserved.
-	if len(c.Storageclasses) == 0 {
-		c.Storageclasses = append(c.Storageclasses, defaultStorageClass())
+	if len(c.StorageClasses) == 0 {
+		c.StorageClasses = append(c.StorageClasses, defaultStorageClass())
 	}
 
 	if err := c.validateConfig(); err != nil {
@@ -94,7 +96,8 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 
 func (c *component) validateConfig() error {
 	maxDefaultStorageClass := 0
-	for _, sc := range c.Storageclasses {
+
+	for _, sc := range c.StorageClasses {
 		if sc.Default == true {
 			maxDefaultStorageClass++
 		}
@@ -121,7 +124,7 @@ func (c *component) RenderManifests() (map[string]string, error) {
 
 	var manifestsMap = make(map[string]string)
 
-	for _, sc := range c.Storageclasses {
+	for _, sc := range c.StorageClasses {
 		var scBuffer bytes.Buffer
 		var spBuffer bytes.Buffer
 
