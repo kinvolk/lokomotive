@@ -43,6 +43,28 @@ ssh core@<IP Address>
 
 ### Step 3: Upgrade kubelet on node
 
+#### Step 3.1 Update kubelet image URL
+
+Verify if the Kubelet in your cluster is running using `rkt` by running the following command:
+
+```bash
+rkt list | grep -i kubelet
+```
+
+**With `rkt`**
+
+```bash
+sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=docker://quay.io/poseidon/kubelet|g" /etc/kubernetes/kubelet.env
+```
+
+**Without `rkt`**
+
+```bash
+sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=quay.io/poseidon/kubelet|g" /etc/kubernetes/kubelet.env
+```
+
+#### Step 3.2 Update kubelet image tag
+
 Run the following commands:
 
 > **NOTE**: Before proceeding to other commands, set the `latest_kube` variable to the latest
@@ -51,7 +73,6 @@ Run the following commands:
 
 ```bash
 export latest_kube=<latest kubernetes version e.g. v1.18.0>
-sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=quay.io/poseidon/kubelet|g" /etc/kubernetes/kubelet.env
 sudo sed -i "s|.*KUBELET_IMAGE_TAG.*|KUBELET_IMAGE_TAG=${latest_kube}|g" /etc/kubernetes/kubelet.env
 sudo systemctl restart kubelet
 sudo journalctl -fu kubelet
