@@ -47,6 +47,10 @@ component "contour" {
     value    = "contour"
     effect   = "NoSchedule"
   }
+
+  envoy {
+    metrics_scrape_interval = "30s"
+  }
 }
 ```
 
@@ -54,12 +58,13 @@ component "contour" {
 
 Table of all the arguments accepted by the component.
 
-| Argument            | Description                                                                                             |    Default     | Type                                                                                                           | Required |
-|---------------------|---------------------------------------------------------------------------------------------------------|:--------------:|:---------------------------------------------------------------------------------------------------------------|:--------:|
-| `enable_monitoring` | Create Prometheus Operator configs to scrape Contour and Envoy metrics. Also deploys Grafana Dashboard. |     false      | bool                                                                                                           |  false   |
-| `node_affinity`     | Node affinity for deploying the operator pod and envoy daemonset.                                       |       -        | list(object({key = string, operator = string, values = list(string)}))                                         |  false   |
-| `service_type`      | The type of Kubernetes service used to expose Envoy. Set as "NodePort" on the **AWS** platform.         | "LoadBalancer" | string                                                                                                         |  false   |
-| `toleration`        | Tolerations that the operator and envoy pods will tolerate.                                             |       -        | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) |  false   |
+| Argument                        | Description                                                                                             | Default        | Type                                                                                                           | Required |
+|---------------------------------|---------------------------------------------------------------------------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------|----------|
+| `enable_monitoring`             | Create Prometheus Operator configs to scrape Contour and Envoy metrics. Also deploys Grafana Dashboard. | false          | bool                                                                                                           | false    |
+| `node_affinity`                 | Node affinity for deploying the operator pod and envoy daemonset.                                       | -              | list(object({key = string, operator = string, values = list(string)}))                                         | false    |
+| `service_type`                  | The type of Kubernetes service used to expose Envoy. Set as "NodePort" on the **AWS** platform.         | "LoadBalancer" | string                                                                                                         | false    |
+| `toleration`                    | Tolerations that the operator and envoy pods will tolerate.                                             | -              | list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string })) | false    |
+| `envoy.metrics_scrape_interval` | Interval at which Prometheus will scrape Envoy. Valid only when `enable_monitoring` is set to `true`.   | -              | string                                                                                                         | false    |
 
 
 ## Applying

@@ -12,6 +12,9 @@ spec:
   endpoints:
   - port: envoy-metrics
     path: /stats/prometheus
+    {{- if .Values.envoy.metricsScrapeInterval }}
+    interval: {{ .Values.envoy.metricsScrapeInterval }}
+    {{- end }}
   namespaceSelector:
     matchNames:
     - projectcontour

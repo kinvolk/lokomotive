@@ -23,6 +23,9 @@ monitoring:
 
 envoy:
   serviceType: {{ .ServiceType }}
+  {{- if .Envoy }}
+  metricsScrapeInterval: {{ .Envoy.MetricsScrapeInterval }}
+  {{- end }}
 
 {{- if .NodeAffinity }}
 nodeAffinity:

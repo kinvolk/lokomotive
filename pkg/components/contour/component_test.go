@@ -17,6 +17,7 @@ package contour
 import (
 	"testing"
 
+	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -88,5 +89,41 @@ component "contour" {
 		if len(m) == 0 {
 			t.Errorf("%s - Rendered manifests shouldn't be empty", tc.desc)
 		}
+	}
+}
+
+func TestConversion(t *testing.T) {
+	testCases := []struct {
+		name                 string
+		inputConfig          string
+		expectedManifestName string
+		expected             string
+		jsonPath             string
+	}{
+		{
+			name: "default ServiceMonitor",
+			inputConfig: `component "contour" {
+				enable_monitoring = true
+				envoy {
+					metrics_scrape_interval = "10s"
+				}
+			}`,
+			expectedManifestName: "contour/templates/service-monitor.yaml",
+			jsonPath:             "{.spec.endpoints[0].interval}",
+			expected:             "10s",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			component := newComponent()
+			m := testutil.RenderManifests(t, component, name, tc.inputConfig)
+			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
+
+			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
+		})
 	}
 }
