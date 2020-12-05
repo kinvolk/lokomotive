@@ -12,12 +12,14 @@ variable "matchbox_http_endpoint" {
 
 variable "os_channel" {
   type        = string
-  description = "Channel for a CoreOS Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
+  default     = "stable"
+  description = "Flatcar Container Linux channel to install from (stable, beta, alpha, edge)"
 }
 
 variable "os_version" {
   type        = string
-  description = "Version for a CoreOS Container Linux derivative to PXE and install (coreos-stable, coreos-beta, coreos-alpha, flatcar-stable, flatcar-beta, flatcar-alpha)"
+  default     = "current"
+  description = "Flatcar Container Linux version to install (for example '2191.5.0' - see https://www.flatcar-linux.org/releases/)"
 }
 
 # machines
