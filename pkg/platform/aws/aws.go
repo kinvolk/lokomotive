@@ -54,7 +54,6 @@ type config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
 	ClusterName              string            `hcl:"cluster_name"`
 	Tags                     map[string]string `hcl:"tags,optional"`
-	OSName                   string            `hcl:"os_name,optional"`
 	OSChannel                string            `hcl:"os_channel,optional"`
 	OSVersion                string            `hcl:"os_version,optional"`
 	DNSZone                  string            `hcl:"dns_zone"`
