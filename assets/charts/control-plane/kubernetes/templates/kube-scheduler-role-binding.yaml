@@ -10,3 +10,16 @@ subjects:
 - kind: ServiceAccount
   name: kube-scheduler
   namespace: kube-system
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kube-scheduler-extension-apiserver-authentication-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: kube-scheduler
+  namespace: kube-system
