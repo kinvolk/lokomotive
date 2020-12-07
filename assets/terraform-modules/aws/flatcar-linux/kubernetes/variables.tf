@@ -41,12 +41,6 @@ variable "controller_type" {
   description = "EC2 instance type for controllers"
 }
 
-variable "os_name" {
-  type        = string
-  default     = "flatcar"
-  description = "Name of Operating System (coreos or flatcar)"
-}
-
 variable "os_channel" {
   type        = string
   default     = "stable"
