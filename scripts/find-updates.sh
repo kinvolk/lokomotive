@@ -36,7 +36,7 @@ printf "${format}" "kubernetes" "${current_version}" "${version}"
 
 ###########################
 # calico
-current_version=$(grep 'calico/node' assets/terraform-modules/bootkube/variables.tf | cut -d":" -f2 | sed 's/"//g')
+current_version=$(grep 'calico-node' assets/terraform-modules/bootkube/variables.tf | cut -d":" -f2 | sed 's/"//g')
 
 get_latest_release projectcalico/calico
 printf "${format}" "calico" "${current_version}" "${version}"
@@ -86,7 +86,7 @@ printf "${format}" "dex" "${current_version}" "${version}"
 ###########################
 # external dns
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/external-dns/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep version assets/charts/components/external-dns/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | tail -n1)
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
