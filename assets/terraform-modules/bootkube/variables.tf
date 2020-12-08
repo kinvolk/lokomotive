@@ -89,10 +89,10 @@ variable "container_images" {
   type        = map(string)
 
   default = {
-    calico                  = "quay.io/kinvolk/calico-node:v3.16.4"
-    calico_cni              = "quay.io/kinvolk/calico-cni:v3.16.4"
-    calico_controllers      = "quay.io/kinvolk/calico-kube-controllers:v3.16.4"
-    flexvol_driver_image    = "quay.io/kinvolk/calico-pod2daemon-flexvol:v3.16.4"
+    calico                  = "quay.io/kinvolk/calico-node:v3.17.0"
+    calico_cni              = "quay.io/kinvolk/calico-cni:v3.17.0"
+    calico_controllers      = "quay.io/kinvolk/calico-kube-controllers:v3.17.0"
+    flexvol_driver_image    = "quay.io/kinvolk/calico-pod2daemon-flexvol:v3.17.0"
     kubelet_image           = "quay.io/poseidon/kubelet:v1.19.4"
     coredns                 = "quay.io/kinvolk/coredns:1.8.0"
     pod_checkpointer        = "quay.io/kinvolk/checkpoint:43ec4b414e44f202e07bf43e57d2b5ffbcfd4415"

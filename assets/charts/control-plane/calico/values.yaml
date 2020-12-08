@@ -1,9 +1,9 @@
 calico:
   networkMTU: 1500
-  image: quay.io/kinvolk/calico-node:v3.16.4
-  cniImage: quay.io/kinvolk/calico-cni:v3.16.4
-  controllersImage: quay.io/kinvolk/calico-kube-controllers:v3.16.4
-  flexvolDriverImage: quay.io/kinvolk/calico-pod2daemon-flexvol:v3.16.4
+  image: quay.io/kinvolk/calico-node:v3.17.0
+  cniImage: quay.io/kinvolk/calico-cni:v3.17.0
+  controllersImage: quay.io/kinvolk/calico-kube-controllers:v3.17.0
+  flexvolDriverImage: quay.io/kinvolk/calico-pod2daemon-flexvol:v3.17.0
   enableReporting: false
   networkIpAutodetectionMethod: first-found
   ipipEnabled: true
