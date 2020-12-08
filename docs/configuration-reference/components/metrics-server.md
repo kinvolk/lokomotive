@@ -1,5 +1,6 @@
 ---
 title: Metrics Server configuration reference for Lokomotive
+linkTitle: Metrics Server
 weight: 10
 ---
 

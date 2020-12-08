@@ -1,5 +1,6 @@
 ---
 title: Dex configuration reference for Lokomotive
+linkTitle: Dex
 weight: 10
 ---
 

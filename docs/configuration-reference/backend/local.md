@@ -1,5 +1,6 @@
 ---
 title: Local backend configuration reference
+linkTitle: Local
 weight: 10
 ---
 

@@ -1,5 +1,6 @@
 ---
-title: Istio operator configuration reference for Lokomotive
+title: Istio Operator configuration reference for Lokomotive
+linkTitle: Istio Operator
 weight: 10
 ---
 

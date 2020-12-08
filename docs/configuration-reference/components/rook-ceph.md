@@ -1,5 +1,6 @@
 ---
 title: Rook Ceph configuration reference for Lokomotive
+linkTitle: Rook Ceph
 weight: 10
 ---
 

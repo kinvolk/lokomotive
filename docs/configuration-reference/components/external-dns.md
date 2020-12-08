@@ -1,5 +1,6 @@
 ---
 title: ExternalDNS configuration reference for Lokomotive
+linkTitle: ExternalDNS
 weight: 10
 ---
 

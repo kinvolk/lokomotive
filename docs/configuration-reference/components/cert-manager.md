@@ -1,5 +1,6 @@
 ---
 title: Cert-Manager configuration reference for Lokomotive
+linkTitle: Cert-Manager
 weight: 10
 ---
 

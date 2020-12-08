@@ -1,5 +1,6 @@
 ---
 title: Linkerd configuration reference for Lokomotive
+linkTitle: Linkerd
 weight: 10
 ---
 

@@ -1,5 +1,6 @@
 ---
-title: OpenEBS storage class configuration reference for Lokomotive
+title: OpenEBS Storage Class configuration reference for Lokomotive
+linkTitle: OpenEBS Storage Class
 weight: 10
 ---
 

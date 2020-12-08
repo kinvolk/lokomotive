@@ -1,5 +1,6 @@
 ---
-title: Flatcar Container Linux update operator configuration reference for Lokomotive
+title: Flatcar Container Linux Update Operator configuration reference for Lokomotive
+linkTitle: Flatcar Container Linux Update Operator
 weight: 10
 ---
 
