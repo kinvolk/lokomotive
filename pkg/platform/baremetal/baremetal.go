@@ -89,7 +89,7 @@ func (c *config) Meta() platform.Meta {
 func NewConfig() *config {
 	return &config{
 		CachedInstall:       "false",
-		OSChannel:           "flatcar-stable",
+		OSChannel:           "stable",
 		OSVersion:           "current",
 		EnableTLSBootstrap:  true,
 		NetworkMTU:          platform.NetworkMTU,

@@ -1,86 +1,3 @@
-locals {
-  # coreos-stable -> coreos flavor, stable channel
-  # flatcar-stable -> flatcar flavor, stable channel
-  flavor = split("-", var.os_channel)[0]
-
-  channel = split("-", var.os_channel)[1]
-}
-
-// CoreOS Container Linux Install profile (from release.core-os.net)
-resource "matchbox_profile" "container-linux-install" {
-  count = length(var.controller_names) + length(var.worker_names)
-  name = format(
-    "%s-container-linux-install-%s",
-    var.cluster_name,
-    concat(var.controller_names, var.worker_names)[count.index]
-  )
-
-  kernel = "${var.download_protocol}://${local.channel}.release.core-os.net/amd64-usr/${var.os_version}/coreos_production_pxe.vmlinuz"
-
-  initrd = [
-    "${var.download_protocol}://${local.channel}.release.core-os.net/amd64-usr/${var.os_version}/coreos_production_pxe_image.cpio.gz",
-  ]
-
-  args = flatten([
-    "initrd=coreos_production_pxe_image.cpio.gz",
-    "coreos.config.url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
-    "coreos.first_boot=yes",
-    "console=tty0",
-    "console=ttyS0",
-    var.kernel_args,
-  ])
-
-  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
-    os_flavor           = local.flavor
-    os_channel          = local.channel
-    os_version          = var.os_version
-    ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
-    install_disk        = var.install_disk
-    container_linux_oem = var.container_linux_oem
-    ssh_keys            = jsonencode(var.ssh_keys)
-    # only cached-container-linux profile adds -b baseurl
-    baseurl_flag = ""
-  })
-}
-
-// CoreOS Container Linux Install profile (from matchbox /assets cache)
-// Note: Admin must have downloaded os_version into matchbox assets/coreos.
-resource "matchbox_profile" "cached-container-linux-install" {
-  count = length(var.controller_names) + length(var.worker_names)
-  name = format(
-    "%s-cached-container-linux-install-%s",
-    var.cluster_name,
-    concat(var.controller_names, var.worker_names)[count.index]
-  )
-
-  kernel = "/assets/coreos/${var.os_version}/coreos_production_pxe.vmlinuz"
-
-  initrd = [
-    "/assets/coreos/${var.os_version}/coreos_production_pxe_image.cpio.gz",
-  ]
-
-  args = flatten([
-    "initrd=coreos_production_pxe_image.cpio.gz",
-    "coreos.config.url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
-    "coreos.first_boot=yes",
-    "console=tty0",
-    "console=ttyS0",
-    var.kernel_args,
-  ])
-
-  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
-    os_flavor           = local.flavor
-    os_channel          = local.channel
-    os_version          = var.os_version
-    ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
-    install_disk        = var.install_disk
-    container_linux_oem = var.container_linux_oem
-    ssh_keys            = jsonencode(var.ssh_keys)
-    # profile uses -b baseurl to install from matchbox cache
-    baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/${local.flavor}"
-  })
-}
-
 // Flatcar Container Linux install profile (from release.flatcar-linux.net)
 resource "matchbox_profile" "flatcar-install" {
   count = length(var.controller_names) + length(var.worker_names)
@@ -90,10 +7,10 @@ resource "matchbox_profile" "flatcar-install" {
     concat(var.controller_names, var.worker_names)[count.index]
   )
 
-  kernel = "${var.download_protocol}://${local.channel}.release.flatcar-linux.net/amd64-usr/${var.os_version}/flatcar_production_pxe.vmlinuz"
+  kernel = "${var.download_protocol}://${var.os_channel}.release.flatcar-linux.net/amd64-usr/${var.os_version}/flatcar_production_pxe.vmlinuz"
 
   initrd = [
-    "${var.download_protocol}://${local.channel}.release.flatcar-linux.net/amd64-usr/${var.os_version}/flatcar_production_pxe_image.cpio.gz",
+    "${var.download_protocol}://${var.os_channel}.release.flatcar-linux.net/amd64-usr/${var.os_version}/flatcar_production_pxe_image.cpio.gz",
   ]
 
   args = flatten([
@@ -106,8 +23,7 @@ resource "matchbox_profile" "flatcar-install" {
   ])
 
   container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
-    os_flavor           = local.flavor
-    os_channel          = local.channel
+    os_channel          = var.os_channel
     os_version          = var.os_version
     ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
     install_disk        = var.install_disk
@@ -144,15 +60,14 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
   ])
 
   container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
-    os_flavor           = local.flavor
-    os_channel          = local.channel
+    os_channel          = var.os_channel
     os_version          = var.os_version
     ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
     install_disk        = var.install_disk
     container_linux_oem = var.container_linux_oem
     ssh_keys            = jsonencode(var.ssh_keys)
     # profile uses -b baseurl to install from matchbox cache
-    baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/${local.flavor}"
+    baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/flatcar"
   })
 }
 
@@ -221,7 +136,7 @@ data "ct_config" "worker-ignitions" {
 locals {
   # TODO: Probably it is not needed anymore with terraform 0.12
   # Hack to workaround https://github.com/hashicorp/terraform/issues/17251
-  # Default CoreOS Container Linux config snippets map every node names to list("\n") so
+  # Default Flatcar Container Linux config snippets map every node names to list("\n") so
   # all lookups succeed
   total_length = length(var.controller_names) + length(var.worker_names)
   clc_defaults = zipmap(
