@@ -1,6 +1,4 @@
 locals {
-  ami_id = data.aws_ami.flatcar.*.image_id
-
   channel = var.os_channel
   ver     = var.os_version == "current" ? "" : var.os_version
 }
