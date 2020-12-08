@@ -1,5 +1,6 @@
 ---
 title: Lokomotive Bare Metal quickstart guide
+linkTitle: Bare Metal
 weight: 10
 ---
 

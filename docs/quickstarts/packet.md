@@ -1,5 +1,6 @@
 ---
 title: Lokomotive Packet quickstart guide
+linkTitle: Packet
 weight: 10
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Lokomotive Tinkerbell quickstart guide
+linkTitle: Tinkerbell
 weight: 10
 ---
 
