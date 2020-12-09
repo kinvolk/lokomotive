@@ -56,9 +56,6 @@ module "aws-{{.Config.ClusterName}}" {
   host_cidr = "{{.Config.HostCIDR}}"
   {{- end }}
 
- {{- if .Config.OSName }}
-  os_name = "{{.Config.OSName}}"
- {{- end }}
  {{- if .Config.OSChannel }}
   os_channel = "{{.Config.OSChannel}}"
  {{- end }}
@@ -137,7 +134,6 @@ module "worker-pool-{{ $index }}" {
   cluster_name          = "{{ $.Config.ClusterName }}"
   pool_name             = "{{ $pool.Name }}"
   worker_count          = "{{ $pool.Count}}"
-  os_name               = "flatcar"
   {{- if $pool.InstanceType }}
   instance_type         = "{{ $pool.InstanceType }}"
   {{- end }}

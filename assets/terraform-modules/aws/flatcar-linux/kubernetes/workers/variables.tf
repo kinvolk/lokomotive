@@ -51,12 +51,6 @@ variable "taints" {
   description = "Map of custom taints for worker nodes."
 }
 
-variable "os_name" {
-  type        = string
-  default     = "flatcar"
-  description = "Name of Operating System (coreos or flatcar)"
-}
-
 variable "os_channel" {
   type        = string
   default     = "stable"

@@ -85,7 +85,7 @@ resource "aws_instance" "controllers" {
 
   instance_type = var.controller_type
 
-  ami                  = local.ami_id
+  ami                  = data.aws_ami.flatcar.image_id
   user_data            = data.ct_config.controller-ignitions[count.index].rendered
   iam_instance_profile = join("", aws_iam_instance_profile.csi-driver.*.name)
 
