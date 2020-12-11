@@ -138,9 +138,14 @@ systemd:
     - name: "ip6tables-restore.service"
       enabled: true
       enable: true
-    - name: "iscsid.service"
+    - name: iscsid.service
       enabled: true
       enable: true
+      dropins:
+      - name: 00-iscsid.conf
+        contents: |
+          [Service]
+          ExecStartPre=/bin/bash -c 'echo "InitiatorName=$(/sbin/iscsi-iname -p iqn.2020-01.io.kinvolk:01)" > /etc/iscsi/initiatorname.iscsi'
 storage:
   filesystems:
     - name: "OEM"

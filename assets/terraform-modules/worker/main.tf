@@ -5,6 +5,11 @@ systemd:
     - name: iscsid.service
       enable: true
       enabled: true
+      dropins:
+      - name: 00-iscsid.conf
+        contents: |
+          [Service]
+          ExecStartPre=/bin/bash -c 'echo "InitiatorName=$(/sbin/iscsi-iname -p iqn.2020-01.io.kinvolk:01)" > /etc/iscsi/initiatorname.iscsi'
 EOF
 
   kubeconfig = <<EOF
