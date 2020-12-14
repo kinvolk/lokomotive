@@ -1,0 +1,2 @@
+#!/bin/sh
+exec nsenter -a -t 1 iscsiadm "$@"
