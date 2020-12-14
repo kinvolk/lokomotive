@@ -54,13 +54,13 @@ rkt list | grep -i kubelet
 **With `rkt`**
 
 ```bash
-sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=docker://quay.io/poseidon/kubelet|g" /etc/kubernetes/kubelet.env
+sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=docker://quay.io/kinvolk/kubelet|g" /etc/kubernetes/kubelet.env
 ```
 
 **Without `rkt`**
 
 ```bash
-sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=quay.io/poseidon/kubelet|g" /etc/kubernetes/kubelet.env
+sudo sed -i "s|.*KUBELET_IMAGE_URL.*|KUBELET_IMAGE_URL=quay.io/kinvolk/kubelet|g" /etc/kubernetes/kubelet.env
 ```
 
 #### Step 3.2 Update kubelet image tag

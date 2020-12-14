@@ -69,7 +69,7 @@ variable "clc_snippets" {
 variable "kubelet_image_name" {
   type        = string
   description = "Source of kubelet Docker image."
-  default     = "quay.io/poseidon/kubelet"
+  default     = "quay.io/kinvolk/kubelet"
 }
 
 variable "kubelet_image_tag" {
