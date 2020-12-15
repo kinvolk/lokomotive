@@ -86,7 +86,7 @@ cluster "bare-metal" {
 
   os_version = "current"
 
-  os_channel = "flatcar-stable"
+  os_channel = "stable"
 
   enable_tls_bootstrap = true
 
