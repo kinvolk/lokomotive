@@ -3,7 +3,6 @@ locals {
 systemd:
   units:
     - name: iscsid.service
-      enable: true
       enabled: true
       dropins:
       - name: 00-iscsid.conf
