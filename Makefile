@@ -198,3 +198,7 @@ check-docs: check-working-tree-clean docs
 
 .PHONY: ci
 ci: build build-test test check-update-assets check-vendor check-docs
+
+.PHONY: deploy-ci-cluster
+deploy-ci-cluster:
+	./ci/scripts/deploy-cluster.sh
