@@ -37,7 +37,7 @@ variable "kubelet_image_name" {
 variable "kubelet_image_tag" {
   type        = string
   description = "Tag for kubelet Docker image."
-  default     = "v1.19.3"
+  default     = "v1.19.4"
 }
 
 variable "kubelet_taints" {
