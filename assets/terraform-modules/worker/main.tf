@@ -3,8 +3,12 @@ locals {
 systemd:
   units:
     - name: iscsid.service
-      enable: true
       enabled: true
+      dropins:
+      - name: 00-iscsid.conf
+        contents: |
+          [Service]
+          ExecStartPre=/bin/bash -c 'echo "InitiatorName=$(/sbin/iscsi-iname -p iqn.2020-01.io.kinvolk:01)" > /etc/iscsi/initiatorname.iscsi'
 EOF
 
   kubeconfig = <<EOF
@@ -32,10 +36,7 @@ data "ct_config" "config" {
     cluster_dns_service_ip = var.cluster_dns_service_ip
     cluster_domain_suffix  = var.cluster_domain_suffix
     host_dns_ip            = var.host_dns_ip
-    kubelet_docker_extra_args = [
-      # Workers should have iscsiadm mounted for storage solutions support.
-      "-v /usr/sbin/iscsiadm:/usr/sbin/iscsiadm:rw",
-    ]
+    kubelet_docker_extra_args = []
     # Here we set default labels for worker nodes.
     kubelet_labels = length(var.kubelet_labels) > 0 ? var.kubelet_labels : {
       "node.kubernetes.io/node" = ""

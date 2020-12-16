@@ -31,13 +31,13 @@ variable "clc_snippet_index" {
 variable "kubelet_image_name" {
   type        = string
   description = "Source of kubelet Docker image."
-  default     = "quay.io/poseidon/kubelet"
+  default     = "quay.io/kinvolk/kubelet"
 }
 
 variable "kubelet_image_tag" {
   type        = string
   description = "Tag for kubelet Docker image."
-  default     = "v1.19.3"
+  default     = "v1.19.4"
 }
 
 variable "kubelet_taints" {

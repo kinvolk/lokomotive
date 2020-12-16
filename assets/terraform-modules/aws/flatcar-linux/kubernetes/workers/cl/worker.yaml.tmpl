@@ -4,8 +4,12 @@ systemd:
     - name: docker.service
       enable: true
     - name: iscsid.service
-      enable: true
       enabled: true
+      dropins:
+      - name: 00-iscsid.conf
+        contents: |
+          [Service]
+          ExecStartPre=/bin/bash -c 'echo "InitiatorName=$(/sbin/iscsi-iname -p iqn.2020-01.io.kinvolk:01)" > /etc/iscsi/initiatorname.iscsi'
     - name: locksmithd.service
       mask: true
     - name: wait-for-dns.service
@@ -50,7 +54,6 @@ systemd:
           -v /sys:/sys:rw \
           -v /opt/cni/bin:/opt/cni/bin:ro \
           -v /usr/lib/os-release:/etc/os-release:ro \
-          -v /usr/sbin/iscsiadm:/usr/sbin/iscsiadm:rw \
           -v /var/lib/calico:/var/lib/calico:ro \
           -v /var/lib/cni:/var/lib/cni:rw \
           -v /var/lib/docker:/var/lib/docker:rw \
@@ -113,7 +116,7 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=quay.io/poseidon/kubelet
+          KUBELET_IMAGE_URL=quay.io/kinvolk/kubelet
           KUBELET_IMAGE_TAG=v1.19.4
           NODE_LABELS="${join(",", [for k, v in node_labels : "${k}=${v}"])}"
           NODE_TAINTS="${join(",", [for k, v in taints : "${k}=${v}"])}"
@@ -147,7 +150,7 @@ storage:
             -v /etc/kubernetes:/etc/kubernetes:ro \
             -v /var/lib/kubelet:/var/lib/kubelet:ro \
             --entrypoint=/usr/local/bin/kubectl \
-            quay.io/poseidon/kubelet:v1.19.4 \
+            quay.io/kinvolk/kubelet:v1.19.4 \
             %{~ if enable_tls_bootstrap ~}
             --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
             %{~ else ~}

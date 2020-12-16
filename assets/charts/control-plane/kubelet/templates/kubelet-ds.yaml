@@ -125,10 +125,6 @@ spec:
         - name: etc-resolv
           mountPath: /etc/resolv.conf
           readOnly: true
-        # This is mounted so that storage works fine.
-        - name: iscsiadm
-          mountPath: /usr/sbin/iscsiadm
-          readOnly: false
         - name: modules
           mountPath: /lib/modules
           readOnly: true
@@ -191,9 +187,6 @@ spec:
         hostPath:
           path: /etc/resolv.conf
           type: File
-      - name: iscsiadm
-        hostPath:
-          path: /usr/sbin/iscsiadm
       - name: modules
         hostPath:
           path: /lib/modules
