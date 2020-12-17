@@ -39,7 +39,7 @@ variable "bootkube_image_name" {
 variable "bootkube_image_tag" {
   type        = string
   description = "Docker image tag to use for container running bootkube."
-  default     = "v0.14.0-helm3-amd64"
+  default     = "v0.14.0-helm4"
 }
 
 variable "cluster_domain_suffix" {
