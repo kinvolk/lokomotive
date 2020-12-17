@@ -406,6 +406,18 @@ storage:
           done
           echo "$record.$zone is available on all nameservers"
           exit 0
+    - path: /etc/docker/daemon.json
+      filesystem: root
+      mode: 0500
+      contents:
+        inline: |
+          {
+            "live-restore": true,
+            "log-opts": {
+              "max-size": "100m",
+              "max-file": "3"
+            }
+          }
 passwd:
   users:
   - name: core
