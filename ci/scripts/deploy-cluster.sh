@@ -67,7 +67,7 @@ generate_cluster_id() {
 
 finalise_packet_location() {
   case "$platform" in
-  packet|packet_fluo)
+  packet|packet_fluo|packet_upgrade)
     if ! best_location_for_instance_type "c2.medium.x86"; then
       exit 1
     fi
@@ -96,7 +96,11 @@ finalise_packet_location() {
 
 install_cluster() {
   log "Running lokoctl version $(${LOKOCTL_PATH} version)"
-  RET=0
+
+  if [ "${RET}" != 0 ]; then
+    return
+  fi
+
   "${LOKOCTL_PATH}" cluster apply --verbose --skip-components || RET=$?
 }
 
@@ -106,7 +110,7 @@ override_fluo() {
   fi
 
   # Tell FLUO to pause update reboots for controller nodes
-  if [ "$platform" == "packet" ] || [ "$platform" == "packet_fluo" ]; then
+  if [ "$platform" == "packet" ] || [ "$platform" == "packet_fluo" ] || [ "$platform" == "packet_upgrade" ]; then
     kubectl annotate node --all "flatcar-linux-update.v1.flatcar-linux.net/reboot-paused=true"
   fi
 }
@@ -148,6 +152,26 @@ delete_cluster() {
   exit $RET
 }
 
+download_old_lokoctl() {
+  lokoctl_version="0.5.0"
+
+  tmpdir=$(mktemp -d)
+  curl -o "${tmpdir}"/lokoctl.tar.gz -L https://github.com/kinvolk/lokomotive/releases/download/v"${lokoctl_version}"/lokoctl_"${lokoctl_version}"_linux_amd64.tar.gz
+  tar -xvzf "${tmpdir}"/lokoctl.tar.gz -C "${tmpdir}"
+  LOKOCTL_PATH="${tmpdir}/lokoctl_${lokoctl_version}_linux_amd64/lokoctl"
+
+  "${LOKOCTL_PATH}" version
+}
+
+install_old_lokomotive_cluster() {
+  download_old_lokoctl
+
+  install_cluster
+  override_fluo
+  install_components
+  run_e2e_tests
+}
+
 # =======================================================================
 
 log "Deploying test cluster on $platform"
@@ -163,6 +187,11 @@ cat "$platform-cluster.lokocfg.envsubst" | envsubst '$AWS_ACCESS_KEY_ID $AWS_SEC
 
 export KUBECONFIG=$HOME/lokoctl-assets/cluster-assets/auth/kubeconfig
 echo "export KUBECONFIG=$KUBECONFIG" >> ~/.bashrc
+RET=0
+
+if [ "${platform}" = "packet_upgrade" ]; then
+  install_old_lokomotive_cluster
+fi
 
 LOKOCTL_PATH="${resource_dir}/lokoctl-bin/lokoctl"
 
