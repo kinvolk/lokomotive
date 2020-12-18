@@ -33,11 +33,20 @@ const (
 
 	chartValuesTmpl = `
 enableDefaultStorageClass: {{ .EnableDefaultStorageClass }}
+# Enable volume scheduling for dynamic volume provisioning.
+enableVolumeScheduling: {{ .EnableVolumeScheduling }}
+# Enable volume resizing.
+enableVolumeResizing: {{ .EnableVolumeResizing }}
+# Enable volume snapshot.
+enableVolumeSnapshot: {{ .EnableVolumeSnapshot }}
 `
 )
 
 type component struct {
 	EnableDefaultStorageClass bool `hcl:"enable_default_storage_class,optional"`
+	EnableVolumeScheduling    bool `hcl:"enable_volume_scheduling,optional"`
+	EnableVolumeResizing      bool `hcl:"enable_volume_resizing,optional"`
+	EnableVolumeSnapshot      bool `hcl:"enable_volume_snapshot,optional"`
 }
 
 // NewConfig returns new AWS EBS CSI driver component configuration with default values set.
@@ -46,6 +55,9 @@ type component struct {
 func NewConfig() *component {
 	return &component{
 		EnableDefaultStorageClass: true,
+		EnableVolumeScheduling:    true,
+		EnableVolumeResizing:      true,
+		EnableVolumeSnapshot:      true,
 	}
 }
 
