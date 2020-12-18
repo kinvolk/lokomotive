@@ -44,7 +44,7 @@ best_location_for_instance_type() {
 
 # =======================================================================
 
-if [ "${platform}" != baremetal ] && [ "${platform}" != "kvm-libvirt" ]; then
+if [ "${platform}" != baremetal ] && [ "${platform}" != "kvm-libvirt" ] && [ "${platform}" != "tinkerbell" ]; then
   # Generate SSH key pair to be used by lokoctl.
   log "Generating SSH key pair for lokoctl"
   ssh-keygen -f ~/.ssh/id_rsa -N ''
