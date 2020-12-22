@@ -167,3 +167,9 @@ variable "enable_tls_bootstrap" {
   description = "Enable TLS Bootstrap for Kubelet."
   type        = bool
 }
+
+variable "enable_csi" {
+  description = "Set up IAM role required for dynamic volumes provisioning."
+  type        = bool
+  default     = false
+}

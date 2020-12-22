@@ -114,6 +114,7 @@ module "aws-{{.Config.ClusterName}}" {
 module "worker-pool-{{ $index }}" {
   source = "../terraform-modules/aws/flatcar-linux/kubernetes/workers"
 
+  enable_csi            = {{ $.Config.EnableCSI }}
   vpc_id                = module.aws-{{ $.Config.ClusterName }}.vpc_id
   subnet_ids            = flatten([module.aws-{{ $.Config.ClusterName }}.subnet_ids])
   security_groups       = module.aws-{{ $.Config.ClusterName }}.worker_security_groups
