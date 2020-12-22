@@ -195,3 +195,46 @@ component "velero" {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 }
+
+func TestRenderManifestCSIAWSDriver(t *testing.T) {
+	configHCL := `
+component "velero" {
+  provider = "csi"
+
+  csi {
+    aws {
+      credentials = "foo"
+      backup_storage_location {
+        bucket = "foo"
+        region = "foo"
+      }
+
+      volume_snapshot_location {
+        region = "foo"
+      }
+    }
+  }
+}
+`
+
+	component := NewConfig()
+
+	body, diagnostics := util.GetComponentBody(configHCL, Name)
+	if diagnostics != nil {
+		t.Fatalf("Error getting component body: %v", diagnostics)
+	}
+
+	diagnostics = component.LoadConfig(body, &hcl.EvalContext{})
+	if diagnostics.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %s", diagnostics)
+	}
+
+	m, err := component.RenderManifests()
+	if err != nil {
+		t.Fatalf("Rendering manifests with valid config should succeed, got: %s", err)
+	}
+
+	if len(m) == 0 {
+		t.Fatalf("Rendered manifests shouldn't be empty")
+	}
+}
