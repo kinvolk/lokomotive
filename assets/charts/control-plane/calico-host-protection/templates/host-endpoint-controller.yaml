@@ -47,7 +47,7 @@ spec:
 
 ---
 # rbac.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: calico-hostendpoint-controller-role
@@ -58,19 +58,19 @@ rules:
 - apiGroups: ["crd.projectcalico.org"]
   resources: ["hostendpoints"]
   verbs:
-   - create
-   - get
-   - list
-   - update
-   - delete
-   # To use kubectl apply on resources that already exist
-   - patch
+  - create
+  - get
+  - list
+  - update
+  - delete
+  # To use kubectl apply on resources that already exist
+  - patch
 - apiGroups: ["policy"]
   resources: ["podsecuritypolicies"]
   verbs: ["use"]
   resourceNames: ["calico-hostendpoint-controller-psp"]
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: calico-hostendpoint-controller-role-binding
