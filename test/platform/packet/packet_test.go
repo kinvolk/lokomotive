@@ -98,3 +98,22 @@ func TestWhenBGPIsNotDisabledInConfigurationServersHasBGPSessionCreated(t *testi
 		t.Fatalf("Worker pool with BGP not disabled should have at least one BGP session")
 	}
 }
+
+func TestCalicoHostEndpointControllerRunsWithDedicatedPSP(t *testing.T) {
+	client := testutil.CreateKubeClient(t)
+	labelSelector := "app=calico-hostendpoint-controller"
+	expectedAnnotation := "calico-hostendpoint-controller-psp"
+
+	pods, err := client.CoreV1().Pods("kube-system").List(context.Background(), metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		t.Fatalf("Listing pods with label %q: %v", labelSelector, err)
+	}
+
+	for _, v := range pods.Items {
+		if v.Annotations["kubernetes.io/psp"] != expectedAnnotation {
+			t.Fatalf("Pod: %s annotation expected: %s got: %s", v.Name, expectedAnnotation, v.Annotations["kubernetes.io/psp"])
+		}
+	}
+}
