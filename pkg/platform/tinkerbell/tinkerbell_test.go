@@ -244,3 +244,31 @@ func TestMeta(t *testing.T) {
 		t.Errorf("Expected %d nodes, got %d", expectedNodes, m.ExpectedNodes)
 	}
 }
+
+func TestCheckWorkerPoolLabelsWithSpacedValue(t *testing.T) {
+	c := &tinkerbell.Config{
+		WorkerPools: []tinkerbell.WorkerPool{
+			{
+				Labels: map[string]string{"foo-1": "bar "},
+			},
+		},
+	}
+
+	if d := c.CheckWorkerPoolLabelsAndTaints(); !d.HasErrors() {
+		t.Error("Should fail with space in worker pool labels")
+	}
+}
+
+func TestCheckWorkerPoolTaintsWithSpacedValue(t *testing.T) {
+	c := &tinkerbell.Config{
+		WorkerPools: []tinkerbell.WorkerPool{
+			{
+				Taints: map[string]string{"foo-1": "bar "},
+			},
+		},
+	}
+
+	if d := c.CheckWorkerPoolLabelsAndTaints(); !d.HasErrors() {
+		t.Error("Should fail with space in worker pool taints")
+	}
+}

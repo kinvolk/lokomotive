@@ -230,6 +230,7 @@ func (c *Config) Validate() hcl.Diagnostics {
 
 	d = append(d, platform.WorkerPoolNamesUnique(x)...)
 	d = append(d, c.validateRequiredFields()...)
+	d = append(d, c.CheckWorkerPoolLabelsAndTaints()...)
 
 	return d
 }
@@ -287,4 +288,35 @@ func (c *Config) validateRequiredFields() hcl.Diagnostics {
 	}
 
 	return d
+}
+
+// CheckWorkerPoolLabelsAndTaints verifies that all worker pool labels
+// and taints are in correct format. Neither key nor value of labels
+// and taints map should have empty space in them.
+func (c *Config) CheckWorkerPoolLabelsAndTaints() hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	for _, w := range c.WorkerPools {
+		for k, v := range w.Labels {
+			if strings.Contains(k, " ") || strings.Contains(v, " ") {
+				diagnostics = append(diagnostics, &hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Worker pools labels map should not contain empty spaces",
+					Detail:   fmt.Sprintf("Worker pool %q label with key %q is incorrect", w.PoolName, k),
+				})
+			}
+		}
+
+		for k, v := range w.Taints {
+			if strings.Contains(k, " ") || strings.Contains(v, " ") {
+				diagnostics = append(diagnostics, &hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Worker pools taints map should not contain empty spaces",
+					Detail:   fmt.Sprintf("Worker pool %q taints with key %q is incorrect", w.PoolName, k),
+				})
+			}
+		}
+	}
+
+	return diagnostics
 }
