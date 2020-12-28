@@ -355,3 +355,31 @@ func TestTerraformAddDeps(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckWorkerPoolLabelsWithSpacedValue(t *testing.T) {
+	c := config{
+		WorkerPools: []workerPool{
+			{
+				Labels: map[string]string{"foo-1": "bar "},
+			},
+		},
+	}
+
+	if d := c.checkWorkerPoolLabelsAndTaints(); !d.HasErrors() {
+		t.Error("Should fail with space in worker pool labels")
+	}
+}
+
+func TestCheckWorkerPoolTaintsWithSpacedValue(t *testing.T) {
+	c := config{
+		WorkerPools: []workerPool{
+			{
+				Taints: map[string]string{"foo-1": "bar "},
+			},
+		},
+	}
+
+	if d := c.checkWorkerPoolLabelsAndTaints(); !d.HasErrors() {
+		t.Error("Should fail with space in worker pool taints")
+	}
+}
