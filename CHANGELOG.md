@@ -163,9 +163,9 @@ taints = {
 }
 ```
 
-This release also changes the default `cluster.oidc.client_id` value from `gangway` to `clusterauth`. 
+This release also changes the default `cluster.oidc.client_id` value from `gangway` to `clusterauth`.
 
-This setting must match `gangway.client_id` and `dex.static_client.id`. 
+This setting must match `gangway.client_id` and `dex.static_client.id`.
 
 If you use default settings for oidc you'll need to add `client_id = "gangway"` or change the `static_client.id` and `client_id` parameters for dex and gangway to `clusterauth` respectively.
 
@@ -191,11 +191,11 @@ packet {
 
 #### Cluster update steps
 
-Ensure your cluster is in a healthy state by running `lokoctl cluster apply` using the `v0.4.1` version. 
+Ensure your cluster is in a healthy state by running `lokoctl cluster apply` using the `v0.4.1` version.
 
 Updating multiple versions at a time is not supported so, if your cluster is older, update to `v0.4.1` and only then proceed with the update to `v0.5.0`.
 
-Due to [Terraform](https://github.com/kinvolk/lokomotive/pull/824) and [Kubernetes](https://github.com/kinvolk/lokomotive/pull/1030) updates to v0.13+ and v1.19.3 respectively. 
+Due to [Terraform](https://github.com/kinvolk/lokomotive/pull/824) and [Kubernetes](https://github.com/kinvolk/lokomotive/pull/1030) updates to v0.13+ and v1.19.3 respectively.
 
 Some manual steps need to be performed when updating. In your cluster configuration directory, follow these steps:
 
