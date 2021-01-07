@@ -71,9 +71,9 @@ cluster "aks" {
       "key" = "value",
     }
 
-    taints = [
-      "node-role.kubernetes.io/master=NoSchedule",
-    ]
+    taints = {
+      "key1=value1" = "NoSchedule",
+    }
   }
 
   tags = {
@@ -104,7 +104,7 @@ block in the cluster configuration.
 | `worker_pool.count`     | Number of workers in the worker pool. Can be changed afterwards to add or delete workers.                                                                                                                                                                                                                                                                                                                                                                                                               |       -       |    number    |   true   |
 | `worker_pool.vm_size`   | Azure VM size for worker nodes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |       -       |    string    |   true   |
 | `worker_pool.labels`    | Map of Kubernetes Node object labels.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |       -       | map(string)  |  false   |
-| `worker_pool.taints`    | List of Kubernetes Node taints.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |       -       | list(string) |  false   |
+| `worker_pool.taints`    | Map of Kubernetes Node object taints.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |       -       | map(string)  |  false   |
 
 
 ## Applying
