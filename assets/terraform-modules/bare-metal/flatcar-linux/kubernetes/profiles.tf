@@ -102,8 +102,7 @@ data "ct_config" "controller-ignitions" {
   })
   pretty_print = false
 
-  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  snippets = local.clc_map[var.controller_names[count.index]]
+  snippets = lookup(var.clc_snippets, var.controller_names[count.index], [])
 }
 
 // Kubernetes Worker profiles
@@ -129,21 +128,6 @@ data "ct_config" "worker-ignitions" {
   })
   pretty_print = false
 
-  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  snippets = local.clc_map[var.worker_names[count.index]]
+  snippets = lookup(var.clc_snippets, var.worker_names[count.index], [])
 }
 
-locals {
-  # TODO: Probably it is not needed anymore with terraform 0.12
-  # Hack to workaround https://github.com/hashicorp/terraform/issues/17251
-  # Default Flatcar Container Linux config snippets map every node names to list("\n") so
-  # all lookups succeed
-  total_length = length(var.controller_names) + length(var.worker_names)
-  clc_defaults = zipmap(
-    concat(var.controller_names, var.worker_names),
-    chunklist([for i in range(local.total_length) : "\n"], 1),
-  )
-
-  # Union of the default and user specific snippets, later overrides prior.
-  clc_map = merge(local.clc_defaults, var.clc_snippets)
-}
