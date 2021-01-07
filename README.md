@@ -49,7 +49,7 @@ Follow one of the quickstart guides for the supported platforms:
 * [Backup Rook Ceph volume on S3 using Velero](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/backup-rook-ceph-volumes)
 * [Kubernetes storage with Rook Ceph on Packet cloud](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/rook-ceph-storage)
 * [Set up monitoring on Lokomotive](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/monitoring-with-prometheus-operator)
-* [Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/ingress-with-contour-metallb))
+* [Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/ingress-with-contour-metallb)
 * [Setting up cluster authentication on Lokomotive with GitHub, Dex and Gangway](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/authentication-with-dex-gangway)
 * [Setting up third party OAuth for Grafana](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/setup-thirdparty-auth-for-grafana)
 * [Upgrading bootstrap kubelet](https://kinvolk.io/docs/lokomotive/latest/how-to-guides/upgrade-bootstrap-kubelet)
