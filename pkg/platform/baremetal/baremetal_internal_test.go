@@ -49,6 +49,21 @@ func TestConfigurationIsInvalidWhen(t *testing.T) {
 		"conntrack_max_per_core_is_negative": func(c *config) {
 			c.ConntrackMaxPerCore = -1
 		},
+		"clc_snippets_key_is_empty": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"": {"clc_snippet_1", "clc_snippet_2"},
+			}
+		},
+		"clc_snippets_value_is_empty": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"node1": {""},
+			}
+		},
+		"at_least_one_clc_snippets_value_is_empty": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"node1": {"clc_snippet_1", "", "clc_snippet_3"},
+			}
+		},
 	}
 
 	for n, c := range cases {
@@ -71,6 +86,11 @@ func TestConfigurationIsValidWhen(t *testing.T) {
 		"all_required_fields_are_set": func(c *config) {},
 		"conntrack_max_per_core_is_a_positive_value": func(c *config) {
 			c.ConntrackMaxPerCore = 10
+		},
+		"clc_snippets_has_both_key_and_value_populated": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"node1": {"clc_snippet_1", "clc_snippet_2"},
+			}
 		},
 	}
 

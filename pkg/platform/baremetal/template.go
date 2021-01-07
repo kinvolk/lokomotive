@@ -70,6 +70,21 @@ module "bare-metal-{{.ClusterName}}" {
 
   ignore_x509_cn_check   = {{.IgnoreX509CNCheck}}
   conntrack_max_per_core = {{.ConntrackMaxPerCore}}
+
+  {{- if .CLCSnippets}}
+  clc_snippets = {
+    {{- range $nodeName, $clcSnippetList := .CLCSnippets }}
+    "{{ $nodeName }}" = [
+    {{- range $clcSnippet := $clcSnippetList }}
+    <<EOF
+{{ $clcSnippet }}
+EOF
+    ,
+    {{- end }}
+    ]
+    {{- end }}
+  }
+  {{- end }}
 }
 
 terraform {
