@@ -55,6 +55,17 @@ cluster "bare-metal" {
 
   cached_install = "true"
 
+  clc_snippets = {
+  "<name_of_controller_or_worker>" = [
+    file("./clc-snippet-1.yaml"),
+  ]
+  "<name_of_controller_or_worker>" = [
+    file("./clc-snippet-2.yaml"),
+  ]
+  "<name_of_controller_or_worker>" = [
+    file("./clc-snippet-3.yaml"),
+  ]
+
   matchbox_ca_path = var.matchbox_ca_path
 
   matchbox_client_cert_path = var.matchbox_client_cert_path

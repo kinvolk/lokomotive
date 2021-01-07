@@ -31,37 +31,38 @@ import (
 )
 
 type config struct {
-	AssetDir                     string            `hcl:"asset_dir"`
-	CachedInstall                string            `hcl:"cached_install,optional"`
-	ClusterName                  string            `hcl:"cluster_name"`
-	ControllerDomains            []string          `hcl:"controller_domains"`
-	ControllerMacs               []string          `hcl:"controller_macs"`
-	ControllerNames              []string          `hcl:"controller_names"`
-	DisableSelfHostedKubelet     bool              `hcl:"disable_self_hosted_kubelet,optional"`
-	K8sDomainName                string            `hcl:"k8s_domain_name"`
-	MatchboxCAPath               string            `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath       string            `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath        string            `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint             string            `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint         string            `hcl:"matchbox_http_endpoint"`
-	NetworkMTU                   int               `hcl:"network_mtu,optional"`
-	OSChannel                    string            `hcl:"os_channel,optional"`
-	OSVersion                    string            `hcl:"os_version,optional"`
-	SSHPubKeys                   []string          `hcl:"ssh_pubkeys"`
-	WorkerNames                  []string          `hcl:"worker_names"`
-	WorkerMacs                   []string          `hcl:"worker_macs"`
-	WorkerDomains                []string          `hcl:"worker_domains"`
-	Labels                       map[string]string `hcl:"labels,optional"`
-	OIDC                         *oidc.Config      `hcl:"oidc,block"`
-	EnableTLSBootstrap           bool              `hcl:"enable_tls_bootstrap,optional"`
-	EncryptPodTraffic            bool              `hcl:"encrypt_pod_traffic,optional"`
-	IgnoreX509CNCheck            bool              `hcl:"ignore_x509_cn_check,optional"`
-	ConntrackMaxPerCore          int               `hcl:"conntrack_max_per_core,optional"`
-	InstallToSmallestDisk        bool              `hcl:"install_to_smallest_disk,optional"`
-	InstallDisk                  string            `hcl:"install_disk,optional"`
-	KernelArgs                   []string          `hcl:"kernel_args,optional"`
-	DownloadProtocol             string            `hcl:"download_protocol,optional"`
-	NetworkIPAutodetectionMethod string            `hcl:"network_ip_autodetection_method,optional"`
+	AssetDir                     string              `hcl:"asset_dir"`
+	CachedInstall                string              `hcl:"cached_install,optional"`
+	ClusterName                  string              `hcl:"cluster_name"`
+	ControllerDomains            []string            `hcl:"controller_domains"`
+	ControllerMacs               []string            `hcl:"controller_macs"`
+	ControllerNames              []string            `hcl:"controller_names"`
+	DisableSelfHostedKubelet     bool                `hcl:"disable_self_hosted_kubelet,optional"`
+	K8sDomainName                string              `hcl:"k8s_domain_name"`
+	MatchboxCAPath               string              `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath       string              `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath        string              `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint             string              `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint         string              `hcl:"matchbox_http_endpoint"`
+	NetworkMTU                   int                 `hcl:"network_mtu,optional"`
+	OSChannel                    string              `hcl:"os_channel,optional"`
+	OSVersion                    string              `hcl:"os_version,optional"`
+	SSHPubKeys                   []string            `hcl:"ssh_pubkeys"`
+	WorkerNames                  []string            `hcl:"worker_names"`
+	WorkerMacs                   []string            `hcl:"worker_macs"`
+	WorkerDomains                []string            `hcl:"worker_domains"`
+	Labels                       map[string]string   `hcl:"labels,optional"`
+	OIDC                         *oidc.Config        `hcl:"oidc,block"`
+	EnableTLSBootstrap           bool                `hcl:"enable_tls_bootstrap,optional"`
+	EncryptPodTraffic            bool                `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck            bool                `hcl:"ignore_x509_cn_check,optional"`
+	ConntrackMaxPerCore          int                 `hcl:"conntrack_max_per_core,optional"`
+	InstallToSmallestDisk        bool                `hcl:"install_to_smallest_disk,optional"`
+	InstallDisk                  string              `hcl:"install_disk,optional"`
+	KernelArgs                   []string            `hcl:"kernel_args,optional"`
+	DownloadProtocol             string              `hcl:"download_protocol,optional"`
+	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
+	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
 	KubeAPIServerExtraFlags      []string
 }
 
@@ -231,6 +232,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		KernelArgs                   []string
 		DownloadProtocol             string
 		NetworkIPAutodetectionMethod string
+		CLCSnippets                  map[string][]string
 	}{
 		CachedInstall:                cfg.CachedInstall,
 		ClusterName:                  cfg.ClusterName,
@@ -262,6 +264,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		KernelArgs:                   cfg.KernelArgs,
 		DownloadProtocol:             cfg.DownloadProtocol,
 		NetworkIPAutodetectionMethod: cfg.NetworkIPAutodetectionMethod,
+		CLCSnippets:                  cfg.CLCSnippets,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
@@ -302,6 +305,26 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	if c.OIDC != nil {
 		_, diags := c.OIDC.ToKubeAPIServerFlags(c.K8sDomainName)
 		diagnostics = append(diagnostics, diags...)
+	}
+
+	for key, list := range c.CLCSnippets {
+		if key == "" || len(list) == 0 {
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "key/value for clc_snippets map can't be empty",
+				Detail:   fmt.Sprintf("either key or value for clc_snippets is empty: %q : %v", key, list),
+			})
+		}
+
+		for _, data := range list {
+			if data == "" {
+				diagnostics = append(diagnostics, &hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Values list for clc_snippets cannot contain an empty element",
+					Detail:   fmt.Sprintf("found empty element in the key value pair: %q : %v", key, list),
+				})
+			}
+		}
 	}
 
 	return diagnostics

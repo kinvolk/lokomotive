@@ -88,6 +88,21 @@ module "bare-metal-{{.ClusterName}}" {
   download_protocol = "{{ .DownloadProtocol }}"
 
   network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"
+
+  {{- if .CLCSnippets}}
+  clc_snippets = {
+    {{- range $nodeName, $clcSnippetList := .CLCSnippets }}
+    "{{ $nodeName }}" = [
+    {{- range $clcSnippet := $clcSnippetList }}
+      <<EOF
+{{ $clcSnippet }}
+EOF
+      ,
+    {{- end }}
+    ]
+    {{- end }}
+  }
+  {{- end }}
 }
 
 terraform {
