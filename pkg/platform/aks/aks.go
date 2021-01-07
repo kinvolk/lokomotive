@@ -45,7 +45,7 @@ type workerPool struct {
 	Count  int               `hcl:"count,optional"`
 	VMSize string            `hcl:"vm_size,optional"`
 	Labels map[string]string `hcl:"labels,optional"`
-	Taints []string          `hcl:"taints,optional"`
+	Taints map[string]string `hcl:"taints,optional"`
 }
 
 // config defines "cluster" block for AKS.

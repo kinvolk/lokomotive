@@ -62,7 +62,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.33.0"
+      version = "2.41.0"
     }
     local = {
       source  = "hashicorp/local"
@@ -155,8 +155,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
     {{- if (index .WorkerPools 0).Taints }}
     node_taints = [
-      {{- range (index .WorkerPools 0).Taints }}
-      "{{ . }}",
+      {{- range $k, $v := (index .WorkerPools 0).Taints }}
+      "{{ $k }}:{{ $v }}"
       {{- end }}
     ]
     {{- end }}
@@ -203,8 +203,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "worker-{{ $pool.Name }}" {
 
   {{- if $pool.Taints }}
   node_taints = [
-    {{- range $pool.Taints }}
-    "{{ . }}",
+    {{- range $k, $v := $pool.Taints }}
+    "{{ $k }}:{{ $v }}"
     {{- end }}
   ]
   {{- end }}
