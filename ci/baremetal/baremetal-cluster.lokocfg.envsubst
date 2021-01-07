@@ -42,6 +42,18 @@ cluster "bare-metal" {
   }
 
   conntrack_max_per_core = 65000
+
+  clc_snippets = {
+    "node1" = [
+      file("./clc-snippet.yaml"),
+    ]
+    "node2" = [
+      file("./clc-snippet.yaml"),
+    ]
+    "node3" = [
+      file("./clc-snippet.yaml"),
+    ]
+  }
 }
 
 component "inspektor-gadget" {}
