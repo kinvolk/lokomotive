@@ -4,6 +4,8 @@ variable "resource_group_name" {}
 variable "cert_manager_email" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
+variable "route53_dns_zone" {}
+variable "route53_dns_zone_id" {}
 
 variable "manage_resource_group" {
   default = true
@@ -79,6 +81,22 @@ component "prometheus-operator" {
       "k8s-app" = "kube-dns",
     }
   }
+
+  grafana {
+    ingress {
+      host                       = "grafana.${var.cluster_name}.${var.route53_dns_zone}"
+      class                      = "contour"
+      certmanager_cluster_issuer = "letsencrypt-production"
+    }
+  }
+
+  prometheus {
+    ingress {
+      host                       = "prometheus.${var.cluster_name}.${var.route53_dns_zone}"
+      class                      = "contour"
+      certmanager_cluster_issuer = "letsencrypt-production"
+    }
+  }
 }
 
 component "cert-manager" {
@@ -88,4 +106,20 @@ component "cert-manager" {
 
 component "contour" {
   enable_monitoring = true
+}
+
+component "external-dns" {
+  policy   = "sync"
+  owner_id = var.cluster_name
+  aws {
+    zone_id = var.route53_dns_zone_id
+  }
+
+  service_monitor = true
+}
+
+component "web-ui" {
+  ingress {
+    host = "web-ui.${var.cluster_name}.${var.route53_dns_zone}"
+  }
 }
