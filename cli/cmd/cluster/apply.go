@@ -74,7 +74,7 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 
 	charts := platform.CommonControlPlaneCharts(options.UpgradeKubelets)
 
-	if !exists {
+	if !exists && !c.platform.Meta().Managed {
 		if err := c.unpackControlplaneCharts(); err != nil {
 			return fmt.Errorf("unpacking controlplane assets: %w", err)
 		}
@@ -93,7 +93,7 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		}
 	}
 
-	if exists && !options.SkipPreUpdateHealthCheck {
+	if exists && !options.SkipPreUpdateHealthCheck && !c.platform.Meta().Managed {
 		var err error
 
 		cu.kubeconfig, err = kg.getKubeconfig(contextLogger, c.lokomotiveConfig)
