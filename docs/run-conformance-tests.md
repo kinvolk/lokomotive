@@ -16,6 +16,50 @@ flag in the [AWS reference docs](configuration-reference/platforms/aws.md).
 
 To install the AWS cluster, follow the [AWS quick start guide](quickstarts/aws.md).
 
+### Step 1.2: Packet
+
+#### Step 1.2.1: Cluster Requirements
+
+Create a cluster with at least two worker nodes. Follow the [Packet quick start
+guide](quickstarts/packet.md) to install a cluster.
+
+#### Step 1.2.2: Expose kube-proxy
+
+Edit the kube-proxy Daemonset config to expose the metrics port on all interfaces. Run the following
+command to edit the configuration:
+
+```bash
+kubectl -n kube-system edit ds kube-proxy
+```
+
+Change the following flag from `- --metrics-bind-address=$(HOST_IP)` to
+`- --metrics-bind-address=0.0.0.0`.
+
+#### Step 1.2.3: Expose the node ports on the worker nodes
+
+Apply the following Calico configuration to expose the ports in the default node port range `30000`
+to `32767`:
+
+```yaml
+echo "
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-nodeport
+spec:
+  applyOnForward: true
+  ingress:
+  - action: Allow
+    destination:
+      ports:
+      - 30000:32767
+    protocol: TCP
+  order: 20
+  preDNAT: true
+  selector: nodetype == 'worker'
+" | kubectl apply -f -
+```
+
 ## Step 2: Disable the mutating webhook server
 
 Run the following commands to disable the mutating webhook server that disallows the usage `default`
