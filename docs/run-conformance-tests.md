@@ -3,16 +3,30 @@ title: Conformance tests
 weight: 50
 ---
 
-This document enumerates the steps required to run conformance tests for various platforms supported by Lokomotive.
+This document enumerates the steps required to run conformance tests for various platforms supported
+by Lokomotive.
 
-**Note**: There is only one caveat to consider when running tests for AWS. For other platforms you can run conformance tests without making special arrangements.
+## Step 1: Platform specific preparations
 
-## AWS
+### Step 1.1: AWS
 
-For AWS you need to make sure that node ports are allowed in the security group. To do so make sure you set the `expose_nodeports` cluster property to `true` in the AWS config. Read more about this flag in the [AWS reference docs](configuration-reference/platforms/aws.md).
+For AWS you need to make sure that node ports are allowed in the security group. To do so, make sure
+you set the `expose_nodeports` cluster property to `true` in the AWS config. Read more about this
+flag in the [AWS reference docs](configuration-reference/platforms/aws.md).
 
-To install the cluster on AWS follow the [AWS quick start guide](quickstarts/aws.md).
+To install the AWS cluster, follow the [AWS quick start guide](quickstarts/aws.md).
 
-## Running conformance tests
+## Step 2: Disable the mutating webhook server
 
-Follow the canonical document [here](https://github.com/cncf/k8s-conformance/blob/master/instructions.md) which instructs on installing sonobuoy and running tests.
+Run the following commands to disable the mutating webhook server that disallows the usage `default`
+service account tokens:
+
+```bash
+kubectl delete MutatingWebhookConfiguration admission-webhook-server
+```
+
+## Step 3: Running conformance tests
+
+Follow the canonical document
+[here](https://github.com/cncf/k8s-conformance/blob/master/instructions.md) which instructs on
+installing sonobuoy and running tests.
