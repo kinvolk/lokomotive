@@ -32,7 +32,11 @@ storage:
           #!/bin/bash -ex
           curl --retry 10 "${ignition_endpoint}?{{.request.raw_query}}&os=installed" -o ignition.json
           flatcar-install \
+            %{~ if install_to_smallest_disk ~}
+            -s \
+            %{~ else ~}
             -d ${install_disk} \
+            %{~ endif ~}
             -C ${os_channel} \
             -V ${os_version} \
             -o "${container_linux_oem}" \

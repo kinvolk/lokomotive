@@ -46,6 +46,10 @@ func validConfig() *config {
 
 func TestConfigurationIsInvalidWhen(t *testing.T) {
 	cases := map[string]func(c *config){
+		"both_install_disk_and_install_to_smallest_disk_are_set": func(c *config) {
+			c.InstallDisk = "/dev/sda"
+			c.InstallToSmallestDisk = true
+		},
 		"conntrack_max_per_core_is_negative": func(c *config) {
 			c.ConntrackMaxPerCore = -1
 		},
@@ -69,6 +73,16 @@ func TestConfigurationIsInvalidWhen(t *testing.T) {
 func TestConfigurationIsValidWhen(t *testing.T) {
 	cases := map[string]func(c *config){
 		"all_required_fields_are_set": func(c *config) {},
+		"none_of_install_disk_and_install_to_smallest_disk_are_set": func(c *config) {
+			c.InstallDisk = ""
+			c.InstallToSmallestDisk = false
+		},
+		"install_to_smallest_disk_is_set": func(c *config) {
+			c.InstallToSmallestDisk = false
+		},
+		"install_disk_is_set": func(c *config) {
+			c.InstallDisk = "/dev/sda"
+		},
 		"conntrack_max_per_core_is_a_positive_value": func(c *config) {
 			c.ConntrackMaxPerCore = 10
 		},

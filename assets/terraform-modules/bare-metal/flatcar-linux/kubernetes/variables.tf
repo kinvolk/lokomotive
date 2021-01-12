@@ -202,3 +202,9 @@ variable "conntrack_max_per_core" {
   description = "--conntrack-max-per-core value for kube-proxy. Maximum number of NAT connections to track per CPU core (0 to leave the limit as-is and ignore the conntrack-min kube-proxy flag)."
   type        = number
 }
+
+variable "install_to_smallest_disk" {
+  description = "Install Flatcar Container Linux to the smallest disk."
+  type        = bool
+  default     = false
+}

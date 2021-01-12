@@ -57,6 +57,8 @@ type config struct {
 	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
 	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
 	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
+	InstallToSmallestDisk    bool              `hcl:"install_to_smallest_disk,optional"`
+	InstallDisk              string            `hcl:"install_disk,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -219,6 +221,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		EncryptPodTraffic        bool
 		IgnoreX509CNCheck        bool
 		ConntrackMaxPerCore      int
+		InstallDisk              string
+		InstallToSmallestDisk    bool
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -245,6 +249,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		EncryptPodTraffic:        cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:        cfg.IgnoreX509CNCheck,
 		ConntrackMaxPerCore:      cfg.ConntrackMaxPerCore,
+		InstallDisk:              cfg.InstallDisk,
+		InstallToSmallestDisk:    cfg.InstallToSmallestDisk,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
@@ -257,6 +263,14 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 // checkValidConfig validates cluster configuration.
 func (c *config) checkValidConfig() hcl.Diagnostics {
 	var diagnostics hcl.Diagnostics
+
+	if c.InstallToSmallestDisk && c.InstallDisk != "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "`install_disk` and `install_to_smallest_disk` are mutually exclusive",
+			Detail:   "Provide either `install_disk` or `install_to_smallest_disk` or none, but not both",
+		})
+	}
 
 	if c.ConntrackMaxPerCore < 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
