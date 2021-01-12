@@ -225,6 +225,11 @@ resource "libvirt_domain" "provisioner" {
   }
 
   provisioner "file" {
+    source      = "${local.assets_dir}/current_versions.sh"
+    destination = "/root/tink/current_versions.sh"
+  }
+
+  provisioner "file" {
     source      = "${local.assets_dir}/deploy"
     destination = "/root/tink"
   }
@@ -237,14 +242,19 @@ resource "libvirt_domain" "provisioner" {
       "test -f /opt/bin/docker-compose || wget https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64 -O /opt/bin/docker-compose",
       "chmod +x /opt/bin/docker-compose",
       "chmod +x /root/tink/*.sh /root/tink/deploy/tls/*.sh",
-      "/root/tink/generate-envrc.sh eth0 > /root/tink/.env",
+      "bash -c 'cd /root/tink && /root/tink/generate-envrc.sh eth0 > /root/tink/.env'",
       "sed -i 's/192.168.1.1/${local.provisioner_ips[0]}/g' /root/tink/.env",
       "sed -i 's/192.168.1.2/${local.provisioner_ips[1]}/g' /root/tink/.env",
       "echo 'export PATH=\"/opt/bin:$PATH\"' >> /root/tink/.env",
       "bash -c 'until test -f /opt/bin/docker-compose; do echo \"Waiting for docker-compose binary\"; sleep 1; done'",
       "bash -c 'cd /root/tink && source .env && ./setup.sh'",
       "bash -c 'cd /root/tink/deploy && source ../.env && docker-compose up -d'",
+      # Workaround for https://github.com/tinkerbell/tink/issues/413.
+      "bash -c 'cd /root/tink/deploy && source ../.env && PGPASSWORD=tinkerbell docker-compose exec db psql -U tinkerbell -c \"drop trigger events_channel ON events;\"'",
       "cd /root/tink/deploy/flatcar-install && docker build -t ${local.provisioner_ips[0]}/flatcar-install .",
+      # Workaround for https://github.com/tinkerbell/osie/issues/183.
+      "mv /root/tink/deploy/workflow.patch /root/tink/deploy/state/webroot/workflow/",
+      "cd /root/tink/deploy/state/webroot/workflow/ && git apply -p1 workflow.patch",
       "docker push ${local.provisioner_ips[0]}/flatcar-install",
     ]
   }
