@@ -73,13 +73,23 @@ journalctl --no-pager -u iscsid
 
 ### Step 3: Fix the bootstrap kubelet
 
-Remove all the occurrences of `iscsiadm` from kubelet service file:
+#### Step 3.1 Remove all the occurrences of `iscsiadm` from kubelet service file
 
 ```bash
 sed -i '/iscsiadm/d' /etc/systemd/system/kubelet.service
 ```
 
-Restart kubelet process:
+#### Step 3.2 Update kubelet version
+
+- Update the kubelet image URL by following [this section](update-bootstrap-kubelet.md#step-31-update-kubelet-image-url).
+- Run the following commands to update the kubelet version:
+
+  ```bash
+  export latest_kubelet_version=v1.19.4
+  sed -i "s|.*KUBELET_IMAGE_TAG.*|KUBELET_IMAGE_TAG=${latest_kubelet_version}|g" /etc/kubernetes/kubelet.env
+  ```
+
+#### Step 3.3 Restart kubelet service
 
 ```bash
 systemctl daemon-reload
