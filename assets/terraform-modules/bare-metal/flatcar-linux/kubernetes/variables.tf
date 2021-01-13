@@ -56,7 +56,7 @@ variable "worker_domains" {
 }
 
 variable "clc_snippets" {
-  type        = map(string)
+  type        = map(list(string))
   description = "Map from machine names to lists of Container Linux Config snippets"
   default     = {}
 }
