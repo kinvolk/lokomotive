@@ -72,17 +72,6 @@ systemd:
         ExecStart=/bin/sh -c 'echo "ETCD_LISTEN_CLIENT_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2379" > /etc/kubernetes/etcd.config && echo "ETCD_LISTEN_PEER_URLS=https://$COREOS_PACKET_IPV4_PRIVATE_0:2380" >> /etc/kubernetes/etcd.config && echo "ETCD_LISTEN_METRICS_URLS=http://$COREOS_PACKET_IPV4_PRIVATE_0:2381" >> /etc/kubernetes/etcd.config'
         [Install]
         RequiredBy=etcd-member.service
-    - name: coreos-metadata.service
-      enable: true
-      contents: |
-        [Unit]
-        Description=Flatcar Metadata Agent
-        [Service]
-        Type=oneshot
-        Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
-        ExecStart=/usr/bin/coreos-metadata $${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/flatcar
-        [Install]
-        RequiredBy=metadata.target
     - name: kubelet.service
       enable: true
       contents: |
