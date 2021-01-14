@@ -84,6 +84,8 @@ module "bare-metal-{{.ClusterName}}" {
   {{- end }}
   ]
   {{- end }}
+
+  download_protocol = "{{ .DownloadProtocol }}"
 }
 
 terraform {

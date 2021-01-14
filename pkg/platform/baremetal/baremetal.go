@@ -60,6 +60,7 @@ type config struct {
 	InstallToSmallestDisk    bool              `hcl:"install_to_smallest_disk,optional"`
 	InstallDisk              string            `hcl:"install_disk,optional"`
 	KernelArgs               []string          `hcl:"kernel_args,optional"`
+	DownloadProtocol         string            `hcl:"download_protocol,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -97,6 +98,7 @@ func NewConfig() *config {
 		EnableTLSBootstrap:  true,
 		NetworkMTU:          platform.NetworkMTU,
 		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
+		DownloadProtocol:    "https",
 	}
 }
 
@@ -225,6 +227,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		InstallDisk              string
 		InstallToSmallestDisk    bool
 		KernelArgs               []string
+		DownloadProtocol         string
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -254,6 +257,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		InstallDisk:              cfg.InstallDisk,
 		InstallToSmallestDisk:    cfg.InstallToSmallestDisk,
 		KernelArgs:               cfg.KernelArgs,
+		DownloadProtocol:         cfg.DownloadProtocol,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
@@ -272,6 +276,14 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 			Severity: hcl.DiagError,
 			Summary:  "`install_disk` and `install_to_smallest_disk` are mutually exclusive",
 			Detail:   "Provide either `install_disk` or `install_to_smallest_disk` or none, but not both",
+		})
+	}
+
+	if c.DownloadProtocol != "http" && c.DownloadProtocol != "https" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Invalid value for `download_protocol`",
+			Detail:   fmt.Sprintf("expected 'http' or 'https', got: %q", c.DownloadProtocol),
 		})
 	}
 

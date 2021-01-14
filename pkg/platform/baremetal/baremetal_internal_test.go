@@ -41,7 +41,7 @@ func TestCreateTerraformConfigFile(t *testing.T) {
 }
 
 func validConfig() *config {
-	return &config{}
+	return NewConfig()
 }
 
 func TestConfigurationIsInvalidWhen(t *testing.T) {
@@ -49,6 +49,9 @@ func TestConfigurationIsInvalidWhen(t *testing.T) {
 		"both_install_disk_and_install_to_smallest_disk_are_set": func(c *config) {
 			c.InstallDisk = "/dev/sda"
 			c.InstallToSmallestDisk = true
+		},
+		"invalid_download_protocol": func(c *config) {
+			c.DownloadProtocol = "htp"
 		},
 		"conntrack_max_per_core_is_negative": func(c *config) {
 			c.ConntrackMaxPerCore = -1
@@ -85,6 +88,12 @@ func TestConfigurationIsValidWhen(t *testing.T) {
 		},
 		"conntrack_max_per_core_is_a_positive_value": func(c *config) {
 			c.ConntrackMaxPerCore = 10
+		},
+		"download_protocol_used_is_http": func(c *config) {
+			c.DownloadProtocol = "http"
+		},
+		"download_protocol_used_is_https": func(c *config) {
+			c.DownloadProtocol = "https"
 		},
 	}
 
