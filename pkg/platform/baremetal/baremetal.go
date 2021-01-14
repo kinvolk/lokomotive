@@ -59,6 +59,7 @@ type config struct {
 	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
 	InstallToSmallestDisk    bool              `hcl:"install_to_smallest_disk,optional"`
 	InstallDisk              string            `hcl:"install_disk,optional"`
+	KernelArgs               []string          `hcl:"kernel_args,optional"`
 	KubeAPIServerExtraFlags  []string
 }
 
@@ -223,6 +224,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		ConntrackMaxPerCore      int
 		InstallDisk              string
 		InstallToSmallestDisk    bool
+		KernelArgs               []string
 	}{
 		CachedInstall:            cfg.CachedInstall,
 		ClusterName:              cfg.ClusterName,
@@ -251,6 +253,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		ConntrackMaxPerCore:      cfg.ConntrackMaxPerCore,
 		InstallDisk:              cfg.InstallDisk,
 		InstallToSmallestDisk:    cfg.InstallToSmallestDisk,
+		KernelArgs:               cfg.KernelArgs,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {

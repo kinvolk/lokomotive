@@ -76,6 +76,14 @@ module "bare-metal-{{.ClusterName}}" {
   {{- end }}
 
   install_to_smallest_disk = {{ .InstallToSmallestDisk }}
+
+  {{- if .KernelArgs }}
+  kernel_args = [
+  {{- range $arg := .KernelArgs }}
+    "{{ $arg }}",
+  {{- end }}
+  ]
+  {{- end }}
 }
 
 terraform {
