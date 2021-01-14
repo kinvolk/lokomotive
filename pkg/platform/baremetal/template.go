@@ -86,6 +86,8 @@ module "bare-metal-{{.ClusterName}}" {
   {{- end }}
 
   download_protocol = "{{ .DownloadProtocol }}"
+
+  network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"
 }
 
 terraform {

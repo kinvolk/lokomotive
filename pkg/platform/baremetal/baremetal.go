@@ -31,37 +31,38 @@ import (
 )
 
 type config struct {
-	AssetDir                 string            `hcl:"asset_dir"`
-	CachedInstall            string            `hcl:"cached_install,optional"`
-	ClusterName              string            `hcl:"cluster_name"`
-	ControllerDomains        []string          `hcl:"controller_domains"`
-	ControllerMacs           []string          `hcl:"controller_macs"`
-	ControllerNames          []string          `hcl:"controller_names"`
-	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
-	K8sDomainName            string            `hcl:"k8s_domain_name"`
-	MatchboxCAPath           string            `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath   string            `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath    string            `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint         string            `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint     string            `hcl:"matchbox_http_endpoint"`
-	NetworkMTU               int               `hcl:"network_mtu,optional"`
-	OSChannel                string            `hcl:"os_channel,optional"`
-	OSVersion                string            `hcl:"os_version,optional"`
-	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
-	WorkerNames              []string          `hcl:"worker_names"`
-	WorkerMacs               []string          `hcl:"worker_macs"`
-	WorkerDomains            []string          `hcl:"worker_domains"`
-	Labels                   map[string]string `hcl:"labels,optional"`
-	OIDC                     *oidc.Config      `hcl:"oidc,block"`
-	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
-	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
-	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
-	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
-	InstallToSmallestDisk    bool              `hcl:"install_to_smallest_disk,optional"`
-	InstallDisk              string            `hcl:"install_disk,optional"`
-	KernelArgs               []string          `hcl:"kernel_args,optional"`
-	DownloadProtocol         string            `hcl:"download_protocol,optional"`
-	KubeAPIServerExtraFlags  []string
+	AssetDir                     string            `hcl:"asset_dir"`
+	CachedInstall                string            `hcl:"cached_install,optional"`
+	ClusterName                  string            `hcl:"cluster_name"`
+	ControllerDomains            []string          `hcl:"controller_domains"`
+	ControllerMacs               []string          `hcl:"controller_macs"`
+	ControllerNames              []string          `hcl:"controller_names"`
+	DisableSelfHostedKubelet     bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	K8sDomainName                string            `hcl:"k8s_domain_name"`
+	MatchboxCAPath               string            `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath       string            `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath        string            `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint             string            `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint         string            `hcl:"matchbox_http_endpoint"`
+	NetworkMTU                   int               `hcl:"network_mtu,optional"`
+	OSChannel                    string            `hcl:"os_channel,optional"`
+	OSVersion                    string            `hcl:"os_version,optional"`
+	SSHPubKeys                   []string          `hcl:"ssh_pubkeys"`
+	WorkerNames                  []string          `hcl:"worker_names"`
+	WorkerMacs                   []string          `hcl:"worker_macs"`
+	WorkerDomains                []string          `hcl:"worker_domains"`
+	Labels                       map[string]string `hcl:"labels,optional"`
+	OIDC                         *oidc.Config      `hcl:"oidc,block"`
+	EnableTLSBootstrap           bool              `hcl:"enable_tls_bootstrap,optional"`
+	EncryptPodTraffic            bool              `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck            bool              `hcl:"ignore_x509_cn_check,optional"`
+	ConntrackMaxPerCore          int               `hcl:"conntrack_max_per_core,optional"`
+	InstallToSmallestDisk        bool              `hcl:"install_to_smallest_disk,optional"`
+	InstallDisk                  string            `hcl:"install_disk,optional"`
+	KernelArgs                   []string          `hcl:"kernel_args,optional"`
+	DownloadProtocol             string            `hcl:"download_protocol,optional"`
+	NetworkIPAutodetectionMethod string            `hcl:"network_ip_autodetection_method,optional"`
+	KubeAPIServerExtraFlags      []string
 }
 
 const (
@@ -92,13 +93,14 @@ func (c *config) Meta() platform.Meta {
 
 func NewConfig() *config {
 	return &config{
-		CachedInstall:       "false",
-		OSChannel:           "stable",
-		OSVersion:           "current",
-		EnableTLSBootstrap:  true,
-		NetworkMTU:          platform.NetworkMTU,
-		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
-		DownloadProtocol:    "https",
+		CachedInstall:                "false",
+		OSChannel:                    "stable",
+		OSVersion:                    "current",
+		EnableTLSBootstrap:           true,
+		NetworkMTU:                   platform.NetworkMTU,
+		ConntrackMaxPerCore:          platform.ConntrackMaxPerCore,
+		DownloadProtocol:             "https",
+		NetworkIPAutodetectionMethod: "first-found",
 	}
 }
 
@@ -199,65 +201,67 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 
 	terraformCfg := struct {
-		CachedInstall            string
-		ClusterName              string
-		ControllerDomains        string
-		ControllerMacs           string
-		ControllerNames          string
-		K8sDomainName            string
-		MatchboxClientCert       string
-		MatchboxClientKey        string
-		MatchboxCA               string
-		MatchboxEndpoint         string
-		MatchboxHTTPEndpoint     string
-		NetworkMTU               int
-		OSChannel                string
-		OSVersion                string
-		SSHPublicKeys            string
-		WorkerNames              string
-		WorkerMacs               string
-		WorkerDomains            string
-		DisableSelfHostedKubelet bool
-		KubeAPIServerExtraFlags  []string
-		Labels                   map[string]string
-		EnableTLSBootstrap       bool
-		EncryptPodTraffic        bool
-		IgnoreX509CNCheck        bool
-		ConntrackMaxPerCore      int
-		InstallDisk              string
-		InstallToSmallestDisk    bool
-		KernelArgs               []string
-		DownloadProtocol         string
+		CachedInstall                string
+		ClusterName                  string
+		ControllerDomains            string
+		ControllerMacs               string
+		ControllerNames              string
+		K8sDomainName                string
+		MatchboxClientCert           string
+		MatchboxClientKey            string
+		MatchboxCA                   string
+		MatchboxEndpoint             string
+		MatchboxHTTPEndpoint         string
+		NetworkMTU                   int
+		OSChannel                    string
+		OSVersion                    string
+		SSHPublicKeys                string
+		WorkerNames                  string
+		WorkerMacs                   string
+		WorkerDomains                string
+		DisableSelfHostedKubelet     bool
+		KubeAPIServerExtraFlags      []string
+		Labels                       map[string]string
+		EnableTLSBootstrap           bool
+		EncryptPodTraffic            bool
+		IgnoreX509CNCheck            bool
+		ConntrackMaxPerCore          int
+		InstallDisk                  string
+		InstallToSmallestDisk        bool
+		KernelArgs                   []string
+		DownloadProtocol             string
+		NetworkIPAutodetectionMethod string
 	}{
-		CachedInstall:            cfg.CachedInstall,
-		ClusterName:              cfg.ClusterName,
-		ControllerDomains:        string(controllerDomains),
-		ControllerMacs:           string(controllerMacs),
-		ControllerNames:          string(controllerNames),
-		K8sDomainName:            cfg.K8sDomainName,
-		MatchboxCA:               cfg.MatchboxCAPath,
-		MatchboxClientCert:       cfg.MatchboxClientCertPath,
-		MatchboxClientKey:        cfg.MatchboxClientKeyPath,
-		MatchboxEndpoint:         cfg.MatchboxEndpoint,
-		MatchboxHTTPEndpoint:     cfg.MatchboxHTTPEndpoint,
-		NetworkMTU:               cfg.NetworkMTU,
-		OSChannel:                cfg.OSChannel,
-		OSVersion:                cfg.OSVersion,
-		SSHPublicKeys:            string(keyListBytes),
-		WorkerNames:              string(workerNames),
-		WorkerMacs:               string(workerMacs),
-		WorkerDomains:            string(workerDomains),
-		DisableSelfHostedKubelet: cfg.DisableSelfHostedKubelet,
-		KubeAPIServerExtraFlags:  cfg.KubeAPIServerExtraFlags,
-		Labels:                   cfg.Labels,
-		EnableTLSBootstrap:       cfg.EnableTLSBootstrap,
-		EncryptPodTraffic:        cfg.EncryptPodTraffic,
-		IgnoreX509CNCheck:        cfg.IgnoreX509CNCheck,
-		ConntrackMaxPerCore:      cfg.ConntrackMaxPerCore,
-		InstallDisk:              cfg.InstallDisk,
-		InstallToSmallestDisk:    cfg.InstallToSmallestDisk,
-		KernelArgs:               cfg.KernelArgs,
-		DownloadProtocol:         cfg.DownloadProtocol,
+		CachedInstall:                cfg.CachedInstall,
+		ClusterName:                  cfg.ClusterName,
+		ControllerDomains:            string(controllerDomains),
+		ControllerMacs:               string(controllerMacs),
+		ControllerNames:              string(controllerNames),
+		K8sDomainName:                cfg.K8sDomainName,
+		MatchboxCA:                   cfg.MatchboxCAPath,
+		MatchboxClientCert:           cfg.MatchboxClientCertPath,
+		MatchboxClientKey:            cfg.MatchboxClientKeyPath,
+		MatchboxEndpoint:             cfg.MatchboxEndpoint,
+		MatchboxHTTPEndpoint:         cfg.MatchboxHTTPEndpoint,
+		NetworkMTU:                   cfg.NetworkMTU,
+		OSChannel:                    cfg.OSChannel,
+		OSVersion:                    cfg.OSVersion,
+		SSHPublicKeys:                string(keyListBytes),
+		WorkerNames:                  string(workerNames),
+		WorkerMacs:                   string(workerMacs),
+		WorkerDomains:                string(workerDomains),
+		DisableSelfHostedKubelet:     cfg.DisableSelfHostedKubelet,
+		KubeAPIServerExtraFlags:      cfg.KubeAPIServerExtraFlags,
+		Labels:                       cfg.Labels,
+		EnableTLSBootstrap:           cfg.EnableTLSBootstrap,
+		EncryptPodTraffic:            cfg.EncryptPodTraffic,
+		IgnoreX509CNCheck:            cfg.IgnoreX509CNCheck,
+		ConntrackMaxPerCore:          cfg.ConntrackMaxPerCore,
+		InstallDisk:                  cfg.InstallDisk,
+		InstallToSmallestDisk:        cfg.InstallToSmallestDisk,
+		KernelArgs:                   cfg.KernelArgs,
+		DownloadProtocol:             cfg.DownloadProtocol,
+		NetworkIPAutodetectionMethod: cfg.NetworkIPAutodetectionMethod,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
