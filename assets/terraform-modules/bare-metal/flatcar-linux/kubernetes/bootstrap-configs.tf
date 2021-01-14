@@ -11,7 +11,7 @@ locals {
 }
 
 # Generate a cryptographically random token id (public).
-resource random_string "bootstrap_token_id_controller" {
+resource "random_string" "bootstrap_token_id_controller" {
   count = var.enable_tls_bootstrap == true ? 1 : 0
 
   length  = 6
@@ -20,7 +20,7 @@ resource random_string "bootstrap_token_id_controller" {
 }
 
 # Generate a cryptographically random token secret.
-resource random_string "bootstrap_token_secret_controller" {
+resource "random_string" "bootstrap_token_secret_controller" {
   count = var.enable_tls_bootstrap == true ? 1 : 0
 
   length  = 16
@@ -29,7 +29,7 @@ resource random_string "bootstrap_token_secret_controller" {
 }
 
 # Generate a cryptographically random token id (public).
-resource random_string "bootstrap_token_id_worker" {
+resource "random_string" "bootstrap_token_id_worker" {
   count = var.enable_tls_bootstrap == true ? 1 : 0
 
   length  = 6
@@ -38,7 +38,7 @@ resource random_string "bootstrap_token_id_worker" {
 }
 
 # Generate a cryptographically random token secret.
-resource random_string "bootstrap_token_secret_worker" {
+resource "random_string" "bootstrap_token_secret_worker" {
   count = var.enable_tls_bootstrap == true ? 1 : 0
 
   length  = 16

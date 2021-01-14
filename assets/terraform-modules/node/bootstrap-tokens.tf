@@ -1,12 +1,12 @@
 # Generate a cryptographically random token id (public).
-resource random_string "bootstrap_token_id" {
+resource "random_string" "bootstrap_token_id" {
   length  = 6
   upper   = false
   special = false
 }
 
 # Generate a cryptographically random token secret.
-resource random_string "bootstrap_token_secret" {
+resource "random_string" "bootstrap_token_secret" {
   length  = 16
   upper   = false
   special = false

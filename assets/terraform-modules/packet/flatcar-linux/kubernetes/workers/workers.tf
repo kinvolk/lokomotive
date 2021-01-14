@@ -59,7 +59,7 @@ data "ct_config" "ignitions" {
       cluster_domain_suffix = var.cluster_domain_suffix
       node_labels = merge({
         "node.kubernetes.io/node"                 = "",
-        "lokomotive.alpha.kinvolk.io/bgp-enabled" = format("%t", ! var.disable_bgp),
+        "lokomotive.alpha.kinvolk.io/bgp-enabled" = format("%t", !var.disable_bgp),
       }, var.labels)
       taints               = var.taints
       setup_raid           = var.setup_raid

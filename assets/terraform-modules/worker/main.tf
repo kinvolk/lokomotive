@@ -32,10 +32,10 @@ data "ct_config" "config" {
   pretty_print = false
 
   content = templatefile("${path.module}/templates/node.yaml.tmpl", {
-    ssh_keys               = jsonencode(var.ssh_keys)
-    cluster_dns_service_ip = var.cluster_dns_service_ip
-    cluster_domain_suffix  = var.cluster_domain_suffix
-    host_dns_ip            = var.host_dns_ip
+    ssh_keys                  = jsonencode(var.ssh_keys)
+    cluster_dns_service_ip    = var.cluster_dns_service_ip
+    cluster_domain_suffix     = var.cluster_domain_suffix
+    host_dns_ip               = var.host_dns_ip
     kubelet_docker_extra_args = []
     # Here we set default labels for worker nodes.
     kubelet_labels = length(var.kubelet_labels) > 0 ? var.kubelet_labels : {
