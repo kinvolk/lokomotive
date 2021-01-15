@@ -100,16 +100,16 @@ Open the following URL: [http://localhost:9093](http://localhost:9093).
 
 #### Using port forward
 
-Execute the following command to forward port `8080` locally to the Grafana dashboard pod on port `80`:
-
-```bash
-kubectl -n monitoring port-forward svc/prometheus-operator-grafana 8080:80
-```
-
 Obtain the password for the `admin` Grafana user by running the following command:
 
 ```bash
 kubectl -n monitoring get secret prometheus-operator-grafana -o jsonpath='{.data.admin-password}' | base64 -d && echo
+```
+
+Execute the following command to forward port `8080` locally to the Grafana dashboard pod on port `80`:
+
+```bash
+kubectl -n monitoring port-forward svc/prometheus-operator-grafana 8080:80
 ```
 
 Open the following URL: [http://localhost:8080](http://localhost:8080). Enter the username `admin` and password obtained from the previous step.
