@@ -191,3 +191,21 @@ for generating new keys for signing.
 
 Before signing a release with a new GPG key, it should be signed by other trusted
 keys and added to the [list of trusted keys in the repository](KEYS.md).
+
+## Updating the docs website
+
+Once the release is done. Create a pull request to the [docs repo](https://github.com/kinvolk/docs) modifying the [_index.md](https://github.com/kinvolk/docs/blob/master/docs/lokomotive/_index.md) file.
+
+Add a new entry at the top of the list with the new version pointing to its corresponding tag:
+
+```diff
+ external_docs:
++- repo: https://github.com/kinvolk/lokomotive.git
++  name: "0.7"
++  branch: "v0.7.0"
++  dir: "docs"
+ - repo: https://github.com/kinvolk/lokomotive.git
+   name: "0.6"
+   branch: "v0.6.0"
+   dir: "docs"
+```
