@@ -31,10 +31,15 @@ spec:
                 - fargate
       nodeSelector:
         kubernetes.io/os: linux
+        {{- with .Values.node.nodeSelector }}
+{{ toYaml . | indent 8 }}
+        {{- end }}
       hostNetwork: true
       priorityClassName: system-node-critical
       tolerations:
+        {{- if .Values.node.tolerateAllTaints }}
         - operator: Exists
+        {{- end }}
         {{- with .Values.node.tolerations }}
 {{ toYaml . | indent 8 }}
         {{- end }}
@@ -71,6 +76,9 @@ spec:
             timeoutSeconds: 3
             periodSeconds: 10
             failureThreshold: 5
+          {{- with .Values.resources }}
+          resources: {{ toYaml . | nindent 12 }}
+          {{- end }}
         - name: node-driver-registrar
           image: {{ printf "%s:%s" .Values.sidecars.nodeDriverRegistrarImage.repository .Values.sidecars.nodeDriverRegistrarImage.tag }}
           args:
@@ -91,6 +99,9 @@ spec:
               mountPath: /csi
             - name: registration-dir
               mountPath: /registration
+          {{- with .Values.resources }}
+          resources: {{ toYaml . | nindent 12 }}
+          {{- end }}
         - name: liveness-probe
           image: {{ printf "%s:%s" .Values.sidecars.livenessProbeImage.repository .Values.sidecars.livenessProbeImage.tag }}
           args:
@@ -98,6 +109,9 @@ spec:
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
+          {{- with .Values.resources }}
+          resources: {{ toYaml . | nindent 12 }}
+          {{- end }}
       volumes:
         - name: kubelet-dir
           hostPath:
