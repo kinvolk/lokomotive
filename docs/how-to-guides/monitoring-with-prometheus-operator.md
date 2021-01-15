@@ -61,7 +61,7 @@ kubectl -n monitoring get pods
 Execute the following command to forward port `9090` locally to the Prometheus pod:
 
 ```bash
-kubectl -n monitoring port-forward svc/prometheus-operator-prometheus 9090
+kubectl -n monitoring port-forward svc/prometheus-operator-kube-p-prometheus 9090
 ```
 
 Open the following URL: [http://localhost:9090](http://localhost:9090).
@@ -91,7 +91,7 @@ Open the following URL: `https://prometheus.<cluster name>.<DNS zone>`.
 Execute the following command to forward port `9093` locally to the Alertmanager pod:
 
 ```bash
-kubectl -n monitoring port-forward svc/prometheus-operator-alertmanager 9093
+kubectl -n monitoring port-forward svc/prometheus-operator-kube-p-alertmanager 9093
 ```
 
 Open the following URL: [http://localhost:9093](http://localhost:9093).
