@@ -30,6 +30,7 @@ resource "matchbox_profile" "flatcar-install" {
     container_linux_oem      = var.container_linux_oem
     ssh_keys                 = jsonencode(var.ssh_keys)
     install_to_smallest_disk = var.install_to_smallest_disk
+    kernel_args              = join(" ", var.kernel_args)
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
   })
@@ -68,6 +69,7 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     container_linux_oem      = var.container_linux_oem
     ssh_keys                 = jsonencode(var.ssh_keys)
     install_to_smallest_disk = var.install_to_smallest_disk
+    kernel_args              = join(" ", var.kernel_args)
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/flatcar"
   })
