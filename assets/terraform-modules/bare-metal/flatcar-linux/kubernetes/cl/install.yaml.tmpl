@@ -30,7 +30,6 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
-          curl --retry 10 "${ignition_endpoint}?{{.request.raw_query}}&os=installed" -o ignition.json
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
             -s \
@@ -40,9 +39,13 @@ storage:
             -C ${os_channel} \
             -V ${os_version} \
             -o "${container_linux_oem}" \
-            ${baseurl_flag} \
-            -i ignition.json
+            ${baseurl_flag}
           udevadm settle
+          OEM_DEV="$(blkid -t "LABEL=OEM" -o device)"
+          mkdir -p /tmp/oemfs
+          mount "$${OEM_DEV}" /tmp/oemfs
+          echo 'set linux_append="${kernel_args} ignition.config.url=${ignition_endpoint}?{{.request.raw_query}}&os=installed"' | tee -a /tmp/oemfs/grub.cfg
+          umount /tmp/oemfs
           systemctl reboot
 passwd:
   users:

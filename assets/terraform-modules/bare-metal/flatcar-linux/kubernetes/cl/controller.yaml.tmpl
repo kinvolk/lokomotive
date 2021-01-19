@@ -233,6 +233,13 @@ storage:
               "max-file": "3"
             }
           }
+  filesystems:
+    - name: root
+      mount:
+        device: /dev/disk/by-label/ROOT
+        format: ext4
+        wipe_filesystem: true
+        label: ROOT
 passwd:
   users:
     - name: core

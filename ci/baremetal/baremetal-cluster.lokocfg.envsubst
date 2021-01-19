@@ -31,6 +31,7 @@ cluster "bare-metal" {
     "node2",
     "node3",
   ]
+  pxe_commands = "true" # The VMs are booted up outside of the CI Docker image at the right time already
   # Adds oidc flags to API server with default values.
   # Acts as a smoke test to check if API server is functional after addition
   # of extra flags.
