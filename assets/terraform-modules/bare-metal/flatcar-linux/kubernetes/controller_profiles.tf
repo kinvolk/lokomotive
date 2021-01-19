@@ -3,6 +3,7 @@ module "controller_profile" {
   count                    = length(var.controller_names)
   node_name                = var.controller_names[count.index]
   node_mac                 = var.controller_macs[count.index]
+  node_domain              = var.controller_domains[count.index]
   download_protocol        = var.download_protocol
   os_channel               = var.os_channel
   os_version               = var.os_version
@@ -14,4 +15,5 @@ module "controller_profile" {
   ssh_keys                 = var.ssh_keys
   ignition_clc_config      = module.controller[count.index].clc_config
   cached_install           = var.cached_install
+  pxe_commands             = var.pxe_commands
 }

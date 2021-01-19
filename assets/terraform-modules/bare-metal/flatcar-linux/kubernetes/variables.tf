@@ -145,7 +145,7 @@ variable "container_linux_oem" {
 }
 
 variable "kernel_args" {
-  description = "Additional kernel arguments to provide at PXE boot."
+  description = "Additional kernel arguments to provide at PXE boot and in /usr/share/oem/grub.cfg."
   type        = list(string)
   default     = []
 }
@@ -208,4 +208,10 @@ variable "node_specific_labels" {
   type        = map(map(string))
   description = "Map of node specific labels map."
   default     = {}
+}
+
+variable "pxe_commands" {
+  type        = string
+  default     = "echo 'you must (re)provision the node by booting via iPXE from http://MATCHBOX/boot.ipxe'; exit 1"
+  description = "shell commands to execute for PXE (re)provisioning, with access to the variables $mac (the MAC address), $name (the node name), and $domain (the domain name), e.g., 'bmc=bmc-$domain; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on'"
 }

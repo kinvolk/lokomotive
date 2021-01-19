@@ -3,6 +3,7 @@ module "worker_profile" {
   count                    = length(var.worker_names)
   node_name                = var.worker_names[count.index]
   node_mac                 = var.worker_macs[count.index]
+  node_domain              = var.worker_domains[count.index]
   download_protocol        = var.download_protocol
   os_channel               = var.os_channel
   os_version               = var.os_version
@@ -14,4 +15,5 @@ module "worker_profile" {
   ssh_keys                 = var.ssh_keys
   ignition_clc_config      = module.worker[count.index].clc_config
   cached_install           = var.cached_install
+  pxe_commands             = var.pxe_commands
 }

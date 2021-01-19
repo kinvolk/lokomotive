@@ -70,3 +70,14 @@ variable "node_mac" {
   type        = string
   description = "MAC address identifying the node/machine (e.g. 52:54:00:a1:9c:ae)."
 }
+
+variable "node_domain" {
+  type        = string
+  description = "Node FQDN (e.g node1.example.com)."
+}
+
+variable "pxe_commands" {
+  type        = string
+  description = "shell commands to execute for PXE (re)provisioning, with access to the variables $mac (the MAC address), $name (the node name), and $domain (the domain name), e.g., 'bmc=bmc-$domain; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on'."
+  default     = "echo 'you must (re)provision the node by booting via iPXE from http://MATCHBOX/boot.ipxe'; exit 1"
+}
