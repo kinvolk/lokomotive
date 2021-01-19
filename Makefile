@@ -198,7 +198,7 @@ check-docs: check-working-tree-clean docs
 
 .PHONY: check-terraform
 check-terraform:
-	terraform fmt -check -recursive ./assets/
+	terraform fmt -check -recursive -diff ./assets/
 
 .PHONY: ci
 ci: build build-test test check-update-assets check-vendor check-docs check-terraform
