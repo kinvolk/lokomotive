@@ -1,0 +1,38 @@
+name=${name}
+domain=${domain}
+mac=${mac}
+count=30
+while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$domain sudo touch /boot/flatcar/first_boot; do
+  sleep 1
+  count=$((count - 1))
+done
+if [ $count -eq 0 ]; then
+  echo "error reaching $domain via SSH (this is expected on the first run)"
+  # the user may provide ipmitool commands or any other logic for forcing a PXE boot
+  ${pxe_commands}
+else
+  echo "created the first_boot flag file to reprovision $domain"
+  count=5
+  while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$domain sudo systemctl reboot; do
+    sleep 1
+    count=$((count - 1))
+  done
+  if [ $count -eq 0 ]; then
+    echo "error reaching $domain via SSH, please reboot manually"
+    exit 1
+  fi
+  echo "rebooted the $domain"
+fi
+
+echo "checking that $domain comes up"
+count=600
+# check that we can reach the node and that it cleaned up the first_boot flag file, indicating a reboot happened which prevents a race when the reboot takes longer
+while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$domain test ! -f /boot/flatcar/first_boot; do
+  sleep 1
+  count=$((count - 1))
+done
+if [ $count -eq 0 ]; then
+  echo "warning: failed verifying with SSH if $domain came up"
+else
+  echo "$domain came up again"
+fi

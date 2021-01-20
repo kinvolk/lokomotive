@@ -120,6 +120,8 @@ cluster "bare-metal" {
   kernel_args = var.kernel_args
 
   network_ip_auto_detection = "can-reach=172.18.169.0"
+
+  pxe_commands = "bmc=bmc-$node; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on"
 }
 ```
 
@@ -183,6 +185,7 @@ os_version = var.custom_default_os_version
 | `oidc.client_id`                  | A client id that all tokens must be issued for.                                                                                                                                                                                                                                                                                                                                           | "clusterauth"          | string       | false    |
 | `oidc.username_claim`             | JWT claim to use as the user name.                                                                                                                                                                                                                                                                                                                                                        | "email"                | string       | false    |
 | `oidc.groups_claim`               | JWT claim to use as the user’s group.                                                                                                                                                                                                                                                                                                                                                     | "groups"               | string       | false    |
+| `pxe_commands`                    | Shell commands to execute for PXE (re)provisioning, with access to the variables $mac (the MAC address), $name (the node name), and $domain (the domain name), e.g., 'bmc=bmc-$domain; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on'                                                                                                       | "echo 'you must (re)provision the node by booting via iPXE from http://MATCHBOX/boot.ipxe'; exit 1" | string       | false    |
 | `conntrack_max_per_core`          | Maximum number of entries in conntrack table per CPU on all nodes in the cluster. If you require more fain-grained control over this value, set it to 0 and add CLC snippet setting `net.netfilter.nf_conntrack_max` sysctl setting per node pool. See [Flatcar documentation about sysctl](https://docs.flatcar-linux.org/os/other-settings/#tuning-sysctl-parameters) for more details. | 32768                  | number       | false    |
 
 ## Applying

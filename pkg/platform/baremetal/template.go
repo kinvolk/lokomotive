@@ -85,6 +85,12 @@ module "bare-metal-{{.ClusterName}}" {
   ]
   {{- end }}
 
+  {{- if .PXECommands }}
+  pxe_commands = <<EOT
+{{ .PXECommands }}
+EOT
+  {{- end }}
+
   download_protocol = "{{ .DownloadProtocol }}"
 
   network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"
