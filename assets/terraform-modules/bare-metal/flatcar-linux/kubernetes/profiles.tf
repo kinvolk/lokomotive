@@ -23,12 +23,13 @@ resource "matchbox_profile" "flatcar-install" {
   ])
 
   container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
-    os_channel          = var.os_channel
-    os_version          = var.os_version
-    ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
-    install_disk        = var.install_disk
-    container_linux_oem = var.container_linux_oem
-    ssh_keys            = jsonencode(var.ssh_keys)
+    os_channel               = var.os_channel
+    os_version               = var.os_version
+    ignition_endpoint        = format("%s/ignition", var.matchbox_http_endpoint)
+    install_disk             = var.install_disk
+    container_linux_oem      = var.container_linux_oem
+    ssh_keys                 = jsonencode(var.ssh_keys)
+    install_to_smallest_disk = var.install_to_smallest_disk
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
   })
@@ -60,12 +61,13 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
   ])
 
   container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
-    os_channel          = var.os_channel
-    os_version          = var.os_version
-    ignition_endpoint   = format("%s/ignition", var.matchbox_http_endpoint)
-    install_disk        = var.install_disk
-    container_linux_oem = var.container_linux_oem
-    ssh_keys            = jsonencode(var.ssh_keys)
+    os_channel               = var.os_channel
+    os_version               = var.os_version
+    ignition_endpoint        = format("%s/ignition", var.matchbox_http_endpoint)
+    install_disk             = var.install_disk
+    container_linux_oem      = var.container_linux_oem
+    ssh_keys                 = jsonencode(var.ssh_keys)
+    install_to_smallest_disk = var.install_to_smallest_disk
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/flatcar"
   })
@@ -102,8 +104,7 @@ data "ct_config" "controller-ignitions" {
   })
   pretty_print = false
 
-  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  snippets = local.clc_map[var.controller_names[count.index]]
+  snippets = lookup(var.clc_snippets, var.controller_names[count.index], [])
 }
 
 // Kubernetes Worker profiles
@@ -129,21 +130,6 @@ data "ct_config" "worker-ignitions" {
   })
   pretty_print = false
 
-  # Must use direct lookup. Cannot use lookup(map, key) since it only works for flat maps
-  snippets = local.clc_map[var.worker_names[count.index]]
+  snippets = lookup(var.clc_snippets, var.worker_names[count.index], [])
 }
 
-locals {
-  # TODO: Probably it is not needed anymore with terraform 0.12
-  # Hack to workaround https://github.com/hashicorp/terraform/issues/17251
-  # Default Flatcar Container Linux config snippets map every node names to list("\n") so
-  # all lookups succeed
-  total_length = length(var.controller_names) + length(var.worker_names)
-  clc_defaults = zipmap(
-    concat(var.controller_names, var.worker_names),
-    chunklist([for i in range(local.total_length) : "\n"], 1),
-  )
-
-  # Union of the default and user specific snippets, later overrides prior.
-  clc_map = merge(local.clc_defaults, var.clc_snippets)
-}

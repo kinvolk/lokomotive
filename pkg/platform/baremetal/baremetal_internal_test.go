@@ -41,13 +41,35 @@ func TestCreateTerraformConfigFile(t *testing.T) {
 }
 
 func validConfig() *config {
-	return &config{}
+	return NewConfig()
 }
 
 func TestConfigurationIsInvalidWhen(t *testing.T) {
 	cases := map[string]func(c *config){
+		"both_install_disk_and_install_to_smallest_disk_are_set": func(c *config) {
+			c.InstallDisk = "/dev/sda"
+			c.InstallToSmallestDisk = true
+		},
+		"invalid_download_protocol": func(c *config) {
+			c.DownloadProtocol = "htp"
+		},
 		"conntrack_max_per_core_is_negative": func(c *config) {
 			c.ConntrackMaxPerCore = -1
+		},
+		"clc_snippets_key_is_empty": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"": {"clc_snippet_1", "clc_snippet_2"},
+			}
+		},
+		"clc_snippets_value_is_empty": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"node1": {""},
+			}
+		},
+		"at_least_one_clc_snippets_value_is_empty": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"node1": {"clc_snippet_1", "", "clc_snippet_3"},
+			}
 		},
 	}
 
@@ -69,8 +91,29 @@ func TestConfigurationIsInvalidWhen(t *testing.T) {
 func TestConfigurationIsValidWhen(t *testing.T) {
 	cases := map[string]func(c *config){
 		"all_required_fields_are_set": func(c *config) {},
+		"none_of_install_disk_and_install_to_smallest_disk_are_set": func(c *config) {
+			c.InstallDisk = ""
+			c.InstallToSmallestDisk = false
+		},
+		"install_to_smallest_disk_is_set": func(c *config) {
+			c.InstallToSmallestDisk = false
+		},
+		"install_disk_is_set": func(c *config) {
+			c.InstallDisk = "/dev/sda"
+		},
 		"conntrack_max_per_core_is_a_positive_value": func(c *config) {
 			c.ConntrackMaxPerCore = 10
+		},
+		"download_protocol_used_is_http": func(c *config) {
+			c.DownloadProtocol = "http"
+		},
+		"download_protocol_used_is_https": func(c *config) {
+			c.DownloadProtocol = "https"
+		},
+		"clc_snippets_has_both_key_and_value_populated": func(c *config) {
+			c.CLCSnippets = map[string][]string{
+				"node1": {"clc_snippet_1", "clc_snippet_2"},
+			}
 		},
 	}
 

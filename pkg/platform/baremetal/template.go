@@ -70,6 +70,39 @@ module "bare-metal-{{.ClusterName}}" {
 
   ignore_x509_cn_check   = {{.IgnoreX509CNCheck}}
   conntrack_max_per_core = {{.ConntrackMaxPerCore}}
+
+  {{- if .InstallDisk }}
+  install_disk = "{{ .InstallDisk }}"
+  {{- end }}
+
+  install_to_smallest_disk = {{ .InstallToSmallestDisk }}
+
+  {{- if .KernelArgs }}
+  kernel_args = [
+  {{- range $arg := .KernelArgs }}
+    "{{ $arg }}",
+  {{- end }}
+  ]
+  {{- end }}
+
+  download_protocol = "{{ .DownloadProtocol }}"
+
+  network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"
+
+  {{- if .CLCSnippets}}
+  clc_snippets = {
+    {{- range $nodeName, $clcSnippetList := .CLCSnippets }}
+    "{{ $nodeName }}" = [
+    {{- range $clcSnippet := $clcSnippetList }}
+      <<EOF
+{{ $clcSnippet }}
+EOF
+      ,
+    {{- end }}
+    ]
+    {{- end }}
+  }
+  {{- end }}
 }
 
 terraform {

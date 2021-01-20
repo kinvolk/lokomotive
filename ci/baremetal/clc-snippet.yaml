@@ -1,0 +1,11 @@
+storage:
+  files:
+    - path: /opt/clc_snippet_hello
+      filesystem: root
+      contents:
+        inline: Hello, world!
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 500
