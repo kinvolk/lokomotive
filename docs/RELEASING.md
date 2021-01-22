@@ -104,6 +104,8 @@ Now we'll tag the release.
   git push origin $NEW_RELEASE_TAG
   ```
 
+- Follow [these instructions](https://goreleaser.com/install/) to install the latest `goreleaser`.
+
 - Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for
   details).
 
