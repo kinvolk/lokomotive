@@ -24,11 +24,11 @@ systemd:
           --restart=unless-stopped \
           --log-driver=journald \
           --network=host \
-          -u $(id -u \"$${ETCD_USER}\"):$(id -u \"$${ETCD_USER}\") \
+          -u $(id -u \"$${USER}\"):$(id -u \"$${USER}\") \
           -v $${ETCD_DATA_DIR}:$${ETCD_DATA_DIR}:rw \
-          -v $${ETCD_SSL_DIR}:$${ETCD_SSL_DIR}:ro \
+          -v $${SSL_DIR}:$${SSL_DIR}:ro \
           --env-file /etc/kubernetes/etcd.env \
-          $${ETCD_IMAGE_URL}:$${ETCD_IMAGE_TAG}"
+          $${IMAGE_URL}:$${IMAGE_TAG}"
         ExecStart=docker logs -f etcd
         ExecStop=docker stop etcd
         ExecStopPost=docker rm etcd
@@ -198,11 +198,11 @@ storage:
       mode: 0644
       contents:
         inline: |
-          ETCD_IMAGE_TAG=v3.4.14${etcd_arch_tag_suffix}
-          ETCD_IMAGE_URL=quay.io/coreos/etcd
-          ETCD_SSL_DIR=/etc/ssl/etcd
+          IMAGE_TAG=v3.4.14${etcd_arch_tag_suffix}
+          IMAGE_URL=quay.io/coreos/etcd
+          SSL_DIR=/etc/ssl/etcd
+          USER=etcd
           ETCD_DATA_DIR=/var/lib/etcd
-          ETCD_USER=etcd
           ETCD_NAME=${etcd_name}
           ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379
           ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380

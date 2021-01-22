@@ -7,9 +7,10 @@ systemd:
         - name: 40-etcd-cluster.conf
           contents: |
             [Service]
-            Environment="ETCD_IMAGE_TAG=v3.4.14"
-            Environment="ETCD_IMAGE_URL=docker://quay.io/coreos/etcd"
+            Environment="IMAGE_TAG=v3.4.14"
+            Environment="IMAGE_URL=docker://quay.io/coreos/etcd"
             Environment="RKT_RUN_ARGS=--insecure-options=image"
+            Environment="SSL_DIR=/etc/ssl/etcd"
             Environment="ETCD_NAME=${etcd_name}"
             Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
             Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
@@ -18,7 +19,6 @@ systemd:
             Environment="ETCD_LISTEN_METRICS_URLS=http://0.0.0.0:2381"
             Environment="ETCD_INITIAL_CLUSTER=${etcd_initial_cluster}"
             Environment="ETCD_STRICT_RECONFIG_CHECK=true"
-            Environment="ETCD_SSL_DIR=/etc/ssl/etcd"
             Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/etcd/server-ca.crt"
             Environment="ETCD_CERT_FILE=/etc/ssl/certs/etcd/server.crt"
             Environment="ETCD_KEY_FILE=/etc/ssl/certs/etcd/server.key"

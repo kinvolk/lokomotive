@@ -47,7 +47,7 @@ Run the following commands:
 ```bash
 export etcd_version=<latest etcd version e.g. v3.4.10>
 
-sudo sed -i "s,ETCD_IMAGE_TAG=.*,ETCD_IMAGE_TAG=${etcd_version}\"," \
+sudo sed -i "s,IMAGE_TAG=.*,IMAGE_TAG=${etcd_version}\"," \
         /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf
 sudo systemctl daemon-reload
 sudo systemctl restart etcd-member
