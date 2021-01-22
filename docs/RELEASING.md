@@ -66,7 +66,7 @@ Now we'll tag the release.
   - `git tag -a v0.2.0 -s -m "Release v0.2.0"`
 
 - Push the tag to git.
-  - `git push --tags origin v0.2.0`
+  - `git push origin v0.2.0`
 
 - Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for details).
   - `export GITHUB_TOKEN=<GitHub token>`
