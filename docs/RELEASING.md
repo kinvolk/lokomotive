@@ -19,20 +19,41 @@ for details on how to identify what the next version should be.
   https://github.com/kinvolk/lokomotive/milestones/v0.2.0): ensure all
   referenced issues are closed or moved elsewhere. Close the milestone.
 
-- Create a release branch from latest master
-  - e.g. `git fetch origin && git checkout -b user/release-v0.2.0 origin/master`
+- Export the release version.
+
+  ```bash
+  # e.g. v0.2.0
+  export NEW_RELEASE_TAG=""
+  ```
+
+- Create a release branch from latest `master`.
+
+  ```bash
+  git fetch origin && git checkout -b release-$NEW_RELEASE_TAG origin/master
+  ```
 
 - Make sure your git status is clean.
 
-- Ensure the build is clean
-  - `git clean -ffdx && make all` should work.
+  ```bash
+  git status
+  ```
+
+- Ensure the build is clean, following commands should work.
+
+  ```bash
+  git clean -ffdx && make all
+  ```
+
   - CI should be green.
 
-- Update the [release notes](https://github.com/kinvolk/lokomotive/blob/master/CHANGELOG.md). Try to capture most of the salient
-  changes since the last release, but don't go into unnecessary detail (better
-  to link/reference the documentation wherever possible).
-  `scripts/changelog.sh` will help generating an initial list of changes.
-  Correct/fix entries if necessary, and group them by category.
+- Update the [release notes](https://github.com/kinvolk/lokomotive/blob/master/CHANGELOG.md). Try to
+  capture most of the salient changes since the last release, but don't go into unnecessary detail
+  (better to link/reference the documentation wherever possible). This script will help generating
+  an initial list of changes. Correct/fix entries if necessary, and group them by category.
+
+  ```bash
+  scripts/changelog.sh
+  ```
 
 - Update [installation guide](./installer/lokoctl.md) to reference to new
   version.
@@ -40,11 +61,15 @@ for details on how to identify what the next version should be.
 Even though it is set at build time, the Lokomotive version is also hardcoded
 in the repository, so the first thing to do is bump it:
 
-- Run `scripts/bump-release.sh v0.2.0`. This should generate two commits: a bump
-  to the actual release (e.g. v0.2.0, including CHANGELOG updates), and then a
-  bump to the release+git (e.g. v0.2.0+git). The actual release version should
-  only exist in a single commit! Sanity check what the script did with `git
-  diff HEAD^^` or similar.
+- Generate release commit.
+
+  This should generate two commits: a bump to the actual release (e.g. v0.2.0, including CHANGELOG
+  updates), and then a bump to the release+git (e.g. v0.2.0+git). The actual release version should
+  only exist in a single commit! Sanity check what the script did with `git diff HEAD^^` or similar.
+
+  ```bash
+  scripts/bump-release.sh $NEW_RELEASE_TAG
+  ```
 
 - If the script didn't work, yell at the author and/or fix it. It can almost certainly be improved.
 
@@ -58,24 +83,45 @@ in the repository, so the first thing to do is bump it:
 
 Now we'll tag the release.
 
-- Check out the release commit: `git checkout HEAD^` should work. You want to
-  be at the commit where the version is without "+git". Sanity check
+- Check out the release commit.
+
+  ```bash
+  git checkout HEAD^
+  ```
+
+  You want to be at the commit where the version is without "+git". Sanity check
   `pkg/version/version.go`.
 
 - Create a signed tag. Check [Release signing](#release-signing) for details.
-  - `git tag -a v0.2.0 -s -m "Release v0.2.0"`
 
-- Push the tag to git.
-  - `git push origin v0.2.0`
+  ```bash
+  git tag -a $NEW_RELEASE_TAG -s -m "Release $NEW_RELEASE_TAG"
+  ```
 
-- Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for details).
-  - `export GITHUB_TOKEN=<GitHub token>`
+- Push the tag to GitHub.
+
+  ```bash
+  git push origin $NEW_RELEASE_TAG
+  ```
+
+- Export your GitHub token (check [Getting a GitHub API token](#getting-a-github-api-token) for
+  details).
+
+  ```bash
+  export GITHUB_TOKEN=<GitHub token>
+  ```
 
 - Export your GPG Key Signature. Find your signature in the [KEYS](KEYS.md) file.
-  - `export GPG_FINGERPRINT=<GPG Signature>`
+
+  ```bash
+  export GPG_FINGERPRINT=<GPG Signature>
+  ```
 
 - Build the binary, sign it, upload it to GitHub, create draft GitHub release.
-  - `make build-and-publish-release`
+
+  ```bash
+  make build-and-publish-release
+  ```
 
 - Go to the [releases page](https://github.com/kinvolk/lokomotive/releases) and
   check everything looks good.
@@ -83,7 +129,10 @@ Now we'll tag the release.
 - Use the GitHub UI to publish the release.
 
 - Clean your git tree.
-  - `git clean -ffdx`
+
+  ```bash
+  git clean -ffdx
+  ```
 
 ## Increasing version number
 
