@@ -113,6 +113,12 @@ resource "null_resource" "copy-worker-secrets" {
       "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
     ]
   }
+
+  # Triggered when the Ignition Config changes
+  triggers = {
+    ignition_config = null_resource.reprovision-worker-when-ignition-changes[count.index].id
+  }
+
 }
 
 # Secure copy bootkube assets to ONE controller and start bootkube to perform
