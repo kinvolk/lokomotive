@@ -1,3 +1,362 @@
+## v0.6.0 - 2021-01-22
+
+We're happy to announce the release of Lokomotive v0.6.0 (Flying Scotsman).
+
+This release includes several new features, many component updates, and a new platform - [Tinkerbell](https://tinkerbell.org/).
+
+### Changes in v0.6.0
+
+#### Kubernetes updates
+
+- Update Kubernetes to v1.19.4 and AKS to v1.18.10 ([#1189](https://github.com/kinvolk/lokomotive/pull/1189)).
+
+#### Component updates
+
+- Update `external-dns` to v0.7.4 ([#1115](https://github.com/kinvolk/lokomotive/pull/1115)).
+- Update `metrics-server` to v2.11.2 ([#1116](https://github.com/kinvolk/lokomotive/pull/1116)).
+- Update `cluster-autoscaler` to version v1.1.0 ([#1137](https://github.com/kinvolk/lokomotive/pull/1137)).
+- Update `rook` to v1.4.6 ([#1117](https://github.com/kinvolk/lokomotive/pull/1117)).
+- Update `velero` to v1.5.2 ([#1131](https://github.com/kinvolk/lokomotive/pull/1131)).
+- Update `openebs-operator` to v2.2.0 ([#1095](https://github.com/kinvolk/lokomotive/pull/1095)).
+- Update `contour` to v1.10.0 ([#1170](https://github.com/kinvolk/lokomotive/pull/1170)).
+- Update `experimental-linkerd` to stable-2.9.0 ([#1123](https://github.com/kinvolk/lokomotive/pull/1123)).
+- Update `web-ui` to v0.1.3 ([#1237](https://github.com/kinvolk/lokomotive/pull/1237)).
+- Update `prometheus-operator` to v0.43.2 ([#1162](https://github.com/kinvolk/lokomotive/pull/1162)).
+- Update Calico to v3.17.0 ([#1251](https://github.com/kinvolk/lokomotive/pull/1251)).
+- Update `aws-ebs-csi-driver` to v0.7.0 ([#1135](https://github.com/kinvolk/lokomotive/pull/1135)).
+- Update `etcd` to 3.4.14 ([#1309](https://github.com/kinvolk/lokomotive/pull/1309)).
+
+#### Terraform provider updates
+
+- Update Terraform providers to their latest versions ([#1133](https://github.com/kinvolk/lokomotive/pull/1133)).
+
+#### New platforms
+
+- Add support for Tinkerbell platform ([#392](https://github.com/kinvolk/lokomotive/pull/392)).
+
+#### Bug fixes
+
+- Add new worker pools when TLS bootstrap is enabled without remaining stuck in the installation phase ([#1181](https://github.com/kinvolk/lokomotive/pull/1181)).
+- `contour`: Consistently apply node affinity and tolerations to all scheduled workloads ([#1161](https://github.com/kinvolk/lokomotive/pull/1161)).
+- Don't run control plane components as DaemonSets on single control plane node clusters ([#1193](https://github.com/kinvolk/lokomotive/pull/1193)).
+
+#### Features
+
+- Add Packet CCM to Packet platform ([#1155](https://github.com/kinvolk/lokomotive/pull/1155)).
+- `contour`: Parameterize Envoy scraping interval ([#1229](https://github.com/kinvolk/lokomotive/pull/1229)).
+- Expose `--conntrack-max-per-core` kube-proxy flag ([#1187](https://github.com/kinvolk/lokomotive/pull/1187)).
+- Add `require_volume_annotation` for restic plugin ([#1132](https://github.com/kinvolk/lokomotive/pull/1132)).
+- Print bootkube journal if cluster bootstrap fails ([#1166](https://github.com/kinvolk/lokomotive/pull/1166)). This makes cluster bootstrap problems easier to debug.
+- `aws-ebs-csi-driver`: Add dynamic provisioning, resizing and snapshot options ([#1277](https://github.com/kinvolk/lokomotive/pull/1277)). Now the user has the ability to control the AWS EBS driver to enable or disable provisioning, resizing and snapshotting.
+
+#### Security enhancements
+
+- `calico-host-protection`: Add custom locked down PSP configuration ([#1274](https://github.com/kinvolk/lokomotive/pull/1274)).
+
+#### Documentation
+
+- Add `openebs-operator` update guide ([#1163](https://github.com/kinvolk/lokomotive/pull/1163)).
+- Add `rook-ceph` update guide ([#1165](https://github.com/kinvolk/lokomotive/pull/1165)).
+
+#### Miscellaneous
+
+- Pull control plane images from Quay to avoid hitting Docker Hub pulling limits ([#1226](https://github.com/kinvolk/lokomotive/pull/1226)).
+- Bootkube now waits for all control plane charts to converge before exiting, which should make the bootstrapping process more stable ([#1085](https://github.com/kinvolk/lokomotive/pull/1085)).
+- Remove deprecated CoreOS mentions from AWS ([#1245](https://github.com/kinvolk/lokomotive/pull/1245)) and bare metal ([#1246](https://github.com/kinvolk/lokomotive/pull/1246)).
+- Improve hardware reservations validation rules on Equinix Metal ([#1186](https://github.com/kinvolk/lokomotive/pull/1186)).
+
+### Updating from v0.5.0
+
+#### Configuration syntax changes
+
+##### AWS
+
+Removed the undocumented `cluster.os_name` parameter, since Lokomotive supports Flatcar Container Linux only.
+
+##### Bare-metal
+
+The `cluster.os_channel` parameter got simplified by removing the `flatcar-` prefix.
+
+###### Old
+
+```hcl
+os_channel = "flatcar-stable"
+```
+
+###### New
+
+```hcl
+os_channel = "stable"
+```
+
+##### Velero
+
+Velero requires an explicit `provider` field to select the provider.
+Example:
+
+```hcl
+component `velero` {
+  provider = "openebs"
+
+  openebs {
+    ...
+  }
+}
+```
+
+#### Updating Prometheus Operator
+
+Due to a change in the upstream Helm chart, updating the Prometheus Operator component incurs down time. We do this before updating the cluster so no visibility is lost while the cluster update is happening.
+
+1. Patch the `PersistentVolume` created/used by the `prometheus-operator` component to `Retain` claim policy.
+
+  ```bash
+  kubectl patch pv -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}' $(kubectl get pv -o jsonpath='{.items[?(@.spec.claimRef.name=="data-prometheus-prometheus-operator-prometheus-0")].metadata.name}')
+
+  kubectl patch pv -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}' $(kubectl get pv -o jsonpath='{.items[?(@.spec.claimRef.name=="data-alertmanager-prometheus-operator-alertmanager-0")].metadata.name}')
+  ```
+
+  > **NOTE:** To execute the above command, the user must have a cluster wide permission.
+
+2. Uninstall the `prometheus-operator` release and delete the existing `PersistentVolumeClaim`, and verify `PersistentVolume` become `Released`.
+
+  ```bash
+  lokoctl component delete prometheus-operator
+  ```
+
+  ```bash
+  kubectl delete pvc data-prometheus-prometheus-operator-prometheus-0 -n monitoring
+  kubectl delete pvc data-alertmanager-prometheus-operator-alertmanager-0 -n monitoring
+  ```
+
+3. Remove current `spec.claimRef` values to change the PV's status from Released to Available.
+
+  ```bash
+  kubectl patch pv --type json -p='[{"op": "remove", "path": "/spec/claimRef"}]' $(kubectl get pv -o jsonpath='{.items[?(@.spec.claimRef.name=="data-prometheus-prometheus-operator-prometheus-0")].metadata.name}')
+
+  kubectl patch pv --type json -p='[{"op": "remove", "path": "/spec/claimRef"}]' $(kubectl get pv -o jsonpath='{.items[?(@.spec.claimRef.name=="data-alertmanager-prometheus-operator-alertmanager-0")].metadata.name}')
+  ```
+
+  > **NOTE:** To execute the above command, the user must have a cluster wide permission.
+
+4. Make sure that the `prometheus-operator`'s `storage_class` and `prometheus.storage_size` are unchanged during the upgrade process.
+
+5. Proceed to a fresh `prometheus-operator` component installation. The new release should now re-attach your previously released PV with its content.
+
+  ```
+  lokoctl component apply prometheus-operator
+  ```
+
+  > **NOTE:** Etcd dashboard will only start showing data after the cluster is updated.
+
+6. Delete the old kubelet service.
+
+  ```bash
+  kubectl -n kube-system delete svc prometheus-operator-kubelet
+  ```
+
+7. If monitoring was enabled for `rook`, `contour`, `metallb` components, make sure you update them as well after the cluster is updated.
+
+#### Cluster update steps
+
+> **NOTE:** Updating multiple Lokomotive versions at a time is not supported. If your cluster is running a version older than `v0.5.0`, update to `v0.5.0` first and only then proceed with the update to `v0.6.0`.
+
+Please perform the following manual steps in your cluster configuration directory.
+
+1. Download the release bundle.
+
+  ```bash
+  curl -LO https://github.com/kinvolk/lokomotive/archive/v0.6.0.tar.gz
+  tar -xvzf v0.6.0.tar.gz
+  ```
+
+2. Install the Packet CCM.
+
+  If you are running Lokomotive on Equinix Metal (formerly Packet), then install Packet CCM. Export your Packet cluster's project ID and API Key.
+
+  ```bash
+  export PACKET_AUTH_TOKEN=""
+  export PACKET_PROJECT_ID=""
+
+  echo "apiKey: $PACKET_AUTH_TOKEN
+projectID: $PACKET_PROJECT_ID" > /tmp/ccm-values.yaml
+
+  helm install packet-ccm --namespace kube-system --values=/tmp/ccm-values.yaml ./lokomotive-0.6.0/assets/charts/control-plane/packet-ccm/
+  ```
+
+3. Update node config.
+
+  On Equinix Metal (formerly Packet), this script shipped with the release tarball will add permanent MetalLB labels and kubelet config to use CCM.
+
+  > **NOTE:** Please edit this script to disable updating certain nodes. Modify the `update_other_nodes` function as required.
+
+  ```bash
+  UPDATE_BOOTSTRAP_COMPONENTS=false
+  ./lokomotive-0.6.0/scripts/update/0.5-0.6/update.sh $UPDATE_BOOTSTRAP_COMPONENTS
+  ```
+
+4. If you're using the self-hosted kubelet, apply the `--cloud-provider` flag to it.
+
+  > **NOTE:** If you're unsure you can run the command as it's harmless if you're not using the self-hosted kubelet.
+
+  ```bash
+  kubectl -n kube-system get ds kubelet -o yaml | \
+    sed '/client-ca-file.*/a \ \ \ \ \ \ \ \ \ \ --cloud-provider=external \\' | \
+    kubectl apply -f -
+  ```
+
+5. Export assets directory.
+
+  ```bash
+  export ASSETS_DIR="assets"
+  ```
+
+6. Remove BGP sessions from Terraform state.
+
+  If you are running Lokomotive on Equinix Metal (formerly Packet), then run the following commands:
+
+  ```bash
+  cd $ASSETS_DIR/terraform
+  terraform state rm $(terraform state list | grep packet_bgp_session.bgp)
+  cd -
+  ```
+
+7. Remove old asset files.
+
+  ```bash
+  rm -rf $ASSETS_DIR/cluster-assets
+  rm -rf $ASSETS_DIR/terraform-modules
+  ```
+
+8. Update control plane.
+
+  ```bash
+  lokoctl cluster apply --skip-components -v
+  ```
+
+  > **NOTE:** If the update process gets interrupted, rerun above command.
+
+  > **NOTE:** If you are running self-hosted kubelet then append the above command with flag `--upgrade-kubelets`.
+
+  The update process typically takes about 10 minutes.
+  After the update, running `lokoctl health` should result in an output similar to the following:
+
+  ```bash
+  Node                     Ready    Reason          Message
+
+  lokomotive-controller-0  True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-0    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-1    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-2    True     KubeletReady    kubelet is posting ready status
+  Name      Status    Message              Error
+
+  etcd-0    True      {"health":"true"}
+  ```
+
+9. Update the bootstrap components: kubelet and etcd.
+
+  This script shipped with the release tarball will update all the nodes to run the latest kubelet and etcd.
+
+  > **NOTE:** Please edit this script to disable updating certain nodes. Modify `update_other_nodes` function as required.
+
+  ```bash
+  UPDATE_BOOTSTRAP_COMPONENTS=true
+  ./lokomotive-0.6.0/scripts/update/0.5-0.6/update.sh $UPDATE_BOOTSTRAP_COMPONENTS
+  ```
+
+10. If you're using the self-hosted kubelet, reload its config.
+
+  > **NOTE:** If you're unsure you can run the command as it's harmless if you're not using the self-hosted kubelet.
+
+  ```bash
+  kubectl -n kube-system rollout restart ds kubelet
+  ```
+
+#### Update Docker log settings
+
+We've added log rotation to the Docker daemon running on cluster nodes. However, this only takes effect in new nodes. For this to apply to existing cluster nodes, you need to manually configure each node.
+
+- Drain the node.
+
+  This step ensures that you don't see any abrupt changes. Any workloads running on this node are evicted and scheduled to other nodes. The node is marked as unschedulable after running this command.
+
+  ```bash
+  kubectl drain --ignore-daemonsets <node name>
+  ```
+
+- SSH into the node and become root with `sudo -s`.
+- Create the Docker config file:
+
+  ```json
+  echo '
+  {
+    "live-restore": true,
+    "log-opts": {
+      "max-size": "100m",
+      "max-file": "3"
+    }
+  }
+  ' | tee /etc/docker/daemon.json
+  ```
+
+- Restart the Docker daemon:
+
+  > **NOTE:** This will restart all the containers on the node, including the kubelet. This step cannot be part of the automatic update script because restarting the Docker daemon will also kill the update script pod.
+
+  ```bash
+  systemctl restart docker
+  ```
+
+- Make the node schedulable:
+
+  ```bash
+  kubectl uncordon <node name>
+  ```
+
+#### Updating Contour
+
+Manually update the CRDs before updating the component `contour`:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kinvolk/lokomotive/v0.6.0/assets/charts/components/contour/crds/01-crds.yaml
+```
+
+Update the component:
+
+```bash
+lokoctl component apply contour
+```
+
+#### Updating Velero
+
+Manually update the CRDs before updating the component `velero`:
+
+```bash
+kubectl apply -f ./lokomotive-0.6.0/assets/charts/components/velero/crds/
+```
+
+Update the component:
+
+```bash
+lokoctl component apply velero
+```
+
+#### Updating openebs-operator
+
+Follow the [OpenEBS update guide](https://kinvolk.io/docs/lokomotive/0.6/how-to-guides/update-openebs/).
+
+#### Updating rook-ceph
+
+Follow the [Rook Ceph update guide](https://kinvolk.io/docs/lokomotive/0.6/how-to-guides/update-rook-ceph/).
+
+#### Updating other components
+
+Other components are safe to update by running the following command:
+
+```bash
+lokoctl component apply <component name>
+```
+
 ## v0.5.0 - 2020-10-27
 
 We're happy to announce the release of Lokomotive v0.5.0 (Eurostar).
@@ -163,9 +522,9 @@ taints = {
 }
 ```
 
-This release also changes the default `cluster.oidc.client_id` value from `gangway` to `clusterauth`. 
+This release also changes the default `cluster.oidc.client_id` value from `gangway` to `clusterauth`.
 
-This setting must match `gangway.client_id` and `dex.static_client.id`. 
+This setting must match `gangway.client_id` and `dex.static_client.id`.
 
 If you use default settings for oidc you'll need to add `client_id = "gangway"` or change the `static_client.id` and `client_id` parameters for dex and gangway to `clusterauth` respectively.
 
@@ -191,11 +550,11 @@ packet {
 
 #### Cluster update steps
 
-Ensure your cluster is in a healthy state by running `lokoctl cluster apply` using the `v0.4.1` version. 
+Ensure your cluster is in a healthy state by running `lokoctl cluster apply` using the `v0.4.1` version.
 
 Updating multiple versions at a time is not supported so, if your cluster is older, update to `v0.4.1` and only then proceed with the update to `v0.5.0`.
 
-Due to [Terraform](https://github.com/kinvolk/lokomotive/pull/824) and [Kubernetes](https://github.com/kinvolk/lokomotive/pull/1030) updates to v0.13+ and v1.19.3 respectively. 
+Due to [Terraform](https://github.com/kinvolk/lokomotive/pull/824) and [Kubernetes](https://github.com/kinvolk/lokomotive/pull/1030) updates to v0.13+ and v1.19.3 respectively.
 
 Some manual steps need to be performed when updating. In your cluster configuration directory, follow these steps:
 

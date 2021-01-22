@@ -25,11 +25,12 @@ if [ -z "${RANGE}" ]; then
 fi
 
 if [ ! -z "${GITHUB_TOKEN}" ]; then
-    GITHUB_AUTH="--header \"authorization: Bearer ${GITHUB_TOKEN}\""
+    GITHUB_AUTH="authorization: Bearer ${GITHUB_TOKEN}"
+    HEADERS=(--header "${GITHUB_AUTH}")
 fi
 
 for pr in $(git log --pretty=%s --first-parent "${RANGE}" | egrep -o '#\w+' | tr -d '#'); do
-    body=$(curl -s ${GITHUB_AUTH} https://api.github.com/repos/kinvolk/lokomotive/pulls/"${pr}" | \
+    body=$(curl -s "${HEADERS[@]}" https://api.github.com/repos/kinvolk/lokomotive/pulls/"${pr}" | \
                   jq -r '{title: .title, body: .body}')
 
     echo "-" \
