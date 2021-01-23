@@ -87,7 +87,7 @@ resource "vsphere_virtual_machine" "main" {
   }
 
   // Advanced options
-  nested_hv_enabled  = var.nested_hv_enabled
+  nested_hv_enabled = var.nested_hv_enabled
 
   depends_on = [
     vsphere_folder.main
