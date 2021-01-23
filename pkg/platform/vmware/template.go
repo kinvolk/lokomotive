@@ -77,6 +77,8 @@ module "controllers" {
   network         = local.network
   template        = local.template
 
+  nested_hv_enabled = {{.NestedHVEnabled}}
+
   {{- if .Folder }}
   folder = local.folder
   {{- end }}
@@ -164,6 +166,8 @@ module "worker_{{ $pool.Name }}" {
   datastore       = local.datastore
   compute_cluster = local.compute_cluster
   network         = local.network
+
+  nested_hv_enabled = {{ $pool.NestedHVEnabled }}
 
   {{- if $.Folder }}
   folder = local.folder

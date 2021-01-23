@@ -154,3 +154,9 @@ variable "host_dns_ip" {
   description = "IP address of DNS server to configure on the nodes."
   default     = "8.8.8.8"
 }
+
+variable "nested_hv_enabled" {
+  type        = bool
+  description = "Enable nested hardware virtualization on this virtual machine, facilitating nested virtualization in the guest."
+  default     = false
+}

@@ -86,6 +86,9 @@ resource "vsphere_virtual_machine" "main" {
     "guestinfo.ignition.config.data"          = base64encode(module.controller[count.index].clc_config)
   }
 
+  // Advanced options
+  nested_hv_enabled  = var.nested_hv_enabled
+
   depends_on = [
     vsphere_folder.main
   ]

@@ -23,30 +23,29 @@ variable "cluster_name" {
 
 variable "controller_ips" {
   default = [
-    "192.168.50.10",
+    "10.10.0.100",
   ]
 }
 
 variable "worker_ips" {
   default = [
-    "192.168.50.13",
+    "10.10.0.104",
   ]
 }
 
 variable "hosts_cidr" {
-  default = "192.168.50.0/24"
+  default = "10.10.0.0/22"
 }
 
-variable "dns_servers" {
-  default = [
-    "192.168.50.1"
-  ]
+variable "host_dns_ip" {
+  default = "10.10.0.1"
 }
 
 cluster "vmware" {
   asset_dir        = pathexpand(var.asset_dir)
   name             = var.cluster_name
   ssh_public_keys  = var.ssh_public_keys
+  host_dns_ip      = var.host_dns_ip
 
   dns {
     zone     = var.dns_zone
@@ -61,16 +60,18 @@ cluster "vmware" {
 
   controller_ip_addresses = var.controller_ips
   hosts_cidr              = var.hosts_cidr
-  dns_servers             = var.dns_servers
 
   template = var.template
 
   worker_pool "my-wp-name" {
     ip_addresses    = var.worker_ips
     ssh_public_keys = var.ssh_public_keys
+
+    cpus_count = 8
+    memory     = 16384
   }
 }
 
-component "metrics-server" {}
+component "inspektor-gadget" {}
 
-component "flatcar-linux-update-operator" {}
+component "web-ui" {}

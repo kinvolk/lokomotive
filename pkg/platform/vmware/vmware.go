@@ -53,9 +53,10 @@ type Config struct { //nolint:maligned
 	Folder         string `hcl:"folder,optional"`
 
 	// VMware instance configuration.
-	CPUs     int `hcl:"cpus_count,optional"`
-	Memory   int `hcl:"memory,optional"`
-	DiskSize int `hcl:"dize_size,optional"`
+	CPUs            int  `hcl:"cpus_count,optional"`
+	Memory          int  `hcl:"memory,optional"`
+	DiskSize        int  `hcl:"dize_size,optional"`
+	NestedHVEnabled bool `hcl:"nested_hv_enabled,optional"`
 
 	ControllerCLCSnippets []string `hcl:"controller_clc_snippets,optional"`
 	ControllerIPAddresses []string `hcl:"controller_ip_addresses"`
@@ -79,10 +80,11 @@ type WorkerPool struct {
 	PoolName string `hcl:"name,label"`
 
 	// VMware instance configuration.
-	CPUs     int    `hcl:"cpus_count,optional"`
-	Memory   int    `hcl:"memory,optional"`
-	DiskSize int    `hcl:"dize_size,optional"`
-	Template string `hcl:"template,optional"`
+	CPUs            int    `hcl:"cpus_count,optional"`
+	Memory          int    `hcl:"memory,optional"`
+	DiskSize        int    `hcl:"dize_size,optional"`
+	NestedHVEnabled bool   `hcl:"nested_hv_enabled,optional"`
+	Template        string `hcl:"template,optional"`
 
 	SSHPublicKeys []string `hcl:"ssh_public_keys,optional"`
 

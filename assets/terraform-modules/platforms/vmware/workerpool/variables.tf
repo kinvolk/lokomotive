@@ -118,3 +118,9 @@ variable "apiserver" {
   description = "Apiserver private endpoint needed in the kubeconfig file."
   type        = string
 }
+
+variable "nested_hv_enabled" {
+  type        = bool
+  description = "Enable nested hardware virtualization on this virtual machine, facilitating nested virtualization in the guest."
+  default     = false
+}
