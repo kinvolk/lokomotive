@@ -39,9 +39,6 @@ networkd:
       [Network]
       Address=${var.nodes_ips[count.index]}/${local.nodes_mask}
       Gateway=${local.nodes_gw}
-      %{~for dns in var.dns_servers~}
-      DNS=${dns}
-      %{~endfor~}
 EOF
     ,
     ],
@@ -59,10 +56,7 @@ resource "vsphere_virtual_machine" "main" {
 
   num_cpus = var.cpus_count
   memory   = var.memory
-
-  # https://code.vmware.com/apis/358/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html
-  #
-  guest_id = "other3xLinux64Guest"
+  guest_id = data.vsphere_virtual_machine.main_template.guest_id
 
   network_interface {
     network_id = data.vsphere_network.main.id

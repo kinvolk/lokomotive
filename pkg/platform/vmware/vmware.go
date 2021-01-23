@@ -42,7 +42,7 @@ type Config struct { //nolint:maligned
 	DNS           dns.Config `hcl:"dns,block"`
 	SSHPublicKeys []string   `hcl:"ssh_public_keys"`
 	HostsCIDR     string     `hcl:"hosts_cidr"`
-	DNSServers    []string   `hcl:"dns_servers,optional"`
+	HostDNSIP     string     `hcl:"host_dns_ip,optional"`
 
 	// VMware options
 	Datacenter     string `hcl:"datacenter"`

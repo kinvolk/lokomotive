@@ -35,12 +35,6 @@ locals {
   {{- end}}
   ]
 
-  dns_servers = [
-  {{- range .DNSServers}}
-    "{{.}}",
-  {{- end}}
-  ]
-  
   {{- range $index, $pool := .WorkerPools }}
   worker_{{ $pool.Name }}_ips = [
   {{- range $pool.IPAddresses}}
@@ -87,9 +81,12 @@ module "controllers" {
   folder = local.folder
   {{- end }}
 
-  nodes_ips   = local.controller_ips
-  hosts_cidr  = "{{.HostsCIDR}}"
-  dns_servers = local.dns_servers
+  nodes_ips  = local.controller_ips
+  hosts_cidr = "{{.HostsCIDR}}"
+
+  {{- if .HostDNSIP }}
+  host_dns_ip = "{{.HostDNSIP}}"
+  {{- end }}
 
   node_count = length(local.controller_ips)
 
@@ -172,9 +169,12 @@ module "worker_{{ $pool.Name }}" {
   folder = local.folder
   {{- end }}
 
-  nodes_ips   = local.worker_{{ $pool.Name }}_ips
-  hosts_cidr  = "{{ $.HostsCIDR }}"
-  dns_servers = local.dns_servers
+  nodes_ips  = local.worker_{{ $pool.Name }}_ips
+  hosts_cidr = "{{ $.HostsCIDR }}"
+
+  {{- if $.HostDNSIP }}
+  host_dns_ip = "{{$.HostDNSIP}}"
+  {{- end }}
 
   {{- if $pool.Template }}
   template = "{{$pool.Template}}"

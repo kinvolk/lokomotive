@@ -118,9 +118,3 @@ variable "apiserver" {
   description = "Apiserver private endpoint needed in the kubeconfig file."
   type        = string
 }
-
-variable "dns_servers" {
-  type        = list(string)
-  description = "DNS servers for the network interface."
-  default     = []
-}

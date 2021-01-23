@@ -154,9 +154,3 @@ variable "host_dns_ip" {
   description = "IP address of DNS server to configure on the nodes."
   default     = "8.8.8.8"
 }
-
-variable "dns_servers" {
-  type        = list(string)
-  description = "DNS servers for the network interface."
-  default     = []
-}
