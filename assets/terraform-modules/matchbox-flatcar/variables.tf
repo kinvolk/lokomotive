@@ -87,3 +87,9 @@ variable "install_pre_reboot_cmds" {
   description = "shell commands to execute on the provisioned host after installation finished and before reboot, e.g., docker run --privileged --net host --rm debian sh -c 'apt update && apt install -y ipmitool && ipmitool chassis bootdev disk options=persistent'."
   default     = "true"
 }
+
+variable "kernel_console" {
+  type        = list(string)
+  description = "The kernel arguments to configure the console at PXE boot and in /usr/share/oem/grub.cfg."
+  default     = ["console=tty0", "console=ttyS0"]
+}
