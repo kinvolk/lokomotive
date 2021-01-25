@@ -16,4 +16,5 @@ module "worker_profile" {
   ignition_clc_config      = module.worker[count.index].clc_config
   cached_install           = var.cached_install
   pxe_commands             = var.pxe_commands
+  install_pre_reboot_cmds  = var.install_pre_reboot_cmds
 }
