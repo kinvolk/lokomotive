@@ -46,6 +46,7 @@ storage:
           mount "$${OEM_DEV}" /tmp/oemfs
           echo 'set linux_append="${kernel_args} ignition.config.url=${ignition_endpoint}?{{.request.raw_query}}&os=installed"' | tee -a /tmp/oemfs/grub.cfg
           umount /tmp/oemfs
+          ${install_pre_reboot_cmds}
           systemctl reboot
 passwd:
   users:
