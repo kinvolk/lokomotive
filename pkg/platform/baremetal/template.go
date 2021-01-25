@@ -100,6 +100,14 @@ module "bare-metal-{{.ClusterName}}" {
   ]
   {{- end }}
 
+  {{- if .KernelConsole }}
+  kernel_console = [
+  {{- range $arg := .KernelConsole }}
+    "{{ $arg }}",
+  {{- end }}
+  ]
+  {{- end }}
+
   {{- if .PXECommands }}
   pxe_commands = <<EOT
 {{ .PXECommands }}
