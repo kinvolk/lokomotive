@@ -14,8 +14,7 @@ resource "matchbox_profile" "flatcar-install" {
     "initrd=flatcar_production_pxe_image.cpio.gz",
     "ignition.config.url=${var.http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
     "flatcar.first_boot=yes",
-    "console=tty0",
-    "console=ttyS0",
+    var.kernel_console,
     var.kernel_args,
   ])
 
@@ -27,6 +26,7 @@ resource "matchbox_profile" "flatcar-install" {
     container_linux_oem      = var.container_linux_oem
     ssh_keys                 = jsonencode(var.ssh_keys)
     install_to_smallest_disk = var.install_to_smallest_disk
+    kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
     install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # only cached-container-linux profile adds -b baseurl
@@ -52,8 +52,7 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     "initrd=flatcar_production_pxe_image.cpio.gz",
     "ignition.config.url=${var.http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
     "flatcar.first_boot=yes",
-    "console=tty0",
-    "console=ttyS0",
+    var.kernel_console,
     var.kernel_args,
   ])
 
@@ -65,6 +64,7 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     container_linux_oem      = var.container_linux_oem
     ssh_keys                 = jsonencode(var.ssh_keys)
     install_to_smallest_disk = var.install_to_smallest_disk
+    kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
     install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # profile uses -b baseurl to install from matchbox cache

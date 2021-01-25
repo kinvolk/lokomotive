@@ -17,4 +17,5 @@ module "controller_profile" {
   cached_install           = var.cached_install
   pxe_commands             = var.pxe_commands
   install_pre_reboot_cmds  = var.install_pre_reboot_cmds
+  kernel_console           = var.kernel_console
 }
