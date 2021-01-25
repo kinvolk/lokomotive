@@ -106,6 +106,12 @@ module "bare-metal-{{.ClusterName}}" {
 EOT
   {{- end }}
 
+  {{- if .InstallPreBootCmds }}
+  install_pre_reboot_cmds = <<EOT
+{{ .InstallPreBootCmds }}
+EOT
+  {{- end }}
+
   download_protocol = "{{ .DownloadProtocol }}"
 
   network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"
