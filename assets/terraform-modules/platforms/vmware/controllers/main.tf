@@ -89,6 +89,12 @@ resource "vsphere_virtual_machine" "main" {
   // Advanced options
   nested_hv_enabled = var.nested_hv_enabled
 
+  lifecycle {
+    ignore_changes = [
+      extra_config["guestinfo.ignition.config.data"]
+    ]
+  }
+
   depends_on = [
     vsphere_folder.main
   ]
