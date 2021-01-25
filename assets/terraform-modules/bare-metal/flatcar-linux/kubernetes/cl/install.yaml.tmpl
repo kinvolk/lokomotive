@@ -44,7 +44,8 @@ storage:
           OEM_DEV="$(blkid -t "LABEL=OEM" -o device)"
           mkdir -p /tmp/oemfs
           mount "$${OEM_DEV}" /tmp/oemfs
-          echo 'set linux_append="${kernel_args} ignition.config.url=${ignition_endpoint}?{{.request.raw_query}}&os=installed"' | tee -a /tmp/oemfs/grub.cfg
+          echo 'set linux_append="${kernel_args} ignition.config.url=${ignition_endpoint}?{{.request.raw_query}}&os=installed"' >> /tmp/oemfs/grub.cfg
+          echo 'set linux_console="${kernel_console}"' >> /tmp/oemfs/grub.cfg
           umount /tmp/oemfs
           ${install_pre_reboot_cmds}
           systemctl reboot
