@@ -18,7 +18,7 @@ terraform {
     }
     packet = {
       source  = "packethost/packet"
-      version = "3.0.1"
+      version = "3.2.1"
     }
     random = {
       source  = "hashicorp/random"
