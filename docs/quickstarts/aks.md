@@ -9,7 +9,7 @@ This quickstart guide walks through the steps needed to create a Lokomotive clus
 
 By the end of this guide, you'll have a production-ready Kubernetes cluster running on Azure AKS.
 
-_Note: Lokomotive on AKS currently provides Kubernetes 1.16 as opposed to other platforms, which provide 1.18. This is because of limitations of Azure platform._
+_Note: Lokomotive on AKS currently provides an older Kubernetes version compared with other platforms. This is because of limitations of the Azure platform._
 
 ## Requirements
 
