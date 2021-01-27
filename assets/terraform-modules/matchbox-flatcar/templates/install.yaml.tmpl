@@ -30,6 +30,7 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
+          lvchange -an /dev/mapper/vg* || true
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
             -s \
