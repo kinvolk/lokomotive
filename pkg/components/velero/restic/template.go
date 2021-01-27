@@ -34,6 +34,9 @@ deployRestic: true
 snapshotsEnabled: false
 restic:
   privileged: true
+  {{- if .Configuration.Tolerations }}
+  tolerations: {{ .Configuration.TolerationsRaw }}
+  {{- end }}
 credentials:
   secretContents:
   {{- if .Configuration.Credentials }}

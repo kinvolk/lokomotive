@@ -19,6 +19,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 
+	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -194,4 +195,47 @@ component "velero" {
 	if len(m) == 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
+}
+
+func TestRenderManifestResticToleration(t *testing.T) {
+	configHCL := `
+component "velero" {
+  provider = "restic"
+  restic {
+    credentials = "foo"
+
+    backup_storage_location {
+      bucket   = "foo"
+      provider = "aws"
+    }
+		
+    tolerations {
+      key                = "TestResticToletrationKey"
+      value              = "TestResticToletrationValue"
+      operator           = "Equal"
+      effect             = "NoSchedule"
+      toleration_seconds = "1"
+    }
+  }
+}
+`
+
+	component := NewConfig()
+
+	body, d := util.GetComponentBody(configHCL, Name)
+	if d.HasErrors() {
+		t.Fatalf("Error getting component body: %v", d)
+	}
+
+	if d = component.LoadConfig(body, &hcl.EvalContext{}); d.HasErrors() {
+		t.Fatalf("Valid config should not return error, got: %v", d)
+	}
+
+	m := testutil.RenderManifests(t, component, Name, configHCL)
+	jsonPath := "{.spec.template.spec.tolerations[0].key}"
+	expected := "TestResticToletrationKey"
+
+	gotConfig := testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
+
+	testutil.MatchJSONPathStringValue(t, gotConfig, jsonPath, expected)
 }
