@@ -2,7 +2,7 @@ name=${name}
 domain=${domain}
 mac=${mac}
 count=30
-while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$domain sudo touch /boot/flatcar/first_boot; do
+while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo touch /boot/flatcar/first_boot; do
   sleep 1
   count=$((count - 1))
 done
@@ -13,7 +13,7 @@ if [ $count -eq 0 ]; then
 else
   echo "created the first_boot flag file to reprovision $domain"
   count=5
-  while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$domain sudo systemctl reboot; do
+  while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo systemctl reboot; do
     sleep 1
     count=$((count - 1))
   done
@@ -27,7 +27,7 @@ fi
 echo "checking that $domain comes up"
 count=600
 # check that we can reach the node and that it cleaned up the first_boot flag file, indicating a reboot happened which prevents a race when the reboot takes longer
-while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$domain test ! -f /boot/flatcar/first_boot; do
+while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain test ! -f /boot/flatcar/first_boot; do
   sleep 1
   count=$((count - 1))
 done
