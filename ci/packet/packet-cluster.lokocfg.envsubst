@@ -226,3 +226,27 @@ component "web-ui" {
 }
 
 component "inspektor-gadget" {}
+
+component "velero" {
+  provider = "restic"
+
+  restic {
+    credentials = <<EOF
+[default]
+aws_access_key_id = "$AWS_ACCESS_KEY_ID"
+aws_secret_access_key = "$AWS_SECRET_ACCESS_KEY"
+EOF
+
+    backup_storage_location {
+      # External dependency: Ensure that this bucket exists on the S3.
+      bucket   = "velero-test-ci"
+      region   = "us-west-1"
+      provider = "aws"
+    }
+  }
+
+  metrics {
+    enabled         = true
+    service_monitor = true
+  }
+}
