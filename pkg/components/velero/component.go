@@ -25,6 +25,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/azure"
+	"github.com/kinvolk/lokomotive/pkg/components/velero/csi"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/openebs"
 	"github.com/kinvolk/lokomotive/pkg/components/velero/restic"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
@@ -50,6 +51,8 @@ type component struct {
 	OpenEBS *openebs.Configuration `hcl:"openebs,block"`
 	// Restic specific parameters.
 	Restic *restic.Configuration `hcl:"restic,block"`
+	// CSI specific configuration.
+	CSI *csi.Configuration `hcl:"csi,block"`
 }
 
 // Metrics represents prometheus specific parameters
@@ -184,7 +187,7 @@ func (c *component) validate() hcl.Diagnostics {
 
 // getSupportedProviders returns a list of supported providers.
 func (c *component) getSupportedProviders() []string {
-	return []string{"azure", "openebs", "restic"}
+	return []string{"azure", "openebs", "restic", "csi"}
 }
 
 // getProvider returns correct provider interface based on component configuration.
@@ -199,6 +202,8 @@ func (c *component) getProvider() (provider, error) {
 		return c.OpenEBS, nil
 	case "restic":
 		return c.Restic, nil
+	case "csi":
+		return c.CSI, nil
 	default:
 		return nil, fmt.Errorf("unknown provider: %s", c.Provider)
 	}
