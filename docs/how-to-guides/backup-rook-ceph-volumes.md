@@ -43,6 +43,8 @@ Create a file `velero.lokocfg` with the following contents:
 
 ```tf
 component "velero" {
+  provider = "restic"
+
   restic {
     credentials = file("./credentials-velero")
     backup_storage_location {
