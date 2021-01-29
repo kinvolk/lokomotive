@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 
 	"github.com/kinvolk/lokomotive/internal"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 const indentation = 6
@@ -32,6 +33,8 @@ type Configuration struct {
 	Credentials             string                 `hcl:"credentials"`
 	RequireVolumeAnnotation bool                   `hcl:"require_volume_annotation,optional"`
 	BackupStorageLocation   *BackupStorageLocation `hcl:"backup_storage_location,block"`
+	Tolerations             []util.Toleration      `hcl:"tolerations,block"`
+	TolerationsRaw          string
 }
 
 // BackupStorageLocation configures the backup storage location.
@@ -54,6 +57,13 @@ func (c *Configuration) Values() (string, error) {
 	t := template.Must(template.New("values").Parse(chartValuesTmpl))
 
 	var buf bytes.Buffer
+
+	var err error
+
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	if err != nil {
+		return "", fmt.Errorf("rendering tolerations: %w", err)
+	}
 
 	v := struct {
 		Configuration       *Configuration
