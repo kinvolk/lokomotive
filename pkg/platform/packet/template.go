@@ -160,7 +160,13 @@ EOF
   {{- end }}
 
   project_id   = "{{$.Config.ProjectID}}"
+
+  {{- if $pool.Facility }}
+  facility     = "{{$pool.Facility}}"
+  {{- else }}
   facility     = "{{$.Config.Facility}}"
+  {{- end }}
+
   {{- if $.Config.ClusterDomainSuffix }}
   cluster_domain_suffix = "{{$.Config.ClusterDomainSuffix}}"
   {{- end }}

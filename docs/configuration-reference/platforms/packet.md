@@ -43,6 +43,7 @@ variable "oidc_client_id" {}
 variable "oidc_username_claim" {}
 variable "oidc_groups_claim" {}
 variable "worker_clc_snippets" {}
+variable "worker_pool_facility" {}
 
 backend "s3" {
   bucket         = var.state_s3_bucket
@@ -144,6 +145,8 @@ cluster "packet" {
 
     disable_bgp = false
 
+    facility = var.worker_pool_facility
+
     node_type = var.workers_type
 
     os_channel = "stable"
@@ -243,6 +246,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.os_channel`              | Flatcar Container Linux channel to install from (stable, beta, alpha, edge).                                                                                                                                                                                                                                                       | "stable"        | string       | false    |
 | `worker_pool.os_version`              | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                                                                                                                                                               | "current"       | string       | false    |
 | `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                                                                                                                                                                             | "c3.small.x86"  | string       | false    |
+| `worker_pool.facility`                | Packet facility to use for deploying the worker pool. Enable ["Backend Transfer"](https://metal.equinix.com/developers/docs/networking/features/#backend-transfer) on the Equinix Metal project for this to work.                                                                                                        | Same as controller nodes. | string       | false    |
 | `worker_pool.labels`                  | Map of extra Kubernetes Node labels for worker nodes.                                                                                                                                                                                                                                                                              | -               | map(string)  | false    |
 | `worker_pool.taints`                  | Map of Taints to assign to worker nodes.                                                                                                                                                                                                                                                                                           | -               | map(string)  | false    |
 | `worker_pool.reservation_ids`         | Block with Packet hardware reservation IDs for worker nodes. Each key must have the format `worker-${index}` and the value is the reservation UUID. Can't be combined with `reservation_ids_default`. Key indexes must be sequential and start from 0. Example: `reservation_ids = { worker-0 = "<reservation_id>" }`.             | -               | map(string)  | false    |
