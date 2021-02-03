@@ -166,7 +166,7 @@ func (ex *Executor) Init() error {
 func (ex *Executor) Apply() error {
 	return ex.Execute(ExecutionStep{
 		Description: "create infrastructure",
-		Args:        []string{"apply", "-auto-approve"},
+		Args:        []string{"apply", "-auto-approve", "-parallelism=100"},
 	})
 }
 
