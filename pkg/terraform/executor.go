@@ -46,6 +46,11 @@ const (
 	requiredVersion = ">= 0.13, < 0.14"
 
 	noOfLinesOnError = 20
+
+	// WithoutParallelism sets the parallelism value to 1.
+	WithoutParallelism = "-parallelism=1"
+	// WithParallelism sets the parallelism value to 100.
+	WithParallelism = "-parallelism=100"
 )
 
 // ErrBinaryNotFound denotes the fact that the Terraform binary could not be

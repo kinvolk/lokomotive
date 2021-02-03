@@ -292,7 +292,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	return ex.Apply(nil)
+	return ex.Apply([]string{terraform.WithParallelism})
 }
 
 // ApplyWithoutParallel applies Terraform configuration without parallel execution.
@@ -301,7 +301,7 @@ func (c *config) ApplyWithoutParallel(ex *terraform.Executor) error {
 		return fmt.Errorf("initializing Terraform configuration: %w", err)
 	}
 
-	return ex.Apply([]string{"-parallelism=1"})
+	return ex.Apply([]string{terraform.WithoutParallelism})
 }
 
 // Destroy destroys AKS infrastructure via Terraform.

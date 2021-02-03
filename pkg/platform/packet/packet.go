@@ -215,7 +215,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	return c.terraformSmartApply(ex, c.DNS, nil)
+	return c.terraformSmartApply(ex, c.DNS, []string{terraform.WithParallelism})
 }
 
 // ApplyWithoutParallel applies Terraform configuration without parallel execution.
@@ -224,7 +224,7 @@ func (c *config) ApplyWithoutParallel(ex *terraform.Executor) error {
 		return fmt.Errorf("initializing Terraform configuration: %w", err)
 	}
 
-	return c.terraformSmartApply(ex, c.DNS, []string{"-parallelism=1"})
+	return c.terraformSmartApply(ex, c.DNS, []string{terraform.WithoutParallelism})
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
