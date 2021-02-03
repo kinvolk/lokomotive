@@ -8,6 +8,7 @@ resource "null_resource" "copy-controller-secrets" {
     matchbox_group.install,
     matchbox_group.controller,
     matchbox_group.worker,
+    null_resource.reprovision-controller-when-ignition-changes,
   ]
 
   connection {
@@ -117,7 +118,7 @@ resource "null_resource" "reprovision-controller-when-ignition-changes" {
   depends_on = [matchbox_group.controller]
   # Trigger running Ignition on the next reboot (first_boot flag file) and reboot the instance, or, if the instance needs to be (re)provisioned, run external commands for PXE booting (also runs on the first provisioning)
   provisioner "local-exec" {
-    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.controller_domains[count.index], name = var.controller_names[count.index], mac = var.controller_macs[count.index], pxe_commands = var.pxe_commands })
+    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.controller_domains[count.index], name = var.controller_names[count.index], mac = var.controller_macs[count.index], pxe_commands = var.pxe_commands, asset_dir = var.asset_dir, type = "controller" })
   }
 }
 
@@ -131,6 +132,6 @@ resource "null_resource" "reprovision-worker-when-ignition-changes" {
   depends_on = [matchbox_group.worker]
   # Trigger running Ignition on the next reboot (first_boot flag file) and reboot the instance, or, if the instance needs to be (re)provisioned, run external commands for PXE booting (also runs on the first provisioning)
   provisioner "local-exec" {
-    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.worker_domains[count.index], name = var.worker_names[count.index], mac = var.worker_macs[count.index], pxe_commands = var.pxe_commands })
+    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.worker_domains[count.index], name = var.worker_names[count.index], mac = var.worker_macs[count.index], pxe_commands = var.pxe_commands, asset_dir = var.asset_dir, type = "worker" })
   }
 }
