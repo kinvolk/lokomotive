@@ -1,0 +1,8 @@
+apiVersion: v2
+name: node-local-dns
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.0
+appVersion: "1.17.0"
+sources:
+- https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/nodelocaldns/nodelocaldns.yaml

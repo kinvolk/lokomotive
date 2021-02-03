@@ -1,0 +1,3 @@
+clusterDomainSuffix: cluster.local
+clusterIP: 10.3.0.10
+localDNSIP: 169.254.1.1
