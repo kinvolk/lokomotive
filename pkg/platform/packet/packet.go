@@ -215,7 +215,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	return c.terraformSmartApply(ex, c.DNS, nil)
+	return c.terraformSmartApply(ex, c.DNS, []string{"-parallelism=100"})
 }
 
 // ApplyWithoutParallel applies Terraform configuration without parallel execution.

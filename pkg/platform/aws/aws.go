@@ -140,7 +140,7 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	return ex.Apply(nil)
+	return ex.Apply([]string{"-parallelism=100"})
 }
 
 // ApplyWithoutParallel applies Terraform configuration without parallel execution.
