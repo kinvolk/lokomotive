@@ -93,3 +93,14 @@ variable "kernel_console" {
   description = "The kernel arguments to configure the console at PXE boot and in /usr/share/oem/grub.cfg."
   default     = ["console=tty0", "console=ttyS0"]
 }
+
+variable "ignore_changes" {
+  description = "When set to true, ignores the reprovisioning of the node."
+  type        = bool
+  default     = false
+}
+
+variable "asset_dir" {
+  description = "Path to a directory where generated assets should be placed (contains secrets)"
+  type        = string
+}

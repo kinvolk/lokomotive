@@ -1,6 +1,7 @@
 module "controller_profile" {
   source                   = "../../../matchbox-flatcar"
   count                    = length(var.controller_names)
+  asset_dir                = var.asset_dir
   node_name                = var.controller_names[count.index]
   node_mac                 = var.controller_macs[count.index]
   node_domain              = var.controller_domains[count.index]
@@ -15,6 +16,7 @@ module "controller_profile" {
   ssh_keys                 = var.ssh_keys
   ignition_clc_config      = module.controller[count.index].clc_config
   cached_install           = var.cached_install
+  ignore_changes           = true
   pxe_commands             = var.pxe_commands
   install_pre_reboot_cmds  = var.install_pre_reboot_cmds
   kernel_console           = var.kernel_console

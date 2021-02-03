@@ -1,6 +1,7 @@
 module "worker_profile" {
   source                   = "../../../matchbox-flatcar"
   count                    = length(var.worker_names)
+  asset_dir                = var.asset_dir
   node_name                = var.worker_names[count.index]
   node_mac                 = var.worker_macs[count.index]
   node_domain              = var.worker_domains[count.index]
