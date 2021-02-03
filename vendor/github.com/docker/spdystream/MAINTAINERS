@@ -11,6 +11,8 @@
 [Org]
 	[Org."Core maintainers"]
 		people = [
+			"adisky",
+			"dims",
 			"dmcgowan",
 		]
 
@@ -22,7 +24,17 @@
 
 	# ADD YOURSELF HERE IN ALPHABETICAL ORDER
 
+	[people.adisky]
+	Name = "Aditi Sharma"
+	Email = "adi.sky17@gmail.com"
+	GitHub = "adisky"
+
+	[people.dims]
+	Name = "Davanum Srinivas"
+	Email = "davanum@gmail.com"
+	GitHub = "dims"
+
 	[people.dmcgowan]
 	Name = "Derek McGowan"
-	Email = "derek@docker.com"
+	Email = "derek@mcg.dev"
 	GitHub = "dmcgowan"
