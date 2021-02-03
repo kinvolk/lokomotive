@@ -18,4 +18,5 @@ module "worker_profile" {
   pxe_commands             = var.pxe_commands
   install_pre_reboot_cmds  = var.install_pre_reboot_cmds
   kernel_console           = var.kernel_console
+  asset_dir                = var.asset_dir
 }
