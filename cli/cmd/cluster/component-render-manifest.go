@@ -56,7 +56,7 @@ func renderComponentManifests(lokoConfig *config.Config, componentNames []string
 			"component": componentName,
 		})
 
-		component, err := componentConfig(componentName)
+		component, err := ComponentConfig(componentName)
 		if err != nil {
 			return fmt.Errorf("getting component %q: %w", componentName, err)
 		}

@@ -78,7 +78,8 @@ func AvailableComponents() []string {
 	return c
 }
 
-func componentConfig(name string) (components.Component, error) {
+// ComponentConfig return component config for a particular config.
+func ComponentConfig(name string) (components.Component, error) {
 	c, ok := componentsConfigs()[name]
 	if !ok {
 		return nil, fmt.Errorf("no component with name %q found", name)
