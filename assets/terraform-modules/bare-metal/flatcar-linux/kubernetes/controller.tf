@@ -19,6 +19,15 @@ filesystems:
       format: ext4
       wipe_filesystem: true
       label: ROOT
+storage:
+  files:
+    - path: /ignition_ran
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          Flag file indicating that Ignition ran.
+          Should be deleted by the SSH step that checks it.
 EOF
     ,
   ])
