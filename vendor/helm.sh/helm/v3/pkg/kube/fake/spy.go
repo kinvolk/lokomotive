@@ -95,3 +95,8 @@ func (v KubeClientSpy) UpdateRecreate(original, target kube.ResourceList, force 
 	v.Calls[functionName()]++
 	return v.KubeClientV2.UpdateRecreate(original, target, force, timeout)
 }
+
+func (v KubeClientSpy) WaitWithJobs(resources kube.ResourceList, timeout time.Duration) error {
+	v.Calls[functionName()]++
+	return v.KubeClientV2.WaitWithJobs(resources, timeout)
+}

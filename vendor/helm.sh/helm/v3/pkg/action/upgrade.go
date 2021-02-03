@@ -64,6 +64,8 @@ type Upgrade struct {
 	Timeout time.Duration
 	// Wait determines whether the wait operation should be performed after the upgrade is requested.
 	Wait bool
+	// WaitForJobs determines whether the wait operation for the Jobs should be performed after the upgrade is requested.
+	WaitForJobs bool
 	// DisableHooks disables hook processing if set to true.
 	DisableHooks bool
 	// DryRun controls whether the operation is prepared, but not executed.
@@ -118,7 +120,7 @@ func (u *Upgrade) Run(name string, chart *chart.Chart, vals map[string]interface
 	// the user doesn't have to specify both
 	u.Wait = u.Wait || u.Atomic
 
-	if err := validateReleaseName(name); err != nil {
+	if err := chartutil.ValidateReleaseName(name); err != nil {
 		return nil, errors.Errorf("release name is invalid: %s", name)
 	}
 	u.cfg.Log("preparing upgrade for %s", name)
@@ -145,18 +147,6 @@ func (u *Upgrade) Run(name string, chart *chart.Chart, vals map[string]interface
 	return res, nil
 }
 
-func validateReleaseName(releaseName string) error {
-	if releaseName == "" {
-		return errMissingRelease
-	}
-
-	if !ValidName.MatchString(releaseName) || (len(releaseName) > releaseNameMaxLen) {
-		return errInvalidName
-	}
-
-	return nil
-}
-
 // prepareUpgrade builds an upgraded release for an upgrade operation.
 func (u *Upgrade) prepareUpgrade(name string, chart *chart.Chart, vals map[string]interface{}) (*release.Release, *release.Release, error) {
 	if chart == nil {
@@ -171,6 +161,11 @@ func (u *Upgrade) prepareUpgrade(name string, chart *chart.Chart, vals map[strin
 			return nil, nil, driver.NewErrNoDeployedReleases(name)
 		}
 		return nil, nil, err
+	}
+
+	// Concurrent `helm upgrade`s will either fail here with `errPending` or when creating the release with "already exists". This should act as a pessimistic lock.
+	if lastRelease.Info.Status.IsPending() {
+		return nil, nil, errPending
 	}
 
 	var currentRelease *release.Release
@@ -349,9 +344,16 @@ func (u *Upgrade) performUpgrade(originalRelease, upgradedRelease *release.Relea
 	}
 
 	if u.Wait {
-		if err := u.cfg.KubeClient.Wait(target, u.Timeout); err != nil {
-			u.cfg.recordRelease(originalRelease)
-			return u.failRelease(upgradedRelease, result.Created, err)
+		if u.WaitForJobs {
+			if err := u.cfg.KubeClient.WaitWithJobs(target, u.Timeout); err != nil {
+				u.cfg.recordRelease(originalRelease)
+				return u.failRelease(upgradedRelease, result.Created, err)
+			}
+		} else {
+			if err := u.cfg.KubeClient.Wait(target, u.Timeout); err != nil {
+				u.cfg.recordRelease(originalRelease)
+				return u.failRelease(upgradedRelease, result.Created, err)
+			}
 		}
 	}
 
@@ -420,6 +422,7 @@ func (u *Upgrade) failRelease(rel *release.Release, created kube.ResourceList, e
 		rollin := NewRollback(u.cfg)
 		rollin.Version = filteredHistory[0].Version
 		rollin.Wait = true
+		rollin.WaitForJobs = u.WaitForJobs
 		rollin.DisableHooks = u.DisableHooks
 		rollin.Recreate = u.Recreate
 		rollin.Force = u.Force
