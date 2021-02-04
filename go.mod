@@ -13,6 +13,7 @@ require (
 	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/emicklei/go-restful v2.12.0+incompatible // indirect
 	github.com/fatih/color v1.9.0 // indirect
+	github.com/go-logr/logr v0.3.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.8 // indirect
@@ -21,7 +22,6 @@ require (
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/go-version v1.2.0
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.7.2
 	github.com/hpcloud/tail v1.0.0
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
@@ -33,8 +33,11 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
+	github.com/onsi/ginkgo v1.14.1
+	github.com/onsi/gomega v1.10.2
 	github.com/packethost/packngo v0.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
+	github.com/pingcap/errors v0.11.4
 	github.com/prometheus/alertmanager v0.20.0
 	github.com/prometheus/client_golang v1.7.1
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
@@ -56,6 +59,7 @@ require (
 	k8s.io/api v0.20.2
 	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v0.20.2
+	sigs.k8s.io/controller-runtime v0.8.1
 	sigs.k8s.io/yaml v1.2.0
 )
 

@@ -1,0 +1,24 @@
+# permissions for end users to edit lokomotivecomponents.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lokomotivecomponent-editor-role
+rules:
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents/status
+  verbs:
+  - get

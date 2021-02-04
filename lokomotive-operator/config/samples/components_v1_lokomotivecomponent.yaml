@@ -1,0 +1,9 @@
+apiVersion: components.kinvolk.io/v1
+kind: LokomotiveComponent
+metadata:
+  name: httpbin
+spec:
+  # config should be of this format
+  config:
+    httpbin.lokocfg: "/Users/knrt10/dev/kinvolk/lokomotive-infra/mycluster/cluster.lokocfg"
+    lokocfg.vars: "/Users/knrt10/dev/kinvolk/lokomotive-infra/mycluster/lokocfg.vars"

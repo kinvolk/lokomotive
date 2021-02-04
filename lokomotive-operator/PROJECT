@@ -1,0 +1,13 @@
+domain: knrt10.io
+layout: go.kubebuilder.io/v3
+projectName: kubebuilder-cron
+repo: github.com/kinvolk/lokomotive
+resources:
+- crdVersion: v1
+  group: components
+  kind: LokomotiveComponent
+  version: v1
+version: 3-alpha
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}

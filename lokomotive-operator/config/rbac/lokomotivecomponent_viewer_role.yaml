@@ -1,0 +1,20 @@
+# permissions for end users to view lokomotivecomponents.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lokomotivecomponent-viewer-role
+rules:
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents/status
+  verbs:
+  - get

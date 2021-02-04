@@ -1,0 +1,34 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - components.kinvolk.io
+  resources:
+  - lokomotivecomponents/status
+  verbs:
+  - get
+  - patch
+  - update
