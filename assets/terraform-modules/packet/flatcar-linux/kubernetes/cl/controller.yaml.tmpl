@@ -79,6 +79,8 @@ systemd:
         Description=Flatcar Metadata Agent
         [Service]
         Type=oneshot
+        Restart=on-failure
+        RestartSec=10s
         Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
         ExecStart=/usr/bin/coreos-metadata $${COREOS_METADATA_OPT_PROVIDER} --attributes=/run/metadata/flatcar
         [Install]
