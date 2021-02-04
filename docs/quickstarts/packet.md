@@ -173,11 +173,11 @@ Your configurations are stored in ./assets
 
 Now checking health and readiness of the cluster nodes ...
 
-Node                             Ready    Reason          Message                            
-                                                                                             
-lokomotive-demo-controller-0       True     KubeletReady    kubelet is posting ready status    
-lokomotive-demo-pool-1-worker-0    True     KubeletReady    kubelet is posting ready status    
-lokomotive-demo-pool-1-worker-1    True     KubeletReady    kubelet is posting ready status    
+Node                             Ready    Reason          Message
+
+lokomotive-demo-controller-0       True     KubeletReady    kubelet is posting ready status
+lokomotive-demo-pool-1-worker-0    True     KubeletReady    kubelet is posting ready status
+lokomotive-demo-pool-1-worker-1    True     KubeletReady    kubelet is posting ready status
 
 Success - cluster is healthy and nodes are ready!
 ```
@@ -219,13 +219,13 @@ Sample output:
 
 ```
 {
-  "args": {}, 
+  "args": {},
   "headers": {
-    "Accept": "*/*", 
-    "Host": "localhost:8080", 
+    "Accept": "*/*",
+    "Host": "localhost:8080",
     "User-Agent": "curl/7.70.0"
-  }, 
-  "origin": "127.0.0.1", 
+  },
+  "origin": "127.0.0.1",
   "url": "http://localhost:8080/get"
 }
 ```
