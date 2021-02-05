@@ -30,11 +30,10 @@ resource "local_file" "calico_host_protection" {
       }
     ],
     management_cidrs = var.management_cidrs
-    cluster_cidrs = [
-      var.node_private_cidr,
+    cluster_cidrs = concat([
       var.pod_cidr,
       var.service_cidr
-    ],
+    ], var.node_private_cidrs),
   })
 
   filename = "${var.asset_dir}/charts/kube-system/calico-host-protection.yaml"

@@ -35,7 +35,7 @@ variable "route53_zone_id" {}
 variable "packet_project_id" {}
 variable "ssh_public_keys" {}
 variable "management_cidrs" {}
-variable "node_private_cidr" {}
+variable "node_private_cidrs" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
 variable "oidc_issuer_url" {}
@@ -90,7 +90,7 @@ cluster "packet" {
 
   management_cidrs = var.management_cidrs
 
-  node_private_cidr = var.node_private_cidr
+  node_private_cidrs = var.node_private_cidrs
 
   cluster_domain_suffix = "cluster.local"
 
@@ -222,7 +222,8 @@ node_type = var.custom_default_worker_type
 | `os_version`                          | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                                                                                                                                                               | "current"       | string       | false    |
 | `ipxe_script_url`                     | Boot via iPXE. Required for arm64.                                                                                                                                                                                                                                                                                                 | -               | string       | false    |
 | `management_cidrs`                    | List of IPv4 CIDRs authorized to access or manage the cluster. Example ["0.0.0.0/0"] to allow all.                                                                                                                                                                                                                                 | -               | list(string) | true     |
-| `node_private_cidr`                   | Private IPv4 CIDR of the nodes used to allow inter-node traffic. Example "10.0.0.0/8"                                                                                                                                                                                                                                              | -               | string       | true     |
+| `node_private_cidr`                   | (Deprecated, use `node_private_cidrs` instead) Private IPv4 CIDR of the nodes used to allow inter-node traffic. Example "10.0.0.0/8".                                                                                                                                                                                              | -               | string       | true     |
+| `node_private_cidrs`                  | List of Private IPv4 CIDRs of the nodes used to allow inter-node traffic. Example ["10.0.0.0/8"].                                                                                                                                                                                                                                  | -               | list(string) | true     |
 | `enable_aggregation`                  | Enable the Kubernetes Aggregation Layer.                                                                                                                                                                                                                                                                                           | true            | bool         | false    |
 | `enable_tls_bootstrap`                | Enable TLS bootstraping for Kubelet.                                                                                                                                                                                                                                                                                               | true            | bool         | false    |
 | `encrypt_pod_traffic`                 | Enable in-cluster pod traffic encryption. If true `network_mtu` is reduced by 60 to make room for the encryption header.                                                                                                                                                                                                           | false           | bool         | false    |

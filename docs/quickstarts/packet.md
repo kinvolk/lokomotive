@@ -109,7 +109,7 @@ cluster "packet" {
 
   ssh_pubkeys       = ["ssh-rsa AAAA..."]
   management_cidrs  = ["0.0.0.0/0"]
-  node_private_cidr = "10.0.0.0/8"
+  node_private_cidrs = ["10.0.0.0/8"]
 
   controller_count = 1
 

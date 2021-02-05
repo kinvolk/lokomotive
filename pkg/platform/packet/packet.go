@@ -83,7 +83,8 @@ type config struct {
 	OSVersion                string            `hcl:"os_version,optional"`
 	IPXEScriptURL            string            `hcl:"ipxe_script_url,optional"`
 	ManagementCIDRs          []string          `hcl:"management_cidrs"`
-	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
+	NodePrivateCIDR          string            `hcl:"node_private_cidr,optional"`
+	NodePrivateCIDRs         []string          `hcl:"node_private_cidrs,optional"`
 	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
 	NetworkMTU               int               `hcl:"network_mtu,optional"`
 	PodCIDR                  string            `hcl:"pod_cidr,optional"`
@@ -236,6 +237,12 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		// TODO: Render manually instead of marshaling.
 		return fmt.Errorf("marshaling management CIDRs: %w", err)
 	}
+
+	nodePrivateCIDRs, diags := cfg.resolveNodePrivateCIDRs()
+	if diags.HasErrors() {
+		return fmt.Errorf("validating Node Private CIDR: %s", diags.Error())
+	}
+
 	// Configure oidc flags and set it to KubeAPIServerExtraFlags.
 	if cfg.OIDC != nil {
 		// Skipping the error checking here because its done in checkValidConfig().
@@ -270,15 +277,17 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	cfg.terraformAddDeps()
 
 	terraformCfg := struct {
-		Config          config
-		Tags            string
-		SSHPublicKeys   string
-		ManagementCIDRs string
+		Config           config
+		Tags             string
+		SSHPublicKeys    string
+		ManagementCIDRs  string
+		NodePrivateCIDRs []string
 	}{
-		Config:          *cfg,
-		Tags:            string(tags),
-		SSHPublicKeys:   string(keyListBytes),
-		ManagementCIDRs: string(managementCIDRs),
+		Config:           *cfg,
+		Tags:             string(tags),
+		SSHPublicKeys:    string(keyListBytes),
+		ManagementCIDRs:  string(managementCIDRs),
+		NodePrivateCIDRs: nodePrivateCIDRs,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
@@ -286,6 +295,50 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 	}
 
 	return nil
+}
+
+func (c *config) resolveNodePrivateCIDRs() ([]string, hcl.Diagnostics) {
+	// If both the deprecated and the new fields are provided then error out.
+	if c.NodePrivateCIDR != "" && len(c.NodePrivateCIDRs) > 0 {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "`node_private_cidr` and `node_private_cidrs` cannot be used together, use `node_private_cidrs` only",
+			},
+		}
+	}
+
+	// If just the deprecated field is provided then produce a warning.
+	if c.NodePrivateCIDR != "" {
+		return []string{c.NodePrivateCIDR}, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagWarning,
+				Summary:  "`node_private_cidr` is deprecated, use `node_private_cidrs` instead",
+			},
+		}
+	}
+
+	// If there are repeated CIDRs then error out.
+	if repeatedCIDR := findDuplicateString(c.NodePrivateCIDRs); repeatedCIDR != "" {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  fmt.Sprintf("multiple entries of node private CIDR: %v", repeatedCIDR),
+			},
+		}
+	}
+
+	// If there are no CIDRs provided then error out.
+	if len(c.NodePrivateCIDRs) == 0 {
+		return nil, hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "neither `node_private_cidr` nor `node_private_cidrs` provided",
+			},
+		}
+	}
+
+	return c.NodePrivateCIDRs, nil
 }
 
 // terraformSmartApply applies cluster configuration.
@@ -440,6 +493,10 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 
 	if c.OIDC != nil {
 		_, diags := c.OIDC.ToKubeAPIServerFlags(c.clusterDomain())
+		diagnostics = append(diagnostics, diags...)
+	}
+
+	if _, diags := c.resolveNodePrivateCIDRs(); diags != nil {
 		diagnostics = append(diagnostics, diags...)
 	}
 
@@ -666,4 +723,18 @@ func checkResFormat(reservationIDs map[string]string, name, errorPrefix, resPref
 	}
 
 	return diagnostics
+}
+
+func findDuplicateString(strs []string) string {
+	uniqueStrs := make(map[string]interface{}, len(strs))
+
+	for _, str := range strs {
+		if _, ok := uniqueStrs[str]; ok {
+			return str
+		}
+
+		uniqueStrs[str] = nil
+	}
+
+	return ""
 }

@@ -176,7 +176,7 @@ func TestGetKubeconfigSourceFlag(t *testing.T) {
   controller_count  = 0
   facility          = ""
   management_cidrs  = []
-  node_private_cidr = ""
+  node_private_cidrs = ["10.10.10.10"]
   project_id        = ""
   ssh_pubkeys       = []
   dns {
@@ -218,7 +218,7 @@ func TestGetKubeconfigSourceConfigFile(t *testing.T) {
   controller_count  = 0
   facility          = ""
   management_cidrs  = []
-  node_private_cidr = ""
+  node_private_cidrs = ["10.10.10.10"]
   project_id        = ""
   ssh_pubkeys       = []
   dns {
@@ -281,7 +281,7 @@ func TestGetKubeconfigFromAssetsDir(t *testing.T) {
   controller_count  = 0
   facility          = ""
   management_cidrs  = []
-  node_private_cidr = ""
+  node_private_cidrs = ["10.10.10.10"]
   project_id        = ""
   ssh_pubkeys       = []
   dns {
