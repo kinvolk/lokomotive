@@ -172,13 +172,13 @@ func TestGetKubeconfigSourceFlag(t *testing.T) {
 		configFile: `cluster "packet" {
   asset_dir = "/bad"
 
-  cluster_name      = ""
-  controller_count  = 0
-  facility          = ""
-  management_cidrs  = []
+  cluster_name       = ""
+  controller_count   = 0
+  facility           = ""
+  management_cidrs   = []
   node_private_cidrs = ["10.10.10.10"]
-  project_id        = ""
-  ssh_pubkeys       = []
+  project_id         = ""
+  ssh_pubkeys        = []
   dns {
     provider = ""
     zone     = ""
@@ -214,13 +214,13 @@ func TestGetKubeconfigSourceConfigFile(t *testing.T) {
 		configFile: `cluster "packet" {
   asset_dir = "/foo"
 
-  cluster_name      = ""
-  controller_count  = 0
-  facility          = ""
-  management_cidrs  = []
+  cluster_name       = ""
+  controller_count   = 0
+  facility           = ""
+  management_cidrs   = []
   node_private_cidrs = ["10.10.10.10"]
-  project_id        = ""
-  ssh_pubkeys       = []
+  project_id         = ""
+  ssh_pubkeys        = []
   dns {
     provider = ""
     zone     = ""
@@ -277,13 +277,13 @@ func TestGetKubeconfigFromAssetsDir(t *testing.T) {
 		configFile: fmt.Sprintf(`cluster "packet" {
   asset_dir = "%s"
 
-  cluster_name      = ""
-  controller_count  = 0
-  facility          = ""
-  management_cidrs  = []
+  cluster_name       = ""
+  controller_count   = 0
+  facility           = ""
+  management_cidrs   = []
   node_private_cidrs = ["10.10.10.10"]
-  project_id        = ""
-  ssh_pubkeys       = []
+  project_id         = ""
+  ssh_pubkeys        = []
   dns {
     provider = ""
     zone     = ""

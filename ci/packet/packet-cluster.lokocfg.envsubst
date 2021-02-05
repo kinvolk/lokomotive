@@ -28,14 +28,14 @@ EOF
 
   project_id = "$PACKET_PROJECT_ID"
 
-  ssh_pubkeys       = ["$PUB_KEY"]
-  management_cidrs  = ["0.0.0.0/0"]
+  ssh_pubkeys        = ["$PUB_KEY"]
+  management_cidrs   = ["0.0.0.0/0"]
   node_private_cidrs = ["10.0.0.0/8"]
 
   worker_pool "pool-1" {
     count     = 2
     node_type = "c2.medium.x86"
-    labels        = {
+    labels = {
       "testing.io" = "yes",
       "roleofnode" = "testing",
     }

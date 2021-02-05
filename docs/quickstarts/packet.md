@@ -94,27 +94,27 @@ Create a file named `cluster.lokocfg` with the following contents:
 
 ```hcl
 cluster "packet" {
-  asset_dir        = "./assets"
-  cluster_name     = "lokomotive-demo"
+  asset_dir    = "./assets"
+  cluster_name = "lokomotive-demo"
 
   dns {
     zone     = "example.com"
     provider = "route53"
   }
 
-  facility = "ams1"
+  facility   = "ams1"
   project_id = "89273817-4f44-4b41-9f0c-cb00bf538542"
 
   controller_type = "c3.small.x86"
 
-  ssh_pubkeys       = ["ssh-rsa AAAA..."]
-  management_cidrs  = ["0.0.0.0/0"]
+  ssh_pubkeys        = ["ssh-rsa AAAA..."]
+  management_cidrs   = ["0.0.0.0/0"]
   node_private_cidrs = ["10.0.0.0/8"]
 
   controller_count = 1
 
   worker_pool "pool-1" {
-    count       = 2
+    count     = 2
     node_type = "c3.small.x86"
   }
 }

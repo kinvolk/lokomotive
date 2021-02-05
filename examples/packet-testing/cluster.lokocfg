@@ -54,8 +54,8 @@ cluster "packet" {
 
   project_id = var.packet_project_id
 
-  ssh_pubkeys       = var.ssh_public_keys
-  management_cidrs  = var.management_cidrs
+  ssh_pubkeys        = var.ssh_public_keys
+  management_cidrs   = var.management_cidrs
   node_private_cidrs = var.node_private_cidrs
 
   worker_pool "pool-1" {
