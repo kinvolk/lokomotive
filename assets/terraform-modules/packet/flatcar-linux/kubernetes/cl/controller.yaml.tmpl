@@ -49,6 +49,8 @@ systemd:
         Wants=systemd-resolved.service
         Before=kubelet.service etcd-member.service bootkube.service
         [Service]
+        Restart=on-failure
+        RestartSec=5s
         Type=oneshot
         RemainAfterExit=true
         ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done; /opt/wait-for-dns ${dns_zone} ${cluster_name}-private 3600'

@@ -13,6 +13,8 @@ systemd:
         Wants=systemd-resolved.service
         Before=kubelet.service
         [Service]
+        Restart=on-failure
+        RestartSec=5s
         Type=oneshot
         RemainAfterExit=true
         ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done'
