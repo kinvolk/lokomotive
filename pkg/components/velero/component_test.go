@@ -170,6 +170,7 @@ component "velero" {
     backup_storage_location {
       bucket   = "foo"
       provider = "aws"
+      region   = "myregion"
     }
   }
 }
@@ -207,6 +208,7 @@ component "velero" {
     backup_storage_location {
       bucket   = "foo"
       provider = "aws"
+      region   = "myregion"
     }
     tolerations {
       key                = "TestResticTolerationKey"

@@ -49,6 +49,17 @@ func TestResticConfig(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc:      "region should be present if provider is aws",
+			wantError: true,
+			config: &restic.Configuration{
+				Credentials: "foo",
+				BackupStorageLocation: &restic.BackupStorageLocation{
+					Bucket:   "mybucket",
+					Provider: "aws",
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
