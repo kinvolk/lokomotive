@@ -31,64 +31,64 @@ Velero component configuration example:
 # velero.lokocfg
 component "velero" {
 
-  # provider = "azure/openebs/restic"
-  # azure {
-  #   # Required arguments.
-  #   subscription_id = "9e5ac23c-6df8-44c4-9790-6f6decf96268"
-  #   tenant_id       = "78bdc534-b34f-4bda-a6ca-6df52915b0b5"
-  #   client_id       = "d44117a8-b69d-437b-9073-e4e3b25e164a"
-  #   client_secret   = "c26f9698-a563-409e-87ee-4dcf96007b73"
-  #   resource_group  = "my-resource-group"
+  #  provider = "azure/openebs/restic"
+  #  azure {
+  #    # Required arguments.
+  #    subscription_id = "9e5ac23c-6df8-44c4-9790-6f6decf96268"
+  #    tenant_id       = "78bdc534-b34f-4bda-a6ca-6df52915b0b5"
+  #    client_id       = "d44117a8-b69d-437b-9073-e4e3b25e164a"
+  #    client_secret   = "c26f9698-a563-409e-87ee-4dcf96007b73"
+  #    resource_group  = "my-resource-group"
   #
-  #   backup_storage_location {
-  #     resource_group  = "my-resource-group"
-  #     storage_account = "mybackupstorageaccount"
-  #     bucket          = "backupscontainer"
-  #   }
+  #    backup_storage_location {
+  #      resource_group  = "my-resource-group"
+  #      storage_account = "mybackupstorageaccount"
+  #      bucket          = "backupscontainer"
+  #    }
   #
-  #   # Optional parameters
-  #   volume_snapshot_location {
-  #     resource_group = "my-resource-group"
-  #     api_timeout    = "10m"
-  #   }
-  # }
-
-  # openebs {
-  #   credentials = file("cloud-credentails-file")
-  #		provider		= "aws"
-	#
-  #   backup_storage_location {
-  #     provider = "aws"
-  #     region 	 = "my-region"
-  #     bucket 	 = "my-bucket"
-  #			name     = "my-backup-location"
-  #   }
+  #    # Optional parameters
+  #    volume_snapshot_location {
+  #      resource_group = "my-resource-group"
+  #      api_timeout    = "10m"
+  #    }
+  #  }
   #
-  #   volume_snapshot_location {
-  #			bucket 	 = "my-bucket"
-  #			region 	 = "my-region"
-  #			provider = "aws"
-  #			name 		 = "my-snapshot-location"
-  #     prefix   = "backup-prefix"
-  #     local    = false
+  #  openebs {
+  #    credentials = file("cloud-credentails-file")
+  #    provider    = "aws"
   #
-  #     openebs_namespace = "openebs"
+  #    backup_storage_location {
+  #      provider = "aws"
+  #      region   = "my-region"
+  #      bucket   = "my-bucket"
+  #      name     = "my-backup-location"
+  #    }
   #
-  #     s3_url = "mybucket.example.com"
-  #   }
-  # }
-
-  # restic {
-  #   credentials = file("cloud-credentials-file")
+  #    volume_snapshot_location {
+  #      bucket   = "my-bucket"
+  #      region   = "my-region"
+  #      provider = "aws"
+  #      name     = "my-snapshot-location"
+  #      prefix   = "backup-prefix"
+  #      local    = false
   #
-  #   require_volume_annotation = true
+  #      openebs_namespace = "openebs"
   #
-  #   backup_storage_location {
-  #     provider = "aws"
-  #     bucket   = "my-bucket"
-  #     name     = "my-backup-location"
-  #   }
-  # }
+  #      s3_url = "mybucket.example.com"
+  #    }
+  #  }
+  #
+  #  restic {
+  #    credentials = file("cloud-credentials-file")
+  #
+  #    require_volume_annotation = true
+  #
+  #    backup_storage_location {
+  #      provider = "aws"
+  #      bucket   = "my-bucket"
+  #      name     = "my-backup-location"
+  #    }
+  #  }
 
   # Optional.
   metrics {
