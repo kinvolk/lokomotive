@@ -99,6 +99,8 @@ systemd:
         [Unit]
         Description=Waiting to delete Kubernetes node on shutdown
         [Service]
+        Restart=on-failure
+        RestartSec=5s
         Type=oneshot
         RemainAfterExit=true
         ExecStart=/bin/true
