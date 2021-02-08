@@ -208,13 +208,12 @@ component "velero" {
       bucket   = "foo"
       provider = "aws"
     }
-		
     tolerations {
       key                = "TestResticTolerationKey"
       value              = "TestResticTolerationValue"
       operator           = "Equal"
       effect             = "NoSchedule"
-      toleration_seconds = "1"
+      toleration_seconds = 1
     }
   }
 }
@@ -238,4 +237,11 @@ component "velero" {
 	gotConfig := testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
 
 	testutil.MatchJSONPathStringValue(t, gotConfig, jsonPath, expected)
+
+	jsonPath = "{.spec.template.spec.tolerations[0].tolerationSeconds}"
+	expectedNumber := int64(1)
+
+	gotConfig = testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
+
+	testutil.MatchJSONPathInt64Value(t, gotConfig, jsonPath, expectedNumber)
 }

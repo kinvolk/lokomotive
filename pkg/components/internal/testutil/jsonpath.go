@@ -89,3 +89,18 @@ func MatchJSONPathStringValue(t *testing.T, yamlConfig string, jsonPath string, 
 		t.Fatalf("Expected: %s, Got: %s", expected, got)
 	}
 }
+
+// MatchJSONPathInt64Value is a helper function for component unit tests. It compares the integer at
+// a JSON path in a YAML config to the expected integer.
+func MatchJSONPathInt64Value(t *testing.T, yamlConfig string, jsonPath string, expected int64) {
+	obj := jsonPathValue(t, yamlConfig, jsonPath)
+
+	got, ok := obj.(int64)
+	if !ok {
+		t.Fatalf("Value is not an integer: %#v", obj)
+	}
+
+	if got != expected {
+		t.Fatalf("Expected: %d, Got: %d", expected, got)
+	}
+}

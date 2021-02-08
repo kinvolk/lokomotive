@@ -44,7 +44,7 @@ type Toleration struct {
 	Effect            string `hcl:"effect,optional" json:"effect,omitempty"`
 	Operator          string `hcl:"operator,optional" json:"operator,omitempty"`
 	Value             string `hcl:"value,optional" json:"value,omitempty"`
-	TolerationSeconds string `hcl:"toleration_seconds,optional" json:"toleration_seconds,omitempty"`
+	TolerationSeconds int64  `hcl:"toleration_seconds,optional" json:"tolerationSeconds,omitempty"`
 }
 
 // RenderTolerations takes a list of tolerations.
