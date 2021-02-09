@@ -104,3 +104,9 @@ variable "asset_dir" {
   description = "Path to a directory where generated assets should be placed (contains secrets)"
   type        = string
 }
+
+variable "installer_clc_snippets" {
+  type        = list(string)
+  description = "List of Container Linux Config snippets."
+  default     = []
+}
