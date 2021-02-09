@@ -66,6 +66,7 @@ type config struct {
 	DownloadProtocol             string              `hcl:"download_protocol,optional"`
 	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
 	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
+	InstallerCLCSnippets         map[string][]string `hcl:"installer_clc_snippets,optional"`
 	KubeAPIServerExtraFlags      []string
 }
 
@@ -239,6 +240,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DownloadProtocol             string
 		NetworkIPAutodetectionMethod string
 		CLCSnippets                  map[string][]string
+		InstallerCLCSnippets         map[string][]string
 	}{
 		CachedInstall:                cfg.CachedInstall,
 		ClusterName:                  cfg.ClusterName,
@@ -274,6 +276,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DownloadProtocol:             cfg.DownloadProtocol,
 		NetworkIPAutodetectionMethod: cfg.NetworkIPAutodetectionMethod,
 		CLCSnippets:                  cfg.CLCSnippets,
+		InstallerCLCSnippets:         cfg.InstallerCLCSnippets,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
