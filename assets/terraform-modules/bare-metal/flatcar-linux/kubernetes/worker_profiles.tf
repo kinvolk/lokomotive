@@ -19,4 +19,5 @@ module "worker_profile" {
   pxe_commands             = var.pxe_commands
   install_pre_reboot_cmds  = var.install_pre_reboot_cmds
   kernel_console           = var.kernel_console
+  installer_clc_snippets   = lookup(var.installer_clc_snippets , var.worker_names[count.index], [])
 }
