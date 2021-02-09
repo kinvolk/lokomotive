@@ -15,8 +15,8 @@ module "bootkube" {
   etcd_endpoints       = packet_device.controllers.*.access_private_ipv4
 
   # Select private Packet NIC by using the can-reach Calico autodetection option with the first
-  # host in our private CIDR.
-  network_ip_autodetection_method = "can-reach=${cidrhost(var.node_private_cidr, 1)}"
+  # controller's private IP.
+  network_ip_autodetection_method = "can-reach=${packet_device.controllers[0].access_private_ipv4}"
 
   pod_cidr              = var.pod_cidr
   service_cidr          = var.service_cidr
