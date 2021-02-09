@@ -1,3 +1,84 @@
+## v0.6.1 - 2021-02-12
+
+This is a patch release which includes mainly bug fixes.
+
+> **NOTE**: Please read the updating guidelines [here](https://github.com/kinvolk/lokomotive/blob/v0.6.1/CHANGELOG.md#updating-from-v060).
+
+### Changes in v0.6.1
+
+#### Development
+
+- Velero: Add tolerations to Restic plugin ([#1348](https://github.com/kinvolk/lokomotive/pull/1348)).
+- Velero: Add e2e tests ([#1353](https://github.com/kinvolk/lokomotive/pull/1353)).
+- Update all Go dependencies ([#1358](https://github.com/kinvolk/lokomotive/pull/1358)).
+
+#### Terraform Provider Updates
+- Update Packet (Equinux Metal) Terraform provider to 3.2.1 that fixes the provisioning failures of
+  `n2.xlarge.x86` machines ([#1349](https://github.com/kinvolk/lokomotive/pull/1349)).
+
+#### Bug fixes
+
+- Prefix `ETCD_` for standard etcd environment variables only ([#1308](https://github.com/kinvolk/lokomotive/pull/1308)).
+- Update Restic TolerationSeconds type to integer and add conditional checks ([#1365](https://github.com/kinvolk/lokomotive/pull/1365)).
+
+#### Docs
+- Add missing `provider` parameter ([#1354](https://github.com/kinvolk/lokomotive/pull/1354)).
+- Update RELEASING document to add steps to update the documentation website entry ([#1326](https://github.com/kinvolk/lokomotive/pull/1326)).
+- Improvements to the Lokomotive release process documentation ([#1341](https://github.com/kinvolk/lokomotive/pull/1341)).
+
+### Updating from v0.6.0
+
+#### Cluster update steps
+
+> **NOTE:** Updating multiple Lokomotive versions at a time is not supported. If your cluster is running a
+> version older than `v0.6.0`, update to `v0.6.0` first and only then proceed with the update to `v0.6.1`.
+
+Please perform the following manual steps in your cluster configuration directory.
+
+1. Download and install the lokoctl binary by following the [v0.6.1 installation
+   guide](https://github.com/kinvolk/lokomotive/blob/v0.6.1/docs/installer/lokoctl.md).
+
+   ```bash
+   lokoctl version
+   v0.6.1
+   ```
+
+2. Update control plane.
+
+  ```bash
+  lokoctl cluster apply --skip-components -v
+  ```
+
+  > **NOTE:** If the update process gets interrupted, rerun above command.
+
+  The update process typically takes about 10 minutes.
+  After the update, running `lokoctl health` should result in an output similar to the following:
+
+  ```bash
+  Node                     Ready    Reason          Message
+
+  lokomotive-controller-0  True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-0    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-1    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-2    True     KubeletReady    kubelet is posting ready status
+  Name      Status    Message              Error
+
+  etcd-0    True      {"health":"true"}
+  ```
+
+3. Download the release bundle.
+
+  ```bash
+  curl -LO https://github.com/kinvolk/lokomotive/archive/v0.6.1.tar.gz
+  tar -xvzf v0.6.1.tar.gz
+  ```
+
+4. Run update script
+
+  ```bash
+  ./lokomotive-0.6.1/scripts/update/0.6.0-0.6.1/update.sh
+  ```
+
 ## v0.6.0 - 2021-01-22
 
 We're happy to announce the release of Lokomotive v0.6.0 (Flying Scotsman).
