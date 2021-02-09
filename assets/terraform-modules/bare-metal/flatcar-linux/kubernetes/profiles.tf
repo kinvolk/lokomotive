@@ -105,30 +105,7 @@ resource "matchbox_profile" "controllers" {
     var.cluster_name,
     var.controller_names[count.index]
   )
-  raw_ignition = data.ct_config.controller-ignitions[count.index].rendered
-}
-
-data "ct_config" "controller-ignitions" {
-  count = length(var.controller_names)
-  content = templatefile("${path.module}/cl/controller.yaml.tmpl", {
-    domain_name = var.controller_domains[count.index]
-    etcd_name   = var.controller_names[count.index]
-    etcd_initial_cluster = join(
-      ",",
-      formatlist(
-        "%s=https://%s:2380",
-        var.controller_names,
-        var.controller_domains,
-      ),
-    )
-    cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
-    cluster_domain_suffix  = var.cluster_domain_suffix
-    ssh_keys               = jsonencode(var.ssh_keys)
-    enable_tls_bootstrap   = var.enable_tls_bootstrap
-  })
-  pretty_print = false
-
-  snippets = lookup(var.clc_snippets, var.controller_names[count.index], [])
+  raw_ignition = module.controller[count.index].clc_config
 }
 
 // Kubernetes Worker profiles
@@ -139,21 +116,6 @@ resource "matchbox_profile" "workers" {
     var.cluster_name,
     var.worker_names[count.index]
   )
-  raw_ignition = data.ct_config.worker-ignitions[count.index].rendered
-}
-
-data "ct_config" "worker-ignitions" {
-  count = length(var.worker_names)
-  content = templatefile("${path.module}/cl/worker.yaml.tmpl", {
-    domain_name            = var.worker_domains[count.index]
-    cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
-    cluster_domain_suffix  = var.cluster_domain_suffix
-    ssh_keys               = jsonencode(var.ssh_keys)
-    kubelet_labels         = merge({ "node.kubernetes.io/node" = "" }, var.labels),
-    enable_tls_bootstrap   = var.enable_tls_bootstrap
-  })
-  pretty_print = false
-
-  snippets = lookup(var.clc_snippets, var.worker_names[count.index], [])
+  raw_ignition = module.worker[count.index].clc_config
 }
 
