@@ -21,7 +21,12 @@ resource "matchbox_profile" "flatcar-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
+  raw_ignition = data.ct_config.install-ignitions[count.index].rendered
+}
+
+data "ct_config" "install-ignitions" {
+  count = length(var.controller_names) + length(var.worker_names)
+  content = templatefile("${path.module}/cl/install.yaml.tmpl", {
     os_channel               = var.os_channel
     os_version               = var.os_version
     ignition_endpoint        = format("%s/ignition", var.matchbox_http_endpoint)
@@ -34,7 +39,12 @@ resource "matchbox_profile" "flatcar-install" {
     install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
+    mac_address  = concat(var.controller_macs, var.worker_macs)[count.index]
   })
+
+  pretty_print = false
+
+  snippets = lookup(var.installer_clc_snippets, concat(var.controller_names, var.worker_names)[count.index], [])
 }
 
 // Flatcar Container Linux Install profile (from matchbox /assets cache)
@@ -61,7 +71,12 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = templatefile("${path.module}/cl/install.yaml.tmpl", {
+  raw_ignition = data.ct_config.cached-install-ignitions[count.index].rendered
+}
+
+data "ct_config" "cached-install-ignitions" {
+  count = length(var.controller_names) + length(var.worker_names)
+  content = templatefile("${path.module}/cl/install.yaml.tmpl", {
     os_channel               = var.os_channel
     os_version               = var.os_version
     ignition_endpoint        = format("%s/ignition", var.matchbox_http_endpoint)
@@ -74,7 +89,12 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.matchbox_http_endpoint}/assets/flatcar"
+    mac_address  = concat(var.controller_macs, var.worker_macs)[count.index]
   })
+
+  pretty_print = false
+
+  snippets = lookup(var.installer_clc_snippets, concat(var.controller_names, var.worker_names)[count.index], [])
 }
 
 // Kubernetes Controller profiles
