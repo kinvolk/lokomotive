@@ -31,6 +31,7 @@ resource "matchbox_profile" "flatcar-install" {
     install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
+    mac_address  = var.node_mac
   })
 }
 
@@ -69,6 +70,7 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.http_endpoint}/assets/flatcar"
+    mac_address  = var.node_mac
   })
 }
 

@@ -98,3 +98,9 @@ variable "asset_dir" {
   description = "Path to a directory where generated assets should be placed (contains secrets)"
   type        = string
 }
+
+variable "installer_clc_snippets" {
+  type        = map(list(string))
+  description = "Map from machine names to lists of Container Linux Config snippets"
+  default     = {}
+}
