@@ -210,8 +210,8 @@ component "velero" {
     }
 		
     tolerations {
-      key                = "TestResticToletrationKey"
-      value              = "TestResticToletrationValue"
+      key                = "TestResticTolerationKey"
+      value              = "TestResticTolerationValue"
       operator           = "Equal"
       effect             = "NoSchedule"
       toleration_seconds = "1"
@@ -233,7 +233,7 @@ component "velero" {
 
 	m := testutil.RenderManifests(t, component, Name, configHCL)
 	jsonPath := "{.spec.template.spec.tolerations[0].key}"
-	expected := "TestResticToletrationKey"
+	expected := "TestResticTolerationKey"
 
 	gotConfig := testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
 
