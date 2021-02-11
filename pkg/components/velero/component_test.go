@@ -212,7 +212,7 @@ component "velero" {
       key                = "TestResticTolerationKey"
       value              = "TestResticTolerationValue"
       operator           = "Equal"
-      effect             = "NoSchedule"
+      effect             = "NoExecute"
       toleration_seconds = 1
     }
   }
