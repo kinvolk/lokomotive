@@ -14,7 +14,10 @@
 
 package util
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // NodeAffinity is a struct that other components can use to define the HCL format of NodeAffinity
 // in Kubernetes PodSpec.
@@ -44,7 +47,7 @@ type Toleration struct {
 	Effect            string `hcl:"effect,optional" json:"effect,omitempty"`
 	Operator          string `hcl:"operator,optional" json:"operator,omitempty"`
 	Value             string `hcl:"value,optional" json:"value,omitempty"`
-	TolerationSeconds string `hcl:"toleration_seconds,optional" json:"toleration_seconds,omitempty"`
+	TolerationSeconds int64  `hcl:"toleration_seconds,optional" json:"tolerationSeconds,omitempty"`
 }
 
 // RenderTolerations takes a list of tolerations.
@@ -54,12 +57,27 @@ func RenderTolerations(t []Toleration) (string, error) {
 		return "", nil
 	}
 
+	for _, toleration := range t {
+		if err := validateToleration(toleration); err != nil {
+			return "", fmt.Errorf("toleration validation failed: %v", err)
+		}
+	}
+
 	b, err := json.Marshal(t)
 	if err != nil {
 		return "", err
 	}
 
 	return string(b), nil
+}
+
+func validateToleration(t Toleration) error {
+	// If TolerationSeconds is set then; Effect must be `NoExecute`
+	if t.TolerationSeconds != 0 && t.Effect != "NoExecute" {
+		return fmt.Errorf("`effect` must be `NoExecute` as `toleration_seconds` is set: got %s", t.Effect)
+	}
+
+	return nil
 }
 
 // NodeSelector is a type used when defining node selector for the pod spec.

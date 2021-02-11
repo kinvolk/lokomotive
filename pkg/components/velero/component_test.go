@@ -170,6 +170,7 @@ component "velero" {
     backup_storage_location {
       bucket   = "foo"
       provider = "aws"
+      region   = "myregion"
     }
   }
 }
@@ -207,14 +208,14 @@ component "velero" {
     backup_storage_location {
       bucket   = "foo"
       provider = "aws"
+      region   = "myregion"
     }
-		
     tolerations {
-      key                = "TestResticToletrationKey"
-      value              = "TestResticToletrationValue"
+      key                = "TestResticTolerationKey"
+      value              = "TestResticTolerationValue"
       operator           = "Equal"
-      effect             = "NoSchedule"
-      toleration_seconds = "1"
+      effect             = "NoExecute"
+      toleration_seconds = 1
     }
   }
 }
@@ -233,9 +234,16 @@ component "velero" {
 
 	m := testutil.RenderManifests(t, component, Name, configHCL)
 	jsonPath := "{.spec.template.spec.tolerations[0].key}"
-	expected := "TestResticToletrationKey"
+	expected := "TestResticTolerationKey"
 
 	gotConfig := testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
 
 	testutil.MatchJSONPathStringValue(t, gotConfig, jsonPath, expected)
+
+	jsonPath = "{.spec.template.spec.tolerations[0].tolerationSeconds}"
+	expectedNumber := int64(1)
+
+	gotConfig = testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
+
+	testutil.MatchJSONPathInt64Value(t, gotConfig, jsonPath, expectedNumber)
 }

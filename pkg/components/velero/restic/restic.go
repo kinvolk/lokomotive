@@ -111,6 +111,14 @@ func (c *Configuration) Validate() hcl.Diagnostics {
 		})
 	}
 
+	if c.BackupStorageLocation.Provider == "aws" && c.BackupStorageLocation.Region == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Make sure `restic.backup_storage_location.region` value is set",
+			Detail:   "restic.backup_storage_location.region must be provided for `aws` provider",
+		})
+	}
+
 	return diagnostics
 }
 
