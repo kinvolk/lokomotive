@@ -54,6 +54,13 @@ resource "local_file" "kube-apiserver" {
   })
 }
 
+resource "local_file" "prometheus-operator-crds" {
+  filename = "${var.asset_dir}/charts/kube-system/prometheus-operator-crds.yaml"
+  content = templatefile("${path.module}/resources/charts/prometheus-operator-crds.yaml", {
+    install = var.install_prometheus_operator_crds
+  })
+}
+
 resource "local_file" "pod-checkpointer" {
   filename = "${var.asset_dir}/charts/kube-system/pod-checkpointer.yaml"
   content = templatefile("${path.module}/resources/charts/pod-checkpointer.yaml", {
