@@ -50,4 +50,6 @@ module "bootkube" {
   conntrack_max_per_core = var.conntrack_max_per_core
 
   cloud_provider = "external"
+
+  install_prometheus_operator_crds = var.install_prometheus_operator_crds
 }
