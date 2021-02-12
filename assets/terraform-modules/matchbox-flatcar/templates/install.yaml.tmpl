@@ -8,7 +8,10 @@ systemd:
         Requires=network-online.target
         After=network-online.target
         [Service]
-        Type=simple
+        Type=oneshot
+        RemainAfterExit=true
+        Restart=on-failure
+        RestartSec=10s
         ExecStart=/opt/installer
         [Install]
         WantedBy=multi-user.target
@@ -30,6 +33,8 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
+          # unmount any leftovers at the beginning before we modify the disk the mount uses
+          umount /tmp/oemfs || true
           lvchange -an /dev/mapper/vg* || true
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
