@@ -42,6 +42,8 @@ module "aws-{{.Config.ClusterName}}" {
   controller_type  = "{{.Config.ControllerType}}"
  {{- end }}
 
+  install_prometheus_operator_crds = {{.Config.InstallPrometheusOperatorCRDs}}
+
   {{- if .Config.NetworkMTU }}
   network_mtu = {{.Config.NetworkMTU}}
   {{- end }}
