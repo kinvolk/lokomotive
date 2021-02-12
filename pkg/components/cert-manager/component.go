@@ -101,9 +101,6 @@ func (c *component) Metadata() components.Metadata {
 		Name: Name,
 		Namespace: k8sutil.Namespace{
 			Name: c.Namespace,
-			Labels: map[string]string{
-				"certmanager.k8s.io/disable-validation": "true",
-			},
 		},
 		Helm: components.HelmMetadata{
 			// Cert-manager registers admission webhooks, so we should wait for the webhook to
