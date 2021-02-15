@@ -11,6 +11,11 @@ resource "null_resource" "copy-controller-secrets" {
     null_resource.reprovision-controller-when-ignition-changes,
   ]
 
+  # Triggered when the Ignition Config changes (used to recreate a controller)
+  triggers = {
+    ignition_config = null_resource.reprovision-controller-when-ignition-changes[count.index].id
+  }
+
   connection {
     type    = "ssh"
     host    = var.controller_domains[count.index]
