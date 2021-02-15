@@ -35,6 +35,7 @@ type workerPool struct {
 	Count        int               `hcl:"count"`
 	SSHPubKeys   []string          `hcl:"ssh_pubkeys"`
 	InstanceType string            `hcl:"instance_type,optional"`
+	OSArch       string            `hcl:"os_arch,optional"`
 	OSChannel    string            `hcl:"os_channel,optional"`
 	OSVersion    string            `hcl:"os_version,optional"`
 	Labels       map[string]string `hcl:"labels,optional"`
@@ -54,6 +55,7 @@ type config struct {
 	AssetDir                 string            `hcl:"asset_dir"`
 	ClusterName              string            `hcl:"cluster_name"`
 	Tags                     map[string]string `hcl:"tags,optional"`
+	OSArch                   string            `hcl:"os_arch,optional"`
 	OSChannel                string            `hcl:"os_channel,optional"`
 	OSVersion                string            `hcl:"os_version,optional"`
 	DNSZone                  string            `hcl:"dns_zone"`
