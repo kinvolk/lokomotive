@@ -23,6 +23,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 func TestStorageClassEmptyConfig(t *testing.T) {
@@ -144,16 +145,18 @@ func TestConversion(t *testing.T) { //nolint:funlen
 	testCases := []struct {
 		name                 string
 		inputConfig          string
-		expectedManifestName string
+		expectedManifestName k8sutil.ObjectMetadata
 		expected             string
 		jsonPath             string
 	}{
 		{
-			name:                 "no_tolerations_node",
-			inputConfig:          `component "aws-ebs-csi-driver" {}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/node.yaml",
-			jsonPath:             "{.spec.template.spec.tolerations[0].operator}",
-			expected:             "Exists",
+			name:        "no_tolerations_node",
+			inputConfig: `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "DaemonSet", Name: "ebs-csi-node",
+			},
+			jsonPath: "{.spec.template.spec.tolerations[0].operator}",
+			expected: "Exists",
 		},
 		{
 			name: "tolerations_node",
@@ -165,16 +168,20 @@ func TestConversion(t *testing.T) { //nolint:funlen
 								effect   = "NoSchedule"
 							}
 						}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/node.yaml",
-			jsonPath:             "{.spec.template.spec.tolerations[0].value}",
-			expected:             "awesome",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "DaemonSet", Name: "ebs-csi-node",
+			},
+			jsonPath: "{.spec.template.spec.tolerations[0].value}",
+			expected: "awesome",
 		},
 		{
-			name:                 "no_tolerations_csi_controller",
-			inputConfig:          `component "aws-ebs-csi-driver" {}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/controller.yaml",
-			jsonPath:             "{.spec.template.spec.tolerations[0].operator}",
-			expected:             "Exists",
+			name:        "no_tolerations_csi_controller",
+			inputConfig: `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "Deployment", Name: "ebs-csi-controller",
+			},
+			jsonPath: "{.spec.template.spec.tolerations[0].operator}",
+			expected: "Exists",
 		},
 		{
 			name: "tolerations_csi_controller",
@@ -186,16 +193,20 @@ func TestConversion(t *testing.T) { //nolint:funlen
 								effect   = "NoSchedule"
 							}
 						}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/controller.yaml",
-			jsonPath:             "{.spec.template.spec.tolerations[0].key}",
-			expected:             "lokomotive.io",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "Deployment", Name: "ebs-csi-controller",
+			},
+			jsonPath: "{.spec.template.spec.tolerations[0].key}",
+			expected: "lokomotive.io",
 		},
 		{
-			name:                 "no_tolerations_snapshot_controller",
-			inputConfig:          `component "aws-ebs-csi-driver" {}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/statefulset.yaml",
-			jsonPath:             "{.spec.template.spec.tolerations[0].operator}",
-			expected:             "Exists",
+			name:        "no_tolerations_snapshot_controller",
+			inputConfig: `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "StatefulSet", Name: "ebs-snapshot-controller",
+			},
+			jsonPath: "{.spec.template.spec.tolerations[0].operator}",
+			expected: "Exists",
 		},
 		{
 			name: "tolerations_snapshot_controller",
@@ -207,9 +218,11 @@ func TestConversion(t *testing.T) { //nolint:funlen
 								effect   = "NoSchedule"
 							}
 						}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/statefulset.yaml",
-			jsonPath:             "{.spec.template.spec.tolerations[0].effect}",
-			expected:             "NoSchedule",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "StatefulSet", Name: "ebs-snapshot-controller",
+			},
+			jsonPath: "{.spec.template.spec.tolerations[0].effect}",
+			expected: "NoSchedule",
 		},
 		{
 			name: "affinity_csi_controller",
@@ -220,7 +233,9 @@ func TestConversion(t *testing.T) { //nolint:funlen
 								values   = ["storage"]
 							}
 						}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/controller.yaml",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "Deployment", Name: "ebs-csi-controller",
+			},
 			jsonPath: "{.spec.template.spec.affinity.nodeAffinity." +
 				"requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key}",
 			expected: "lokomotive.io/role",
@@ -234,26 +249,32 @@ func TestConversion(t *testing.T) { //nolint:funlen
 								values   = ["storage"]
 							}
 						}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/statefulset.yaml",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "StatefulSet", Name: "ebs-snapshot-controller",
+			},
 			jsonPath: "{.spec.template.spec.affinity.nodeAffinity." +
 				"requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]}",
 			expected: "storage",
 		},
 		{
-			name:                 "storage_class",
-			inputConfig:          `component "aws-ebs-csi-driver" {}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/storageclass.yaml",
-			jsonPath:             "{.reclaimPolicy}",
-			expected:             "Retain",
+			name:        "storage_class",
+			inputConfig: `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "ebs-sc",
+			},
+			jsonPath: "{.reclaimPolicy}",
+			expected: "Retain",
 		},
 		{
 			name: "default_storage_class",
 			inputConfig: `component "aws-ebs-csi-driver" {
 							enable_default_storage_class = true
 						}`,
-			expectedManifestName: "aws-ebs-csi-driver/templates/storageclass.yaml",
-			jsonPath:             `{.metadata.annotations.storageclass\.kubernetes\.io\/is\-default\-class}`,
-			expected:             "true",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "ebs-sc",
+			},
+			jsonPath: `{.metadata.annotations.storageclass\.kubernetes\.io\/is\-default\-class}`,
+			expected: "true",
 		},
 	}
 

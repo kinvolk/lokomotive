@@ -19,6 +19,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 //nolint:funlen
@@ -96,7 +97,7 @@ func TestConversion(t *testing.T) {
 	testCases := []struct {
 		name                 string
 		inputConfig          string
-		expectedManifestName string
+		expectedManifestName k8sutil.ObjectMetadata
 		expected             string
 		jsonPath             string
 	}{
@@ -108,9 +109,11 @@ func TestConversion(t *testing.T) {
 					metrics_scrape_interval = "10s"
 				}
 			}`,
-			expectedManifestName: "contour/templates/service-monitor.yaml",
-			jsonPath:             "{.spec.endpoints[0].interval}",
-			expected:             "10s",
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "monitoring.coreos.com/v1", Kind: "ServiceMonitor", Name: "envoy",
+			},
+			jsonPath: "{.spec.endpoints[0].interval}",
+			expected: "10s",
 		},
 	}
 

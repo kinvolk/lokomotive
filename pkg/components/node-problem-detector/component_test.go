@@ -21,6 +21,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	nodeproblemdetector "github.com/kinvolk/lokomotive/pkg/components/node-problem-detector"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 const name = "node-problem-detector"
@@ -92,7 +93,9 @@ component "node-problem-detector" {
 	jsonPath := "{.data.custom-monitor-0\\.json}"
 	expected := "testdata"
 
-	gotConfig := testutil.ConfigFromMap(t, m, "node-problem-detector/templates/custom-config-configmap.yaml")
+	gotConfig := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+		Name: "node-problem-detector-custom-config", Kind: "ConfigMap", Version: "v1",
+	})
 
 	testutil.MatchJSONPathStringValue(t, gotConfig, jsonPath, expected)
 }
