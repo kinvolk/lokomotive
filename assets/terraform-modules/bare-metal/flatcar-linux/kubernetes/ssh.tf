@@ -8,6 +8,13 @@ resource "null_resource" "copy-controller-secrets" {
     module.controller_profile,
   ]
 
+  # Triggered when the Ignition Config changes (used to recreate a controller)
+  triggers = {
+    clc_config     = module.controller[count.index].clc_config
+    kernel_console = join(" ", var.kernel_console)
+    kernel_args    = join(" ", var.kernel_args)
+  }
+
   connection {
     type    = "ssh"
     host    = var.controller_domains[count.index]
