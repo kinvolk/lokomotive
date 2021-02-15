@@ -28,8 +28,12 @@ import (
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	yamlserializer "k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	corev1typed "k8s.io/client-go/kubernetes/typed/core/v1"
+	"sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/internal"
 )
@@ -74,6 +78,7 @@ func (m manifest) Name() string {
 }
 
 // LoadManifests parses a map of Kubernetes manifests.
+// Deprecated: YAMLToObjectMetadata should be used instead.
 func LoadManifests(files map[string]string) ([]manifest, error) {
 	var manifests []manifest
 	for path, fileContent := range files {
@@ -226,4 +231,101 @@ func createNamespace(ns Namespace, nsclient corev1typed.NamespaceInterface) erro
 // ListNamespaces lists the namespaces present in the cluster.
 func ListNamespaces(nsclient corev1typed.NamespaceInterface) (*v1.NamespaceList, error) {
 	return nsclient.List(context.TODO(), metav1.ListOptions{})
+}
+
+// ObjectMetadata uniquely identifies any object in the list of YAML manifests.
+type ObjectMetadata struct {
+	Version string
+	Kind    string
+	Name    string
+}
+
+// YAMLToUnstructured accepts a Kubernetes manifest in YAML format and returns an object of type
+// `unstructured.Unstructured`. This object has many methods that can be used by the consumer to
+// extract metadata from the Kubernetes manifest.
+func YAMLToUnstructured(yamlObj []byte) (*unstructured.Unstructured, error) {
+	u := &unstructured.Unstructured{}
+
+	var gvk *schema.GroupVersionKind
+
+	// Decode YAML into `unstructured.Unstructured`.
+	dec := yamlserializer.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
+	if _, _, err := dec.Decode(yamlObj, gvk, u); err != nil {
+		return nil, fmt.Errorf("decoding: %w", err)
+	}
+
+	return u, nil
+}
+
+// SplitYAMLDocuments separates a YAML file with multiple YAML documents separated by `---` into
+// separate YAML files and returns a list.
+func SplitYAMLDocuments(yamlObj string) ([]string, error) {
+	var ret []string
+
+	reader := yamlutil.NewYAMLReader(bufio.NewReader(strings.NewReader(yamlObj)))
+
+	for {
+		// Read the YAML document delimited by `---`.
+		yamlManifest, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("reading the YAML: %w", err)
+		}
+
+		yamlManifest, err = removeYAMLComments(yamlManifest)
+		if err != nil {
+			return nil, fmt.Errorf("removing YAML comments: %w", err)
+		}
+
+		// Check if the YAML is empty.
+		if string(yamlManifest) == "null\n" {
+			continue
+		}
+
+		ret = append(ret, string(yamlManifest))
+	}
+
+	return ret, nil
+}
+
+// YAMLToObjectMetadata extracts Kubernetes metadata from any YAML manifest and return an
+// ObjectMetadata.
+func YAMLToObjectMetadata(yamlObj string) (ObjectMetadata, error) {
+	u, err := YAMLToUnstructured([]byte(yamlObj))
+	if err != nil {
+		return ObjectMetadata{}, fmt.Errorf("converting YAML to Unstructured: %w", err)
+	}
+
+	if u.GetAPIVersion() == "" {
+		return ObjectMetadata{}, fmt.Errorf("invalid configuration, no 'APIVersion' specified:\n%s", yamlObj)
+	}
+
+	if u.GetName() == "" {
+		return ObjectMetadata{}, fmt.Errorf("invalid configuration, no 'Name' specified:\n%s", yamlObj)
+	}
+
+	return ObjectMetadata{
+		Name:    u.GetName(),
+		Kind:    u.GetKind(),
+		Version: u.GetAPIVersion(),
+	}, nil
+}
+
+// removeYAMLComments converts YAML to JSON and back again, this removes the comments in the YAML
+// and any extra whitespaces spaces.
+func removeYAMLComments(yamlObj []byte) ([]byte, error) {
+	jsonObj, err := yaml.YAMLToJSON(yamlObj)
+	if err != nil {
+		return nil, fmt.Errorf("converting YAML to JSON: %w", err)
+	}
+
+	yamlObj, err = yaml.JSONToYAML(jsonObj)
+	if err != nil {
+		return nil, fmt.Errorf("converting JSON to YAML: %w", err)
+	}
+
+	return yamlObj, nil
 }
