@@ -64,3 +64,5 @@ EOF
   # of extra flags.
   oidc {}
 }
+
+component "contour" {}
