@@ -130,3 +130,18 @@ func TestConversion(t *testing.T) {
 		})
 	}
 }
+
+func TestEnvoyHostPort(t *testing.T) {
+	t.Parallel()
+
+	componentCfg := `component "contour" {}`
+	expectedManifestName := k8sutil.ObjectMetadata{Version: "apps/v1", Kind: "DaemonSet", Name: "envoy"}
+	jsonPath := "{.spec.template.spec.containers[1].ports[0].hostPort}"
+	errExpected := "hostPort is not found"
+
+	component := NewConfig()
+	m := testutil.RenderManifests(t, component, Name, componentCfg)
+	gotConfig := testutil.ConfigFromMap(t, m, expectedManifestName)
+
+	testutil.JSONPathExists(t, gotConfig, jsonPath, errExpected)
+}

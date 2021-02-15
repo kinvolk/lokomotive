@@ -17,6 +17,7 @@ package testutil
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
@@ -100,4 +101,23 @@ func MatchJSONPathInt64Value(t *testing.T, yamlConfig string, jsonPath string, e
 	if got != expected {
 		t.Fatalf("Expected: %d, Got: %d", expected, got)
 	}
+}
+
+// JSONPathExists checks if the given YAML config has an object at the given JSON path, also provide
+// what error to expect.
+func JSONPathExists(t *testing.T, yamlConfig string, jsonPath string, errExp string) {
+	_, err := jsonPathValue(yamlConfig, jsonPath)
+	if err != nil && errExp == "" {
+		t.Fatalf("Error not expected and failed with: %v", err)
+	}
+
+	if err == nil && errExp != "" {
+		t.Fatalf("Expected error %q but got none", errExp)
+	}
+
+	if err != nil && !strings.Contains(err.Error(), errExp) {
+		t.Fatalf("Extracting JSON path value, expected error: %v to contain: %q", err, errExp)
+	}
+
+	t.Logf("Failed with error: %v", err)
 }
