@@ -37,10 +37,8 @@ data "ct_config" "config" {
     cluster_domain_suffix     = var.cluster_domain_suffix
     host_dns_ip               = var.host_dns_ip
     kubelet_docker_extra_args = []
-    # Here we set default labels for worker nodes.
-    kubelet_labels = length(var.kubelet_labels) > 0 ? var.kubelet_labels : {
-      "node.kubernetes.io/node" = ""
-    }
+    # Here we set default labels for worker nodes and append with user provided labels.
+    kubelet_labels = merge({ "node.kubernetes.io/node" = "" }, var.kubelet_labels)
     kubelet_taints = var.kubelet_taints
 
     kubelet_image_name = var.kubelet_image_name != "" ? var.kubelet_image_name : null
