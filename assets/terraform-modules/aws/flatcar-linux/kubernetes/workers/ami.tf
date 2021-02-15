@@ -1,6 +1,7 @@
 locals {
   channel = var.os_channel
   ver     = var.os_version == "current" ? "" : var.os_version
+  arch    = var.os_arch
 }
 
 data "aws_ami" "flatcar" {
@@ -9,7 +10,7 @@ data "aws_ami" "flatcar" {
 
   filter {
     name   = "architecture"
-    values = ["x86_64"]
+    values = [local.arch]
   }
 
   filter {

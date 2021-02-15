@@ -149,7 +149,7 @@ storage:
       mode: 0644
       contents:
         inline: |
-          IMAGE_TAG=v3.4.14
+          IMAGE_TAG=v3.4.14${etcd_arch_tag_suffix}
           IMAGE_URL=quay.io/coreos/etcd
           SSL_DIR=/etc/ssl/etcd
           USER=etcd
@@ -170,6 +170,7 @@ storage:
           ETCD_PEER_CERT_FILE=/etc/ssl/etcd/etcd/peer.crt
           ETCD_PEER_KEY_FILE=/etc/ssl/etcd/etcd/peer.key
           ETCD_PEER_CLIENT_CERT_AUTH=true
+          ${etcd_env_options}
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:
