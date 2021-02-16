@@ -5,6 +5,9 @@ domain=${domain}
 mac=${mac}
 asset_dir=${asset_dir}
 ignore_changes=${ignore_changes}
+kernel_args="${kernel_args}"
+kernel_console="${kernel_console}"
+ignition_endpoint="${ignition_endpoint}"
 # From now on use $var for dynamic shell substitution
 
 if test -f "$asset_dir/$mac" && [ "$(cat "$asset_dir/$mac")" = "$domain" ]; then
@@ -20,6 +23,7 @@ if [ $node_exists = yes ]; then
     echo "Keeping old config because 'ignore_changes' is set."
     exit 0
   else
+    # run single commands that can be retried without a side effect in case the connection got disrupted
     count=30
     while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo touch /boot/flatcar/first_boot; do
       sleep 1
@@ -30,6 +34,15 @@ if [ $node_exists = yes ]; then
       exit 1
     fi
     echo "created the first_boot flag file to reprovision $domain"
+    count=5
+    while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain "printf 'set linux_append=\"$kernel_args ignition.config.url=$ignition_endpoint?mac=$mac&os=installed\"\\nset linux_console=\"$kernel_console\"\\n' | sudo tee /usr/share/oem/grub.cfg"; do
+      sleep 1
+      count=$((count - 1))
+    done
+    if [ $count -eq 0 ]; then
+      echo "error reaching $domain via SSH, please retry"
+      exit 1
+    fi
     count=5
     while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo systemctl reboot; do
       sleep 1
