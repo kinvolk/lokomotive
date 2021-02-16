@@ -21,6 +21,20 @@ storage:
     contents:
       inline: |
         ${var.cluster_name}-worker-${count.index}
+  - path: /ignition_ran
+    filesystem: root
+    mode: 0644
+    contents:
+      inline: |
+        Flag file indicating that Ignition ran.
+        Should be deleted by the SSH step that checks it.
+filesystems:
+  - name: root
+    mount:
+      device: /dev/disk/by-label/ROOT
+      format: ext4
+      wipe_filesystem: true
+      label: ROOT
 EOF
     ,
   ])
