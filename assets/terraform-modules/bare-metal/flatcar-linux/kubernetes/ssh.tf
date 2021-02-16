@@ -167,12 +167,14 @@ resource "null_resource" "reprovision-controller-when-ignition-changes" {
   # Triggered when the Ignition Config changes
   triggers = {
     ignition_config = matchbox_profile.controllers[count.index].raw_ignition
+    kernel_args = join(" ", var.kernel_args)
+    kernel_console = join(" ", var.kernel_console)
   }
   # Wait for the new Ignition config object to be ready before rebooting
   depends_on = [matchbox_group.controller]
   # Trigger running Ignition on the next reboot (first_boot flag file) and reboot the instance, or, if the instance needs to be (re)provisioned, run external commands for PXE booting (also runs on the first provisioning)
   provisioner "local-exec" {
-    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.controller_domains[count.index], name = var.controller_names[count.index], mac = var.controller_macs[count.index], pxe_commands = var.pxe_commands, asset_dir = var.asset_dir, type = "controller" })
+    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.controller_domains[count.index], name = var.controller_names[count.index], mac = var.controller_macs[count.index], pxe_commands = var.pxe_commands, asset_dir = var.asset_dir, kernel_args = join(" ", var.kernel_args), kernel_console = join(" ", var.kernel_console), ignition_endpoint = format("%s/ignition", var.matchbox_http_endpoint), type = "controller" })
   }
 }
 
@@ -181,11 +183,13 @@ resource "null_resource" "reprovision-worker-when-ignition-changes" {
   # Triggered when the Ignition Config changes
   triggers = {
     ignition_config = matchbox_profile.workers[count.index].raw_ignition
+    kernel_args = join(" ", var.kernel_args)
+    kernel_console = join(" ", var.kernel_console)
   }
   # Wait for the new Ignition config object to be ready before rebooting
   depends_on = [matchbox_group.worker]
   # Trigger running Ignition on the next reboot (first_boot flag file) and reboot the instance, or, if the instance needs to be (re)provisioned, run external commands for PXE booting (also runs on the first provisioning)
   provisioner "local-exec" {
-    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.worker_domains[count.index], name = var.worker_names[count.index], mac = var.worker_macs[count.index], pxe_commands = var.pxe_commands, asset_dir = var.asset_dir, type = "worker" })
+    command = templatefile("${path.module}/pxe-helper.sh.tmpl", { domain = var.worker_domains[count.index], name = var.worker_names[count.index], mac = var.worker_macs[count.index], pxe_commands = var.pxe_commands, asset_dir = var.asset_dir, kernel_args = join(" ", var.kernel_args), kernel_console = join(" ", var.kernel_console), ignition_endpoint = format("%s/ignition", var.matchbox_http_endpoint), type = "worker" })
   }
 }
