@@ -1,19 +1,17 @@
 locals {
-  controller_bootstrap_token = var.enable_tls_bootstrap ? {
-    token_id     = random_string.bootstrap_token_id_controller[0].result
-    token_secret = random_string.bootstrap_token_secret_controller[0].result
-  } : {}
+  controller_bootstrap_token = {
+    token_id     = random_string.bootstrap_token_id_controller.result
+    token_secret = random_string.bootstrap_token_secret_controller.result
+  }
 
-  worker_bootstrap_token = var.enable_tls_bootstrap ? {
-    token_id     = random_string.bootstrap_token_id_worker[0].result
-    token_secret = random_string.bootstrap_token_secret_worker[0].result
-  } : {}
+  worker_bootstrap_token = {
+    token_id     = random_string.bootstrap_token_id_worker.result
+    token_secret = random_string.bootstrap_token_secret_worker.result
+  }
 }
 
 # Generate a cryptographically random token id (public).
 resource "random_string" "bootstrap_token_id_controller" {
-  count = var.enable_tls_bootstrap == true ? 1 : 0
-
   length  = 6
   upper   = false
   special = false
@@ -21,8 +19,6 @@ resource "random_string" "bootstrap_token_id_controller" {
 
 # Generate a cryptographically random token secret.
 resource "random_string" "bootstrap_token_secret_controller" {
-  count = var.enable_tls_bootstrap == true ? 1 : 0
-
   length  = 16
   upper   = false
   special = false
@@ -30,8 +26,6 @@ resource "random_string" "bootstrap_token_secret_controller" {
 
 # Generate a cryptographically random token id (public).
 resource "random_string" "bootstrap_token_id_worker" {
-  count = var.enable_tls_bootstrap == true ? 1 : 0
-
   length  = 6
   upper   = false
   special = false
@@ -39,8 +33,6 @@ resource "random_string" "bootstrap_token_id_worker" {
 
 # Generate a cryptographically random token secret.
 resource "random_string" "bootstrap_token_secret_worker" {
-  count = var.enable_tls_bootstrap == true ? 1 : 0
-
   length  = 16
   upper   = false
   special = false
