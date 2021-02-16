@@ -53,7 +53,6 @@ type config struct {
 	WorkerDomains                []string            `hcl:"worker_domains"`
 	Labels                       map[string]string   `hcl:"labels,optional"`
 	OIDC                         *oidc.Config        `hcl:"oidc,block"`
-	EnableTLSBootstrap           bool                `hcl:"enable_tls_bootstrap,optional"`
 	EncryptPodTraffic            bool                `hcl:"encrypt_pod_traffic,optional"`
 	IgnoreX509CNCheck            bool                `hcl:"ignore_x509_cn_check,optional"`
 	ConntrackMaxPerCore          int                 `hcl:"conntrack_max_per_core,optional"`
@@ -97,7 +96,6 @@ func NewConfig() *config {
 		CachedInstall:                "false",
 		OSChannel:                    "stable",
 		OSVersion:                    "current",
-		EnableTLSBootstrap:           true,
 		NetworkMTU:                   platform.NetworkMTU,
 		ConntrackMaxPerCore:          platform.ConntrackMaxPerCore,
 		DownloadProtocol:             "https",
@@ -223,7 +221,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet     bool
 		KubeAPIServerExtraFlags      []string
 		Labels                       map[string]string
-		EnableTLSBootstrap           bool
 		EncryptPodTraffic            bool
 		IgnoreX509CNCheck            bool
 		ConntrackMaxPerCore          int
@@ -255,7 +252,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet:     cfg.DisableSelfHostedKubelet,
 		KubeAPIServerExtraFlags:      cfg.KubeAPIServerExtraFlags,
 		Labels:                       cfg.Labels,
-		EnableTLSBootstrap:           cfg.EnableTLSBootstrap,
 		EncryptPodTraffic:            cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:            cfg.IgnoreX509CNCheck,
 		ConntrackMaxPerCore:          cfg.ConntrackMaxPerCore,

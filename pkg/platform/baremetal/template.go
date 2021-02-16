@@ -27,9 +27,6 @@ module "bare-metal-{{.ClusterName}}" {
   # Disable self hosted kubelet
   disable_self_hosted_kubelet = {{ .DisableSelfHostedKubelet }}
 
-  # Enable TLS Bootstrap
-  enable_tls_bootstrap = {{ .EnableTLSBootstrap }}
-
   {{- if .EncryptPodTraffic }}
   encrypt_pod_traffic = {{ .EncryptPodTraffic }}
   {{- end }}
