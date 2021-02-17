@@ -18,12 +18,7 @@ resource "null_resource" "copy-controller-secrets" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
-      token_id     = random_string.bootstrap_token_id_controller.result
-      token_secret = random_string.bootstrap_token_secret_controller.result
-      ca_cert      = module.bootkube.ca_cert
-      server       = "https://${var.k8s_domain_name}:6443"
-    })
+    content     = module.controller[count.index].bootstrap_kubeconfig
     destination = "$HOME/kubeconfig"
   }
 
