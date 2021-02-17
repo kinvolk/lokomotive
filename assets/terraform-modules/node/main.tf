@@ -12,7 +12,6 @@ data "ct_config" "config" {
     kubelet_labels            = var.kubelet_labels
     kubelet_taints            = var.kubelet_taints
     kubelet_docker_extra_args = var.kubelet_docker_extra_args
-    host_dns_ip               = var.host_dns_ip
   })
 
   snippets = concat(var.clc_snippets, [
