@@ -48,9 +48,9 @@ Run the following commands:
 export etcd_version=<latest etcd version e.g. v3.4.10>
 
 sudo sed -i "s,IMAGE_TAG=.*,IMAGE_TAG=${etcd_version}\"," \
-        /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf
+        /etc/kubernetes/etcd.env
 sudo systemctl daemon-reload
-sudo systemctl restart etcd-member
+sudo systemctl restart etcd
 ```
 
 ### Step 4: Verify update
@@ -58,14 +58,14 @@ sudo systemctl restart etcd-member
 Verify that the etcd service is in `active (running)` state:
 
 ```bash
-sudo systemctl status --no-pager etcd-member
+sudo systemctl status --no-pager etcd
 ```
 
 Run the following command to see logs of the process since the last restart:
 
 ```bash
 sudo journalctl _SYSTEMD_INVOCATION_ID=$(sudo systemctl \
-              show -p InvocationID --value etcd-member.service)
+              show -p InvocationID --value etcd.service)
 ```
 
 > **NOTE**: Do not proceed with the update of the rest of the cluster if you encounter any errors.
