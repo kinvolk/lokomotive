@@ -7,7 +7,6 @@ module "worker" {
   cluster_dns_service_ip = var.cluster_dns_service_ip
   ssh_keys               = var.ssh_keys
   cluster_domain_suffix  = var.cluster_domain_suffix
-  host_dns_ip            = var.host_dns_ip
   ca_cert                = var.ca_cert
   apiserver              = var.apiserver
 
@@ -21,6 +20,14 @@ storage:
     contents:
       inline: |
         ${var.cluster_name}-worker-${var.name}-${count.index}
+  - path: /etc/systemd/resolved.conf.d/dns_servers.conf
+    filesystem: root
+    mode: 0644
+    contents:
+      inline: |
+        [Resolve]
+        DNS=${var.host_dns_ip}
+        Domains=~.
 EOF
     ,
   ])
