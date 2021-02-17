@@ -82,7 +82,7 @@ storage:
           # Rejoin a cluster as fresh node when etcd cannot join
           # (e.g., after repovisioning, crashing or node being down).
           # Set ExecStopPost=-/opt/etcd-rejoin to run when etcd failed and
-          # use env vars of etcd-member.service.
+          # use env vars of etcd.service.
           # Skip if not provisioned
           if [ ! -d "/etc/ssl/etcd/" ]; then exit 0; fi
           # or got stopped.
@@ -114,10 +114,11 @@ storage:
           etcdctl member add "$ETCD_NAME" --peer-urls="$ETCD_INITIAL_ADVERTISE_PEER_URLS" $ARGS
           # Join fresh without state
           mv /var/lib/etcd "/var/lib/etcd-bkp-$(date +%s)" || true
-          if [ -z "$(grep ETCD_INITIAL_CLUSTER_STATE=existing /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf)" ]; then
-            echo 'Environment="ETCD_INITIAL_CLUSTER_STATE=existing"' >> /etc/systemd/system/etcd-member.service.d/40-etcd-cluster.conf
+          install -m 700 -o etcd -g etcd -d /var/lib/etcd
+          if [ -z "$(grep ETCD_INITIAL_CLUSTER_STATE=existing /etc/kubernetes/etcd.env)" ]; then
+            echo ETCD_INITIAL_CLUSTER_STATE=existing >> /etc/kubernetes/etcd.env
             # Apply change
             systemctl daemon-reload
           fi
           # Restart unit (yes, within itself)
-          systemctl restart etcd-member &
+          systemctl restart etcd &
