@@ -92,20 +92,5 @@ resource "matchbox_profile" "workers" {
     var.cluster_name,
     var.worker_names[count.index]
   )
-  raw_ignition = data.ct_config.worker-ignitions[count.index].rendered
+  raw_ignition = module.worker[count.index].clc_config
 }
-
-data "ct_config" "worker-ignitions" {
-  count = length(var.worker_names)
-  content = templatefile("${path.module}/cl/worker.yaml.tmpl", {
-    domain_name            = var.worker_domains[count.index]
-    cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
-    cluster_domain_suffix  = var.cluster_domain_suffix
-    ssh_keys               = jsonencode(var.ssh_keys)
-    kubelet_labels         = merge({ "node.kubernetes.io/node" = "" }, var.labels),
-  })
-  pretty_print = false
-
-  snippets = lookup(var.clc_snippets, var.worker_names[count.index], [])
-}
-

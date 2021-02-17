@@ -22,7 +22,7 @@ module "bootkube" {
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
 
-  bootstrap_tokens     = module.controller.*.bootstrap_token
+  bootstrap_tokens     = concat(module.controller.*.bootstrap_token, module.worker.*.bootstrap_token)
   enable_tls_bootstrap = true
   encrypt_pod_traffic  = var.encrypt_pod_traffic
 
