@@ -15,6 +15,7 @@
 package testutil
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -25,49 +26,53 @@ import (
 
 // valFromObject takes a JSON path as a string and an object of type `unstructured.Unstructured`.
 // This function returns an object of type `reflect.Value` at that JSON path.
-func valFromObject(t *testing.T, jp string, obj *unstructured.Unstructured) reflect.Value {
+func valFromObject(jp string, obj *unstructured.Unstructured) (reflect.Value, error) {
 	jPath := jsonpath.New("parse")
 	if err := jPath.Parse(jp); err != nil {
-		t.Fatalf("Parsing JSONPath: %v", err)
+		return reflect.Value{}, fmt.Errorf("parsing JSONPath: %w", err)
 	}
 
 	v, err := jPath.FindResults(obj.Object)
 	if err != nil {
-		t.Fatalf("Finding results using JSONPath in the YAML file: %v", err)
+		return reflect.Value{}, fmt.Errorf("finding results using JSONPath in the YAML file: %w", err)
 	}
 
 	if len(v) == 0 || len(v[0]) == 0 {
-		t.Fatalf("No result found")
+		return reflect.Value{}, nil
 	}
 
-	return v[0][0]
+	return v[0][0], nil
 }
 
 // jsonPathValue extracts an object at a JSON path from a YAML config, and returns an interface
 // object.
-func jsonPathValue(t *testing.T, yamlConfig string, jsonPath string) interface{} {
+func jsonPathValue(yamlConfig string, jsonPath string) (interface{}, error) {
 	u, err := k8sutil.YAMLToUnstructured([]byte(yamlConfig))
 	if err != nil {
-		t.Fatalf("YAML to unstructured object: %v", err)
+		return nil, fmt.Errorf("YAML to unstructured object: %w", err)
 	}
 
-	got := valFromObject(t, jsonPath, u)
+	got, err := valFromObject(jsonPath, u)
+	if err != nil {
+		return nil, fmt.Errorf("JSON path value in YAML: %w", err)
+	}
 
 	switch got.Kind() { //nolint:exhaustive
 	case reflect.Interface:
 		// TODO: Add type switch here for concrete types.
-		return got.Interface()
+		return got.Interface(), nil
 	default:
-		t.Fatalf("Extracted object has an unknown type: %v", got.Kind())
+		return nil, fmt.Errorf("extracted object has an unknown type: %v", got.Kind())
 	}
-
-	return nil
 }
 
 // MatchJSONPathStringValue is a helper function for component unit tests. It compares the string at
 // a JSON path in a YAML config to the expected string.
 func MatchJSONPathStringValue(t *testing.T, yamlConfig string, jsonPath string, expected string) {
-	obj := jsonPathValue(t, yamlConfig, jsonPath)
+	obj, err := jsonPathValue(yamlConfig, jsonPath)
+	if err != nil {
+		t.Fatalf("Extracting JSON path value: %v", err)
+	}
 
 	got, ok := obj.(string)
 	if !ok {
@@ -82,7 +87,10 @@ func MatchJSONPathStringValue(t *testing.T, yamlConfig string, jsonPath string, 
 // MatchJSONPathInt64Value is a helper function for component unit tests. It compares the integer at
 // a JSON path in a YAML config to the expected integer.
 func MatchJSONPathInt64Value(t *testing.T, yamlConfig string, jsonPath string, expected int64) {
-	obj := jsonPathValue(t, yamlConfig, jsonPath)
+	obj, err := jsonPathValue(yamlConfig, jsonPath)
+	if err != nil {
+		t.Fatalf("Extracting JSON path value: %v", err)
+	}
 
 	got, ok := obj.(int64)
 	if !ok {
