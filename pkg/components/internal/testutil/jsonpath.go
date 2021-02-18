@@ -18,25 +18,10 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	yamlserializer "k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	"k8s.io/client-go/util/jsonpath"
 )
-
-// unstructredObj accepts a Kubernetes manifest in YAML format and returns an object of type
-// `unstructured.Unstructured`. This object has many methods that can be used by the consumer to
-// extract metadata from the Kubernetes manifest.
-func unstructredObj(t *testing.T, yamlObj string) *unstructured.Unstructured {
-	u := &unstructured.Unstructured{}
-
-	// Decode YAML into `unstructured.Unstructured`.
-	dec := yamlserializer.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
-	if _, _, err := dec.Decode([]byte(yamlObj), nil, u); err != nil {
-		t.Fatalf("Converting config to unstructured.Unstructured: %v", err)
-	}
-
-	return u
-}
 
 // valFromObject takes a JSON path as a string and an object of type `unstructured.Unstructured`.
 // This function returns an object of type `reflect.Value` at that JSON path.
@@ -61,7 +46,11 @@ func valFromObject(t *testing.T, jp string, obj *unstructured.Unstructured) refl
 // jsonPathValue extracts an object at a JSON path from a YAML config, and returns an interface
 // object.
 func jsonPathValue(t *testing.T, yamlConfig string, jsonPath string) interface{} {
-	u := unstructredObj(t, yamlConfig)
+	u, err := k8sutil.YAMLToUnstructured([]byte(yamlConfig))
+	if err != nil {
+		t.Fatalf("YAML to unstructured object: %v", err)
+	}
+
 	got := valFromObject(t, jsonPath, u)
 
 	switch got.Kind() { //nolint:exhaustive
