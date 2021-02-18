@@ -28,7 +28,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/yaml"
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	corev1typed "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	"github.com/kinvolk/lokomotive/internal"
@@ -90,7 +90,7 @@ func LoadManifests(files map[string]string) ([]manifest, error) {
 // parseManifests parses a YAML or JSON document that may contain one or more
 // kubernetes resources.
 func parseManifests(r io.Reader) ([]manifest, error) {
-	reader := yaml.NewYAMLReader(bufio.NewReader(r))
+	reader := yamlutil.NewYAMLReader(bufio.NewReader(r))
 	var manifests []manifest
 	for {
 		yamlManifest, err := reader.Read()
@@ -105,7 +105,7 @@ func parseManifests(r io.Reader) ([]manifest, error) {
 			continue
 		}
 
-		jsonManifest, err := yaml.ToJSON(yamlManifest)
+		jsonManifest, err := yamlutil.ToJSON(yamlManifest)
 		if err != nil {
 			return nil, fmt.Errorf("invalid manifest: %w", err)
 		}
