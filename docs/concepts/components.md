@@ -92,6 +92,7 @@ Available components:
 	 inspektor-gadget
 	 metallb
 	 metrics-server
+        node-problem-detector
 	 openebs-operator
 	 openebs-storage-class
 	 prometheus-operator
