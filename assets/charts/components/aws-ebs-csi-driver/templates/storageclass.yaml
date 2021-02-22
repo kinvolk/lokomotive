@@ -1,11 +1,14 @@
-### Lokomotive specific addition.
+{{- range .Values.storageClasses }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: ebs-sc
-{{- if .Values.enableDefaultStorageClass }}
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
-{{- end }}
+  name: {{ .name }}
+  {{- if .annotations }}
+  annotations: {{- .annotations | toYaml | trim | nindent 4 }}
+  {{- end }}
+  {{- if .labels }}
+  labels: {{- .labels | toYaml | trim | nindent 4 }}
+  {{- end }}
 provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstConsumer
+{{ omit (dict "volumeBindingMode" "WaitForFirstConsumer" | merge .) "name" "annotations" "labels" | toYaml }}
+{{- end }}

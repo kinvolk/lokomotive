@@ -5,29 +5,33 @@
 replicaCount: 2
 
 image:
-  repository: amazon/aws-ebs-csi-driver
-  tag: "v0.6.0"
+  repository: k8s.gcr.io/provider-aws/aws-ebs-csi-driver
+  tag: "v0.9.0"
   pullPolicy: IfNotPresent
 
 sidecars:
   provisionerImage:
-    repository: quay.io/k8scsi/csi-provisioner
-    tag: "v1.5.0"
+    repository: k8s.gcr.io/sig-storage/csi-provisioner
+    tag: "v2.0.2"
   attacherImage:
-    repository: quay.io/k8scsi/csi-attacher
-    tag: "v1.2.0"
+    repository: k8s.gcr.io/sig-storage/csi-attacher
+    tag: "v3.0.0"
   snapshotterImage:
-    repository: quay.io/k8scsi/csi-snapshotter
-    tag: "v2.1.1"
+    repository: k8s.gcr.io/sig-storage/csi-snapshotter
+    tag: "v3.0.3"
   livenessProbeImage:
-    repository: quay.io/k8scsi/livenessprobe
-    tag: "v1.1.0"
+    repository: k8s.gcr.io/sig-storage/livenessprobe
+    tag: "v2.1.0"
   resizerImage:
-    repository: quay.io/k8scsi/csi-resizer
-    tag: "v0.3.0"
+    repository: k8s.gcr.io/sig-storage/csi-resizer
+    tag: "v1.0.0"
   nodeDriverRegistrarImage:
-    repository: quay.io/k8scsi/csi-node-driver-registrar
-    tag: "v1.1.0"
+    repository: k8s.gcr.io/sig-storage/csi-node-driver-registrar
+    tag: "v2.0.1"
+
+snapshotController:
+  repository: k8s.gcr.io/sig-storage/snapshot-controller
+  tag: "v3.0.3"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -36,7 +40,7 @@ fullnameOverride: ""
 podAnnotations: {}
 
 # True if enable volume scheduling for dynamic volume provisioning
-enableVolumeScheduling: false
+enableVolumeScheduling: true
 
 # True if enable volume resizing
 enableVolumeResizing: false
@@ -44,7 +48,11 @@ enableVolumeResizing: false
 # True if enable volume snapshot
 enableVolumeSnapshot: false
 
-resources: {}
+# The "maximum number of attachable volumes" per node
+volumeAttachLimit: ""
+
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -56,10 +64,10 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+priorityClassName: ""
 nodeSelector: {}
-
+tolerateAllTaints: true
 tolerations: []
-
 affinity: {}
 
 # Extra volume tags to attach to each dynamically provisioned volume.
@@ -69,6 +77,12 @@ affinity: {}
 #   key2: value2
 extraVolumeTags: {}
 
+# If set, add pv/pvc metadata to plugin create requests as parameters.
+extraCreateMetadata: false
+
+# ID of the Kubernetes cluster used for tagging provisioned EBS volumes (optional).
+k8sTagClusterId: ""
+
 # AWS region to use. If not specified then the region will be looked up via the AWS EC2 metadata
 # service.
 # ---
@@ -76,15 +90,43 @@ extraVolumeTags: {}
 region: ""
 
 node:
+  priorityClassName: ""
+  nodeSelector: {}
   podAnnotations: {}
+  tolerateAllTaints: true
   tolerations: []
+  resources: {}
 
 serviceAccount:
   controller:
+    create: true # A service account will be created for you if set to true. Set to false if you want to use your own.
+    name: ebs-csi-controller-sa # Name of the service-account to be used/created.
     annotations: {}
   snapshot:
+    create: true
+    name: ebs-snapshot-controller
+    annotations: {}
+  node:
+    create: true
+    name: ebs-csi-node-sa
     annotations: {}
 
 # Lokomotive specific addition.
 # False if you want to use a different storage option, e.g. OpenEBS
 enableDefaultStorageClass: true
+
+storageClasses: []
+# Add StorageClass resources like:
+# - name: ebs-sc
+#   # annotation metadata
+#   annotations:
+#     storageclass.kubernetes.io/is-default-class: "true"
+#   # label metadata
+#   labels:
+#     my-label-is: supercool
+#   # defaults to WaitForFirstConsumer
+#   volumeBindingMode: WaitForFirstConsumer
+#   # defaults to Delete
+#   reclaimPolicy: Retain
+#   parameters:
+#     encrypted: "true"

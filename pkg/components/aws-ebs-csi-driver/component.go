@@ -39,6 +39,15 @@ enableVolumeScheduling: {{ .EnableVolumeScheduling }}
 enableVolumeResizing: {{ .EnableVolumeResizing }}
 # Enable volume snapshot.
 enableVolumeSnapshot: {{ .EnableVolumeSnapshot }}
+
+storageClasses:
+- name: ebs-sc
+  {{ if .EnableDefaultStorageClass }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  {{ end }}
+  volumeBindingMode: WaitForFirstConsumer
+  reclaimPolicy: Retain
 `
 )
 
