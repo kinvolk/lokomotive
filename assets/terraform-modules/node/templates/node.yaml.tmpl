@@ -156,6 +156,14 @@ storage:
               "max-file": "3"
             }
           }
+    %{~ if hostname != "" ~}
+    - path: /etc/hostname
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          ${hostname}
+    %{~ endif ~}
 passwd:
   users:
     - name: core

@@ -77,3 +77,9 @@ variable "kubelet_image_tag" {
   description = "Tag for kubelet Docker image."
   default     = "v1.19.4"
 }
+
+variable "set_standard_hostname" {
+  type        = bool
+  description = "Sets the hostname if true. Hostname is set as <cluster_name>-controller-<count_index>"
+  default     = false
+}

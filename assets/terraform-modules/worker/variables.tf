@@ -4,6 +4,10 @@ variable "ca_cert" {
   description = "Kubernetes CA certificate needed in the kubeconfig file."
 }
 
+variable "cluster_name" {
+  type        = string
+  description = "Cluster name."
+}
 variable "apiserver" {
   type        = string
   description = "Apiserver private endpoint needed in the kubeconfig file."
@@ -62,4 +66,10 @@ variable "cluster_domain_suffix" {
   type        = string
   description = "Cluster domain suffix. Passed to kubelet as --cluster_domain flag."
   default     = "cluster.local"
+}
+
+variable "set_standard_hostname" {
+  type        = bool
+  description = "Sets the hostname if true. Hostname is set as <cluster_name>-worker-<count_index>"
+  default     = false
 }
