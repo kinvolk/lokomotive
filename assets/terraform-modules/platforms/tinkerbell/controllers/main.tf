@@ -12,17 +12,11 @@ module "controller" {
   cluster_domain_suffix  = var.cluster_domain_suffix
   apiserver              = format("%s.%s", var.cluster_name, var.dns_zone)
   ca_cert                = module.bootkube.ca_cert
-
+  set_standard_hostname  = true
   clc_snippets = concat(var.clc_snippets, [
     <<EOF
 storage:
   files:
-  - path: /etc/hostname
-    filesystem: root
-    mode: 0644
-    contents:
-      inline: |
-        ${var.cluster_name}-controller-${count.index}
   - path: /etc/systemd/resolved.conf.d/dns_servers.conf
     filesystem: root
     mode: 0644

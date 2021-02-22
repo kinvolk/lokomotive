@@ -9,17 +9,11 @@ module "worker" {
   cluster_domain_suffix  = var.cluster_domain_suffix
   ca_cert                = var.ca_cert
   apiserver              = var.apiserver
-
+  set_standard_hostname  = true
   clc_snippets = concat(var.clc_snippets, [
     <<EOF
 storage:
   files:
-  - path: /etc/hostname
-    filesystem: root
-    mode: 0644
-    contents:
-      inline: |
-        ${var.cluster_name}-worker-${var.name}-${count.index}
   - path: /etc/systemd/resolved.conf.d/dns_servers.conf
     filesystem: root
     mode: 0644
