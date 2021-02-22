@@ -46,6 +46,7 @@ data "ct_config" "config" {
     kubelet_image_name        = var.kubelet_image_name
     kubelet_image_tag         = var.kubelet_image_tag
     kubelet_docker_extra_args = []
+    hostname                  = var.set_standard_hostname == true ? "${var.cluster_name}-controller-${var.count_index}" : ""
     kubelet_labels = {
       "node.kubernetes.io/master"     = "",
       "node.kubernetes.io/controller" = "true",
