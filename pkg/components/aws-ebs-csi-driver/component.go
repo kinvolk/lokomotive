@@ -39,14 +39,44 @@ enableVolumeScheduling: {{ .EnableVolumeScheduling }}
 enableVolumeResizing: {{ .EnableVolumeResizing }}
 # Enable volume snapshot.
 enableVolumeSnapshot: {{ .EnableVolumeSnapshot }}
+
+storageClasses:
+- name: ebs-sc
+  {{ if .EnableDefaultStorageClass }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  {{ end }}
+  volumeBindingMode: WaitForFirstConsumer
+  reclaimPolicy: Retain
+
+{{- if .Tolerations }}
+tolerateAllTaints: false
+tolerations: {{ .TolerationsRaw }}
+node:
+  tolerateAllTaints: false
+  tolerations: {{ .TolerationsRaw }}
+{{- end }}
+
+{{- if .NodeAffinity }}
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions: {{ .NodeAffinityRaw }}
+{{- end}}
 `
 )
 
 type component struct {
-	EnableDefaultStorageClass bool `hcl:"enable_default_storage_class,optional"`
-	EnableVolumeScheduling    bool `hcl:"enable_volume_scheduling,optional"`
-	EnableVolumeResizing      bool `hcl:"enable_volume_resizing,optional"`
-	EnableVolumeSnapshot      bool `hcl:"enable_volume_snapshot,optional"`
+	EnableDefaultStorageClass bool                `hcl:"enable_default_storage_class,optional"`
+	EnableVolumeScheduling    bool                `hcl:"enable_volume_scheduling,optional"`
+	EnableVolumeResizing      bool                `hcl:"enable_volume_resizing,optional"`
+	EnableVolumeSnapshot      bool                `hcl:"enable_volume_snapshot,optional"`
+	Tolerations               []util.Toleration   `hcl:"tolerations,block"`
+	NodeAffinity              []util.NodeAffinity `hcl:"node_affinity,block"`
+
+	TolerationsRaw  string
+	NodeAffinityRaw string
 }
 
 // NewConfig returns new AWS EBS CSI driver component configuration with default values set.
@@ -75,6 +105,16 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
+	}
+
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	if err != nil {
+		return nil, fmt.Errorf("rendering tolerations failed: %w", err)
+	}
+
+	c.NodeAffinityRaw, err = util.RenderNodeAffinity(c.NodeAffinity)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal node affinity: %w", err)
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)
