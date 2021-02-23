@@ -30,7 +30,7 @@ variable "workers_type" {
 }
 
 variable "management_cidrs" {
-  default = "0.0.0.0/0"
+  default = ["0.0.0.0/0"]
 }
 
 variable "node_private_cidr" {
