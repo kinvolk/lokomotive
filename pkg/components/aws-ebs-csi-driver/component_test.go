@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/hcl/v2"
+
+	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
@@ -135,5 +137,136 @@ func TestStorageClassDisabled(t *testing.T) {
 
 	if storageClassFound {
 		t.Fatalf("Default storage class should not be set")
+	}
+}
+
+func TestConversion(t *testing.T) { //nolint:funlen
+	testCases := []struct {
+		name                 string
+		inputConfig          string
+		expectedManifestName string
+		expected             string
+		jsonPath             string
+	}{
+		{
+			name:                 "no_tolerations_node",
+			inputConfig:          `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/node.yaml",
+			jsonPath:             "{.spec.template.spec.tolerations[0].operator}",
+			expected:             "Exists",
+		},
+		{
+			name: "tolerations_node",
+			inputConfig: `component "aws-ebs-csi-driver" {
+							tolerations {
+								key      = "lokomotive.io"
+								operator = "Equal"
+								value    = "awesome"
+								effect   = "NoSchedule"
+							}
+						}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/node.yaml",
+			jsonPath:             "{.spec.template.spec.tolerations[0].value}",
+			expected:             "awesome",
+		},
+		{
+			name:                 "no_tolerations_csi_controller",
+			inputConfig:          `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/controller.yaml",
+			jsonPath:             "{.spec.template.spec.tolerations[0].operator}",
+			expected:             "Exists",
+		},
+		{
+			name: "tolerations_csi_controller",
+			inputConfig: `component "aws-ebs-csi-driver" {
+							tolerations {
+								key      = "lokomotive.io"
+								operator = "Equal"
+								value    = "awesome"
+								effect   = "NoSchedule"
+							}
+						}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/controller.yaml",
+			jsonPath:             "{.spec.template.spec.tolerations[0].key}",
+			expected:             "lokomotive.io",
+		},
+		{
+			name:                 "no_tolerations_snapshot_controller",
+			inputConfig:          `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/statefulset.yaml",
+			jsonPath:             "{.spec.template.spec.tolerations[0].operator}",
+			expected:             "Exists",
+		},
+		{
+			name: "tolerations_snapshot_controller",
+			inputConfig: `component "aws-ebs-csi-driver" {
+							tolerations {
+								key      = "lokomotive.io"
+								operator = "Equal"
+								value    = "awesome"
+								effect   = "NoSchedule"
+							}
+						}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/statefulset.yaml",
+			jsonPath:             "{.spec.template.spec.tolerations[0].effect}",
+			expected:             "NoSchedule",
+		},
+		{
+			name: "affinity_csi_controller",
+			inputConfig: `component "aws-ebs-csi-driver" {
+							node_affinity {
+								key      = "lokomotive.io/role"
+								operator = "In"
+								values   = ["storage"]
+							}
+						}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/controller.yaml",
+			jsonPath: "{.spec.template.spec.affinity.nodeAffinity." +
+				"requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key}",
+			expected: "lokomotive.io/role",
+		},
+		{
+			name: "affinity_snapshot_controller",
+			inputConfig: `component "aws-ebs-csi-driver" {
+							node_affinity {
+								key      = "lokomotive.io/role"
+								operator = "In"
+								values   = ["storage"]
+							}
+						}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/statefulset.yaml",
+			jsonPath: "{.spec.template.spec.affinity.nodeAffinity." +
+				"requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]}",
+			expected: "storage",
+		},
+		{
+			name:                 "storage_class",
+			inputConfig:          `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/storageclass.yaml",
+			jsonPath:             "{.reclaimPolicy}",
+			expected:             "Retain",
+		},
+		{
+			name: "default_storage_class",
+			inputConfig: `component "aws-ebs-csi-driver" {
+							enable_default_storage_class = true
+						}`,
+			expectedManifestName: "aws-ebs-csi-driver/templates/storageclass.yaml",
+			jsonPath:             `{.metadata.annotations.storageclass\.kubernetes\.io\/is\-default\-class}`,
+			expected:             "true",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			component := NewConfig()
+			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
+			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
+
+			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
+		})
 	}
 }

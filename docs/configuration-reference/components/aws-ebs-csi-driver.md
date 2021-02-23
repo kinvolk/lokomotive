@@ -25,10 +25,27 @@ Sample config:
 ```hcl
 # aws-ebs-csi-driver.lokocfg
 component "aws-ebs-csi-driver" {
-    enable_default_storage_class = true
-    enable_volume_scheduling     = true
-    enable_volume_resizing       = true
-    enable_volume_snapshot       = true
+  enable_default_storage_class = true
+  enable_volume_scheduling     = true
+  enable_volume_resizing       = true
+  enable_volume_snapshot       = true
+
+  node_affinity {
+    key      = "kubernetes.io/hostname"
+    operator = "In"
+
+    # If the `operator` is set to `"In"`, `values` should be specified.
+    values = [
+      "ip-10-0-19-203",
+    ]
+  }
+
+  tolerations {
+    key      = "lokomotive.io/role"
+    operator = "Equal"
+    value    = "storage"
+    effect   = "NoSchedule"
+  }
 }
 ```
 
@@ -36,12 +53,14 @@ component "aws-ebs-csi-driver" {
 
 Table of all the arguments accepted by the component.
 
-| Argument                       | Description                                                                   | Default | Type | Required |
-|--------------------------------|-------------------------------------------------------------------------------|---------|------|----------|
-| `enable_default_storage_class` | Use the storage class provided by the component as the default storage class. | true    | bool | false    |
-| `enable_volume_scheduling`     | Provision EBS volumes using PersistentVolumeClaim(PVC) dynamically.           | true    | bool | false    |
-| `enable_volume_resizing`       | Expand the volume size after the initial provisioning.                        | true    | bool | false    |
-| `enable_volume_snapshot`       | Create Volume snapshots from an existing EBS volume for backup and restore.   | true    | bool | false    |
+| Argument                       | Description                                                                                           | Default                               | Type                                                                                                             | Required |
+|--------------------------------|-------------------------------------------------------------------------------------------------------|---------------------------------------|------------------------------------------------------------------------------------------------------------------|----------|
+| `enable_default_storage_class` | Use the storage class provided by the component as the default storage class.                         | `true`                                | bool                                                                                                             | false    |
+| `enable_volume_scheduling`     | Provision EBS volumes using PersistentVolumeClaim(PVC) dynamically.                                   | `true`                                | bool                                                                                                             | false    |
+| `enable_volume_resizing`       | Expand the volume size after the initial provisioning.                                                | `true`                                | bool                                                                                                             | false    |
+| `enable_volume_snapshot`       | Create Volume snapshots from an existing EBS volume for backup and restore.                           | `true`                                | bool                                                                                                             | false    |
+| `node_affinity`                | Node affinity for deploying the EBS CSI controller and EBS Snapshot controller pods.                  | -                                     | `list(object({key = string, operator = string, values = list(string)}))`                                         | false    |
+| `tolerations`                  | Tolerations that the EBS CSI Node, EBS CSI controller and EBS Snapshot controller pods will tolerate. | `tolerations { operator = "Exists" }` | `list(object({key = string, effect = string, operator = string, value = string, toleration_seconds = string }))` | false    |
 
 ## Applying
 
