@@ -10,20 +10,21 @@ module "controller" {
   cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
   ssh_keys               = var.ssh_keys
   cluster_domain_suffix  = var.cluster_domain_suffix
-  host_dns_ip            = var.host_dns_ip
   apiserver              = format("%s.%s", var.cluster_name, var.dns_zone)
   ca_cert                = module.bootkube.ca_cert
-
+  set_standard_hostname  = true
   clc_snippets = concat(var.clc_snippets, [
     <<EOF
 storage:
   files:
-  - path: /etc/hostname
+  - path: /etc/systemd/resolved.conf.d/dns_servers.conf
     filesystem: root
     mode: 0644
     contents:
       inline: |
-        ${var.cluster_name}-controller-${count.index}
+        [Resolve]
+        DNS=${var.host_dns_ip}
+        Domains=~.
 EOF
     ,
   ])

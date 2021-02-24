@@ -78,8 +78,8 @@ variable "kubelet_image_tag" {
   default     = "v1.19.4"
 }
 
-variable "host_dns_ip" {
-  type        = string
-  description = "IP address of DNS server to configure on the nodes."
-  default     = "8.8.8.8"
+variable "set_standard_hostname" {
+  type        = bool
+  description = "Sets the hostname if true. Hostname is set as <cluster_name>-controller-<count_index>"
+  default     = false
 }
