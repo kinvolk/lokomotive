@@ -107,6 +107,11 @@ func testComponentsPrometheusMetrics(t *testing.T, v1api v1.API) {
 			query:         "controller_runtime_reconcile_time_seconds_count{controller=\"istiocontrolplane-controller\"}",
 			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
 		},
+		{
+			componentName: "node-problem-detector",
+			query:         "problem_counter{reason=\"KernelOops\"}",
+			platforms:     []testutil.Platform{testutil.PlatformPacket, testutil.PlatformAWS, testutil.PlatformAKS},
+		},
 	}
 
 	for _, tc := range testCases {
