@@ -37,6 +37,20 @@ systemd:
       enable: true
     - name: locksmithd.service
       mask: true
+    - name: sethostname.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Set the host name from metadata service
+        Requires=coreos-metadata.service
+        After=coreos-metadata.service
+        [Service]
+        EnvironmentFile=/run/metadata/flatcar
+        ExecStart=/usr/bin/hostnamectl set-hostname $${COREOS_EC2_HOSTNAME}
+        RemainAfterExit=yes
+        Type=oneshot
+        [Install]
+        RequiredBy=wait-for-dns.service
     - name: wait-for-dns.service
       enable: true
       contents: |
