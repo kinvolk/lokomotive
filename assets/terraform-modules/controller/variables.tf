@@ -83,3 +83,9 @@ variable "set_standard_hostname" {
   description = "Sets the hostname if true. Hostname is set as <cluster_name>-controller-<count_index>"
   default     = false
 }
+
+variable "kubelet_labels" {
+  type        = map(string)
+  description = "Node labels passed to kubelet --node-labels flag. E.g. { { \"node.kubernetes.io/node\" = \"\" }"
+  default     = {}
+}

@@ -7,7 +7,7 @@ module "worker" {
   cluster_domain_suffix  = var.cluster_domain_suffix
   ca_cert                = module.bootkube.ca_cert
   apiserver              = format("%s.%s", var.cluster_name, var.k8s_domain_name)
-  kubelet_labels         = var.labels
+  kubelet_labels         = merge(lookup(var.node_specific_labels, var.worker_names[count.index], {}), var.labels)
   cluster_name           = var.cluster_name
   set_standard_hostname  = true
   clc_snippets           = concat(lookup(var.clc_snippets, var.worker_names[count.index], []), [

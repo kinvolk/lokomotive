@@ -42,6 +42,20 @@ cluster "bare-metal" {
     "roleofnode" = "testing",
   }
 
+  node_specific_labels = {
+    "node1" = {
+      "node1": "node1label"
+    }
+
+    "node2" = {
+      "node2": "node2label"
+    }
+
+    "node3" = {
+      "node3": "node3label"
+    }
+  }
+
   conntrack_max_per_core = 65000
 
   install_to_smallest_disk = "true"

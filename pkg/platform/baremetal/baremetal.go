@@ -31,41 +31,42 @@ import (
 )
 
 type config struct {
-	AssetDir                     string              `hcl:"asset_dir"`
-	CachedInstall                string              `hcl:"cached_install,optional"`
-	ClusterName                  string              `hcl:"cluster_name"`
-	ControllerDomains            []string            `hcl:"controller_domains"`
-	ControllerMacs               []string            `hcl:"controller_macs"`
-	ControllerNames              []string            `hcl:"controller_names"`
-	DisableSelfHostedKubelet     bool                `hcl:"disable_self_hosted_kubelet,optional"`
-	K8sDomainName                string              `hcl:"k8s_domain_name"`
-	MatchboxCAPath               string              `hcl:"matchbox_ca_path"`
-	MatchboxClientCertPath       string              `hcl:"matchbox_client_cert_path"`
-	MatchboxClientKeyPath        string              `hcl:"matchbox_client_key_path"`
-	MatchboxEndpoint             string              `hcl:"matchbox_endpoint"`
-	MatchboxHTTPEndpoint         string              `hcl:"matchbox_http_endpoint"`
-	NetworkMTU                   int                 `hcl:"network_mtu,optional"`
-	OSChannel                    string              `hcl:"os_channel,optional"`
-	OSVersion                    string              `hcl:"os_version,optional"`
-	PXECommands                  string              `hcl:"pxe_commands,optional"`
-	InstallPreBootCmds           string              `hcl:"install_pre_reboot_cmds,optional"`
-	SSHPubKeys                   []string            `hcl:"ssh_pubkeys"`
-	WorkerNames                  []string            `hcl:"worker_names"`
-	WorkerMacs                   []string            `hcl:"worker_macs"`
-	WorkerDomains                []string            `hcl:"worker_domains"`
-	Labels                       map[string]string   `hcl:"labels,optional"`
-	OIDC                         *oidc.Config        `hcl:"oidc,block"`
-	EncryptPodTraffic            bool                `hcl:"encrypt_pod_traffic,optional"`
-	IgnoreX509CNCheck            bool                `hcl:"ignore_x509_cn_check,optional"`
-	ConntrackMaxPerCore          int                 `hcl:"conntrack_max_per_core,optional"`
-	InstallToSmallestDisk        bool                `hcl:"install_to_smallest_disk,optional"`
-	InstallDisk                  string              `hcl:"install_disk,optional"`
-	KernelArgs                   []string            `hcl:"kernel_args,optional"`
-	KernelConsole                []string            `hcl:"kernel_console,optional"`
-	DownloadProtocol             string              `hcl:"download_protocol,optional"`
-	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
-	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
-	InstallerCLCSnippets         map[string][]string `hcl:"installer_clc_snippets,optional"`
+	AssetDir                     string                       `hcl:"asset_dir"`
+	CachedInstall                string                       `hcl:"cached_install,optional"`
+	ClusterName                  string                       `hcl:"cluster_name"`
+	ControllerDomains            []string                     `hcl:"controller_domains"`
+	ControllerMacs               []string                     `hcl:"controller_macs"`
+	ControllerNames              []string                     `hcl:"controller_names"`
+	DisableSelfHostedKubelet     bool                         `hcl:"disable_self_hosted_kubelet,optional"`
+	K8sDomainName                string                       `hcl:"k8s_domain_name"`
+	MatchboxCAPath               string                       `hcl:"matchbox_ca_path"`
+	MatchboxClientCertPath       string                       `hcl:"matchbox_client_cert_path"`
+	MatchboxClientKeyPath        string                       `hcl:"matchbox_client_key_path"`
+	MatchboxEndpoint             string                       `hcl:"matchbox_endpoint"`
+	MatchboxHTTPEndpoint         string                       `hcl:"matchbox_http_endpoint"`
+	NetworkMTU                   int                          `hcl:"network_mtu,optional"`
+	OSChannel                    string                       `hcl:"os_channel,optional"`
+	OSVersion                    string                       `hcl:"os_version,optional"`
+	PXECommands                  string                       `hcl:"pxe_commands,optional"`
+	InstallPreBootCmds           string                       `hcl:"install_pre_reboot_cmds,optional"`
+	SSHPubKeys                   []string                     `hcl:"ssh_pubkeys"`
+	WorkerNames                  []string                     `hcl:"worker_names"`
+	WorkerMacs                   []string                     `hcl:"worker_macs"`
+	WorkerDomains                []string                     `hcl:"worker_domains"`
+	Labels                       map[string]string            `hcl:"labels,optional"`
+	NodeSpecificLabels           map[string]map[string]string `hcl:"node_specific_labels,optional"`
+	OIDC                         *oidc.Config                 `hcl:"oidc,block"`
+	EncryptPodTraffic            bool                         `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck            bool                         `hcl:"ignore_x509_cn_check,optional"`
+	ConntrackMaxPerCore          int                          `hcl:"conntrack_max_per_core,optional"`
+	InstallToSmallestDisk        bool                         `hcl:"install_to_smallest_disk,optional"`
+	InstallDisk                  string                       `hcl:"install_disk,optional"`
+	KernelArgs                   []string                     `hcl:"kernel_args,optional"`
+	KernelConsole                []string                     `hcl:"kernel_console,optional"`
+	DownloadProtocol             string                       `hcl:"download_protocol,optional"`
+	NetworkIPAutodetectionMethod string                       `hcl:"network_ip_autodetection_method,optional"`
+	CLCSnippets                  map[string][]string          `hcl:"clc_snippets,optional"`
+	InstallerCLCSnippets         map[string][]string          `hcl:"installer_clc_snippets,optional"`
 	KubeAPIServerExtraFlags      []string
 }
 
@@ -227,6 +228,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet     bool
 		KubeAPIServerExtraFlags      []string
 		Labels                       map[string]string
+		NodeSpecificLabels           map[string]map[string]string
 		EncryptPodTraffic            bool
 		IgnoreX509CNCheck            bool
 		ConntrackMaxPerCore          int
@@ -262,6 +264,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet:     cfg.DisableSelfHostedKubelet,
 		KubeAPIServerExtraFlags:      cfg.KubeAPIServerExtraFlags,
 		Labels:                       cfg.Labels,
+		NodeSpecificLabels:           cfg.NodeSpecificLabels,
 		EncryptPodTraffic:            cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:            cfg.IgnoreX509CNCheck,
 		ConntrackMaxPerCore:          cfg.ConntrackMaxPerCore,
