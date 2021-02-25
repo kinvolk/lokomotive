@@ -127,3 +127,7 @@ component "web-ui" {
 }
 
 component "inspektor-gadget" {}
+
+component "node-problem-detector" {
+  service_monitor = true
+}

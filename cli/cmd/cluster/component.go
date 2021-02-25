@@ -32,6 +32,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/components/linkerd"
 	"github.com/kinvolk/lokomotive/pkg/components/metallb"
 	metricsserver "github.com/kinvolk/lokomotive/pkg/components/metrics-server"
+	nodeproblemdetector "github.com/kinvolk/lokomotive/pkg/components/node-problem-detector"
 	openebsoperator "github.com/kinvolk/lokomotive/pkg/components/openebs-operator"
 	openebsstorageclass "github.com/kinvolk/lokomotive/pkg/components/openebs-storage-class"
 	"github.com/kinvolk/lokomotive/pkg/components/prometheus-operator"
@@ -64,6 +65,7 @@ func componentsConfigs() map[string]components.Component {
 		rookceph.Name:                   rookceph.NewConfig(),
 		velero.Name:                     velero.NewConfig(),
 		webui.Name:                      webui.NewConfig(),
+		nodeproblemdetector.Name:        nodeproblemdetector.NewConfig(),
 	}
 }
 

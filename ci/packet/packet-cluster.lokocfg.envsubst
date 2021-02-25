@@ -250,3 +250,7 @@ EOF
     service_monitor = true
   }
 }
+
+component "node-problem-detector" {
+  service_monitor = true
+}
