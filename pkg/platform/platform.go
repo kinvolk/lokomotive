@@ -69,6 +69,10 @@ func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 			Name:      "lokomotive",
 			Namespace: "lokomotive-system",
 		},
+		{
+			Name:      "prometheus-operator-crds",
+			Namespace: "kube-system",
+		},
 	}
 
 	if includeKubeletChart {

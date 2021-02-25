@@ -51,40 +51,41 @@ type workerPool struct {
 }
 
 type config struct {
-	AssetDir                 string            `hcl:"asset_dir"`
-	ClusterName              string            `hcl:"cluster_name"`
-	Tags                     map[string]string `hcl:"tags,optional"`
-	OSChannel                string            `hcl:"os_channel,optional"`
-	OSVersion                string            `hcl:"os_version,optional"`
-	DNSZone                  string            `hcl:"dns_zone"`
-	DNSZoneID                string            `hcl:"dns_zone_id"`
-	ExposeNodePorts          bool              `hcl:"expose_nodeports,optional"`
-	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
-	CredsPath                string            `hcl:"creds_path,optional"`
-	ControllerCount          int               `hcl:"controller_count,optional"`
-	ControllerType           string            `hcl:"controller_type,optional"`
-	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
-	Region                   string            `hcl:"region,optional"`
-	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
-	DiskSize                 int               `hcl:"disk_size,optional"`
-	DiskType                 string            `hcl:"disk_type,optional"`
-	DiskIOPS                 int               `hcl:"disk_iops,optional"`
-	NetworkMTU               int               `hcl:"network_mtu,optional"`
-	HostCIDR                 string            `hcl:"host_cidr,optional"`
-	PodCIDR                  string            `hcl:"pod_cidr,optional"`
-	ServiceCIDR              string            `hcl:"service_cidr,optional"`
-	EnableCSI                bool              `hcl:"enable_csi,optional"`
-	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
-	EnableReporting          bool              `hcl:"enable_reporting,optional"`
-	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
-	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
-	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
-	OIDC                     *oidc.Config      `hcl:"oidc,block"`
-	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
-	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
-	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
-	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
-	KubeAPIServerExtraFlags  []string
+	AssetDir                      string            `hcl:"asset_dir"`
+	ClusterName                   string            `hcl:"cluster_name"`
+	Tags                          map[string]string `hcl:"tags,optional"`
+	OSChannel                     string            `hcl:"os_channel,optional"`
+	OSVersion                     string            `hcl:"os_version,optional"`
+	DNSZone                       string            `hcl:"dns_zone"`
+	DNSZoneID                     string            `hcl:"dns_zone_id"`
+	ExposeNodePorts               bool              `hcl:"expose_nodeports,optional"`
+	SSHPubKeys                    []string          `hcl:"ssh_pubkeys"`
+	CredsPath                     string            `hcl:"creds_path,optional"`
+	ControllerCount               int               `hcl:"controller_count,optional"`
+	ControllerType                string            `hcl:"controller_type,optional"`
+	ControllerCLCSnippets         []string          `hcl:"controller_clc_snippets,optional"`
+	Region                        string            `hcl:"region,optional"`
+	EnableAggregation             bool              `hcl:"enable_aggregation,optional"`
+	DiskSize                      int               `hcl:"disk_size,optional"`
+	DiskType                      string            `hcl:"disk_type,optional"`
+	DiskIOPS                      int               `hcl:"disk_iops,optional"`
+	NetworkMTU                    int               `hcl:"network_mtu,optional"`
+	HostCIDR                      string            `hcl:"host_cidr,optional"`
+	PodCIDR                       string            `hcl:"pod_cidr,optional"`
+	ServiceCIDR                   string            `hcl:"service_cidr,optional"`
+	EnableCSI                     bool              `hcl:"enable_csi,optional"`
+	ClusterDomainSuffix           string            `hcl:"cluster_domain_suffix,optional"`
+	EnableReporting               bool              `hcl:"enable_reporting,optional"`
+	CertsValidityPeriodHours      int               `hcl:"certs_validity_period_hours,optional"`
+	WorkerPools                   []workerPool      `hcl:"worker_pool,block"`
+	DisableSelfHostedKubelet      bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	OIDC                          *oidc.Config      `hcl:"oidc,block"`
+	EnableTLSBootstrap            bool              `hcl:"enable_tls_bootstrap,optional"`
+	EncryptPodTraffic             bool              `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck             bool              `hcl:"ignore_x509_cn_check,optional"`
+	ConntrackMaxPerCore           int               `hcl:"conntrack_max_per_core,optional"`
+	InstallPrometheusOperatorCRDs bool              `hcl:"install_prometheus_operator_crds,optional"`
+	KubeAPIServerExtraFlags       []string
 }
 
 const (
@@ -106,11 +107,12 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		Region:              "eu-central-1",
-		EnableAggregation:   true,
-		EnableTLSBootstrap:  true,
-		NetworkMTU:          platform.NetworkMTU,
-		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
+		Region:                        "eu-central-1",
+		EnableAggregation:             true,
+		EnableTLSBootstrap:            true,
+		InstallPrometheusOperatorCRDs: true,
+		NetworkMTU:                    platform.NetworkMTU,
+		ConntrackMaxPerCore:           platform.ConntrackMaxPerCore,
 	}
 }
 

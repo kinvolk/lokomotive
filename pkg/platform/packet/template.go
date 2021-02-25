@@ -123,6 +123,8 @@ EOF
 
   conntrack_max_per_core = {{.Config.ConntrackMaxPerCore}}
 
+  install_prometheus_operator_crds = {{.Config.InstallPrometheusOperatorCRDs}}
+
   worker_bootstrap_tokens = [
     {{- range $index, $pool := .Config.WorkerPools }}
     module.worker-{{$pool.Name}}.worker_bootstrap_token,

@@ -66,39 +66,40 @@ type workerPool struct {
 }
 
 type config struct {
-	AssetDir                 string            `hcl:"asset_dir"`
-	AuthToken                string            `hcl:"auth_token,optional"`
-	ClusterName              string            `hcl:"cluster_name"`
-	Tags                     map[string]string `hcl:"tags,optional"`
-	ControllerCount          int               `hcl:"controller_count"`
-	ControllerType           string            `hcl:"controller_type,optional"`
-	ControllerCLCSnippets    []string          `hcl:"controller_clc_snippets,optional"`
-	DNS                      dns.Config        `hcl:"dns,block"`
-	Facility                 string            `hcl:"facility"`
-	ProjectID                string            `hcl:"project_id"`
-	SSHPubKeys               []string          `hcl:"ssh_pubkeys"`
-	OSArch                   string            `hcl:"os_arch,optional"`
-	OSChannel                string            `hcl:"os_channel,optional"`
-	OSVersion                string            `hcl:"os_version,optional"`
-	IPXEScriptURL            string            `hcl:"ipxe_script_url,optional"`
-	ManagementCIDRs          []string          `hcl:"management_cidrs"`
-	NodePrivateCIDR          string            `hcl:"node_private_cidr"`
-	EnableAggregation        bool              `hcl:"enable_aggregation,optional"`
-	NetworkMTU               int               `hcl:"network_mtu,optional"`
-	PodCIDR                  string            `hcl:"pod_cidr,optional"`
-	ServiceCIDR              string            `hcl:"service_cidr,optional"`
-	ClusterDomainSuffix      string            `hcl:"cluster_domain_suffix,optional"`
-	EnableReporting          bool              `hcl:"enable_reporting,optional"`
-	ReservationIDs           map[string]string `hcl:"reservation_ids,optional"`
-	ReservationIDsDefault    string            `hcl:"reservation_ids_default,optional"`
-	CertsValidityPeriodHours int               `hcl:"certs_validity_period_hours,optional"`
-	DisableSelfHostedKubelet bool              `hcl:"disable_self_hosted_kubelet,optional"`
-	OIDC                     *oidc.Config      `hcl:"oidc,block"`
-	EnableTLSBootstrap       bool              `hcl:"enable_tls_bootstrap,optional"`
-	EncryptPodTraffic        bool              `hcl:"encrypt_pod_traffic,optional"`
-	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
-	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
-	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
+	AssetDir                      string            `hcl:"asset_dir"`
+	AuthToken                     string            `hcl:"auth_token,optional"`
+	ClusterName                   string            `hcl:"cluster_name"`
+	Tags                          map[string]string `hcl:"tags,optional"`
+	ControllerCount               int               `hcl:"controller_count"`
+	ControllerType                string            `hcl:"controller_type,optional"`
+	ControllerCLCSnippets         []string          `hcl:"controller_clc_snippets,optional"`
+	DNS                           dns.Config        `hcl:"dns,block"`
+	Facility                      string            `hcl:"facility"`
+	ProjectID                     string            `hcl:"project_id"`
+	SSHPubKeys                    []string          `hcl:"ssh_pubkeys"`
+	OSArch                        string            `hcl:"os_arch,optional"`
+	OSChannel                     string            `hcl:"os_channel,optional"`
+	OSVersion                     string            `hcl:"os_version,optional"`
+	IPXEScriptURL                 string            `hcl:"ipxe_script_url,optional"`
+	ManagementCIDRs               []string          `hcl:"management_cidrs"`
+	NodePrivateCIDR               string            `hcl:"node_private_cidr"`
+	EnableAggregation             bool              `hcl:"enable_aggregation,optional"`
+	NetworkMTU                    int               `hcl:"network_mtu,optional"`
+	PodCIDR                       string            `hcl:"pod_cidr,optional"`
+	ServiceCIDR                   string            `hcl:"service_cidr,optional"`
+	ClusterDomainSuffix           string            `hcl:"cluster_domain_suffix,optional"`
+	EnableReporting               bool              `hcl:"enable_reporting,optional"`
+	ReservationIDs                map[string]string `hcl:"reservation_ids,optional"`
+	ReservationIDsDefault         string            `hcl:"reservation_ids_default,optional"`
+	CertsValidityPeriodHours      int               `hcl:"certs_validity_period_hours,optional"`
+	DisableSelfHostedKubelet      bool              `hcl:"disable_self_hosted_kubelet,optional"`
+	OIDC                          *oidc.Config      `hcl:"oidc,block"`
+	EnableTLSBootstrap            bool              `hcl:"enable_tls_bootstrap,optional"`
+	EncryptPodTraffic             bool              `hcl:"encrypt_pod_traffic,optional"`
+	IgnoreX509CNCheck             bool              `hcl:"ignore_x509_cn_check,optional"`
+	WorkerPools                   []workerPool      `hcl:"worker_pool,block"`
+	ConntrackMaxPerCore           int               `hcl:"conntrack_max_per_core,optional"`
+	InstallPrometheusOperatorCRDs bool              `hcl:"install_prometheus_operator_crds,optional"`
 
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
@@ -124,10 +125,11 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 func NewConfig() *config {
 	return &config{
-		EnableAggregation:   true,
-		EnableTLSBootstrap:  true,
-		NetworkMTU:          platform.NetworkMTU,
-		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
+		EnableAggregation:             true,
+		EnableTLSBootstrap:            true,
+		InstallPrometheusOperatorCRDs: true,
+		NetworkMTU:                    platform.NetworkMTU,
+		ConntrackMaxPerCore:           platform.ConntrackMaxPerCore,
 	}
 }
 
