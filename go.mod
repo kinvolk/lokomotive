@@ -1,6 +1,6 @@
 module github.com/kinvolk/lokomotive
 
-go 1.12
+go 1.15
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
