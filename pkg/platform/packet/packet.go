@@ -46,6 +46,7 @@ const (
 type workerPool struct {
 	Name                  string            `hcl:"pool_name,label"`
 	Count                 int               `hcl:"count"`
+	CPUManagerPolicy      string            `hcl:"cpu_manager_policy,optional"`
 	Facility              string            `hcl:"facility,optional"`
 	DisableBGP            bool              `hcl:"disable_bgp,optional"`
 	IPXEScriptURL         string            `hcl:"ipxe_script_url,optional"`
@@ -513,6 +514,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkReservationIDs()...)
 	diagnostics = append(diagnostics, c.validateOSVersion()...)
+	diagnostics = append(diagnostics, c.checkCPUManagerPolicy()...)
 
 	if c.ConntrackMaxPerCore < 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
@@ -612,6 +614,15 @@ func (c *config) validateOSVersion() hcl.Diagnostics {
 	}
 
 	return diagnostics
+}
+
+func (c *config) checkCPUManagerPolicy() hcl.Diagnostics {
+	wp := make(map[string]string)
+	for _, w := range c.WorkerPools {
+		wp[w.Name] = w.CPUManagerPolicy
+	}
+
+	return platform.CheckCPUManagerPolicy(wp)
 }
 
 // checkEachReservation checks that hardware reservations are in the correct

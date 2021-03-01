@@ -159,6 +159,10 @@ EOF
 
   cluster_name = "{{$.Config.ClusterName}}"
 
+  {{- if $pool.CPUManagerPolicy }}
+  cpu_manager_policy = "{{$pool.CPUManagerPolicy}}"
+  {{- end}}
+
   {{- if $pool.Tags }}
   tags = [
       {{- range $key, $value := $pool.Tags }}
