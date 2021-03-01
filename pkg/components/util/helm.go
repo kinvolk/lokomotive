@@ -59,11 +59,11 @@ func RenderChart(helmChart *chart.Chart, name, namespace, values string) (map[st
 
 	// Include hooks
 	for _, m := range template.Hooks {
-                if _, ok := ret[m.Path]; !ok {
-                        ret[m.Path] = ""
-                }
-                
-                ret[m.Path] += "---\n" + m.Manifest
+		if _, ok := ret[m.Path]; !ok {
+			ret[m.Path] = ""
+		}
+
+		ret[m.Path] += "---\n" + m.Manifest
 	}
 
 	// CRD are not rendered, so do this manually
