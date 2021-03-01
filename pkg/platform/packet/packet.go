@@ -46,6 +46,7 @@ const (
 type workerPool struct {
 	Name                  string            `hcl:"pool_name,label"`
 	Count                 int               `hcl:"count"`
+	CPUManagerPolicy      string            `hcl:"cpu_manager_policy,optional"`
 	DisableBGP            bool              `hcl:"disable_bgp,optional"`
 	IPXEScriptURL         string            `hcl:"ipxe_script_url,optional"`
 	OSArch                string            `hcl:"os_arch,optional"`

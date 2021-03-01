@@ -195,3 +195,9 @@ variable "enable_tls_bootstrap" {
   description = "Enable TLS Bootstrap for Kubelet."
   type        = bool
 }
+
+variable "cpu_manager_policy" {
+  description = "CPU Manager policy to use for. Possible values: `none`, `static` for --cpu-manager-policy flag in kubelet."
+  default     = "none"
+  type        = string
+}

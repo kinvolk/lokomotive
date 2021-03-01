@@ -69,6 +69,7 @@ data "ct_config" "ignitions" {
       cluster_name         = var.cluster_name
       dns_zone             = var.dns_zone
       enable_tls_bootstrap = var.enable_tls_bootstrap
+      cpu_manager_policy   = var.cpu_manager_policy
     }
   )
   platform = "packet"
