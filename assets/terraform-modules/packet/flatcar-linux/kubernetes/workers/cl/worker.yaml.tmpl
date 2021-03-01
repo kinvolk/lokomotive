@@ -98,6 +98,7 @@ systemd:
           --cloud-provider=external \
           --cni-conf-dir=/etc/cni/net.d \
           --config=/etc/kubernetes/kubelet.config \
+          --cpu-manager-policy=${cpu_manager_policy} \
           --exit-on-lock-contention \
           %{~ if enable_tls_bootstrap ~}
           --kubeconfig=/var/lib/kubelet/kubeconfig \
