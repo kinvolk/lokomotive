@@ -28,9 +28,9 @@ EOF
 
   project_id = "$PACKET_PROJECT_ID"
 
-  ssh_pubkeys       = ["$PUB_KEY"]
-  management_cidrs  = ["0.0.0.0/0"]
-  node_private_cidr = "10.0.0.0/8"
+  ssh_pubkeys        = ["$PUB_KEY"]
+  management_cidrs   = ["0.0.0.0/0"]
+  node_private_cidrs = ["10.0.0.0/8"]
 
   worker_pool "general" {
     count     = 1
@@ -44,7 +44,7 @@ EOF
   }
 
   worker_pool "storage" {
-    count = 3
+    count     = 3
     node_type = "c2.medium.x86"
 
     labels = {
@@ -77,7 +77,7 @@ component "rook" {
 }
 
 component "rook-ceph" {
-  monitor_count = 3
+  monitor_count  = 3
   enable_toolbox = true
 
   node_affinity {
@@ -93,7 +93,7 @@ component "rook-ceph" {
   }
 
   storage_class {
-    enable = true
+    enable  = true
     default = true
   }
 }

@@ -32,9 +32,9 @@ EOF
   os_channel      = "alpha"
   controller_type = "c2.large.arm"
 
-  ssh_pubkeys       = ["$PUB_KEY"]
-  management_cidrs  = ["0.0.0.0/0"]
-  node_private_cidr = "10.0.0.0/8"
+  ssh_pubkeys        = ["$PUB_KEY"]
+  management_cidrs   = ["0.0.0.0/0"]
+  node_private_cidrs = ["10.0.0.0/8"]
 
   worker_pool "pool-1" {
     count           = 1

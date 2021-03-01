@@ -17,6 +17,8 @@ package packet
 import (
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestCheckNotEmptyWorkersEmpty(t *testing.T) {
@@ -232,6 +234,29 @@ func TestCheckValidConfig(t *testing.T) {
 			},
 			expectError: false,
 		},
+		"NodePrivateCIDR_both_fields_provided": {
+			mutateF: func(c *config) {
+				c.NodePrivateCIDR = "10.10.10.10"
+				c.NodePrivateCIDRs = []string{"10.11.11.11"}
+			},
+			expectError: true,
+		},
+		"NodePrivateCIDR_repeated_CIDRs": {
+			mutateF: func(c *config) {
+				// Override the default value.
+				c.NodePrivateCIDRs = nil
+				c.NodePrivateCIDRs = []string{"10.10.10.10", "10.10.10.10"}
+			},
+			expectError: true,
+		},
+
+		"NodePrivateCIDR_no_node_private_cidr_given": {
+			mutateF: func(c *config) {
+				// Override the default value.
+				c.NodePrivateCIDRs = nil
+			},
+			expectError: true,
+		},
 	}
 
 	for name, c := range cases {
@@ -266,6 +291,7 @@ func baseConfig() *config {
 				Name: "2",
 			},
 		},
+		NodePrivateCIDRs: []string{"11.11.11.11"},
 	}
 }
 
@@ -351,6 +377,104 @@ func TestTerraformAddDeps(t *testing.T) {
 				if !reflect.DeepEqual(dependencies, expectedDependencies) {
 					t.Fatalf("Expected %v, got %v", expectedDependencies, dependencies)
 				}
+			}
+		})
+	}
+}
+
+func Test_findDuplicateString(t *testing.T) {
+	tests := []struct {
+		name string
+		strs []string
+		want string
+	}{
+		{
+			name: "repeated_strings",
+			strs: []string{"1", "2", "3", "1"},
+			want: "1",
+		},
+		{
+			name: "unique_strings",
+			strs: []string{"1", "2", "3"},
+			want: "",
+		},
+		{
+			name: "empty_input",
+			strs: []string{},
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := findDuplicateString(tt.strs); got != tt.want {
+				t.Errorf("findDuplicateString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_resolveNodePrivateCIDRs(t *testing.T) { //nolint:funlen
+	tests := []struct {
+		name    string
+		cfg     *config
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "both_fields_provided",
+			cfg: &config{
+				NodePrivateCIDR:  "10.10.10.10",
+				NodePrivateCIDRs: []string{"10.11.11.11"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "repeated_CIDRs",
+			cfg: &config{
+				NodePrivateCIDRs: []string{"10.10.10.10", "10.10.10.10"},
+			},
+			wantErr: true,
+		},
+		{
+			name:    "no_node_private_cidr_given",
+			cfg:     &config{},
+			wantErr: true,
+		},
+		{
+			name: "only_node_private_cidr_given",
+			cfg: &config{
+				NodePrivateCIDR: "10.10.10.10",
+			},
+			want: []string{"10.10.10.10"},
+		},
+		{
+			name: "only_node_private_cidrs_given",
+			cfg: &config{
+				NodePrivateCIDRs: []string{"10.10.10.10", "10.10.10.11"},
+			},
+			want: []string{"10.10.10.10", "10.10.10.11"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, diags := tt.cfg.resolveNodePrivateCIDRs()
+			if diags.HasErrors() && !tt.wantErr || !diags.HasErrors() && tt.wantErr {
+				t.Fatalf("got error: %v\nwantErr: %v", diags.Error(), tt.wantErr)
+			}
+
+			if diags.HasErrors() && tt.wantErr {
+				t.Logf("Successfully failed with err: %v", diags.Error())
+
+				return
+			}
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Fatalf("unexpected list -want +got)\n%s", diff)
 			}
 		})
 	}

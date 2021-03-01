@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
@@ -58,11 +59,19 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 	}
 
 	p, diags := getConfiguredPlatform(lokoConfig, true)
-	if diags.HasErrors() {
-		for _, diagnostic := range diags {
-			contextLogger.Error(diagnostic.Error())
+	for _, diagnostic := range diags {
+		if diagnostic.Severity == hcl.DiagWarning {
+			contextLogger.Warn(diagnostic.Error())
+
+			continue
 		}
 
+		if diagnostic.Severity == hcl.DiagError {
+			contextLogger.Error(diagnostic.Error())
+		}
+	}
+
+	if diags.HasErrors() {
 		return nil, fmt.Errorf("loading platform configuration")
 	}
 

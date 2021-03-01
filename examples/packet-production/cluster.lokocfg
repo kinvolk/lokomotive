@@ -3,7 +3,7 @@ variable "route53_zone_id" {}
 variable "packet_project_id" {}
 variable "ssh_public_keys" {}
 variable "management_cidrs" {}
-variable "node_private_cidr" {}
+variable "node_private_cidrs" {}
 variable "cert_manager_email" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
@@ -76,9 +76,9 @@ cluster "packet" {
 
   project_id = var.packet_project_id
 
-  ssh_pubkeys       = var.ssh_public_keys
-  management_cidrs  = var.management_cidrs
-  node_private_cidr = var.node_private_cidr
+  ssh_pubkeys        = var.ssh_public_keys
+  management_cidrs   = var.management_cidrs
+  node_private_cidrs = var.node_private_cidrs
 
   worker_pool "pool-1" {
     count     = var.workers_count

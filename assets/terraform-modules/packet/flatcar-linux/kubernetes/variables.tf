@@ -134,9 +134,9 @@ variable "management_cidrs" {
   type        = list(string)
 }
 
-variable "node_private_cidr" {
-  description = "Private IPv4 CIDR of the nodes used to allow inter-node traffic"
-  type        = string
+variable "node_private_cidrs" {
+  description = "List of private IPv4 CIDRs of the nodes used to allow inter-node traffic"
+  type        = list(string)
 }
 
 variable "enable_aggregation" {

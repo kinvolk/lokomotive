@@ -35,7 +35,7 @@ variable "route53_zone_id" {}
 variable "packet_project_id" {}
 variable "ssh_public_keys" {}
 variable "management_cidrs" {}
-variable "node_private_cidr" {}
+variable "node_private_cidrs" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
 variable "oidc_issuer_url" {}
@@ -43,6 +43,7 @@ variable "oidc_client_id" {}
 variable "oidc_username_claim" {}
 variable "oidc_groups_claim" {}
 variable "worker_clc_snippets" {}
+variable "worker_pool_facility" {}
 
 backend "s3" {
   bucket         = var.state_s3_bucket
@@ -89,7 +90,7 @@ cluster "packet" {
 
   management_cidrs = var.management_cidrs
 
-  node_private_cidr = var.node_private_cidr
+  node_private_cidrs = var.node_private_cidrs
 
   cluster_domain_suffix = "cluster.local"
 
@@ -143,6 +144,8 @@ cluster "packet" {
     os_arch = "amd64"
 
     disable_bgp = false
+
+    facility = var.worker_pool_facility
 
     node_type = var.workers_type
 
@@ -219,7 +222,8 @@ node_type = var.custom_default_worker_type
 | `os_version`                          | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                                                                                                                                                               | "current"       | string       | false    |
 | `ipxe_script_url`                     | Boot via iPXE. Required for arm64.                                                                                                                                                                                                                                                                                                 | -               | string       | false    |
 | `management_cidrs`                    | List of IPv4 CIDRs authorized to access or manage the cluster. Example ["0.0.0.0/0"] to allow all.                                                                                                                                                                                                                                 | -               | list(string) | true     |
-| `node_private_cidr`                   | Private IPv4 CIDR of the nodes used to allow inter-node traffic. Example "10.0.0.0/8"                                                                                                                                                                                                                                              | -               | string       | true     |
+| `node_private_cidr`                   | (Deprecated, use `node_private_cidrs` instead) Private IPv4 CIDR of the nodes used to allow inter-node traffic. Example "10.0.0.0/8".                                                                                                                                                                                              | -               | string       | true     |
+| `node_private_cidrs`                  | List of Private IPv4 CIDRs of the nodes used to allow inter-node traffic. Example ["10.0.0.0/8"].                                                                                                                                                                                                                                  | -               | list(string) | true     |
 | `enable_aggregation`                  | Enable the Kubernetes Aggregation Layer.                                                                                                                                                                                                                                                                                           | true            | bool         | false    |
 | `enable_tls_bootstrap`                | Enable TLS bootstraping for Kubelet.                                                                                                                                                                                                                                                                                               | true            | bool         | false    |
 | `encrypt_pod_traffic`                 | Enable in-cluster pod traffic encryption. If true `network_mtu` is reduced by 60 to make room for the encryption header.                                                                                                                                                                                                           | false           | bool         | false    |
@@ -243,6 +247,7 @@ node_type = var.custom_default_worker_type
 | `worker_pool.os_channel`              | Flatcar Container Linux channel to install from (stable, beta, alpha, edge).                                                                                                                                                                                                                                                       | "stable"        | string       | false    |
 | `worker_pool.os_version`              | Flatcar Container Linux version to install. Version such as "2303.3.1" or "current".                                                                                                                                                                                                                                               | "current"       | string       | false    |
 | `worker_pool.node_type`               | Packet instance type for worker nodes.                                                                                                                                                                                                                                                                                             | "c3.small.x86"  | string       | false    |
+| `worker_pool.facility`                | Packet facility to use for deploying the worker pool. Enable ["Backend Transfer"](https://metal.equinix.com/developers/docs/networking/features/#backend-transfer) on the Equinix Metal project for this to work.                                                                                                        | Same as controller nodes. | string       | false    |
 | `worker_pool.labels`                  | Map of extra Kubernetes Node labels for worker nodes.                                                                                                                                                                                                                                                                              | -               | map(string)  | false    |
 | `worker_pool.taints`                  | Map of Taints to assign to worker nodes.                                                                                                                                                                                                                                                                                           | -               | map(string)  | false    |
 | `worker_pool.reservation_ids`         | Block with Packet hardware reservation IDs for worker nodes. Each key must have the format `worker-${index}` and the value is the reservation UUID. Can't be combined with `reservation_ids_default`. Key indexes must be sequential and start from 0. Example: `reservation_ids = { worker-0 = "<reservation_id>" }`.             | -               | map(string)  | false    |

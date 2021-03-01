@@ -94,27 +94,27 @@ Create a file named `cluster.lokocfg` with the following contents:
 
 ```hcl
 cluster "packet" {
-  asset_dir        = "./assets"
-  cluster_name     = "lokomotive-demo"
+  asset_dir    = "./assets"
+  cluster_name = "lokomotive-demo"
 
   dns {
     zone     = "example.com"
     provider = "route53"
   }
 
-  facility = "ams1"
+  facility   = "ams1"
   project_id = "89273817-4f44-4b41-9f0c-cb00bf538542"
 
   controller_type = "c3.small.x86"
 
-  ssh_pubkeys       = ["ssh-rsa AAAA..."]
-  management_cidrs  = ["0.0.0.0/0"]
-  node_private_cidr = "10.0.0.0/8"
+  ssh_pubkeys        = ["ssh-rsa AAAA..."]
+  management_cidrs   = ["0.0.0.0/0"]
+  node_private_cidrs = ["10.0.0.0/8"]
 
   controller_count = 1
 
   worker_pool "pool-1" {
-    count       = 2
+    count     = 2
     node_type = "c3.small.x86"
   }
 }
@@ -173,11 +173,11 @@ Your configurations are stored in ./assets
 
 Now checking health and readiness of the cluster nodes ...
 
-Node                             Ready    Reason          Message                            
-                                                                                             
-lokomotive-demo-controller-0       True     KubeletReady    kubelet is posting ready status    
-lokomotive-demo-pool-1-worker-0    True     KubeletReady    kubelet is posting ready status    
-lokomotive-demo-pool-1-worker-1    True     KubeletReady    kubelet is posting ready status    
+Node                             Ready    Reason          Message
+
+lokomotive-demo-controller-0       True     KubeletReady    kubelet is posting ready status
+lokomotive-demo-pool-1-worker-0    True     KubeletReady    kubelet is posting ready status
+lokomotive-demo-pool-1-worker-1    True     KubeletReady    kubelet is posting ready status
 
 Success - cluster is healthy and nodes are ready!
 ```
@@ -219,13 +219,13 @@ Sample output:
 
 ```
 {
-  "args": {}, 
+  "args": {},
   "headers": {
-    "Accept": "*/*", 
-    "Host": "localhost:8080", 
+    "Accept": "*/*",
+    "Host": "localhost:8080",
     "User-Agent": "curl/7.70.0"
-  }, 
-  "origin": "127.0.0.1", 
+  },
+  "origin": "127.0.0.1",
   "url": "http://localhost:8080/get"
 }
 ```

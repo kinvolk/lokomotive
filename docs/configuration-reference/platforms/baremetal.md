@@ -36,8 +36,6 @@ variable "controller_names" {}
 variable "worker_domains" {}
 variable "worker_macs" {}
 variable "worker_names" {}
-variable "management_cidrs" {}
-variable "node_private_cidr" {}
 variable "state_s3_bucket" {}
 variable "lock_dynamodb_table" {}
 variable "oidc_issuer_url" {}
