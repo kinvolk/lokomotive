@@ -12,7 +12,7 @@ volumes.
 
 ## Prerequisites
 
-* A Lokomotive cluster accessible via `kubectl` deployed on Packet.
+* A Lokomotive cluster accessible via `kubectl` deployed on Equinix Metal.
 
 ## Configuration
 
