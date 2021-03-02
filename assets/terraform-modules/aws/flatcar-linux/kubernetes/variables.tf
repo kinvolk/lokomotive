@@ -53,6 +53,12 @@ variable "os_version" {
   description = "Version of the OS (current or numeric version such as 2261.99.0)"
 }
 
+variable "os_arch" {
+  type        = string
+  default     = "x86_64"
+  description = "OS architecture to install (x86_64, arm64)"
+}
+
 variable "disk_size" {
   type        = number
   default     = 40

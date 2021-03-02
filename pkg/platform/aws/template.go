@@ -56,6 +56,9 @@ module "aws-{{.Config.ClusterName}}" {
   host_cidr = "{{.Config.HostCIDR}}"
   {{- end }}
 
+ {{- if .Config.OSArch }}
+  os_arch = "{{.Config.OSArch}}"
+ {{- end }}
  {{- if .Config.OSChannel }}
   os_channel = "{{.Config.OSChannel}}"
  {{- end }}
@@ -145,6 +148,10 @@ module "worker-pool-{{ $index }}" {
   {{- end }}
   {{- if $pool.LBHTTPSPort }}
   lb_https_port = {{ $pool.LBHTTPSPort }}
+  {{- end }}
+
+  {{- if $pool.OSArch }}
+  os_arch = "{{ $pool.OSArch }}"
   {{- end }}
 
   {{- if $pool.OSChannel }}

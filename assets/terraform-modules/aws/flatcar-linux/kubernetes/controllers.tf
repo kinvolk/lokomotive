@@ -115,8 +115,10 @@ data "ct_config" "controller-ignitions" {
   count = var.controller_count
   content = templatefile("${path.module}/cl/controller.yaml.tmpl", {
     # Cannot use cyclic dependencies on controllers or their DNS records
-    etcd_name   = "etcd${count.index}"
-    etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
+    etcd_name            = "etcd${count.index}"
+    etcd_domain          = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
+    etcd_arch_tag_suffix = var.os_arch == "arm64" ? "-arm64" : ""
+    etcd_env_options     = var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
     etcd_initial_cluster   = join(",", [for i in range(var.controller_count) : format("etcd%d=https://%s-etcd%d.%s:2380", i, var.cluster_name, i, var.dns_zone)])
     ssh_keys               = jsonencode(var.ssh_keys)
