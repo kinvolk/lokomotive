@@ -292,7 +292,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=quay.io/kinvolk/kubelet
-          KUBELET_IMAGE_TAG=v1.19.4-${os_arch}
+          KUBELET_IMAGE_TAG=v1.20.4-${os_arch}
           NODE_LABELS="${join(",", [for k, v in node_labels : "${k}=${v}"])}"
           NODE_TAINTS="${join(",", [for k, v in taints : "${k}=${v}"])}"
     - path: /etc/sysctl.d/max-user-watches.conf
@@ -312,7 +312,7 @@ storage:
             -v /etc/kubernetes:/etc/kubernetes:ro \
             -v /var/lib/kubelet:/var/lib/kubelet:ro \
             --entrypoint=/usr/local/bin/kubectl \
-            quay.io/kinvolk/kubelet:v1.19.4-${os_arch} \
+            quay.io/kinvolk/kubelet:v1.20.4-${os_arch} \
             %{~ if enable_tls_bootstrap ~}
             --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
             %{~ else ~}
