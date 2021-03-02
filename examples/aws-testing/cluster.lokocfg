@@ -10,6 +10,10 @@ variable "cluster_name" {
   default = "lokomotive-cluster"
 }
 
+variable "cluster_region" {
+  default = "eu-central-1"
+}
+
 variable "controllers_count" {
   default = 1
 }
