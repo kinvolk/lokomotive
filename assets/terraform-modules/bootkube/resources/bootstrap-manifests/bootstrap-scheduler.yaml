@@ -3,8 +3,6 @@ kind: Pod
 metadata:
   name: bootstrap-kube-scheduler
   namespace: kube-system
-  annotations:
-    seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
 spec:
   containers:
   - name: kube-scheduler
@@ -22,3 +20,6 @@ spec:
   - name: secrets
     hostPath:
       path: /etc/kubernetes/bootstrap-secrets
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
