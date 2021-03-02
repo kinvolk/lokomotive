@@ -2,6 +2,7 @@ apiserver:
   apiserverKey: ${apiserver_key}
   apiserverCert: ${apiserver_cert}
   serviceAccountPub: ${serviceaccount_pub}
+  serviceAccountPrivate: ${serviceaccount_private}
   caCert: ${ca_cert}
   etcdClientCaCert: ${etcd_ca_cert}
   etcdClientCert: ${etcd_client_cert}

@@ -2,6 +2,7 @@ apiserver:
   apiserverKey:
   apiserverCert:
   serviceAccountPub:
+  serviceAccountPrivate:
   caCert:
   etcdClientCaCert:
   etcdClientCert:

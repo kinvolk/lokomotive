@@ -40,6 +40,8 @@
         - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
         - --secure-port=6443
         - --service-account-key-file=/etc/kubernetes/secrets/service-account.pub
+        - --service-account-signing-key-file=/etc/kubernetes/secrets/service-account.key
+        - --service-account-issuer=https://kubernetes.default.svc
         - --service-cluster-ip-range={{ .Values.apiserver.serviceCIDR }}
         - --storage-backend=etcd3
         - --tls-cert-file=/etc/kubernetes/secrets/apiserver.crt

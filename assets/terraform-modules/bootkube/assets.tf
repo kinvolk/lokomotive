@@ -40,6 +40,7 @@ resource "local_file" "kube-apiserver" {
     apiserver_key           = base64encode(tls_private_key.apiserver.private_key_pem)
     apiserver_cert          = base64encode(tls_locally_signed_cert.apiserver.cert_pem)
     serviceaccount_pub      = base64encode(tls_private_key.service-account.public_key_pem)
+    serviceaccount_private  = base64encode(tls_private_key.service-account.private_key_pem)
     etcd_ca_cert            = base64encode(tls_self_signed_cert.etcd-ca.cert_pem)
     etcd_client_cert        = base64encode(tls_locally_signed_cert.client.cert_pem)
     etcd_client_key         = base64encode(tls_private_key.client.private_key_pem)
