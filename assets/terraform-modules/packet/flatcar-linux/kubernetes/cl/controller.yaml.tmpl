@@ -81,6 +81,7 @@ systemd:
         Description=Flatcar Container Linux Metadata Agent
         [Service]
         Type=oneshot
+        RemainAfterExit=true
         Restart=on-failure
         RestartSec=10s
         Environment=COREOS_METADATA_OPT_PROVIDER=--cmdline
