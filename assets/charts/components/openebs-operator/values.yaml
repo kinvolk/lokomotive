@@ -11,9 +11,12 @@ serviceAccount:
   create: true
   name:
 
+imagePullSecrets:
+  #  - name: image-pull-secret
+
 release:
   # "openebs.io/version" label for control plane components
-  version: "2.2.0"
+  version: "2.6.0"
 
 image:
   pullPolicy: IfNotPresent
@@ -22,7 +25,7 @@ image:
 apiserver:
   enabled: true
   image: "openebs/m-apiserver"
-  imageTag: "2.2.0"
+  imageTag: "2.6.0"
   replicas: 1
   ports:
     externalPort: 5656
@@ -35,6 +38,16 @@ apiserver:
   healthCheck:
     initialDelaySeconds: 30
     periodSeconds: 60
+  ## apiserver resource requests and limits
+  ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 2Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 1Gi
+
 
 defaultStorageConfig:
   enabled: "true"
@@ -47,20 +60,30 @@ varDirectoryPath:
 provisioner:
   enabled: true
   image: "openebs/openebs-k8s-provisioner"
-  imageTag: "2.2.0"
+  imageTag: "2.6.0"
   replicas: 1
   enableLeaderElection: true
+  patchJivaNodeAffinity: enabled
   nodeSelector: {}
   tolerations: []
   affinity: {}
   healthCheck:
     initialDelaySeconds: 30
     periodSeconds: 60
+  ## provisioner resource requests and limits
+  ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 2Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 1Gi
 
 localprovisioner:
   enabled: true
   image: "openebs/provisioner-localpv"
-  imageTag: "2.2.0"
+  imageTag: "2.6.0"
   replicas: 1
   enableLeaderElection: true
   basePath: "/var/openebs/local"
@@ -70,15 +93,42 @@ localprovisioner:
   healthCheck:
     initialDelaySeconds: 30
     periodSeconds: 60
+  ## localprovisioner resource requests and limits
+  ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 2Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 1Gi
 
 snapshotOperator:
   enabled: true
   controller:
     image: "openebs/snapshot-controller"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
+    ## snapshot controller resource requests and limits
+    ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources: {}
+      # limits:
+      #   cpu: 1000m
+      #   memory: 2Gi
+      # requests:
+      #   cpu: 500m
+      #   memory: 1Gi
   provisioner:
     image: "openebs/snapshot-provisioner"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
+    ## snapshot provisioner resource requests and limits
+    ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources: {}
+      # limits:
+      #   cpu: 1000m
+      #   memory: 2Gi
+      # requests:
+      #   cpu: 500m
+      #   memory: 1Gi
   replicas: 1
   enableLeaderElection: true
   upgradeStrategy: "Recreate"
@@ -92,7 +142,7 @@ snapshotOperator:
 ndm:
   enabled: true
   image: "openebs/node-disk-manager"
-  imageTag: "0.9.0"
+  imageTag: "1.2.0"
   sparse:
     path: "/var/openebs/sparse"
     size: "10737418240"
@@ -103,7 +153,7 @@ ndm:
     excludeVendors: "CLOUDBYT,OpenEBS"
     enablePathFilter: true
     includePaths: ""
-    excludePaths: "loop,fd0,sr0,/dev/ram,/dev/dm-,/dev/md,/dev/rbd,/dev/zd"
+    excludePaths: "/dev/loop,/dev/fd0,/dev/sr0,/dev/ram,/dev/dm-,/dev/md,/dev/rbd,/dev/zd"
   probes:
     enableSeachest: false
   nodeSelector: {}
@@ -111,11 +161,20 @@ ndm:
   healthCheck:
     initialDelaySeconds: 30
     periodSeconds: 60
+  ## ndm resource requests and limits
+  ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 2Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 1Gi
 
 ndmOperator:
   enabled: true
   image: "openebs/node-disk-operator"
-  imageTag: "0.9.0"
+  imageTag: "1.2.0"
   replicas: 1
   upgradeStrategy: Recreate
   nodeSelector: {}
@@ -127,11 +186,20 @@ ndmOperator:
     initialDelaySeconds: 4
     periodSeconds: 10
     failureThreshold: 1
+  ## ndmOperator resource requests and limits
+  ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 2Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 1Gi
 
 webhook:
   enabled: true
   image: "openebs/admission-server"
-  imageTag: "2.2.0"
+  imageTag: "2.6.0"
   failurePolicy: "Fail"
   replicas: 1
   healthCheck:
@@ -141,30 +209,39 @@ webhook:
   tolerations: []
   affinity: {}
   hostNetwork: false
+  ## admission-server resource requests and limits
+  ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 1Gi
+    # requests:
+    #   cpu: 250m
+    #   memory: 500Mi
 
 jiva:
   image: "openebs/jiva"
-  imageTag: "2.2.0"
+  imageTag: "2.6.0"
   replicas: 3
   defaultStoragePath: "/var/openebs"
 
 cstor:
   pool:
     image: "openebs/cstor-pool"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
   poolMgmt:
     image: "openebs/cstor-pool-mgmt"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
   target:
     image: "openebs/cstor-istgt"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
   volumeMgmt:
     image: "openebs/cstor-volume-mgmt"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
 
 helper:
   image: "openebs/linux-utils"
-  imageTag: "2.2.0"
+  imageTag: "2.6.0"
 
 featureGates:
   enabled: true
@@ -174,6 +251,10 @@ featureGates:
   APIService:
     enabled: false
     featureGateFlag: "APIService"
+    address: "0.0.0.0:9115"
+  UseOSDisk:
+    enabled: false
+    featureGateFlag: "UseOSDisk"
 
 crd:
   enableInstall: true
@@ -182,7 +263,7 @@ policies:
   monitoring:
     enabled: true
     image: "openebs/m-exporter"
-    imageTag: "2.2.0"
+    imageTag: "2.6.0"
 
 analytics:
   enabled: true

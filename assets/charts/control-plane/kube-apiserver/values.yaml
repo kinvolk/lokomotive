@@ -1,7 +1,7 @@
 apiserver:
   apiserverKey:
   apiserverCert:
-  serviceAccountPub:
+  serviceAccountPrivate:
   caCert:
   etcdClientCaCert:
   etcdClientCert:
@@ -9,7 +9,7 @@ apiserver:
   aggregationCaCert:
   aggregationClientCert:
   aggregationClientKey:
-  image: k8s.gcr.io/kube-apiserver:v1.19.4
+  image: k8s.gcr.io/kube-apiserver:v1.20.4
   cloudProvider:
   etcdServers:
   aggregationFlags:

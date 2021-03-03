@@ -43,10 +43,18 @@ spec:
       affinity:
 {{ toYaml .Values.webhook.affinity | indent 8 }}
 {{- end }}
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
       serviceAccountName: {{ template "openebs.serviceAccountName" . }}
       containers:
         - name: admission-webhook
           image: "{{ .Values.image.repository }}{{ .Values.webhook.image }}:{{ .Values.webhook.imageTag }}"
+{{- if .Values.webhook.resources }}
+          resources:
+{{ toYaml .Values.webhook.resources | trimSuffix "\n" | indent 12 }}
+{{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - -alsologtostderr
