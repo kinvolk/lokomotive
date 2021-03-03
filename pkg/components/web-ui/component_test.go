@@ -112,7 +112,7 @@ metadata:
     helm.sh/chart: headlamp-0.1.0
     app.kubernetes.io/name: web-ui
     app.kubernetes.io/instance: web-ui
-    app.kubernetes.io/version: "0.1.3"
+    app.kubernetes.io/version: "0.2.1"
     app.kubernetes.io/managed-by: Helm
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
@@ -152,7 +152,7 @@ metadata:
     helm.sh/chart: headlamp-0.1.0
     app.kubernetes.io/name: web-ui
     app.kubernetes.io/instance: web-ui
-    app.kubernetes.io/version: "0.1.3"
+    app.kubernetes.io/version: "0.2.1"
     app.kubernetes.io/managed-by: Helm
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
