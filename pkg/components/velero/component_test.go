@@ -21,6 +21,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 func TestEmptyConfig(t *testing.T) {
@@ -210,6 +211,7 @@ component "velero" {
       provider = "aws"
       region   = "myregion"
     }
+
     tolerations {
       key                = "TestResticTolerationKey"
       value              = "TestResticTolerationValue"
@@ -235,15 +237,16 @@ component "velero" {
 	m := testutil.RenderManifests(t, component, Name, configHCL)
 	jsonPath := "{.spec.template.spec.tolerations[0].key}"
 	expected := "TestResticTolerationKey"
-
-	gotConfig := testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
+	resticDS := k8sutil.ObjectMetadata{
+		Version: "apps/v1", Kind: "DaemonSet", Name: "restic",
+	}
+	gotConfig := testutil.ConfigFromMap(t, m, resticDS)
 
 	testutil.MatchJSONPathStringValue(t, gotConfig, jsonPath, expected)
 
 	jsonPath = "{.spec.template.spec.tolerations[0].tolerationSeconds}"
 	expectedNumber := int64(1)
-
-	gotConfig = testutil.ConfigFromMap(t, m, "velero/templates/restic-daemonset.yaml")
+	gotConfig = testutil.ConfigFromMap(t, m, resticDS)
 
 	testutil.MatchJSONPathInt64Value(t, gotConfig, jsonPath, expectedNumber)
 }

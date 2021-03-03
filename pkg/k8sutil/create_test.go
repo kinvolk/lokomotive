@@ -21,7 +21,10 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/kubernetes/fake"
+
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/kinvolk/lokomotive/internal"
 )
@@ -285,5 +288,202 @@ func TestCreateOrUpdateNamespaceUpdateSuccess(t *testing.T) {
 
 	if mockns.ObjectMeta.Labels[internal.NamespaceLabelKey] != name {
 		t.Fatalf("expected %q, got: %q", name, mockns.ObjectMeta.Labels[internal.NamespaceLabelKey])
+	}
+}
+
+func TestYAMLToUnstructured(t *testing.T) {
+	tests := []struct {
+		name    string
+		yamlObj []byte
+		want    *unstructured.Unstructured
+		wantErr bool
+	}{
+		{
+			name: "Valid_Kubernetes_object",
+			yamlObj: []byte(`apiVersion: v1
+kind: Namespace
+metadata:
+  name: test`),
+			want: &unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata":   map[string]interface{}{"name": "test"},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "Invalid_Kubernetes_object",
+			yamlObj: []byte(`foobar`),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := YAMLToUnstructured(tt.yamlObj)
+			if err != nil && !tt.wantErr || err == nil && tt.wantErr {
+				t.Fatalf("got error: %v\nwantErr: %v", err, tt.wantErr)
+			}
+
+			if err != nil && tt.wantErr {
+				t.Logf("successfully failed with error: %v", err)
+
+				return
+			}
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Fatalf("-want +got)\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestSplitYAMLDocuments(t *testing.T) { //nolint:funlen
+	tests := []struct {
+		name    string
+		yamlObj string
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "valid_YAML_files",
+			yamlObj: `
+foo
+---
+bar`,
+			want:    []string{"foo\n", "bar\n"},
+			wantErr: false,
+		},
+		{
+			name: "valid_YAML_with_comments",
+			yamlObj: `# This is comment 1
+foo
+---
+# This is comment 2
+bar`,
+			want:    []string{"foo\n", "bar\n"},
+			wantErr: false,
+		},
+		{
+			name: "invalid_YAML_1",
+			yamlObj: "	foobar",
+			wantErr: true,
+		},
+		{
+			name:    "invalid_YAML_2",
+			yamlObj: "foo: bar:",
+			wantErr: true,
+		},
+
+		{
+			name: "empty_YAML_document",
+			yamlObj: `# This is comment 1
+foo
+---
+# This is empty doc
+---
+# This is comment 2
+bar
+`,
+			want:    []string{"foo\n", "bar\n"},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := SplitYAMLDocuments(tt.yamlObj)
+			if err != nil && !tt.wantErr || err == nil && tt.wantErr {
+				t.Fatalf("got error: %v\nwantErr: %v", err, tt.wantErr)
+			}
+
+			if err != nil && tt.wantErr {
+				t.Logf("successfully failed with error: %v", err)
+
+				return
+			}
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Fatalf("-want +got)\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestYAMLToObjectMetadata(t *testing.T) { //nolint:funlen
+	tests := []struct {
+		name    string
+		yamlObj string
+		want    ObjectMetadata
+		wantErr bool
+	}{
+		{
+			name: "Valid object",
+			yamlObj: `apiVersion: v1
+kind: Namespace
+metadata:
+  name: test
+`,
+			want: ObjectMetadata{
+				Name:    "test",
+				Kind:    "Namespace",
+				Version: "v1",
+			},
+		},
+		{
+			name:    "Invalid_Kubernetes_object",
+			yamlObj: `foobar`,
+			wantErr: true,
+		},
+		{
+			name: "No_name_Kubernetes_object",
+			yamlObj: `apiVersion: v1
+kind: Namespace`,
+			wantErr: true,
+		},
+		{
+			name: "Kubernetes_object_with_no_kind",
+			yamlObj: `apiVersion: v1
+kind: ""
+metadata:
+  name: test`,
+			wantErr: true,
+		},
+		{
+			name: "Kubernetes_object_with_no_apiversion",
+			yamlObj: `apiVersion: ""
+kind: Namespace
+metadata:
+  name: test`,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := YAMLToObjectMetadata(tt.yamlObj)
+			if err != nil && !tt.wantErr || err == nil && tt.wantErr {
+				t.Fatalf("got error: %v\nwantErr: %v", err, tt.wantErr)
+			}
+
+			if err != nil && tt.wantErr {
+				t.Logf("successfully failed with error: %v", err)
+
+				return
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("got: %#v\nwant: %#v", got, tt.want)
+			}
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Fatalf("-want +got)\n%s", diff)
+			}
+		})
 	}
 }

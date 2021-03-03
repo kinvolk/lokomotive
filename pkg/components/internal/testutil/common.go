@@ -21,17 +21,33 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
-// ConfigFromMap takes a map and a key and returns the value associated with the key. If the key
-// does not exist in that map, the function fails.
-func ConfigFromMap(t *testing.T, m map[string]string, k string) string {
-	ret, ok := m[k]
-	if !ok {
-		t.Fatalf("Config not found with filename: %q", k)
+// ConfigFromMap takes a map and a key. The function returns the YAML object associated with the
+// key. If the key does not exist in that map, the function fails.
+func ConfigFromMap(t *testing.T, m map[string]string, key k8sutil.ObjectMetadata) string {
+	for _, v := range m {
+		splittedYAML, err := k8sutil.SplitYAMLDocuments(v)
+		if err != nil {
+			t.Fatalf("Splitting YAML doc separated by '---': %v", err)
+		}
+
+		for _, val := range splittedYAML {
+			obj, err := k8sutil.YAMLToObjectMetadata(val)
+			if err != nil {
+				t.Fatalf("Converting YAML to ObjectMetadata: %v", err)
+			}
+
+			if obj == key {
+				return val
+			}
+		}
 	}
 
-	return ret
+	t.Fatalf("Given object not found: %+v", key)
+
+	return ""
 }
 
 // RenderManifests converts a component into YAML manifests.
