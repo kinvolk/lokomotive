@@ -20,8 +20,8 @@ to update.
 Make note of the current version installed and the version to update and set
 the values accordingly in the document.
 
-As an example, in this document we are going to update from `v1.12.0` to
-`v2.2.0`.
+As an example, in this document we are going to update from `v2.2.0` to
+`v2.6.0`.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ To update the OpenEBS data plane components, we need the following:
 * [OpenEBS component](../../configuration-reference/components/openebs-operator)
   installed. You can check if OpenEBS is indeed in expected version:
     ```bash
-    $ kubectl get pods -n openebs -l openebs.io/version=1.12.0
+    kubectl get pods -n openebs -l openebs.io/version=2.2.0
     ```
 
 * Update process should not be disruptive, but it is recommended to schedule a
@@ -70,8 +70,8 @@ To update the OpenEBS data plane components, we need the following:
 
 Set the following environment variables in the terminal to assist in the update process:
 ```bash
-export OPENEBS_OLD_VERSION=1.12.0
-export OPENEBS_NEW_VERSION=2.2.0
+export OPENEBS_OLD_VERSION=2.2.0
+export OPENEBS_NEW_VERSION=2.6.0
 ```
 ### Step 1: Update OpenEBS control plane components
 
@@ -89,7 +89,7 @@ resources are created for the new version.
 Verify all the pods are in `Running` state before proceeding:
 
 ```bash
-$ kubectl get pods -n openebs -l openebs.io/version=${OPENEBS_NEW_VERSION}
+kubectl get pods -n openebs -l openebs.io/version=${OPENEBS_NEW_VERSION}
 ```
 
 ### Step 2: Update OpenEBS data plane components
@@ -148,7 +148,7 @@ kubectl describe job -n openebs cstor-spc-${OPENEBS_OLD_VERSION}-to-${OPENEBS_NE
 # Should see a similar outpu of 'Completed'
   Type    Reason            Age    From            Message
   ----    ------            ----   ----            -------
-  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-spc-1.12.0-to-2.2.0-hpcxl
+  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-spc-2.2.0-to-2.6.0-hpcxl
   Normal  Completed         52s    job-controller  Job completed
 ```
 
@@ -201,7 +201,7 @@ kubectl describe job -n openebs cstor-vol-${OPENEBS_OLD_VERSION}-to-${OPENEBS_NE
 # Should see a similar outpu of 'Completed'
   Type    Reason            Age    From            Message
   ----    ------            ----   ----            -------
-  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-vol-1.12.0-to-2.2.0-gtwsd
+  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-vol-2.2.0-to-2.6.0-gtwsd
   Normal  Completed         1m36s  job-controller  Job completed
 ```
 
@@ -232,7 +232,7 @@ To check if all the `StoragePoolClaims` and `CStorVolumes` have been updated,
 execute:
 
 ```bash
-$ kubectl get pods -n openebs -l openebs.io/version=${OPENEBS_OLD_VERSION}
+kubectl get pods -n openebs -l openebs.io/version=${OPENEBS_OLD_VERSION}
 ```
 No output should be displayed.
 

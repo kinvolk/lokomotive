@@ -29,6 +29,10 @@ spec:
         name: openebs-ndm
         openebs.io/version: {{ .Values.release.version }}
     spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
       serviceAccountName: {{ template "openebs.serviceAccountName" . }}
       hostNetwork: true
       # host PID is used to check status of iSCSI Service when the NDM
@@ -49,9 +53,17 @@ spec:
 {{- end}}
 {{- if .Values.featureGates.APIService.enabled }}
           - --feature-gates={{ .Values.featureGates.APIService.featureGateFlag }}
+          - --api-service-address={{ .Values.featureGates.APIService.address }}
+{{- end}}
+{{- if .Values.featureGates.UseOSDisk.enabled }}
+          - --feature-gates={{ .Values.featureGates.UseOSDisk.featureGateFlag }}
 {{- end}}
 {{- end}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- if .Values.ndm.resources }}
+        resources:
+{{ toYaml .Values.ndm.resources | trimSuffix "\n" | indent 10 }}
+{{- end }}
         securityContext:
           privileged: true
         env:
