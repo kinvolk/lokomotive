@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package util
+package util_test
 
 import (
-	"strings"
+	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"helm.sh/helm/v3/pkg/chart"
+
 	"github.com/kinvolk/lokomotive/pkg/components"
-	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 )
 
 func TestRenderChartBadValues(t *testing.T) {
@@ -31,186 +34,74 @@ func TestRenderChartBadValues(t *testing.T) {
 		t.Fatalf("Loading chart from assets should succeed, got: %v", err)
 	}
 
-	if _, err := RenderChart(helmChart, c, c, values); err == nil {
+	if _, err := util.RenderChart(helmChart, c, c, values); err == nil {
 		t.Fatalf("Rendering chart with malformed values should fail")
 	}
 }
 
-func TestChartFromManifests(t *testing.T) {
-	tc := []struct {
-		metadata  components.Metadata
-		manifests map[string]string
-		err       bool
-	}{
-		{
-			components.Metadata{
-				Name: "foo",
-			},
-			map[string]string{
-				"foo.yaml": "bar",
-			},
-			true,
-		},
-		{
-			components.Metadata{
-				Name: "foo",
-			},
-			map[string]string{
-				"foo.yaml": "---\nfoo: bar",
-			},
-			false,
-		},
-	}
+//nolint:funlen
+func Test_RenderChart_include_multiple_hooks_from_single_file(t *testing.T) {
+	values := ""
+	chartName := "foo"
+	fileName := "secrets.yaml"
 
-	for _, c := range tc {
-		c := c
-
-		t.Run("", func(t *testing.T) {
-			chart, err := chartFromManifests(c.metadata, c.manifests)
-			if c.err && err == nil {
-				t.Fatalf("Expected error, got nil")
-			}
-
-			if !c.err && err != nil {
-				t.Fatalf("Didn't expect error, got: %v", err)
-			}
-
-			if c.err && err != nil {
-				return
-			}
-
-			if err := chart.Validate(); err != nil {
-				t.Fatalf("Generated chart should be valid, got: %v", err)
-			}
-		})
-	}
-}
-
-func TestChartFromManifestsRemoveNamespace(t *testing.T) {
-	manifests := map[string]string{
-		"namespace.yaml": `
+	expectedManifest := `---
 apiVersion: v1
-kind: Namespace
+kind: Secret
 metadata:
-  name: foo
-`,
-	}
-
-	m := components.Metadata{
-		Name: "foo",
-		Namespace: k8sutil.Namespace{
-			Name: "foo",
-		},
-	}
-
-	chart, err := chartFromManifests(m, manifests)
-	if err != nil {
-		t.Fatalf("Chart should be created, got: %v", err)
-	}
-
-	if len(chart.Manifests) != 1 {
-		t.Fatalf("Manifest file with the namespace should still be added, as it may contain other objects")
-	}
-
-	if len(chart.Manifests[0].Data) != 0 {
-		t.Fatalf("Namespace object should be removed from chart")
-	}
-}
-
-func TestChartFromManifestsRemoveNamespaceRetainObject(t *testing.T) {
-	manifests := map[string]string{
-		"objects.yaml": `
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: foo
+  name: foo-controller-tls
+  annotations:
+    "helm.sh/resource-policy": "keep"
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+type: kubernetes.io/tls
+data:
+  tls.crt: "[...]"
+  tls.key: "[...]"
+  ca.crt: "[...]"
 ---
 apiVersion: v1
-kind: Pod
+kind: Secret
 metadata:
-  name: bar
-`,
-	}
+  name: foo-client-tls
+  annotations:
+    "helm.sh/resource-policy": "keep"
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+type: kubernetes.io/tls
+data:
+  tls.crt: [...]
+  tls.key: [...]
+  ca.crt: [...]
+`
 
-	m := components.Metadata{
-		Name: "foo",
-		Namespace: k8sutil.Namespace{
-			Name: "foo",
+	chart := &chart.Chart{
+		Metadata: &chart.Metadata{
+			APIVersion: "2.0.0",
+			Name:       chartName,
+			Version:    "0.1.0",
+		},
+		Templates: []*chart.File{
+			{
+				Name: fileName,
+				Data: []byte(expectedManifest),
+			},
 		},
 	}
 
-	chart, err := chartFromManifests(m, manifests)
+	manifests, err := util.RenderChart(chart, "chartName", "chartNamespace", values)
 	if err != nil {
-		t.Fatalf("Chart should be created, got: %v", err)
+		t.Fatalf("Rendering chart: %v", err)
 	}
 
-	if len(chart.Manifests[0].Data) == 0 {
-		t.Fatalf("Other objects should be retained in the file containing Namespace object")
-	}
-}
+	expectedKey := filepath.Join(chartName, fileName)
 
-func TestChartFromManifestsRemoveOnlyReleaseNamespace(t *testing.T) {
-	manifests := map[string]string{
-		"objects.yaml": `
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: foo
-`,
+	manifest, ok := manifests[expectedKey]
+	if !ok {
+		t.Fatalf("Expected manifest not found, got %+v", manifests)
 	}
 
-	m := components.Metadata{
-		Name: "foo",
-		Namespace: k8sutil.Namespace{
-			Name: "bar",
-		},
-	}
-
-	chart, err := chartFromManifests(m, manifests)
-	if err != nil {
-		t.Fatalf("Chart should be created, got: %v", err)
-	}
-
-	if len(chart.Manifests[0].Data) == 0 {
-		t.Fatalf("Only Namespace object with matching namespace name should be filtered")
-	}
-}
-
-func TestChartFromManifestsMoveCRDs(t *testing.T) {
-	manifests := map[string]string{
-		"crd.yaml": `
-kind: CustomResourceDefinition
-metadata:
-  name: foo
-`,
-	}
-
-	m := components.Metadata{
-		Name: "foo",
-	}
-
-	chart, err := chartFromManifests(m, manifests)
-	if err != nil {
-		t.Fatalf("Chart should be created, got: %v", err)
-	}
-
-	if len(chart.Manifests) != 1 {
-		t.Fatalf("Manifest file with the CRDs should still be added, as it may contain other objects")
-	}
-
-	if len(chart.Manifests[0].Data) != 0 {
-		t.Fatalf("CRD object should be removed from the manifests file")
-	}
-
-	if len(chart.Files) != 1 {
-		t.Fatalf("CRD object should be added to Files field")
-	}
-
-	if len(chart.Files[0].Data) == 0 {
-		t.Fatalf("CRD object in unmanaged files shouldn't be empty")
-	}
-
-	if strings.Split(chart.Files[0].Name, "/")[0] != "crds" {
-		t.Fatalf("CRD object should be added to file in 'crds' directory")
+	if diff := cmp.Diff(expectedManifest, manifest); diff != "" {
+		t.Fatalf("Unexpected manifest diff: %v", diff)
 	}
 }
