@@ -21,7 +21,7 @@ cert-manager component configuration example:
 
 ```tf
 component "cert-manager" {
-  email = "example@example.com"
+  email     = "example@example.com"
   namespace = "cert-manager"
 }
 ```
