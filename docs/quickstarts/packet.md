@@ -70,8 +70,8 @@ Download the latest `lokoctl` binary for your platform:
 ```console
 export os=linux  # For macOS, use `os=darwin`.
 
-export release=$(curl -s https://api.github.com/repos/kinvolk/lokomotive/releases | jq -r '.[0].name' | tr -d v)
-curl -LO "https://github.com/kinvolk/lokomotive/releases/download/v${release}/lokoctl_${release}_${os}_amd64.tar.gz"
+export release=$(curl -s https://api.github.com/repos/kinvolk/lokomotive/releases | jq -r '.[0].name')
+curl -LO "https://github.com/kinvolk/lokomotive/releases/download/${release}/lokoctl_${release}_${os}_amd64.tar.gz"
 ```
 
 Extract the binary and copy it to a place under your `$PATH`:
