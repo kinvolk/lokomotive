@@ -4,7 +4,7 @@ builds:
   - CGO_ENABLED=0
   - GO111MODULE=on
   ldflags:
-  - -X github.com/kinvolk/lokomotive/pkg/version.Version={{.Version}}
+  - -X github.com/kinvolk/lokomotive/pkg/version.Version={{.Tag}}
   - -extldflags '-static'
   flags:
   - -buildmode=exe
@@ -35,3 +35,7 @@ release:
 
 archives:
 - wrap_in_directory: true
+  name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
