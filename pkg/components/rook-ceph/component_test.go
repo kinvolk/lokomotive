@@ -19,7 +19,9 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 
+	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 func TestEmptyConfig(t *testing.T) {
@@ -80,5 +82,56 @@ component "rook-ceph" {
 	}
 	if len(m) <= 0 {
 		t.Fatalf("Rendered manifests shouldn't be empty")
+	}
+}
+
+func TestConversion(t *testing.T) {
+	testCases := []struct {
+		name                 string
+		inputConfig          string
+		expectedManifestName k8sutil.ObjectMetadata
+		expected             string
+		jsonPath             string
+	}{
+		{
+			name: "default_reclaim_policy",
+			inputConfig: `component "rook-ceph" {
+				storage_class {
+					enable = true
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "rook-ceph-block",
+			},
+			jsonPath: "{.reclaimPolicy}",
+			expected: "Retain",
+		},
+		{
+			name: "overridden_reclaim_policy",
+			inputConfig: `component "rook-ceph" {
+				storage_class {
+					enable         = true
+					reclaim_policy = "Delete"
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "rook-ceph-block",
+			},
+			jsonPath: "{.reclaimPolicy}",
+			expected: "Delete",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			component := NewConfig()
+			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
+			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
+
+			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
+		})
 	}
 }
