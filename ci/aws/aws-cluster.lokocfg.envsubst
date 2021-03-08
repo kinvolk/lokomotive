@@ -275,7 +275,10 @@ component "httpbin" {
   certmanager_cluster_issuer = "letsencrypt-staging"
 }
 
-component "aws-ebs-csi-driver" {}
+component "aws-ebs-csi-driver" {
+  // Avoid proliferation of unused PVs.
+  reclaim_policy = "Delete"
+}
 
 component "experimental-istio-operator" {
   enable_monitoring = true
