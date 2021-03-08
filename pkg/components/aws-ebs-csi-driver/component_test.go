@@ -276,6 +276,26 @@ func TestConversion(t *testing.T) { //nolint:funlen
 			jsonPath: `{.metadata.annotations.storageclass\.kubernetes\.io\/is\-default\-class}`,
 			expected: "true",
 		},
+		{
+			name:        "default_reclaim_policy",
+			inputConfig: `component "aws-ebs-csi-driver" {}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "ebs-sc",
+			},
+			jsonPath: "{.reclaimPolicy}",
+			expected: "Retain",
+		},
+		{
+			name: "overridden_reclaim_policy",
+			inputConfig: `component "aws-ebs-csi-driver" {
+				reclaim_policy = "Delete"
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "ebs-sc",
+			},
+			jsonPath: "{.reclaimPolicy}",
+			expected: "Delete",
+		},
 	}
 
 	for _, tc := range testCases {
