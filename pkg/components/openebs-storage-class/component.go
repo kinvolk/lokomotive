@@ -36,10 +36,11 @@ const (
 
 // StorageClass represents single OpenEBS storage class with properties.
 type StorageClass struct {
-	Name         string   `hcl:"name,label"`
-	ReplicaCount int      `hcl:"replica_count,optional"`
-	Default      bool     `hcl:"default,optional"`
-	Disks        []string `hcl:"disks,optional"`
+	Name          string   `hcl:"name,label"`
+	ReplicaCount  int      `hcl:"replica_count,optional"`
+	Default       bool     `hcl:"default,optional"`
+	Disks         []string `hcl:"disks,optional"`
+	ReclaimPolicy string   `hcl:"reclaim_policy,optional"`
 }
 
 type component struct {
@@ -55,7 +56,8 @@ func defaultStorageClass() StorageClass {
 		// Make the storage class as default
 		Default: true,
 		// Default disks selection is empty
-		Disks: make([]string, 0),
+		Disks:         make([]string, 0),
+		ReclaimPolicy: "Retain",
 	}
 }
 
@@ -97,12 +99,16 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 func (c *component) validateConfig() error {
 	maxDefaultStorageClass := 0
 
-	for _, sc := range c.StorageClasses {
+	for i, sc := range c.StorageClasses {
 		if sc.Default == true {
 			maxDefaultStorageClass++
 		}
 		if maxDefaultStorageClass > 1 {
 			return fmt.Errorf("cannot have more than one default storage class")
+		}
+
+		if sc.ReclaimPolicy == "" {
+			c.StorageClasses[i].ReclaimPolicy = "Retain"
 		}
 	}
 
