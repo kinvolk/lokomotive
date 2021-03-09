@@ -27,6 +27,7 @@ ExternalDNS component configuration example:
 ```tf
 component "external-dns" {
   # Required arguments.
+  owner_id = "lokomotive" # Must be unique value across the DNS zone that doesn't change.
   aws {
     # Required arguments
     zone_type = "public"
