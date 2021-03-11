@@ -18,7 +18,12 @@ resource "null_resource" "copy-controller-secrets" {
   }
 
   provisioner "file" {
-    content     = module.controller[count.index].bootstrap_kubeconfig
+    content = templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id_controller.result
+      token_secret = random_string.bootstrap_token_secret_controller.result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${var.k8s_domain_name}:6443"
+    })
     destination = "$HOME/kubeconfig"
   }
 
@@ -74,6 +79,42 @@ resource "null_resource" "copy-controller-secrets" {
   }
 }
 
+# Secure copy kubeconfig to all workers. Activates kubelet.service
+resource "null_resource" "copy-worker-secrets" {
+  count = length(var.worker_names)
+
+  # Without depends_on, remote-exec could start and wait for machines before
+  # matchbox groups are written, causing a deadlock.
+  depends_on = [
+    matchbox_group.install,
+    matchbox_group.controller,
+    matchbox_group.worker,
+  ]
+
+  connection {
+    type    = "ssh"
+    host    = var.worker_domains[count.index]
+    user    = "core"
+    timeout = "60m"
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/cl/bootstrap-kubeconfig.yaml.tmpl", {
+      token_id     = random_string.bootstrap_token_id_worker.result
+      token_secret = random_string.bootstrap_token_secret_worker.result
+      ca_cert      = module.bootkube.ca_cert
+      server       = "https://${var.k8s_domain_name}:6443"
+    })
+    destination = "$HOME/kubeconfig"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
+    ]
+  }
+}
+
 # Secure copy bootkube assets to ONE controller and start bootkube to perform
 # one-time self-hosted cluster bootstrapping.
 resource "null_resource" "bootkube-start" {
@@ -82,6 +123,7 @@ resource "null_resource" "bootkube-start" {
   # while no Kubelets are running.
   depends_on = [
     null_resource.copy-controller-secrets,
+    null_resource.copy-worker-secrets,
   ]
 
   connection {

@@ -35,8 +35,8 @@ data "ct_config" "config" {
     ssh_keys                  = jsonencode(var.ssh_keys)
     cluster_dns_service_ip    = var.cluster_dns_service_ip
     cluster_domain_suffix     = var.cluster_domain_suffix
+    host_dns_ip               = var.host_dns_ip
     kubelet_docker_extra_args = []
-    hostname                  = var.set_standard_hostname == true ? "${var.cluster_name}-worker-${var.count_index}" : ""
     # Here we set default labels for worker nodes.
     kubelet_labels = length(var.kubelet_labels) > 0 ? var.kubelet_labels : {
       "node.kubernetes.io/node" = ""

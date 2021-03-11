@@ -4,10 +4,6 @@ variable "ca_cert" {
   description = "Kubernetes CA certificate needed in the kubeconfig file."
 }
 
-variable "cluster_name" {
-  type        = string
-  description = "Cluster name."
-}
 variable "apiserver" {
   type        = string
   description = "Apiserver private endpoint needed in the kubeconfig file."
@@ -68,8 +64,8 @@ variable "cluster_domain_suffix" {
   default     = "cluster.local"
 }
 
-variable "set_standard_hostname" {
-  type        = bool
-  description = "Sets the hostname if true. Hostname is set as <cluster_name>-worker-<count_index>"
-  default     = false
+variable "host_dns_ip" {
+  type        = string
+  description = "IP address of DNS server to configure on the nodes."
+  default     = "8.8.8.8"
 }

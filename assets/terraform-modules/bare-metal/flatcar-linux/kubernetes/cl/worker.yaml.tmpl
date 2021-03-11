@@ -1,0 +1,149 @@
+---
+systemd:
+  units:
+    - name: docker.service
+      enable: true
+    - name: locksmithd.service
+      mask: true
+    - name: iscsid.service
+      enabled: true
+      dropins:
+      - name: 00-iscsid.conf
+        contents: |
+          [Service]
+          ExecStartPre=/bin/bash -c 'echo "InitiatorName=$(/sbin/iscsi-iname -p iqn.2020-01.io.kinvolk:01)" > /etc/iscsi/initiatorname.iscsi'
+    - name: kubelet.path
+      enable: true
+      contents: |
+        [Unit]
+        Description=Watch for kubeconfig
+        [Path]
+        PathExists=/etc/kubernetes/kubeconfig
+        [Install]
+        WantedBy=multi-user.target
+    - name: wait-for-dns.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Wait for DNS entries
+        Wants=systemd-resolved.service
+        Before=kubelet.service
+        [Service]
+        Restart=on-failure
+        RestartSec=5s
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done'
+        [Install]
+        RequiredBy=kubelet.service
+    - name: kubelet.service
+      contents: |
+        [Unit]
+        Description=Kubelet
+        Wants=rpc-statd.service
+        [Service]
+        EnvironmentFile=/etc/kubernetes/kubelet.env
+        ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
+        ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
+        ExecStartPre=/etc/kubernetes/configure-kubelet-cgroup-driver
+        ExecStartPre=-docker rm -f kubelet
+        ExecStartPre=docker run -d \
+          --name=kubelet \
+          --restart=unless-stopped \
+          --log-driver=journald \
+          --network=host \
+          --pid=host \
+          --privileged \
+          -v /dev:/dev:rw \
+          -v /etc/cni/net.d:/etc/cni/net.d:ro \
+          -v /etc/kubernetes:/etc/kubernetes:ro \
+          -v /etc/machine-id:/etc/machine-id:ro \
+          -v /lib/modules:/lib/modules:ro \
+          -v /run:/run:rw \
+          -v /sys:/sys:rw \
+          -v /opt/cni/bin:/opt/cni/bin:ro \
+          -v /usr/lib/os-release:/etc/os-release:ro \
+          -v /var/lib/calico:/var/lib/calico:ro \
+          -v /var/lib/cni:/var/lib/cni:rw \
+          -v /var/lib/docker:/var/lib/docker:rw \
+          -v /var/log/pods:/var/log/pods:rw \
+          --mount type=bind,source=/mnt,target=/mnt,bind-propagation=rshared \
+          --mount type=bind,source=/var/lib/kubelet,target=/var/lib/kubelet,bind-propagation=rshared \
+          $${KUBELET_IMAGE_URL}:$${KUBELET_IMAGE_TAG} \
+          --anonymous-auth=false \
+          --authentication-token-webhook \
+          --authorization-mode=Webhook \
+          --client-ca-file=/etc/kubernetes/ca.crt \
+          --cluster_dns=${cluster_dns_service_ip} \
+          --cluster_domain=${cluster_domain_suffix} \
+          --cni-conf-dir=/etc/cni/net.d \
+          --config=/etc/kubernetes/kubelet.config \
+          --exit-on-lock-contention \
+          --hostname-override=${domain_name} \
+          --kubeconfig=/var/lib/kubelet/kubeconfig \
+          --bootstrap-kubeconfig=/etc/kubernetes/kubeconfig \
+          --rotate-certificates \
+          --lock-file=/var/run/lock/kubelet.lock \
+          --network-plugin=cni \
+          --node-labels=$${NODE_LABELS} \
+          --pod-manifest-path=/etc/kubernetes/manifests \
+          --read-only-port=0 \
+          --volume-plugin-dir=/var/lib/kubelet/volumeplugins
+        ExecStart=docker logs -f kubelet
+        ExecStop=docker stop kubelet
+        ExecStopPost=docker rm kubelet
+        Restart=always
+        RestartSec=5
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  files:
+    - path: /etc/kubernetes/kubelet.env
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          KUBELET_IMAGE_URL=quay.io/kinvolk/kubelet
+          KUBELET_IMAGE_TAG=v1.19.4
+          NODE_LABELS="${join(",", [for k, v in kubelet_labels : "${k}=${v}"])}"
+    - path: /etc/hostname
+      filesystem: root
+      mode: 0644
+      contents:
+        inline:
+          ${domain_name}
+    - path: /etc/sysctl.d/max-user-watches.conf
+      filesystem: root
+      contents:
+        inline: |
+          fs.inotify.max_user_watches=16184
+    - path: /etc/kubernetes/configure-kubelet-cgroup-driver
+      filesystem: root
+      mode: 0744
+      contents:
+        inline: |
+          #!/bin/bash
+          set -e
+          readonly docker_cgroup_driver="$(docker info -f '{{.CgroupDriver}}')"
+          cat <<EOF >/etc/kubernetes/kubelet.config
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          kind: KubeletConfiguration
+          cgroupDriver: "$${docker_cgroup_driver}"
+          EOF
+    - path: /etc/docker/daemon.json
+      filesystem: root
+      mode: 0500
+      contents:
+        inline: |
+          {
+            "live-restore": true,
+            "log-opts": {
+              "max-size": "100m",
+              "max-file": "3"
+            }
+          }
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys: ${ssh_keys}

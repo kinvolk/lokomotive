@@ -2,10 +2,9 @@
 module "bootkube" {
   source = "../../../bootkube"
 
-  cluster_name = var.cluster_name
-  api_servers  = [format("%s.%s", var.cluster_name, var.k8s_domain_name)]
-  # Each instance of controller module generates the same set of etcd_servers.
-  etcd_servers                    = module.controller[0].etcd_servers
+  cluster_name                    = var.cluster_name
+  api_servers                     = [var.k8s_domain_name]
+  etcd_servers                    = var.controller_domains
   etcd_endpoints                  = []
   asset_dir                       = var.asset_dir
   network_mtu                     = var.network_mtu
@@ -22,7 +21,7 @@ module "bootkube" {
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet
 
-  bootstrap_tokens     = concat(module.controller.*.bootstrap_token, module.worker.*.bootstrap_token)
+  bootstrap_tokens     = [local.controller_bootstrap_token, local.worker_bootstrap_token]
   enable_tls_bootstrap = true
   encrypt_pod_traffic  = var.encrypt_pod_traffic
 
