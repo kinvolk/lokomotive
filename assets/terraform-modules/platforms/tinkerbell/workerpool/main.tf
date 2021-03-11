@@ -4,7 +4,6 @@ module "worker" {
   count       = var.node_count
   count_index = count.index
 
-  cluster_name           = var.cluster_name
   cluster_dns_service_ip = var.cluster_dns_service_ip
   ssh_keys               = var.ssh_keys
   cluster_domain_suffix  = var.cluster_domain_suffix
