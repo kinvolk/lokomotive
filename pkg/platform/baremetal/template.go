@@ -65,20 +65,6 @@ module "bare-metal-{{.ClusterName}}" {
   }
   {{- end}}
 
-  {{- if .NodeSpecificLabels}}
-  node_specific_labels = {
-    {{- range $nodeName, $mapOfLabels := .NodeSpecificLabels}}
-      {{- if $mapOfLabels }}
-        "{{$nodeName}}" = {
-          {{- range $key, $value := $mapOfLabels }}
-            "{{$key}}" = "{{$value}}",
-          {{- end }}
-        }
-      {{- end }}
-    {{- end }}
-  }
-  {{- end }}
-
   ignore_x509_cn_check   = {{.IgnoreX509CNCheck}}
   conntrack_max_per_core = {{.ConntrackMaxPerCore}}
 
