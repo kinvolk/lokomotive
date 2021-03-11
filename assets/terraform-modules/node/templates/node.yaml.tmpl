@@ -144,26 +144,14 @@ storage:
             --entrypoint=/usr/local/bin/kubectl \
             ${kubelet_image_name}:${kubelet_image_tag} \
             --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
-    - path: /etc/docker/daemon.json
-      filesystem: root
-      mode: 0500
-      contents:
-        inline: |
-          {
-            "live-restore": true,
-            "log-opts": {
-              "max-size": "100m",
-              "max-file": "3"
-            }
-          }
-    %{~ if hostname != "" ~}
-    - path: /etc/hostname
+    - path: /etc/systemd/resolved.conf.d/dns_servers.conf
       filesystem: root
       mode: 0644
       contents:
         inline: |
-          ${hostname}
-    %{~ endif ~}
+          [Resolve]
+          DNS=${host_dns_ip}
+          Domains=~.
 passwd:
   users:
     - name: core

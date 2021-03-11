@@ -63,3 +63,9 @@ variable "cluster_domain_suffix" {
   description = "Cluster domain suffix. Passed to kubelet as --cluster_domain flag."
   default     = "cluster.local"
 }
+
+variable "host_dns_ip" {
+  type        = string
+  description = "IP address of DNS server to configure on the nodes."
+  default     = "8.8.8.8"
+}

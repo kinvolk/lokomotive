@@ -203,9 +203,3 @@ variable "install_to_smallest_disk" {
   type        = bool
   default     = false
 }
-
-variable "node_specific_labels" {
-  type        = map(map(string))
-  description = "Map of node specific labels map."
-  default     = {}
-}

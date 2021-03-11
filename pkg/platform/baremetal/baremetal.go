@@ -30,9 +30,6 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
 
-// Labels represent the map of key value string pairs added the kubelet.
-type Labels map[string]string
-
 type config struct {
 	AssetDir                     string              `hcl:"asset_dir"`
 	CachedInstall                string              `hcl:"cached_install,optional"`
@@ -54,8 +51,7 @@ type config struct {
 	WorkerNames                  []string            `hcl:"worker_names"`
 	WorkerMacs                   []string            `hcl:"worker_macs"`
 	WorkerDomains                []string            `hcl:"worker_domains"`
-	Labels                       Labels              `hcl:"labels,optional"`
-	NodeSpecificLabels           map[string]Labels   `hcl:"node_specific_labels,optional"`
+	Labels                       map[string]string   `hcl:"labels,optional"`
 	OIDC                         *oidc.Config        `hcl:"oidc,block"`
 	EncryptPodTraffic            bool                `hcl:"encrypt_pod_traffic,optional"`
 	IgnoreX509CNCheck            bool                `hcl:"ignore_x509_cn_check,optional"`
@@ -224,8 +220,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		WorkerDomains                string
 		DisableSelfHostedKubelet     bool
 		KubeAPIServerExtraFlags      []string
-		Labels                       Labels
-		NodeSpecificLabels           map[string]Labels
+		Labels                       map[string]string
 		EncryptPodTraffic            bool
 		IgnoreX509CNCheck            bool
 		ConntrackMaxPerCore          int
@@ -257,7 +252,6 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DisableSelfHostedKubelet:     cfg.DisableSelfHostedKubelet,
 		KubeAPIServerExtraFlags:      cfg.KubeAPIServerExtraFlags,
 		Labels:                       cfg.Labels,
-		NodeSpecificLabels:           cfg.NodeSpecificLabels,
 		EncryptPodTraffic:            cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:            cfg.IgnoreX509CNCheck,
 		ConntrackMaxPerCore:          cfg.ConntrackMaxPerCore,

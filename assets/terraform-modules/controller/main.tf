@@ -45,12 +45,12 @@ data "ct_config" "config" {
     cluster_domain_suffix     = var.cluster_domain_suffix
     kubelet_image_name        = var.kubelet_image_name
     kubelet_image_tag         = var.kubelet_image_tag
+    host_dns_ip               = var.host_dns_ip
     kubelet_docker_extra_args = []
-    hostname                  = var.set_standard_hostname == true ? "${var.cluster_name}-controller-${var.count_index}" : ""
-    kubelet_labels = merge(var.kubelet_labels, {
+    kubelet_labels = {
       "node.kubernetes.io/master"     = "",
       "node.kubernetes.io/controller" = "true",
-    })
+    }
     kubelet_taints = {
       "node-role.kubernetes.io/master" = ":NoSchedule"
     }
