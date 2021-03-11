@@ -5,7 +5,9 @@ resource "null_resource" "copy-controller-secrets" {
   # Without depends_on, remote-exec could start and wait for machines before
   # matchbox groups are written, causing a deadlock.
   depends_on = [
-    module.controller_profile,
+    matchbox_group.install,
+    matchbox_group.controller,
+    matchbox_group.worker,
   ]
 
   connection {
