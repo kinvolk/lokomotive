@@ -15,6 +15,7 @@ This is the current set of trusted keys:
 | [0xF82B446B][key-ipochi]        | `967F A608 7E62 DF09 E22A 3A40 2851 51CE F82B 446B`   | @ipochi       |
 | [0xDF48CA1E][key-surajssd]      | `17E6 829F 7335 E994 2613 AABE 83E9 8295 DF48 CA1E`   | @surajssd     |
 | [0x9B8CA58D][key-knrt10]        | `5ACC 9A58 DEED 7E03 9F32 4802 B750 D68F 9B8C A58D`   | @knrt10       |
+| [0x5ED4AB27][key-johananl]      | `9DC2 43F5 D917 F138 9C89 9502 111B DE99 5ED 4AB27`   | @johananl     |
 
 
 [key-iaguis]: https://pgp.mit.edu/pks/lookup?search=0xB7DDBE7001408D7D7FD079D27E26368261BAD4F7&op=index&exact=on
@@ -22,3 +23,4 @@ This is the current set of trusted keys:
 [key-ipochi]: https://pgp.mit.edu/pks/lookup?search=0x967FA6087E62DF09E22A3A40285151CEF82B446B&op=index&exact=on
 [key-surajssd]: https://pgp.mit.edu/pks/lookup?search=0x17E6829F7335E9942613AABE83E98295DF48CA1E&op=index&exact=on
 [key-knrt10]: https://pgp.mit.edu/pks/lookup?search=0x5ACC9A58DEED7E039F324802B750D68F9B8CA58D&op=index&exact=on
+[key-johananl]: https://pgp.mit.edu/pks/lookup?search=0x9DC243F5D917F1389C899502111BDE995ED4AB27&op=index&exact=on
