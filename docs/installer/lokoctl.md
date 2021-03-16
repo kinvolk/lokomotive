@@ -20,26 +20,26 @@ These binaries can be manually downloaded and installed.
    keys](https://github.com/kinvolk/lokomotive/blob/master/docs/KEYS.md).
 
 ```console
-gpg --verify lokoctl_0.6.1_linux_amd64.tar.gz.sig
+gpg --verify lokoctl_0.7.0_linux_amd64.tar.gz.sig
 ```
 
 3. Unpack it
 
 ```console
-tar xvf lokoctl_0.6.1_linux_amd64.tar.gz
+tar xvf lokoctl_0.7.0_linux_amd64.tar.gz
 ```
 
 4. Find the lokoctl binary in the unpacked directory and move it to its desired location
 
 ```console
-mv lokoctl_0.6.1_linux_amd64/lokoctl ~/.local/bin/lokoctl
+mv lokoctl_0.7.0_linux_amd64/lokoctl ~/.local/bin/lokoctl
 ```
 
 5. Verify the version of `lokoctl`
 
 ```console
 lokoctl version
-v0.6.1
+v0.7.0
 ```
 
 ### Using 'go get'

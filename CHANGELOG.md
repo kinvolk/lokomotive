@@ -1,3 +1,125 @@
+## v0.7.0 - 2021-03-15
+
+We're happy to announce the release of Lokomotive v0.7.0 (Ghan).
+
+### Changes in v0.7.0
+
+#### Kubernetes updates
+
+- Update Kubernetes to v1.20.4 ([#1410](https://github.com/kinvolk/lokomotive/pull/1410)).
+
+#### New components
+
+- Add component `node-problem-detector` ([#1384](https://github.com/kinvolk/lokomotive/pull/1384)).
+
+#### Component updates
+
+- Update `aws-ebs-csi-driver` from `0.7.0` to `0.9.0` ([#1393](https://github.com/kinvolk/lokomotive/pull/1393)).
+
+- Update `web-ui` from `0.1.3` to `0.2.1` ([#1412](https://github.com/kinvolk/lokomotive/pull/1412)).
+
+#### Features
+
+- AWS EBS CSI Driver: Add `node_affinity` and `tolerations` ([#1393](https://github.com/kinvolk/lokomotive/pull/1393)).
+
+- EM: Add worker pool specific `facility` attribute ([#1359](https://github.com/kinvolk/lokomotive/pull/1359)).
+
+#### Documentation
+
+- Use FLUO to update nodes ([#1295](https://github.com/kinvolk/lokomotive/pull/1295)).
+
+- How to add a worker pool in a different facility ([#1361](https://github.com/kinvolk/lokomotive/pull/1361)).
+
+- Refactor AWS quickstart guide ([#1273](https://github.com/kinvolk/lokomotive/pull/1273)).
+
+#### Bug fixes
+
+- EM: Add `Restart=on-failure` and `RestartSec=5s` for the metadata service ([#1362](https://github.com/kinvolk/lokomotive/pull/1362)).
+
+- Fix wrong etcd settings, clean up leftovers from etcd move from rkt to docker based daemon ([#1382](https://github.com/kinvolk/lokomotive/pull/1382)).
+
+- contour: Fix hostPort regression ([#1342](https://github.com/kinvolk/lokomotive/pull/1342)).
+
+#### Deprecation removal
+
+- baremetal: Remove `enable_tls_bootstrap` attribute ([#1380](https://github.com/kinvolk/lokomotive/pull/1380)).
+
+- Remove a deprecated cert-manager namespace label `certmanager.k8s.io/disable-validation=true` ([#1372](https://github.com/kinvolk/lokomotive/pull/1372)).
+
+#### Miscellaneous
+
+- AWS EBS CSI Driver: Change the StorageClass' default ReclaimPolicy to `Retain` ([#1393](https://github.com/kinvolk/lokomotive/pull/1393)).
+
+- Include a "v" in version strings when releasing ([#1417](https://github.com/kinvolk/lokomotive/pull/1417)).
+
+
+### Updating from v0.6.1
+
+#### Configuration syntax changes
+
+##### Bare-metal
+
+Delete the `enable_tls_bootstrap` parameter from your cluster configuration since it has been removed in this release.
+
+#### Cluster update steps
+
+> **NOTE:** Updating multiple Lokomotive versions at a time is not supported. If your cluster is running a version older than `v0.6.1`, update to `v0.6.1` first and only then proceed with the update to `v0.7.0`.
+
+Execute the following steps in your cluster configuration directory:
+
+1. Download and install the lokoctl binary by following the
+  [v0.7.0 installation guide](https://github.com/kinvolk/lokomotive/blob/v0.7.0/docs/installer/lokoctl.md)
+  and verify the version using `lokoctl version`:
+
+  ```bash
+  v0.7.0
+  ```
+
+2. Update the control plane:
+
+  ```bash
+  lokoctl cluster apply -v
+  ```
+
+  > **NOTE:** If the update process gets interrupted, rerun the above command.
+
+  > **NOTE:** If your cluster is running self-hosted kubelets, append `--upgrade-kubelets` to the above command.
+
+  > **NOTE:** The command updates the cluster as well as any Lokomotive components
+  > applied to it. Append `--skip-components` to the above command to avoid updating
+  > the components. Components can then be updated individually using `lokoctl component apply`.
+
+  The update process typically takes about 10 minutes.
+  After the update, running `lokoctl health` should result in an output similar to the following:
+
+  ```bash
+  Node                     Ready    Reason          Message
+
+  lokomotive-controller-0  True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-0    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-1    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-2    True     KubeletReady    kubelet is posting ready status
+  Name      Status    Message              Error
+
+  etcd-0    True      {"health":"true"}
+  ```
+
+On all platforms **except AKS**, do the following:
+
+1. Download the release bundle:
+
+  ```bash
+  curl -LO https://github.com/kinvolk/lokomotive/archive/v0.7.0.tar.gz
+  tar -xvzf v0.7.0.tar.gz
+  ```
+
+2. Run the update script:
+
+  ```bash
+  ./lokomotive-0.7.0/scripts/update/0.6.1-0.7.0/update.sh
+  ```
+
+
 ## v0.6.1 - 2021-02-12
 
 This is a patch release which includes mainly bug fixes.
