@@ -62,6 +62,7 @@ type config struct {
 	DownloadProtocol             string              `hcl:"download_protocol,optional"`
 	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
 	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
+	CertsValidityPeriodHours     int                 `hcl:"certs_validity_period_hours,optional"`
 	KubeAPIServerExtraFlags      []string
 }
 
@@ -235,6 +236,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Labels                       map[string]string
 		EncryptPodTraffic            bool
 		IgnoreX509CNCheck            bool
+		CertsValidityPeriodHours     int
 		ConntrackMaxPerCore          int
 		InstallDisk                  string
 		InstallToSmallestDisk        bool
@@ -266,6 +268,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Labels:                       cfg.Labels,
 		EncryptPodTraffic:            cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:            cfg.IgnoreX509CNCheck,
+		CertsValidityPeriodHours:     cfg.CertsValidityPeriodHours,
 		ConntrackMaxPerCore:          cfg.ConntrackMaxPerCore,
 		InstallDisk:                  cfg.InstallDisk,
 		InstallToSmallestDisk:        cfg.InstallToSmallestDisk,
