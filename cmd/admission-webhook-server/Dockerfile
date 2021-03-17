@@ -1,4 +1,5 @@
-FROM golang as builder
+ARG GOLANG_VERSION=1.15.10
+FROM golang:${GOLANG_VERSION) as builder
 
 WORKDIR /usr/src/lokomotive
 
