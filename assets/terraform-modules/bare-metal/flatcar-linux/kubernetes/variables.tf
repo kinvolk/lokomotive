@@ -10,6 +10,12 @@ variable "matchbox_http_endpoint" {
   description = "Matchbox HTTP read-only endpoint (e.g. http://matchbox.example.com:8080)"
 }
 
+variable "os_arch" {
+  type        = string
+  default     = "amd64"
+  description = "Flatcar Container Linux architecture to install (amd64, arm64)"
+}
+
 variable "os_channel" {
   type        = string
   default     = "stable"

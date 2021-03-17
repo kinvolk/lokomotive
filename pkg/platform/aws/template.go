@@ -56,6 +56,9 @@ module "aws-{{.Config.ClusterName}}" {
   host_cidr = "{{.Config.HostCIDR}}"
   {{- end }}
 
+ {{- if .Config.OSArch }}
+  os_arch = "{{ $pool.OSArch }}"
+ {{- end }}
  {{- if .Config.OSChannel }}
   os_channel = "{{.Config.OSChannel}}"
  {{- end }}

@@ -45,6 +45,7 @@ type config struct {
 	MatchboxEndpoint             string              `hcl:"matchbox_endpoint"`
 	MatchboxHTTPEndpoint         string              `hcl:"matchbox_http_endpoint"`
 	NetworkMTU                   int                 `hcl:"network_mtu,optional"`
+	OSArch                       string              `hcl:"os_arch,optional"`
 	OSChannel                    string              `hcl:"os_channel,optional"`
 	OSVersion                    string              `hcl:"os_version,optional"`
 	SSHPubKeys                   []string            `hcl:"ssh_pubkeys"`
@@ -212,6 +213,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxEndpoint             string
 		MatchboxHTTPEndpoint         string
 		NetworkMTU                   int
+		OSCArch                      string
 		OSChannel                    string
 		OSVersion                    string
 		SSHPublicKeys                string
@@ -243,6 +245,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxEndpoint:             cfg.MatchboxEndpoint,
 		MatchboxHTTPEndpoint:         cfg.MatchboxHTTPEndpoint,
 		NetworkMTU:                   cfg.NetworkMTU,
+		OSCArch:                      cfg.OSArch,
 		OSChannel:                    cfg.OSChannel,
 		OSVersion:                    cfg.OSVersion,
 		SSHPublicKeys:                string(keyListBytes),
