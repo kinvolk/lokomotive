@@ -23,6 +23,7 @@ module "bare-metal-{{.ClusterName}}" {
   matchbox_http_endpoint = "{{.MatchboxHTTPEndpoint}}"
   os_channel             = "{{.OSChannel}}"
   os_version             = "{{.OSVersion}}"
+  os_arch                = "{{.OSArch}}"
 
   # Disable self hosted kubelet
   disable_self_hosted_kubelet = {{ .DisableSelfHostedKubelet }}

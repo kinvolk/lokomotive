@@ -213,7 +213,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxEndpoint             string
 		MatchboxHTTPEndpoint         string
 		NetworkMTU                   int
-		OSCArch                      string
+		OSArch                       string
 		OSChannel                    string
 		OSVersion                    string
 		SSHPublicKeys                string
@@ -245,7 +245,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		MatchboxEndpoint:             cfg.MatchboxEndpoint,
 		MatchboxHTTPEndpoint:         cfg.MatchboxHTTPEndpoint,
 		NetworkMTU:                   cfg.NetworkMTU,
-		OSCArch:                      cfg.OSArch,
+		OSArch:                       cfg.OSArch,
 		OSChannel:                    cfg.OSChannel,
 		OSVersion:                    cfg.OSVersion,
 		SSHPublicKeys:                string(keyListBytes),
