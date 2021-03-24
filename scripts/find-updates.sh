@@ -189,8 +189,16 @@ printf "${format}" "rook" "${current_version}" "${version}"
 cd "${workdir}"
 current_version=$(grep appVersion assets/charts/components/aws-ebs-csi-driver/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
 
-get_latest_release kubernetes-sigs/aws-ebs-csi-driver
+tmpdir=$(mktemp -d)
+cd "${tmpdir}"
+
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver >/dev/null 2>&1
+helm repo update >/dev/null 2>&1
+helm fetch --untar --untardir ./ aws-ebs-csi-driver/aws-ebs-csi-driver >/dev/null 2>&1
+version=$(grep ^version "${tmpdir}/aws-ebs-csi-driver/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
+
 printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
+rm -rf "${tmpdir}"
 
 ###########################
 # Velero
