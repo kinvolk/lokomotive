@@ -43,7 +43,7 @@ printf "${format}" "calico" "${current_version}" "${version}"
 
 ###########################
 # etcd
-current_version=$(grep 'IMAGE_TAG=' assets/terraform-modules/aws/flatcar-linux/kubernetes/cl/controller.yaml.tmpl | cut -d"=" -f2 | sed 's/"//g')
+current_version=$(grep 'IMAGE_TAG=' assets/terraform-modules/aws/flatcar-linux/kubernetes/cl/controller.yaml.tmpl | grep -v KUBELET | cut -d"=" -f2 | sed 's/"//g')
 
 get_latest_release etcd-io/etcd
 printf "${format}" "etcd" "${current_version}" "${version}"
