@@ -59,7 +59,7 @@ tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 helm repo add jetstack https://charts.jetstack.io >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ jetstack/cert-manager
+helm fetch --untar --untardir ./ jetstack/cert-manager >/dev/null 2>&1
 version=$(grep appVersion "${tmpdir}/cert-manager/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "cert-manager" "${current_version}" "${version}"
@@ -92,7 +92,7 @@ tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 helm repo add bitnami https://charts.bitnami.com/bitnami >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ bitnami/external-dns
+helm fetch --untar --untardir ./ bitnami/external-dns >/dev/null 2>&1
 version=$(grep version "${tmpdir}/external-dns/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "external-dns" "${current_version}" "${version}"
@@ -146,7 +146,7 @@ cd "${tmpdir}"
 
 helm repo add stable https://charts.helm.sh/stable >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ stable/metrics-server
+helm fetch --untar --untardir ./ stable/metrics-server >/dev/null 2>&1
 version=$(grep version "${tmpdir}/metrics-server/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "metrics-server" "${current_version}" "${version}"
@@ -162,7 +162,7 @@ cd "${tmpdir}"
 
 helm repo add openebs https://openebs.github.io/charts >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ openebs/openebs
+helm fetch --untar --untardir ./ openebs/openebs >/dev/null 2>&1
 version=$(grep version "${tmpdir}/openebs/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "openebs" "${current_version}" "${version}"
@@ -202,7 +202,7 @@ cd "${tmpdir}"
 
 helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ vmware-tanzu/velero
+helm fetch --untar --untardir ./ vmware-tanzu/velero >/dev/null 2>&1
 version=$(grep version "${tmpdir}/velero/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
 
 printf "${format}" "velero" "${current_version}" "${version}"
