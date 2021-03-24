@@ -43,7 +43,7 @@ printf "${format}" "calico" "${current_version}" "${version}"
 
 ###########################
 # etcd
-current_version=$(grep 'IMAGE_TAG=' assets/terraform-modules/aws/flatcar-linux/kubernetes/cl/controller.yaml.tmpl | cut -d"=" -f2 | sed 's/"//g')
+current_version=$(grep 'IMAGE_TAG=' assets/terraform-modules/aws/flatcar-linux/kubernetes/cl/controller.yaml.tmpl | grep -v KUBELET | cut -d"=" -f2 | sed 's/"//g')
 
 get_latest_release etcd-io/etcd
 printf "${format}" "etcd" "${current_version}" "${version}"
@@ -59,7 +59,7 @@ tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 helm repo add jetstack https://charts.jetstack.io >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ jetstack/cert-manager
+helm fetch --untar --untardir ./ jetstack/cert-manager >/dev/null 2>&1
 version=$(grep appVersion "${tmpdir}/cert-manager/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "cert-manager" "${current_version}" "${version}"
@@ -86,14 +86,14 @@ printf "${format}" "dex" "${current_version}" "${version}"
 ###########################
 # external dns
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/external-dns/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | tail -n1)
+current_version=$(grep ^version assets/charts/components/external-dns/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | tail -n1)
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 helm repo add bitnami https://charts.bitnami.com/bitnami >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ bitnami/external-dns
-version=$(grep version "${tmpdir}/external-dns/Chart.yaml" | cut -d":" -f2)
+helm fetch --untar --untardir ./ bitnami/external-dns >/dev/null 2>&1
+version=$(grep ^version "${tmpdir}/external-dns/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "external-dns" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
@@ -139,15 +139,15 @@ printf "${format}" "metallb" "${current_version}" "${version}"
 ###########################
 # metrics-server
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/metrics-server/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep ^version assets/charts/components/metrics-server/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 
 helm repo add stable https://charts.helm.sh/stable >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ stable/metrics-server
-version=$(grep version "${tmpdir}/metrics-server/Chart.yaml" | cut -d":" -f2)
+helm fetch --untar --untardir ./ stable/metrics-server >/dev/null 2>&1
+version=$(grep ^version "${tmpdir}/metrics-server/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "metrics-server" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
@@ -155,15 +155,15 @@ rm -rf "${tmpdir}"
 ###########################
 # openebs
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/openebs-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep ^version assets/charts/components/openebs-operator/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 
 helm repo add openebs https://openebs.github.io/charts >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ openebs/openebs
-version=$(grep version "${tmpdir}/openebs/Chart.yaml" | cut -d":" -f2)
+helm fetch --untar --untardir ./ openebs/openebs >/dev/null 2>&1
+version=$(grep ^version "${tmpdir}/openebs/Chart.yaml" | cut -d":" -f2)
 
 printf "${format}" "openebs" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
@@ -179,7 +179,7 @@ printf "${format}" "prometheus-operator" "${current_version}" "${version}"
 ###########################
 # rook
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/rook/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep ^version assets/charts/components/rook/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 get_latest_release rook/rook
 printf "${format}" "rook" "${current_version}" "${version}"
@@ -189,21 +189,29 @@ printf "${format}" "rook" "${current_version}" "${version}"
 cd "${workdir}"
 current_version=$(grep appVersion assets/charts/components/aws-ebs-csi-driver/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
 
-get_latest_release kubernetes-sigs/aws-ebs-csi-driver
+tmpdir=$(mktemp -d)
+cd "${tmpdir}"
+
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver >/dev/null 2>&1
+helm repo update >/dev/null 2>&1
+helm fetch --untar --untardir ./ aws-ebs-csi-driver/aws-ebs-csi-driver >/dev/null 2>&1
+version=$(grep ^version "${tmpdir}/aws-ebs-csi-driver/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
+
 printf "${format}" "aws-ebs-csi-driver" "${current_version}" "${version}"
+rm -rf "${tmpdir}"
 
 ###########################
 # Velero
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/velero/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
+current_version=$(grep ^version assets/charts/components/velero/Chart.yaml | cut -d":" -f2 | sed 's/ //g')
 
 tmpdir=$(mktemp -d)
 cd "${tmpdir}"
 
 helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts >/dev/null 2>&1
 helm repo update >/dev/null 2>&1
-helm fetch --untar --untardir ./ vmware-tanzu/velero
-version=$(grep version "${tmpdir}/velero/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
+helm fetch --untar --untardir ./ vmware-tanzu/velero >/dev/null 2>&1
+version=$(grep ^version "${tmpdir}/velero/Chart.yaml" | cut -d":" -f2 | sed 's/ //g')
 
 printf "${format}" "velero" "${current_version}" "${version}"
 rm -rf "${tmpdir}"
@@ -211,7 +219,7 @@ rm -rf "${tmpdir}"
 ###########################
 # cluster-autoscaler
 cd "${workdir}"
-current_version=$(grep version assets/charts/components/cluster-autoscaler/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
+current_version=$(grep ^version assets/charts/components/cluster-autoscaler/Chart.yaml | cut -d":" -f2 | sed 's/ //g' | sed 's/"//g')
 
 get_latest_release kubernetes/autoscaler
 latest_version=$(echo $version | cut -d"-" -f4 | sed 's/ //g' | sed 's/"//g')
