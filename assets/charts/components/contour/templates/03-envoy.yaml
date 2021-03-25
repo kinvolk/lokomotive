@@ -95,9 +95,11 @@ spec:
               fieldPath: metadata.name
         ports:
         - containerPort: 80
+          # XXX: Lokomotive specific change. `hostPort: 80` is removed.
           name: http
           protocol: TCP
         - containerPort: 443
+          # XXX: Lokomotive specific change. `hostPort: 443` is removed.
           name: https
           protocol: TCP
         readinessProbe:
@@ -109,8 +111,10 @@ spec:
         volumeMounts:
           - name: envoy-config
             mountPath: /config
+            readOnly: true
           - name: envoycert
             mountPath: /certs
+            readOnly: true
         lifecycle:
           preStop:
             httpGet:

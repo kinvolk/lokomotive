@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: projectcontour 
+  name: projectcontour
 ---
 apiVersion: v1
 kind: ServiceAccount

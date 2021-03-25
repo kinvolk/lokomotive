@@ -36,7 +36,7 @@ rules:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: contour-certgen-v1.10.0
+  name: contour-certgen-v1.13.1
   namespace: projectcontour
 spec:
   ttlSecondsAfterFinished: 0
@@ -45,6 +45,7 @@ spec:
       labels:
         app: "contour-certgen"
     spec:
+      # XXX: This affinity field is a Lokomotive specific change.
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -54,7 +55,6 @@ spec:
                   app: contour
               topologyKey: kubernetes.io/hostname
             weight: 100
-
         {{- with .Values.nodeAffinity }}
         nodeAffinity:
 {{ toYaml . | indent 10 }}
@@ -65,8 +65,7 @@ spec:
       {{- end }}
       containers:
       - name: contour
-        # This version is set to latest because Job specs are immutable;
-        image: {{.Values.contour.image}}:latest
+        image: {{.Values.contour.image}}:{{.Values.contour.tag}}
         imagePullPolicy: Always
         command:
         - contour

@@ -3,11 +3,11 @@ monitoring:
 
 contour:
   image: docker.io/projectcontour/contour
-  tag: v1.10.0
+  tag: v1.13.1
 
 envoy:
   image: docker.io/envoyproxy/envoy
-  tag: v1.16.0
+  tag: v1.17.1
   serviceType:
   metricsScrapeInterval:
 
