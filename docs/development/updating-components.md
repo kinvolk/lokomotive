@@ -40,7 +40,7 @@ To update Calico update the image tags in following files:
 - `assets/charts/control-plane/calico/values.yaml`
 - `assets/terraform-modules/bootkube/variables.tf`
 
-If there are changes necessary in the helm chart, make them in `assets/charts/control-plane/calico`.
+Update helm chart in `assets/charts/control-plane/calico` after comparing it with config [here](https://docs.projectcalico.org/manifests/calico.yaml).
 
 - Releases: https://github.com/projectcalico/calico/releases.
 
