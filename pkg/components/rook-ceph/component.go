@@ -45,8 +45,9 @@ type component struct {
 
 // StorageClass provides struct to enable it or make it default.
 type StorageClass struct {
-	Enable  bool `hcl:"enable,optional"`
-	Default bool `hcl:"default,optional"`
+	Enable        bool   `hcl:"enable,optional"`
+	Default       bool   `hcl:"default,optional"`
+	ReclaimPolicy string `hcl:"reclaim_policy,optional"`
 }
 
 // NewConfig returns new Rook Ceph component configuration with default values set.
@@ -56,7 +57,7 @@ func NewConfig() *component {
 	return &component{
 		Namespace:    "rook",
 		MonitorCount: 1,
-		StorageClass: &StorageClass{},
+		StorageClass: &StorageClass{ReclaimPolicy: "Retain"},
 	}
 }
 

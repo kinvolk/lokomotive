@@ -161,7 +161,7 @@ parameters:
   csi.storage.k8s.io/fstype: xfs
 
 # Delete the rbd volume when a PVC is deleted
-reclaimPolicy: Delete
+reclaimPolicy: {{ .StorageClass.ReclaimPolicy }}
 {{- end }}
 `,
 

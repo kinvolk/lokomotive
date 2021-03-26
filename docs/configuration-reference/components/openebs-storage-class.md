@@ -36,12 +36,15 @@ OpenEBS storage class component configuration example:
 component "openebs-storage-class" {
   # Optional arguments
   storage-class "openebs-replica1" {
-    replica_count = 1
+    replica_count  = 1
+    reclaim_policy = "Delete"
   }
+
   storage-class "openebs-replica3" {
-    replica_count = 3
-    default = true
-    disks = [
+    replica_count  = 3
+    default        = true
+    reclaim_policy = "Retain"
+    disks          = [
       "blockdevice-0565dd2d566cab012b7bc35e54874d9f",
       "blockdevice-17901367ccd9e1ead797a7e233de8cc8",
       "blockdevice-1f4315cb4acbb4b0dbf5202adcdb70d8"
@@ -54,11 +57,12 @@ component "openebs-storage-class" {
 
 Table of all the arguments accepted by the component.
 
-| Argument        | Description                                                                                                                | Default |     Type     | Required |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------|:-------:|:------------:|:--------:|
-| `replica_count` | Defines the number of cStor volume replicas.                                                                               |    3    |    number    |  false   |
-| `default`       | Indicates whether the storage class is default or not.                                                                     |  false  |     bool     |  false   |
-| `disks`         | List of selected unclaimed BlockDevice CRs which are unmounted and do not contain a filesystem in each participating node. |    -    | list(string) |  false   |
+| Argument         | Description                                                                                                                                                                                                                                                                                                                 | Default  |     Type     | Required |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:------------:|:--------:|
+| `replica_count`  | Defines the number of cStor volume replicas.                                                                                                                                                                                                                                                                                |    3     |    number    |  false   |
+| `default`        | Indicates whether the storage class is default or not.                                                                                                                                                                                                                                                                      |  false   |     bool     |  false   |
+| `disks`          | List of selected unclaimed BlockDevice CRs which are unmounted and do not contain a filesystem in each participating node.                                                                                                                                                                                                  |    -     | list(string) |  false   |
+| `reclaim_policy` | Persistent volumes created with this storage class will have this reclaim policy. This field decides what happens to the volume after a user deletes a PVC. Valid values: `Retain`, `Recycle` and `Delete`. Read more in the [Kubernetes docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#reclaiming). | `Retain` |    string    |  false   |
 
 
 ## Applying

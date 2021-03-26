@@ -28,7 +28,7 @@ metadata:
       - name: ReplicaCount
         value: "{{ .ReplicaCount }}"
 provisioner: openebs.io/provisioner-iscsi
-reclaimPolicy: Delete
+reclaimPolicy: "{{ .ReclaimPolicy }}"
 `
 
 const storagePoolTmpl = `

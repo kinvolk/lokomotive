@@ -47,7 +47,7 @@ storageClasses:
     storageclass.kubernetes.io/is-default-class: "true"
   {{ end }}
   volumeBindingMode: WaitForFirstConsumer
-  reclaimPolicy: Retain
+  reclaimPolicy: {{ .ReclaimPolicy }}
 
 {{- if .Tolerations }}
 tolerateAllTaints: false
@@ -74,6 +74,7 @@ type component struct {
 	EnableVolumeSnapshot      bool                `hcl:"enable_volume_snapshot,optional"`
 	Tolerations               []util.Toleration   `hcl:"tolerations,block"`
 	NodeAffinity              []util.NodeAffinity `hcl:"node_affinity,block"`
+	ReclaimPolicy             string              `hcl:"reclaim_policy,optional"`
 
 	TolerationsRaw  string
 	NodeAffinityRaw string
@@ -88,6 +89,7 @@ func NewConfig() *component {
 		EnableVolumeScheduling:    true,
 		EnableVolumeResizing:      true,
 		EnableVolumeSnapshot:      true,
+		ReclaimPolicy:             "Retain",
 	}
 }
 
