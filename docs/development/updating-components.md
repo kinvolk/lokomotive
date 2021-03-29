@@ -81,12 +81,13 @@ helm fetch --untar --untardir ./ stable/metrics-server
 Run the following commands in the root of this repository:
 
 ```bash
-cd assets/components
-rm -rf openebs
+cd assets/charts/components
+rm -rf openebs-operator
 helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm fetch --untar --untardir ./ openebs/openebs
-git checkout openebs/crds/storagepoolclaims.yaml
+mv openebs openebs-operator
+git checkout openebs-operator/crds/storagepoolclaims.yaml
 ```
 
 - Installation instructions: https://openebs.github.io/charts/.
