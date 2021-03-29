@@ -195,7 +195,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=quay.io/kinvolk/kubelet
-          KUBELET_IMAGE_TAG=v1.20.4-${os_arch}
+          KUBELET_IMAGE_TAG=v1.20.5-${os_arch}
           NODE_LABELS="node.kubernetes.io/master,node.kubernetes.io/controller=true"
           NODE_TAINTS="node-role.kubernetes.io/master=:NoSchedule"
     - path: /etc/kubernetes/etcd.env
