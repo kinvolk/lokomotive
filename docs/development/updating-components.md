@@ -93,3 +93,27 @@ git checkout openebs-operator/crds/storagepoolclaims.yaml
 - Installation instructions: https://openebs.github.io/charts/.
 - More information about the chart: https://github.com/openebs/charts.
 - Code repository: https://github.com/openebs/openebs.
+
+## Rook
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf rook
+helm repo add rook-release https://charts.rook.io/release
+helm repo update
+helm fetch --untar --untardir ./ rook-release/rook-ceph
+mv rook-ceph rook
+git checkout rook/templates/service-monitor.yaml
+git checkout rook/templates/prometheus-ceph-v14-rules-for-prometheus-operator-0.43.2.yaml
+git checkout rook/templates/prometheus-ceph-v14-rules.yaml
+git checkout rook/templates/ceph-cluster.yaml
+git checkout rook/templates/ceph-osd.yaml
+git checkout rook/templates/ceph-pools.yaml
+git checkout rook/templates/csi-metrics-service-monitor.yaml
+git checkout rook/dashboards
+```
+
+- More information about the chart: https://rook.io/docs/rook/v1.5/helm-operator.html.
+- Code repository: https://github.com/rook/rook.
