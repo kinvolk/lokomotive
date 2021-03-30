@@ -136,3 +136,22 @@ helm fetch --untar --untardir ./ bitnami/external-dns
 ```
 
 - Chart location: https://github.com/bitnami/charts/tree/master/bitnami/external-dns.
+
+## aws-ebs-csi-driver
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf aws-ebs-csi-driver
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+helm fetch --untar --untardir ./ aws-ebs-csi-driver/aws-ebs-csi-driver
+git checkout aws-ebs-csi-driver/templates/networkpolicy.yaml
+git checkout aws-ebs-csi-driver/templates/volumesnapshotclass.yaml
+git checkout aws-ebs-csi-driver/crds
+```
+
+Update the CRDs by following the changes in this [upstream CRD config](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/deploy/kubernetes/cluster/crd_snapshotter.yaml).
+
+- Code repository: https://github.com/kubernetes-sigs/aws-ebs-csi-driver.
