@@ -208,3 +208,19 @@ git checkout rook/dashboards
 
 - More information about the chart: https://rook.io/docs/rook/v1.5/helm-operator.html.
 - Code repository: https://github.com/rook/rook.
+
+## Linkerd
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf linkerd2
+helm repo add linkerd https://helm.linkerd.io/stable
+helm repo update
+helm fetch --untar --untardir ./ linkerd/linkerd2
+git checkout linkerd2/templates/service-monitors.yaml
+```
+
+- Code repository: https://github.com/linkerd/linkerd2.
+- Helm repo documentation: https://linkerd.io/2.10/tasks/install-helm/.
