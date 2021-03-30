@@ -34,7 +34,7 @@ spec:
                   app: contour
               topologyKey: kubernetes.io/hostname
             weight: 100
-
+        # XXX: This affinity field is a Lokomotive specific change.
         {{- with .Values.nodeAffinity }}
         nodeAffinity:
 {{ toYaml . | indent 10 }}
