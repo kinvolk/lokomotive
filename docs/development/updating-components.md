@@ -117,3 +117,21 @@ git checkout rook/dashboards
 
 - More information about the chart: https://rook.io/docs/rook/v1.5/helm-operator.html.
 - Code repository: https://github.com/rook/rook.
+
+## aws-ebs-csi-driver
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf aws-ebs-csi-driver
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+helm fetch --untar --untardir ./ aws-ebs-csi-driver/aws-ebs-csi-driver
+git checkout aws-ebs-csi-driver/templates/networkpolicy.yaml
+git checkout aws-ebs-csi-driver/templates/volumesnapshotclass.yaml
+git checkout aws-ebs-csi-driver/templates/
+git checkout aws-ebs-csi-driver/templates/
+```
+
+- Code repository: https://github.com/kubernetes-sigs/aws-ebs-csi-driver.
