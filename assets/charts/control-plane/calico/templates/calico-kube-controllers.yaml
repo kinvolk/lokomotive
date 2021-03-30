@@ -45,6 +45,3 @@ spec:
               command:
               - /usr/bin/check-status
               - -r
-          resources:
-            requests:
-              memory: 20Mi

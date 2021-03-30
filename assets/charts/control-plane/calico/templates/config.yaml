@@ -1,3 +1,4 @@
+# This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -8,6 +9,7 @@ data:
   typha_service_name: "none"
   # Configure the backend to use.
   calico_backend: "bird"
+
   # Configure the MTU to use for workload interfaces and tunnels.
   # - If Wireguard is enabled, set to your network MTU - 60
   # - Otherwise, if VXLAN or BPF mode is enabled, set to your network MTU - 50
@@ -16,8 +18,13 @@ data:
   {{- if .Values.calico.encryptPodTraffic }}
   veth_mtu: "{{ sub .Values.calico.networkMTU 60 }}" # Wireguard overhead.
   {{- else }}
+  # TODO: Verify if this is needed.
   veth_mtu: "{{ sub .Values.calico.networkMTU 20 }}" # IP in IP overhead.
   {{- end}}
+  # By default, MTU is auto-detected, and explicitly setting this field should not be required.
+  # You can override auto-detection by providing a non-zero value.
+  veth_mtu: "0"
+
   # The CNI network configuration to install on each node. The special
   # values in this config will be automatically populated.
   cni_network_config: |-
