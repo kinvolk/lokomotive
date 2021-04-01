@@ -1,5 +1,6 @@
 ---
-title: OpenEBS operator configuration reference for Lokomotive
+title: OpenEBS Operator configuration reference for Lokomotive
+linkTitle: OpenEBS Operator
 weight: 10
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Lokomotive Tinkerbell configuration reference
+linkTitle: Tinkerbell
 weight: 10
 ---
 

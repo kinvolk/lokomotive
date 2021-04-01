@@ -1,5 +1,6 @@
 ---
 title: Amazon EBS CSI Driver configuration reference for Lokomotive
+linkTitle: Amazon EBS CSI Driver
 weight: 10
 ---
 

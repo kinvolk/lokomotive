@@ -1,5 +1,6 @@
 ---
 title: Lokomotive AWS quickstart guide
+linkTitle: AWS
 weight: 10
 ---
 

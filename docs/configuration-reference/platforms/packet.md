@@ -1,5 +1,6 @@
 ---
 title: Lokomotive Packet configuration reference
+linkTitle: Packet
 weight: 10
 ---
 

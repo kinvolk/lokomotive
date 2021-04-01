@@ -1,5 +1,6 @@
 ---
 title: Rook configuration reference for Lokomotive
+linkTitle: Rook
 weight: 10
 ---
 

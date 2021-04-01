@@ -1,5 +1,6 @@
 ---
 title: Inspektor Gadget configuration reference for Lokomotive
+linkTitle: Inspektor Gadget
 weight: 10
 ---
 

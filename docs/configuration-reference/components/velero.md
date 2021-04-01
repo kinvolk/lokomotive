@@ -1,5 +1,6 @@
 ---
 title: Velero configuration reference for Lokomotive
+linkTitle: Velero
 weight: 10
 ---
 

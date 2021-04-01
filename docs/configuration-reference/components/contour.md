@@ -1,5 +1,6 @@
 ---
-title: Contour Ingress controller configuration reference for Lokomotive
+title: Contour Ingress Controller configuration reference for Lokomotive
+linkTitle: Contour Ingress Controller
 weight: 10
 ---
 

@@ -1,5 +1,6 @@
 ---
-title: Lokomotive bare metal configuration reference
+title: Lokomotive Bare Metal configuration reference
+linkTitle: Bare Metal
 weight: 10
 ---
 

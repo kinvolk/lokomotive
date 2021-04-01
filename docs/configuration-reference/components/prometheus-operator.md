@@ -1,5 +1,6 @@
 ---
 title: Prometheus Operator configuration reference for Lokomotive
+linkTitle: Prometheus Operator
 weight: 10
 ---
 

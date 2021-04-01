@@ -1,5 +1,6 @@
 ---
-title: Cluster autoscaler configuration reference for Lokomotive
+title: Cluster Autoscaler configuration reference for Lokomotive
+linkTitle: Cluster Autoscaler
 weight: 10
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: httpbin configuration reference for Lokomotive
+linkTitle: httpbin
 weight: 10
 ---
 

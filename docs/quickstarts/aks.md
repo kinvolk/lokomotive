@@ -1,5 +1,6 @@
 ---
 title: Lokomotive AKS quickstart guide
+linkTitle: AKS
 weight: 10
 ---
 

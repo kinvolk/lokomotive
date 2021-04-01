@@ -1,5 +1,6 @@
 ---
 title: Gangway configuration reference for Lokomotive
+linkTitle: Gangway
 weight: 10
 ---
 

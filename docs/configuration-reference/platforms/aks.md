@@ -1,5 +1,6 @@
 ---
 title: Lokomotive AKS configuration reference
+linkTitle: AKS
 weight: 10
 ---
 

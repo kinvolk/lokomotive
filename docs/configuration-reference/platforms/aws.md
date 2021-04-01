@@ -1,5 +1,6 @@
 ---
 title: Lokomotive AWS configuration reference
+linkTitle: AWS
 weight: 10
 ---
 

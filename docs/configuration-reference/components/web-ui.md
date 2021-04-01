@@ -1,5 +1,6 @@
 ---
 title: Web UI configuration reference for Lokomotive
+linkTitle: Web UI
 weight: 10
 ---
 
