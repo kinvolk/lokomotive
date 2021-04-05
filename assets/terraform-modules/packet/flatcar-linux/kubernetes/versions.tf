@@ -6,11 +6,11 @@ terraform {
   required_providers {
     ct = {
       source  = "poseidon/ct"
-      version = "0.7.1"
+      version = "0.8.0"
     }
     local = {
       source  = "hashicorp/local"
-      version = "2.0.0"
+      version = "2.1.0"
     }
     null = {
       source  = "hashicorp/null"

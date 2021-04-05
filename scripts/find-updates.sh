@@ -286,3 +286,19 @@ current_version=$(grep -A1 'poseidon/matchbox' pkg/platform/baremetal/template.g
 
 get_latest_release poseidon/terraform-provider-matchbox
 printf "${format}" "Matchbox" "${current_version}" "${version}"
+
+###########################
+# TLS Provider
+cd "${workdir}"
+current_version=$(grep -A1 'hashicorp/tls' assets/terraform-modules/bootkube/versions.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release hashicorp/terraform-provider-tls
+printf "${format}" "TLS" "${current_version}" "${version}"
+
+###########################
+# Template Provider
+cd "${workdir}"
+current_version=$(grep -A1 'hashicorp/template' assets/terraform-modules/bootkube/versions.tf | tail -1 | cut -d"\"" -f2 | sed 's|~>||g' | sed 's| ||g')
+
+get_latest_release hashicorp/terraform-provider-template
+printf "${format}" "Template" "${current_version}" "${version}"
