@@ -35,7 +35,6 @@ const (
 type component struct {
 	Email          string `hcl:"email,attr"`
 	Namespace      string `hcl:"namespace,optional"`
-	Webhooks       bool   `hcl:"webhooks,optional"`
 	ServiceMonitor bool   `hcl:"service_monitor,optional"`
 }
 
@@ -45,15 +44,12 @@ type component struct {
 func NewConfig() *component {
 	return &component{
 		Namespace:      "cert-manager",
-		Webhooks:       true,
 		ServiceMonitor: false,
 	}
 }
 
 const chartValuesTmpl = `
 email: {{.Email}}
-webhook:
-  enabled: {{.Webhooks}}
 {{ if .ServiceMonitor }}
 prometheus:
   servicemonitor:
@@ -103,7 +99,7 @@ func (c *component) Metadata() components.Metadata {
 			Name: c.Namespace,
 		},
 		Helm: components.HelmMetadata{
-			// Cert-manager registers admission webhooks, so we should wait for the webhook to
+			// cert-manager registers admission webhooks, so we should wait for the webhook to
 			// become ready before proceeding with installing other components, as it may fail.
 			// If webhooks are registered with 'failurePolicy: Fail', then kube-apiserver will reject
 			// creating objects requiring the webhook until the webhook itself becomes ready. So if the

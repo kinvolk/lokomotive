@@ -1,5 +1,5 @@
 ---
-title: Cert-Manager configuration reference for Lokomotive
+title: cert-manager configuration reference for Lokomotive
 weight: 10
 ---
 
@@ -21,9 +21,8 @@ cert-manager component configuration example:
 
 ```tf
 component "cert-manager" {
-  email = "example@example.com"
+  email     = "example@example.com"
   namespace = "cert-manager"
-  webhooks = false
 }
 ```
 
@@ -35,7 +34,6 @@ Table of all the arguments accepted by the component.
 |-------------------|----------------------------------------------------------------|:------------:|:------:|:--------:|
 | `email`           | Email used for certificates to receive expiry notifications.   |      -       | string |   true   |
 | `namespace`       | Namespace to deploy the cert-manager into.                     | cert-manager | string |  false   |
-| `webhooks`        | Controls if webhooks should be deployed.                       |     true     |  bool  |  false   |
 | `service_monitor` | Specifies how metrics can be retrieved from a set of services. |    false     |  bool  |  false   |
 
 
