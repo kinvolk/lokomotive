@@ -10,6 +10,9 @@ ALL_BUILD_TAGS := "aws,packet,aks,e2e,baremetal,disruptivee2e,poste2e,packet_flu
 
 ADMISSION_WEBHOOK_SERVER := "quay.io/kinvolk/lokomotive-admission-webhook-server"
 
+# When you bump this, also bump the version in ./.github/workflows/ci.yaml and for the CI image.
+GOLANG_VERSION ?= 1.15.10
+
 ## Adds a '-dirty' suffix to version string if there are uncommitted changes
 changes := $(shell git status --porcelain)
 ifeq ($(changes),)
@@ -34,7 +37,7 @@ build: update-assets build-slim
 .PHONY: build-in-docker
 build-in-docker:
 	# increase ulimit to workaround https://github.com/golang/go/issues/37436
-	docker run --ulimit memlock=1024000 --rm -ti -v $(shell pwd):/usr/src/lokomotive -w /usr/src/lokomotive golang:1.15.4 sh -c "make"
+	docker run --ulimit memlock=1024000 --rm -ti -v $(shell pwd):/usr/src/lokomotive -w /usr/src/lokomotive golang:$(GOLANG_VERSION) sh -c "make"
 
 .PHONY: build-test
 build-test:
@@ -137,7 +140,7 @@ vendor:
 
 .PHONY: docker-build
 docker-build:
-	docker build -t kinvolk/lokomotive .
+	docker build -t kinvolk/lokomotive --build-arg GOLANG_VERSION=$(GOLANG_VERSION) .
 
 .PHONY: docker-vendor
 docker-vendor: docker-build
@@ -178,7 +181,7 @@ build-webhook:
 
 .PHONY: docker-build-webhook
 docker-build-webhook:
-	docker build -f cmd/admission-webhook-server/Dockerfile -t $(ADMISSION_WEBHOOK_SERVER) .
+	docker build -f cmd/admission-webhook-server/Dockerfile -t $(ADMISSION_WEBHOOK_SERVER) --build-arg GOLANG_VERSION=$(GOLANG_VERSION) .
 
 .PHONY: check-working-tree-clean
 check-working-tree-clean:
