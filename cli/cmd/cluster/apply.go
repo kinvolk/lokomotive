@@ -31,6 +31,7 @@ type ApplyOptions struct {
 	UpgradeKubelets          bool
 	SkipComponents           bool
 	SkipPreUpdateHealthCheck bool
+	SkipControlPlaneUpdate   bool
 	Verbose                  bool
 	ConfigPath               string
 	ValuesPath               string
@@ -126,7 +127,7 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 	}
 
 	// Do controlplane upgrades only if cluster already exists and it is not a managed platform.
-	if exists && !c.platform.Meta().Managed {
+	if exists && !options.SkipControlPlaneUpdate && !c.platform.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
 		cu := controlplaneUpdater{
