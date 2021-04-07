@@ -26,6 +26,7 @@ var (
 	verbose                  bool
 	skipComponents           bool
 	skipPreUpdateHealthCheck bool
+	skipControlPlaneUpdate   bool
 	upgradeKubelets          bool
 )
 
@@ -47,6 +48,8 @@ func init() {
 
 	pf.BoolVarP(&skipPreUpdateHealthCheck, "skip-pre-update-health-check", "", false,
 		"Skip ensuring that cluster is healthy before updating (not recommended)")
+	pf.BoolVarP(&skipControlPlaneUpdate, "skip-control-plane-update", "", false,
+		"Skip updating the control plane (not recommended)")
 
 	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
 }
@@ -62,6 +65,7 @@ func runClusterApply(cmd *cobra.Command, args []string) {
 		UpgradeKubelets:          upgradeKubelets,
 		SkipComponents:           skipComponents,
 		SkipPreUpdateHealthCheck: skipPreUpdateHealthCheck,
+		SkipControlPlaneUpdate:   skipControlPlaneUpdate,
 		Verbose:                  verbose,
 		ConfigPath:               viper.GetString("lokocfg"),
 		ValuesPath:               viper.GetString("lokocfg-vars"),
