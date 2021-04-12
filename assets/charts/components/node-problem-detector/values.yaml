@@ -5,12 +5,31 @@ settings:
   # https://github.com/kubernetes/node-problem-detector/tree/master/config
   # settings.custom_monitor_definitions -- Custom plugin monitor config files
   custom_monitor_definitions: {}
+    # docker-monitor-filelog.json: |
+    #   {
+    #     "plugin": "filelog",
+    #     "pluginConfig": {
+    #       "timestamp": "^time=\"(\\S*)\"",
+    #       "message": "msg=\"([^\n]*)\"",
+    #       "timestampFormat": "2006-01-02T15:04:05.999999999-07:00"
+    #     },
+    #     "logPath": "/var/log/docker.log",
+    #     "lookback": "5m",
+    #     "bufferSize": 10,
+    #     "source": "docker-monitor",
+    #     "conditions": [],
+    #     "rules": [
+    #       {
+    #         "type": "temporary",
+    #         "reason": "CorruptDockerImage",
+    #         "pattern": "Error trying v2 registry: failed to register layer: rename /var/lib/docker/image/(.+) /var/lib/docker/image/(.+): directory not empty.*"
+    #       }
+    #     ]
+    #   }
   # settings.log_monitors -- User-specified custom monitor definitions
   log_monitors:
     - /config/kernel-monitor.json
     - /config/docker-monitor.json
-    # - /custom-config/kernel-monitor.json
-    # - /custom-config/docker-monitor-filelog.json
     # An example of activating a custom log monitor definition in
     # Node Problem Detector
     # - /custom-config/docker-monitor-filelog.json
@@ -25,13 +44,15 @@ settings:
   # settings.heartBeatPeriod -- Syncing interval with API server
   heartBeatPeriod: 5m0s
 
-hostpath:
-  # hostpath.logdir -- Log directory path on K8s host
-  logdir: /var/log/
+logDir:
+  # logDir.host -- log directory on k8s host
+  host: /var/log/
+  # logDir.pod -- log directory in pod (volume mount), use logDir.host if empty
+  pod: ""
 
 image:
   repository: k8s.gcr.io/node-problem-detector/node-problem-detector
-  tag: v0.8.5
+  tag: v0.8.7
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
