@@ -150,3 +150,20 @@ helm fetch --untar --untardir ./ linkerd/linkerd2
 
 - Code repository: https://github.com/linkerd/linkerd2.
 - Helm repo documentation: https://linkerd.io/2.10/tasks/install-helm/.
+
+## Istio
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf istio-operator
+git clone https://github.com/istio/istio.git -b 1.9.2 # you probably want to change this
+mv istio/manifests/charts/istio-operator istio-operator
+rm -rf istio
+git checkout istio-operator/templates/istio-namespace.yaml
+git checkout istio-operator/templates/istio-operator-cr.yaml
+git checkout istio-operator/templates/service-monitor.yaml
+```
+
+- Chart location: https://github.com/istio/istio/tree/master/manifests/charts.
