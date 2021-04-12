@@ -110,3 +110,16 @@ mv kube-prometheus-stack prometheus-operator
 - Installation instructions: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack.
 - Code repository: https://github.com/prometheus-operator/kube-prometheus.
 
+## external-dns
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf external-dns
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm fetch --untar --untardir ./ bitnami/external-dns
+```
+
+- Chart location: https://github.com/bitnami/charts/tree/master/bitnami/external-dns.
