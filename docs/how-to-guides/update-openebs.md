@@ -70,8 +70,8 @@ To update the OpenEBS data plane components, we need the following:
 
 Set the following environment variables in the terminal to assist in the update process:
 ```bash
-export OPENEBS_OLD_VERSION=2.2.0
-export OPENEBS_NEW_VERSION=2.6.0
+export OPENEBS_OLD_VERSION=2.6.0
+export OPENEBS_NEW_VERSION=2.7.0
 ```
 ### Step 1: Update OpenEBS control plane components
 
@@ -148,7 +148,7 @@ kubectl describe job -n openebs cstor-spc-${OPENEBS_OLD_VERSION}-to-${OPENEBS_NE
 # Should see a similar outpu of 'Completed'
   Type    Reason            Age    From            Message
   ----    ------            ----   ----            -------
-  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-spc-2.2.0-to-2.6.0-hpcxl
+  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-spc-2.6.0-to-2.7.0-hpcxl
   Normal  Completed         52s    job-controller  Job completed
 ```
 
@@ -201,7 +201,7 @@ kubectl describe job -n openebs cstor-vol-${OPENEBS_OLD_VERSION}-to-${OPENEBS_NE
 # Should see a similar outpu of 'Completed'
   Type    Reason            Age    From            Message
   ----    ------            ----   ----            -------
-  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-vol-2.2.0-to-2.6.0-gtwsd
+  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-vol-2.6.0-to-2.7.0-gtwsd
   Normal  Completed         1m36s  job-controller  Job completed
 ```
 
