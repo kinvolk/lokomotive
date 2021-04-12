@@ -181,3 +181,17 @@ helm fetch --untar --untardir ./ deliveryhero/node-problem-detector
 ```
 
 - Chart location: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/Chart.yaml.
+
+## external-dns
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf external-dns
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm fetch --untar --untardir ./ bitnami/external-dns
+```
+
+- Chart location: https://github.com/bitnami/charts/tree/master/bitnami/external-dns.
