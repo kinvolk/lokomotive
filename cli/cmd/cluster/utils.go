@@ -31,6 +31,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform/aks"
 	"github.com/kinvolk/lokomotive/pkg/platform/aws"
 	"github.com/kinvolk/lokomotive/pkg/platform/baremetal"
+	"github.com/kinvolk/lokomotive/pkg/platform/oci"
 	"github.com/kinvolk/lokomotive/pkg/platform/packet"
 	"github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
 )
@@ -82,6 +83,7 @@ func getPlatform(name string) (platform.Platform, error) {
 		packet.Name:     packet.NewConfig(),
 		baremetal.Name:  baremetal.NewConfig(),
 		tinkerbell.Name: tinkerbell.NewConfig(),
+		oci.Name:        oci.NewConfig(),
 	}
 
 	if p, ok := platforms[name]; ok {
