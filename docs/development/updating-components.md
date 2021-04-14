@@ -224,3 +224,17 @@ git checkout linkerd2/templates/service-monitors.yaml
 
 - Code repository: https://github.com/linkerd/linkerd2.
 - Helm repo documentation: https://linkerd.io/2.10/tasks/install-helm/.
+
+## cluster-autoscaler
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf cluster-autoscaler
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+helm repo update
+helm fetch --untar --untardir ./ autoscaler/cluster-autoscaler
+```
+
+- Chart location: https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler
