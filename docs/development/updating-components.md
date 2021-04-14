@@ -44,22 +44,21 @@ Update helm chart in `assets/charts/control-plane/calico` after comparing it wit
 
 - Releases: https://github.com/projectcalico/calico/releases.
 
-## Cert Manager
+## cert-manager
 
 Run the following commands in the root of this repository:
 
 ```bash
-cd assets/components/cert-manager
+cd assets/charts/components/
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
-rm -rf manifests
+rm -rf cert-manager
 helm fetch --untar --untardir ./ jetstack/cert-manager
-mv cert-manager manifests
 
-git checkout ./manifests/templates/letsencrypt-clusterissuer-prod.yaml
-git checkout ./manifests/templates/letsencrypt-clusterissuer-staging.yaml
-git checkout ./manifests/templates/namespace.yaml
+git checkout ./cert-manager/templates/letsencrypt-clusterissuer-prod.yaml
+git checkout ./cert-manager/templates/letsencrypt-clusterissuer-staging.yaml
+git checkout ./cert-manager/templates/namespace.yaml
 ```
 
 - Releases: https://github.com/jetstack/cert-manager/releases.
@@ -82,14 +81,145 @@ helm fetch --untar --untardir ./ stable/metrics-server
 Run the following commands in the root of this repository:
 
 ```bash
-cd assets/components
-rm -rf openebs
+cd assets/charts/components
+rm -rf openebs-operator
 helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm fetch --untar --untardir ./ openebs/openebs
-git checkout openebs/crds/storagepoolclaims.yaml
+mv openebs openebs-operator
+git checkout openebs-operator/crds/storagepoolclaims.yaml
 ```
 
 - Installation instructions: https://openebs.github.io/charts/.
 - More information about the chart: https://github.com/openebs/charts.
 - Code repository: https://github.com/openebs/openebs.
+
+## Rook
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf rook
+helm repo add rook-release https://charts.rook.io/release
+helm repo update
+helm fetch --untar --untardir ./ rook-release/rook-ceph
+mv rook-ceph rook
+git checkout rook/templates/service-monitor.yaml
+git checkout rook/templates/prometheus-ceph-v14-rules-for-prometheus-operator-0.43.2.yaml
+git checkout rook/templates/prometheus-ceph-v14-rules.yaml
+git checkout rook/templates/ceph-cluster.yaml
+git checkout rook/templates/ceph-osd.yaml
+git checkout rook/templates/ceph-pools.yaml
+git checkout rook/templates/csi-metrics-service-monitor.yaml
+git checkout rook/dashboards
+```
+
+- More information about the chart: https://rook.io/docs/rook/v1.5/helm-operator.html.
+- Code repository: https://github.com/rook/rook.
+
+## aws-ebs-csi-driver
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf aws-ebs-csi-driver
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+helm fetch --untar --untardir ./ aws-ebs-csi-driver/aws-ebs-csi-driver
+git checkout aws-ebs-csi-driver/templates/networkpolicy.yaml
+git checkout aws-ebs-csi-driver/templates/volumesnapshotclass.yaml
+git checkout aws-ebs-csi-driver/templates/
+git checkout aws-ebs-csi-driver/templates/
+```
+
+- Code repository: https://github.com/kubernetes-sigs/aws-ebs-csi-driver.
+
+## Linkerd
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf linkerd2
+helm repo add linkerd https://helm.linkerd.io/stable
+helm repo update
+helm fetch --untar --untardir ./ linkerd/linkerd2
+```
+
+- Code repository: https://github.com/linkerd/linkerd2.
+- Helm repo documentation: https://linkerd.io/2.10/tasks/install-helm/.
+
+## Istio
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf istio-operator
+git clone https://github.com/istio/istio.git -b 1.9.2 # you probably want to change this
+mv istio/manifests/charts/istio-operator istio-operator
+rm -rf istio
+git checkout istio-operator/templates/istio-namespace.yaml
+git checkout istio-operator/templates/istio-operator-cr.yaml
+git checkout istio-operator/templates/service-monitor.yaml
+```
+
+- Chart location: https://github.com/istio/istio/tree/master/manifests/charts.
+
+## node-problem-detector
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf node-problem-detector
+helm repo add deliveryhero https://charts.deliveryhero.io/
+helm repo update
+helm fetch --untar --untardir ./ deliveryhero/node-problem-detector
+```
+
+- Chart location: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/Chart.yaml.
+
+## external-dns
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf external-dns
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm fetch --untar --untardir ./ bitnami/external-dns
+```
+
+- Chart location: https://github.com/bitnami/charts/tree/master/bitnami/external-dns.
+
+## velero
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf velero
+helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts
+helm repo update
+helm fetch --untar --untardir ./ vmware-tanzu/velero
+```
+
+- Chart location: https://github.com/vmware-tanzu/helm-charts/tree/main/charts/velero
+
+## cluster-autoscaler
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf cluster-autoscaler
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+helm repo update
+helm fetch --untar --untardir ./ autoscaler/cluster-autoscaler
+```
+
+- Chart location: https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler

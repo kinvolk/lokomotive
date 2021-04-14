@@ -7,7 +7,7 @@ systemd:
         - name: 40-etcd-cluster.conf
           contents: |
             [Service]
-            Environment="IMAGE_TAG=v3.4.14"
+            Environment="IMAGE_TAG=v3.4.15"
             Environment="IMAGE_URL=docker://quay.io/coreos/etcd"
             Environment="RKT_RUN_ARGS=--insecure-options=image"
             Environment="SSL_DIR=/etc/ssl/etcd"
@@ -131,7 +131,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://quay.io/kinvolk/kubelet
-          KUBELET_IMAGE_TAG=v1.20.4
+          KUBELET_IMAGE_TAG=v1.20.5
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/master,node.kubernetes.io/controller=true"
           NODE_TAINTS="node-role.kubernetes.io/master=:NoSchedule"

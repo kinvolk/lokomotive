@@ -4,11 +4,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "velero.fullname" . }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "velero.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ include "velero.chart" . }}
+    component: velero
+    {{- with .Values.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: 1
   selector:
@@ -89,6 +97,15 @@ spec:
             {{- if .defaultVolumesToRestic }}
             - --default-volumes-to-restic
             {{- end }}
+            {{- with .clientQPS }}
+            - --client-qps={{ . }}
+            {{- end }}
+            {{- with .clientBurst }}
+            - --client-burst={{ . }}
+            {{- end }}
+            {{- with .disableControllers }}
+            - --disable-controllers={{ . }}
+            {{- end }}
           {{- end }}
           {{- with .Values.resources }}
           resources:
@@ -106,6 +123,11 @@ spec:
             {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
+        {{- if .Values.credentials.extraSecretRef }}
+          envFrom:
+          - secretRef:
+              name: {{ .Values.credentials.extraSecretRef }}
+        {{- end }}
           env:
             - name: VELERO_SCRATCH_DIR
               value: /scratch
@@ -146,6 +168,7 @@ spec:
                   key: {{ default "none" $key }}
           {{- end }}
           {{- end }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
 {{- if .Values.initContainers }}
       initContainers:
         {{- toYaml .Values.initContainers | nindent 8 }}

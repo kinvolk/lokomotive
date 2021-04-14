@@ -130,15 +130,21 @@ Return true if a secret object should be created
     {{- true -}}
 {{- else if and (eq .Values.provider "google") .Values.google.serviceAccountKey (not .Values.google.serviceAccountSecret) -}}
     {{- true -}}
-{{- else if and (eq .Values.provider "infoblox") (and .Values.infoblox.wapiUsername .Values.infoblox.wapiPassword) -}}
+{{- else if and (eq .Values.provider "hetzner") .Values.hetzner.token (not .Values.hetzner.secretName) -}}
     {{- true -}}
-{{- else if and (eq .Values.provider "rfc2136") .Values.rfc2136.tsigSecret -}}
+{{- else if and (eq .Values.provider "infoblox") (and .Values.infoblox.wapiUsername .Values.infoblox.wapiPassword) (not .Values.infoblox.secretName) -}}
+    {{- true -}}
+{{- else if and (eq .Values.provider "linode") .Values.linode.apiToken (not .Values.linode.secretName) -}}
+    {{- true -}}
+{{- else if and (eq .Values.provider "rfc2136") .Values.rfc2136.tsigSecret (not .Values.rfc2136.secretName) -}}
     {{- true -}}
 {{- else if and (eq .Values.provider "pdns") .Values.pdns.apiKey (not .Values.pdns.secretName) -}}
     {{- true -}}
 {{- else if and (eq .Values.provider "transip") .Values.transip.apiKey -}}
     {{- true -}}
 {{- else if and (eq .Values.provider "ovh") .Values.ovh.consumerKey -}}
+    {{- true -}}
+{{- else if and (eq .Values.provider "scaleway") .Values.scaleway.scwAccessKey -}}
     {{- true -}}
 {{- else if and (eq .Values.provider "vinyldns") (or .Values.vinyldns.secretKey .Values.vinyldns.accessKey) -}}
     {{- true -}}
@@ -162,8 +168,16 @@ Return the name of the Secret used to store the passwords
 {{- .Values.digitalocean.secretName }}
 {{- else if and (eq .Values.provider "google") .Values.google.serviceAccountSecret }}
 {{- .Values.google.serviceAccountSecret }}
+{{- else if and (eq .Values.provider "hetzner") .Values.hetzner.secretName -}}
+{{- .Values.hetzner.secretName -}}
+{{- else if and (eq .Values.provider "linode") .Values.linode.secretName }}
+{{- .Values.linode.secretName }}
 {{- else if and (eq .Values.provider "pdns") .Values.pdns.secretName }}
 {{- .Values.pdns.secretName }}
+{{- else if and (eq .Values.provider "infoblox") .Values.infoblox.secretName }}
+{{- .Values.infoblox.secretName }}
+{{- else if and (eq .Values.provider "rfc2136") .Values.rfc2136.secretName }}
+{{- .Values.rfc2136.secretName }}
 {{- else -}}
 {{- template "external-dns.fullname" . }}
 {{- end -}}
@@ -173,6 +187,9 @@ Return the name of the Secret used to store the passwords
 {
   {{- if .Values.alibabacloud.regionId }}
   "regionId": "{{ .Values.alibabacloud.regionId }}",
+  {{- end}}
+  {{- if .Values.alibabacloud.vpcId }}
+  "vpcId": "{{ .Values.alibabacloud.vpcId }}",
   {{- end}}
   {{- if .Values.alibabacloud.accessKeyId }}
   "accessKeyId": "{{ .Values.alibabacloud.accessKeyId }}",
@@ -206,7 +223,10 @@ region = {{ .Values.aws.region }}
   "aadClientId": "{{ .Values.azure.aadClientId }}",
   "aadClientSecret": "{{ .Values.azure.aadClientSecret }}"
   {{- end }}
-  {{- if .Values.azure.useManagedIdentityExtension }}
+  {{- if and .Values.azure.useManagedIdentityExtension .Values.azure.userAssignedIdentityID }}
+  "useManagedIdentityExtension": true,
+  "userAssignedIdentityID": "{{ .Values.azure.userAssignedIdentityID }}"
+  {{- else if and .Values.azure.useManagedIdentityExtension (not .Values.azure.userAssignedIdentityID) }}
   "useManagedIdentityExtension": true
   {{- end }}
 }
@@ -232,6 +252,7 @@ Compile all warnings into a single message, and call fail.
 {{- $messages := append $messages (include "external-dns.validateValues.azure.subscriptionIdWithoutTenantId" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azure.useManagedIdentityExtensionAadClientId" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azure.useManagedIdentityExtensionAadClientSecret" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.azure.userAssignedIdentityIDWithoutUseManagedIdentityExtension" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azure.aadClientId" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azure.aadClientSecret" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.resourceGroup" .) -}}
@@ -241,11 +262,16 @@ Compile all warnings into a single message, and call fail.
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.aadClientSecret" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionAadClientId" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.useManagedIdentityExtensionAadClientSecret" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.azurePrivateDns.userAssignedIdentityIDWithoutUseManagedIdentityExtension" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.transip.account" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.transip.apiKey" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.linode.apiToken" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.ovh.consumerKey" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.ovh.applicationKey" .) -}}
 {{- $messages := append $messages (include "external-dns.validateValues.ovh.applicationSecret" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.scaleway.scwAccessKey" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.scaleway.scwSecretKey" .) -}}
+{{- $messages := append $messages (include "external-dns.validateValues.scaleway.scwDefaultOrganizationId" .) -}}
 {{- $messages := without $messages "" -}}
 {{- $message := join "\n" $messages -}}
 
@@ -300,7 +326,7 @@ Validate values of External DNS:
 {{- define "external-dns.validateValues.infoblox.gridHost" -}}
 {{- if and (eq .Values.provider "infoblox") (not .Values.infoblox.gridHost) -}}
 external-dns: infoblox.gridHost
-    You must provide the the Grid Manager host when provider="infoblox".
+    You must provide the Grid Manager host when provider="infoblox".
     Please set the gridHost parameter (--set infoblox.gridHost="xxxx")
 {{- end -}}
 {{- end -}}
@@ -310,10 +336,11 @@ Validate values of External DNS:
 - must provide a WAPI password when provider is "infoblox"
 */}}
 {{- define "external-dns.validateValues.infoblox.wapiPassword" -}}
-{{- if and (eq .Values.provider "infoblox") (not .Values.infoblox.wapiPassword) -}}
+{{- if and (eq .Values.provider "infoblox") (not .Values.infoblox.wapiPassword) (not .Values.infoblox.secretName) -}}
 external-dns: infoblox.wapiPassword
     You must provide a WAPI password when provider="infoblox".
     Please set the wapiPassword parameter (--set infoblox.wapiPassword="xxxx")
+    or you can provide an existing secret name via infoblox.secretName
 {{- end -}}
 {{- end -}}
 
@@ -335,7 +362,7 @@ Validate values of External DNS:
 {{- define "external-dns.validateValues.pdns.apiUrl" -}}
 {{- if and (eq .Values.provider "pdns") (not .Values.pdns.apiUrl) -}}
 external-dns: pdns.apiUrl
-    You must provide the the PowerDNS API URL when provider="pdns".
+    You must provide the PowerDNS API URL when provider="pdns".
     Please set the apiUrl parameter (--set pdns.apiUrl="xxxx")
 {{- end -}}
 {{- end -}}
@@ -347,7 +374,7 @@ Validate values of External DNS:
 {{- define "external-dns.validateValues.pdns.apiKey" -}}
 {{- if and (eq .Values.provider "pdns") (not .Values.pdns.apiKey) (not .Values.pdns.secretName) -}}
 external-dns: pdns.apiKey
-    You must provide the the PowerDNS API key when provider="pdns".
+    You must provide the PowerDNS API key when provider="pdns".
     Please set the apiKey parameter (--set pdns.apiKey="xxxx")
 {{- end -}}
 {{- end -}}
@@ -458,6 +485,18 @@ external-dns: azure.useManagedIdentityExtension
 
 {{/*
 Validate values of Azure DNS:
+- must enable the MSI when provider is "azure", secretName is not set and managed identity ID is set
+*/}}
+{{- define "external-dns.validateValues.azure.userAssignedIdentityIDWithoutUseManagedIdentityExtension" -}}
+{{- if and (eq .Values.provider "azure") (not .Values.azure.secretName) (not .Values.azure.useManagedIdentityExtension) .Values.azure.userAssignedIdentityID -}}
+external-dns: azure.userAssignedIdentityID
+    You must enable the MSI when provider="azure" and userAssignedIdentityID is set.
+    Please set the useManagedIdentityExtension parameter (--set azure.useManagedIdentityExtension="true")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of Azure DNS:
 - must provide the Azure AAD Client ID when provider is "azure", secretName is not set and MSI is disabled and aadClientSecret is set
 */}}
 {{- define "external-dns.validateValues.azure.aadClientId" -}}
@@ -489,6 +528,18 @@ Validate values of Azure Private DNS:
 external-dns: azure.useManagedIdentityExtension
     You must not provide the Azure AAD Client Secret when provider="azure-private-dns", secretName is not set, and useManagedIdentityExtension is "true".
     Please unset the aadClientSecret parameter (--set azure.aadClientSecret="")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of Azure Private DNS:
+- must enable the MSI when provider is "azure", secretName is not set and managed identity ID is set
+*/}}
+{{- define "external-dns.validateValues.azurePrivateDns.userAssignedIdentityIDWithoutUseManagedIdentityExtension" -}}
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.useManagedIdentityExtension) .Values.azure.userAssignedIdentityID -}}
+external-dns: azure.userAssignedIdentityID
+    You must enable the MSI when provider="azure-private-dns" and userAssignedIdentityID is set.
+    Please set the useManagedIdentityExtension parameter (--set azure.useManagedIdentityExtension="true")
 {{- end -}}
 {{- end -}}
 
@@ -546,7 +597,7 @@ Validate values of Azure Private DNS:
 - must provide the Azure AAD Client ID when provider is "azure-private-dns", secret name is not set and MSI is disabled
 */}}
 {{- define "external-dns.validateValues.azurePrivateDns.aadClientId" -}}
-{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientId) (not .Values.azure.useManagedIdentityExtension) -}}
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientId) (not .Values.azure.useManagedIdentityExtension) (not .Values.azure.userAssignedIdentityID) -}}
 external-dns: azure.useManagedIdentityExtension
     You must provide the Azure AAD Client ID when provider="azure-private-dns" and useManagedIdentityExtension is not set.
     Please set the aadClientSecret parameter (--set azure.aadClientId="xxxx")
@@ -558,7 +609,7 @@ Validate values of Azure Private DNS:
 - must provide the Azure AAD Client Secret when provider is "azure-private-dns", secretName is not set and MSI is disabled
 */}}
 {{- define "external-dns.validateValues.azurePrivateDns.aadClientSecret" -}}
-{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientSecret) (not .Values.azure.useManagedIdentityExtension) -}}
+{{- if and (eq .Values.provider "azure-private-dns") (not .Values.azure.secretName) (not .Values.azure.aadClientSecret) (not .Values.azure.useManagedIdentityExtension) (not .Values.azure.userAssignedIdentityID) -}}
 external-dns: azure.useManagedIdentityExtension
     You must provide the Azure AAD Client Secret when provider="azure-private-dns" and useManagedIdentityExtension is not set.
     Please set the aadClientSecret parameter (--set azure.aadClientSecret="xxxx")
@@ -578,6 +629,19 @@ external-dns: transip.account
 {{- end -}}
 
 {{/*
+Validate values of External DNS:
+- must provide an API token when provider is "hetzner"
+*/}}
+{{- define "external-dns.validateValues.hetzner" -}}
+{{- if and (eq .Values.provider "hetzner") (or (not .Values.hetzner.token) (not .Values.hetzner.secretName)) -}}
+external-dns: hetzner.token
+    You must provide the a Hetzner API Token when provider="hetzner".
+    Please set the token parameter (--set hetzner.token="xxxx")
+    or specify a secret that contains an API token. (--set hetzner.secretName="xxxx")
+{{- end -}}
+{{- end -}}
+
+{{/*
 Validate values of TransIP DNS:
 - must provide the API key when provider is "transip"
 */}}
@@ -586,6 +650,18 @@ Validate values of TransIP DNS:
 external-dns: transip.apiKey
     You must provide the TransIP API key when provider="transip".
     Please set the apiKey parameter (--set transip.apiKey="xxxx")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of External DNS:
+- must provide the Linode API token when provider is "linode"
+*/}}
+{{- define "external-dns.validateValues.linode.apiToken" -}}
+{{- if and (eq .Values.provider "linode") (not .Values.linode.apiToken) (not .Values.linode.secretName) -}}
+external-dns: linode.apiToken
+    You must provide the Linode API token when provider="linode".
+    Please set the apiToken parameter (--set linode.apiToken="xxxx")
 {{- end -}}
 {{- end -}}
 
@@ -625,6 +701,42 @@ external-dns: ovh.applicationSecret
 {{- end -}}
 {{- end -}}
 
+{{/*
+Validate values of External DNS:
+- must provide the Scaleway access key when provider is "scaleway"
+*/}}
+{{- define "external-dns.validateValues.scaleway.scwAccessKey" -}}
+{{- if and (eq .Values.provider "scaleway") (not .Values.scaleway.scwAccessKey) -}}
+external-dns: scaleway.scwAccessKey
+    You must provide the Scaleway access key when provider="scaleway".
+    Please set the scwAccessKey parameter (--set scaleway.scwAccessKey="xxxx")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of External DNS:
+- must provide the scaleway secret key when provider is "scaleway"
+*/}}
+{{- define "external-dns.validateValues.scaleway.scwSecretKey" -}}
+{{- if and (eq .Values.provider "scaleway") (not .Values.scaleway.scwSecretKey) -}}
+external-dns: scaleway.scwSecretKey
+    You must provide the scaleway secret key when provider="scaleway".
+    Please set the scwSecretKey parameter (--set scaleway.scwSecretKey="xxxx")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate values of External DNS:
+- must provide the scaleway organization id when provider is "scaleway"
+*/}}
+{{- define "external-dns.validateValues.scaleway.scwDefaultOrganizationId" -}}
+{{- if and (eq .Values.provider "scaleway") (not .Values.scaleway.scwDefaultOrganizationId) -}}
+external-dns: scaleway.scwDefaultOrganizationId
+    You must provide the scaleway organization id key when provider="scaleway".
+    Please set the scwDefaultOrganizationId parameter (--set scaleway.scwDefaultOrganizationId="xxxx")
+{{- end -}}
+{{- end -}}
+
 {/*
 Return the ExternalDNS service account name
 */}}
@@ -633,5 +745,16 @@ Return the ExternalDNS service account name
     {{ default (include "external-dns.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the ExternalDNS namespace to be used
+*/}}
+{{- define "external-dns.namespace" -}}
+{{- if and .Values.rbac.create (not .Values.rbac.clusterRole) -}}
+    {{ default .Release.Namespace .Values.namespace }}
+{{- else -}}
+    {{ .Values.namespace }}
 {{- end -}}
 {{- end -}}

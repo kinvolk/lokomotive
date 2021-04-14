@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "openebs.fullname" . }}-webhook-cleanup
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    app: {{ template "openebs.name" . }}
+spec:
+  template:
+    metadata:
+      name: {{ template "openebs.fullname" . }}-webhook-cleanup
+      labels:
+        app: {{ template "openebs.name" . }}
+    spec:
+      serviceAccountName: {{ template "openebs.serviceAccountName" . }}
+      {{- if .Values.webhook.tolerations }}
+      tolerations:
+      {{ toYaml .Values.webhook.tolerations | indent 8 }}
+      {{- end }}
+      containers:
+        - name: kubectl
+          image: "{{ .Values.hyperkubeImage.repository }}:{{ .Values.hyperkubeImage.tag }}"
+          imagePullPolicy: "{{ .Values.hyperkubeImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - >
+              kubectl delete validatingWebhookConfiguration openebs-validation-webhook-cfg;
+      restartPolicy: OnFailure

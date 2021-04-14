@@ -4,6 +4,9 @@ kind: Schedule
 metadata:
   name: {{ include "velero.fullname" $ }}-{{ $scheduleName }}
   annotations:
+  {{- if $schedule.annotations }}
+    {{- toYaml $schedule.annotations | nindent 4 }}
+  {{- end }}
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": "before-hook-creation"
   labels:

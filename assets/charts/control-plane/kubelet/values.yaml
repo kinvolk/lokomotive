@@ -1,4 +1,4 @@
-image: quay.io/kinvolk/kubelet:v1.20.4
+image: quay.io/kinvolk/kubelet:v1.20.5
 clusterDNS: 10.0.0.10
 clusterDomain: cluster.local
 enableTLSBootstrap: true

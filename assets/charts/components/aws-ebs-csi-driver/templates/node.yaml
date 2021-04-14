@@ -3,7 +3,6 @@ kind: DaemonSet
 apiVersion: apps/v1
 metadata:
   name: ebs-csi-node
-  namespace: kube-system
   labels:
     {{- include "aws-ebs-csi-driver.labels" . | nindent 4 }}
 spec:
@@ -40,6 +39,12 @@ spec:
       tolerations:
         {{- if .Values.node.tolerateAllTaints }}
         - operator: Exists
+        {{- else }}
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
         {{- end }}
         {{- with .Values.node.tolerations }}
 {{ toYaml . | indent 8 }}
@@ -60,6 +65,14 @@ spec:
           env:
             - name: CSI_ENDPOINT
               value: unix:/csi/csi.sock
+{{- if .Values.proxy.http_proxy }}
+            - name: HTTP_PROXY
+              value: {{ .Values.proxy.http_proxy | quote }}
+            - name: HTTPS_PROXY
+              value: {{ .Values.proxy.http_proxy | quote }}
+            - name: NO_PROXY
+              value: {{ .Values.proxy.no_proxy | quote }}
+{{- end }}
           volumeMounts:
             - name: kubelet-dir
               mountPath: /var/lib/kubelet
@@ -95,15 +108,19 @@ spec:
             - --csi-address=$(ADDRESS)
             - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
             - --v=5
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/sh", "-c", "rm -rf /registration/ebs.csi.aws.com-reg.sock /csi/csi.sock"]
           env:
             - name: ADDRESS
               value: /csi/csi.sock
             - name: DRIVER_REG_SOCK_PATH
               value: /var/lib/kubelet/plugins/ebs.csi.aws.com/csi.sock
+{{- if .Values.proxy.http_proxy }}
+            - name: HTTP_PROXY
+              value: {{ .Values.proxy.http_proxy | quote }}
+            - name: HTTPS_PROXY
+              value: {{ .Values.proxy.http_proxy | quote }}
+            - name: NO_PROXY
+              value: {{ .Values.proxy.no_proxy | quote }}
+{{- end }}
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
@@ -134,6 +151,12 @@ spec:
           resources: {{ toYaml . | nindent 12 }}
           {{- end }}
           {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: kubelet-dir
           hostPath:

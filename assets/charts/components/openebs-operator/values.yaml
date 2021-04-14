@@ -16,7 +16,7 @@ imagePullSecrets:
 
 release:
   # "openebs.io/version" label for control plane components
-  version: "2.6.0"
+  version: "2.7.0"
 
 image:
   pullPolicy: IfNotPresent
@@ -25,7 +25,7 @@ image:
 apiserver:
   enabled: true
   image: "openebs/m-apiserver"
-  imageTag: "2.6.0"
+  imageTag: "2.7.0"
   replicas: 1
   ports:
     externalPort: 5656
@@ -60,7 +60,7 @@ varDirectoryPath:
 provisioner:
   enabled: true
   image: "openebs/openebs-k8s-provisioner"
-  imageTag: "2.6.0"
+  imageTag: "2.7.0"
   replicas: 1
   enableLeaderElection: true
   patchJivaNodeAffinity: enabled
@@ -83,7 +83,7 @@ provisioner:
 localprovisioner:
   enabled: true
   image: "openebs/provisioner-localpv"
-  imageTag: "2.6.0"
+  imageTag: "2.7.0"
   replicas: 1
   enableLeaderElection: true
   basePath: "/var/openebs/local"
@@ -107,7 +107,7 @@ snapshotOperator:
   enabled: true
   controller:
     image: "openebs/snapshot-controller"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
     ## snapshot controller resource requests and limits
     ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
@@ -119,7 +119,7 @@ snapshotOperator:
       #   memory: 1Gi
   provisioner:
     image: "openebs/snapshot-provisioner"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
     ## snapshot provisioner resource requests and limits
     ## Reference: http://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
@@ -142,7 +142,7 @@ snapshotOperator:
 ndm:
   enabled: true
   image: "openebs/node-disk-manager"
-  imageTag: "1.2.0"
+  imageTag: "1.3.0"
   sparse:
     path: "/var/openebs/sparse"
     size: "10737418240"
@@ -174,7 +174,7 @@ ndm:
 ndmOperator:
   enabled: true
   image: "openebs/node-disk-operator"
-  imageTag: "1.2.0"
+  imageTag: "1.3.0"
   replicas: 1
   upgradeStrategy: Recreate
   nodeSelector: {}
@@ -199,7 +199,7 @@ ndmOperator:
 webhook:
   enabled: true
   image: "openebs/admission-server"
-  imageTag: "2.6.0"
+  imageTag: "2.7.0"
   failurePolicy: "Fail"
   replicas: 1
   healthCheck:
@@ -221,27 +221,27 @@ webhook:
 
 jiva:
   image: "openebs/jiva"
-  imageTag: "2.6.0"
+  imageTag: "2.7.0"
   replicas: 3
   defaultStoragePath: "/var/openebs"
 
 cstor:
   pool:
     image: "openebs/cstor-pool"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
   poolMgmt:
     image: "openebs/cstor-pool-mgmt"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
   target:
     image: "openebs/cstor-istgt"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
   volumeMgmt:
     image: "openebs/cstor-volume-mgmt"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
 
 helper:
   image: "openebs/linux-utils"
-  imageTag: "2.6.0"
+  imageTag: "2.7.0"
 
 featureGates:
   enabled: true
@@ -263,9 +263,17 @@ policies:
   monitoring:
     enabled: true
     image: "openebs/m-exporter"
-    imageTag: "2.6.0"
+    imageTag: "2.7.0"
 
 analytics:
   enabled: true
   # Specify in hours the duration after which a ping event needs to be sent.
   pingInterval: "24h"
+
+
+# To cleanup the validatingwebhook just before deletion of the charts
+# via a pre-delete webhook job
+hyperkubeImage:
+  repository: "k8s.gcr.io/hyperkube"
+  tag: "v1.12.1"
+  pullPolicy: "IfNotPresent"

@@ -6,7 +6,7 @@
 # enabling restic). Required.
 image:
   repository: velero/velero
-  tag: v1.5.2
+  tag: v1.6.0
   # Digest value example: sha256:d238835e151cec91c6a811fe3a89a66d3231d9f64d09e5f3c49552672d271f38. If used, it will
   # take precedence over the image.tag.
   # digest:
@@ -14,6 +14,15 @@ image:
   # One or more secrets to be used when pulling images
   imagePullSecrets: []
   # - registrySecretName
+
+# Annotations to add to the Velero deployment's. Optional.
+#
+# If you are using reloader use the following annotation with your VELERO_SECRET_NAME
+annotations: {}
+# secret.reloader.stakater.com/reload: "<VELERO_SECRET_NAME>"
+
+# Labels to add to the Velero deployment's. Optional.
+labels: {}
 
 # Annotations to add to the Velero deployment's pod template. Optional.
 #
@@ -29,10 +38,14 @@ podLabels: {}
 # Resource requests/limits to specify for the Velero deployment. Optional.
 resources: {}
 
+# Configure the dnsPolicy of the Velero deployment
+# See: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
+dnsPolicy: ClusterFirst
+
 # Init containers to add to the Velero deployment's pod spec. At least one plugin provider image is required.
 initContainers: []
   # - name: velero-plugin-for-aws
-  #   image: velero/velero-plugin-for-aws:v1.1.0
+  #   image: velero/velero-plugin-for-aws:v1.2.0
   #   imagePullPolicy: IfNotPresent
   #   volumeMounts:
   #     - mountPath: /target
@@ -65,6 +78,13 @@ extraVolumeMounts: []
 # Settings for Velero's prometheus metrics. Enabled by default.
 metrics:
   enabled: true
+  scrapeInterval: 30s
+  scrapeTimeout: 10s
+
+  # service metdata if metrics are enabled
+  service:
+    annotations: {}
+    labels: {}
 
   # Pod annotations for Prometheus
   podAnnotations:
@@ -72,8 +92,11 @@ metrics:
     prometheus.io/port: "8085"
     prometheus.io/path: "/metrics"
 
-# Install CRDs as a templates. Enabled by default.
-installCRDs: true
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    # ServiceMonitor namespace. Default to Velero namespace.
+    # namespace:
 
 ##
 ## End of deployment-related settings.
@@ -151,6 +174,13 @@ configuration:
   restoreResourcePriorities:
   # `velero server` default: false
   restoreOnlyMode:
+  # `velero server` default: 20.0
+  clientQPS:
+  # `velero server` default: 30
+  clientBurst:
+  # `velero server` default: empty
+  disableControllers:
+  #
 
   # additional key/value pairs to be used as environment variables such as "AWS_CLUSTER_NAME: 'yourcluster.domain.tld'"
   extraEnvVars: {}
@@ -188,6 +218,7 @@ serviceAccount:
     create: true
     name:
     annotations:
+    labels:
 
 # Info about the secret to be used by the Velero deployment, which
 # should contain credentials for the cloud provider IAM account you've
@@ -197,15 +228,30 @@ credentials:
   # credentials. Set to false if, for example, using kube2iam or
   # kiam to provide IAM credentials for the Velero pod.
   useSecret: true
+  # Name of the secret to create if `useSecret` is true and `existingSecret` is empty
+  name:
   # Name of a pre-existing secret (if any) in the Velero namespace
   # that should be used to get IAM account credentials. Optional.
   existingSecret:
-  # Data to be stored in the Velero secret, if `useSecret` is
-  # true and `existingSecret` is empty. This should be the contents
-  # of your IAM credentials file.
+  # Data to be stored in the Velero secret, if `useSecret` is true and `existingSecret` is empty.
+  # As of the current Velero release, Velero only uses one secret key/value at a time.
+  # The key must be named `cloud`, and the value corresponds to the entire content of your IAM credentials file.
+  # Note that the format will be different for different providers, please check their documentation.
+  # Here is a list of documentation for plugins maintained by the Velero team:
+  # [AWS] https://github.com/vmware-tanzu/velero-plugin-for-aws/blob/main/README.md
+  # [GCP] https://github.com/vmware-tanzu/velero-plugin-for-gcp/blob/main/README.md
+  # [Azure] https://github.com/vmware-tanzu/velero-plugin-for-microsoft-azure/blob/main/README.md
   secretContents: {}
+  #  cloud: |
+  #    [default]
+  #    aws_access_key_id=<REDACTED>
+  #    aws_secret_access_key=<REDACTED>
   # additional key/value pairs to be used as environment variables such as "DIGITALOCEAN_TOKEN: <your-key>". Values will be stored in the secret.
   extraEnvVars: {}
+  # Name of a pre-existing secret (if any) in the Velero namespace
+  # that will be used to load environment variables into velero and restic.
+  # Secret should be in format - https://kubernetes.io/docs/concepts/configuration/secret/#use-case-as-container-environment-variables
+  extraSecretRef: ""
 
 # Whether to create backupstoragelocation crd, if false => do not create a default backup location
 backupsEnabled: true
@@ -225,11 +271,21 @@ restic:
   # Tolerations to use for the Restic daemonset. Optional.
   tolerations: []
 
+  # Annotations to set for the Restic daemonset. Optional.
+  annotations: {}
+
+  # labels to set for the Restic daemonset. Optional.
+  labels: {}
+
   # Extra volumes for the Restic daemonset. Optional.
   extraVolumes: []
 
   # Extra volumeMounts for the Restic daemonset. Optional.
   extraVolumeMounts: []
+
+  # Configure the dnsPolicy of the Restic daemonset
+  # See: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
+  dnsPolicy: ClusterFirst
 
   # SecurityContext to use for the Velero deployment. Optional.
   # Set fsGroup for `AWS IAM Roles for Service Accounts`
@@ -237,11 +293,16 @@ restic:
   securityContext: {}
     # fsGroup: 1337
 
+  # Node selector to use for the Restic daemonset. Optional.
+  nodeSelector: {}
+
 # Backup schedules to create.
 # Eg:
 # schedules:
 #   mybackup:
 #     labels:
+#       myenv: foo
+#     annotations:
 #       myenv: foo
 #     schedule: "0 0 * * *"
 #     template:
