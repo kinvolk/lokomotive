@@ -195,3 +195,17 @@ helm fetch --untar --untardir ./ bitnami/external-dns
 ```
 
 - Chart location: https://github.com/bitnami/charts/tree/master/bitnami/external-dns.
+
+## velero
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf velero
+helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts
+helm repo update
+helm fetch --untar --untardir ./ vmware-tanzu/velero
+```
+
+- Chart location: https://github.com/vmware-tanzu/helm-charts/tree/main/charts/velero
