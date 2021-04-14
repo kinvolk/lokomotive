@@ -1,4 +1,4 @@
-{{- if and .Values.installCRDs .Values.cleanUpCRDs  }}
+{{- if .Values.cleanUpCRDs  }}
 # This job is meant primarily for cleaning up on CI systems.
 # Using this on production systems, especially those that have multiple releases of Velero, will be destructive.
 apiVersion: batch/v1

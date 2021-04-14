@@ -49,7 +49,7 @@ Create the name for the credentials secret.
 {{- if .Values.credentials.existingSecret -}}
   {{- .Values.credentials.existingSecret -}}
 {{- else -}}
-  {{- include "velero.fullname" . -}}
+  {{ default (include "velero.fullname" .) .Values.credentials.name }}
 {{- end -}}
 {{- end -}}
 
