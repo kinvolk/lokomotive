@@ -201,10 +201,10 @@ component "prometheus-operator" {
 providers:
 - name: 'sidecarProvider'
   orgId: 1
-  folder: ''
   type: file
   disableDeletion: false
   allowUiUpdates: false
+  updateIntervalSeconds: 30
   options:
     foldersFromFilesStructure: true
     path: /tmp/dashboards`,

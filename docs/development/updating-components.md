@@ -93,3 +93,20 @@ git checkout openebs/crds/storagepoolclaims.yaml
 - Installation instructions: https://openebs.github.io/charts/.
 - More information about the chart: https://github.com/openebs/charts.
 - Code repository: https://github.com/openebs/openebs.
+
+## Prometheus operator
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf prometheus-operator
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm fetch --untar --untardir ./ prometheus-community/kube-prometheus-stack
+mv kube-prometheus-stack prometheus-operator
+```
+
+- Installation instructions: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack.
+- Code repository: https://github.com/prometheus-operator/kube-prometheus.
+
