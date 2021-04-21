@@ -44,6 +44,9 @@ type workerPool struct {
 	CLCSnippets  []string          `hcl:"clc_snippets,optional"`
 	Tags         map[string]string `hcl:"tags,optional"`
 
+	WorkerCPUs   int `hcl:"worker_cpus"`
+	WorkerMemory int `hcl:"worker_memory"`
+
 	ImageID string `hcl:"image_id"` // temporaty workaround till proper flatcar images
 }
 
@@ -81,6 +84,8 @@ type config struct {
 	KubeAPIServerExtraFlags  []string
 	CompartmentID            string `hcl:"compartment_id"`
 	ControllerImageID        string `hcl:"controller_image_id"` // temporaty workaround till proper flatcar images
+	ControllerCPUs           int    `hcl:"controller_cpus"`
+	ControllerMemory         int    `hcl:"controller_memory"`
 
 	// OCI Auth
 	TenancyID      string `hcl:"tenancy_id"`
