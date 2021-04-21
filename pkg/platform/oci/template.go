@@ -103,6 +103,9 @@ module "oci-{{.Config.ClusterName}}" {
 
   conntrack_max_per_core = {{.Config.ConntrackMaxPerCore}}
 
+  {{- if ne .Config.ControllerAD 0 }}
+  controller_ad_number = {{ .Config.ControllerAD }}
+  {{- end }}
   {{- if ne .Config.ControllerCPUs 0 }}
   controller_cpus = {{ .Config.ControllerCPUs }}
   {{- end }}
@@ -139,6 +142,9 @@ module "worker-pool-{{ $index }}" {
   service_cidr          = "{{ $.Config.ServiceCIDR }}"
   {{- end }}
 
+  {{- if ne $pool.WorkerAD 0 }}
+  worker_ad_number = {{ $pool.WorkerAD }}
+  {{- end }}
   {{- if ne $pool.WorkerCPUs 0 }}
   worker_cpus = {{ $pool.WorkerCPUs }}
   {{- end }}

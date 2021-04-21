@@ -46,6 +46,7 @@ type workerPool struct {
 
 	WorkerCPUs   int `hcl:"worker_cpus"`
 	WorkerMemory int `hcl:"worker_memory"`
+	WorkerAD     int `hcl:"worker_ad_number"`
 
 	ImageID string `hcl:"image_id"` // temporaty workaround till proper flatcar images
 }
@@ -86,6 +87,7 @@ type config struct {
 	ControllerImageID        string `hcl:"controller_image_id"` // temporaty workaround till proper flatcar images
 	ControllerCPUs           int    `hcl:"controller_cpus"`
 	ControllerMemory         int    `hcl:"controller_memory"`
+	ControllerAD             int    `hcl:"controller_ad_number"`
 
 	// OCI Auth
 	TenancyID      string `hcl:"tenancy_id"`
