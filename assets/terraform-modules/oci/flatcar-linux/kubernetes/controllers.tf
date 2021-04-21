@@ -35,7 +35,7 @@ data "oci_core_image" "flatcar" {
 
 data "oci_identity_availability_domain" "ad" {
   compartment_id = var.tenancy_id
-  ad_number      = 1
+  ad_number      = var.controller_ad_number
 }
 
 resource "oci_core_instance" "controllers" {

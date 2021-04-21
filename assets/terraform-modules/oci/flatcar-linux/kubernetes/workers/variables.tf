@@ -151,3 +151,7 @@ variable "worker_cpus" {
 variable "worker_memory" {
   default = 6
 }
+
+variable "worker_ad_number" {
+  default = 1
+}

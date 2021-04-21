@@ -75,6 +75,10 @@ variable "controller_memory" {
   default = 6
 }
 
+variable "controller_ad_number" {
+  default = 1
+}
+
 variable "controller_clc_snippets" {
   type        = list(string)
   description = "Controller Container Linux Config snippets"
