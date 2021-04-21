@@ -103,6 +103,13 @@ module "oci-{{.Config.ClusterName}}" {
 
   conntrack_max_per_core = {{.Config.ConntrackMaxPerCore}}
 
+  {{- if ne .Config.ControllerCPUs 0 }}
+  controller_cpus = {{ .Config.ControllerCPUs }}
+  {{- end }}
+  {{- if ne .Config.ControllerMemory 0 }}
+  controller_memory = {{ .Config.ControllerMemory }}
+  {{- end }}
+
   worker_bootstrap_tokens = [
     {{- range $index, $pool := .Config.WorkerPools }}
     module.worker-pool-{{ $index }}.worker_bootstrap_token,
@@ -131,6 +138,14 @@ module "worker-pool-{{ $index }}" {
   {{- if $.Config.ServiceCIDR }}
   service_cidr          = "{{ $.Config.ServiceCIDR }}"
   {{- end }}
+
+  {{- if ne $pool.WorkerCPUs 0 }}
+  worker_cpus = {{ $pool.WorkerCPUs }}
+  {{- end }}
+  {{- if ne $pool.WorkerMemory 0 }}
+  worker_memory = {{ $pool.WorkerMemory }}
+  {{- end }}
+
 
   {{- if $.Config.ClusterDomainSuffix }}
   cluster_domain_suffix = "{{ $.Config.ClusterDomainSuffix }}"
