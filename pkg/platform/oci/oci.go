@@ -31,18 +31,19 @@ import (
 )
 
 type workerPool struct {
-	Name         string            `hcl:"pool_name,label"`
-	Count        int               `hcl:"count"`
-	SSHPubKeys   []string          `hcl:"ssh_pubkeys"`
-	InstanceType string            `hcl:"instance_type,optional"`
-	OSChannel    string            `hcl:"os_channel,optional"`
-	OSVersion    string            `hcl:"os_version,optional"`
-	Labels       map[string]string `hcl:"labels,optional"`
-	Taints       map[string]string `hcl:"taints,optional"`
-	DiskSize     int               `hcl:"disk_size,optional"`
-	TargetGroups []string          `hcl:"target_groups,optional"`
-	CLCSnippets  []string          `hcl:"clc_snippets,optional"`
-	Tags         map[string]string `hcl:"tags,optional"`
+	Name            string            `hcl:"pool_name,label"`
+	Count           int               `hcl:"count"`
+	SSHPubKeys      []string          `hcl:"ssh_pubkeys"`
+	InstanceType    string            `hcl:"instance_type,optional"`
+	OSChannel       string            `hcl:"os_channel,optional"`
+	OSVersion       string            `hcl:"os_version,optional"`
+	Labels          map[string]string `hcl:"labels,optional"`
+	Taints          map[string]string `hcl:"taints,optional"`
+	DiskSize        int               `hcl:"disk_size,optional"`
+	TargetGroups    []string          `hcl:"target_groups,optional"`
+	CLCSnippets     []string          `hcl:"clc_snippets,optional"`
+	Tags            map[string]string `hcl:"tags,optional"`
+	ExtraVolumeSize int               `hcl:"extra_volume_size,optional"`
 
 	WorkerCPUs   int `hcl:"worker_cpus"`
 	WorkerMemory int `hcl:"worker_memory"`

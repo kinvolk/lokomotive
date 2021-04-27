@@ -202,6 +202,10 @@ module "worker-pool-{{ $index }}" {
   {{- if $pool.Tags }}
   tags                  = {{ index (index $.WorkerpoolCfg $index) "tags" }}
   {{- end }}
+
+  {{- if ne $pool.ExtraVolumeSize 0 }}
+  extra_volume_size = {{ $pool.ExtraVolumeSize }}
+  {{- end}}
 }
 {{- end }}
 

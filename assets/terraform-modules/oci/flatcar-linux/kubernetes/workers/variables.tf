@@ -95,6 +95,12 @@ variable "tags" {
   description = "Optional details to tag on AWS resources"
 }
 
+variable "extra_volume_size" {
+  description = "Define the size of block device (in GB) that will be attached with the machine."
+  type = number
+  default = 50
+}
+
 # configuration
 
 variable "kubeconfig" {

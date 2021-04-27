@@ -7,7 +7,7 @@ data "oci_identity_availability_domain" "ad" {
   ad_number      = var.worker_ad_number
 }
 
-resource "oci_core_instance" "controllers" {
+resource "oci_core_instance" "workers" {
   count = var.worker_count
 
   availability_domain = data.oci_identity_availability_domain.ad.name
@@ -69,4 +69,20 @@ data "ct_config" "worker-ignition" {
   })
   pretty_print = false
   snippets     = var.clc_snippets
+}
+
+resource "oci_core_volume" "extra_volume" {
+  count = var.worker_count
+
+  availability_domain = data.oci_identity_availability_domain.ad.name
+  compartment_id = var.compartment_id
+  size_in_gbs = var.extra_volume_size
+}
+
+resource "oci_core_volume_attachment" "extra_volume_attachment" {
+  count = var.worker_count
+
+  attachment_type = "iscsi"
+  instance_id = oci_core_instance.workers[count.index].id
+  volume_id = oci_core_volume.extra_volume.*.id[count.index]
 }
