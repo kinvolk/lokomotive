@@ -60,7 +60,7 @@ resource "oci_core_instance" "controllers" {
     Name = "${var.cluster_name}-controller-${count.index}"
   })
 
-  display_name = "${var.cluster_name}-${count.index}"
+  display_name = "${var.cluster_name}-controller-${count.index}"
 
   source_details {
     source_id = data.oci_core_image.flatcar.id
@@ -95,7 +95,7 @@ data "ct_config" "controller-ignitions" {
     cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
     cluster_domain_suffix  = var.cluster_domain_suffix
     enable_tls_bootstrap   = var.enable_tls_bootstrap
-    domain_name            = "${var.cluster_name}-${count.index}.${var.dns_zone}"
+    domain_name            = "${var.cluster_name}-controller-${count.index}"
   })
   pretty_print = false
   snippets     = var.controller_clc_snippets

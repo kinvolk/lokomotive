@@ -20,15 +20,15 @@ resource "oci_core_instance" "workers" {
     freeform_tags = merge(var.tags, {
       "Name" = var.cluster_name
     })
-    hostname_label = "${var.pool_name}-${count.index}"
+    hostname_label = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
     subnet_id = var.subnet_id
     nsg_ids = [var.nsg_id]
   }
 
   freeform_tags =  merge(var.tags, {
-    Name = "${var.pool_name}-${count.index}"
+    Name = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
   })
-  display_name = "${var.pool_name}-${count.index}"
+  display_name = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
 
   source_details {
     source_id = data.oci_core_image.flatcar.id
@@ -65,7 +65,7 @@ data "ct_config" "worker-ignition" {
     node_labels            = merge({ "node.kubernetes.io/node" = "" }, var.labels)
     taints                 = var.taints
     enable_tls_bootstrap   = var.enable_tls_bootstrap
-    domain_name            = "${var.pool_name}-${count.index}.${var.dns_zone}"
+    domain_name            = "${var.cluster_name}-${var.pool_name}-worker-${count.index}"
   })
   pretty_print = false
   snippets     = var.clc_snippets
