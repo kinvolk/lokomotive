@@ -17,7 +17,9 @@ package oci
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"text/template"
 
@@ -25,6 +27,8 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 
+	"github.com/kinvolk/lokomotive/internal"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -95,6 +99,8 @@ type config struct {
 	User           string `hcl:"user"`
 	Fingerprint    string `hcl:"fingerprint"`
 	PrivateKeyPath string `hcl:"private_key_path"`
+
+	CCMCompatiblePrivateKey string
 }
 
 const (
@@ -135,14 +141,25 @@ func (c *config) Meta() platform.Meta {
 		nodes += workerpool.Count
 	}
 
+	charts := platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet)
+
+	charts = append(charts, helm.LokomotiveChart{
+		Name:      "oci-ccm",
+		Namespace: "kube-system",
+	})
+
 	return platform.Meta{
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      nodes,
-		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		ControlplaneCharts: charts,
 	}
 }
 
 func (c *config) Apply(ex *terraform.Executor) error {
+	if err := c.convertToOpenSSL(); err != nil {
+		return err
+	}
+
 	if err := c.Initialize(ex); err != nil {
 		return err
 	}
@@ -361,4 +378,40 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 	}
 
 	return diagnostics
+}
+
+func (c *config) convertToOpenSSL() error {
+	content := []byte("")
+
+	tmpfile, err := ioutil.TempFile("", "oci")
+	if err != nil {
+		return fmt.Errorf("could not create temporary file: %w", err)
+	}
+
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write(content); err != nil {
+		return fmt.Errorf("could not write to temporary file: %w", err)
+	}
+
+	if err := tmpfile.Close(); err != nil {
+		return fmt.Errorf("could not close the temporary file: %w", err)
+	}
+
+	// Now run the command
+	cmd := exec.Command("openssl", "rsa", "-in", c.PrivateKeyPath, "-out", tmpfile.Name())
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("faile to run openssl command: %w", err)
+	}
+
+	data, err := os.ReadFile(tmpfile.Name())
+	if err != nil {
+		return fmt.Errorf("could not read the converted file: %w", err)
+	}
+
+	c.CCMCompatiblePrivateKey = string(data)
+	c.CCMCompatiblePrivateKey = internal.Indent(c.CCMCompatiblePrivateKey, 4)
+
+	return nil
 }

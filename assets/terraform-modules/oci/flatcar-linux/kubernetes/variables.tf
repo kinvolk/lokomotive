@@ -30,6 +30,17 @@ variable "region" {
   type = string
 }
 
+variable "user" {
+  type = string
+}
+
+variable "fingerprint" {
+  type = string
+}
+
+variable "key" {
+  type = string
+}
 
 # instances
 

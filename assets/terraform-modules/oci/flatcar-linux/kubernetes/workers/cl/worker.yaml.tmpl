@@ -67,6 +67,7 @@ systemd:
           --authentication-token-webhook \
           --authorization-mode=Webhook \
           --client-ca-file=/etc/kubernetes/ca.crt \
+          --cloud-provider=external \
           --cluster_dns=${cluster_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
           --cni-conf-dir=/etc/cni/net.d \
@@ -137,10 +138,12 @@ storage:
           #!/bin/bash
           set -e
           readonly docker_cgroup_driver="$(docker info -f '{{.CgroupDriver}}')"
+          ocid=$(curl -s -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/ | jq -r '.id')
           cat <<EOF >/etc/kubernetes/kubelet.config
           apiVersion: kubelet.config.k8s.io/v1beta1
           kind: KubeletConfiguration
           cgroupDriver: "$${docker_cgroup_driver}"
+          providerID: "$${ocid}"
           EOF
     - path: /etc/kubernetes/delete-node
       filesystem: root

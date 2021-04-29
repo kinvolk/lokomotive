@@ -20,6 +20,11 @@ module "oci-{{.Config.ClusterName}}" {
 
   compartment_id = "{{.Config.CompartmentID}}"
   tenancy_id     = "{{.Config.TenancyID}}"
+  user           = "{{.Config.User}}"
+  fingerprint    = "{{.Config.Fingerprint}}"
+  key            = <<EOF
+{{.Config.CCMCompatiblePrivateKey}}
+EOF
 
   region = "{{.Config.Region}}"
 

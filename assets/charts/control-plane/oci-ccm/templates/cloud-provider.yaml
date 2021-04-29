@@ -1,0 +1,24 @@
+apiVersion: v1
+stringData:
+  cloud-provider.yaml: |
+    auth:
+      region: {{.Values.cloudProvider.region}}
+      tenancy: {{.Values.cloudProvider.tenancy}}
+      user: {{.Values.cloudProvider.user}}
+      key: |
+{{.Values.cloudProvider.key | indent 8 }}
+      fingerprint: {{.Values.cloudProvider.fingerprint}}
+      useInstancePrincipals: false
+
+    compartment: {{.Values.cloudProvider.compartment}}
+
+    vcn: {{.Values.cloudProvider.vcn}}
+    loadBalancer:
+      subnet1: {{.Values.cloudProvider.subnet}}
+      securityListManagementMode: All
+
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: oci-cloud-controller-manager
+  namespace: kube-system

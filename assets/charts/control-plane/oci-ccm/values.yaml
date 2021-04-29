@@ -1,0 +1,9 @@
+cloudProvider:
+  region:
+  tenancy:
+  user:
+  fingerprint:
+  compartment:
+  vcn:
+  subnet:
+  key:
