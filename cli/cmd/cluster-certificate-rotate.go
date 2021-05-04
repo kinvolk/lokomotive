@@ -35,8 +35,6 @@ func init() {
 	clusterCertificateCmd.AddCommand(clusterCertificateRotateCmd)
 
 	pf := clusterCertificateRotateCmd.PersistentFlags()
-	// TODO: check these
-	pf.BoolVarP(&confirm, "confirm", "", false, "Upgrade cluster without asking for confirmation")
 	pf.BoolVarP(&verbose, "verbose", "v", false, "Show output from Terraform")
 
 	pf.BoolVarP(&skipPreUpdateHealthCheck, "skip-pre-update-health-check", "", false,
