@@ -54,12 +54,7 @@ func RotateCertificates(contextLogger *log.Entry, options CertificateRotateOptio
 
 	// Tainting certificates so they get rotated.
 	if err := c.taintCertificates(); err != nil {
-		rollbackErr := c.untaintCertificates()
-		if rollbackErr != nil {
-			return fmt.Errorf("tainting certificate resources, rolled back successfully: %w", err)
-		}
-
-		return fmt.Errorf("tainting certificate resources: %w, rolled back gave error: %v", err, rollbackErr)
+		return fmt.Errorf("tainting certificate resources: %w", err)
 	}
 
 	// Apply the Terraform changes to replace tainted resources.
