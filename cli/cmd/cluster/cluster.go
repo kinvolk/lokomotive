@@ -384,24 +384,6 @@ func (c *cluster) taintCertificates() error {
 	return nil
 }
 
-// untaintCertificates untaints all certificate resources in existing Terraform state.
-// it will be used to rollback taints on errors of taints on best effort basis.
-func (c *cluster) untaintCertificates() error {
-	steps := []terraform.ExecutionStep{}
-
-	for _, t := range c.certificateResources() {
-		steps = append(steps, terraform.ExecutionStep{
-			Args: []string{"untaint", t},
-		})
-	}
-
-	if err := c.terraformExecutor.Execute(steps...); err != nil {
-		return fmt.Errorf("untaint existing certificates: %w", err)
-	}
-
-	return nil
-}
-
 func (c *cluster) certificateResources() []string {
 	f := func(resourceName string) string {
 		m := c.platform.Meta()
