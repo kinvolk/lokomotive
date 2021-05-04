@@ -343,6 +343,11 @@ output "lokomotive_values" {
   sensitive = true
 }
 
+output "packet-ccm_values" {
+  value     = module.packet-{{.Config.ClusterName}}.packet-ccm_values
+  sensitive = true
+}
+
 output "bootstrap-secrets_values" {
   value     = module.packet-{{.Config.ClusterName}}.bootstrap-secrets_values
   sensitive = true
