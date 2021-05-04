@@ -63,7 +63,7 @@ func RotateCertificates(contextLogger *log.Entry, options CertificateRotateOptio
 		return fmt.Errorf("applying platform: %w", err)
 	}
 
-	return rotateControlPlateCerts(contextLogger, cc)
+	return rotateControlPlaneCerts(contextLogger, cc)
 }
 
 func canRotate(c *cluster) error {
@@ -84,7 +84,7 @@ func canRotate(c *cluster) error {
 	return nil
 }
 
-func rotateControlPlateCerts(contextLogger *log.Entry, cc clusterConfig) error {
+func rotateControlPlaneCerts(contextLogger *log.Entry, cc clusterConfig) error {
 	c, err := cc.initialize(contextLogger)
 	if err != nil {
 		return fmt.Errorf("initializing: %w", err)
