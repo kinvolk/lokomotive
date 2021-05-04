@@ -333,6 +333,11 @@ output "calico_values" {
   sensitive = true
 }
 
+output "calico-host-protection_values" {
+  value     = module.packet-{{.Config.ClusterName}}.calico-host-protection_values
+  sensitive = true
+}
+
 output "lokomotive_values" {
   value     = module.packet-{{.Config.ClusterName}}.lokomotive_values
   sensitive = true
