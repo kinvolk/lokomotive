@@ -373,7 +373,8 @@ func (c *cluster) taintCertificates() error {
 
 	for _, t := range c.certificateResources() {
 		steps = append(steps, terraform.ExecutionStep{
-			Args: []string{"taint", t},
+			Description: "taint certificate",
+			Args:        []string{"taint", t},
 		})
 	}
 
