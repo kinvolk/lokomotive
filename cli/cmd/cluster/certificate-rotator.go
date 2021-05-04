@@ -131,6 +131,8 @@ func rotateControlPlateCerts(contextLogger *log.Entry, cc clusterConfig) error {
 		return fmt.Errorf("preparing certificate rotator: %w", err)
 	}
 
+	// rotate() restarts control plane deployments and daemonsets again. We
+	// need to it again because the first rollout is partial.
 	if err := cr.rotate(); err != nil {
 		return fmt.Errorf("rotating certificates: %w", err)
 	}
