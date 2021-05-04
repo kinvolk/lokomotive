@@ -199,7 +199,7 @@ func (cr *certificateRotator) waitForUpdatedServiceAccountTokens(ctx context.Con
 			}
 
 			if allUpToDate {
-				cr.config.logger.Printf("all service account tokens are up to date and have new CA certificate")
+				cr.config.logger.Printf("All service account tokens are up to date and have new CA certificate")
 
 				return nil
 			}
