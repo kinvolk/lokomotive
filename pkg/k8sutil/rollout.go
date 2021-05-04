@@ -29,6 +29,8 @@ func RolloutRestartDaemonSet(dsi clientappsv1.DaemonSetInterface, name string) (
 		ds.Spec.Template.Annotations = map[string]string{}
 	}
 
+	// We mimic what "kubectl rollout restart" does and set the restartedAt
+	// annotation. This change in the object causes a restart.
 	ds.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().String()
 
 	newDS, err := dsi.Update(context.TODO(), ds, metav1.UpdateOptions{})
@@ -69,6 +71,8 @@ func RolloutRestartDeployment(deployClient clientappsv1.DeploymentInterface, nam
 		d.Spec.Template.Annotations = map[string]string{}
 	}
 
+	// We mimic what "kubectl rollout restart" does and set the restartedAt
+	// annotation. This change in the object causes a restart.
 	d.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().String()
 
 	newDeploy, err := deployClient.Update(context.TODO(), d, metav1.UpdateOptions{})

@@ -133,7 +133,7 @@ func CommonDeployments(controllersCount int) []Workload {
 		},
 	}
 
-	// if more than one controller we use DaemonSets instead
+	// If more than one controller we use DaemonSets instead.
 	if controllersCount > 1 {
 		return base
 	}
