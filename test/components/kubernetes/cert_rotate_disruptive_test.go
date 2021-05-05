@@ -114,7 +114,7 @@ func fetchCertificatesForEndpoint(url string) (cert []*x509.Certificate, err err
 	}
 
 	if len(resp.TLS.PeerCertificates) < 1 {
-		return nil, errors.New("No cortificates offered in TLS handshake")
+		return nil, errors.New("No certificates offered in TLS handshake")
 	}
 
 	return resp.TLS.PeerCertificates, nil
