@@ -69,6 +69,13 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo systemctl restart etcd",
     ]
   }
+
+  triggers = {
+    controller_id = packet_device.controllers[count.index].id
+    etcd_ca_cert     = module.bootkube.etcd_ca_cert
+    etcd_server_cert = module.bootkube.etcd_server_cert
+    etcd_peer_cert   = module.bootkube.etcd_peer_cert
+  }
 }
 
 # Secure copy bootkube assets to ONE controller and start bootkube to perform
