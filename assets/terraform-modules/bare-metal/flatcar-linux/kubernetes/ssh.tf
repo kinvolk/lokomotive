@@ -82,6 +82,12 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo systemctl restart etcd",
     ]
   }
+
+  triggers = {
+    etcd_ca_cert     = module.bootkube.etcd_ca_cert
+    etcd_server_cert = module.bootkube.etcd_server_cert
+    etcd_peer_cert   = module.bootkube.etcd_peer_cert
+  }
 }
 
 # Secure copy kubeconfig to all workers. Activates kubelet.service
