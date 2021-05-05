@@ -386,12 +386,6 @@ func (c *cluster) taintCertificates() error {
 }
 
 func (c *cluster) certificateResources() []string {
-	f := func(resourceName string) string {
-		m := c.platform.Meta()
-
-		return fmt.Sprintf("module.%s-%s.module.bootkube.%s", m.Name, m.ClusterName, resourceName)
-	}
-
 	targets := []string{
 		// certificates
 		"tls_locally_signed_cert.admin",
@@ -416,9 +410,11 @@ func (c *cluster) certificateResources() []string {
 		"tls_private_key.server",
 	}
 
+	m := c.platform.Meta()
+
 	var fullTargets []string
 	for _, target := range targets {
-		fullTargets = append(fullTargets, f(target))
+		fullTargets = append(fullTargets, fmt.Sprintf("module.%s-%s.module.bootkube.%s", m.Name, m.ClusterName, target))
 	}
 
 	return fullTargets
