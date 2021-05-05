@@ -59,10 +59,7 @@ func KubeconfigPath(t *testing.T) string {
 	return kubeconfig
 }
 
-<<<<<<< HEAD
 // LokocfgPath gives the LOKOCFG_LOCATION value.
-=======
->>>>>>> 5a3e909e... Add e2e tests for cert rotation
 func LokocfgPath(t *testing.T) string {
 	lokocfg := os.ExpandEnv(os.Getenv("LOKOCFG_LOCATION"))
 
