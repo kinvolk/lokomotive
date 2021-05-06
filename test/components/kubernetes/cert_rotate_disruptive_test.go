@@ -34,7 +34,7 @@ import (
 	testutil "github.com/kinvolk/lokomotive/test/components/util"
 )
 
-func TestCertificateRotate(t *testing.T) {
+func TestCertificateRotate(t *testing.T) { //nolint:funlen
 	contextLogger := log.WithFields(log.Fields{
 		"command": "TestCertificateRotate",
 	})
@@ -55,7 +55,12 @@ func TestCertificateRotate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Getting current work directory failed: %v", err)
 	}
-	defer os.Chdir(testDir)
+
+	defer func() {
+		if err := os.Chdir(testDir); err != nil {
+			t.Fatalf("failed to change back %q", testDir)
+		}
+	}()
 
 	err = os.Chdir(dir)
 	if err != nil {
@@ -94,7 +99,8 @@ func TestCertificateRotate(t *testing.T) {
 
 	// Currently Lokomotive doesn't use intermediate CAs, thus we can safely assume the first one is the leaf cert.
 	if oldCerts[0].NotAfter.After(newCerts[0].NotAfter) || oldCerts[0].NotAfter.Equal(newCerts[0].NotAfter) {
-		t.Fatalf("Incorrect not after time on new certificate: %v is equal or before %v", newCerts[0].NotAfter, oldCerts[0].NotAfter)
+		t.Fatalf("Incorrect not after time on new certificate: %v is equal or before %v",
+			newCerts[0].NotAfter, oldCerts[0].NotAfter)
 	}
 }
 
@@ -104,14 +110,21 @@ func fetchCertificatesForEndpoint(url string) (cert []*x509.Certificate, err err
 	}
 
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 	}
 	client := &http.Client{Transport: tr}
 
-	resp, err := client.Get(url)
+	resp, err := client.Get(url) //nolint:noctx
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		e := resp.Body.Close()
+		if e == nil {
+			err = e
+		}
+	}()
 
 	if len(resp.TLS.PeerCertificates) < 1 {
 		return nil, errors.New("No certificates offered in TLS handshake")

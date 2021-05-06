@@ -23,6 +23,6 @@ var clusterCertificateCmd = &cobra.Command{
 	Short: "Manage cluster certificates",
 }
 
-func init() {
+func init() { //nolint:gochecknoinits
 	clusterCmd.AddCommand(clusterCertificateCmd)
 }

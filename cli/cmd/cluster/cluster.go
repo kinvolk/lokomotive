@@ -366,8 +366,9 @@ func (c controlplaneUpdater) ensureComponent(component, namespace string) error 
 	return nil
 }
 
-// taintCertificates taints all certificate resources in existing Terraform state.
-// it will not taint the private keys of the CA so the public key gets reused and the old CA cert can trust the new certificates.
+// taintCertificates taints all certificate resources in existing Terraform
+// state. it will not taint the private keys of the CA so the public key gets
+// reused and the old CA cert can trust the new certificates.
 func (c *cluster) taintCertificates() error {
 	steps := []terraform.ExecutionStep{}
 
@@ -412,7 +413,7 @@ func (c *cluster) certificateResources() []string {
 
 	m := c.platform.Meta()
 
-	var fullTargets []string
+	fullTargets := make([]string, 0, len(targets))
 	for _, target := range targets {
 		fullTargets = append(fullTargets, fmt.Sprintf("module.%s-%s.module.bootkube.%s", m.Name, m.ClusterName, target))
 	}

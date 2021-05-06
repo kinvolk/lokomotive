@@ -170,7 +170,8 @@ func (cr *certificateRotator) rotate() error {
 		cr.config.logger.Printf("Restarting DaemonSet %s/%s to pick up new Kubernetes CA Certificate",
 			daemonSet.Namespace, daemonSet.Name)
 
-		if err := k8sutil.RolloutDaemonSet(cr.config.clientSet.AppsV1().DaemonSets(daemonSet.Namespace), daemonSet.Name); err != nil {
+		if err := k8sutil.RolloutDaemonSet(cr.config.clientSet.AppsV1().DaemonSets(daemonSet.Namespace),
+			daemonSet.Name); err != nil {
 			return fmt.Errorf("restarting DaemonSet %s/%s: %w", daemonSet.Namespace, daemonSet.Name, err)
 		}
 	}
@@ -179,7 +180,8 @@ func (cr *certificateRotator) rotate() error {
 		cr.config.logger.Printf("Restarting Deployment %s/%s to pick up new Kubernetes CA Certificate",
 			deployment.Namespace, deployment.Name)
 
-		if err := k8sutil.RolloutDeployment(cr.config.clientSet.AppsV1().Deployments(deployment.Namespace), deployment.Name); err != nil {
+		if err := k8sutil.RolloutDeployment(cr.config.clientSet.AppsV1().Deployments(deployment.Namespace),
+			deployment.Name); err != nil {
 			return fmt.Errorf("restarting Deployment %s/%s: %w", deployment.Namespace, deployment.Name, err)
 		}
 	}
@@ -191,7 +193,7 @@ func (cr *certificateRotator) waitForUpdatedServiceAccountTokens(ctx context.Con
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context exceeded while checking if all service account tokens include new CA certificate: %w", ctx.Err())
+			return fmt.Errorf("context exceeded while checking if all service account tokens include new CA certificate: %w", ctx.Err()) //nolint:lll
 		case <-time.After(time.Second):
 			allUpToDate, err := cr.allServiceAccountTokensIncludeNewCA()
 			if err != nil {

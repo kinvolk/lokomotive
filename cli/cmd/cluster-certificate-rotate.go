@@ -31,7 +31,7 @@ This can be used to renew all certificates with a longer validity.`,
 	Run: runClusterCertificateRotate,
 }
 
-func init() {
+func init() { //nolint:gochecknoinits
 	clusterCertificateCmd.AddCommand(clusterCertificateRotateCmd)
 
 	pf := clusterCertificateRotateCmd.PersistentFlags()
