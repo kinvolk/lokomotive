@@ -72,7 +72,7 @@ data "ct_config" "worker-ignition" {
 }
 
 resource "oci_core_volume" "extra_volume" {
-  count = var.worker_count
+  count = var.extra_volume_size == 0 ? 0 : var.worker_count
 
   availability_domain = data.oci_identity_availability_domain.ad.name
   compartment_id = var.compartment_id
@@ -80,9 +80,9 @@ resource "oci_core_volume" "extra_volume" {
 }
 
 resource "oci_core_volume_attachment" "extra_volume_attachment" {
-  count = var.worker_count
+  count = var.extra_volume_size == 0 ? 0 : var.worker_count
 
-  attachment_type = "iscsi"
+  attachment_type = "paravirtualized"
   instance_id = oci_core_instance.workers[count.index].id
   volume_id = oci_core_volume.extra_volume.*.id[count.index]
 }

@@ -98,7 +98,7 @@ variable "tags" {
 variable "extra_volume_size" {
   description = "Define the size of block device (in GB) that will be attached with the machine."
   type = number
-  default = 50
+  default = 0
 }
 
 # configuration
