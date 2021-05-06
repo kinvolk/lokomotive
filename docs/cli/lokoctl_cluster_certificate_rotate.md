@@ -18,7 +18,6 @@ lokoctl cluster certificate rotate [flags]
 ### Options
 
 ```
-      --confirm                        Upgrade cluster without asking for confirmation
   -h, --help                           help for rotate
       --skip-pre-update-health-check   Skip ensuring that cluster is healthy before updating (not recommended)
   -v, --verbose                        Show output from Terraform
