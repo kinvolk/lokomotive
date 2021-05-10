@@ -204,6 +204,8 @@ func (cr *certificateRotator) waitForUpdatedServiceAccountTokens(ctx context.Con
 				cr.config.logger.Printf("All service account tokens are up to date and have new CA certificate")
 
 				return nil
+			} else {
+				cr.config.logger.Printf("Service account tokens are NOT up to date")
 			}
 		}
 	}
@@ -220,8 +222,12 @@ func (cr *certificateRotator) allServiceAccountTokensIncludeNewCA() (bool, error
 	allUpToDate := true
 
 	for _, v := range secrets.Items {
+		cr.config.logger.Printf("Checking service account tokens CA: %q", v.Metadata.Name)
 		if string(v.Data["ca.crt"]) != cr.config.newCACert {
 			allUpToDate = false
+			cr.config.logger.Printf("NOT UP TO DATE: expected: %q, found: %q", cr.config.newCACert, v.Data["ca.crt"])
+		} else {
+			cr.config.logger.Printf("UP TO DATE")
 		}
 	}
 
