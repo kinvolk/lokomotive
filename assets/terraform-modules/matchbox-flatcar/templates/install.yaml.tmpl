@@ -35,7 +35,7 @@ storage:
           #!/bin/bash -ex
           # unmount any leftovers at the beginning before we modify the disk the mount uses
           umount /tmp/oemfs || true
-          lvchange -an /dev/mapper/vg* || true
+          lvchange -an /dev/mapper/* || true
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
             -s \
