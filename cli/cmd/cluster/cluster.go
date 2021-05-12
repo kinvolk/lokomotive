@@ -15,6 +15,7 @@
 package cluster
 
 import (
+	"encoding/base64"
 	"fmt"
 	"path/filepath"
 
@@ -363,4 +364,85 @@ func (c controlplaneUpdater) ensureComponent(component, namespace string) error 
 	fmt.Println("Done.")
 
 	return nil
+}
+
+// taintCertificates taints all certificate resources in existing Terraform
+// state. It will not taint the private keys of the CA so the public key gets
+// reused and the old CA cert can trust the new certificates.
+func (c *cluster) taintCertificates() error {
+	steps := []terraform.ExecutionStep{}
+
+	for _, t := range c.certificateResources() {
+		steps = append(steps, terraform.ExecutionStep{
+			Description: "taint certificate",
+			Args:        []string{"taint", t},
+		})
+	}
+
+	if err := c.terraformExecutor.Execute(steps...); err != nil {
+		return fmt.Errorf("tainting existing certificates: %w", err)
+	}
+
+	return nil
+}
+
+func (c *cluster) certificateResources() []string {
+	targets := []string{
+		// certificates
+		"tls_locally_signed_cert.admin",
+		"tls_locally_signed_cert.admission-webhook-server",
+		"tls_locally_signed_cert.aggregation-client[0]",
+		"tls_locally_signed_cert.apiserver",
+		"tls_locally_signed_cert.client",
+		"tls_locally_signed_cert.kubelet",
+		"tls_locally_signed_cert.peer",
+		"tls_locally_signed_cert.server",
+		"tls_self_signed_cert.aggregation-ca[0]",
+		"tls_self_signed_cert.etcd-ca",
+		"tls_self_signed_cert.kube-ca",
+		// Taint non-CA private keys as well, as those are safe to rotate.
+		"tls_private_key.admin",
+		"tls_private_key.admission-webhook-server",
+		"tls_private_key.aggregation-client[0]",
+		"tls_private_key.apiserver",
+		"tls_private_key.client",
+		"tls_private_key.kubelet",
+		"tls_private_key.peer",
+		"tls_private_key.server",
+	}
+
+	m := c.platform.Meta()
+
+	fullTargets := make([]string, 0, len(targets))
+
+	for _, target := range targets {
+		fullTargets = append(fullTargets, fmt.Sprintf("module.%s.module.bootkube.%s", m.ControllerModuleName, target))
+	}
+
+	return fullTargets
+}
+
+func (c *cluster) readKubernetesCAFromTerraformOutput() (string, error) {
+	valuesRaw := ""
+
+	if err := c.terraformExecutor.Output("kubernetes_values", &valuesRaw); err != nil {
+		return "", fmt.Errorf("getting %q release values from Terraform output: %w", "kubernetes", err)
+	}
+
+	values := &struct {
+		ControllerManager struct {
+			CACert string `json:"caCert"`
+		} `json:"controllerManager"`
+	}{}
+
+	if err := yaml.Unmarshal([]byte(valuesRaw), values); err != nil {
+		return "", fmt.Errorf("parsing kubeconfig values: %w", err)
+	}
+
+	caCert, err := base64.StdEncoding.DecodeString(values.ControllerManager.CACert)
+	if err != nil {
+		return "", fmt.Errorf("base64 decode: %w", err)
+	}
+
+	return string(caCert), nil
 }
