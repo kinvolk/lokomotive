@@ -159,7 +159,16 @@ func (c *Config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	return ex.Apply()
+	return ex.Apply(nil)
+}
+
+// ApplyWithoutParallel applies Terraform configuration without parallel executions.
+func (c *Config) ApplyWithoutParallel(ex *terraform.Executor) error {
+	if err := c.Initialize(ex); err != nil {
+		return fmt.Errorf("initializing Terraform configuration: %w", err)
+	}
+
+	return ex.Apply([]string{"-parallelism=1"})
 }
 
 // Destroy destroys Terraform managed resources.

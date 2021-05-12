@@ -187,7 +187,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	return createTerraformConfigFile(c, terraformRootDir)
 }
 
-func (c *config) Apply(ex *terraform.Executor) error {
+func (c *config) terraformInitialize(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
@@ -195,8 +195,21 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	c.AssetDir = assetDir
 
-	if err := c.Initialize(ex); err != nil {
+	return c.Initialize(ex)
+}
+
+func (c *config) Apply(ex *terraform.Executor) error {
+	if err := c.terraformInitialize(ex); err != nil {
 		return err
+	}
+
+	return c.terraformSmartApply(ex, c.DNS)
+}
+
+// ApplyWithoutParallel applies Terraform configuration without parallel execution.
+func (c *config) ApplyWithoutParallel(ex *terraform.Executor) error {
+	if err := c.terraformInitialize(ex); err != nil {
+		return fmt.Errorf("initializing Terraform configuration: %w", err)
 	}
 
 	return c.terraformSmartApply(ex, c.DNS)
@@ -345,7 +358,7 @@ func (c *config) resolveNodePrivateCIDRs() ([]string, hcl.Diagnostics) {
 func (c *config) terraformSmartApply(ex *terraform.Executor, dc dns.Config) error {
 	// If the provider isn't manual, apply everything in a single step.
 	if dc.Provider != dns.Manual {
-		return ex.Apply()
+		return ex.Apply(nil)
 	}
 
 	steps := []terraform.ExecutionStep{

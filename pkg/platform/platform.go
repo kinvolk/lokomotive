@@ -93,6 +93,7 @@ func ControlPlaneChart(name string) (*chart.Chart, error) {
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Apply(*terraform.Executor) error
+	ApplyWithoutParallel(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
 	Initialize(*terraform.Executor) error
 	Meta() Meta
