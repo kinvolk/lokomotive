@@ -57,6 +57,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -e",
       "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
       "sudo chown root:root /etc/kubernetes/kubeconfig",
       "sudo chmod 600 /etc/kubernetes/kubeconfig",
