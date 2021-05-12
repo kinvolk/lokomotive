@@ -46,6 +46,10 @@ resource "null_resource" "copy-controller-secrets" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -e",
+      "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
+      "sudo chown root:root /etc/kubernetes/kubeconfig",
+      "sudo chmod 600 /etc/kubernetes/kubeconfig",
       "sudo mkdir -p /etc/ssl/etcd/etcd",
       "sudo mv etcd-client* /etc/ssl/etcd/",
       "sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",
