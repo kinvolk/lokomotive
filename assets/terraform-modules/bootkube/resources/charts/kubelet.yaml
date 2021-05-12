@@ -3,3 +3,4 @@ clusterDNS: ${cluster_dns_service_ip}
 clusterDomain: ${cluster_domain_suffix}
 enableTLSBootstrap: ${enable_tls_bootstrap}
 cloudProvider: ${cloud_provider}
+kubernetesCACert: ${kubernetes_ca_cert}

@@ -3,3 +3,4 @@ clusterDNS: 10.0.0.10
 clusterDomain: cluster.local
 enableTLSBootstrap: true
 cloudProvider:
+kubernetesCACert: ""

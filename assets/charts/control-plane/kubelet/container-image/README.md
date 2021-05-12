@@ -2,6 +2,8 @@
 
 This image is built on top of the Typhoon Kubelet image. This image includes a wrapper script that runs `isciadm` in the host namespace. This ensures that all the `isciadm` libraries are loaded from the host.
 
+We also use `sed` and `bash` of the image to run the `ca-syncer` init container.
+
 ## Updating Image Tag
 
 In this directory run the following command to update the Kubernetes version:
