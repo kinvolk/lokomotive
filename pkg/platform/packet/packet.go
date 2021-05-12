@@ -160,6 +160,18 @@ func (c *config) Meta() platform.Meta {
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      nodes,
 		ControlplaneCharts: charts,
+		Deployments: append(platform.CommonDeployments(c.ControllerCount), []platform.Workload{
+			{
+				Name:      "calico-hostendpoint-controller",
+				Namespace: "kube-system",
+			},
+			{
+				Name:      "packet-cloud-controller-manager",
+				Namespace: "kube-system",
+			},
+		}...),
+		DaemonSets:           platform.CommonDaemonSets(c.ControllerCount, c.DisableSelfHostedKubelet),
+		ControllerModuleName: fmt.Sprintf("%s-%s", Name, c.ClusterName),
 	}
 }
 

@@ -126,9 +126,12 @@ func (c *config) Meta() platform.Meta {
 	}
 
 	return platform.Meta{
-		AssetDir:           c.AssetDir,
-		ExpectedNodes:      nodes,
-		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		AssetDir:             c.AssetDir,
+		ExpectedNodes:        nodes,
+		ControlplaneCharts:   platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		ControllerModuleName: fmt.Sprintf("%s-%s", Name, c.ClusterName),
+		Deployments:          platform.CommonDeployments(c.ControllerCount),
+		DaemonSets:           platform.CommonDaemonSets(c.ControllerCount, c.DisableSelfHostedKubelet),
 	}
 }
 
