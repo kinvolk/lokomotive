@@ -113,6 +113,29 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 	}, nil
 }
 
+// upgradeControlPlane unpacks the controlplane charts for a given platform
+// into user assets on disk.
+func (c *cluster) upgradeControlPlane(contextLogger *log.Entry, kubeconfig []byte) error {
+	cu := controlplaneUpdater{
+		kubeconfig:    kubeconfig,
+		assetDir:      c.assetDir,
+		contextLogger: *contextLogger,
+		ex:            c.terraformExecutor,
+	}
+
+	if err := c.unpackControlplaneCharts(); err != nil {
+		return fmt.Errorf("unpacking controlplane assets: %w", err)
+	}
+
+	for _, cpChart := range c.platform.Meta().ControlplaneCharts {
+		if err := cu.upgradeComponent(cpChart.Name, cpChart.Namespace); err != nil {
+			return fmt.Errorf("upgrading controlplane component %q: %w", cpChart.Name, err)
+		}
+	}
+
+	return nil
+}
+
 // unpackControlplaneCharts extracts controlplane Helm charts of given platform from binary
 // assets into user assets on disk.
 func (c *cluster) unpackControlplaneCharts() error {
