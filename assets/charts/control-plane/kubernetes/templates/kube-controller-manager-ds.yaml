@@ -23,6 +23,8 @@ spec:
         k8s-app: kube-controller-manager
       annotations:
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+        # Automatically rolls update when secret changes.
+        checksum/secret: {{ include (print $.Template.BasePath "/kube-controller-manager-secret.yaml") . | sha256sum }}
     spec:
 {{- template "controller-manager-containers" . }}
 {{- end }}
