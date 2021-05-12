@@ -47,6 +47,8 @@ const (
 	Timeout = time.Minute * 5
 	// TimeoutSlow is time after which tests stops and fails.
 	TimeoutSlow = time.Minute * 9
+
+	lokocfgLocationEnvVar = "LOKOCFG_LOCATION"
 )
 
 func KubeconfigPath(t *testing.T) string {
@@ -57,6 +59,19 @@ func KubeconfigPath(t *testing.T) string {
 	}
 
 	return kubeconfig
+}
+
+// LokocfgPath gives the LOKOCFG_LOCATION value.
+func LokocfgPath(t *testing.T) string {
+	t.Helper()
+
+	lokocfg := os.ExpandEnv(os.Getenv(lokocfgLocationEnvVar))
+
+	if lokocfg == "" {
+		t.Fatalf("env var %q was not set", lokocfgLocationEnvVar)
+	}
+
+	return lokocfg
 }
 
 // Kubeconfig returns content of kubeconfig file defined with KUBECONFIG
