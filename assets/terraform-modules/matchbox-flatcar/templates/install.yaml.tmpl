@@ -36,6 +36,17 @@ storage:
           # unmount any leftovers at the beginning before we modify the disk the mount uses
           umount /tmp/oemfs || true
           lvchange -an /dev/mapper/* || true
+          disks="$(lsblk -lnpdb -x SIZE -o NAME \
+            | (
+            while IFS= read -r drive; do
+              mountpoints=$(lsblk -ln -o MOUNTPOINT "$drive")
+              if [[ -z "$mountpoints" ]]; then
+                echo "$drive"
+              fi
+            done))"
+          for disk in $${disks}; do
+            wipefs -f -a "$${disk}" || echo "error: failed to wipe $${disk}"
+          done
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
             -s \
