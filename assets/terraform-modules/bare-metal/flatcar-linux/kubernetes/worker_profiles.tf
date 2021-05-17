@@ -15,4 +15,5 @@ module "worker_profile" {
   ssh_keys                 = var.ssh_keys
   ignition_clc_config      = module.worker[count.index].clc_config
   cached_install           = var.cached_install
+  wipe_additional_disks    = var.wipe_additional_disks
 }

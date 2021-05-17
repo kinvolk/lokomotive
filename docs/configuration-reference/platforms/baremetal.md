@@ -130,6 +130,8 @@ cluster "bare-metal" {
   kernel_args = var.kernel_args
 
   network_ip_auto_detection = "can-reach=172.18.169.0"
+
+  wipe_additional_disks = true
 }
 ```
 
@@ -200,6 +202,7 @@ os_version = var.custom_default_os_version
 | `oidc.username_claim`             | JWT claim to use as the user name.                                                                                                                                                                                                                                                                                                                                                        | "email"                | string            | false    |
 | `oidc.groups_claim`               | JWT claim to use as the user’s group.                                                                                                                                                                                                                                                                                                                                                     | "groups"               | string            | false    |
 | `conntrack_max_per_core`          | Maximum number of entries in conntrack table per CPU on all nodes in the cluster. If you require more fain-grained control over this value, set it to 0 and add CLC snippet setting `net.netfilter.nf_conntrack_max` sysctl setting per node pool. See [Flatcar documentation about sysctl](https://docs.flatcar-linux.org/os/other-settings/#tuning-sysctl-parameters) for more details. | 32768                  | number            | false    |
+| `wipe_additional_disks`          | Wipes any additional disks attached to the machine.                                                                                                                                                                                                                                                                                                                                        | false                  | bool              | false    |
 
 ## Applying
 

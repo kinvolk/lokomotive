@@ -215,3 +215,9 @@ variable "node_specific_labels" {
   description = "Map of node specific labels map."
   default     = {}
 }
+
+variable "wipe_additional_disks" {
+  type        = bool
+  description = "Wipes any additional disks attached, if set to true"
+  default     = false
+}

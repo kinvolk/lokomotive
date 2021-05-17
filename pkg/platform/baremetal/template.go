@@ -110,6 +110,8 @@ module "bare-metal-{{.ClusterName}}" {
 
   download_protocol = "{{ .DownloadProtocol }}"
 
+  wipe_additional_disks = "{{ .WipeAdditionalDisks }}"
+
   network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"
 
   {{- if .CLCSnippets}}
