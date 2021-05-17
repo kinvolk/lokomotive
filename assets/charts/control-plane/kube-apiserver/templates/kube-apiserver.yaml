@@ -1,4 +1,3 @@
-{{- if eq (int .Values.apiserver.replicas) 1 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +7,7 @@ metadata:
     tier: control-plane
     k8s-app: kube-apiserver
 spec:
-  replicas: 1
+  replicas: {{ .Values.apiserver.replicas }}
   selector:
     matchLabels:
       tier: control-plane
@@ -22,9 +21,26 @@ spec:
       labels:
         tier: control-plane
         k8s-app: kube-apiserver
+        helm-revision: {{ .Release.Revision | quote }}
       annotations:
         checkpointer.alpha.coreos.com/checkpoint: "true"
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
+      {{- if ne (int .Values.apiserver.replicas) 1 }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: k8s-app
+                    operator: In
+                    values:
+                      - kube-apiserver
+                  - key: helm-revision
+                    operator: In
+                    values:
+                      - {{ .Release.Revision | quote }}
+              topologyKey: kubernetes.io/hostname
+        {{- end }}
 {{- template "containers" . }}
-{{- end }}
+
