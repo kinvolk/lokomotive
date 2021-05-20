@@ -1,5 +1,5 @@
 ---
-title: MetalLB configuration reference for LokomotiveLokomotive
+title: MetalLB configuration reference for Lokomotive
 weight: 10
 ---
 
