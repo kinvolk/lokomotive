@@ -62,6 +62,7 @@ type config struct {
 	DownloadProtocol             string              `hcl:"download_protocol,optional"`
 	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
 	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
+	CertsValidityPeriodHours     int                 `hcl:"certs_validity_period_hours,optional"`
 	KubeAPIServerExtraFlags      []string
 }
 
@@ -85,9 +86,12 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 // Meta is part of Platform interface and returns common information about the platform configuration.
 func (c *config) Meta() platform.Meta {
 	return platform.Meta{
-		AssetDir:           c.AssetDir,
-		ExpectedNodes:      len(c.ControllerMacs) + len(c.WorkerMacs),
-		ControlplaneCharts: platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		AssetDir:             c.AssetDir,
+		ExpectedNodes:        len(c.ControllerMacs) + len(c.WorkerMacs),
+		ControlplaneCharts:   platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		Deployments:          platform.CommonDeployments(len(c.ControllerMacs)),
+		DaemonSets:           platform.CommonDaemonSets(len(c.ControllerMacs), c.DisableSelfHostedKubelet),
+		ControllerModuleName: fmt.Sprintf("%s-%s", Name, c.ClusterName),
 	}
 }
 
@@ -108,7 +112,16 @@ func (c *config) Apply(ex *terraform.Executor) error {
 		return err
 	}
 
-	return ex.Apply()
+	return ex.Apply(nil)
+}
+
+// ApplyWithoutParallel applies Terraform configuration without parallel execution.
+func (c *config) ApplyWithoutParallel(ex *terraform.Executor) error {
+	if err := c.Initialize(ex); err != nil {
+		return fmt.Errorf("initializing Terraform configuration: %w", err)
+	}
+
+	return ex.Apply([]string{"parallelism=1"})
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -223,6 +236,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Labels                       map[string]string
 		EncryptPodTraffic            bool
 		IgnoreX509CNCheck            bool
+		CertsValidityPeriodHours     int
 		ConntrackMaxPerCore          int
 		InstallDisk                  string
 		InstallToSmallestDisk        bool
@@ -254,6 +268,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		Labels:                       cfg.Labels,
 		EncryptPodTraffic:            cfg.EncryptPodTraffic,
 		IgnoreX509CNCheck:            cfg.IgnoreX509CNCheck,
+		CertsValidityPeriodHours:     cfg.CertsValidityPeriodHours,
 		ConntrackMaxPerCore:          cfg.ConntrackMaxPerCore,
 		InstallDisk:                  cfg.InstallDisk,
 		InstallToSmallestDisk:        cfg.InstallToSmallestDisk,

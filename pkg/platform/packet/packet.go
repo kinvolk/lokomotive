@@ -160,6 +160,18 @@ func (c *config) Meta() platform.Meta {
 		AssetDir:           c.AssetDir,
 		ExpectedNodes:      nodes,
 		ControlplaneCharts: charts,
+		Deployments: append(platform.CommonDeployments(c.ControllerCount), []platform.Workload{
+			{
+				Name:      "calico-hostendpoint-controller",
+				Namespace: "kube-system",
+			},
+			{
+				Name:      "packet-cloud-controller-manager",
+				Namespace: "kube-system",
+			},
+		}...),
+		DaemonSets:           platform.CommonDaemonSets(c.ControllerCount, c.DisableSelfHostedKubelet),
+		ControllerModuleName: fmt.Sprintf("%s-%s", Name, c.ClusterName),
 	}
 }
 
@@ -187,7 +199,7 @@ func (c *config) Initialize(ex *terraform.Executor) error {
 	return createTerraformConfigFile(c, terraformRootDir)
 }
 
-func (c *config) Apply(ex *terraform.Executor) error {
+func (c *config) terraformInitialize(ex *terraform.Executor) error {
 	assetDir, err := homedir.Expand(c.AssetDir)
 	if err != nil {
 		return err
@@ -195,11 +207,24 @@ func (c *config) Apply(ex *terraform.Executor) error {
 
 	c.AssetDir = assetDir
 
-	if err := c.Initialize(ex); err != nil {
+	return c.Initialize(ex)
+}
+
+func (c *config) Apply(ex *terraform.Executor) error {
+	if err := c.terraformInitialize(ex); err != nil {
 		return err
 	}
 
-	return c.terraformSmartApply(ex, c.DNS)
+	return c.terraformSmartApply(ex, c.DNS, nil)
+}
+
+// ApplyWithoutParallel applies Terraform configuration without parallel execution.
+func (c *config) ApplyWithoutParallel(ex *terraform.Executor) error {
+	if err := c.terraformInitialize(ex); err != nil {
+		return fmt.Errorf("initializing Terraform configuration: %w", err)
+	}
+
+	return c.terraformSmartApply(ex, c.DNS, []string{"-parallelism=1"})
 }
 
 func (c *config) Destroy(ex *terraform.Executor) error {
@@ -342,25 +367,25 @@ func (c *config) resolveNodePrivateCIDRs() ([]string, hcl.Diagnostics) {
 }
 
 // terraformSmartApply applies cluster configuration.
-func (c *config) terraformSmartApply(ex *terraform.Executor, dc dns.Config) error {
+func (c *config) terraformSmartApply(ex *terraform.Executor, dc dns.Config, extraArgs []string) error {
 	// If the provider isn't manual, apply everything in a single step.
 	if dc.Provider != dns.Manual {
-		return ex.Apply()
+		return ex.Apply(extraArgs)
 	}
 
 	steps := []terraform.ExecutionStep{
 		// We need the controllers' IP addresses before we can apply the 'dns' module.
 		{
 			Description: "create controllers",
-			Args: []string{
+			Args: append([]string{
 				"apply",
 				"-auto-approve",
 				fmt.Sprintf("-target=module.packet-%s.packet_device.controllers", c.ClusterName),
-			},
+			}, extraArgs...),
 		},
 		{
 			Description: "construct DNS records",
-			Args:        []string{"apply", "-auto-approve", "-target=module.dns"},
+			Args:        append([]string{"apply", "-auto-approve", "-target=module.dns"}, extraArgs...),
 		},
 		// Run `terraform refresh`. This is required in order to make the outputs from the previous
 		// apply operations available.
@@ -371,7 +396,7 @@ func (c *config) terraformSmartApply(ex *terraform.Executor, dc dns.Config) erro
 		},
 		{
 			Description:      "complete infrastructure creation",
-			Args:             []string{"apply", "-auto-approve"},
+			Args:             append([]string{"apply", "-auto-approve"}, extraArgs...),
 			PreExecutionHook: c.DNS.ManualConfigPrompt(),
 		},
 	}

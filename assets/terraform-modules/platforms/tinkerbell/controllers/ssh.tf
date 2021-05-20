@@ -51,6 +51,13 @@ resource "null_resource" "copy-controller-secrets" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -e",
+      "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
+      "sudo chown root:root /etc/kubernetes/kubeconfig",
+      "sudo chmod 600 /etc/kubernetes/kubeconfig",
+      # Using "etcd/." copies the etcd/ folder recursively in an idempotent
+      # way. See https://unix.stackexchange.com/a/228637 for details.
+      "[ -d /etc/ssl/etcd ] && sudo cp -R /etc/ssl/etcd/. /etc/ssl/etcd.old && sudo rm -rf /etc/ssl/etcd",
       "sudo mkdir -p /etc/ssl/etcd/etcd",
       "sudo mv etcd-client* /etc/ssl/etcd/",
       "sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",
@@ -61,8 +68,14 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo mv etcd-peer.key /etc/ssl/etcd/etcd/peer.key",
       "sudo chown -R etcd:etcd /etc/ssl/etcd",
       "sudo chmod -R 500 /etc/ssl/etcd",
-      "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
+      "sudo systemctl restart etcd",
     ]
+  }
+
+  triggers = {
+    etcd_ca_cert     = module.bootkube.etcd_ca_cert
+    etcd_server_cert = module.bootkube.etcd_server_cert
+    etcd_peer_cert   = module.bootkube.etcd_peer_cert
   }
 }
 

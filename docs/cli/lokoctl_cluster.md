@@ -22,5 +22,6 @@ Manage a cluster
 
 * [lokoctl](lokoctl.md)	 - Manage Lokomotive clusters
 * [lokoctl cluster apply](lokoctl_cluster_apply.md)	 - Deploy or update a cluster
+* [lokoctl cluster certificate](lokoctl_cluster_certificate.md)	 - Manage cluster certificates
 * [lokoctl cluster destroy](lokoctl_cluster_destroy.md)	 - Destroy a cluster
 

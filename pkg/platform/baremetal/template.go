@@ -68,6 +68,10 @@ module "bare-metal-{{.ClusterName}}" {
   ignore_x509_cn_check   = {{.IgnoreX509CNCheck}}
   conntrack_max_per_core = {{.ConntrackMaxPerCore}}
 
+  {{- if .CertsValidityPeriodHours }}
+  certs_validity_period_hours = {{.CertsValidityPeriodHours}}
+  {{- end }}
+
   {{- if .InstallDisk }}
   install_disk = "{{ .InstallDisk }}"
   {{- end }}

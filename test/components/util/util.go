@@ -47,6 +47,8 @@ const (
 	Timeout = time.Minute * 5
 	// TimeoutSlow is time after which tests stops and fails.
 	TimeoutSlow = time.Minute * 9
+
+	lokocfgLocationEnvVar = "LOKOCFG_LOCATION"
 )
 
 func KubeconfigPath(t *testing.T) string {
@@ -57,6 +59,19 @@ func KubeconfigPath(t *testing.T) string {
 	}
 
 	return kubeconfig
+}
+
+// LokocfgPath gives the LOKOCFG_LOCATION value.
+func LokocfgPath(t *testing.T) string {
+	t.Helper()
+
+	lokocfg := os.ExpandEnv(os.Getenv(lokocfgLocationEnvVar))
+
+	if lokocfg == "" {
+		t.Fatalf("env var %q was not set", lokocfgLocationEnvVar)
+	}
+
+	return lokocfg
 }
 
 // Kubeconfig returns content of kubeconfig file defined with KUBECONFIG
@@ -72,10 +87,10 @@ func Kubeconfig(t *testing.T) []byte {
 	return k
 }
 
-// buildKubeConfig reads the environment variable KUBECONFIG and then builds the rest client config
+// BuildKubeConfig reads the environment variable KUBECONFIG and then builds the rest client config
 // object which can be either used to create kube client to talk to apiserver or to just read the
 // kubeconfig data.
-func buildKubeConfig(t *testing.T) *restclient.Config {
+func BuildKubeConfig(t *testing.T) *restclient.Config {
 	kubeconfig := KubeconfigPath(t)
 
 	t.Logf("using KUBECONFIG=%s", kubeconfig)
@@ -90,7 +105,7 @@ func buildKubeConfig(t *testing.T) *restclient.Config {
 
 // CreateKubeClient returns a kubernetes client reading the KUBECONFIG environment variable.
 func CreateKubeClient(t *testing.T) *kubernetes.Clientset {
-	cs, err := kubernetes.NewForConfig(buildKubeConfig(t))
+	cs, err := kubernetes.NewForConfig(BuildKubeConfig(t))
 	if err != nil {
 		t.Fatalf("failed creating new clientset: %v", err)
 	}
@@ -377,7 +392,7 @@ func (p *PortForwardInfo) CloseChan() {
 // p.WaitUntilForwardingAvailable(t)
 //
 func (p *PortForwardInfo) PortForward(t *testing.T) {
-	config := buildKubeConfig(t)
+	config := BuildKubeConfig(t)
 
 	roundTripper, upgrader, err := spdy.RoundTripperFor(config)
 	if err != nil {

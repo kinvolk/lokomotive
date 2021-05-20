@@ -93,6 +93,7 @@ func ControlPlaneChart(name string) (*chart.Chart, error) {
 type Platform interface {
 	LoadConfig(*hcl.Body, *hcl.EvalContext) hcl.Diagnostics
 	Apply(*terraform.Executor) error
+	ApplyWithoutParallel(*terraform.Executor) error
 	Destroy(*terraform.Executor) error
 	Initialize(*terraform.Executor) error
 	Meta() Meta
@@ -110,12 +111,113 @@ type WorkerPool interface {
 	Name() string
 }
 
+// Workload is a generic struct which can be used to construct a reference to
+// Deployment, DaemonSet, StatefulSet etc. objects.
+type Workload struct {
+	Name      string
+	Namespace string
+}
+
+// CommonDeployments returns common Deployments for all self-hosted Lokomotive platforms.
+//
+// Number of Deployments depends on number of controller nodes in the cluster.
+func CommonDeployments(controllersCount int) []Workload {
+	base := []Workload{
+		{
+			Name:      "calico-kube-controllers",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "admission-webhook-server",
+			Namespace: "lokomotive-system",
+		},
+	}
+
+	// If more than one controller we use DaemonSets instead.
+	if controllersCount > 1 {
+		return base
+	}
+
+	return append(base, []Workload{
+		{
+			Name:      "kube-apiserver",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "coredns",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-controller-manager",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-scheduler",
+			Namespace: "kube-system",
+		},
+	}...)
+}
+
+// CommonDaemonSets returns common DaemonSets for all Lokomotive platforms.
+//
+// Number of DaemonSets depends on number of controller nodes in the cluster and if self-hosted
+// kubelet is enabled.
+func CommonDaemonSets(controllersCount int, selfHostedKubeletDisabled bool) []Workload {
+	base := []Workload{
+		{
+			Name:      "calico-node",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "pod-checkpointer",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-proxy",
+			Namespace: "kube-system",
+		},
+	}
+
+	if !selfHostedKubeletDisabled {
+		base = append(base, Workload{
+			Name:      "kubelet",
+			Namespace: "kube-system",
+		})
+	}
+
+	if controllersCount == 1 {
+		return base
+	}
+
+	return append(base, []Workload{
+		{
+			Name:      "kube-apiserver",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "coredns",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-controller-manager",
+			Namespace: "kube-system",
+		},
+		{
+			Name:      "kube-scheduler",
+			Namespace: "kube-system",
+		},
+	}...)
+}
+
 // Meta is a generic information format about the platform.
 type Meta struct {
-	AssetDir           string
-	ExpectedNodes      int
-	Managed            bool
-	ControlplaneCharts []helm.LokomotiveChart
+	AssetDir             string
+	ExpectedNodes        int
+	Managed              bool
+	ControlplaneCharts   []helm.LokomotiveChart
+	ControllerModuleName string
+	DaemonSets           []Workload
+	Deployments          []Workload
 }
 
 // AppendVersionTag appends the lokoctl-version tag to a given tags map.

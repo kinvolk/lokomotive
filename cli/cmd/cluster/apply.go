@@ -129,21 +129,8 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 	if exists && !c.platform.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
-		cu := controlplaneUpdater{
-			kubeconfig:    kubeconfig,
-			assetDir:      c.assetDir,
-			contextLogger: *contextLogger,
-			ex:            c.terraformExecutor,
-		}
-
-		if err := c.unpackControlplaneCharts(); err != nil {
-			return fmt.Errorf("unpacking controlplane assets: %w", err)
-		}
-
-		for _, c := range charts {
-			if err := cu.upgradeComponent(c.Name, c.Namespace); err != nil {
-				return fmt.Errorf("upgrading controlplane component %q: %w", c.Name, err)
-			}
+		if err := c.upgradeControlPlane(contextLogger, kubeconfig); err != nil {
+			return fmt.Errorf("running controlplane upgrade: %v", err)
 		}
 	}
 

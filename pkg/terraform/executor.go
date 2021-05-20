@@ -163,10 +163,10 @@ func (ex *Executor) Init() error {
 }
 
 // Apply is a wrapper function that runs `terraform apply -auto-approve`.
-func (ex *Executor) Apply() error {
+func (ex *Executor) Apply(extraArgs []string) error {
 	return ex.Execute(ExecutionStep{
 		Description: "create infrastructure",
-		Args:        []string{"apply", "-auto-approve"},
+		Args:        append([]string{"apply", "-auto-approve"}, extraArgs...),
 	})
 }
 

@@ -53,7 +53,7 @@ func executor(t *testing.T) *terraform.Executor {
 func TestExecuteCheckErrors(t *testing.T) {
 	ex := executor(t)
 
-	if err := ex.Apply(); err == nil {
+	if err := ex.Apply(nil); err == nil {
 		t.Fatalf("Applying on empty directory should fail")
 	}
 }

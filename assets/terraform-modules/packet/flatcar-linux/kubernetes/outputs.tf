@@ -35,8 +35,16 @@ output "calico_values" {
   value = module.bootkube.calico_values
 }
 
+output "calico-host-protection_values" {
+  value = local_file.calico_host_protection.content
+}
+
 output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
+}
+
+output "packet-ccm_values" {
+  value = local_file.packet-ccm.content
 }
 
 output "bootstrap-secrets_values" {
