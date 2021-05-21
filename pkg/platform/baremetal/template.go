@@ -49,6 +49,14 @@ module "bare-metal-{{.ClusterName}}" {
   network_mtu = {{ .NetworkMTU }}
   {{- end }}
 
+  {{- if .PodCIDR }}
+  pod_cidr = "{{.PodCIDR}}"
+  {{- end }}
+
+  {{- if .ServiceCIDR }}
+  service_cidr = "{{.ServiceCIDR}}"
+  {{- end }}
+
   {{- if .KubeAPIServerExtraFlags }}
   kube_apiserver_extra_flags = [
     {{- range .KubeAPIServerExtraFlags }}
