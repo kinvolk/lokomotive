@@ -19,6 +19,7 @@ import (
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	awsebscsidriver "github.com/kinvolk/lokomotive/pkg/components/aws-ebs-csi-driver"
+	azurearconboarding "github.com/kinvolk/lokomotive/pkg/components/azure-arc-onboarding"
 	certmanager "github.com/kinvolk/lokomotive/pkg/components/cert-manager"
 	clusterautoscaler "github.com/kinvolk/lokomotive/pkg/components/cluster-autoscaler"
 	"github.com/kinvolk/lokomotive/pkg/components/contour"
@@ -66,6 +67,7 @@ func componentsConfigs() map[string]components.Component {
 		velero.Name:                     velero.NewConfig(),
 		webui.Name:                      webui.NewConfig(),
 		nodeproblemdetector.Name:        nodeproblemdetector.NewConfig(),
+		azurearconboarding.Name:         azurearconboarding.NewConfig(),
 	}
 }
 
