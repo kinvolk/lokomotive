@@ -1,3 +1,130 @@
+## v0.8.0 - 2021-05-26
+
+We're happy to announce the release of Lokomotive v0.8.0 (Hogwarts Express).
+
+### Changes in v0.8.0
+
+#### Kubernetes updates
+
+- Update AKS to `1.18.17` ([#1466](https://github.com/kinvolk/lokomotive/pull/1466)).
+
+#### Component updates
+
+- Update `prometheus-operator` to `0.46.0` ([#1440](https://github.com/kinvolk/lokomotive/pull/1440)).
+- Update `contour` to `v1.13.1` ([#1450](https://github.com/kinvolk/lokomotive/pull/1450)).
+- Update `calico` to `v3.18.1` ([#1453](https://github.com/kinvolk/lokomotive/pull/1453)).
+
+#### Terraform provider updates
+
+- Update Terraform providers to their latest versions ([#1451](https://github.com/kinvolk/lokomotive/pull/1451)).
+
+#### Features
+
+- Add a certificate rotation command: `lokoctl cluster certificate rotate` ([#1435](https://github.com/kinvolk/lokomotive/pull/1435)).
+- Add `reclaim_policy` field to components `rook-ceph`, `openebs-storage-class` and `aws-ebs-csi-driver`. Change the default behaviour of the default storage class to `Retain` from `Delete`. ([#1369](https://github.com/kinvolk/lokomotive/pull/1369)).
+
+#### Deprecation and Removal
+
+- Remove the `webhook` field from the `cert-manager` component ([#1413](https://github.com/kinvolk/lokomotive/pull/1413)).
+
+### Updating from v0.7.0
+
+#### Configuration syntax changes
+
+##### Reclaim Policy
+
+This is an optional step and only applies if you use any of these storage components: `rook-ceph`, `openebs-storage-class` or `aws-ebs-csi-driver`.
+
+If you are relying on the default values for the PersistentVolumes to have a reclaim policy as `Delete`, then please add the following field explicitly now:
+
+```tf
+reclaim_policy = "Delete"
+```
+
+#### Cluster update steps
+
+> **NOTE:** Updating multiple Lokomotive versions at a time is not supported. If your cluster is running a version older than `v0.7.0`, update to `v0.7.0` first and only then proceed with the update to `v0.8.0`.
+
+Execute the following steps in your cluster configuration directory:
+
+1. Download and install the lokoctl binary by following the
+  [v0.8.0 installation guide](https://github.com/kinvolk/lokomotive/blob/v0.8.0/docs/installer/lokoctl.md)
+  and verify the version using `lokoctl version`:
+
+  ```bash
+  v0.8.0
+  ```
+
+2. Download the release bundle:
+
+  ```bash
+  curl -LO https://github.com/kinvolk/lokomotive/archive/v0.8.0.tar.gz
+  tar -xvzf v0.8.0.tar.gz
+  ```
+
+3. On all platforms **except AKS**, update Calico CRDs:
+
+  ```bash
+  kubectl apply -f ./lokomotive-0.8.0/assets/charts/control-plane/calico/crds/
+  ```
+
+4. Update the control-plane:
+
+  ```bash
+  lokoctl cluster apply -v
+  ```
+
+  > **NOTE:** If the update process gets interrupted, rerun the above command.
+
+  > **NOTE:** If your cluster is running self-hosted kubelets, append `--upgrade-kubelets` to the above command.
+
+  > **NOTE:** The command updates the cluster as well as any Lokomotive components
+  > applied to it. Append `--skip-components` to the above command to avoid updating
+  > the components. Components can then be updated individually using `lokoctl component apply`.
+
+  The update process typically takes about 10 minutes.
+  After the update, running `lokoctl health` should result in an output similar to the following:
+
+  ```bash
+  Node                     Ready    Reason          Message
+
+  lokomotive-controller-0  True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-0    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-1    True     KubeletReady    kubelet is posting ready status
+  lokomotive-1-worker-2    True     KubeletReady    kubelet is posting ready status
+  Name      Status    Message              Error
+
+  etcd-0    True      {"health":"true"}
+  ```
+
+#### Updating Contour
+
+Manually update the CRDs before updating the component `contour`:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/projectcontour/contour/release-1.13/examples/contour/01-crds.yaml
+```
+
+Update the component:
+
+```bash
+lokoctl component apply contour
+```
+
+#### Updating Prometheus Operator
+
+Manually update the CRDs before updating the component `prometheus-operator`:
+
+```bash
+kubectl apply -f ./lokomotive-0.8.0/assets/charts/components/prometheus-operator/crds/
+```
+
+Update the component:
+
+```bash
+lokoctl component apply prometheus-operator
+```
+
 ## v0.7.0 - 2021-03-15
 
 We're happy to announce the release of Lokomotive v0.7.0 (Ghan).
