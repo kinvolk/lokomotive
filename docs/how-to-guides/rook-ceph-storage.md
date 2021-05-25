@@ -35,8 +35,12 @@ cluster "packet" {
     count = 3
     node_type = "c2.medium.x86"
 
-    labels = "storage.lokomotive.io=ceph"
-    taints = "storage.lokomotive.io=ceph:NoSchedule"
+    labels = {
+      "storage.lokomotive.io" = "ceph"
+    }
+    taints = {
+      "storage.lokomotive.io" = "ceph:NoSchedule"
+    }
   }
 }
 ```
