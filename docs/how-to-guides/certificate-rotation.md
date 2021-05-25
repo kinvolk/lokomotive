@@ -43,6 +43,18 @@ The date in the `notAfter` line is the expiration date of the cluster CA certifi
 
 ## Step 2: Rotate certificates
 
+Lokoctl transfers the newly generated certificates to the controller nodes over SSH. Run the
+following command to load one of the SSH keys specified in the cluster configuration (in this case
+`~/.ssh/id_rsa`):
+
+```bash
+eval "$(ssh-agent)"
+ssh-add ~/.ssh/id_rsa
+```
+
+> **NOTE**: For an Equinix Metal based cluster, the public IP address of the client machine — the
+> machine where you will run lokoctl from — should be in the `management_cidrs`.
+
 Run the lokoctl certificate rotation command:
 
 ```
