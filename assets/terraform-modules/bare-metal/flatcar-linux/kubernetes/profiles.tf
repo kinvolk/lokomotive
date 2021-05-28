@@ -87,8 +87,11 @@ resource "matchbox_profile" "controllers" {
 data "ct_config" "controller-ignitions" {
   count = length(var.controller_names)
   content = templatefile("${path.module}/cl/controller.yaml.tmpl", {
-    domain_name = var.controller_domains[count.index]
-    etcd_name   = var.controller_names[count.index]
+    os_arch                = var.os_arch
+    domain_name            = var.controller_domains[count.index]
+    etcd_name              = var.controller_names[count.index]
+    etcd_arch_tag_suffix   = var.os_arch == "arm64" ? "-arm64" : ""
+    etcd_arch_options      = var.os_arch == "arm64" ? "ETCD_UNSUPPORTED_ARCH=arm64" : ""
     etcd_initial_cluster = join(
       ",",
       formatlist(
@@ -120,6 +123,7 @@ resource "matchbox_profile" "workers" {
 data "ct_config" "worker-ignitions" {
   count = length(var.worker_names)
   content = templatefile("${path.module}/cl/worker.yaml.tmpl", {
+    os_arch                = var.os_arch
     domain_name            = var.worker_domains[count.index]
     cluster_dns_service_ip = module.bootkube.cluster_dns_service_ip
     cluster_domain_suffix  = var.cluster_domain_suffix
