@@ -24,10 +24,11 @@ type certificateRotator struct {
 
 // CertificateRotateOptions contains the options for the RotateCertificates function.
 type CertificateRotateOptions struct {
-	Confirm    bool
-	Verbose    bool
-	ConfigPath string
-	ValuesPath string
+	Confirm              bool
+	Verbose              bool
+	ConfigPath           string
+	ValuesPath           string
+	SkipCertificateTaint bool
 }
 
 // RotateCertificates replaces all certificates in a cluster.
@@ -49,15 +50,17 @@ func RotateCertificates(contextLogger *log.Entry, options CertificateRotateOptio
 		return fmt.Errorf("cannot rotate cluster certificates: %w", err)
 	}
 
-	// Tainting certificates so they get rotated.
-	if err := c.taintCertificates(); err != nil {
-		return fmt.Errorf("tainting certificate resources: %w", err)
-	}
+	if !options.SkipCertificateTaint {
+		// Tainting certificates so they get rotated.
+		if err := c.taintCertificates(); err != nil {
+			return fmt.Errorf("tainting certificate resources: %w", err)
+		}
 
-	// Apply the Terraform changes to replace tainted resources.
-	// We run without parallel to make sure only one etcd can break before receiving an error.
-	if err := c.platform.ApplyWithoutParallel(&c.terraformExecutor); err != nil {
-		return fmt.Errorf("applying platform: %w", err)
+		// Apply the Terraform changes to replace tainted resources.
+		// We run without parallel to make sure only one etcd can break before receiving an error.
+		if err := c.platform.ApplyWithoutParallel(&c.terraformExecutor); err != nil {
+			return fmt.Errorf("applying platform: %w", err)
+		}
 	}
 
 	return rotateControlPlaneCerts(contextLogger, cc)

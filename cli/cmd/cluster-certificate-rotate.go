@@ -31,11 +31,16 @@ This can be used to renew all certificates with a longer validity.`,
 	Run: runClusterCertificateRotate,
 }
 
+var (
+	skipCertificateTaint bool
+)
+
 func init() { //nolint:gochecknoinits
 	clusterCertificateCmd.AddCommand(clusterCertificateRotateCmd)
 
 	pf := clusterCertificateRotateCmd.PersistentFlags()
 	pf.BoolVarP(&verbose, "verbose", "v", false, "Show output from Terraform")
+	pf.BoolVarP(&skipCertificateTaint, "skip-certificate-taint", "", false, "Skip tainting certificates if already done")
 }
 
 func runClusterCertificateRotate(cmd *cobra.Command, args []string) {
@@ -45,10 +50,11 @@ func runClusterCertificateRotate(cmd *cobra.Command, args []string) {
 	})
 
 	options := cluster.CertificateRotateOptions{
-		Confirm:    confirm,
-		Verbose:    verbose,
-		ConfigPath: viper.GetString("lokocfg"),
-		ValuesPath: viper.GetString("lokocfg-vars"),
+		Confirm:              confirm,
+		Verbose:              verbose,
+		ConfigPath:           viper.GetString("lokocfg"),
+		ValuesPath:           viper.GetString("lokocfg-vars"),
+		SkipCertificateTaint: skipCertificateTaint,
 	}
 
 	if err := cluster.RotateCertificates(contextLogger, options); err != nil {
