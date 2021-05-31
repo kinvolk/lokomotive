@@ -96,3 +96,30 @@ func (n *NodeSelector) Render() (string, error) {
 
 	return string(b), nil
 }
+
+// ResourceRequirements allows user to specify resource requests and/or limits.
+type ResourceRequirements struct {
+	Requests *ResourceList `hcl:"requests,block" json:"requests,omitempty"`
+	Limits   *ResourceList `hcl:"limits,block" json:"limits,omitempty"`
+}
+
+// ResourceList allows user to specify CPU and memory.
+type ResourceList struct {
+	CPU    string `hcl:"cpu,optional" json:"cpu,omitempty"`
+	Memory string `hcl:"memory,optional" json:"memory,omitempty"`
+}
+
+// RenderResourceRequirements takes a list of ResourceRequirements.
+// It returns a json string and an error if any.
+func RenderResourceRequirements(r *ResourceRequirements) (string, error) {
+	if r == nil {
+		return "", nil
+	}
+
+	b, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}

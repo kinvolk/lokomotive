@@ -75,7 +75,16 @@ spec:
       tolerations: {{ .TolerationsRaw }}
       {{- end }}
   annotations:
+  {{- if .Resources }}
   resources:
+    mon: {{ .Resources.MONRaw }}
+    mgr: {{ .Resources.MGRRaw }}
+    osd: {{ .Resources.OSDRaw }}
+    mds: {{ .Resources.MDSRaw }}
+    prepareosd: {{ .Resources.PrepareOSDRaw }}
+    crashcollector: {{ .Resources.CrashCollectorRaw }}
+    mgr-sidecar: {{ .Resources.MGRSidecarRaw }}
+  {{- end }}
   removeOSDsIfOutAndSafeToRemove: false
   storage: # cluster level storage configuration and selection
     useAllNodes: true
