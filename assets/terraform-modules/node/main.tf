@@ -12,11 +12,8 @@ data "ct_config" "config" {
     kubelet_labels            = var.kubelet_labels
     kubelet_taints            = var.kubelet_taints
     kubelet_docker_extra_args = var.kubelet_docker_extra_args
-    host_dns_ip               = var.host_dns_ip
+    hostname                  = ""
   })
 
-  snippets = concat(var.clc_snippets, [
-    # Allow to pass unique snippets per controller node. For example, to set the hostname.
-    var.clc_snippet_index != "" ? format(var.clc_snippet_index, count.index) : "",
-  ])
+  snippets = var.clc_snippets
 }
