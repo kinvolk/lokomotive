@@ -82,6 +82,10 @@ cluster "bare-metal" {
 
   network_mtu = 1500
 
+  pod_cidr = "10.2.0.0/16"
+
+  service_cidr = "10.3.0.0/16"
+
   controller_domains = var.controller_domains
 
   controller_macs = var.controller_macs
@@ -160,6 +164,8 @@ os_version = var.custom_default_os_version
 | `matchbox_endpoint`               | Matchbox API endpoint.                                                                                                                                                                                                                                                                                                                                                                    | -                      | string       | true     |
 | `matchbox_http_endpoint`          | Matchbox HTTP read-only endpoint. Example: "http://matchbox.example.com:8080"                                                                                                                                                                                                                                                                                                             | -                      | string       | true     |
 | `network_mtu`                     | Physical Network MTU.                                                                                                                                                                                                                                                                                                                                                                     | 1500                   | number       | false    |
+| `pod_cidr`                    | CIDR IPv4 range to assign Kubernetes pods.                                                                                                                                                                                                                                                                   | "10.2.0.0/16"   | string       | false    |
+| `service_cidr`                | CIDR IPv4 range to assign Kubernetes services.                                                                                                                                                                                                                                                               | "10.3.0.0/16"   | string       | false    |
 | `worker_names`                    | Ordered list of worker names. Example: ["node2", "node3"]                                                                                                                                                                                                                                                                                                                                 | -                      | list(string) | true     |
 | `worker_macs`                     | Ordered list of worker identifying MAC addresses. Example ["52:54:00:b2:2f:86", "52:54:00:c3:61:77"]                                                                                                                                                                                                                                                                                      | -                      | list(string) | true     |
 | `worker_domains`                  | Ordered list of worker FQDNs. Example ["node2.example.com", "node3.example.com"]                                                                                                                                                                                                                                                                                                          | -                      | list(string) | true     |
