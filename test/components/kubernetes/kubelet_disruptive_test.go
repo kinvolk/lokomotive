@@ -31,16 +31,18 @@ import (
 func TestSelfHostedKubeletLabels(t *testing.T) {
 	client := testutil.CreateKubeClient(t)
 
-	// List all the nodes and then delete a node that is not controller.
+	// Find all nodes that are not controller nodes i.e worker nodes.
 	nodes, err := client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{
-		LabelSelector: "node.kubernetes.io/node=",
+		LabelSelector: "node.kubernetes.io/controller!=true",
 	})
 	if err != nil {
 		t.Errorf("could not list nodes: %v", err)
 	}
+
 	if len(nodes.Items) == 0 {
 		t.Fatalf("no worker nodes found")
 	}
+
 	chosenNode := nodes.Items[0].Name
 
 	// Delete the chosen node.

@@ -9,7 +9,7 @@ cluster "bare-metal" {
   matchbox_endpoint         = "matchbox.example.com:8081"
   matchbox_http_endpoint    = "http://matchbox.example.com:8080"
   cluster_name              = "mercury"
-  k8s_domain_name           = "node1.example.com"
+  k8s_domain_name           = "example.com"
   controller_domains = [
     "node1.example.com",
   ]
@@ -39,6 +39,20 @@ cluster "bare-metal" {
   labels = {
     "testing.io" = "yes",
     "roleofnode" = "testing",
+  }
+
+  node_specific_labels = {
+    "node1" = {
+      "testkey": "testvalue"
+    }
+
+    "node2" = {
+      "ingressnode": "yes"
+    }
+
+    "node3" = {
+      "storagenode": "yes"
+    }
   }
 
   conntrack_max_per_core = 65000

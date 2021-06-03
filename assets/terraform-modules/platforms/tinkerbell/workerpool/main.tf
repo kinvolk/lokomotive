@@ -4,23 +4,25 @@ module "worker" {
   count       = var.node_count
   count_index = count.index
 
+  cluster_name           = var.cluster_name
   cluster_dns_service_ip = var.cluster_dns_service_ip
   ssh_keys               = var.ssh_keys
   cluster_domain_suffix  = var.cluster_domain_suffix
-  host_dns_ip            = var.host_dns_ip
   ca_cert                = var.ca_cert
   apiserver              = var.apiserver
-
+  set_standard_hostname  = true
   clc_snippets = concat(var.clc_snippets, [
     <<EOF
 storage:
   files:
-  - path: /etc/hostname
+  - path: /etc/systemd/resolved.conf.d/dns_servers.conf
     filesystem: root
     mode: 0644
     contents:
       inline: |
-        ${var.cluster_name}-worker-${var.name}-${count.index}
+        [Resolve]
+        DNS=${var.host_dns_ip}
+        Domains=~.
 EOF
     ,
   ])
