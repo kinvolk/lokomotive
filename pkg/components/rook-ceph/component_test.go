@@ -92,6 +92,7 @@ func TestConversion(t *testing.T) {
 		expectedManifestName k8sutil.ObjectMetadata
 		expected             string
 		jsonPath             string
+		fn                   func(*testing.T, string, string, string)
 	}{
 		{
 			name: "default_reclaim_policy",
@@ -105,6 +106,7 @@ func TestConversion(t *testing.T) {
 			},
 			jsonPath: "{.reclaimPolicy}",
 			expected: "Retain",
+			fn:       testutil.MatchJSONPathStringValue,
 		},
 		{
 			name: "overridden_reclaim_policy",
@@ -119,6 +121,7 @@ func TestConversion(t *testing.T) {
 			},
 			jsonPath: "{.reclaimPolicy}",
 			expected: "Delete",
+			fn:       testutil.MatchJSONPathStringValue,
 		},
 	}
 
@@ -131,7 +134,7 @@ func TestConversion(t *testing.T) {
 			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
-			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
+			tc.fn(t, gotConfig, tc.jsonPath, tc.expected)
 		})
 	}
 }
