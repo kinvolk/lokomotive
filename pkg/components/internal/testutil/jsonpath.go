@@ -15,6 +15,7 @@
 package testutil
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -100,6 +101,29 @@ func MatchJSONPathInt64Value(t *testing.T, yamlConfig string, jsonPath string, e
 
 	if got != expected {
 		t.Fatalf("Expected: %d, Got: %d", expected, got)
+	}
+}
+
+// MatchJSONPathJSONValue is a helper function for component unit tests. It compares the JSON values
+// at a JSON path in a YAML config to the expected JSON string given by the user.
+// e.g.
+//
+// spec:
+//   resources:
+//     osd: {"requests":{"cpu":"5","memory":"5Gi"},"limits":{"cpu":"5","memory":"5Gi"}}
+func MatchJSONPathJSONValue(t *testing.T, yamlConfig string, jsonPath string, expected string) {
+	obj, err := jsonPathValue(yamlConfig, jsonPath)
+	if err != nil {
+		t.Fatalf("Extracting JSON path value: %v", err)
+	}
+
+	got, err := json.Marshal(obj)
+	if err != nil {
+		t.Fatalf("Marshalling JSON object: %v", err)
+	}
+
+	if string(got) != expected {
+		t.Fatalf("Expected: %s, Got: %s", expected, got)
 	}
 }
 
