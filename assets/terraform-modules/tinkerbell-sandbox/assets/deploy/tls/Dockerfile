@@ -1,7 +1,8 @@
-FROM alpine:3.11
+FROM registry.fedoraproject.org/fedora:34
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-RUN apk add --no-cache --update --upgrade ca-certificates postgresql-client
-RUN apk add --no-cache --update --upgrade --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing cfssl
+RUN dnf install --setopt=tsflags=nodocs -y \
+        postgresql \
+        golang-github-cloudflare-cfssl
 
 COPY . .
