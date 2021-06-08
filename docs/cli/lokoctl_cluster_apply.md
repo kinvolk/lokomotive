@@ -21,6 +21,7 @@ lokoctl cluster apply [flags]
       --confirm                        Upgrade cluster without asking for confirmation
   -h, --help                           help for apply
       --skip-components                Skip applying component configuration
+      --skip-control-plane-update      Skip updating the control plane (not recommended)
       --skip-pre-update-health-check   Skip ensuring that cluster is healthy before updating (not recommended)
       --upgrade-kubelets               Experimentally upgrade self-hosted kubelets
   -v, --verbose                        Show output from Terraform
