@@ -63,6 +63,7 @@ type config struct {
 	InstallToSmallestDisk        bool                `hcl:"install_to_smallest_disk,optional"`
 	InstallDisk                  string              `hcl:"install_disk,optional"`
 	KernelArgs                   []string            `hcl:"kernel_args,optional"`
+	KernelConsole                []string            `hcl:"kernel_console,optional"`
 	DownloadProtocol             string              `hcl:"download_protocol,optional"`
 	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
 	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
@@ -246,6 +247,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		InstallDisk                  string
 		InstallToSmallestDisk        bool
 		KernelArgs                   []string
+		KernelConsole                []string
 		DownloadProtocol             string
 		NetworkIPAutodetectionMethod string
 		CLCSnippets                  map[string][]string
@@ -279,6 +281,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		InstallDisk:                  cfg.InstallDisk,
 		InstallToSmallestDisk:        cfg.InstallToSmallestDisk,
 		KernelArgs:                   cfg.KernelArgs,
+		KernelConsole:                cfg.KernelConsole,
 		DownloadProtocol:             cfg.DownloadProtocol,
 		NetworkIPAutodetectionMethod: cfg.NetworkIPAutodetectionMethod,
 		CLCSnippets:                  cfg.CLCSnippets,

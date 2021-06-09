@@ -150,6 +150,12 @@ variable "kernel_args" {
   default     = []
 }
 
+variable "kernel_console" {
+  description = "The kernel arguments to configure the console at PXE boot and in /usr/share/oem/grub.cfg."
+  type        = list(string)
+  default     = ["console=tty0", "console=ttyS0"]
+}
+
 variable "enable_reporting" {
   type        = bool
   description = "Enable usage or analytics reporting to upstreams (Calico)"

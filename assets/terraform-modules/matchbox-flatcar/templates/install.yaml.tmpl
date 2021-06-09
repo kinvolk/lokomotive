@@ -50,6 +50,7 @@ storage:
           mount "$${OEM_DEV}" /tmp/oemfs
           # append to file on newly created partition, do not remove the defaults
           echo 'set linux_append="${kernel_args}"' >> /tmp/oemfs/grub.cfg
+          echo 'set linux_console="${kernel_console}"' >> /tmp/oemfs/grub.cfg
           umount /tmp/oemfs
           systemctl reboot
 passwd:

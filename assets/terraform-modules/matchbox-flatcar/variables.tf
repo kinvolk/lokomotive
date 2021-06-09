@@ -45,6 +45,12 @@ variable "kernel_args" {
   default     = []
 }
 
+variable "kernel_console" {
+  type        = list(string)
+  description = "The kernel arguments to configure the console at PXE boot and in /usr/share/oem/grub.cfg."
+  default     = ["console=tty0", "console=ttyS0"]
+}
+
 variable "install_to_smallest_disk" {
   type        = bool
   description = "Install Flatcar Container Linux to the smallest disk."
