@@ -41,7 +41,7 @@ variable "container_linux_oem" {
 
 variable "kernel_args" {
   type        = list(string)
-  description = "Additional kernel arguments to provide at PXE boot."
+  description = "Additional kernel arguments to provide at PXE boot and in /usr/share/oem/grub.cfg."
   default     = []
 }
 

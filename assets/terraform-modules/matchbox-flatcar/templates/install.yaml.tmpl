@@ -30,6 +30,8 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
+          # unmount any leftovers at the beginning before we modify the disk the mount uses
+          umount /tmp/oemfs || true
           curl --retry 10 "${ignition_endpoint}?{{.request.raw_query}}&os=installed" -o ignition.json
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
@@ -43,6 +45,12 @@ storage:
             ${baseurl_flag} \
             -i ignition.json
           udevadm settle
+          OEM_DEV="$(blkid -t "LABEL=OEM" -o device)"
+          mkdir -p /tmp/oemfs
+          mount "$${OEM_DEV}" /tmp/oemfs
+          # append to file on newly created partition, do not remove the defaults
+          echo 'set linux_append="${kernel_args}"' >> /tmp/oemfs/grub.cfg
+          umount /tmp/oemfs
           systemctl reboot
 passwd:
   users:
