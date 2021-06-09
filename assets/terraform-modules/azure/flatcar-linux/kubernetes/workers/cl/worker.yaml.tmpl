@@ -106,7 +106,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=docker://quay.io/kinvolk/kubelet
-          KUBELET_IMAGE_TAG=v1.20.4
+          KUBELET_IMAGE_TAG=v1.21.1
           KUBELET_IMAGE_ARGS="--exec=/usr/local/bin/kubelet"
           NODE_LABELS="node.kubernetes.io/node"
     - path: /etc/sysctl.d/max-user-watches.conf
@@ -126,7 +126,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://quay.io/kinvolk/kubelet:v1.20.4 \
+            docker://quay.io/kinvolk/kubelet:v1.21.1 \
             --net=host \
             --dns=host \
             -- \
