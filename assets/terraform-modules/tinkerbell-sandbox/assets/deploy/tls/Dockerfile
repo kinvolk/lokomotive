@@ -1,7 +1,9 @@
-FROM alpine:3.11
+FROM ubuntu:18.04
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-RUN apk add --no-cache --update --upgrade ca-certificates postgresql-client
-RUN apk add --no-cache --update --upgrade --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing cfssl
+RUN apt-get update && apt-get install -y \
+  ca-certificates \
+  postgresql-client \
+  golang-cfssl
 
 COPY . .
