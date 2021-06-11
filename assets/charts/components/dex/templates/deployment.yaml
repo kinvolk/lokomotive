@@ -40,6 +40,11 @@ spec:
         ports:
         - name: https
           containerPort: 5556
+        env:
+        - name: KUBERNETES_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         volumeMounts:
         - name: config
           mountPath: /etc/dex/cfg
