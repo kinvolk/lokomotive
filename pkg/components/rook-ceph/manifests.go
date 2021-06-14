@@ -15,7 +15,7 @@
 package rookceph
 
 // CephCluster resource definition was taken from:
-// https://github.com/rook/rook/blob/v1.4.6/cluster/examples/kubernetes/ceph/cluster.yaml
+// https://github.com/rook/rook/blob/v1.6.5/cluster/examples/kubernetes/ceph/cluster.yaml
 var template = map[string]string{
 	"ceph-cluster.yaml": `
 apiVersion: ceph.rook.io/v1
@@ -25,15 +25,17 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   cephVersion:
-    image: ceph/ceph:v15.2.5-20200916
+    image: ceph/ceph:v15.2.13-20210526
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
   continueUpgradeAfterChecksEvenIfNotHealthy: false
+  waitTimeoutForHealthyOSDInMinutes: 10
   mon:
     count: {{ .MonitorCount }}
     allowMultiplePerNode: false
   mgr:
+    count: 2
     modules:
     - name: pg_autoscaler
       enabled: true
@@ -96,7 +98,7 @@ spec:
       storeType: bluestore
       osdsPerDevice: "1" # this value can be overridden at the node or device level
   disruptionManagement:
-    managePodBudgets: false
+    managePodBudgets: true
     osdMaintenanceTimeout: 30
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
@@ -196,7 +198,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: rook-ceph-tools
-        image: rook/ceph:v1.4.6
+        image: rook/ceph:v1.6.5
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
         imagePullPolicy: IfNotPresent

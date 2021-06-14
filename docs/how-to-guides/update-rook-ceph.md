@@ -89,7 +89,7 @@ watch --exec kubectl -n rook get jobs -o \
   jsonpath='{range .items[*]}{.metadata.name}{"  \tsucceeded: "}{.status.succeeded}{"      \trook-version="}{.metadata.labels.rook-version}{"\n"}{end}'
 ```
 
-You should see that `rook-version` slowly changes to `v1.4.6`.
+You should see that `rook-version` slowly changes to `v1.6.5`.
 
 #### Step 2.4: Ceph version update
 
@@ -101,7 +101,7 @@ watch --exec kubectl -n rook get deployments -l rook_cluster=rook -o \
   jsonpath='{range .items[*]}{.metadata.name}{"  \treq/upd/avl: "}{.spec.replicas}{"/"}{.status.updatedReplicas}{"/"}{.status.readyReplicas}{"  \tceph-version="}{.metadata.labels.ceph-version}{"\n"}{end}'
 ```
 
-You should see that `ceph-version` slowly changes to `15.2.5`.
+You should see that `ceph-version` slowly changes to `15.2.13`.
 
 #### Step 2.5: Events in rook namespace
 
@@ -151,7 +151,8 @@ now run updated images.
 With everything monitored, you can start the update process now by executing the following commands:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/kinvolk/lokomotive/v0.5.0/assets/charts/components/rook/templates/resources.yaml
+kubectl replace -f https://raw.githubusercontent.com/rook/rook/v1.6.5/cluster/examples/kubernetes/ceph/crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.5/cluster/examples/kubernetes/ceph/crds.yaml
 lokoctl component apply rook rook-ceph
 ```
 
