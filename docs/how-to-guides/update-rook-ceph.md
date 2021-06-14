@@ -151,6 +151,7 @@ now run updated images.
 With everything monitored, you can start the update process now by executing the following commands:
 
 ```bash
+# This replace command may fail for the CRDs not installed already.
 kubectl replace -f https://raw.githubusercontent.com/rook/rook/v1.6.5/cluster/examples/kubernetes/ceph/crds.yaml
 kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.5/cluster/examples/kubernetes/ceph/crds.yaml
 lokoctl component apply rook rook-ceph
