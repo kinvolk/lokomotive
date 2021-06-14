@@ -120,7 +120,7 @@ func (c *component) Metadata() components.Metadata {
 func convertNodeSelector(m map[string]string) string {
 	var ret string
 
-	// Covert map to slice and sort them
+	// Convert map to slice and sort them
 	// by keys.
 	keys := []string{}
 
