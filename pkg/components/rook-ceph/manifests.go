@@ -169,7 +169,7 @@ parameters:
 
   # Specify the filesystem type of the volume. If not specified, csi-provisioner
   # will set default as 'ext4'.
-  csi.storage.k8s.io/fstype: xfs
+  csi.storage.k8s.io/fstype: ext4
 
 # Delete the rbd volume when a PVC is deleted
 reclaimPolicy: {{ .StorageClass.ReclaimPolicy }}
