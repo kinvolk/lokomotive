@@ -27,6 +27,9 @@ nodeSelector: {{ .NodeSelectorRaw }}
 tolerations: {{ .TolerationsRaw }}
 {{- end }}
 
+# This is disabled by default from now. But baremetal setups should have this daemon running.
+enableDiscoveryDaemon: true
+
 csi:
   # This is set explicitly because the default port 9091 conflicts with Calico's metrics port.
   cephfsGrpcMetricsPort: 9092
