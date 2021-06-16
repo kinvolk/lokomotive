@@ -284,7 +284,7 @@ module:
 ```
 os_arch = "arm64"
 os_channel = "alpha"
-ipxe_script_url = "https://alpha.release.flatcar-linux.net/arm64-usr/current/flatcar_production_packet.ipxe"
+ipxe_script_url = "http://alpha.release.flatcar-linux.net/arm64-usr/current/flatcar_production_packet.ipxe"
 ```
 
 The iPXE boot variable can be removed once Flatcar is available for
