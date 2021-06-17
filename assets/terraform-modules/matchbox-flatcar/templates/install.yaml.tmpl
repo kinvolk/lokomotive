@@ -8,7 +8,10 @@ systemd:
         Requires=network-online.target
         After=network-online.target
         [Service]
-        Type=simple
+        Type=oneshot
+        RemainAfterExit=true
+        Restart=on-failure
+        RestartSec=10s
         ExecStart=/opt/installer
         [Install]
         WantedBy=multi-user.target
