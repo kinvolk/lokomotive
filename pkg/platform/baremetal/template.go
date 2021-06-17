@@ -100,6 +100,14 @@ module "bare-metal-{{.ClusterName}}" {
   ]
   {{- end }}
 
+  {{- if .KernelConsole }}
+  kernel_console = [
+  {{- range $arg := .KernelConsole }}
+    "{{ $arg }}",
+  {{- end }}
+  ]
+  {{- end }}
+
   download_protocol = "{{ .DownloadProtocol }}"
 
   network_ip_autodetection_method = "{{ .NetworkIPAutodetectionMethod }}"

@@ -8,6 +8,7 @@ module "controller_profile" {
   os_version               = var.os_version
   http_endpoint            = var.matchbox_http_endpoint
   kernel_args              = var.kernel_args
+  kernel_console           = var.kernel_console
   install_disk             = var.install_disk
   install_to_smallest_disk = var.install_to_smallest_disk
   container_linux_oem      = var.container_linux_oem
