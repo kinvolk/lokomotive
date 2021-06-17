@@ -33,6 +33,7 @@ data "ct_config" "install-ignitions" {
     kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
     wipe_additional_disks    = var.wipe_additional_disks
+    install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
     mac_address  = var.node_mac
@@ -80,6 +81,7 @@ data "ct_config" "cached-install-ignitions" {
     kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
     wipe_additional_disks    = var.wipe_additional_disks
+    install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.http_endpoint}/assets/flatcar"
     mac_address  = var.node_mac

@@ -1,8 +1,10 @@
 module "worker_profile" {
   source                   = "../../../matchbox-flatcar"
   count                    = length(var.worker_names)
+  asset_dir                = var.asset_dir
   node_name                = var.worker_names[count.index]
   node_mac                 = var.worker_macs[count.index]
+  node_domain              = var.worker_domains[count.index]
   download_protocol        = var.download_protocol
   os_channel               = var.os_channel
   os_version               = var.os_version
@@ -17,4 +19,6 @@ module "worker_profile" {
   ignition_clc_config      = module.worker[count.index].clc_config
   cached_install           = var.cached_install
   wipe_additional_disks    = var.wipe_additional_disks
+  pxe_commands             = var.pxe_commands
+  install_pre_reboot_cmds  = var.install_pre_reboot_cmds
 }

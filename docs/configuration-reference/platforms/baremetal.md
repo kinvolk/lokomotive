@@ -132,6 +132,8 @@ cluster "bare-metal" {
   network_ip_auto_detection = "can-reach=172.18.169.0"
 
   wipe_additional_disks = true
+
+  pxe_commands = "bmc=bmc-$node; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on"
 }
 ```
 
@@ -157,6 +159,16 @@ os_version = var.custom_default_os_version
 .
 
 ```
+
+You should set a valid `pxe_commands` value to automate the provisioning, e.g., with IPMI as sketched above or a bit more reliable
+as done in [Racker here](https://github.com/kinvolk/racker/blob/0.1.5/bootstrap/pxe-boot.sh), or for libvirt VMs with some
+`virsh …; virt-install …` commands as done in [Racker here](https://github.com/kinvolk/racker/blob/0.1.5/bootstrap/prepare.sh#L637).
+PXE boots are normally only needed for the first OS installation and as long as SSH works they will be skipped for regular reprovisioning.
+This is controlled by the existence of the MAC address flag file under `cluster-assets` and you can delete it to force a PXE installation
+when the next reprovisioning takes place after a userdata change.
+
+Depending on how the PXE boot was forced, you should ensure that afterwards persistent booting from disk is configured again when the PXE
+installation is done, by setting a respective value for `install_pre_reboot_cmds`.
 
 ## Attribute reference
 
@@ -201,6 +213,8 @@ os_version = var.custom_default_os_version
 | `oidc.client_id`                  | A client id that all tokens must be issued for.                                                                                                                                                                                                                                                                                                                                           | "clusterauth"          | string            | false    |
 | `oidc.username_claim`             | JWT claim to use as the user name.                                                                                                                                                                                                                                                                                                                                                        | "email"                | string            | false    |
 | `oidc.groups_claim`               | JWT claim to use as the user’s group.                                                                                                                                                                                                                                                                                                                                                     | "groups"               | string            | false    |
+| `pxe_commands`                    | Shell commands to execute for PXE (re)provisioning, with access to the variables $mac (the MAC address), $name (the node name), and $domain (the domain name), e.g., `bmc=bmc-$domain; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on`                                                                                                       | "echo 'you must (re)provision the node by booting via iPXE from http://MATCHBOX/boot.ipxe'; exit 1" | string       | false    |
+| `install_pre_reboot_cmds`         | shell commands to execute on the provisioned host after installation finished and before reboot, e.g., `docker run --privileged --net host --rm debian sh -c 'apt update && apt install -y ipmitool && ipmitool chassis bootdev disk options=persistent'`                                                                                      | "true" (a no-op) | string       | false    |
 | `conntrack_max_per_core`          | Maximum number of entries in conntrack table per CPU on all nodes in the cluster. If you require more fain-grained control over this value, set it to 0 and add CLC snippet setting `net.netfilter.nf_conntrack_max` sysctl setting per node pool. See [Flatcar documentation about sysctl](https://docs.flatcar-linux.org/os/other-settings/#tuning-sysctl-parameters) for more details. | 32768                  | number            | false    |
 | `wipe_additional_disks`          | Wipes any additional disks attached to the machine.                                                                                                                                                                                                                                                                                                                                        | false                  | bool              | false    |
 

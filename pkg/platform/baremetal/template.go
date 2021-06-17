@@ -108,6 +108,18 @@ module "bare-metal-{{.ClusterName}}" {
   ]
   {{- end }}
 
+  {{- if .PXECommands }}
+  pxe_commands = <<EOT
+{{ .PXECommands }}
+EOT
+  {{- end }}
+
+  {{- if .InstallPreBootCmds }}
+  install_pre_reboot_cmds = <<EOT
+{{ .InstallPreBootCmds }}
+EOT
+  {{- end }}
+
   download_protocol = "{{ .DownloadProtocol }}"
 
   wipe_additional_disks = "{{ .WipeAdditionalDisks }}"

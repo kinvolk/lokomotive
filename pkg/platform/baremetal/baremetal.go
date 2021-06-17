@@ -50,6 +50,8 @@ type config struct {
 	NetworkMTU                   int                 `hcl:"network_mtu,optional"`
 	OSChannel                    string              `hcl:"os_channel,optional"`
 	OSVersion                    string              `hcl:"os_version,optional"`
+	PXECommands                  string              `hcl:"pxe_commands,optional"`
+	InstallPreBootCmds           string              `hcl:"install_pre_reboot_cmds,optional"`
 	SSHPubKeys                   []string            `hcl:"ssh_pubkeys"`
 	WorkerNames                  []string            `hcl:"worker_names"`
 	WorkerMacs                   []string            `hcl:"worker_macs"`
@@ -234,6 +236,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		NetworkMTU                   int
 		OSChannel                    string
 		OSVersion                    string
+		PXECommands                  string
+		InstallPreBootCmds           string
 		SSHPublicKeys                string
 		WorkerNames                  string
 		WorkerMacs                   string
@@ -270,6 +274,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		NetworkMTU:                   cfg.NetworkMTU,
 		OSChannel:                    cfg.OSChannel,
 		OSVersion:                    cfg.OSVersion,
+		PXECommands:                  cfg.PXECommands,
+		InstallPreBootCmds:           cfg.InstallPreBootCmds,
 		SSHPublicKeys:                string(keyListBytes),
 		WorkerNames:                  string(workerNames),
 		WorkerMacs:                   string(workerMacs),

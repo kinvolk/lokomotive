@@ -67,6 +67,7 @@ storage:
           echo 'set linux_append="${kernel_args} ignition.config.url=${ignition_endpoint}?mac=${mac_address}&os=installed"' >> /tmp/oemfs/grub.cfg
           echo 'set linux_console="${kernel_console}"' >> /tmp/oemfs/grub.cfg
           umount /tmp/oemfs
+          ${install_pre_reboot_cmds}
           systemctl reboot
 passwd:
   users:
