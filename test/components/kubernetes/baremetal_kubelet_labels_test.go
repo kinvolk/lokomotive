@@ -34,17 +34,17 @@ func Test_Baremetal_NodeSpecificLabels(t *testing.T) {
 	// The labels include the labels common to every worker node derived from `labels` and
 	// labels specific to the node.
 	nodeNamesAndExpectedLabelsInCI := map[string]map[string]string{
-		"mercury-controller-0": {
+		"node1": {
 			"testkey":                       "testvalue",
 			"node.kubernetes.io/master":     "",
 			"node.kubernetes.io/controller": "true",
 		},
-		"mercury-worker-0": {
+		"node2": {
 			"ingressnode": "yes",
 			"testing.io":  "yes",
 			"roleofnode":  "testing",
 		},
-		"mercury-worker-1": {
+		"node3": {
 			"storagenode": "yes",
 			"testing.io":  "yes",
 			"roleofnode":  "testing",
@@ -72,11 +72,15 @@ func Test_Baremetal_NodeSpecificLabels(t *testing.T) {
 			t.Errorf("expected node with name %q not found: %v", nodeName, err)
 		}
 
+		if len(nodes.Items) != 1 {
+			t.Fatalf("expected a single node, got %d", len(nodes.Items))
+		}
+
 		// Currently we assume that the labels added to the node in CI are unique to the worker node.
 		// This check confirms that the expected set of labels as per CI configuration were
 		// present on the correct node.
-		if len(nodes.Items) == 1 && nodes.Items[0].Name != nodeName {
-			t.Errorf("expected node %q to have the labels %s", nodes.Items[0].Name, labels)
+		if nodes.Items[0].Name != nodeName {
+			t.Fatalf("expected node %q but found %q to have the labels %s", nodeName, nodes.Items[0].Name, labels)
 		}
 	}
 }
