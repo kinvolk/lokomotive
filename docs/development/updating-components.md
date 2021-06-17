@@ -44,22 +44,35 @@ Update helm chart in `assets/charts/control-plane/calico` after comparing it wit
 
 - Releases: https://github.com/projectcalico/calico/releases.
 
-## Cert Manager
+## cert-manager
 
 Run the following commands in the root of this repository:
 
 ```bash
-cd assets/components/cert-manager
+cd assets/charts/components/
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
-rm -rf manifests
+rm -rf cert-manager
 helm fetch --untar --untardir ./ jetstack/cert-manager
-mv cert-manager manifests
 
-git checkout ./manifests/templates/letsencrypt-clusterissuer-prod.yaml
-git checkout ./manifests/templates/letsencrypt-clusterissuer-staging.yaml
-git checkout ./manifests/templates/namespace.yaml
+git checkout ./cert-manager/templates/letsencrypt-clusterissuer-prod.yaml
+git checkout ./cert-manager/templates/letsencrypt-clusterissuer-staging.yaml
+git checkout ./cert-manager/templates/namespace.yaml
+```
+
+Run the following command one at a time and see if the Lokomotive specific changes are not
+overridden:
+
+```
+git diff ./cert-manager/templates/psp.yaml
+git checkout ./cert-manager/templates/psp.yaml
+
+git diff ./cert-manager/templates/cainjector-psp.yaml
+git checkout ./cert-manager/templates/cainjector-psp.yaml
+
+git diff ./cert-manager/templates/webhook-psp.yaml
+git checkout ./cert-manager/templates/webhook-psp.yaml
 ```
 
 - Releases: https://github.com/jetstack/cert-manager/releases.
