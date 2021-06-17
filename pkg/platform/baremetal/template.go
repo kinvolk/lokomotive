@@ -128,6 +128,21 @@ EOF
     {{- end }}
   }
   {{- end }}
+
+  {{- if .InstallerCLCSnippets}}
+  installer_clc_snippets = {
+    {{- range $nodeName, $clcSnippetList := .InstallerCLCSnippets }}
+    "{{ $nodeName }}" = [
+    {{- range $clcSnippet := $clcSnippetList }}
+      <<EOF
+{{ $clcSnippet }}
+EOF
+      ,
+    {{- end }}
+    ]
+    {{- end }}
+  }
+  {{- end }}
 }
 
 terraform {

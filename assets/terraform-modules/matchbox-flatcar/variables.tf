@@ -67,6 +67,12 @@ variable "ignition_clc_config" {
   description = "Ignition CLC snippets to include in the configuration."
 }
 
+variable "installer_clc_snippets" {
+  type        = list(string)
+  description = "List of Container Linux Config snippets."
+  default     = []
+}
+
 variable "node_name" {
   type        = string
   description = "Name of the node/machine."

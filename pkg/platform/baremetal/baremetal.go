@@ -67,6 +67,7 @@ type config struct {
 	DownloadProtocol             string              `hcl:"download_protocol,optional"`
 	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
 	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
+	InstallerCLCSnippets         map[string][]string `hcl:"installer_clc_snippets,optional"`
 	CertsValidityPeriodHours     int                 `hcl:"certs_validity_period_hours,optional"`
 	WipeAdditionalDisks          bool                `hcl:"wipe_additional_disks,optional"`
 	KubeAPIServerExtraFlags      []string
@@ -252,6 +253,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DownloadProtocol             string
 		NetworkIPAutodetectionMethod string
 		CLCSnippets                  map[string][]string
+		InstallerCLCSnippets         map[string][]string
 		WipeAdditionalDisks          bool
 	}{
 		CachedInstall:                cfg.CachedInstall,
@@ -287,6 +289,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DownloadProtocol:             cfg.DownloadProtocol,
 		NetworkIPAutodetectionMethod: cfg.NetworkIPAutodetectionMethod,
 		CLCSnippets:                  cfg.CLCSnippets,
+		InstallerCLCSnippets:         cfg.InstallerCLCSnippets,
 		WipeAdditionalDisks:          cfg.WipeAdditionalDisks,
 	}
 

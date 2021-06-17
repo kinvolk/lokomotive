@@ -61,6 +61,12 @@ variable "clc_snippets" {
   default     = {}
 }
 
+variable "installer_clc_snippets" {
+  type        = map(list(string))
+  description = "Map from machine names to lists of Container Linux Config snippets, applied for the PXE-booted installer OS"
+  default     = {}
+}
+
 variable "labels" {
   type        = map(string)
   description = "Map of labels for worker nodes."
