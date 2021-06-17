@@ -38,7 +38,7 @@ variable "workers_type" {
 }
 
 variable "location" {
-  default = "Germany West Central"
+  default = "West US 2"
 }
 
 variable "worker_labels" {
