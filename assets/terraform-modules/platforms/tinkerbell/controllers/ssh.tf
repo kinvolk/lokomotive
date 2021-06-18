@@ -68,7 +68,10 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo mv etcd-peer.key /etc/ssl/etcd/etcd/peer.key",
       "sudo chown -R etcd:etcd /etc/ssl/etcd",
       "sudo chmod -R 500 /etc/ssl/etcd",
-      "sudo systemctl restart etcd",
+      # Use stdbuf to disable the buffer while printing logs to make sure everything is transmitted back to
+      # Terraform before we return error. We should be able to remove it once
+      # https://github.com/hashicorp/terraform/issues/27121 is resolved.
+      "sudo systemctl restart etcd || (stdbuf -i0 -o0 -e0 sudo journalctl -u etcd --no-pager; exit 1)",
     ]
   }
 
