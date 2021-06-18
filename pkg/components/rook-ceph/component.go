@@ -41,6 +41,27 @@ type component struct {
 	TolerationsRaw string
 	StorageClass   *StorageClass `hcl:"storage_class,block"`
 	EnableToolbox  bool          `hcl:"enable_toolbox,optional"`
+
+	Resources *Resources `hcl:"resources,block"`
+}
+
+// Resources struct allows user to specify resource request and limits on the rook-ceph
+// sub-components.
+type Resources struct {
+	MON               *util.ResourceRequirements `hcl:"mon,block"`
+	MONRaw            string
+	MGR               *util.ResourceRequirements `hcl:"mgr,block"`
+	MGRRaw            string
+	OSD               *util.ResourceRequirements `hcl:"osd,block"`
+	OSDRaw            string
+	MDS               *util.ResourceRequirements `hcl:"mds,block"`
+	MDSRaw            string
+	PrepareOSD        *util.ResourceRequirements `hcl:"prepareosd,block"`
+	PrepareOSDRaw     string
+	CrashCollector    *util.ResourceRequirements `hcl:"crashcollector,block"`
+	CrashCollectorRaw string
+	MGRSidecar        *util.ResourceRequirements `hcl:"mgr_sidecar,block"`
+	MGRSidecarRaw     string
 }
 
 // StorageClass provides struct to enable it or make it default.
@@ -69,6 +90,44 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
+func (c *component) addResourceRequirements() error {
+	if c.Resources == nil {
+		return nil
+	}
+
+	var err error
+
+	if c.Resources.MONRaw, err = util.RenderResourceRequirements(c.Resources.MON); err != nil {
+		return fmt.Errorf("rendering resources.mon: %w", err)
+	}
+
+	if c.Resources.MGRRaw, err = util.RenderResourceRequirements(c.Resources.MGR); err != nil {
+		return fmt.Errorf("rendering resources.mgr: %w", err)
+	}
+
+	if c.Resources.OSDRaw, err = util.RenderResourceRequirements(c.Resources.OSD); err != nil {
+		return fmt.Errorf("rendering resources.osd: %w", err)
+	}
+
+	if c.Resources.MDSRaw, err = util.RenderResourceRequirements(c.Resources.MDS); err != nil {
+		return fmt.Errorf("rendering resources.mds: %w", err)
+	}
+
+	if c.Resources.PrepareOSDRaw, err = util.RenderResourceRequirements(c.Resources.PrepareOSD); err != nil {
+		return fmt.Errorf("rendering resources.prepareosd: %w", err)
+	}
+
+	if c.Resources.CrashCollectorRaw, err = util.RenderResourceRequirements(c.Resources.CrashCollector); err != nil {
+		return fmt.Errorf("rendering resources.crashcollector: %w", err)
+	}
+
+	if c.Resources.MGRSidecarRaw, err = util.RenderResourceRequirements(c.Resources.MGRSidecar); err != nil {
+		return fmt.Errorf("rendering resources.mgr_sidecar: %w", err)
+	}
+
+	return nil
+}
+
 // TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
 	// Generate YAML for Ceph cluster.
@@ -76,6 +135,10 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
 	if err != nil {
 		return nil, fmt.Errorf("rendering tolerations: %w", err)
+	}
+
+	if err := c.addResourceRequirements(); err != nil {
+		return nil, fmt.Errorf("rendering resources field: %w", err)
 	}
 
 	ret := make(map[string]string)

@@ -92,6 +92,7 @@ func TestConversion(t *testing.T) {
 		expectedManifestName k8sutil.ObjectMetadata
 		expected             string
 		jsonPath             string
+		fn                   func(*testing.T, string, string, string)
 	}{
 		{
 			name: "default_reclaim_policy",
@@ -105,6 +106,7 @@ func TestConversion(t *testing.T) {
 			},
 			jsonPath: "{.reclaimPolicy}",
 			expected: "Retain",
+			fn:       testutil.MatchJSONPathStringValue,
 		},
 		{
 			name: "overridden_reclaim_policy",
@@ -119,6 +121,140 @@ func TestConversion(t *testing.T) {
 			},
 			jsonPath: "{.reclaimPolicy}",
 			expected: "Delete",
+			fn:       testutil.MatchJSONPathStringValue,
+		},
+		{
+			name: "resources_osd_requests_cpu",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					osd {
+						requests {
+							cpu = "5"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.osd}",
+			expected: "{\"requests\":{\"cpu\":\"5\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
+		},
+		{
+			name: "resources_mgr_requests_memory",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					mgr {
+						requests {
+							memory = "10Gi"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.mgr}",
+			expected: "{\"requests\":{\"memory\":\"10Gi\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
+		},
+		{
+			name: "resources_mon_limits_cpu",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					mon {
+						limits {
+							cpu = "3"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.mon}",
+			expected: "{\"limits\":{\"cpu\":\"3\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
+		},
+		{
+			name: "resources_mds_limits_memory",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					mds {
+						limits {
+							memory = "2Gi"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.mds}",
+			expected: "{\"limits\":{\"memory\":\"2Gi\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
+		},
+		{
+			name: "resources_prepareosd_requests",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					prepareosd {
+						requests {
+							memory = "9Gi"
+							cpu    = "9"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.prepareosd}",
+			expected: "{\"requests\":{\"cpu\":\"9\",\"memory\":\"9Gi\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
+		},
+		{
+			name: "resources_crashcollector_limits",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					crashcollector {
+						limits {
+							cpu    = "7"
+							memory = "7Gi"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.crashcollector}",
+			expected: "{\"limits\":{\"cpu\":\"7\",\"memory\":\"7Gi\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
+		},
+		{
+			name: "resources_mgr_sidecar_all",
+			inputConfig: `component "rook-ceph" {
+				resources {
+					mgr_sidecar {
+						limits {
+							cpu = "6"
+						}
+
+						requests {
+							memory = "1Gi"
+							cpu    = "1"
+						}
+					}
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.resources.mgr-sidecar}",
+			expected: "{\"limits\":{\"cpu\":\"6\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"1Gi\"}}",
+			fn:       testutil.MatchJSONPathJSONValue,
 		},
 	}
 
@@ -131,7 +267,7 @@ func TestConversion(t *testing.T) {
 			m := testutil.RenderManifests(t, component, Name, tc.inputConfig)
 			gotConfig := testutil.ConfigFromMap(t, m, tc.expectedManifestName)
 
-			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
+			tc.fn(t, gotConfig, tc.jsonPath, tc.expected)
 		})
 	}
 }
