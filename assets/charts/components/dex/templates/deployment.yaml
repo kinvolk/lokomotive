@@ -54,6 +54,10 @@ spec:
         - name: gsuite-auth
           mountPath: /config/
         {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5556
       volumes:
       - name: config
         configMap:
