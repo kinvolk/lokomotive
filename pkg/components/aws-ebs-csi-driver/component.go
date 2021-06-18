@@ -50,11 +50,15 @@ storageClasses:
   reclaimPolicy: {{ .ReclaimPolicy }}
 
 {{- if .Tolerations }}
-tolerateAllTaints: false
 tolerations: {{ .TolerationsRaw }}
 node:
   tolerateAllTaints: false
   tolerations: {{ .TolerationsRaw }}
+controller:
+  tolerations: {{ .TolerationsRaw }}
+{{ else }}
+node:
+  tolerateAllTaints: true
 {{- end }}
 
 {{- if .NodeAffinity }}
