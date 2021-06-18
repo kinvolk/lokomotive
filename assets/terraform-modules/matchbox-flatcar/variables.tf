@@ -76,3 +76,9 @@ variable "node_mac" {
   type        = string
   description = "MAC address identifying the node/machine (e.g. 52:54:00:a1:9c:ae)."
 }
+
+variable "wipe_additional_disks" {
+  type        = bool
+  description = "Wipes any additional disks attached, if set to true"
+  default     = false
+}

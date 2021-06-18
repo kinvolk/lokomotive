@@ -28,6 +28,7 @@ resource "matchbox_profile" "flatcar-install" {
     install_to_smallest_disk = var.install_to_smallest_disk
     kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
+    wipe_additional_disks    = var.wipe_additional_disks
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
   })
@@ -65,6 +66,7 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     install_to_smallest_disk = var.install_to_smallest_disk
     kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
+    wipe_additional_disks    = var.wipe_additional_disks
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.http_endpoint}/assets/flatcar"
   })
