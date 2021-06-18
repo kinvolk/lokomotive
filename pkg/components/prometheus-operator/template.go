@@ -68,6 +68,7 @@ grafana:
   {{ if .Grafana.Ingress }}
   ingress:
     enabled: true
+    pathType: Prefix
     annotations:
       kubernetes.io/ingress.class: {{.Grafana.Ingress.Class}}
       kubernetes.io/tls-acme: "true"
@@ -106,6 +107,7 @@ prometheus:
   {{ if .Prometheus.Ingress }}
   ingress:
     enabled: true
+    pathType: Prefix
     annotations:
       kubernetes.io/ingress.class: {{.Prometheus.Ingress.Class}}
       kubernetes.io/tls-acme: "true"
