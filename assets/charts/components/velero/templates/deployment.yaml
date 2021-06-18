@@ -1,14 +1,24 @@
 {{- if .Values.configuration.provider -}}
 {{- $provider := .Values.configuration.provider -}}
+{{/* 'securityContext' got renamed to 'podSecurityContext', merge both dicts into one for backward compatibility */}}
+{{- $podSecurityContext := merge (.Values.podSecurityContext | default dict) (.Values.securityContext | default dict) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "velero.fullname" . }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "velero.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ include "velero.chart" . }}
+    component: velero
+    {{- with .Values.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: 1
   selector:
@@ -89,23 +99,45 @@ spec:
             {{- if .defaultVolumesToRestic }}
             - --default-volumes-to-restic
             {{- end }}
+            {{- with .clientQPS }}
+            - --client-qps={{ . }}
+            {{- end }}
+            {{- with .clientBurst }}
+            - --client-burst={{ . }}
+            {{- end }}
+            {{- with .disableControllers }}
+            - --disable-controllers={{ . }}
+            {{- end }}
           {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: plugins
               mountPath: /plugins
-        {{- if .Values.credentials.useSecret }}
+            {{- if .Values.credentials.useSecret }}
             - name: cloud-credentials
               mountPath: /credentials
+            {{- end }}
             - name: scratch
               mountPath: /scratch
-        {{- end }}
+            {{- if .Values.containerSecurityContext.readOnlyRootFilesystem }}
+            - name: tmpdir
+              mountPath: /tmp
+            {{- end }}
             {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
+        {{- if .Values.credentials.extraSecretRef }}
+          envFrom:
+          - secretRef:
+              name: {{ .Values.credentials.extraSecretRef }}
+        {{- end }}
           env:
             - name: VELERO_SCRATCH_DIR
               value: /scratch
@@ -146,6 +178,7 @@ spec:
                   key: {{ default "none" $key }}
           {{- end }}
           {{- end }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
 {{- if .Values.initContainers }}
       initContainers:
         {{- toYaml .Values.initContainers | nindent 8 }}
@@ -160,10 +193,14 @@ spec:
           emptyDir: {}
         - name: scratch
           emptyDir: {}
+        {{- if .Values.containerSecurityContext.readOnlyRootFilesystem }}
+        - name: tmpdir
+          emptyDir: {}
+        {{- end }}
         {{- if .Values.extraVolumes }}
         {{- toYaml .Values.extraVolumes | nindent 8 }}
         {{- end }}
-    {{- with .Values.securityContext }}
+    {{- with $podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
     {{- end }}

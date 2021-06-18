@@ -1,34 +1,40 @@
+
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    app.kubernetes.io/name: "velero"
+    app.kubernetes.io/name: velero
+    component: velero
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-delete-policy": "before-hook-creation"
     controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
   name: backupstoragelocations.velero.io
 spec:
   additionalPrinterColumns:
-    - JSONPath: .status.phase
-      description: Backup Storage Location status such as Available/Unavailable
-      name: Phase
-      type: string
-    - JSONPath: .status.lastValidationTime
-      description: LastValidationTime is the last time the backup store location was validated
-      name: Last Validated
-      type: date
-    - JSONPath: .metadata.creationTimestamp
-      name: Age
-      type: date
+  - JSONPath: .status.phase
+    description: Backup Storage Location status such as Available/Unavailable
+    name: Phase
+    type: string
+  - JSONPath: .status.lastValidationTime
+    description: LastValidationTime is the last time the backup store location was
+      validated
+    name: Last Validated
+    type: date
+  - JSONPath: .metadata.creationTimestamp
+    name: Age
+    type: date
+  - JSONPath: .spec.default
+    description: Default backup storage location
+    name: Default
+    type: boolean
   group: velero.io
   names:
     kind: BackupStorageLocation
     listKind: BackupStorageLocationList
     plural: backupstoragelocations
     shortNames:
-      - bsl
+    - bsl
     singular: backupstoragelocation
   preserveUnknownFields: false
   scope: Namespaced
@@ -37,25 +43,23 @@ spec:
   validation:
     openAPIV3Schema:
       description: BackupStorageLocation is a location where Velero stores backup
-        objects.
+        objects
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation
             of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info:
-            https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
           type: string
         kind:
           description: 'Kind is a string value representing the REST resource this
             object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info:
-            https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
           type: string
         metadata:
           type: object
         spec:
           description: BackupStorageLocationSpec defines the desired state of a Velero
-            BackupStorageLocation.
+            BackupStorageLocation
           properties:
             accessMode:
               description: AccessMode defines the permissions for the backup storage
@@ -74,6 +78,28 @@ spec:
                 type: string
               description: Config is for provider-specific configuration fields.
               type: object
+            credential:
+              description: Credential contains the credential information intended
+                to be used with this location
+              properties:
+                key:
+                  description: The key of the secret to select from.  Must be a valid
+                    secret key.
+                  type: string
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
+                  type: string
+                optional:
+                  description: Specify whether the Secret or its key must be defined
+                  type: boolean
+              required:
+              - key
+              type: object
+            default:
+              description: Default indicates this location is the default backup storage
+                location.
+              type: boolean
             objectStorage:
               description: ObjectStorageLocation specifies the settings necessary
                 to connect to a provider's object storage.
@@ -106,8 +132,7 @@ spec:
           - provider
           type: object
         status:
-          description: BackupStorageLocationStatus defines the observed state of
-            BackupStorageLocation
+          description: BackupStorageLocationStatus defines the observed state of BackupStorageLocation
           properties:
             accessMode:
               description: "AccessMode is an unused field. \n Deprecated: there is
@@ -149,4 +174,9 @@ spec:
   - name: v1
     served: true
     storage: true
-
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
