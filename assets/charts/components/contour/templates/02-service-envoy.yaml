@@ -21,12 +21,14 @@ spec:
     {{- end }}
     name: http
     protocol: TCP
+    targetPort: 8080
   - port: 443
     {{- if eq .Values.envoy.serviceType "NodePort" }}
     nodePort: 30443
     {{- end }}
     name: https
     protocol: TCP
+    targetPort: 8443
   selector:
     app: envoy
   type: {{ .Values.envoy.serviceType }}
