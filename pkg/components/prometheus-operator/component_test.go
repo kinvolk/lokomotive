@@ -186,7 +186,7 @@ component "prometheus-operator" {
 		}
 		`,
 			expectedManifestName: k8sutil.ObjectMetadata{
-				Version: "networking.k8s.io/v1beta1", Kind: "Ingress", Name: "prometheus-operator-kube-p-prometheus",
+				Version: "networking.k8s.io/v1", Kind: "Ingress", Name: "prometheus-operator-kube-p-prometheus",
 			},
 			expected: "prometheus.mydomain.net",
 			jsonPath: "{.spec.rules[0].host}",
