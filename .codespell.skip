@@ -14,3 +14,4 @@
 ./docs/images/lokomotive-example.gif
 ./assets/terraform-modules/tinkerbell-sandbox/assets/setup.sh
 ./assets/charts/components/aws-ebs-csi-driver/crds
+./assets/charts/components/openebs-operator/charts
