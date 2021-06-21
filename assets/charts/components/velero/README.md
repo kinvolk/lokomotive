@@ -6,13 +6,13 @@ Velero has two main components: a CLI, and a server-side Kubernetes deployment.
 
 ## Installing the Velero CLI
 
-See the different options for installing the [Velero CLI](https://velero.io/docs/v1.5/basic-install/#install-the-cli).
+See the different options for installing the [Velero CLI](https://velero.io/docs/v1.6/basic-install/#install-the-cli).
 
 ## Installing the Velero server
 
 ### Velero version
 
-This helm chart installs Velero version v1.5.1 https://github.com/vmware-tanzu/velero/tree/v1.5.1. See the [#Upgrading](#upgrading) section for information on how to upgrade from other versions.
+This helm chart installs Velero version v1.6 https://velero.io/docs/v1.6/. See the [#Upgrading](#upgrading) section for information on how to upgrade from other versions.
 
 ### Provider credentials
 
@@ -22,21 +22,25 @@ When installing using the Helm chart, the provider's credential information will
 
 The default configuration values for this chart are listed in values.yaml.
 
-See Velero's full [official documentation](https://velero.io/docs/v1.5/basic-install/). More specifically, find your provider in the Velero list of [supported providers](https://velero.io/docs/v1.5/supported-providers/) for specific configuration information and examples.
+See Velero's full [official documentation](https://velero.io/docs/v1.6/basic-install/). More specifically, find your provider in the Velero list of [supported providers](https://velero.io/docs/v1.6/supported-providers/) for specific configuration information and examples.
 
+#### Set up Helm
+
+See the main [README.md](https://github.com/vmware-tanzu/helm-charts#kubernetes-helm-charts-for-vmware-tanzu).
 
 #### Using Helm 3
 
-First, create the namespace: `kubectl create namespace <YOUR NAMESPACE>`
-
 ##### Option 1) CLI commands
 
-Note: you may add the flag `--skip-crds` if you don't want to install the CRDs.
+Note: You may add the flag `--set cleanUpCRDs=true` if you want to delete the Velero CRDs after deleting a release.
+Please note that cleaning up CRDs will also delete any CRD instance, such as BackupStorageLocation and VolumeSnapshotLocation, which would have to be reconfigured when reinstalling Velero. The backup data in object storage will not be deleted, even though the backup instances in the cluster will.
 
 Specify the necessary values using the --set key=value[,key=value] argument to helm install. For example,
 
 ```bash
-helm install vmware-tanzu/velero --namespace <YOUR NAMESPACE> \
+helm install velero vmware-tanzu/velero \
+--namespace <YOUR NAMESPACE> \
+--create-namespace \
 --set-file credentials.secretContents.cloud=<FULL PATH TO FILE> \
 --set configuration.provider=<PROVIDER NAME> \
 --set configuration.backupStorageLocation.name=<BACKUP STORAGE LOCATION NAME> \
@@ -44,15 +48,13 @@ helm install vmware-tanzu/velero --namespace <YOUR NAMESPACE> \
 --set configuration.backupStorageLocation.config.region=<REGION> \
 --set configuration.volumeSnapshotLocation.name=<VOLUME SNAPSHOT LOCATION NAME> \
 --set configuration.volumeSnapshotLocation.config.region=<REGION> \
---set image.repository=velero/velero \
---set image.tag=v1.5.1 \
---set image.pullPolicy=IfNotPresent \
---set initContainers[0].name=velero-plugin-for-aws \
---set initContainers[0].image=velero/velero-plugin-for-aws:v1.1.0 \
+--set initContainers[0].name=velero-plugin-for-<PROVIDER NAME> \
+--set initContainers[0].image=velero/velero-plugin-for-<PROVIDER NAME>:<PROVIDER PLUGIN TAG> \
 --set initContainers[0].volumeMounts[0].mountPath=/target \
---set initContainers[0].volumeMounts[0].name=plugins \
---generate-name
+--set initContainers[0].volumeMounts[0].name=plugins
 ```
+
+Users of zsh might need to put quotes around key/value pairs.
 
 ##### Option 2) YAML file
 
@@ -71,47 +73,7 @@ helm upgrade vmware-tanzu/velero <RELEASE NAME> --namespace <YOUR NAMESPACE> --r
 
 #### Using Helm 2
 
-##### Tiller cluster-admin permissions
-
-A service account and the role binding prerequisite must be added to Tiller when configuring Helm to install Velero:
-
-```
-kubectl create sa -n kube-system tiller
-kubectl create clusterrolebinding tiller-cluster-admin --clusterrole cluster-admin --serviceaccount kube-system:tiller
-helm init --service-account=tiller --wait --upgrade
-```
-
-##### Option 1) CLI commands
-
-Note: you may add the flag `--set installCRDs=false` if you don't want to install the CRDs.
-
-Specify the necessary values using the --set key=value[,key=value] argument to helm install. For example,
-
-```bash
-helm install vmware-tanzu/velero --namespace <YOUR NAMESPACE> \
---set-file credentials.secretContents.cloud=<FULL PATH TO FILE> \
---set configuration.provider=aws \
---set configuration.backupStorageLocation.name=<BACKUP STORAGE LOCATION NAME> \
---set configuration.backupStorageLocation.bucket=<BUCKET NAME> \
---set configuration.backupStorageLocation.config.region=<REGION> \
---set configuration.volumeSnapshotLocation.name=<VOLUME SNAPSHOT LOCATION NAME> \
---set configuration.volumeSnapshotLocation.config.region=<REGION> \
---set image.repository=velero/velero \
---set image.tag=v1.5.1 \
---set image.pullPolicy=IfNotPresent \
---set initContainers[0].name=velero-plugin-for-aws \
---set initContainers[0].image=velero/velero-plugin-for-aws:v1.1.0 \
---set initContainers[0].volumeMounts[0].mountPath=/target \
---set initContainers[0].volumeMounts[0].name=plugins 
-```
-
-##### Option 2) YAML file
-
-Add/update the necessary values by changing the values.yaml from this repository, then run:
-
-```bash
-helm install vmware-tanzu/velero --namespace <YOUR NAMESPACE> -f values.yaml
-```
+We're no longer support Helm v2 since it's deprecated in November 2020.
 
 ##### Upgrade the configuration
 
@@ -123,10 +85,13 @@ helm upgrade vmware-tanzu/velero <RELEASE NAME> --reuse-values --set configurati
 
 ## Upgrading
 
+### Upgrading to v1.6
+
+The [instructions found here](https://velero.io/docs/v1.6/upgrade-to-1.6/) will assist you in upgrading from version v1.5.x to v1.6.
+
 ### Upgrading to v1.5
 
 The [instructions found here](https://velero.io/docs/v1.5/upgrade-to-1.5/) will assist you in upgrading from version v1.4.x to v1.5.
-
 
 ### Upgrading to v1.4
 
@@ -148,14 +113,8 @@ The [instructions found here](https://velero.io/docs/v1.1.0/upgrade-to-1.1/) wil
 
 Note: when you uninstall the Velero server, all backups remain untouched.
 
-### Using Helm 2
-
-```bash
-helm delete <RELEASE NAME> --purge
-```
-
 ### Using Helm 3
 
 ```bash
-helm delete <RELEASE NAME> -n <YOUR NAMESPACE>
+helm uninstall <RELEASE NAME> -n <YOUR NAMESPACE>
 ```

@@ -4,8 +4,8 @@ kind: BackupStorageLocation
 metadata:
   name: {{ include "velero.backupStorageLocation.name" . }}
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-delete-policy": "before-hook-creation"
+    "helm.sh/hook": post-install,post-upgrade,post-rollback
+    "helm.sh/hook-delete-policy": before-hook-creation
   labels:
     app.kubernetes.io/name: {{ include "velero.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -13,6 +13,9 @@ metadata:
     helm.sh/chart: {{ include "velero.chart" . }}
 spec:
   provider: {{ include "velero.backupStorageLocation.provider" . }}
+  {{- with .Values.configuration.backupStorageLocation.default }}
+  default: {{ . }}
+  {{- end }}
 {{- with .Values.configuration.backupStorageLocation }}
   objectStorage:
     bucket: {{ .bucket  }}
@@ -24,9 +27,8 @@ spec:
     {{- end }}
 {{- with .config }}
   config:
-{{ toYaml . | indent 4}}
-{{- if .s3ForcePathStyle }}
-    s3ForcePathStyle: {{ .s3ForcePathStyle | quote }}
+{{- range $key, $value := . }}
+{{- $key | nindent 4 }}: {{ $value | quote }}
 {{- end }}
 {{- end }}
 {{- end }}

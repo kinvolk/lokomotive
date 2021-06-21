@@ -155,3 +155,17 @@ git checkout aws-ebs-csi-driver/crds
 Update the CRDs by following the changes in this [upstream CRD config](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/deploy/kubernetes/cluster/crd_snapshotter.yaml).
 
 - Code repository: https://github.com/kubernetes-sigs/aws-ebs-csi-driver.
+
+## velero
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf velero
+helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts
+helm repo update
+helm fetch --untar --untardir ./ vmware-tanzu/velero
+```
+
+- Chart location: https://github.com/vmware-tanzu/helm-charts/tree/main/charts/velero

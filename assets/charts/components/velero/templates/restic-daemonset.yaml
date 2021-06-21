@@ -1,14 +1,23 @@
 {{- if .Values.deployRestic }}
 {{- $provider := .Values.configuration.provider -}}
+{{/* 'restic.securityContext' got renamed to 'restic.containerSecurityContext', merge both dicts into one for backward compatibility */}}
+{{- $containerSecurityContext := merge (.Values.restic.containerSecurityContext | default dict) (.Values.restic.securityContext | default dict) -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: restic
+  {{- with .Values.restic.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "velero.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ include "velero.chart" . }}
+    {{- with .Values.restic.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   selector:
     matchLabels:
@@ -36,8 +45,10 @@ spec:
       {{- end }}
     {{- end }}
       serviceAccountName: {{ include "velero.serverServiceAccount" . }}
+      {{- with .Values.restic.podSecurityContext }}
       securityContext:
-        runAsUser: 0
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.restic.priorityClassName }}
       priorityClassName: {{ include "velero.restic.priorityClassName" . }}
       {{- end }}
@@ -55,6 +66,7 @@ spec:
         {{- if .Values.restic.extraVolumes }}
         {{- toYaml .Values.restic.extraVolumes | nindent 8 }}
         {{- end }}
+      dnsPolicy: {{ .Values.restic.dnsPolicy }}
       containers:
         - name: restic
         {{- if .Values.image.digest }}
@@ -92,6 +104,11 @@ spec:
             {{- if .Values.restic.extraVolumeMounts }}
             {{- toYaml .Values.restic.extraVolumeMounts | nindent 12 }}
             {{- end }}
+        {{- if .Values.credentials.extraSecretRef }}
+          envFrom:
+          - secretRef:
+              name: {{ .Values.credentials.extraSecretRef }}
+        {{- end }}
           env:
             - name: VELERO_NAMESPACE
               valueFrom:
@@ -135,7 +152,7 @@ spec:
           {{- end }}
           securityContext:
             privileged: {{ .Values.restic.privileged }}
-            {{- with .Values.restic.securityContext }}
+            {{- with $containerSecurityContext }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.restic.resources }}
@@ -144,6 +161,10 @@ spec:
           {{- end }}
       {{- with .Values.restic.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.restic.nodeSelector }}
+      nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
