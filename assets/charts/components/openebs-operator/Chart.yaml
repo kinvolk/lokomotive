@@ -1,5 +1,30 @@
-apiVersion: v1
-appVersion: 2.6.0
+apiVersion: v2
+appVersion: 2.10.0
+dependencies:
+- condition: openebs-ndm.enabled
+  name: openebs-ndm
+  repository: https://openebs.github.io/node-disk-manager
+  version: 1.5.0
+- condition: localpv-provisioner.enabled
+  name: localpv-provisioner
+  repository: https://openebs.github.io/dynamic-localpv-provisioner
+  version: 2.10.0
+- condition: cstor.enabled
+  name: cstor
+  repository: https://openebs.github.io/cstor-operators
+  version: 2.10.1
+- condition: jiva.enabled
+  name: jiva
+  repository: https://openebs.github.io/jiva-operator
+  version: 2.10.1
+- condition: zfs-localpv.enabled
+  name: zfs-localpv
+  repository: https://openebs.github.io/zfs-localpv
+  version: 1.8.0
+- condition: lvm-localpv.enabled
+  name: lvm-localpv
+  repository: https://openebs.github.io/lvm-localpv
+  version: 0.6.0
 description: Containerized Storage for Containers
 home: http://www.openebs.io/
 icon: https://raw.githubusercontent.com/cncf/artwork/master/projects/openebs/icon/color/openebs-icon-color.png
@@ -16,4 +41,4 @@ maintainers:
 name: openebs
 sources:
 - https://github.com/openebs/openebs
-version: 2.6.0
+version: 2.10.1

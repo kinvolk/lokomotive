@@ -1,0 +1,97 @@
+{{- if .Values.ndmOperator.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "openebs-ndm.operator.fullname" . }}
+  {{- with .Values.ndmOperator.annotations }}
+  annotations: {{ toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "openebs-ndm.operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ndmOperator.replicas }}
+  strategy:
+    type: "Recreate"
+    rollingUpdate: null
+  selector:
+    matchLabels:
+      {{- include "openebs-ndm.operator.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.ndmOperator.podAnnotations }}
+      annotations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openebs-ndm.operator.labels" . | nindent 8 }}
+        {{- with .Values.ndmOperator.podLabels}}
+        {{ toYaml . | nindent 8 }}
+        {{- end}}
+    spec:
+      serviceAccountName: {{ template "openebs-ndm.serviceAccountName" . }}
+      containers:
+      - name: {{ template "openebs-ndm.operator.fullname" . }}
+        image: "{{ .Values.ndmOperator.image.registry }}{{ .Values.ndmOperator.image.repository }}:{{ .Values.ndmOperator.image.tag }}"
+        imagePullPolicy: {{ .Values.ndmOperator.image.pullPolicy }}
+        resources:
+{{ toYaml .Values.ndmOperator.resources | indent 12 }}
+        readinessProbe:
+          exec:
+            command:
+            - stat
+            - /tmp/operator-sdk-ready
+          initialDelaySeconds: {{ .Values.ndmOperator.readinessCheck.initialDelaySeconds }}
+          periodSeconds: {{ .Values.ndmOperator.readinessCheck.periodSeconds }}
+          failureThreshold: {{ .Values.ndmOperator.readinessCheck.failureThreshold }}
+        env:
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: OPERATOR_NAME
+          value: "node-disk-operator"
+        - name: CLEANUP_JOB_IMAGE
+          value: "{{ .Values.helperPod.image.registry }}{{ .Values.helperPod.image.repository }}:{{ .Values.helperPod.image.tag }}"
+        # OPENEBS_IO_INSTALL_CRD environment variable is used to enable/disable CRD installation
+        # from NDM Operator. By default the CRDs will be installed
+        - name: OPENEBS_IO_INSTALL_CRD
+          value: "{{ .Values.crd.enableInstall }}"
+{{- if .Values.imagePullSecrets }}
+        - name: OPENEBS_IO_IMAGE_PULL_SECRETS
+          value: "{{- range $index, $secret := .Values.imagePullSecrets}}{{if $index}},{{end}}{{ $secret.name }}{{- end}}"
+{{- end }}
+        # Process name used for matching is limited to the 15 characters
+        # present in the pgrep output.
+        # So fullname can be used here with pgrep (cmd is < 15 chars).
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - "ndo"
+          initialDelaySeconds: {{ .Values.ndmOperator.healthCheck.initialDelaySeconds }}
+          periodSeconds: {{ .Values.ndmOperator.healthCheck.periodSeconds }}
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6 }}
+{{- end }}
+{{- if .Values.ndmOperator.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.ndmOperator.nodeSelector | indent 8 }}
+{{- end }}
+{{- if .Values.ndmOperator.securityContext }}
+      securityContext:
+{{ toYaml .Values.ndmOperator.securityContext | indent 8 }}
+{{- end }}
+{{- if .Values.ndmOperator.tolerations }}
+      tolerations:
+{{ toYaml .Values.ndmOperator.tolerations | indent 8 }}
+{{- end }}
+{{- end }}

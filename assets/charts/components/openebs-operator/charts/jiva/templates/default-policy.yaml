@@ -1,0 +1,12 @@
+{{- if .Values.defaultPolicy.enabled }}
+apiVersion: openebs.io/v1alpha1
+kind: JivaVolumePolicy
+metadata:
+  name: {{ .Values.defaultPolicy.name }}
+spec:
+  replicaSC: {{ .Values.defaultPolicy.replicaSC }}
+  enableBufio: false
+  autoScaling: false
+  target:
+    replicationFactor: {{ .Values.defaultPolicy.replicas }}
+{{- end }}

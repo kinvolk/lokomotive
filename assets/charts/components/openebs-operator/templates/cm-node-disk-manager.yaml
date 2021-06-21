@@ -31,7 +31,7 @@ data:
       - key: os-disk-exclude-filter
         name: os disk exclude filter
         state: {{ .Values.ndm.filters.enableOsDiskExcludeFilter }}
-        exclude: "/,/etc/hosts,/boot"
+        exclude: "{{ .Values.ndm.filters.osDiskExcludePaths }}"
       - key: vendor-filter
         name: vendor filter
         state: {{ .Values.ndm.filters.enableVendorFilter }}

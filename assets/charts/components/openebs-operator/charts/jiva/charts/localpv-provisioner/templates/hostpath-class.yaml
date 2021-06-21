@@ -1,0 +1,25 @@
+{{- if .Values.hostpathClass.enabled }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.hostpathClass.name }}
+  annotations:
+    openebs.io/cas-type: local
+    cas.openebs.io/config: |
+      - name: StorageType
+        value: "hostpath"
+{{- if .Values.hostpathClass.basePath }}
+      - name: BasePath
+        value: {{ .Values.hostpathClass.basePath }}
+{{- end }}
+{{- if .Values.hostpathClass.nodeAffinityLabel }}
+      - name: NodeAffinityLabel
+        value: {{ .Values.hostpathClass.nodeAffinityLabel }}
+{{- end }}
+{{- if .Values.hostpathClass.isDefaultClass }}
+    storageclass.kubernetes.io/is-default-class: "true"
+{{- end }}
+provisioner: openebs.io/local
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: {{ .Values.hostpathClass.reclaimPolicy }}
+{{- end }}
