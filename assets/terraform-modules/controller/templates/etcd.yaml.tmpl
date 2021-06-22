@@ -24,7 +24,6 @@ systemd:
         ExecStartPre=-docker rm -f etcd
         ExecStartPre=sh -c "docker run -d \
           --name=etcd \
-          --restart=unless-stopped \
           --log-driver=journald \
           --network=host \
           -u $(id -u \"$${USER}\"):$(id -u \"$${USER}\") \
