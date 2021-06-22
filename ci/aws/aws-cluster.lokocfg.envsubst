@@ -11,6 +11,7 @@ cluster "aws" {
   asset_dir        = pathexpand(var.asset_dir)
   cluster_name     = "$CLUSTER_ID"
   controller_count = 2
+  controller_type  = "c5a.2xlarge"
   dns_zone         = "$AWS_DNS_ZONE"
   dns_zone_id      = "$AWS_DNS_ZONE_ID"
   os_channel       = var.os_channel
