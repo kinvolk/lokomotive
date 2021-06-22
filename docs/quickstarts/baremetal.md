@@ -8,6 +8,9 @@ weight: 10
 This quickstart guide walks through the steps needed to create a Lokomotive cluster on bare metal with
 Flatcar Container Linux utilizing PXE.
 
+We recommend you to check out [Racker](https://github.com/kinvolk/racker) for an integrated solution
+based on the Lokomotive bare metal platform.
+
 By the end of this guide, you'll have a working Kubernetes cluster with 1 controller node and 2
 worker nodes.
 
@@ -15,14 +18,14 @@ worker nodes.
 
 * Basic understanding of Kubernetes concepts.
 * Terraform v0.13.x installed locally.
-* Machines with at least 2GB RAM, 30GB disk, PXE-enabled NIC and IPMI.
+* Machines with at least 2.5GB RAM, 30GB disk, PXE-enabled NIC and IPMI.
 * PXE-enabled [network boot](https://coreos.com/matchbox/docs/latest/network-setup.html) environment.
 * Matchbox v0.6+ deployment with API enabled.
 * Matchbox credentials `client.crt`, `client.key`, `ca.crt`.
 * An SSH key pair for management access.
 * `kubectl` installed locally to access the Kubernetes cluster.
 
-Note that the machines should only be powered on after starting the installation, see below.
+Note that without a proper `pxe_commands` value the machines should only be powered on manually after starting the installation, see below.
 
 ## Steps
 
@@ -171,6 +174,9 @@ cluster "bare-metal" {
     "node2",
     "node3",
   ]
+
+  # Automation to force a PXE boot, a dummy sleep for now as you will do it manually.
+  pxe_commands = "sleep 300"
 }
 
 ```
@@ -197,7 +203,9 @@ Run the following command to create the cluster:
 lokoctl cluster apply
 ```
 
-**Proceed to Power on the PXE machines while this loops.**
+**Proceed to Power on the PXE machines while this loops, but only after Matchbox has the configuration ready.**
+See the [configuration reference](../configuration-reference/platforms/baremetal.md) on how to properly configure `pxe_commands`
+to automate the provisioning reliably.
 
 Once the command finishes, your Lokomotive cluster details are stored in the path you've specified
 under `asset_dir`.

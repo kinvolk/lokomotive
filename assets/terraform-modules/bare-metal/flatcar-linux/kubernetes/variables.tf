@@ -61,6 +61,12 @@ variable "clc_snippets" {
   default     = {}
 }
 
+variable "installer_clc_snippets" {
+  type        = map(list(string))
+  description = "Map from machine names to lists of Container Linux Config snippets, applied for the PXE-booted installer OS"
+  default     = {}
+}
+
 variable "labels" {
   type        = map(string)
   description = "Map of labels for worker nodes."
@@ -220,4 +226,16 @@ variable "wipe_additional_disks" {
   type        = bool
   description = "Wipes any additional disks attached, if set to true"
   default     = false
+}
+
+variable "pxe_commands" {
+  type        = string
+  default     = "echo 'you must (re)provision the node by booting via iPXE from http://MATCHBOX/boot.ipxe'; exit 1"
+  description = "shell commands to execute for PXE (re)provisioning, with access to the variables $mac (the MAC address), $name (the node name), and $domain (the domain name), e.g., 'bmc=bmc-$domain; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on'"
+}
+
+variable "install_pre_reboot_cmds" {
+  type        = string
+  default     = "true"
+  description = "shell commands to execute on the provisioned host after installation finished and before reboot, e.g., docker run --privileged --net host --rm debian sh -c 'apt update && apt install -y ipmitool && ipmitool chassis bootdev disk options=persistent'"
 }

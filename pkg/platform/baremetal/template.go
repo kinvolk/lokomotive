@@ -108,6 +108,18 @@ module "bare-metal-{{.ClusterName}}" {
   ]
   {{- end }}
 
+  {{- if .PXECommands }}
+  pxe_commands = <<EOT
+{{ .PXECommands }}
+EOT
+  {{- end }}
+
+  {{- if .InstallPreBootCmds }}
+  install_pre_reboot_cmds = <<EOT
+{{ .InstallPreBootCmds }}
+EOT
+  {{- end }}
+
   download_protocol = "{{ .DownloadProtocol }}"
 
   wipe_additional_disks = "{{ .WipeAdditionalDisks }}"
@@ -117,6 +129,21 @@ module "bare-metal-{{.ClusterName}}" {
   {{- if .CLCSnippets}}
   clc_snippets = {
     {{- range $nodeName, $clcSnippetList := .CLCSnippets }}
+    "{{ $nodeName }}" = [
+    {{- range $clcSnippet := $clcSnippetList }}
+      <<EOF
+{{ $clcSnippet }}
+EOF
+      ,
+    {{- end }}
+    ]
+    {{- end }}
+  }
+  {{- end }}
+
+  {{- if .InstallerCLCSnippets}}
+  installer_clc_snippets = {
+    {{- range $nodeName, $clcSnippetList := .InstallerCLCSnippets }}
     "{{ $nodeName }}" = [
     {{- range $clcSnippet := $clcSnippetList }}
       <<EOF

@@ -50,6 +50,8 @@ type config struct {
 	NetworkMTU                   int                 `hcl:"network_mtu,optional"`
 	OSChannel                    string              `hcl:"os_channel,optional"`
 	OSVersion                    string              `hcl:"os_version,optional"`
+	PXECommands                  string              `hcl:"pxe_commands,optional"`
+	InstallPreBootCmds           string              `hcl:"install_pre_reboot_cmds,optional"`
 	SSHPubKeys                   []string            `hcl:"ssh_pubkeys"`
 	WorkerNames                  []string            `hcl:"worker_names"`
 	WorkerMacs                   []string            `hcl:"worker_macs"`
@@ -67,6 +69,7 @@ type config struct {
 	DownloadProtocol             string              `hcl:"download_protocol,optional"`
 	NetworkIPAutodetectionMethod string              `hcl:"network_ip_autodetection_method,optional"`
 	CLCSnippets                  map[string][]string `hcl:"clc_snippets,optional"`
+	InstallerCLCSnippets         map[string][]string `hcl:"installer_clc_snippets,optional"`
 	CertsValidityPeriodHours     int                 `hcl:"certs_validity_period_hours,optional"`
 	WipeAdditionalDisks          bool                `hcl:"wipe_additional_disks,optional"`
 	KubeAPIServerExtraFlags      []string
@@ -233,6 +236,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		NetworkMTU                   int
 		OSChannel                    string
 		OSVersion                    string
+		PXECommands                  string
+		InstallPreBootCmds           string
 		SSHPublicKeys                string
 		WorkerNames                  string
 		WorkerMacs                   string
@@ -252,6 +257,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DownloadProtocol             string
 		NetworkIPAutodetectionMethod string
 		CLCSnippets                  map[string][]string
+		InstallerCLCSnippets         map[string][]string
 		WipeAdditionalDisks          bool
 	}{
 		CachedInstall:                cfg.CachedInstall,
@@ -268,6 +274,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		NetworkMTU:                   cfg.NetworkMTU,
 		OSChannel:                    cfg.OSChannel,
 		OSVersion:                    cfg.OSVersion,
+		PXECommands:                  cfg.PXECommands,
+		InstallPreBootCmds:           cfg.InstallPreBootCmds,
 		SSHPublicKeys:                string(keyListBytes),
 		WorkerNames:                  string(workerNames),
 		WorkerMacs:                   string(workerMacs),
@@ -287,6 +295,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		DownloadProtocol:             cfg.DownloadProtocol,
 		NetworkIPAutodetectionMethod: cfg.NetworkIPAutodetectionMethod,
 		CLCSnippets:                  cfg.CLCSnippets,
+		InstallerCLCSnippets:         cfg.InstallerCLCSnippets,
 		WipeAdditionalDisks:          cfg.WipeAdditionalDisks,
 	}
 

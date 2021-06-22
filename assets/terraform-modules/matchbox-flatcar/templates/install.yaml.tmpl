@@ -49,7 +49,6 @@ storage:
             wipefs -f -a "$${disk}" || echo "error: failed to wipe $${disk}"
           done
           %{~ endif ~}
-          curl --retry 10 "${ignition_endpoint}?{{.request.raw_query}}&os=installed" -o ignition.json
           flatcar-install \
             %{~ if install_to_smallest_disk ~}
             -s \
@@ -59,16 +58,16 @@ storage:
             -C ${os_channel} \
             -V ${os_version} \
             -o "${container_linux_oem}" \
-            ${baseurl_flag} \
-            -i ignition.json
+            ${baseurl_flag}
           udevadm settle
           OEM_DEV="$(blkid -t "LABEL=OEM" -o device)"
           mkdir -p /tmp/oemfs
           mount "$${OEM_DEV}" /tmp/oemfs
           # append to file on newly created partition, do not remove the defaults
-          echo 'set linux_append="${kernel_args}"' >> /tmp/oemfs/grub.cfg
+          echo 'set linux_append="${kernel_args} ignition.config.url=${ignition_endpoint}?mac=${mac_address}&os=installed"' >> /tmp/oemfs/grub.cfg
           echo 'set linux_console="${kernel_console}"' >> /tmp/oemfs/grub.cfg
           umount /tmp/oemfs
+          ${install_pre_reboot_cmds}
           systemctl reboot
 passwd:
   users:

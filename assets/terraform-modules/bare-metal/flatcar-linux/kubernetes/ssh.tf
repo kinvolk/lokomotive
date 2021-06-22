@@ -81,7 +81,12 @@ resource "null_resource" "copy-controller-secrets" {
     ]
   }
 
+
+  # Triggered when the Ignition Config changes (used to recreate a controller)
   triggers = {
+    clc_config       = module.controller[count.index].clc_config
+    kernel_console   = join(" ", var.kernel_console)
+    kernel_args      = join(" ", var.kernel_args)
     etcd_ca_cert     = module.bootkube.etcd_ca_cert
     etcd_server_cert = module.bootkube.etcd_server_cert
     etcd_peer_cert   = module.bootkube.etcd_peer_cert

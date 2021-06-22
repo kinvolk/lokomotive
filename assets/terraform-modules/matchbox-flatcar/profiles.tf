@@ -18,7 +18,11 @@ resource "matchbox_profile" "flatcar-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = templatefile("${path.module}/templates/install.yaml.tmpl", {
+  raw_ignition = data.ct_config.install-ignitions.rendered
+}
+
+data "ct_config" "install-ignitions" {
+  content = templatefile("${path.module}/templates/install.yaml.tmpl", {
     os_channel               = var.os_channel
     os_version               = var.os_version
     ignition_endpoint        = format("%s/ignition", var.http_endpoint)
@@ -29,9 +33,15 @@ resource "matchbox_profile" "flatcar-install" {
     kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
     wipe_additional_disks    = var.wipe_additional_disks
+    install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # only cached-container-linux profile adds -b baseurl
     baseurl_flag = ""
+    mac_address  = var.node_mac
   })
+
+  pretty_print = false
+
+  snippets = var.installer_clc_snippets
 }
 
 // Flatcar Container Linux Install profile (from matchbox /assets cache)
@@ -56,7 +66,11 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     var.kernel_args,
   ])
 
-  container_linux_config = templatefile("${path.module}/templates/install.yaml.tmpl", {
+  raw_ignition = data.ct_config.cached-install-ignitions.rendered
+}
+
+data "ct_config" "cached-install-ignitions" {
+  content = templatefile("${path.module}/templates/install.yaml.tmpl", {
     os_channel               = var.os_channel
     os_version               = var.os_version
     ignition_endpoint        = format("%s/ignition", var.http_endpoint)
@@ -67,9 +81,15 @@ resource "matchbox_profile" "cached-flatcar-linux-install" {
     kernel_console           = join(" ", var.kernel_console)
     kernel_args              = join(" ", var.kernel_args)
     wipe_additional_disks    = var.wipe_additional_disks
+    install_pre_reboot_cmds  = var.install_pre_reboot_cmds
     # profile uses -b baseurl to install from matchbox cache
     baseurl_flag = "-b ${var.http_endpoint}/assets/flatcar"
+    mac_address  = var.node_mac
   })
+
+  pretty_print = false
+
+  snippets = var.installer_clc_snippets
 }
 
 resource "matchbox_profile" "node" {

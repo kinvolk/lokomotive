@@ -1,0 +1,87 @@
+# (executed in-line, #!/... would be ignored)
+# Terraform template variable substitution:
+name=${name}
+domain=${domain}
+mac=${mac}
+asset_dir=${asset_dir}
+ignore_changes=${ignore_changes}
+kernel_args="${kernel_args}"
+kernel_console="${kernel_console}"
+ignition_endpoint="${ignition_endpoint}"
+# From now on use $var for dynamic shell substitution
+
+if test -f "$asset_dir/$mac" && [ "$(cat "$asset_dir/$mac")" = "$domain" ]; then
+  echo "found $asset_dir/$mac containing $domain, skipping PXE install"
+  node_exists=yes
+else
+  echo "$asset_dir/$mac does not contain $domain, forcing PXE install"
+  node_exists=no
+fi
+
+if [ $node_exists = yes ]; then
+  if $ignore_changes ; then
+    echo "Keeping old config because 'ignore_changes' is set."
+    exit 0
+  else
+    # run single commands that can be retried without a side effect in case the connection got disrupted
+    count=30
+    while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo touch /boot/flatcar/first_boot; do
+      sleep 1
+      count=$((count - 1))
+    done
+    if [ $count -eq 0 ]; then
+      echo "error reaching $domain via SSH, please remove the $asset_dir/$mac file to force a PXE install"
+      exit 1
+    fi
+    echo "created the first_boot flag file to reprovision $domain"
+    count=5
+    while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain "printf 'set linux_append=\"$kernel_args ignition.config.url=$ignition_endpoint?mac=$mac&os=installed\"\\nset linux_console=\"$kernel_console\"\\n' | sudo tee /usr/share/oem/grub.cfg"; do
+      sleep 1
+      count=$((count - 1))
+    done
+    if [ $count -eq 0 ]; then
+      echo "error reaching $domain via SSH, please retry"
+      exit 1
+    fi
+    count=5
+    while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo systemctl reboot; do
+      sleep 1
+      count=$((count - 1))
+    done
+    if [ $count -eq 0 ]; then
+      echo "error reaching $domain via SSH, please reboot manually"
+      exit 1
+    fi
+    echo "rebooted the $domain"
+  fi
+else
+  # the user may provide ipmitool commands or any other logic for forcing a PXE boot
+  ${pxe_commands}
+fi
+
+echo "checking that $domain comes up"
+count=600
+# check that we can reach the node and that it has the flag file which we remove here, indicating a reboot happened which prevents a race when issuing the reboot takes longer (both the systemctl reboot and PXE case)
+# Just in case the connection breaks and SSH may report an error code but still execute successfully, we will first check file existence and then delete with "rm -f" to be able to rerun both commands.
+# This sequence gives us the same error reporting as just running "rm" once.
+while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain test -f /ignition_ran; do
+  sleep 1
+  count=$((count - 1))
+done
+if [ $count -eq 0 ]; then
+  echo "error: failed verifying with SSH if $domain came up by checking the /ignition_ran flag file"
+  exit 1
+fi
+count=5
+while [ $count -gt 0 ] && ! ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NumberOfPasswordPrompts=0 core@$domain sudo rm -f /ignition_ran; do
+  sleep 1
+  count=$((count - 1))
+done
+if [ $count -eq 0 ]; then
+  echo "error: failed to remove the /ignition_ran flag file on $domain"
+  exit 1
+else
+  echo "$domain came up again"
+fi
+# only write the state file once the system is up, this allows to rerun lokoctl if the first PXE boot did not work and it will try again
+echo $domain > "$asset_dir/$mac"

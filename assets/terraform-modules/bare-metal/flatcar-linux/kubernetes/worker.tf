@@ -12,8 +12,22 @@ module "worker" {
   set_standard_hostname  = false
   clc_snippets = concat(lookup(var.clc_snippets, var.worker_names[count.index], []), [
     <<EOF
+filesystems:
+  - name: root
+    mount:
+      device: /dev/disk/by-label/ROOT
+      format: ext4
+      wipe_filesystem: true
+      label: ROOT
 storage:
   files:
+    - path: /ignition_ran
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          Flag file indicating that Ignition ran.
+          Should be deleted by the SSH step that checks it.
     - path: /etc/hostname
       filesystem: root
       mode: 0644

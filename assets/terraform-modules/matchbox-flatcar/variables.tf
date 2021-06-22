@@ -67,6 +67,12 @@ variable "ignition_clc_config" {
   description = "Ignition CLC snippets to include in the configuration."
 }
 
+variable "installer_clc_snippets" {
+  type        = list(string)
+  description = "List of Container Linux Config snippets."
+  default     = []
+}
+
 variable "node_name" {
   type        = string
   description = "Name of the node/machine."
@@ -81,4 +87,32 @@ variable "wipe_additional_disks" {
   type        = bool
   description = "Wipes any additional disks attached, if set to true"
   default     = false
+}
+
+variable "ignore_changes" {
+  description = "When set to true, ignores the reprovisioning of the node (unless the MAC address flag file is removed to force a PXE install)."
+  type        = bool
+  default     = false
+}
+
+variable "asset_dir" {
+  description = "Path to a directory where generated assets should be placed (contains secrets)"
+  type        = string
+}
+
+variable "node_domain" {
+  type        = string
+  description = "Node FQDN (e.g node1.example.com)."
+}
+
+variable "pxe_commands" {
+  type        = string
+  description = "shell commands to execute for PXE (re)provisioning, with access to the variables $mac (the MAC address), $name (the node name), and $domain (the domain name), e.g., 'bmc=bmc-$domain; ipmitool -H $bmc power off; ipmitool -H $bmc chassis bootdev pxe; ipmitool -H $bmc power on'."
+  default     = "echo 'you must (re)provision the node by booting via iPXE from http://MATCHBOX/boot.ipxe'; exit 1"
+}
+
+variable "install_pre_reboot_cmds" {
+  type        = string
+  description = "shell commands to execute on the provisioned host after installation finished and before reboot, e.g., docker run --privileged --net host --rm debian sh -c 'apt update && apt install -y ipmitool && ipmitool chassis bootdev disk options=persistent'."
+  default     = "true"
 }
