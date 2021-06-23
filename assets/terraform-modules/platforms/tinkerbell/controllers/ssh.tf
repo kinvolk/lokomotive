@@ -55,6 +55,7 @@ resource "null_resource" "copy-controller-secrets" {
       "sudo mv $HOME/kubeconfig /etc/kubernetes/kubeconfig",
       "sudo chown root:root /etc/kubernetes/kubeconfig",
       "sudo chmod 600 /etc/kubernetes/kubeconfig",
+      "sudo systemctl stop etcd",
       # Using "etcd/." copies the etcd/ folder recursively in an idempotent
       # way. See https://unix.stackexchange.com/a/228637 for details.
       "[ -d /etc/ssl/etcd ] && sudo cp -R /etc/ssl/etcd/. /etc/ssl/etcd.old && sudo rm -rf /etc/ssl/etcd",
@@ -71,7 +72,7 @@ resource "null_resource" "copy-controller-secrets" {
       # Use stdbuf to disable the buffer while printing logs to make sure everything is transmitted back to
       # Terraform before we return error. We should be able to remove it once
       # https://github.com/hashicorp/terraform/issues/27121 is resolved.
-      "sudo systemctl restart etcd || (stdbuf -i0 -o0 -e0 sudo journalctl -u etcd --no-pager; exit 1)",
+      "sudo systemctl start etcd || (stdbuf -i0 -o0 -e0 sudo journalctl -u etcd --no-pager; exit 1)",
     ]
   }
 

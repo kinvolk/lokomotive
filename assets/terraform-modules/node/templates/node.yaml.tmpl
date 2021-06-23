@@ -36,7 +36,6 @@ systemd:
         ExecStartPre=-docker rm -f kubelet
         ExecStartPre=docker run -d \
           --name=kubelet \
-          --restart=unless-stopped \
           --log-driver=journald \
           --network=host \
           --pid=host \
