@@ -8,10 +8,16 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/platform"
+)
+
+const (
+	retryInterval = 10 * time.Second
+	retryTimeout  = 30 * time.Minute
 )
 
 type certificateRotator struct {
@@ -99,8 +105,22 @@ func rotateControlPlaneCerts(contextLogger *log.Entry, cc clusterConfig) error {
 
 	contextLogger.Log(log.InfoLevel, "Applying a controlplane update with the new CA")
 
-	if err := c.upgradeControlPlane(contextLogger, kubeconfig); err != nil {
-		return fmt.Errorf("running controlplane upgrade: %v", err)
+	var upgradeErr error
+
+	err = wait.PollImmediate(retryInterval, retryTimeout, func() (bool, error) {
+		if upgradeErr = c.upgradeControlPlane(contextLogger, kubeconfig); upgradeErr != nil {
+			return false, nil
+		}
+
+		return true, nil
+	})
+
+	if upgradeErr != nil {
+		return fmt.Errorf("running controlplane upgrade: %w", upgradeErr)
+	}
+
+	if err != nil {
+		return fmt.Errorf("control plane did not upgrade after multiple retries: %w", err)
 	}
 
 	cs, err := k8sutil.NewClientset(kubeconfig)
