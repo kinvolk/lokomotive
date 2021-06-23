@@ -20,8 +20,8 @@ to update.
 Make note of the current version installed and the version to update and set
 the values accordingly in the document.
 
-As an example, in this document we are going to update from `v2.2.0` to
-`v2.6.0`.
+As an example, in this document we are going to update from `v2.6.0` to
+`v2.10.0`.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ To update the OpenEBS data plane components, we need the following:
 * [OpenEBS component](../../configuration-reference/components/openebs-operator)
   installed. You can check if OpenEBS is indeed in expected version:
     ```bash
-    kubectl get pods -n openebs -l openebs.io/version=2.2.0
+    kubectl get pods -n openebs -l openebs.io/version=2.6.0
     ```
 
 * Update process should not be disruptive, but it is recommended to schedule a
@@ -70,8 +70,8 @@ To update the OpenEBS data plane components, we need the following:
 
 Set the following environment variables in the terminal to assist in the update process:
 ```bash
-export OPENEBS_OLD_VERSION=2.2.0
-export OPENEBS_NEW_VERSION=2.6.0
+export OPENEBS_OLD_VERSION=2.6.0
+export OPENEBS_NEW_VERSION=2.10.0
 ```
 ### Step 1: Update OpenEBS control plane components
 
@@ -145,11 +145,12 @@ Ensure the job runs to completion:
 ```bash
 kubectl describe job -n openebs cstor-spc-${OPENEBS_OLD_VERSION}-to-${OPENEBS_NEW_VERSION}
 
-# Should see a similar outpu of 'Completed'
+# Should see a similar output of 'Completed'
+Events:
   Type    Reason            Age    From            Message
   ----    ------            ----   ----            -------
-  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-spc-2.2.0-to-2.6.0-hpcxl
-  Normal  Completed         52s    job-controller  Job completed
+  Normal  SuccessfulCreate  5m52s  job-controller  Created pod: cstor-spc-2.6.0-to-2.10.0-t8qg8
+  Normal  Completed         24s    job-controller  Job completed
 ```
 
 
@@ -198,11 +199,12 @@ Ensure the job runs to completion:
 ```bash
 kubectl describe job -n openebs cstor-vol-${OPENEBS_OLD_VERSION}-to-${OPENEBS_NEW_VERSION}
 
-# Should see a similar outpu of 'Completed'
+# Should see a similar output of 'Completed'
+Events:
   Type    Reason            Age    From            Message
   ----    ------            ----   ----            -------
-  Normal  SuccessfulCreate  2m35s  job-controller  Created pod: cstor-vol-2.2.0-to-2.6.0-gtwsd
-  Normal  Completed         1m36s  job-controller  Job completed
+  Normal  SuccessfulCreate  2m41s  job-controller  Created pod: cstor-vol-2.6.0-to-2.10.0-hjndp
+  Normal  Completed         7s     job-controller  Job completed
 ```
 
 ### Step 3: Verify

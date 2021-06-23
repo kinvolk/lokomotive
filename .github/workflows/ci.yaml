@@ -50,7 +50,7 @@ jobs:
       - name: Codespell test
         uses: codespell-project/actions-codespell@master
         with:
-          skip: ./vendor,./.git,./lokoctl,*.png,./assets/charts/components/cert-manager,./assets/charts/components/external-dns,./assets/charts/components/rook,./assets/charts/components/prometheus-operator,./assets/charts/components/velero,./assets/charts/components/cluster-autoscaler,./assets/charts/components/contour/crds,./assets/charts/components/openebs-operator/README.md,./assets/charts/control-plane/calico/crds,./docs/images/lokomotive-example.gif,./assets/terraform-modules/tinkerbell-sandbox/assets/setup.sh,./assets/charts/components/aws-ebs-csi-driver/crds
+          skip: ./vendor,./.git,./lokoctl,*.png,./assets/charts/components/cert-manager,./assets/charts/components/external-dns,./assets/charts/components/rook,./assets/charts/components/prometheus-operator,./assets/charts/components/velero,./assets/charts/components/cluster-autoscaler,./assets/charts/components/contour/crds,./assets/charts/components/openebs-operator/README.md,./assets/charts/control-plane/calico/crds,./docs/images/lokomotive-example.gif,./assets/terraform-modules/tinkerbell-sandbox/assets/setup.sh,./assets/charts/components/aws-ebs-csi-driver/crds,./assets/charts/components/openebs-operator/charts
           ignore_words_file: './.codespell.ignorewords'
           check_filenames: true
           check_hidden: true
