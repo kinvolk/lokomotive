@@ -170,3 +170,17 @@ helm fetch --untar --untardir ./ vmware-tanzu/velero
 ```
 
 - Chart location: https://github.com/vmware-tanzu/helm-charts/tree/main/charts/velero
+
+## node-problem-detector
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf node-problem-detector
+helm repo add deliveryhero https://charts.deliveryhero.io/
+helm repo update
+helm fetch --untar --untardir ./ deliveryhero/node-problem-detector
+```
+
+- Chart location: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/Chart.yaml.
