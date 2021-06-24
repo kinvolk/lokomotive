@@ -92,6 +92,10 @@ spec:
         - name: DISCOVER_AGENT_NODE_AFFINITY
           value: {{ .Values.discover.nodeAffinity }}
 {{- end }}
+{{- if .Values.discover.podLabels }}
+        - name: DISCOVER_AGENT_POD_LABELS
+          value: {{ .Values.discover.podLabels }}
+{{- end }}
 {{- end }}
         - name: ROOK_HOSTPATH_REQUIRES_PRIVILEGED
           value: "{{ .Values.hostpathRequiresPrivileged }}"
@@ -106,13 +110,33 @@ spec:
           value: {{ .Values.csi.enableRbdDriver | quote }}
         - name: ROOK_CSI_ENABLE_CEPHFS
           value: {{ .Values.csi.enableCephfsDriver | quote }}
+        - name: CSI_ENABLE_CEPHFS_SNAPSHOTTER
+          value: {{ .Values.csi.enableCephfsSnapshotter | quote }}
+        - name: CSI_ENABLE_RBD_SNAPSHOTTER
+          value: {{ .Values.csi.enableRBDSnapshotter | quote }}
         - name: CSI_PLUGIN_PRIORITY_CLASSNAME
           value: {{ .Values.csi.pluginPriorityClassName | quote }}
         - name: CSI_PROVISIONER_PRIORITY_CLASSNAME
           value: {{ .Values.csi.provisionerPriorityClassName | quote }}
+        - name: CSI_ENABLE_OMAP_GENERATOR
+          value: {{ .Values.csi.enableOMAPGenerator | quote }}
+        - name: CSI_ENABLE_VOLUME_REPLICATION
+          value: {{ .Values.csi.volumeReplication.enabled | quote }}
+{{- if .Values.csi.enableCSIHostNetwork }}
+        - name: CSI_ENABLE_HOST_NETWORK
+          value: {{ .Values.csi.enableCSIHostNetwork | quote }}
+{{- end }}
 {{- if .Values.csi.cephFSPluginUpdateStrategy }}
         - name: CSI_CEPHFS_PLUGIN_UPDATE_STRATEGY
           value: {{ .Values.csi.cephFSPluginUpdateStrategy | quote }}
+{{- end }}
+{{- if .Values.csi.rbdFSGroupPolicy }}
+        - name: CSI_RBD_FSGROUPPOLICY
+          value: {{ .Values.csi.rbdFSGroupPolicy | quote }}
+{{- end }}
+{{- if .Values.csi.cephFSFSGroupPolicy }}
+        - name: CSI_CEPHFS_FSGROUPPOLICY
+          value: {{ .Values.csi.cephFSFSGroupPolicy | quote }}
 {{- end }}
 {{- if .Values.csi.rbdPluginUpdateStrategy }}
         - name: CSI_RBD_PLUGIN_UPDATE_STRATEGY
@@ -160,6 +184,20 @@ spec:
           value: {{ .Values.csi.resizer.image | quote }}
 {{- end }}
 {{- end }}
+{{- if .Values.csi.volumeReplication }}
+{{- if .Values.csi.volumeReplication.image }}
+        - name: CSI_VOLUME_REPLICATION_IMAGE
+          value: {{ .Values.csi.volumeReplication.image | quote }}
+{{- end }}
+{{- end }}
+{{- if .Values.csi.cephfsPodLabels }}
+        - name: ROOK_CSI_CEPHFS_POD_LABELS
+          value: {{ .Values.csi.cephfsPodLabels | quote }}
+{{- end }}
+{{- if .Values.csi.rbdPodLabels }}
+        - name: ROOK_CSI_RBD_POD_LABELS
+          value: {{ .Values.csi.rbdPodLabels | quote }}
+{{- end }}
 {{- if .Values.csi.provisionerTolerations }}
         - name: CSI_PROVISIONER_TOLERATIONS
           value: {{ toYaml .Values.csi.provisionerTolerations | quote }}
@@ -167,6 +205,22 @@ spec:
 {{- if .Values.csi.provisionerNodeAffinity }}
         - name: CSI_PROVISIONER_NODE_AFFINITY
           value: {{ .Values.csi.provisionerNodeAffinity }}
+{{- end }}
+{{- if .Values.csi.rbdProvisionerTolerations }}
+        - name: CSI_RBD_PROVISIONER_TOLERATIONS
+          value: {{ toYaml .Values.csi.rbdProvisionerTolerations | quote }}
+{{- end }}
+{{- if .Values.csi.rbdProvisionerNodeAffinity }}
+        - name: CSI_RBD_PROVISIONER_NODE_AFFINITY
+          value: {{ .Values.csi.rbdProvisionerNodeAffinity }}
+{{- end }}
+{{- if .Values.csi.cephFSProvisionerTolerations }}
+        - name: CSI_CEPHFS_PROVISIONER_TOLERATIONS
+          value: {{ toYaml .Values.csi.cephFSProvisionerTolerations | quote }}
+{{- end }}
+{{- if .Values.csi.cephFSProvisionerNodeAffinity }}
+        - name: CSI_CEPHFS_PROVISIONER_NODE_AFFINITY
+          value: {{ .Values.csi.cephFSProvisionerNodeAffinity }}
 {{- end }}
 {{- if .Values.csi.allowUnsupportedVersion }}
         - name: ROOK_CSI_ALLOW_UNSUPPORTED_VERSION
@@ -179,6 +233,22 @@ spec:
 {{- if .Values.csi.pluginNodeAffinity }}
         - name: CSI_PLUGIN_NODE_AFFINITY
           value: {{ .Values.csi.pluginNodeAffinity }}
+{{- end }}
+{{- if .Values.csi.rbdPluginTolerations }}
+        - name: CSI_RBD_PLUGIN_TOLERATIONS
+          value: {{ toYaml .Values.csi.rbdPluginTolerations | quote }}
+{{- end }}
+{{- if .Values.csi.rbdPluginNodeAffinity }}
+        - name: CSI_RBD_PLUGIN_NODE_AFFINITY
+          value: {{ .Values.csi.rbdPluginNodeAffinity }}
+{{- end }}
+{{- if .Values.csi.cephFSPluginTolerations }}
+        - name: CSI_CEPHFS_PLUGIN_TOLERATIONS
+          value: {{ toYaml .Values.csi.cephFSPluginTolerations | quote }}
+{{- end }}
+{{- if .Values.csi.cephFSPluginNodeAffinity }}
+        - name: CSI_CEPHFS_PLUGIN_NODE_AFFINITY
+          value: {{ .Values.csi.cephFSPluginNodeAffinity }}
 {{- end }}
 {{- if .Values.csi.cephfsGrpcMetricsPort }}
         - name: CSI_CEPHFS_GRPC_METRICS_PORT
@@ -240,12 +310,28 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+{{- if .Values.admissionController }}
+{{- if .Values.admissionController.tolerations }}
+        - name: ADMISSION_CONTROLLER_TOLERATIONS
+          value: {{ toYaml .Values.admissionController.tolerations | quote }}
+{{- end }}
+{{- if .Values.admissionController.nodeAffinity }}
+        - name: ADMISSION_CONTROLLER_NODE_AFFINITY
+          value: {{ .Values.admissionController.nodeAffinity }}
+{{- end }}
+{{- end }}
 {{- if .Values.unreachableNodeTolerationSeconds }}
         - name: ROOK_UNREACHABLE_NODE_TOLERATION_SECONDS
           value: {{ .Values.unreachableNodeTolerationSeconds | quote }}
 {{- end }}
+{{- if .Values.allowMultipleFilesystems }}
+        - name: ROOK_ALLOW_MULTIPLE_FILESYSTEMS
+          value: {{ .Values.allowMultipleFilesystems | quote }}
+{{- end }}
+{{- if .Values.resources }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
+{{- end }}
 {{- if .Values.useOperatorHostNetwork }}
       hostNetwork: true
 {{- end }}

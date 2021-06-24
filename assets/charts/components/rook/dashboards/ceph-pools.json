@@ -11,10 +11,16 @@
   ],
   "__requires": [
     {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "6.1.0-beta1"
+      "version": "7.2.0"
     },
     {
       "type": "panel",
@@ -27,12 +33,6 @@
       "id": "prometheus",
       "name": "Prometheus",
       "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "singlestat",
-      "name": "Singlestat",
-      "version": ""
     }
   ],
   "annotations": {
@@ -53,11 +53,12 @@
   "gnetId": 5342,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1555240768858,
+  "iteration": 1603441502308,
   "links": [],
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -78,7 +79,14 @@
       "decimals": 2,
       "editable": true,
       "error": false,
-      "fill": 4,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 3,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
@@ -87,6 +95,7 @@
         "y": 1
       },
       "height": "",
+      "hiddenSeries": false,
       "id": 2,
       "interval": "$interval",
       "isNew": true,
@@ -102,21 +111,27 @@
         "values": true
       },
       "lines": true,
-      "linewidth": 0,
+      "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
-      "pointradius": 5,
+      "pluginVersion": "7.2.0",
+      "pointradius": 0.5,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:2955",
           "alias": "/^Total.*$/",
           "fill": 0,
           "linewidth": 4,
           "stack": false
         },
         {
+          "$$hashKey": "object:2956",
           "alias": "/^Raw.*$/",
           "color": "#BF1B00",
           "fill": 0,
@@ -124,45 +139,49 @@
         }
       ],
       "spaceLength": 10,
-      "stack": true,
+      "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "expr": "ceph_pool_max_avail{pool_id=~\"^$pool$\"}",
+          "expr": "sum((ceph_pool_max_avail) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
+          "hide": false,
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Available - {{ pool }}",
+          "legendFormat": "Available - {{ name }}",
           "metric": "ceph_pool_available_bytes",
           "refId": "A",
           "step": 60
         },
         {
-          "expr": "ceph_pool_stored{pool_id=~\"^$pool$\"}",
+          "expr": "sum((ceph_pool_stored) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
+          "hide": false,
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Used - {{ pool }}",
+          "legendFormat": "Stored - {{ name }}",
           "metric": "ceph_pool",
           "refId": "B",
           "step": 60
         },
         {
-          "expr": "ceph_pool_stored{pool_id=~\"^$pool$\"} + ceph_pool_max_avail{pool_id=~\"^$pool$\"}",
+          "expr": "sum((ceph_pool_stored + ceph_pool_max_avail) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
+          "hide": true,
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Total - {{ pool }}",
+          "legendFormat": "Total - {{ name }}",
           "metric": "ceph_pool",
           "refId": "C",
           "step": 60
         },
         {
-          "expr": "ceph_pool_stored_raw{pool_id=~\"^$pool$\"}",
+          "expr": "sum((ceph_pool_stored_raw) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
+          "hide": false,
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Raw - {{ pool }}",
+          "legendFormat": "Raw - {{ name }}",
           "metric": "ceph_pool",
           "refId": "D",
           "step": 60
@@ -189,6 +208,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:2853",
           "format": "bytes",
           "label": null,
           "logBase": 1,
@@ -197,6 +217,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:2854",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -212,24 +233,43 @@
     },
     {
       "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "rgba(245, 54, 54, 0.9)",
-        "rgba(237, 129, 40, 0.89)",
-        "rgba(50, 172, 45, 0.97)"
-      ],
       "datasource": "Prometheus",
-      "decimals": 2,
-      "editable": true,
-      "error": false,
-      "format": "percentunit",
-      "gauge": {
-        "maxValue": 1,
-        "minValue": 0,
-        "show": true,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 2,
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "nullValueMode": "connected",
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -239,65 +279,38 @@
       },
       "id": 10,
       "interval": null,
-      "isNew": true,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
-      "tableColumn": "",
+      "pluginVersion": "7.2.0",
       "targets": [
         {
-          "expr": "ceph_pool_stored{pool_id=\"$pool\"} / (ceph_pool_stored{pool_id=\"$pool\"} + ceph_pool_max_avail{pool_id=\"$pool\"})",
+          "expr": "sum without (instance, pool_id, name) ((ceph_pool_stored / (ceph_pool_stored + ceph_pool_max_avail)) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"}))",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
+          "legendFormat": "",
           "refId": "A",
           "step": 60
         }
       ],
-      "thresholds": "",
       "title": "Usage",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "gauge"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -317,31 +330,45 @@
       "datasource": "Prometheus",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 9
       },
       "height": "",
+      "hiddenSeries": false,
       "id": 7,
       "isNew": true,
       "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
         "min": false,
+        "rightSide": false,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 2,
       "links": [],
       "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
+      "pluginVersion": "7.2.0",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -351,29 +378,29 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "ceph_pool_objects{pool_id=~\"$pool\"}",
+          "expr": "sum((ceph_pool_objects) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Objects - {{ pool }}",
+          "legendFormat": "Objects - {{ name }}",
           "refId": "A",
           "step": 60
         },
         {
-          "expr": "ceph_pool_dirty{pool_id=~\"$pool\"}",
+          "expr": "sum((ceph_pool_dirty) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Dirty Objects - {{ pool }}",
+          "legendFormat": "Dirty Objects - {{ name }}",
           "refId": "B",
           "step": 60
         },
         {
-          "expr": "ceph_pool_quota_objects{pool_id=~\"$pool\"}",
+          "expr": "sum((ceph_pool_quota_objects) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Quota Objects - {{ pool }}",
+          "legendFormat": "Quota Objects - {{ name }}",
           "refId": "C"
         }
       ],
@@ -428,14 +455,22 @@
       "decimals": 2,
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 12,
         "y": 9
       },
+      "hiddenSeries": false,
       "id": 4,
       "interval": "$interval",
       "isNew": true,
@@ -453,7 +488,11 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
+      "pluginVersion": "7.2.0",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -463,20 +502,20 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(ceph_pool_rd{pool_id=~\"$pool\"}[3m])",
+          "expr": "sum((irate(ceph_pool_rd[3m])) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Read - {{ pool }}",
+          "legendFormat": "Read - {{ name }}",
           "refId": "B",
           "step": 60
         },
         {
-          "expr": "irate(ceph_pool_wr{pool_id=~\"$pool\"}[3m])",
+          "expr": "sum((irate(ceph_pool_wr[3m])) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Write - {{ pool }}",
+          "legendFormat": "Write - {{ name }}",
           "refId": "A",
           "step": 60
         }
@@ -532,14 +571,22 @@
       "decimals": 2,
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 17
       },
+      "hiddenSeries": false,
       "id": 5,
       "interval": "$interval",
       "isNew": true,
@@ -549,6 +596,7 @@
         "current": true,
         "max": true,
         "min": true,
+        "rightSide": false,
         "show": true,
         "total": false,
         "values": true
@@ -557,7 +605,11 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
+      "pluginVersion": "7.2.0",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -567,20 +619,20 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(ceph_pool_rd_bytes{pool_id=\"$pool\"}[$interval])",
+          "expr": "sum((irate(ceph_pool_rd_bytes[5m])) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Read Bytes - {{ pool }}",
+          "legendFormat": "Read Bytes - {{ name }}",
           "refId": "A",
           "step": 60
         },
         {
-          "expr": "irate(ceph_pool_wr_bytes{pool_id=\"$pool\"}[$interval])",
+          "expr": "sum((irate(ceph_pool_wr_bytes[5m])) *on (pool_id) group_left(name)(ceph_pool_metadata{name=~\"^$pool$\"})) by (name)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "Written Bytes - {{ pool }}",
+          "legendFormat": "Written Bytes - {{ name }}",
           "refId": "B",
           "step": 60
         }
@@ -629,7 +681,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 18,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [
     "ceph",
@@ -642,10 +694,11 @@
         "auto_count": 10,
         "auto_min": "1m",
         "current": {
+          "selected": false,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },
-        "datasource": "Prometheus",
+        "datasource": null,
         "hide": 0,
         "includeAll": false,
         "label": "Interval",
@@ -719,22 +772,23 @@
           }
         ],
         "query": "10s,30s,1m,10m,30m,1h,6h,12h,1d,7d,14d,30d",
+        "queryValue": "",
         "refresh": 2,
         "skipUrlSync": false,
         "type": "interval"
       },
       {
-        "allValue": null,
+        "allValue": ".*",
         "current": {},
         "datasource": "Prometheus",
-        "definition": "",
+        "definition": "label_values(ceph_pool_metadata, name)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Pool",
-        "multi": false,
+        "multi": true,
         "name": "pool",
         "options": [],
-        "query": "label_values(ceph_pool_metadata, pool_id)",
+        "query": "label_values(ceph_pool_metadata, name)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -748,7 +802,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -779,5 +833,5 @@
   "timezone": "browser",
   "title": "Ceph - Pools",
   "uid": "-gtf0Bzik",
-  "version": 3
+  "version": 9
 }
