@@ -55,6 +55,7 @@ packetProjectID: {{ .Packet.ProjectID }}
 packetFacility: {{ .Packet.Facility }}
 packetOSChannel: {{ .Packet.WorkerChannel }}
 packetNodeType: {{ .Packet.WorkerType }}
+apiServer: {{ .APIServer }}
 autoscalingGroups:
 - name: {{ .WorkerPool }}
   maxSize: {{ .MaxWorkers }}
@@ -83,6 +84,7 @@ type component struct {
 	Provider    string `hcl:"provider,optional"`
 	WorkerPool  string `hcl:"worker_pool,optional"`
 	ClusterName string `hcl:"cluster_name,optional"`
+	APIServer   string `hcl:"apiserver,optional"`
 
 	// optional parameters
 	Namespace                 string `hcl:"namespace,optional"`
@@ -313,6 +315,14 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 			Severity: hcl.DiagError,
 			Summary:  "'cluster_name' must be set",
 			Detail:   "'cluster_name' must be set but it was not found",
+		})
+	}
+
+	if c.APIServer == "" {
+		diagnostics = append(diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "'apiserver' must be set",
+			Detail:   "'apiserver' must be set but it was not found",
 		})
 	}
 
