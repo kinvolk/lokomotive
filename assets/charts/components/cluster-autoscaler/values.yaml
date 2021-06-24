@@ -92,6 +92,19 @@ azureNodeResourceGroup: ""
 # azureUseManagedIdentityExtension -- Whether to use Azure's managed identity extension for credentials. If using MSI, ensure subscription ID and resource group are set.
 azureUseManagedIdentityExtension: false
 
+# Required if cloudProvider=packet
+# XXX: Lokomotive specific change.
+packetClusterName: ""
+packetAuthToken: ""
+packetCloudInit: ""
+packetProjectID: ""
+packetFacility: ""
+packetOSChannel: ""
+packetNodeType: ""
+controllerNodeIdentifierLabel: ""
+installedCCM: ""
+apiServer: ""
+
 # magnumClusterName -- Cluster name or ID in Magnum.
 # Required if `cloudProvider=magnum` and not setting `autoDiscovery.clusterName`.
 magnumClusterName: ""
@@ -103,7 +116,7 @@ magnumCABundlePath: "/etc/kubernetes/ca-bundle.crt"
 cloudConfigPath: /etc/gce.conf
 
 # cloudProvider -- The cloud provider where the autoscaler runs.
-# Currently only `gce`, `aws`, `azure` and `magnum` are supported.
+# Currently only `gce`, `aws`, `azure`, `packet` and `magnum` are supported.
 # `aws` supported for AWS. `gce` for GCE. `azure` for Azure AKS.
 # `magnum` for OpenStack Magnum.
 cloudProvider: aws

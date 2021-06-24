@@ -52,6 +52,10 @@ rules:
       - replicationcontrollers
       - persistentvolumeclaims
       - persistentvolumes
+      ### Packet Specific (not available upstream)
+      # Lots of errors when running cluster-autoscaler about not able to list
+      # and watch Namespaces for the serviceaccount.
+      - namespaces
     verbs:
       - watch
       - list
