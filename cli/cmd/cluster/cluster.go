@@ -32,6 +32,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/backend/local"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/config"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
 )
@@ -309,9 +310,9 @@ func (c controlplaneUpdater) ensureComponent(component, namespace string) error 
 	}
 
 	histClient := action.NewHistory(actionConfig)
-	histClient.Max = 1
+	histMax := 1
 
-	history, err := histClient.Run(component)
+	history, err := helm.GetHistory(histClient, component, histMax)
 	if err != nil && err != driver.ErrReleaseNotFound {
 		return fmt.Errorf("checking for chart history: %w", err)
 	}
