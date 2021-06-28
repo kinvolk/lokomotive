@@ -130,7 +130,7 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 	if exists && !options.SkipControlPlaneUpdate && !c.platform.Meta().Managed {
 		fmt.Printf("\nEnsuring that cluster controlplane is up to date.\n")
 
-		if err := c.upgradeControlPlane(contextLogger, kubeconfig); err != nil {
+		if err := c.upgradeControlPlane(contextLogger, kubeconfig, options.UpgradeKubelets); err != nil {
 			return fmt.Errorf("running controlplane upgrade: %v", err)
 		}
 	}

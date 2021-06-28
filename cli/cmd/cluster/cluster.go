@@ -117,7 +117,7 @@ func (cc clusterConfig) initialize(contextLogger *log.Entry) (*cluster, error) {
 
 // upgradeControlPlane unpacks the controlplane charts for a given platform
 // into user assets on disk.
-func (c *cluster) upgradeControlPlane(contextLogger *log.Entry, kubeconfig []byte) error {
+func (c *cluster) upgradeControlPlane(contextLogger *log.Entry, kubeconfig []byte, upgradeKubelets bool) error {
 	cu := controlplaneUpdater{
 		kubeconfig:    kubeconfig,
 		assetDir:      c.assetDir,
@@ -130,6 +130,11 @@ func (c *cluster) upgradeControlPlane(contextLogger *log.Entry, kubeconfig []byt
 	}
 
 	for _, cpChart := range c.platform.Meta().ControlplaneCharts {
+		// Skip kubelet if the user doesn't want to upgrade it.
+		if cpChart.Name == platform.KubeletChartName && !upgradeKubelets {
+			continue
+		}
+
 		if err := cu.upgradeComponent(cpChart.Name, cpChart.Namespace); err != nil {
 			return fmt.Errorf("upgrading controlplane component %q: %w", cpChart.Name, err)
 		}
