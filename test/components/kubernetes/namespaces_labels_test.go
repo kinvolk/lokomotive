@@ -46,6 +46,11 @@ func TestAllNamespacesHaveNameLabels(t *testing.T) {
 			continue
 		}
 
+		// AKS creates this namespace which we don't label it hence ignore it.
+		if testutil.IsPlatformSupported(t, []testutil.Platform{testutil.PlatformAKS}) && name == "calico-system" {
+			continue
+		}
+
 		if name != labels[internal.NamespaceLabelKey] {
 			t.Fatalf("expected %q, got: %q", name, labels[internal.NamespaceLabelKey])
 		}
