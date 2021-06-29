@@ -9,18 +9,18 @@ systemd:
         Documentation=https://github.com/etcd-io/etcd
         Wants=docker.service
         After=docker.service
-        [Service]
-        Type=simple
-        Restart=always
-        RestartSec=5s
-        TimeoutStartSec=0
-        LimitNOFILE=40000
         ConditionPathExists=/etc/ssl/etcd/etcd/server-ca.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/server.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/server.key
         ConditionPathExists=/etc/ssl/etcd/etcd/peer-ca.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/peer.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/peer.key
+        [Service]
+        Type=simple
+        Restart=always
+        RestartSec=5s
+        TimeoutStartSec=0
+        LimitNOFILE=40000
         EnvironmentFile=/etc/kubernetes/etcd.env
         ExecStartPre=-docker rm -f etcd
         ExecStartPre=sh -c "docker run -d \
