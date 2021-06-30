@@ -292,7 +292,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 	var updateErr error
 
-	for counter < 10 {
+	for counter < 100 {
 		counter++
 
 		// Try to update.
