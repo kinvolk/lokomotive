@@ -17,6 +17,7 @@ package cluster
 import (
 	"encoding/base64"
 	"fmt"
+	"math"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
@@ -25,6 +26,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/yaml"
 
@@ -286,13 +288,63 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 	fmt.Printf("Ensuring controlplane component '%s' is up to date... ", component)
 
-	if _, err := update.Run(component, helmChart, values); err != nil {
-		fmt.Println("Failed!")
+	updateComplete := false
+	counter := 0
 
-		return fmt.Errorf("updating controlplane component: %w", err)
+	var updateErr error
+
+	for !updateComplete && counter < 10 {
+		counter++
+
+		// Try to update.
+		if _, updateErr = update.Run(component, helmChart, values); updateErr == nil {
+			updateComplete = true
+		}
+
+		// Update failed for some reason, so roll it back.
+		fmt.Println("Failed!")
+		fmt.Printf("updating controlplane component: %v\n", updateErr)
+
+		// Get the entire history associated with this release.
+		histClient := action.NewHistory(actionConfig)
+		histMax := math.MaxInt32
+
+		histories, err := helm.GetHistory(histClient, component, histMax)
+		if err != nil && err != driver.ErrReleaseNotFound {
+			fmt.Printf("checking for chart history of failed update: %v\n", err)
+
+			continue
+		}
+
+		var history *release.Release
+
+		// Search for the last successful deploy from all the histories.
+		for _, history = range histories {
+			if history.Info.Status.IsPending() {
+				continue
+			}
+
+			// Found a non-pending history.
+			break
+		}
+
+		// TODO: Run rollback in a Loop. There is no point in doing the update again when the rollback has failed.
+		// Rollback to this history.
+		rollback := action.NewRollback(actionConfig)
+		rollback.Wait = true
+		rollback.Version = history.Version
+
+		if err := rollback.Run(component); err != nil {
+			fmt.Println("Failed!")
+			fmt.Printf("rolling back failed update: %v\n", err)
+
+			continue
+		}
 	}
 
-	fmt.Println("Done.")
+	if updateErr != nil {
+		return fmt.Errorf("updating controlplane component: %w", updateErr)
+	}
 
 	return nil
 }
