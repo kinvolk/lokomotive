@@ -94,11 +94,11 @@ spec:
               apiVersion: v1
               fieldPath: metadata.name
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           # XXX: Lokomotive specific change. `hostPort: 80` is removed.
           name: http
           protocol: TCP
-        - containerPort: 443
+        - containerPort: 8443
           # XXX: Lokomotive specific change. `hostPort: 443` is removed.
           name: https
           protocol: TCP
