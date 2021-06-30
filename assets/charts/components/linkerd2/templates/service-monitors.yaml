@@ -1,4 +1,5 @@
 # Following relabel config is taking from:  https://linkerd.io/2/tasks/external-prometheus/
+# XXX: Lokomotive specific change.
 {{- define "controllerRelabels" }}
     relabelings:
     - sourceLabels:

@@ -17,10 +17,12 @@ package linkerd
 
 const chartValuesTmpl = `
 enableMonitoring: {{.EnableMonitoring}}
+
+identityTrustAnchorsPEM: |
+{{ .Cert.CA }}
+
 global:
   prometheusUrl: {{ .PrometheusURL }}
-  identityTrustAnchorsPEM: |
-{{ .Cert.CA }}
 
 identity:
   issuer:
