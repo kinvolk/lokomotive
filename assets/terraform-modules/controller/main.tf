@@ -7,7 +7,6 @@ systemd:
     - name: 10-controller.conf
       contents: |
         [Service]
-        ConditionPathExists=/etc/kubernetes/kubeconfig
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
 EOF

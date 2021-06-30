@@ -10,18 +10,18 @@ systemd:
         Wants=docker.service
         After=docker.service create-etcd-config.service
         Requires=create-etcd-config.service
-        [Service]
-        Type=simple
-        Restart=always
-        RestartSec=5s
-        TimeoutStartSec=0
-        LimitNOFILE=40000
         ConditionPathExists=/etc/ssl/etcd/etcd/server-ca.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/server.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/server.key
         ConditionPathExists=/etc/ssl/etcd/etcd/peer-ca.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/peer.crt
         ConditionPathExists=/etc/ssl/etcd/etcd/peer.key
+        [Service]
+        Type=simple
+        Restart=always
+        RestartSec=5s
+        TimeoutStartSec=0
+        LimitNOFILE=40000
         EnvironmentFile=/etc/kubernetes/etcd.config
         EnvironmentFile=/etc/kubernetes/etcd.env
         ExecStartPre=-docker rm -f etcd
@@ -103,7 +103,6 @@ systemd:
         Wants=rpc-statd.service
         [Service]
         EnvironmentFile=/run/metadata/flatcar
-        ConditionPathExists=/etc/kubernetes/kubeconfig
         EnvironmentFile=/etc/kubernetes/kubelet.env
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests

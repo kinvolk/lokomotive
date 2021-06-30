@@ -27,7 +27,6 @@ systemd:
         Description=Kubelet
         Wants=rpc-statd.service
         [Service]
-        ConditionPathExists=/etc/kubernetes/kubeconfig
         EnvironmentFile=/etc/kubernetes/kubelet.env
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
