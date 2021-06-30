@@ -288,21 +288,20 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 	fmt.Printf("Ensuring controlplane component '%s' is up to date... ", component)
 
-	updateComplete := false
 	counter := 0
 
 	var updateErr error
 
-	for !updateComplete && counter < 10 {
+	for counter < 10 {
 		counter++
 
 		// Try to update.
 		if _, updateErr = update.Run(component, helmChart, values); updateErr == nil {
-			updateComplete = true
+			break
 		}
 
 		// Update failed for some reason, so roll it back.
-		fmt.Println("Failed!")
+		fmt.Println("Failed to update!")
 		fmt.Printf("updating controlplane component: %v\n", updateErr)
 
 		// Get the entire history associated with this release.
@@ -335,7 +334,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 		rollback.Version = history.Version
 
 		if err := rollback.Run(component); err != nil {
-			fmt.Println("Failed!")
+			fmt.Println("Failed to rollback!")
 			fmt.Printf("rolling back failed update: %v\n", err)
 
 			continue
@@ -345,6 +344,8 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 	if updateErr != nil {
 		return fmt.Errorf("updating controlplane component: %w", updateErr)
 	}
+
+	fmt.Println("Done")
 
 	return nil
 }
