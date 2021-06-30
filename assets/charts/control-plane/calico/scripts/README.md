@@ -24,7 +24,7 @@ docker login -u <username> quay.io
 Run the following command in terminal:
 
 ```bash
-./calico-images.sh v3.18.1
+./calico-images.sh v3.19.1
 ```
 
 > **NOTE:** If the script fails with error `Run the script on AMD machine as well!` or `Run the script on ARM machine as well!` then just run the script on other architecture.
