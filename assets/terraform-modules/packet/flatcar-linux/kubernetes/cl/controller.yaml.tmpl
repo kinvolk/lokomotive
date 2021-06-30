@@ -103,7 +103,6 @@ systemd:
         Wants=rpc-statd.service
         [Service]
         EnvironmentFile=/run/metadata/flatcar
-        ConditionPathExists=/etc/kubernetes/kubeconfig
         EnvironmentFile=/etc/kubernetes/kubelet.env
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
