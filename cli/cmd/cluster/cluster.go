@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
+	"time"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mitchellh/go-homedir"
@@ -292,7 +293,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 	var updateErr error
 
-	for counter < 100 {
+	for counter < 1000 {
 		counter++
 
 		// Try to update.
@@ -303,6 +304,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 		// Update failed for some reason, so roll it back.
 		fmt.Println("Failed to update!")
 		fmt.Printf("updating controlplane component: %v\n", updateErr)
+		time.Sleep(time.Second)
 
 		// Get the entire history associated with this release.
 		histClient := action.NewHistory(actionConfig)

@@ -102,7 +102,7 @@ run-e2e-tests:
 	# This is a test that should be run in the end to reduce the disruption to other tests because
 	# it will delete a node.
 	# The timeout is made longer as it will perform actions that will take longer than the default 10 minutes.
-	KUBECONFIG=${kubeconfig} PLATFORM=${platform} go test -timeout 90m -mod=$(MOD) -run=TestCertificateRotate -tags="$(platform),disruptivee2e" -covermode=atomic -buildmode=exe -v -count=1 ./test/...
+	KUBECONFIG=${kubeconfig} PLATFORM=${platform} go test -timeout 160m -mod=$(MOD) -run=TestCertificateRotate -tags="$(platform),disruptivee2e" -covermode=atomic -buildmode=exe -v -count=1 ./test/...
 
 .PHONY: all
 all: build test
