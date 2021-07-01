@@ -6,7 +6,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.33.0"
+      version = "3.47.0"
     }
     ct = {
       source  = "poseidon/ct"
