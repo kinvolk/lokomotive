@@ -4,7 +4,7 @@ terraform {
   required_providers {
     null = {
       source  = "hashicorp/null"
-      version = "3.0.0"
+      version = "3.1.0"
     }
     tinkerbell = {
       source  = "tinkerbell/tinkerbell"
