@@ -99,7 +99,9 @@ func rotateControlPlaneCerts(contextLogger *log.Entry, cc clusterConfig) error {
 
 	contextLogger.Log(log.InfoLevel, "Applying a controlplane update with the new CA")
 
-	if err := c.upgradeControlPlane(contextLogger, kubeconfig); err != nil {
+	upgradeKubelets := true
+
+	if err := c.upgradeControlPlane(contextLogger, kubeconfig, upgradeKubelets); err != nil {
 		return fmt.Errorf("running controlplane upgrade: %v", err)
 	}
 
