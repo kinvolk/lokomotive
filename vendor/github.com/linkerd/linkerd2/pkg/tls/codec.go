@@ -3,10 +3,12 @@ package tls
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 // === ENCODE ===
@@ -67,6 +69,20 @@ func DecodePEMKey(txt string) (GenericPrivateKey, error) {
 			return nil, err
 		}
 		return privateKeyRSA{k}, nil
+	case "PRIVATE KEY":
+		k, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		if ec, ok := k.(*ecdsa.PrivateKey); ok {
+			return privateKeyEC{ec}, nil
+		}
+		if rsa, ok := k.(*rsa.PrivateKey); ok {
+			return privateKeyRSA{rsa}, nil
+		}
+		return nil, fmt.Errorf(
+			"unsupported PKCS#8 encoded private key type: '%s', linkerd2 only supports ECDSA and RSA private keys",
+			reflect.TypeOf(k))
 	default:
 		return nil, fmt.Errorf("unsupported block type: '%s'", block.Type)
 	}
@@ -89,7 +105,7 @@ func DecodePEMCertificates(txt string) (certs []*x509.Certificate, err error) {
 	return
 }
 
-// CertificatesToPool covererts a slice of certificates into a cert pool
+// CertificatesToPool converts a slice of certificates into a cert pool
 func CertificatesToPool(certs []*x509.Certificate) *x509.CertPool {
 	pool := x509.NewCertPool()
 	for _, c := range certs {

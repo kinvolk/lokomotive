@@ -26,7 +26,7 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/linkerd/linkerd2 v0.5.1-0.20200623171206-83ae0ccf0f1a
+	github.com/linkerd/linkerd2 v0.5.1-0.20210517230931-5535e9c4edda
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mattn/go-runewidth v0.0.8 // indirect
@@ -50,7 +50,6 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/zclconf/go-cty v1.7.0
 	golang.org/x/tools v0.0.0-20200731060945-b5fad4ed8dd6 // indirect
-	google.golang.org/grpc v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.54.0 // indirect
 	helm.sh/helm/v3 v3.5.1
 	k8s.io/api v0.20.2
