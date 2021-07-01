@@ -6,7 +6,7 @@ version=$1
 if [ -z "${version}" ]; then
   echo "Please provide the version of Calico. Check https://github.com/projectcalico/calico/releases/."
   echo "e.g."
-  echo "./calico-images.sh v3.18.1"
+  echo "./calico-images.sh v3.19.1"
   exit 1
 fi
 
