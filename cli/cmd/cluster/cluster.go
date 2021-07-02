@@ -303,7 +303,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 		// Update failed for some reason, so roll it back.
 		fmt.Println("Failed to update!")
-		fmt.Printf("updating controlplane component: %v\n", updateErr)
+		fmt.Printf("%s: updating controlplane component: %v\n", time.Now(), updateErr)
 		time.Sleep(time.Second)
 
 		// Get the entire history associated with this release.
@@ -312,7 +312,7 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 		histories, err := helm.GetHistory(histClient, component, histMax)
 		if err != nil && err != driver.ErrReleaseNotFound {
-			fmt.Printf("checking for chart history of failed update: %v\n", err)
+			fmt.Printf("%s: checking for chart history of failed update: %v\n", time.Now(), err)
 
 			continue
 		}
@@ -337,14 +337,14 @@ func (c controlplaneUpdater) upgradeComponent(component, namespace string) error
 
 		if err := rollback.Run(component); err != nil {
 			fmt.Println("Failed to rollback!")
-			fmt.Printf("rolling back failed update: %v\n", err)
+			fmt.Printf("%s: rolling back failed: %v\n", time.Now(), err)
 
 			continue
 		}
 	}
 
 	if updateErr != nil {
-		return fmt.Errorf("updating controlplane component: %w", updateErr)
+		return fmt.Errorf("%s: updating controlplane component: %w", time.Now(), updateErr)
 	}
 
 	fmt.Println("Done")
