@@ -82,6 +82,9 @@ module "bare-metal-{{.ClusterName}}" {
   ignore_x509_cn_check   = {{.IgnoreX509CNCheck}}
   conntrack_max_per_core = {{.ConntrackMaxPerCore}}
 
+  enable_node_local_dns = {{.EnableNodeLocalDNS}}
+  node_local_dns_ip     = "{{.NodeLocalDNSIP}}"
+
   {{- if .CertsValidityPeriodHours }}
   certs_validity_period_hours = {{.CertsValidityPeriodHours}}
   {{- end }}
@@ -214,6 +217,11 @@ output "lokomotive_values" {
 
 output "bootstrap-secrets_values" {
   value     = module.bare-metal-{{.ClusterName}}.bootstrap-secrets_values
+  sensitive = true
+}
+
+output "node-local-dns_values" {
+  value     = module.bare-metal-{{.ClusterName}}.node-local-dns_values
   sensitive = true
 }
 

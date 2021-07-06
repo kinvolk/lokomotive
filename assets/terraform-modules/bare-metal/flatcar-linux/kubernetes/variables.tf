@@ -239,3 +239,15 @@ variable "install_pre_reboot_cmds" {
   default     = "true"
   description = "shell commands to execute on the provisioned host after installation finished and before reboot, e.g., docker run --privileged --net host --rm debian sh -c 'apt update && apt install -y ipmitool && ipmitool chassis bootdev disk options=persistent'"
 }
+
+variable "enable_node_local_dns" {
+  description = "Enable Node Local DNS on the cluster."
+  type        = bool
+  default     = false
+}
+
+variable "node_local_dns_ip" {
+  description = "Node Local DNS IP for the pods running on each node. This is the local IP pods can reach for name resolution."
+  type        = string
+  default     = "169.254.1.1"
+}
