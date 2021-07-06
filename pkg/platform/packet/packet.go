@@ -101,6 +101,8 @@ type config struct {
 	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
+	EnableNodeLocalDNS       bool              `hcl:"enable_node_local_dns,optional"`
+	NodeLocalDNSIP           string            `hcl:"node_local_dns_ip,optional"`
 
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
@@ -130,6 +132,7 @@ func NewConfig() *config {
 		EnableTLSBootstrap:  true,
 		NetworkMTU:          platform.NetworkMTU,
 		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
+		NodeLocalDNSIP:      "169.254.1.1",
 	}
 }
 
@@ -155,6 +158,13 @@ func (c *config) Meta() platform.Meta {
 		Name:      "packet-ccm",
 		Namespace: "kube-system",
 	})
+
+	if c.EnableNodeLocalDNS {
+		charts = append(charts, helm.LokomotiveChart{
+			Name:      "node-local-dns",
+			Namespace: "kube-system",
+		})
+	}
 
 	return platform.Meta{
 		AssetDir:           c.AssetDir,

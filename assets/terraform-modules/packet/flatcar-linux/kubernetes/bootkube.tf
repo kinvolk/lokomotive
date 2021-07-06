@@ -50,4 +50,8 @@ module "bootkube" {
   conntrack_max_per_core = var.conntrack_max_per_core
 
   cloud_provider = "external"
+
+  # Node Local DNS configuration.
+  enable_node_local_dns = var.enable_node_local_dns
+  node_local_dns_ip     = var.node_local_dns_ip
 }
