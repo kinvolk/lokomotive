@@ -1,0 +1,15 @@
+diff --git a/workflow-helper.sh b/workflow-helper.sh
+index b6806ef..694a357 100644
+--- a/workflow-helper.sh
++++ b/workflow-helper.sh
+@@ -42,6 +42,10 @@ wget "$packet_base_url/ca.pem"
+ mkdir -p /etc/docker/ /etc/docker/certs.d/ "/etc/docker/certs.d/$docker_registry"
+ cp ca.pem "/etc/docker/certs.d/$docker_registry/ca.crt"
+
++until apk add -U containerd; do
++  sleep 3
++done
++
+ service docker start
+ i=0
+ # shellcheck disable=SC2169
