@@ -208,3 +208,17 @@ git checkout rook/dashboards
 
 - More information about the chart: https://rook.io/docs/rook/v1.5/helm-operator.html.
 - Code repository: https://github.com/rook/rook.
+
+## cluster-autoscaler
+
+Run the following commands in the root of this repository:
+
+```bash
+cd assets/charts/components
+rm -rf cluster-autoscaler
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+helm repo update
+helm fetch --untar --untardir ./ autoscaler/cluster-autoscaler
+```
+
+- Chart location: https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler
