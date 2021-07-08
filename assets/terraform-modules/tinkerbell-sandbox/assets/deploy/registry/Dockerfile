@@ -1,4 +1,4 @@
-FROM registry:2.7.1
+FROM quay.io/kinvolk-ci/registry:2.7.1
 RUN apk add --no-cache --update curl apache2-utils
 ARG REGISTRY_USERNAME
 ARG REGISTRY_PASSWORD
