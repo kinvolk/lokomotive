@@ -39,7 +39,7 @@ default PSPs for general purpose application usage:
 Many projects provide their own Pod Security Policies tailored to their needs which can be used
 when deploying if the policies provided by Lokomotive are too strict.
 
-## Global network policy (for Packet platform only)
+## Global network policy (for Equinix Metal platform only)
 
 Lokomotive installs Calico’s
 [GlobalNetworkPolicy](https://docs.projectcalico.org/security/calico-network-policy) by default.

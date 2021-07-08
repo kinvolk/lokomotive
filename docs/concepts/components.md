@@ -44,7 +44,7 @@ Lokomotive also provides the [rook](../configuration-reference/components/rook.m
 [rook-ceph](../configuration-reference/components/rook-ceph.md) components for using Rook as the storage
 solution for Lokomotive cluster.
 
-### Load Balancing/Ingress (for Packet platform only)
+### Load Balancing/Ingress (for Equinix Metal platform only)
 
 Lokomotive provides the [MetalLB](../configuration-reference/components/metallb.md) component for load
 balancing in platforms without network load-balancers and

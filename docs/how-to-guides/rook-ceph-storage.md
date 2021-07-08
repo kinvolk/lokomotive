@@ -1,5 +1,5 @@
 ---
-title: Kubernetes storage with Rook Ceph on Packet cloud
+title: Kubernetes storage with Rook Ceph on Equinix Metal
 weight: 10
 ---
 
@@ -17,7 +17,7 @@ At the end of this tutorial you will have a storage backed by `rook` and `rook-c
 
 ## Prerequisites
 
-* A Lokomotive cluster deployed on a Packet cloud and accessible via `kubectl`.
+* A Lokomotive cluster deployed on a Equinix Metal and accessible via `kubectl`.
 
 ## Steps
 

@@ -13,11 +13,11 @@ This document explains how to enable any supported auth provider on Grafana.
 
 ## Prerequisites
 
-- A Lokomotive cluster deployed on AWS or Packet.
+- A Lokomotive cluster deployed on AWS or Equinix Metal.
 
 - [MetalLB](https://metallb.universe.tf/) deployed on the cluster.
 
-  **NOTE**: Required only for the Packet provider.
+  **NOTE**: Required only for the Equinix Metal provider.
 
   Installation instructions for [MetalLB](./ingress-with-contour-metallb.md) component.
 
@@ -89,8 +89,8 @@ component "prometheus-operator" {
 }
 ```
 
-> **NOTE**: On Packet, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>`
-> and point it to the Packet external IP for the contour service (see the [Packet ingress guide for
+> **NOTE**: On Equinix Metal, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>`
+> and point it to the Equinix Metal external IP for the contour service (see the [Equinix Metal ingress guide for
 > more details](./ingress-with-contour-metallb.md)) or use the [External DNS
 > component](../configuration-reference/components/external-dns.md).
 

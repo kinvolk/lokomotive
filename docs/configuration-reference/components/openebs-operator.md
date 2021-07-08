@@ -22,7 +22,7 @@ This component installs the OpenEBS operator.
   have `iscsid` service automatically enabled and running on all worker nodes.
 
 **NOTE:** OpenEBS requires available disks, i.e. disks that aren't mounted by anything. This means
-that by default, OpenEBS does not work on machines with just a single physical disk, e.g. Packet's
+that by default, OpenEBS does not work on machines with just a single physical disk, e.g. Equinix Metal's
 t1.small.x86 (because the disk is used for the operating system).
 
 ## Configuration

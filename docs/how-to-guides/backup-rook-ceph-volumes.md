@@ -5,7 +5,7 @@ weight: 10
 
 ## Introduction
 
-[Rook](https://rook.io/) is a component of Lokomotive which provides storage on Packet cloud. Taking
+[Rook](https://rook.io/) is a component of Lokomotive which provides storage on Equinix Metal. Taking
 regular backup of the data to a remote server is an essential strategy for disaster recovery.
 
 [Velero](https://velero.io/) is another component of Lokomotive which helps you to backup entire
@@ -18,7 +18,7 @@ it.
 
 ## Prerequisites
 
-- A Lokomotive cluster deployed on a Packet cloud and accessible via `kubectl`.
+- A Lokomotive cluster deployed on a Equinix Metal and accessible via `kubectl`.
 
 - Rook Ceph installed by following [this guide](./rook-ceph-storage.md).
 

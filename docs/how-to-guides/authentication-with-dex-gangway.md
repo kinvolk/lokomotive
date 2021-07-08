@@ -50,7 +50,7 @@ To create a fully functioning OIDC authentication infrastructure, we need the fo
 
 * [MetalLB](https://metallb.universe.tf/) deployed on the cluster.
 
-  **NOTE**: Required only for the bare metal and Packet providers.
+  **NOTE**: Required only for the bare metal and Equinix Metal providers.
 
    Installation instructions for [MetalLB](../configuration-reference/components/metallb.md) component.
 
