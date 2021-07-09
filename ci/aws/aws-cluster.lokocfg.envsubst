@@ -182,6 +182,7 @@ component "prometheus-operator" {
 }
 
 component "experimental-linkerd" {
+  controller_replicas = 2
   enable_monitoring   = true
 }
 
