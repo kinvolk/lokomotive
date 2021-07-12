@@ -20,6 +20,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kinvolk/lokomotive/internal"
+	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 	"github.com/kinvolk/lokomotive/pkg/lokomotive"
 	"github.com/kinvolk/lokomotive/pkg/platform"
@@ -35,6 +36,21 @@ type ApplyOptions struct {
 	Verbose                  bool
 	ConfigPath               string
 	ValuesPath               string
+}
+
+func removeKubeletChart(charts []helm.LokomotiveChart) []helm.LokomotiveChart {
+	// If the user does not want to upgrade kubelet then we should remove it from the list.
+	ret := []helm.LokomotiveChart{}
+
+	for _, chart := range charts {
+		if chart.Name == platform.KubeletChartName {
+			continue
+		}
+
+		ret = append(ret, chart)
+	}
+
+	return ret
 }
 
 // Apply applies cluster configuration together with components.
@@ -73,7 +89,10 @@ func Apply(contextLogger *log.Entry, options ApplyOptions) error {
 		ex:            c.terraformExecutor,
 	}
 
-	charts := platform.CommonControlPlaneCharts(options.UpgradeKubelets)
+	charts := c.platform.Meta().ControlplaneCharts
+	if !options.UpgradeKubelets {
+		charts = removeKubeletChart(charts)
+	}
 
 	if !exists && !c.platform.Meta().Managed {
 		if err := c.unpackControlplaneCharts(); err != nil {

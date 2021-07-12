@@ -147,7 +147,10 @@ func (c *config) Meta() platform.Meta {
 		nodes += workerpool.Count
 	}
 
-	charts := platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet)
+	charts := platform.CommonControlPlaneCharts(platform.ControlPlanCharts{
+		Kubelet:      !c.DisableSelfHostedKubelet,
+		NodeLocalDNS: c.EnableNodeLocalDNS,
+	})
 
 	charts = append(charts, helm.LokomotiveChart{
 		Name:      "calico-host-protection",
@@ -158,13 +161,6 @@ func (c *config) Meta() platform.Meta {
 		Name:      "packet-ccm",
 		Namespace: "kube-system",
 	})
-
-	if c.EnableNodeLocalDNS {
-		charts = append(charts, helm.LokomotiveChart{
-			Name:      "node-local-dns",
-			Namespace: "kube-system",
-		})
-	}
 
 	return platform.Meta{
 		AssetDir:           c.AssetDir,

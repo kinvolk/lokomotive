@@ -47,13 +47,13 @@ func TestAppendVersionTag(t *testing.T) {
 }
 
 func TestAtLeastOneCommonControlplaneChartIsDefined(t *testing.T) {
-	if len(platform.CommonControlPlaneCharts(false)) == 0 {
+	if len(platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: false})) == 0 {
 		t.Fatalf("There should be at least one common controlplane chart defined")
 	}
 }
 
 func TestBootstrapSecretsAreUpdatedFirst(t *testing.T) {
-	if platform.CommonControlPlaneCharts(true)[0].Name != "bootstrap-secrets" {
+	if platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true})[0].Name != "bootstrap-secrets" {
 		t.Fatalf("Bootstrap-secrets should be updated first to allow nodes to proceed with bootstrapping process")
 	}
 }
@@ -61,7 +61,7 @@ func TestBootstrapSecretsAreUpdatedFirst(t *testing.T) {
 func TestPodCheckpointerIsUpdatedBeforeKubeApiserver(t *testing.T) {
 	podCheckpointerFound := false
 
-	for _, c := range platform.CommonControlPlaneCharts(true) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true}) {
 		if c.Name == "pod-checkpointer" {
 			podCheckpointerFound = true
 		}
@@ -76,7 +76,7 @@ func TestPodCheckpointerIsUpdatedBeforeKubeApiserver(t *testing.T) {
 func TestKubeApiserverIsUpdatedBeforeOtherKubernetesComponents(t *testing.T) {
 	kubeAPIServerFound := false
 
-	for _, c := range platform.CommonControlPlaneCharts(true) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true}) {
 		if c.Name == "kube-apiserver" {
 			kubeAPIServerFound = true
 		}
@@ -91,7 +91,7 @@ func TestKubeApiserverIsUpdatedBeforeOtherKubernetesComponents(t *testing.T) {
 func TestCalicoIsUpdatedAfterKubernetesComponents(t *testing.T) {
 	kubernetesFound := false
 
-	for _, c := range platform.CommonControlPlaneCharts(true) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true}) {
 		if c.Name == platform.KubernetesChartName {
 			kubernetesFound = true
 		}
@@ -106,7 +106,7 @@ func TestCalicoIsUpdatedAfterKubernetesComponents(t *testing.T) {
 func TestKubeletIsUpdatedAfterOtherKubernetesComponents(t *testing.T) {
 	kubernetesFound := false
 
-	for _, c := range platform.CommonControlPlaneCharts(true) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true}) {
 		if c.Name == platform.KubernetesChartName {
 			kubernetesFound = true
 		}
@@ -120,7 +120,7 @@ func TestKubeletIsUpdatedAfterOtherKubernetesComponents(t *testing.T) {
 func TestLokomotiveIsUpdatedAfterCalico(t *testing.T) {
 	calicoFound := false
 
-	for _, c := range platform.CommonControlPlaneCharts(true) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true}) {
 		if c.Name == "calico" {
 			calicoFound = true
 		}
@@ -132,7 +132,7 @@ func TestLokomotiveIsUpdatedAfterCalico(t *testing.T) {
 }
 
 func TestKubeletIsExcludedFromUpdatesWhenNotRequested(t *testing.T) {
-	for _, c := range platform.CommonControlPlaneCharts(false) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: false}) {
 		if c.Name == platform.KubeletChartName {
 			t.Fatalf("Kubelet should not be included in charts list when not requested")
 		}
@@ -142,7 +142,7 @@ func TestKubeletIsExcludedFromUpdatesWhenNotRequested(t *testing.T) {
 func TestKubeletIsIncludedInCommonChartsWhenRequested(t *testing.T) {
 	kubeletFound := false
 
-	for _, c := range platform.CommonControlPlaneCharts(true) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{Kubelet: true}) {
 		if c.Name == platform.KubeletChartName {
 			kubeletFound = true
 
@@ -152,5 +152,29 @@ func TestKubeletIsIncludedInCommonChartsWhenRequested(t *testing.T) {
 
 	if !kubeletFound {
 		t.Fatalf("Kubelet should be included in charts list when requested")
+	}
+}
+
+func TestNodeLocalDNSIsExcludedFromUpdatesWhenNotRequested(t *testing.T) {
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{NodeLocalDNS: false}) {
+		if c.Name == platform.NodeLocalDNSChartName {
+			t.Fatalf("NodeLocalDNS should not be included in charts list when not requested")
+		}
+	}
+}
+
+func TestNodeLocalDNSIsIncludedInCommonChartsWhenRequested(t *testing.T) {
+	nodeLocalDNSFound := false
+
+	for _, c := range platform.CommonControlPlaneCharts(platform.ControlPlanCharts{NodeLocalDNS: true}) {
+		if c.Name == platform.NodeLocalDNSChartName {
+			nodeLocalDNSFound = true
+
+			break
+		}
+	}
+
+	if !nodeLocalDNSFound {
+		t.Fatalf("NodeLocalDNS should be included in charts list when requested")
 	}
 }
