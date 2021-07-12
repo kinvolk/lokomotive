@@ -294,7 +294,7 @@ github.com/lib/pq/oid
 github.com/lib/pq/scram
 # github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
 github.com/liggitt/tabwriter
-# github.com/linkerd/linkerd2 v0.5.1-0.20200623171206-83ae0ccf0f1a
+# github.com/linkerd/linkerd2 v0.5.1-0.20210517230931-5535e9c4edda
 ## explicit
 github.com/linkerd/linkerd2/pkg/tls
 # github.com/magiconair/properties v1.8.1
@@ -506,13 +506,9 @@ google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
 # google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.28.0
-## explicit
+# google.golang.org/grpc v1.31.1
 google.golang.org/grpc/codes
-google.golang.org/grpc/connectivity
-google.golang.org/grpc/grpclog
-google.golang.org/grpc/internal
-google.golang.org/grpc/internal/grpclog
+google.golang.org/grpc/internal/status
 google.golang.org/grpc/status
 # google.golang.org/protobuf v1.25.0
 google.golang.org/protobuf/encoding/prototext

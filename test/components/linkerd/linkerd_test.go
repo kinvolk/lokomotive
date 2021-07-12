@@ -44,8 +44,6 @@ func TestLinkerdDeployment(t *testing.T) {
 		"linkerd-identity",
 		"linkerd-proxy-injector",
 		"linkerd-sp-validator",
-		"linkerd-tap",
-		"linkerd-web",
 	}
 
 	client := testutil.CreateKubeClient(t)

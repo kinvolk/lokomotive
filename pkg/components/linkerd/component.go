@@ -160,7 +160,7 @@ func generateCertificates() (cert, error) {
 	return cert{
 		Key:    internal.Indent(root.Cred.EncodePrivateKeyPEM(), 8),
 		Cert:   internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 8),
-		CA:     internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 4),
+		CA:     internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 2),
 		Expiry: root.Cred.Crt.Certificate.NotAfter.Format(time.RFC3339),
 	}, nil
 }
