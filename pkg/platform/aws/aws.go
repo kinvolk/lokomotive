@@ -25,7 +25,6 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/kinvolk/lokomotive/pkg/helm"
 	"github.com/kinvolk/lokomotive/pkg/oidc"
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/terraform"
@@ -129,14 +128,10 @@ func (c *config) Meta() platform.Meta {
 		nodes += workerpool.Count
 	}
 
-	charts := platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet)
-
-	if c.EnableNodeLocalDNS {
-		charts = append(charts, helm.LokomotiveChart{
-			Name:      "node-local-dns",
-			Namespace: "kube-system",
-		})
-	}
+	charts := platform.CommonControlPlaneCharts(platform.ControlPlanCharts{
+		Kubelet:      !c.DisableSelfHostedKubelet,
+		NodeLocalDNS: c.EnableNodeLocalDNS,
+	})
 
 	return platform.Meta{
 		AssetDir:             c.AssetDir,

@@ -133,10 +133,14 @@ func (c *Config) Meta() platform.Meta {
 		nodes += len(workerpool.IPAddresses)
 	}
 
+	charts := platform.CommonControlPlaneCharts(platform.ControlPlanCharts{
+		Kubelet: !c.DisableSelfHostedKubelet,
+	})
+
 	return platform.Meta{
 		AssetDir:             c.AssetDir,
 		ExpectedNodes:        nodes,
-		ControlplaneCharts:   platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		ControlplaneCharts:   charts,
 		Deployments:          platform.CommonDeployments(len(c.ControllerIPAddresses)),
 		DaemonSets:           platform.CommonDaemonSets(len(c.ControllerIPAddresses), c.DisableSelfHostedKubelet),
 		ControllerModuleName: "controllers",
