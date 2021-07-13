@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    "helm.sh/hook": "post-install"
+  name: azure-arc-register
+spec:
+  template:
+    spec:
+      serviceAccountName: azure-arc-onboarding
+      restartPolicy: Never
+      containers:
+      - image: quay.io/kinvolk/az-cli-with-helm:v0.1
+        name: install-azure-arc
+        args:
+          - register
+        env:
+        {{- include "azure-arc-onboarding.envVars" . | nindent 8 }}

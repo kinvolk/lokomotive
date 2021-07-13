@@ -1,0 +1,87 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: zz-azure-arc-onboarding
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+spec:
+  privileged: true
+  # Required to prevent escalations to root.
+  allowPrivilegeEscalation: false
+  # This is redundant with non-root + disallow privilege escalation,
+  # but we can provide it for defense in depth.
+  requiredDropCapabilities:
+  - KILL
+  - MKNOD
+  - SETUID
+  - SETGID
+  # Allow core volume types.
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  # Assume that persistentVolumes set up by the cluster admin are safe to use.
+  - 'persistentVolumeClaim'
+  # This capability is required for kube-aad-proxy deployment from azure-arc
+  # to mount hostPath volumes.
+  - 'hostPath'
+  runAsUser:
+    rule: 'RunAsAny'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  readOnlyRootFilesystem: false
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: azure-arc-onboarding-for-psp
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - zz-azure-arc-onboarding
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: azure-arc-onboarding
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,pre-delete,post-install,post-upgrade
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  # cluster-admin privileges is a requirement for Azure-arc.
+  # https://docs.microsoft.com/en-us/azure/azure-arc/kubernetes/troubleshooting#connecting-kubernetes-clusters-to-azure-arc
+  # https://docs.microsoft.com/en-us/azure/architecture/hybrid/arc-hybrid-kubernetes#cluster-registration
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: azure-arc-onboarding
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: azure-arc-onboarding-for-psp
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: azure-arc-onboarding-for-psp
+subjects:
+  # This is needed because the deployment `kube-aad-proxy` uses the hostpath volumes
+  # which the default PSP `zz-minimal` doesn't provide hence we create a rolebinding
+  # for the ServiceAccount used by the `kube-aad-proxy` deployment and assign the newly
+  # created PSP `zz-azure-arc-onboarding` for `azure-arc-onboarding` Lokomotive component.
+- kind: ServiceAccount
+  name: azure-arc-kube-aad-proxy-sa
+  namespace: azure-arc
