@@ -51,7 +51,7 @@ func init() {
 	pf.BoolVarP(&skipControlPlaneUpdate, "skip-control-plane-update", "", false,
 		"Skip updating the control plane (not recommended)")
 
-	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", false, "Experimentally upgrade self-hosted kubelets")
+	pf.BoolVarP(&upgradeKubelets, "upgrade-kubelets", "", true, "Upgrade self-hosted kubelets")
 }
 
 func runClusterApply(cmd *cobra.Command, args []string) {
