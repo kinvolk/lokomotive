@@ -86,6 +86,18 @@ resource "local_file" "kubernetes" {
   })
 }
 
+# Populate node-local-dns chart values file named node-local-dns.yaml.
+resource "local_file" "node-local-dns" {
+  count = var.enable_node_local_dns ? 1 : 0
+
+  filename = "${var.asset_dir}/charts/kube-system/node-local-dns.yaml"
+  content = templatefile("${path.module}/resources/charts/node-local-dns.yaml", {
+    cluster_dns_service_ip = cidrhost(var.service_cidr, 10)
+    cluster_domain_suffix  = var.cluster_domain_suffix
+    node_local_dns_ip      = var.node_local_dns_ip
+  })
+}
+
 locals {
   bootstrap_secrets = templatefile("${path.module}/resources/charts/bootstrap-secrets.yaml", {
     bootstrap_tokens = var.bootstrap_tokens

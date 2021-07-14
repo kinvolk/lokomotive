@@ -94,3 +94,7 @@ output "lokomotive_values" {
 output "bootstrap-secrets_values" {
   value = var.enable_tls_bootstrap ? local.bootstrap_secrets : ""
 }
+
+output "node-local-dns_values" {
+  value = var.enable_node_local_dns ? join("", local_file.node-local-dns.*.content) : ""
+}

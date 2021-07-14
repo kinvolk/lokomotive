@@ -51,6 +51,10 @@ output "bootstrap-secrets_values" {
   value = module.bootkube.bootstrap-secrets_values
 }
 
+output "node-local-dns_values" {
+  value = module.bootkube.node-local-dns_values
+}
+
 # Dummy output used to create dependencies only
 # Not guaranteed that won't change
 output "device_ids" {

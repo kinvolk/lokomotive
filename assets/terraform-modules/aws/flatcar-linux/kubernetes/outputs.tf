@@ -78,3 +78,7 @@ output "lokomotive_values" {
 output "bootstrap-secrets_values" {
   value = module.bootkube.bootstrap-secrets_values
 }
+
+output "node-local-dns_values" {
+  value = module.bootkube.node-local-dns_values
+}

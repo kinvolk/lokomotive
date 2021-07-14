@@ -187,3 +187,15 @@ variable "conntrack_max_per_core" {
   description = "--conntrack-max-per-core value for kube-proxy. Maximum number of NAT connections to track per CPU core (0 to leave the limit as-is and ignore the conntrack-min kube-proxy flag)."
   type        = number
 }
+
+variable "enable_node_local_dns" {
+  description = "Enable Node Local DNS on the cluster."
+  type        = bool
+  default     = false
+}
+
+variable "node_local_dns_ip" {
+  description = "Node Local DNS IP for the pods running on each node. This is the local IP pods can reach for name resolution."
+  type        = string
+  default     = "169.254.1.1"
+}

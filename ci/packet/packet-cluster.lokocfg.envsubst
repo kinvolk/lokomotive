@@ -64,6 +64,8 @@ EOF
   ignore_x509_cn_check = true
 
   conntrack_max_per_core = 65000
+
+  enable_node_local_dns = true
 }
 
 component "metrics-server" {}

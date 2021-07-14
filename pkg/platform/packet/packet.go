@@ -101,6 +101,8 @@ type config struct {
 	IgnoreX509CNCheck        bool              `hcl:"ignore_x509_cn_check,optional"`
 	WorkerPools              []workerPool      `hcl:"worker_pool,block"`
 	ConntrackMaxPerCore      int               `hcl:"conntrack_max_per_core,optional"`
+	EnableNodeLocalDNS       bool              `hcl:"enable_node_local_dns,optional"`
+	NodeLocalDNSIP           string            `hcl:"node_local_dns_ip,optional"`
 
 	// Not exposed to the user
 	KubeAPIServerExtraFlags []string
@@ -130,6 +132,7 @@ func NewConfig() *config {
 		EnableTLSBootstrap:  true,
 		NetworkMTU:          platform.NetworkMTU,
 		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
+		NodeLocalDNSIP:      platform.NodeLocalDNSIP,
 	}
 }
 
@@ -144,7 +147,10 @@ func (c *config) Meta() platform.Meta {
 		nodes += workerpool.Count
 	}
 
-	charts := platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet)
+	charts := platform.CommonControlPlaneCharts(platform.ControlPlanCharts{
+		Kubelet:      !c.DisableSelfHostedKubelet,
+		NodeLocalDNS: c.EnableNodeLocalDNS,
+	})
 
 	charts = append(charts, helm.LokomotiveChart{
 		Name:      "calico-host-protection",

@@ -103,6 +103,9 @@ module "aws-{{.Config.ClusterName}}" {
 
   conntrack_max_per_core = {{.Config.ConntrackMaxPerCore}}
 
+  enable_node_local_dns = {{.Config.EnableNodeLocalDNS}}
+  node_local_dns_ip     = "{{.Config.NodeLocalDNSIP}}"
+
   worker_bootstrap_tokens = [
     {{- range $index, $pool := .Config.WorkerPools }}
     module.worker-pool-{{ $index }}.worker_bootstrap_token,
@@ -249,6 +252,11 @@ output "lokomotive_values" {
 
 output "bootstrap-secrets_values" {
   value     = module.aws-{{.Config.ClusterName}}.bootstrap-secrets_values
+  sensitive = true
+}
+
+output "node-local-dns_values" {
+  value     = module.aws-{{.Config.ClusterName}}.node-local-dns_values
   sensitive = true
 }
 

@@ -72,6 +72,8 @@ type config struct {
 	InstallerCLCSnippets         map[string][]string `hcl:"installer_clc_snippets,optional"`
 	CertsValidityPeriodHours     int                 `hcl:"certs_validity_period_hours,optional"`
 	WipeAdditionalDisks          bool                `hcl:"wipe_additional_disks,optional"`
+	EnableNodeLocalDNS           bool                `hcl:"enable_node_local_dns,optional"`
+	NodeLocalDNSIP               string              `hcl:"node_local_dns_ip,optional"`
 	KubeAPIServerExtraFlags      []string
 }
 
@@ -94,10 +96,15 @@ func (c *config) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContext) 
 
 // Meta is part of Platform interface and returns common information about the platform configuration.
 func (c *config) Meta() platform.Meta {
+	charts := platform.CommonControlPlaneCharts(platform.ControlPlanCharts{
+		Kubelet:      !c.DisableSelfHostedKubelet,
+		NodeLocalDNS: c.EnableNodeLocalDNS,
+	})
+
 	return platform.Meta{
 		AssetDir:             c.AssetDir,
 		ExpectedNodes:        len(c.ControllerMacs) + len(c.WorkerMacs),
-		ControlplaneCharts:   platform.CommonControlPlaneCharts(!c.DisableSelfHostedKubelet),
+		ControlplaneCharts:   charts,
 		Deployments:          platform.CommonDeployments(len(c.ControllerMacs)),
 		DaemonSets:           platform.CommonDaemonSets(len(c.ControllerMacs), c.DisableSelfHostedKubelet),
 		ControllerModuleName: fmt.Sprintf("%s-%s", Name, c.ClusterName),
@@ -113,6 +120,7 @@ func NewConfig() *config {
 		ConntrackMaxPerCore:          platform.ConntrackMaxPerCore,
 		DownloadProtocol:             "https",
 		NetworkIPAutodetectionMethod: "first-found",
+		NodeLocalDNSIP:               platform.NodeLocalDNSIP,
 	}
 }
 
@@ -259,6 +267,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		CLCSnippets                  map[string][]string
 		InstallerCLCSnippets         map[string][]string
 		WipeAdditionalDisks          bool
+		EnableNodeLocalDNS           bool
+		NodeLocalDNSIP               string
 	}{
 		CachedInstall:                cfg.CachedInstall,
 		ClusterName:                  cfg.ClusterName,
@@ -297,6 +307,8 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		CLCSnippets:                  cfg.CLCSnippets,
 		InstallerCLCSnippets:         cfg.InstallerCLCSnippets,
 		WipeAdditionalDisks:          cfg.WipeAdditionalDisks,
+		EnableNodeLocalDNS:           cfg.EnableNodeLocalDNS,
+		NodeLocalDNSIP:               cfg.NodeLocalDNSIP,
 	}
 
 	if err := t.Execute(f, terraformCfg); err != nil {
