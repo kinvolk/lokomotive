@@ -120,7 +120,7 @@ func NewConfig() *config {
 		ConntrackMaxPerCore:          platform.ConntrackMaxPerCore,
 		DownloadProtocol:             "https",
 		NetworkIPAutodetectionMethod: "first-found",
-		NodeLocalDNSIP:               "169.254.1.1",
+		NodeLocalDNSIP:               platform.NodeLocalDNSIP,
 	}
 }
 

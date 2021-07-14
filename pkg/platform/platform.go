@@ -42,6 +42,9 @@ const (
 
 	// NodeLocalDNSChartName is the expected name for the Node Local DNS Helm chart.
 	NodeLocalDNSChartName = "node-local-dns"
+
+	// NodeLocalDNSIP is the default node-local-dns's link local IP on the host.
+	NodeLocalDNSIP = "169.254.1.1"
 )
 
 // ControlPlanCharts struct allows the client to enable/disable specific control plane components
