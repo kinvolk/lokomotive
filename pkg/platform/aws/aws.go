@@ -113,7 +113,7 @@ func NewConfig() *config {
 		EnableTLSBootstrap:  true,
 		NetworkMTU:          platform.NetworkMTU,
 		ConntrackMaxPerCore: platform.ConntrackMaxPerCore,
-		NodeLocalDNSIP:      "169.254.1.1",
+		NodeLocalDNSIP:      platform.NodeLocalDNSIP,
 	}
 }
 
