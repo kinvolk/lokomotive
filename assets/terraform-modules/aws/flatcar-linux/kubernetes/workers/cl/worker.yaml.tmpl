@@ -140,6 +140,13 @@ storage:
           apiVersion: kubelet.config.k8s.io/v1beta1
           kind: KubeletConfiguration
           cgroupDriver: "$${docker_cgroup_driver}"
+          %{~ if cpu_manager_policy == "static" ~}
+          cpuManagerPolicy: ${cpu_manager_policy}
+          systemReserved:
+            cpu: ${system_reserved_cpu}
+          kubeReserved:
+            cpu: ${kube_reserved_cpu}
+          %{~ endif ~}
           EOF
     - path: /etc/kubernetes/delete-node
       filesystem: root

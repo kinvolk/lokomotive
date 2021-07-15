@@ -31,23 +31,24 @@ import (
 )
 
 type workerPool struct {
-	Name         string            `hcl:"pool_name,label"`
-	Count        int               `hcl:"count"`
-	SSHPubKeys   []string          `hcl:"ssh_pubkeys"`
-	InstanceType string            `hcl:"instance_type,optional"`
-	OSChannel    string            `hcl:"os_channel,optional"`
-	OSVersion    string            `hcl:"os_version,optional"`
-	Labels       map[string]string `hcl:"labels,optional"`
-	Taints       map[string]string `hcl:"taints,optional"`
-	DiskSize     int               `hcl:"disk_size,optional"`
-	DiskType     string            `hcl:"disk_type,optional"`
-	DiskIOPS     int               `hcl:"disk_iops,optional"`
-	SpotPrice    string            `hcl:"spot_price,optional"`
-	TargetGroups []string          `hcl:"target_groups,optional"`
-	CLCSnippets  []string          `hcl:"clc_snippets,optional"`
-	Tags         map[string]string `hcl:"tags,optional"`
-	LBHTTPPort   int               `hcl:"lb_http_port,optional"`
-	LBHTTPSPort  int               `hcl:"lb_https_port,optional"`
+	Name             string            `hcl:"pool_name,label"`
+	Count            int               `hcl:"count"`
+	CPUManagerPolicy string            `hcl:"cpu_manager_policy,optional"`
+	SSHPubKeys       []string          `hcl:"ssh_pubkeys"`
+	InstanceType     string            `hcl:"instance_type,optional"`
+	OSChannel        string            `hcl:"os_channel,optional"`
+	OSVersion        string            `hcl:"os_version,optional"`
+	Labels           map[string]string `hcl:"labels,optional"`
+	Taints           map[string]string `hcl:"taints,optional"`
+	DiskSize         int               `hcl:"disk_size,optional"`
+	DiskType         string            `hcl:"disk_type,optional"`
+	DiskIOPS         int               `hcl:"disk_iops,optional"`
+	SpotPrice        string            `hcl:"spot_price,optional"`
+	TargetGroups     []string          `hcl:"target_groups,optional"`
+	CLCSnippets      []string          `hcl:"clc_snippets,optional"`
+	Tags             map[string]string `hcl:"tags,optional"`
+	LBHTTPPort       int               `hcl:"lb_http_port,optional"`
+	LBHTTPSPort      int               `hcl:"lb_https_port,optional"`
 }
 
 type config struct {
@@ -281,6 +282,7 @@ func (c *config) checkValidConfig() hcl.Diagnostics {
 	diagnostics = append(diagnostics, c.checkWorkerPoolNamesUnique()...)
 	diagnostics = append(diagnostics, c.checkNameSizes()...)
 	diagnostics = append(diagnostics, c.checkLBPortsUnique()...)
+	diagnostics = append(diagnostics, c.checkCPUManagerPolicy()...)
 
 	if c.ConntrackMaxPerCore < 0 {
 		diagnostics = append(diagnostics, &hcl.Diagnostic{
@@ -409,4 +411,13 @@ func (c *config) checkWorkerPoolNamesUnique() hcl.Diagnostics {
 	}
 
 	return diagnostics
+}
+
+func (c *config) checkCPUManagerPolicy() hcl.Diagnostics {
+	wp := make(map[string]string)
+	for _, w := range c.WorkerPools {
+		wp[w.Name] = w.CPUManagerPolicy
+	}
+
+	return platform.CheckCPUManagerPolicy(wp)
 }

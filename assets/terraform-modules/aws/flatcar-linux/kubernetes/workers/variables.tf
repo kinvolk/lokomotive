@@ -173,3 +173,21 @@ variable "enable_csi" {
   type        = bool
   default     = false
 }
+
+variable "cpu_manager_policy" {
+  description = "CPU Manager policy to use for the worker pool. Possible values: `none`, `static`."
+  default     = "none"
+  type        = string
+}
+
+variable "kube_reserved_cpu" {
+  description = "CPU cores reserved for the Worker Kubernetes components like kubelet, etc."
+  default     = "300m"
+  type        = string
+}
+
+variable "system_reserved_cpu" {
+  description = "CPU cores reserved for the host services like Docker, sshd, kernel, etc."
+  default     = "500m"
+  type        = string
+}

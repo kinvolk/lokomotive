@@ -160,6 +160,10 @@ data "ct_config" "worker-ignition" {
     node_labels            = merge({ "node.kubernetes.io/node" = "" }, var.labels)
     taints                 = var.taints
     enable_tls_bootstrap   = var.enable_tls_bootstrap
+    cpu_manager_policy     = var.cpu_manager_policy
+    system_reserved_cpu    = var.system_reserved_cpu
+    kube_reserved_cpu      = var.kube_reserved_cpu
+
   })
   pretty_print = false
   snippets     = var.clc_snippets
