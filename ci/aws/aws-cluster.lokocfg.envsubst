@@ -36,6 +36,8 @@ EOF
 
   ignore_x509_cn_check = true
 
+  enable_node_local_dns = true
+
   worker_pool "$CLUSTER_ID-w1" {
     count         = 3
     ssh_pubkeys   = ["$PUB_KEY"]

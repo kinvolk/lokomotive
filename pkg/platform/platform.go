@@ -39,11 +39,24 @@ const (
 
 	// KubeletChartName is the expected name for the Kubelet Helm chart.
 	KubeletChartName = "kubelet"
+
+	// NodeLocalDNSChartName is the expected name for the Node Local DNS Helm chart.
+	NodeLocalDNSChartName = "node-local-dns"
+
+	// NodeLocalDNSIP is the default node-local-dns's link local IP on the host.
+	NodeLocalDNSIP = "169.254.1.1"
 )
+
+// ControlPlanCharts struct allows the client to enable/disable specific control plane components
+// based on the user input.
+type ControlPlanCharts struct {
+	Kubelet      bool
+	NodeLocalDNS bool
+}
 
 // CommonControlPlaneCharts returns a list of control plane Helm charts to be deployed for all
 // platforms.
-func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
+func CommonControlPlaneCharts(c ControlPlanCharts) []helm.LokomotiveChart {
 	charts := []helm.LokomotiveChart{
 		{
 			Name:      "bootstrap-secrets",
@@ -71,9 +84,16 @@ func CommonControlPlaneCharts(includeKubeletChart bool) []helm.LokomotiveChart {
 		},
 	}
 
-	if includeKubeletChart {
+	if c.Kubelet {
 		charts = append(charts, helm.LokomotiveChart{
 			Name:      KubeletChartName,
+			Namespace: "kube-system",
+		})
+	}
+
+	if c.NodeLocalDNS {
+		charts = append(charts, helm.LokomotiveChart{
+			Name:      NodeLocalDNSChartName,
 			Namespace: "kube-system",
 		})
 	}

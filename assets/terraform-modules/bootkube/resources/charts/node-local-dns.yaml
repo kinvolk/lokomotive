@@ -1,0 +1,3 @@
+clusterDomainSuffix: ${cluster_domain_suffix}
+clusterIP: ${cluster_dns_service_ip}
+localDNSIP: ${node_local_dns_ip}
