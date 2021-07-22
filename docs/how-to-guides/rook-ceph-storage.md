@@ -1,5 +1,5 @@
 ---
-title: Kubernetes storage with Rook Ceph on Packet cloud
+title: Kubernetes storage with Rook Ceph on Equinix Metal
 weight: 10
 ---
 
@@ -17,7 +17,7 @@ At the end of this tutorial you will have a storage backed by `rook` and `rook-c
 
 ## Prerequisites
 
-* A Lokomotive cluster deployed on a Packet cloud and accessible via `kubectl`.
+* A Lokomotive cluster deployed on Equinix Metal and accessible via `kubectl`.
 
 ## Steps
 
@@ -46,7 +46,7 @@ cluster "packet" {
 ```
 
 - The number of machines provided using `count` should be an odd number greater than or equal to three.
-- Type of node, provided using `node_type`, should be one that has multiple disks like `c2.medium.x86` or `s1.large.x86`. Find out more servers [here](https://www.packet.com/cloud/servers/).
+- Type of node, provided using `node_type`, should be one that has multiple disks like `c2.medium.x86` or `s1.large.x86`. Find out more servers [here](https://metal.equinix.com/product/servers/).
 - To steer `rook-ceph` workload on these storage nodes provide `labels`.
 - Provide `taints` so that other workload can be **steered away** by default. This setting is not mandatory, but isolating storage workloads from others is recommended so that other workloads do not degrade the performance of the storage.
 
