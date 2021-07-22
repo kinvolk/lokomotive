@@ -117,4 +117,4 @@ the [cloud providers section](https://metallb.universe.tf/installation/clouds/).
 For more extensive and complex configuration for MetalLB, you can visit the MetalLB website for
 [configuration options](https://metallb.universe.tf/configuration/).
 
-For more in-depth documentation on Contour, please can visit the [Contour Documentation](https://projectcontour.io/docs/v1.1.0/).
+For more in-depth documentation on Contour, please can visit the [Contour Documentation](https://projectcontour.io/docs/v1.16.0/).

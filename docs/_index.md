@@ -15,5 +15,5 @@ Kubernetes.
 It focuses on being minimal, easy to use, and secure by default.
 
 Lokomotive is fully self-hosted and includes [Lokomotive
-Components](./concepts/components) adding essential functionality for production
+Components](./concepts/components.md) adding essential functionality for production
 not shipped with upstream Kubernetes.

@@ -116,7 +116,7 @@ component "dex" {
       redirect_uri = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/callback"
 
       # Can be 'name', 'slug' or 'both'.
-      # See https://github.com/dexidp/dex/blob/master/Documentation/connectors/github.md
+      # See https://dexidp.io/docs/connectors/github
       team_name_field = "slug"
 
       # GitHub organization details.
@@ -322,7 +322,7 @@ For more information about OpenID Connect, see [OpenID Connect](https://openid.n
 website.
 
 To learn about Kubernetes authentication through Dex, visit [Dex
-documentation](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md).
+documentation](https://dexidp.io/docs/kubernetes/).
 
 For more information about OIDC authentication using Gangway, visit [How Gangway
 works](https://github.com/heptiolabs/gangway#how-it-works).

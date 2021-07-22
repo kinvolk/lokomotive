@@ -14,11 +14,11 @@ uses the `stable` channel.
 
 This guide uses experimental Tinkerbell sandbox running locally using [libvirt] virtual machines.
 
-Lokomotive can store Terraform state [locally](../../configuration-reference/backend/local)
-or remotely within an [AWS S3 bucket](../../configuration-reference/backend/s3). By default, Lokomotive
+Lokomotive can store Terraform state [locally](../configuration-reference/backend/local.md)
+or remotely within an [AWS S3 bucket](../configuration-reference/backend/s3.md). By default, Lokomotive
 stores Terraform state locally.
 
-[Lokomotive components](../../concepts/components) complement the "stock" Kubernetes functionality
+[Lokomotive components](../concepts/components.md) complement the "stock" Kubernetes functionality
 by adding features such as load balancing, persistent storage and monitoring to a cluster. To keep
 this guide short you will deploy a single component - `httpbin` - which serves as a demo
 application to verify the cluster behaves as expected.

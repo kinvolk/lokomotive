@@ -11,7 +11,7 @@ This guide enlists various issues with OpenEBS and steps to mitigate those probl
 
 * A Kubernetes cluster accessible via `kubectl`.
 
-* [OpenEBS component](../../configuration-reference/components/openebs-operator) installed.
+* [OpenEBS component](../configuration-reference/components/openebs-operator.md) installed.
 
 ## iSCSI volume mount issue
 
