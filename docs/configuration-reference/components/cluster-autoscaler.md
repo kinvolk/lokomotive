@@ -12,7 +12,7 @@ underutilized for an extended period of time and pods can be placed on other exi
 
 ## Prerequisites
 
-* A Lokomotive cluster accessible via `kubectl` deployed on Packet.
+* A Lokomotive cluster accessible via `kubectl` deployed on Equinix Metal.
 
 * For existing worker nodes in the cluster, you need to tag them manually for the Cluster Autoscaler
   to consider.
@@ -24,7 +24,7 @@ underutilized for an extended period of time and pods can be placed on other exi
 
 ## Configuration
 
-Currently Lokomotive supports the Cluster Autoscaler component only on the Packet platform. Support
+Currently Lokomotive supports the Cluster Autoscaler component only on the Equinix Metal platform. Support
 for other platforms will be added in the future.
 
 Cluster Autoscaler component configuration example:
@@ -47,7 +47,7 @@ component "cluster-autoscaler" {
   scale_down_unready_time = "20m"
 
   packet {
-    # Required arguments for Packet platform
+    # Required arguments for Equinix Metal platform
     project_id = "0b5dc3d2-949a-447d-82cd-43fbdc1ae8c0"
     facility = "sjc1"
 
@@ -72,10 +72,10 @@ Table of all the arguments accepted by the component.
 | `scale_down_unneeded_time`   | How long a node should be unneeded before it is eligible for scale down.                 | "10m"          | string |  false   |
 | `scale_down_delay_after_add` | How long scale down should wait after a scale up.                                        | "10m"          | string |  false   |
 | `scale_down_unready_time`    | How long an unready node should be unneeded before it is eligible for scale down.        | "20m"          | string |  false   |
-| `provider`                   | Supported provider, currently Packet.                                                    | "packet"       | string |  false   |
+| `provider`                   | Supported provider, currently Equinix Metal, formerly Packet.                            | "packet"       | string |  false   |
 | `service_monitor`            | Specifies how metrics can be retrieved from a set of services.                           | false          |  bool  |  false   |
-| `packet.project_id`          | Packet Project ID where the cluster is running.                                          | -              | string |   true   |
-| `packet.facility`            | Packet Facility where the cluster is running.                                            | -              | string |   true   |
+| `packet.project_id`          | Equinix Metal Project ID where the cluster is running.                                   | -              | string |   true   |
+| `packet.facility`            | Equinix Metal Facility where the cluster is running.                                     | -              | string |   true   |
 | `packet.worker_type`         | Machine type for workers spawned by the Cluster Autoscaler.                              | "c3.small.x86" | string |  false   |
 | `packet_worker_channel`      | Flatcar Container Linux channel to be used in workers spawned by the Cluster Autoscaler. | "stable"       | string |  false   |
 
