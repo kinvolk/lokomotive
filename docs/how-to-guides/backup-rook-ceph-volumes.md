@@ -47,6 +47,7 @@ component "velero" {
 
   restic {
     credentials = file("./credentials-velero")
+    require_volume_annotation = true
     backup_storage_location {
       provider = "aws"
       bucket   = "rook-ceph-backup"
@@ -162,6 +163,8 @@ $ kubectl -n demo-ns exec -it demo-app-0 -- /bin/sh -c 'du -s /data'
 ```
 
 ### Step 3: Annotate pods
+
+> **NOTE**: To backup all pod volumes without having to individually annotate every pod, set the parameter `require_volume_annotation` to `false` or remove it from the configuration.
 
 Annotate the pods with volumes attached to them with their volume names so that Velero takes backup
 of volume data. Replace the pod name and the volume name as needed in the following command:
