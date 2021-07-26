@@ -1,0 +1,10 @@
+apiVersion: openebs.io/v1alpha1
+kind: StoragePoolClaim
+metadata:
+  name: cstor-pool-openebs-test-sc
+spec:
+  name: cstor-pool-openebs-test-sc
+  type: disk
+  maxPools: 3
+  poolSpec:
+    poolType: striped
