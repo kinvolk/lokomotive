@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: metallb
+  name: metallb-metrics
+  namespace: metallb-system
+spec:
+  ports:
+  - port: 7472
+    name: metallb-metrics
+  selector:
+    app: metallb

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    peer-autodiscovery:
+      from-labels:
+        my-asn: metallb.lokomotive.io/my-asn
+        peer-asn: metallb.lokomotive.io/peer-asn
+        peer-address: metallb.lokomotive.io/peer-address
+        peer-port: metallb.lokomotive.io/peer-port
+        src-address: metallb.lokomotive.io/src-address
+        hold-time: metallb.lokomotive.io/hold-time
+        router-id: metallb.lokomotive.io/router-id
+      from-annotations:
+        my-asn: metallb.lokomotive.io/my-asn
+        peer-address: metallb.lokomotive.io/peer-address
+        peer-asn: metallb.lokomotive.io/peer-asn
+    address-pools:
+    {{- range $k, $v := .Values.addressPools }}
+    - name: {{ $k }}
+      protocol: bgp
+      addresses:
+      {{- range $a := $v }}
+      - {{ $a }}
+      {{- end }}
+    {{- end }}
