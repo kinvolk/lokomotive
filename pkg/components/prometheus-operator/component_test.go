@@ -24,6 +24,8 @@ import (
 
 //nolint:funlen
 func TestRenderManifest(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		desc    string
 		hcl     string
@@ -92,11 +94,58 @@ component "prometheus-operator" {
 `,
 			wantErr: false,
 		},
+		{
+			desc: "prometheus operator and admission webhook toleration are set correctly",
+			hcl: `
+component "prometheus-operator" {
+  operator {
+    admission_webhook_tolerations {
+      key      = "lokomotive.io/operator-admission-webhook"
+      operator = "Equal"
+      value    = "test"
+      effect   = "NoSchedule"
+    }
+    tolerations {
+      key      = "lokomotive.io/operator"
+      operator = "Equal"
+      value    = "test"
+      effect   = "NoSchedule"
+    }
+  }
+}
+`,
+			wantErr: false,
+		},
+		{
+			desc: "prometheus and alertmanager toleration are set correctly",
+			hcl: `
+component "prometheus-operator" {
+  alertmanager {
+    tolerations {
+      key      = "lokomotive.io/alertmanager"
+      operator = "Equal"
+      value    = "test"
+      effect   = "NoSchedule"
+    }
+  }
+  prometheus{
+    tolerations {
+      key      = "lokomotive.io/prometheus"
+      operator = "Equal"
+      value    = "test"
+      effect   = "NoSchedule"
+    }
+  }
+}
+`,
+			wantErr: false,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
+			t.Parallel()
 			b, d := util.GetComponentBody(tc.hcl, Name)
 			if d != nil {
 				t.Fatalf("error getting component body: %v", d)
@@ -131,6 +180,8 @@ component "prometheus-operator" {
 
 //nolint:funlen
 func TestConversion(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
 		name                 string
 		inputConfig          string
@@ -209,6 +260,46 @@ providers:
     foldersFromFilesStructure: true
     path: /tmp/dashboards`,
 			jsonPath: "{.data.provider\\.yaml}",
+		},
+		{
+			name: "prometheus operator tolerations",
+			inputConfig: `
+		component "prometheus-operator" {
+			operator {
+				tolerations {
+					key      = "lokomotive.io/operator"
+					operator = "Equal"
+					value    = "test"
+					effect   = "NoSchedule"
+				}
+			}
+		}
+		`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "apps/v1", Kind: "Deployment", Name: "prometheus-operator-kube-p-operator",
+			},
+			expected: "lokomotive.io/operator",
+			jsonPath: "{.spec.template.spec.tolerations[0].key}",
+		},
+		{
+			name: "prometheus operator alertmanager tolerations",
+			inputConfig: `
+		component "prometheus-operator" {
+			alertmanager {
+				tolerations {
+					key      = "lokomotive.io/alertmanager"
+					operator = "Equal"
+					value    = "test"
+					effect   = "NoSchedule"
+				}
+			}
+		}
+		`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "monitoring.coreos.com/v1", Kind: "Alertmanager", Name: "prometheus-operator-kube-p-alertmanager",
+			},
+			expected: "lokomotive.io/alertmanager",
+			jsonPath: "{.spec.tolerations[0].key}",
 		},
 	}
 
