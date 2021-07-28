@@ -20,7 +20,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
-	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
@@ -33,14 +33,15 @@ const (
 )
 
 type component struct {
-	Namespace      string              `hcl:"namespace,optional"`
-	MonitorCount   int                 `hcl:"monitor_count,optional"`
-	NodeAffinity   []util.NodeAffinity `hcl:"node_affinity,block"`
-	MetadataDevice string              `hcl:"metadata_device,optional"`
-	Tolerations    []util.Toleration   `hcl:"toleration,block"`
-	TolerationsRaw string
-	StorageClass   *StorageClass `hcl:"storage_class,block"`
-	EnableToolbox  bool          `hcl:"enable_toolbox,optional"`
+	Namespace       string              `hcl:"namespace,optional"`
+	MonitorCount    int                 `hcl:"monitor_count,optional"`
+	NodeAffinity    []util.NodeAffinity `hcl:"node_affinity,block"`
+	NodeAffinityRaw string
+	MetadataDevice  string            `hcl:"metadata_device,optional"`
+	Tolerations     []util.Toleration `hcl:"toleration,block"`
+	TolerationsRaw  string
+	StorageClass    *StorageClass `hcl:"storage_class,block"`
+	EnableToolbox   bool          `hcl:"enable_toolbox,optional"`
 
 	Resources *Resources `hcl:"resources,block"`
 }
@@ -130,30 +131,37 @@ func (c *component) addResourceRequirements() error {
 
 // TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
+	helmChart, err := components.Chart(Name)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
+	}
+
 	// Generate YAML for Ceph cluster.
-	var err error
 	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
 	if err != nil {
 		return nil, fmt.Errorf("rendering tolerations: %w", err)
+	}
+
+	c.NodeAffinityRaw, err = util.RenderNodeAffinity(c.NodeAffinity)
+	if err != nil {
+		return nil, fmt.Errorf("rendering node affinity: %w", err)
 	}
 
 	if err := c.addResourceRequirements(); err != nil {
 		return nil, fmt.Errorf("rendering resources field: %w", err)
 	}
 
-	ret := make(map[string]string)
-
-	// Parse template with values
-	for k, v := range template {
-		rendered, err := internaltemplate.Render(v, c)
-		if err != nil {
-			return nil, fmt.Errorf("template rendering failed for %q: %w", k, err)
-		}
-
-		ret[k] = rendered
+	values, err := template.Render(chartValuesTmpl, c)
+	if err != nil {
+		return nil, fmt.Errorf("rendering values template failed: %w", err)
 	}
 
-	return ret, nil
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
+	if err != nil {
+		return nil, fmt.Errorf("rendering chart failed: %w", err)
+	}
+
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {

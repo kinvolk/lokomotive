@@ -256,6 +256,86 @@ func TestConversion(t *testing.T) {
 			expected: "{\"limits\":{\"cpu\":\"6\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"1Gi\"}}",
 			fn:       testutil.MatchJSONPathJSONValue,
 		},
+		{
+			name: "metadata_device",
+			inputConfig: `component "rook-ceph" {
+				metadata_device = "foobar"
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.storage.config.metadataDevice}",
+			expected: "foobar",
+			fn:       testutil.MatchJSONPathStringValue,
+		},
+		{
+			name: "node_affinity_key",
+			inputConfig: `component "rook-ceph" {
+				node_affinity {
+				  key      = "storage.lokomotive.io"
+				  operator = "Exists"
+				  values   = ["one", "two"]
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.placement.all.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution" +
+				".nodeSelectorTerms[0].matchExpressions[0].key}",
+			expected: "storage.lokomotive.io",
+			fn:       testutil.MatchJSONPathStringValue,
+		},
+		{
+			name: "node_affinity_value",
+			inputConfig: `component "rook-ceph" {
+				node_affinity {
+				  key      = "storage.lokomotive.io"
+				  operator = "Exists"
+				  values   = ["one", "two"]
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.placement.all.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution" +
+				".nodeSelectorTerms[0].matchExpressions[0].values[0]}",
+			expected: "one",
+			fn:       testutil.MatchJSONPathStringValue,
+		},
+		{
+			name: "tolerations_key",
+			inputConfig: `component "rook-ceph" {
+				toleration {
+				  key      = "storage.lokomotive.io"
+				  operator = "Equal"
+				  value    = "ceph"
+				  effect   = "NoSchedule"
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.placement.all.tolerations[0].key}",
+			expected: "storage.lokomotive.io",
+			fn:       testutil.MatchJSONPathStringValue,
+		},
+		{
+			name: "tolerations_operator",
+			inputConfig: `component "rook-ceph" {
+				toleration {
+				  key      = "storage.lokomotive.io"
+				  operator = "Equal"
+				  value    = "ceph"
+				  effect   = "NoSchedule"
+				}
+			}`,
+			expectedManifestName: k8sutil.ObjectMetadata{
+				Version: "ceph.rook.io/v1", Kind: "CephCluster", Name: "rook-ceph",
+			},
+			jsonPath: "{.spec.placement.all.tolerations[0].operator}",
+			expected: "Equal",
+			fn:       testutil.MatchJSONPathStringValue,
+		},
 	}
 
 	for _, tc := range testCases {

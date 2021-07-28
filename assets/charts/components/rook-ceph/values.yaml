@@ -1,0 +1,38 @@
+storageClass:
+  enable: true
+  default: true
+  reclaimPolicy: Delete
+
+enableToolbox: true
+
+cephCluster:
+  # resources:
+  #   mon:
+  #    limits:
+  #      cpu: "500m"
+  #      memory: "1024Mi"
+  #    requests:
+  #      cpu: "500m"
+  #      memory: "1024Mi"
+  #   mgr:
+  #   osd:
+  #   mds:
+  #   prepareosd:
+  #   crashcollector:
+  #   mgrSidecar:
+  mon:
+    count: 3
+  # metadataDevice:
+
+# nodeAffinity:
+#   requiredDuringSchedulingIgnoredDuringExecution:
+#     nodeSelectorTerms:
+#     - matchExpressions:
+#       - key: role
+#         operator: In
+#         values:
+#         - storage-node
+
+# tolerations:
+# - key: storage-node
+#   operator: Exists
