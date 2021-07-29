@@ -1,0 +1,32 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: metallb
+  name: metallb-system:speaker
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - services
+  - endpoints
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - policy
+  resourceNames:
+  - speaker
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use

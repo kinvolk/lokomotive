@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: metallb
+    component: controller
+  name: controller
+  namespace: metallb-system
+spec:
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: metallb
+      component: controller
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '7472'
+        prometheus.io/scrape: 'true'
+      labels:
+        app: metallb
+        component: controller
+    spec:
+      containers:
+      - args:
+        - --port=7472
+        - --config=config
+        image: quay.io/kinvolk/metallb-controller:v0.1.0-789-g85b7a46a
+        imagePullPolicy: Always
+        name: controller
+        ports:
+        - containerPort: 7472
+          name: monitoring
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+          readOnlyRootFilesystem: true
+      {{- if .Values.controller.nodeSelector }}
+      # XXX: Lokomotive specific change.
+      nodeSelector:
+{{ toYaml .Values.controller.nodeSelector | indent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      serviceAccountName: controller
+      terminationGracePeriodSeconds: 0
+      {{- if .Values.controller.tolerations }}
+      # XXX: Lokomotive specific change.
+      tolerations:
+{{ toYaml .Values.controller.tolerations | indent 6 }}
+      {{- end }}

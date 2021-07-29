@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: metallb-system
+  name: controller
+  labels:
+    app: metallb

@@ -58,8 +58,12 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-// TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
+	helmChart, err := components.Chart(Name)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
+	}
+
 	// Here are `nodeSelectors` and `tolerations` that are set by upstream. To make sure that we
 	// don't miss them out we set them manually here. We cannot make these changes in the template
 	// because we have parameterized these fields.
@@ -93,50 +97,17 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	}
 	c.ControllerTolerationsJSON = t
 
-	controllerStr, err := template.Render(deploymentController, c)
+	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, fmt.Errorf("rendering controller Deployment template: %w", err)
+		return nil, fmt.Errorf("rendering values template failed: %w", err)
 	}
 
-	speakerStr, err := template.Render(daemonsetSpeaker, c)
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
 	if err != nil {
-		return nil, fmt.Errorf("rendering speaker DaemonSet template: %w", err)
+		return nil, fmt.Errorf("rendering chart failed: %w", err)
 	}
 
-	configMapStr, err := template.Render(configMap, c)
-	if err != nil {
-		return nil, fmt.Errorf("rendering ConfigMap template: %w", err)
-	}
-
-	rendered := map[string]string{
-		"namespace.yaml":                                    namespace,
-		"service-account-controller.yaml":                   serviceAccountController,
-		"service-account-speaker.yaml":                      serviceAccountSpeaker,
-		"clusterrole-metallb-system-controller.yaml":        clusterRoleMetallbSystemController,
-		"clusterrole-metallb-System-speaker.yaml":           clusterRoleMetallbSystemSpeaker,
-		"role-config-watcher.yaml":                          roleConfigWatcher,
-		"role-pod-lister.yaml":                              rolePodLister,
-		"clusterrolebinding-metallb-system-controller.yaml": clusterRoleBindingMetallbSystemController,
-		"clusterrolebinding-metallb-system-speaker.yaml":    clusterRoleBindingMetallbSystemSpeaker,
-		"rolebinding-config-watcher.yaml":                   roleBindingConfigWatcher,
-		"rolebinding-pod-lister.yaml":                       roleBindingPodLister,
-		"deployment-controller.yaml":                        controllerStr,
-		"daemonset-speaker.yaml":                            speakerStr,
-		"psp-metallb-controller.yaml":                       pspMetallbController,
-		"psp-metallb-speaker.yaml":                          pspMetallbSpeaker,
-		"configmap.yaml":                                    configMapStr,
-	}
-
-	// Create service and service monitor for Prometheus to scrape metrics
-	if c.ServiceMonitor {
-		rendered["service.yaml"] = service
-		rendered["service-monitor.yaml"] = serviceMonitor
-		rendered["grafana-dashboard.yaml"] = grafanaDashboard
-		rendered["grafana-alertmanager-rule.yaml"] = metallbPrometheusRule
-		rendered["grafana-alertmanager-rule-updated-prometheus.yaml"] = metallbPrometheusRuleUpdated
-	}
-
-	return rendered, nil
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {

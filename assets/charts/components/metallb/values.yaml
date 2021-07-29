@@ -1,0 +1,27 @@
+speaker:
+  nodeSelector:
+    # ingress.lokomotive.io: "true"
+  tolerations:
+  # - key: ingress-node
+  #   operator: Exists
+
+controller:
+  nodeSelector:
+    # ingress.lokomotive.io: "true"
+  tolerations:
+  # - key: ingress-node
+  #   operator: Exists
+
+enableMonitoring: false
+
+# addressPools:
+# - name: default
+#   protocol: bgp
+#   addresses:
+#   - 10.0.1.1/32
+#   - 10.1.1.1/32
+# - name: local-pool
+#   protocol: bgp
+#   addresses:
+#   - 192.168.1.1/32
+#   - 192.168.16.1/32
