@@ -23,7 +23,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/kinvolk/lokomotive/pkg/components/internal/testutil"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
+	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
 func TestEmptyConfig(t *testing.T) {
@@ -109,10 +111,9 @@ component "metallb" {
 }
 
 func getSpeakerDaemonset(t *testing.T, m map[string]string) *appsv1.DaemonSet {
-	dsStr, ok := m["daemonset-speaker.yaml"]
-	if !ok {
-		t.Fatalf("speaker daemonset config not found")
-	}
+	dsStr := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+		Version: "apps/v1", Kind: "DaemonSet", Name: "speaker",
+	})
 
 	ds := &appsv1.DaemonSet{}
 	if err := yaml.Unmarshal([]byte(dsStr), ds); err != nil {
@@ -123,10 +124,9 @@ func getSpeakerDaemonset(t *testing.T, m map[string]string) *appsv1.DaemonSet {
 }
 
 func getDeployController(t *testing.T, m map[string]string) *appsv1.Deployment {
-	deployStr, ok := m["deployment-controller.yaml"]
-	if !ok {
-		t.Fatalf("controller deployment config not found")
-	}
+	deployStr := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+		Version: "apps/v1", Kind: "Deployment", Name: "controller",
+	})
 
 	deploy := &appsv1.Deployment{}
 	if err := yaml.Unmarshal([]byte(deployStr), deploy); err != nil {
@@ -186,13 +186,15 @@ component "metallb" {
 		t.Fatalf("Rendered manifests shouldn't be empty")
 	}
 
+	ds := getSpeakerDaemonset(t, m)
+	deploy := getDeployController(t, m)
+
 	tcs := []struct {
 		Name string
 		Test func(*testing.T, map[string]string)
 	}{
 		{
 			"SpeakerConversions", func(t *testing.T, m map[string]string) {
-				ds := getSpeakerDaemonset(t, m)
 				expected := []corev1.Toleration{
 					{Key: "speaker_key1", Operator: "Equal", Value: "value1"},
 					{Key: "speaker_key2", Operator: "Equal", Value: "value2"},
@@ -204,7 +206,6 @@ component "metallb" {
 		},
 		{
 			"SpeakerNodeSelectors", func(t *testing.T, m map[string]string) {
-				ds := getSpeakerDaemonset(t, m)
 				expected := map[string]string{
 					"beta.kubernetes.io/os": "linux",
 					"speaker_node_key1":     "speaker_node_value1",
@@ -217,7 +218,6 @@ component "metallb" {
 		},
 		{
 			"ControllerTolerations", func(t *testing.T, m map[string]string) {
-				deploy := getDeployController(t, m)
 				expected := []corev1.Toleration{
 					{Key: "controller_key1", Operator: "Equal", Value: "value1"},
 					{Key: "controller_key2", Operator: "Equal", Value: "value2"},
@@ -230,7 +230,6 @@ component "metallb" {
 		},
 		{
 			"ControllerNodeSelectors", func(t *testing.T, m map[string]string) {
-				deploy := getDeployController(t, m)
 				expected := map[string]string{
 					"beta.kubernetes.io/os":     "linux",
 					"controller_node_key1":      "controller_node_value1",
@@ -245,10 +244,10 @@ component "metallb" {
 		{
 			"MonitoringConfig", func(t *testing.T, m map[string]string) {
 				expectedConfig := []string{
-					"service.yaml",
-					"service-monitor.yaml",
-					"grafana-dashboard.yaml",
-					"grafana-alertmanager-rule.yaml",
+					"metallb/templates/metrics-service.yaml",
+					"metallb/templates/service-monitor.yaml",
+					"metallb/templates/grafana-dashboard.yaml",
+					"metallb/templates/prometheus-rules.yaml",
 				}
 
 				for _, ec := range expectedConfig {
@@ -260,41 +259,37 @@ component "metallb" {
 		},
 		{
 			"EIPConfig", func(t *testing.T, m map[string]string) {
-				expectedCM := `peer-autodiscovery:
-  from-labels:
-    my-asn: metallb.lokomotive.io/my-asn
-    peer-asn: metallb.lokomotive.io/peer-asn
-    peer-address: metallb.lokomotive.io/peer-address
-    peer-port: metallb.lokomotive.io/peer-port
-    src-address: metallb.lokomotive.io/src-address
-    hold-time: metallb.lokomotive.io/hold-time
-    router-id: metallb.lokomotive.io/router-id
-  from-annotations:
-    my-asn: metallb.lokomotive.io/my-asn
-    peer-address: metallb.lokomotive.io/peer-address
-    peer-asn: metallb.lokomotive.io/peer-asn
-address-pools:
-- name: default
-  protocol: bgp
-  addresses:
-  - 1.1.1.1/32
-  - 2.2.2.2/32
+				expectedCM := `apiVersion: v1
+data:
+  config: |
+    peer-autodiscovery:
+      from-labels:
+        my-asn: metallb.lokomotive.io/my-asn
+        peer-asn: metallb.lokomotive.io/peer-asn
+        peer-address: metallb.lokomotive.io/peer-address
+        peer-port: metallb.lokomotive.io/peer-port
+        src-address: metallb.lokomotive.io/src-address
+        hold-time: metallb.lokomotive.io/hold-time
+        router-id: metallb.lokomotive.io/router-id
+      from-annotations:
+        my-asn: metallb.lokomotive.io/my-asn
+        peer-address: metallb.lokomotive.io/peer-address
+        peer-asn: metallb.lokomotive.io/peer-asn
+    address-pools:
+    - addresses:
+      - 1.1.1.1/32
+      - 2.2.2.2/32
+      name: default
+      protocol: bgp
+kind: ConfigMap
+metadata:
+  name: config
+  namespace: metallb-system
 `
 
-				cmStr, ok := m["configmap.yaml"]
-				if !ok {
-					t.Fatalf("metallb configmap not found")
-				}
-
-				cm := &corev1.ConfigMap{}
-				if err := yaml.Unmarshal([]byte(cmStr), cm); err != nil {
-					t.Fatalf("failed unmarshalling manifest: %v", err)
-				}
-
-				gotCM, ok := cm.Data["config"]
-				if !ok {
-					t.Fatalf("metallb configmap is missing 'config' key")
-				}
+				gotCM := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+					Version: "v1", Kind: "ConfigMap", Name: "config",
+				})
 
 				if gotCM != expectedCM {
 					t.Fatalf("expected: %s, got: %s", expectedCM, gotCM)
