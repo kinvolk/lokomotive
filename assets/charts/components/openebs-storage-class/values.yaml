@@ -1,0 +1,15 @@
+storageClasses:
+- name: test
+  default: false
+  reclaimPolicy: Retain
+  replicaCount: 1
+  # disks:
+  # - foo
+  # - bar
+# - name: notest
+#   default: false
+#   reclaimPolicy: Retain
+#   replicaCount: 1
+#   disks:
+#   - baz
+#   - zab
