@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aws_edge packet baremetal
+// +build aws aws_edge equinixmetal baremetal
 // +build e2e
 
 //nolint:dupl

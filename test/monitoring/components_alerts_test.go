@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aws_edge packet aks
+// +build aws aws_edge equinixmetal aks
 // +build poste2e
 
 package monitoring
@@ -46,7 +46,7 @@ func testComponentAlerts(t *testing.T, v1api v1.API) {
 		{
 			ComponentName: "metallb",
 			RuleGroup:     "metallb-rules",
-			platforms:     []testutil.Platform{testutil.PlatformPacket},
+			platforms:     []testutil.Platform{testutil.PlatformEquinixMetal},
 			Alerts: []string{
 				"MetalLBNoBGPSession", "MetalLBConfigStale", "MetalLBControllerPodsAvailability",
 				"MetalLBSpeakerPodsAvailability",
@@ -55,7 +55,7 @@ func testComponentAlerts(t *testing.T, v1api v1.API) {
 		{
 			ComponentName: "rook",
 			RuleGroup:     "ceph-mds-status",
-			platforms:     []testutil.Platform{testutil.PlatformPacket},
+			platforms:     []testutil.Platform{testutil.PlatformEquinixMetal},
 			Alerts:        []string{"CephMdsMissingReplicas"},
 		},
 	}

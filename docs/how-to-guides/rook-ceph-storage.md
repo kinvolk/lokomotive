@@ -28,7 +28,7 @@ At the end of this tutorial you will have a storage backed by `rook` and `rook-c
 Deploy a cluster with at least one worker pool dedicated to `rook-ceph`. A dedicated worker pool configuration should look like the following:
 
 ```tf
-cluster "packet" {
+cluster "equinixmetal" {
   ...
 
   worker_pool "storage" {

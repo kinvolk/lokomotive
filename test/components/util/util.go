@@ -482,11 +482,11 @@ const (
 	// PlatformAWSEdge is for AWS with FCL Edge.
 	PlatformAWSEdge = "aws_edge"
 
-	// PlatformPacket is for Packet
-	PlatformPacket = "packet"
+	// PlatformEquinixMetal is for Equinix Metal.
+	PlatformEquinixMetal = "equinixmetal"
 
-	// PlatformPacketARM is for Packet on ARM
-	PlatformPacketARM = "packet_arm"
+	// PlatformEquinixMetalARM is for Equinix Metal on ARM.
+	PlatformEquinixMetalARM = "equinixmetal_arm"
 
 	// PlatformBaremetal is for Baremetal
 	PlatformBaremetal = "baremetal"

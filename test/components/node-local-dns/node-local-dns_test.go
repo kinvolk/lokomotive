@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws packet baremetal
+// +build aws equinixmetal baremetal
 // +build e2e
 
 package nodelocaldns_test

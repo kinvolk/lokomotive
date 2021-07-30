@@ -107,7 +107,7 @@ Based on the information above, the following DNS records are created:
 Lokomotive currently doesn't support DNS provisioning for bare metal clusters. The user has to
 create the necessary records *in advance*, before deploying a cluster.
 
-## Equinix Metal formerly Packet
+## Equinix Metal (formerly Packet)
 
 Following is a sample record set for a Equinix Metal cluster called `my-cluster` with 3 controller nodes
 under a zone called `example.com`. For illustration, assume the controller nodes have the following

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aks aws_edge packet
+// +build aws aks aws_edge equinixmetal
 // +build e2e
 
 package istio_test

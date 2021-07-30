@@ -250,8 +250,8 @@ and start over. See [Cleanup](#cleanup) section for instruction how to clean thi
 
 ```
 ...
-module.packet-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m30s elapsed)
-module.packet-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m40s elapsed)
+module.equinixmetal-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m30s elapsed)
+module.equinixmetal-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m40s elapsed)
 ...
 ```
 

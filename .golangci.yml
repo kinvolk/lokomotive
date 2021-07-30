@@ -1,13 +1,13 @@
 run:
   build-tags:
     - aws
-    - packet
+    - equinixmetal
     - aks
     - e2e
     - baremetal
     - disruptivee2e
     - poste2e
-    - packet_fluo
+    - equinixmetal_fluo
 
   modules-download-mode: vendor
 

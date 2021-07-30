@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build packet_fluo
+// +build equinixmetal_fluo
 // +build e2e
 
 package rook_test

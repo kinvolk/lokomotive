@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aws_edge packet aks baremetal
+// +build aws aws_edge equinixmetal aks baremetal
 // +build e2e
 
 package kubernetes_test

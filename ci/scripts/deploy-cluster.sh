@@ -61,7 +61,7 @@ export CLUSTER_ID="ci$(date +%s)-$SUFFIX"
 export PUB_KEY=$(cat ~/.ssh/id_rsa.pub)
 
 case "$platform" in
-packet|packet_fluo)
+equinixmetal|equinixmetal_fluo)
     if ! best_location_for_instance_type "c2.medium.x86"; then
         exit 1
     fi
@@ -76,22 +76,22 @@ packet|packet_fluo)
 
     # get a random available region
     AVAIL_LOCATIONS_ARRAY=($AVAIL_LOCATIONS)
-    export PACKET_LOCATION=${AVAIL_LOCATIONS_ARRAY[$RANDOM % ${#AVAIL_LOCATIONS_ARRAY[@]}]}
+    export EQUINIXMETAL_FACILITY=${AVAIL_LOCATIONS_ARRAY[$RANDOM % ${#AVAIL_LOCATIONS_ARRAY[@]}]}
     ;;
-packet_arm)
+equinixmetal_arm)
     if ! best_location_for_instance_type "c2.large.arm"; then
         exit 1
     fi
 
     # get a random available region
     AVAIL_LOCATIONS_ARRAY=($AVAIL_LOCATIONS)
-    export PACKET_LOCATION=${AVAIL_LOCATIONS_ARRAY[$RANDOM % ${#AVAIL_LOCATIONS_ARRAY[@]}]}
+    export EQUINIXMETAL_FACILITY=${AVAIL_LOCATIONS_ARRAY[$RANDOM % ${#AVAIL_LOCATIONS_ARRAY[@]}]}
     ;;
 esac
 
 resource_dir=$(pwd)/..
 cd "ci/$platform"
-cat "$platform-cluster.lokocfg.envsubst" | envsubst '$AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $PUB_KEY $CLUSTER_ID $AWS_DEFAULT_REGION $AWS_DNS_ZONE $AWS_DNS_ZONE_ID $PACKET_PROJECT_ID $EMAIL $GITHUB_CLIENT_ID $GITHUB_CLIENT_SECRET $DEX_STATIC_CLIENT_CLUSTERAUTH_ID $DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET $GANGWAY_REDIRECT_URL $GANGWAY_SESSION_KEY $DEX_INGRESS_HOST $GANGWAY_INGRESS_HOST $ISSUER_HOST $REDIRECT_URI $API_SERVER_URL $AUTHORIZE_URL $TOKEN_URL $PACKET_LOCATION $ARM_SUBSCRIPTION_ID $ARM_TENANT_ID $ARM_CLIENT_ID $ARM_CLIENT_SECRET' >"$platform-cluster.lokocfg"
+cat "$platform-cluster.lokocfg.envsubst" | envsubst '$AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $PUB_KEY $CLUSTER_ID $AWS_DEFAULT_REGION $AWS_DNS_ZONE $AWS_DNS_ZONE_ID $EQUINIXMETAL_PROJECT_ID $EMAIL $GITHUB_CLIENT_ID $GITHUB_CLIENT_SECRET $DEX_STATIC_CLIENT_CLUSTERAUTH_ID $DEX_STATIC_CLIENT_CLUSTERAUTH_SECRET $GANGWAY_REDIRECT_URL $GANGWAY_SESSION_KEY $DEX_INGRESS_HOST $GANGWAY_INGRESS_HOST $ISSUER_HOST $REDIRECT_URI $API_SERVER_URL $AUTHORIZE_URL $TOKEN_URL $EQUINIXMETAL_FACILITY $ARM_SUBSCRIPTION_ID $ARM_TENANT_ID $ARM_CLIENT_ID $ARM_CLIENT_SECRET' >"$platform-cluster.lokocfg"
 
 export LOKOCFG_LOCATION="$(pwd)/$platform-cluster.lokocfg"
 export KUBECONFIG=$HOME/lokoctl-assets/cluster-assets/auth/kubeconfig
@@ -104,7 +104,7 @@ RET=0
 
 if [ "${RET}" = 0 ]; then
   # Tell FLUO to pause update reboots for controller nodes
-  if [ "$platform" == "packet" ] || [ "$platform" == "packet_fluo" ]; then
+  if [ "$platform" == "equinixmetal" ] || [ "$platform" == "equinixmetal_fluo" ]; then
       kubectl annotate node --all "flatcar-linux-update.v1.flatcar-linux.net/reboot-paused=true"
   fi
 
