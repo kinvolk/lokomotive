@@ -26,8 +26,6 @@ import (
 func TestConfig(t *testing.T) { //nolint:funlen
 	t.Parallel()
 
-	c := azurearconboarding.NewConfig()
-
 	tests := []struct {
 		desc    string
 		config  string
@@ -153,6 +151,8 @@ component azure-arc-onboarding {
 			if diagnostics.HasErrors() {
 				t.Fatalf("Error getting component body: %v", diagnostics)
 			}
+
+			c := azurearconboarding.NewConfig()
 
 			diagnostics = c.LoadConfig(body, &hcl.EvalContext{})
 			if test.wantErr && !diagnostics.HasErrors() {
