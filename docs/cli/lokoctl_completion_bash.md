@@ -19,7 +19,7 @@ lokoctl completion bash
 ```
   # If running Bash 3.2 that is included with macOS, install Bash completion using Homebrew.
   brew install bash-completion
-	
+
   # If running Bash 4.1+ on macOS, install Bash completion using homebrew.
   brew install bash-completion@2
 

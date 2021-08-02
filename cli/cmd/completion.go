@@ -1,4 +1,4 @@
-// Copyright 2020 The Lokomotive Authors
+// Copyright 2021 The Lokomotive Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ const bashCompDesc = `  Generate the completion code for lokoctl for the Bash sh
 
 const bashExample = `  # If running Bash 3.2 that is included with macOS, install Bash completion using Homebrew.
   brew install bash-completion
-	
+
   # If running Bash 4.1+ on macOS, install Bash completion using homebrew.
   brew install bash-completion@2
 
