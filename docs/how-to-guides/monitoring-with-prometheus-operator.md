@@ -21,7 +21,7 @@ TODO: Once we have tutorials on how to deploy and configure OpenEBS, point the f
 TODO: Once we have a tutorial on how to deploy and configure Contour and cert-manager, point the following to that tutorial.
 -->
 > **NOTE**: If you wish to [expose Grafana to the public internet](#using-ingress), the following Lokomotive components should be installed:
-> * [`metallb`](./ingress-with-contour-metallb.md) (only on Packet and bare-metal)
+> * [`metallb`](./ingress-with-contour-metallb.md) (only on Equinix Metal and bare-metal)
 > * [`contour`](../configuration-reference/components/contour.md)
 > * [`cert-manager`](../configuration-reference/components/cert-manager.md)
 
@@ -82,7 +82,7 @@ component "prometheus-operator" {
 }
 ```
 
-> **NOTE**: On Packet, you either need to create a DNS entry for `prometheus.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
+> **NOTE**: On Equinix Metal, you either need to create a DNS entry for `prometheus.<cluster name>.<DNS zone>` and point it to the Equinix Metal external IP for the contour service (see the [Equinix Metal ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
 
 Open the following URL: `https://prometheus.<cluster name>.<DNS zone>`.
 
@@ -128,7 +128,7 @@ component "prometheus-operator" {
 }
 ```
 
-> **NOTE**: On Packet, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>` and point it to the Packet external IP for the contour service (see the [Packet ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
+> **NOTE**: On Equinix Metal, you either need to create a DNS entry for `grafana.<cluster name>.<DNS zone>` and point it to the Equinix Metal external IP for the contour service (see the [Equinix Metal ingress guide for more details](./ingress-with-contour-metallb.md)) or use the [External DNS component](../configuration-reference/components/external-dns.md).
 
 Obtain the password for the `admin` Grafana user by running the following command:
 

@@ -11,7 +11,7 @@ DNS records on your behalf.
 
 ### [AWS Route 53](https://aws.amazon.com/route53/)
 
-The AWS Route 53 DNS provider is supported with AWS and Packet clusters.
+The AWS Route 53 DNS provider is supported with AWS and Equinix Metal clusters.
 
 #### IAM permissions
 
@@ -48,11 +48,11 @@ The AWS Route 53 DNS provider requires the following IAM permissions:
 
 ### [Cloudflare](https://www.cloudflare.com/dns/)
 
-The Cloudflare DNS provider is supported with Packet clusters.
+The Cloudflare DNS provider is supported with Equinix Metal clusters.
 
 ### Manual
 
-The Manual DNS provider is supported with Packet clusters.
+The Manual DNS provider is supported with Equinix Metal clusters.
 
 This is a special provider. When used, no DNS records are provisioned
 automatically. Instead, the user is prompted to configure the necessary DNS
@@ -107,9 +107,9 @@ Based on the information above, the following DNS records are created:
 Lokomotive currently doesn't support DNS provisioning for bare metal clusters. The user has to
 create the necessary records *in advance*, before deploying a cluster.
 
-## Packet
+## Equinix Metal
 
-Following is a sample record set for a Packet cluster called `my-cluster` with 3 controller nodes
+Following is a sample record set for an Equinix Metal cluster called `my-cluster` with 3 controller nodes
 under a zone called `example.com`. For illustration, assume the controller nodes have the following
 IP addresses:
 

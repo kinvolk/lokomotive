@@ -16,11 +16,11 @@ flag in the [AWS reference docs](configuration-reference/platforms/aws.md).
 
 To install the AWS cluster, follow the [AWS quick start guide](quickstarts/aws.md).
 
-### Step 1.2: Packet
+### Step 1.2: Equinix Metal
 
 #### Step 1.2.1: Cluster Requirements
 
-Create a cluster with at least two worker nodes. Follow the [Packet quick start
+Create a cluster with at least two worker nodes. Follow the [Equinix Metal quick start
 guide](quickstarts/packet.md) to install a cluster.
 
 #### Step 1.2.2: Expose kube-proxy

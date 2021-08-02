@@ -1,12 +1,12 @@
 ---
-title: Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Packet
+title: Setting up an HTTP ingress controller on Lokomotive with MetalLB and Contour on Equinix Metal
 weight: 10
 ---
 
 ## Introduction
 
 Kubernetes passes on the responsibility of creating a load balancer for services of type `LoadBalancer`
-to the underlying cloud provider. Bare metal providers such as Packet, however, typically don't have an implementation
+to the underlying cloud provider. Bare metal providers such as Equinix Metal, however, typically don't have an implementation
 of network load-balancers. Therefore, these services always remain in the `Pending` state forever.
 
 MetalLB aims to address this problem by offering a load balancer implementation for bare metal Kubernetes
@@ -17,7 +17,7 @@ Contour, on the other hand, addresses the need for ingress traffic management.
 Contour is an Ingress controller for Kubernetes that works by deploying the Envoy proxy as a reverse proxy and load balancer.
 
 This guide provides installation steps to configure MetalLB and Contour to help you set up HTTP load balancing
-on a Lokomotive cluster with Packet provider.
+on a Lokomotive cluster with Equinix Metal provider.
 
 This how-to guide is expected to take about 15 minutes.
 
@@ -25,15 +25,15 @@ This how-to guide is expected to take about 15 minutes.
 
 This guide assumes familiarity with Kubernetes and has a basic understanding of Ingress and load balancers.
 
-Upon completion of this guide, you will be able to use Service type `LoadBalancer` in your Lokomotive cluster on Packet.
+Upon completion of this guide, you will be able to use Service type `LoadBalancer` in your Lokomotive cluster on Equinix Metal.
 
 ## Prerequisites
 
 To set up HTTP load balancing, we need the following:
 
-* A Lokomotive cluster accessible via `kubectl` [deployed on Packet](../quickstarts/packet.md).
+* A Lokomotive cluster accessible via `kubectl` [deployed on Equinix Metal](../quickstarts/packet.md).
 
-* IPv4 address pools for MetalLB to allocate — one address per LoadBalancer Service. On Packet, you need to create [Public Elastic IPs](https://support.packet.com/kb/articles/elastic-ips).
+* IPv4 address pools for MetalLB to allocate — one address per LoadBalancer Service. On Equinix Metal, you need to create [Public Elastic IPs](https://support.packet.com/kb/articles/elastic-ips).
 
 ## Steps
 
@@ -89,7 +89,7 @@ contour   LoadBalancer   10.3.101.86   1XX.7X.XX9.XXX   80:30511/TCP,443:32317/T
 
 ## Summary
 
-This guide provided step-by-step instructions for setting up MetalLB and Contour on a Lokomotive cluster running on Packet.
+This guide provided step-by-step instructions for setting up MetalLB and Contour on a Lokomotive cluster running on Equinix Metal.
 
 In short, MetalLB allows you to create Kubernetes services of type `LoadBalancer` on bare metal cloud providers
 that don't provide load balancing capabilities that Kubernetes can make use of.

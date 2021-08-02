@@ -1,18 +1,18 @@
 ---
-title: Lokomotive Packet quickstart guide
+title: Lokomotive Equinix Metal (Packet) quickstart guide
 weight: 10
 ---
 
 ## Introduction
 
-This guide shows how to create a Lokomotive cluster on [Packet](https://www.packet.com/). By the
-end of this guide, you'll have a basic Lokomotive cluster running on Packet with a demo application
+This guide shows how to create a Lokomotive cluster on [Equinix Metal](https://metal.equinix.com/). By the
+end of this guide, you'll have a basic Lokomotive cluster running on Equinix Metal with a demo application
 deployed.
 
-The guide uses `c3.small.x86` as the Packet device type for all created nodes. This is also the
+The guide uses `c3.small.x86` as the Equinix Metal device type for all created nodes. This is also the
 default device type.
 
->NOTE: Visit the Packet [website](https://www.packet.com/cloud/servers/) to see all available device
+>NOTE: Visit the Equinix Metal [website](https://metal.equinix.com/product/servers/) to see all available device
 >types as well as their pricing.
 
 Lokomotive runs on top of [Flatcar Container Linux](https://www.flatcar-linux.org/). This guide
@@ -32,12 +32,12 @@ application to verify the cluster behaves as expected.
 
 ## Requirements
 
-* A Packet account with a project created and
-  [local BGP](https://www.packet.com/developers/docs/network/advanced/local-and-global-bgp/)
+* An Equinix Metal account with a project created and
+  [local BGP](https://metal.equinix.com/developers/docs/networking/local-global-bgp/)
   enabled.
-* A Packet project ID.
-* A Packet
-  [user level API key](https://www.packet.com/developers/docs/API/getting-started/)
+* An Equinix Metal project ID.
+* An Equinix Metal
+  [user level API key](https://metal.equinix.com/developers/api/)
   with access to the relevant project.
 * An AWS account.
 * An AWS
@@ -129,7 +129,7 @@ Replace the parameters above using the following information:
 
 - `dns.zone` - a Route 53 zone name. A subdomain will be created under this zone in the following
   format: `<cluster_name>.<zone>`
-- `project_id` - the Packet project ID to deploy the cluster in.
+- `project_id` - the Equinix Metal project ID to deploy the cluster in.
 - `ssh_pubkeys` - A list of strings representing the *contents* of the public SSH keys which should
   be authorized on cluster nodes.
 
@@ -144,7 +144,7 @@ see the [configuration reference](../configuration-reference/platforms/packet.md
 >Similarly, environment variables such as `AWS_PROFILE` can be used to instruct `lokoctl` to use a
 >specific AWS CLI profile for AWS authentication.
 
-Set up your Packet and AWS credentials in your shell:
+Set up your Equinix Metal (Packet) and AWS credentials in your shell:
 
 ```console
 export PACKET_AUTH_TOKEN=k84jfL83kJF849B776Nle4L3980fake
@@ -271,34 +271,34 @@ time, check the following:
 - Verify the correct private SSH key was added to `ssh-agent`.
 - Verify that you can SSH into the created controller node from the machine running `lokoctl`.
 
-### Packet provisioning failed
+### Equinix Metal provisioning failed
 
-Sometimes the provisioning of servers on Packet may fail, in which case the following error is
+Sometimes the provisioning of servers on Equinix Metal may fail, in which case the following error is
 shown:
 
 ```
-Error: provisioning time limit exceeded; the Packet team will investigate
+Error: provisioning time limit exceeded; the Equinix Metal team will investigate
 ```
 
 In this case, retrying the deployment by re-running `lokoctl cluster apply -v` may help.
 
-### Insufficient capacity on Packet
+### Insufficient capacity on Equinix Metal
 
-Sometimes there may not be enough hardware available at a given Packet facility for a given machine
+Sometimes there may not be enough hardware available at a given Equinix Metal facility for a given machine
 type, in which case the following error is shown:
 
 ```
 The facility ams1 has no provisionable c3.small.x86 servers matching your criteria
 ```
 
-In this case, either select a different node type and/or Packet facility, or wait for a while until
-more capacity becomes available. You can check the current capacity status on the Packet
-[API](https://www.packet.com/developers/api/capacity/).
+In this case, either select a different node type and/or Equinix Metal facility, or wait for a while until
+more capacity becomes available. You can check the current capacity status on the Equinix Metal
+[API](https://metal.equinix.com/developers/api/capacity/).
 
 ### Permission issues
 
-If the deployment fails due to insufficient permissions on Packet, verify your Packet API key has
-permissions to the right Packet project.
+If the deployment fails due to insufficient permissions on Equinix Metal, verify your Equinix Metal API key has
+permissions to the right Equinix Metal project.
 
 If the deployment fails due to insufficient permissions on AWS, ensure the IAM user associated with
 the AWS API credentials has permissions to create records on Route 53.
@@ -308,6 +308,6 @@ the AWS API credentials has permissions to create records on Route 53.
 In this guide you used port forwarding to communicate with a sample application on the cluster.
 However, in real-world cases you may want to expose your applications to the internet.
 [This](../how-to-guides/ingress-with-contour-metallb.md) guide explains how to use MetalLB and
-Contour to expose applications on Packet clusters to the internet.
+Contour to expose applications on Equinix Metal clusters to the internet.
 
 [releases]: https://github.com/kinvolk/lokomotive/releases
