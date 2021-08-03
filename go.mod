@@ -4,17 +4,23 @@ go 1.15
 
 require (
 	github.com/elazarl/goproxy/ext v0.0.0-20210801061803-8e322dfb79c4 // indirect
+	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/google/go-cmp v0.5.4
+	github.com/google/go-cmp v0.5.5
+	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/hashicorp/go-version v1.2.0
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.7.2
 	github.com/hpcloud/tail v1.0.0
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/linkerd/linkerd2 v0.5.1-0.20210517230931-5535e9c4edda
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/onsi/ginkgo v1.16.4 // indirect
+	github.com/onsi/gomega v1.13.0 // indirect
 	github.com/packethost/packngo v0.2.0
 	github.com/prometheus/alertmanager v0.20.0
-	github.com/prometheus/client_golang v1.7.1
+	github.com/prometheus/client_golang v1.11.0
 	github.com/shirou/gopsutil/v3 v3.21.7
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
@@ -23,11 +29,14 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
 	github.com/zclconf/go-cty v1.7.0
+	google.golang.org/appengine v1.6.7 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	helm.sh/helm/v3 v3.6.3
 	k8s.io/api v0.21.4
 	k8s.io/apiextensions-apiserver v0.21.4 // indirect
 	k8s.io/apimachinery v0.21.4
 	k8s.io/client-go v0.21.4
+	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b // indirect
 	sigs.k8s.io/yaml v1.2.0
 )
 
