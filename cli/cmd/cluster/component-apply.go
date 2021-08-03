@@ -31,6 +31,46 @@ type ComponentApplyOptions struct {
 	ValuesPath     string
 }
 
+// ExperimentalComponentApply is used to apply components using flux. This function is triggered by
+// `lokoctl experimental component apply`.
+func ExperimentalComponentApply(
+	contextLogger *log.Entry,
+	componentsList []string,
+	options ComponentApplyOptions,
+) error {
+	lokoConfig, diags := config.LoadConfig(options.ConfigPath, options.ValuesPath)
+	if diags.HasErrors() {
+		return diags
+	}
+
+	componentObjects, err := componentNamesToObjects(selectComponentNames(componentsList, *lokoConfig.RootConfig))
+	if err != nil {
+		return fmt.Errorf("getting component objects: %w", err)
+	}
+
+	kg := kubeconfigGetter{
+		platformRequired: false,
+		path:             options.KubeconfigPath,
+		clusterConfig: clusterConfig{
+			configPath: options.ConfigPath,
+			valuesPath: options.ValuesPath,
+		},
+	}
+
+	kubeconfig, err := kg.getKubeconfig(contextLogger, lokoConfig)
+	if err != nil {
+		contextLogger.Debugf("Error in finding kubeconfig file: %s", err)
+
+		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
+	}
+
+	if err := experimentalApplyComponents(lokoConfig, kubeconfig, componentObjects); err != nil {
+		return fmt.Errorf("applying components: %w", err)
+	}
+
+	return nil
+}
+
 // ComponentApply implements 'lokoctl component apply' separated from CLI
 // dependencies.
 func ComponentApply(contextLogger *log.Entry, componentsList []string, options ComponentApplyOptions) error {
@@ -83,6 +123,33 @@ func applyComponents(lokoConfig *config.Config, kubeconfig []byte, componentObje
 		}
 
 		if err := util.InstallComponent(component, kubeconfig); err != nil {
+			return fmt.Errorf("installing component %q: %w", componentName, err)
+		}
+
+		fmt.Printf("Successfully applied component '%s' configuration!\n", componentName)
+	}
+
+	return nil
+}
+
+func experimentalApplyComponents(
+	lokoConfig *config.Config,
+	kubeconfig []byte,
+	componentObjects []components.Component,
+) error {
+	for _, component := range componentObjects {
+		componentName := component.Metadata().Name
+		fmt.Printf("Applying component '%s'...\n", componentName)
+
+		componentConfigBody := lokoConfig.LoadComponentConfigBody(componentName)
+
+		if diags := component.LoadConfig(componentConfigBody, lokoConfig.EvalContext); diags.HasErrors() {
+			fmt.Printf("%v\n", diags)
+
+			return diags
+		}
+
+		if err := util.ExperimentalInstallComponent(component, kubeconfig); err != nil {
 			return fmt.Errorf("installing component %q: %w", componentName, err)
 		}
 
