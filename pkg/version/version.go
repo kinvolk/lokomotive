@@ -16,3 +16,5 @@ package version
 
 // This variable is used by the "version" command and is set during build.
 var Version = "0.8.0+git"
+var Commit = ""
+var Branch = ""

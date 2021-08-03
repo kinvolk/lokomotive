@@ -1,4 +1,6 @@
 TAG := `git describe --tags --always`
+COMMIT := `git log -1 --pretty=format:"%H"`
+BRANCH := `git branch --show-current`
 VERSION :=
 # MOD can either be "readonly" or "vendor".
 # The default is "vendor" which uses checked out modules for building.
@@ -27,7 +29,7 @@ ifeq ($(shell (go env GOPROXY)),)
        export GOPROXY=https://proxy.golang.org
 endif
 
-LDFLAGS := "-X github.com/kinvolk/lokomotive/pkg/version.Version=$(VERSION) -extldflags '-static'"
+LDFLAGS := "-X github.com/kinvolk/lokomotive/pkg/version.Version=$(VERSION) -X github.com/kinvolk/lokomotive/pkg/version.Commit=$(COMMIT) -X github.com/kinvolk/lokomotive/pkg/version.Branch=$(BRANCH) -extldflags '-static'"
 
 .NOTPARALLEL:
 
