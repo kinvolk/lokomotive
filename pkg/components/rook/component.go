@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"sort"
 
+	api "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
@@ -135,4 +136,8 @@ func convertNodeSelector(m map[string]string) string {
 	}
 
 	return ret
+}
+
+func (c *component) GenerateHelmRelease() (*api.HelmRelease, error) {
+	return nil, components.NotImplementedErr
 }

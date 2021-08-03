@@ -17,6 +17,7 @@ package gangway
 import (
 	"fmt"
 
+	api "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
@@ -91,4 +92,8 @@ func (c *component) Metadata() components.Metadata {
 			Name: Name,
 		},
 	}
+}
+
+func (c *component) GenerateHelmRelease() (*api.HelmRelease, error) {
+	return nil, components.NotImplementedErr
 }

@@ -15,6 +15,9 @@
 package components
 
 import (
+	"fmt"
+
+	api "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 )
 
@@ -28,4 +31,7 @@ type Component interface {
 	RenderManifests() (map[string]string, error)
 	// Metadata returns component metadata.
 	Metadata() Metadata
+	GenerateHelmRelease() (*api.HelmRelease, error)
 }
+
+var NotImplementedErr = fmt.Errorf("not implemented yet")

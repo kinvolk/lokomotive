@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"time"
 
+	api "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/linkerd/linkerd2/pkg/tls"
@@ -163,4 +164,8 @@ func generateCertificates() (cert, error) {
 		CA:     internal.Indent(root.Cred.Crt.EncodeCertificatePEM(), 2),
 		Expiry: root.Cred.Crt.Certificate.NotAfter.Format(time.RFC3339),
 	}, nil
+}
+
+func (c *component) GenerateHelmRelease() (*api.HelmRelease, error) {
+	return nil, components.NotImplementedErr
 }
