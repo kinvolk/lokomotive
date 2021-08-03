@@ -17,18 +17,139 @@ package util
 import (
 	"context"
 	"fmt"
+	"time"
 
+	helmreleaseapi "github.com/fluxcd/helm-controller/api/v2beta1"
+	sourceapi "github.com/fluxcd/source-controller/api/v1beta1"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/kinvolk/lokomotive/internal"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
+
+func generateGitRepository() *sourceapi.GitRepository {
+	// TODO: Figure out a way to distinguish between the release and the local development and the
+	// master branch.
+	return &sourceapi.GitRepository{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "lokomotive-" + version.Version,
+			Namespace: "flux-system",
+		},
+		Spec: sourceapi.GitRepositorySpec{
+			Interval: metav1.Duration{5 * time.Minute},
+			Reference: &sourceapi.GitRepositoryRef{
+				Commit: version.Commit,
+				Branch: version.Branch,
+			},
+			URL: "https://github.com/kinvolk/lokomotive/",
+		},
+	}
+}
+
+func ExperimentalInstallComponent(c components.Component, kubeconfig []byte) error {
+	hr, err := c.GenerateHelmRelease()
+	if err != nil {
+		return fmt.Errorf("generating helm release: %w", err)
+	}
+
+	gr := generateGitRepository()
+
+	clientConfig, err := clientcmd.NewClientConfigFromBytes(kubeconfig)
+	if err != nil {
+		return fmt.Errorf("creating client config failed: %w", err)
+	}
+
+	restConfig, err := clientConfig.ClientConfig()
+	if err != nil {
+		return fmt.Errorf("converting client config to rest client config failed: %w", err)
+	}
+
+	scheme := runtime.NewScheme()
+	_ = sourceapi.AddToScheme(scheme)
+	_ = helmreleaseapi.AddToScheme(scheme)
+
+	kclient, err := client.New(restConfig, client.Options{
+		Scheme: scheme,
+	})
+	if err != nil {
+		return fmt.Errorf("creating kubernetes client: %w", err)
+	}
+
+	if err := createOrUpdateGitRepository(kclient, gr); err != nil {
+		return fmt.Errorf("creating/updating GitRepository: %w", err)
+	}
+
+	if err := createOrUpdateHelmRelease(kclient, hr); err != nil {
+		return fmt.Errorf("creating/updating HelmRelease: %w", err)
+	}
+
+	return nil
+}
+
+func createOrUpdateHelmRelease(c client.Client, hr *helmreleaseapi.HelmRelease) error {
+	var got helmreleaseapi.HelmRelease
+	if err := c.Get(context.Background(), types.NamespacedName{
+		Namespace: hr.GetNamespace(),
+		Name:      hr.GetName(),
+	}, &got); err != nil {
+		if errors.IsNotFound(err) {
+			// Create the object since it does not exists.
+			if err := c.Create(context.Background(), hr); err != nil {
+				return fmt.Errorf("creating HelmRelease: %w", err)
+			}
+
+			return nil
+		}
+
+		return fmt.Errorf("looking up HelmRelease: %w", err)
+	}
+
+	hr.ResourceVersion = got.ResourceVersion
+
+	if err := c.Update(context.Background(), hr); err != nil {
+		return fmt.Errorf("updating HelmRelease: %w", err)
+	}
+
+	return nil
+}
+
+func createOrUpdateGitRepository(c client.Client, gr *sourceapi.GitRepository) error {
+	var got sourceapi.GitRepository
+	if err := c.Get(context.Background(), types.NamespacedName{
+		Namespace: gr.GetNamespace(),
+		Name:      gr.GetName(),
+	}, &got); err != nil {
+		if errors.IsNotFound(err) {
+			// Create the object since it does not exists.
+			if err := c.Create(context.Background(), gr); err != nil {
+				return fmt.Errorf("creating GitReposirtory: %w", err)
+			}
+
+			return nil
+		}
+
+		return fmt.Errorf("looking up GitRepository: %w", err)
+	}
+
+	gr.ResourceVersion = got.ResourceVersion
+
+	if err := c.Update(context.Background(), gr); err != nil {
+		return fmt.Errorf("updating GitRepository: %w", err)
+	}
+
+	return nil
+}
 
 // InstallComponent installs given component using given kubeconfig as a Helm release using a Helm client.
 // Before installing the component, the release namespace is created/updated.
