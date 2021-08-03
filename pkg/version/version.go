@@ -16,3 +16,9 @@ package version
 
 // This variable is used by the "version" command and is set during build.
 var Version = "0.9.0+git"
+
+// Commit is populated at build time and used in creating GitRepository object.
+var Commit = ""
+
+// Branch is populated at build time and used in creating GitRepository object.
+var Branch = ""
