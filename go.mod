@@ -8,11 +8,13 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20210801061803-8e322dfb79c4 // indirect
+	github.com/fluxcd/helm-controller/api v0.11.1
+	github.com/fluxcd/source-controller/api v0.15.3
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.8 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/google/go-cmp v0.5.4
+	github.com/google/go-cmp v0.5.5
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/go-version v1.2.0
@@ -30,7 +32,7 @@ require (
 	github.com/packethost/packngo v0.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/prometheus/alertmanager v0.20.0
-	github.com/prometheus/client_golang v1.7.1
+	github.com/prometheus/client_golang v1.11.0
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shirou/gopsutil v2.20.2+incompatible
@@ -46,8 +48,10 @@ require (
 	gopkg.in/ini.v1 v1.54.0 // indirect
 	helm.sh/helm/v3 v3.6.3
 	k8s.io/api v0.21.3
+	k8s.io/apiextensions-apiserver v0.21.1
 	k8s.io/apimachinery v0.21.3
 	k8s.io/client-go v0.21.3
+	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.2.0
 )
 
