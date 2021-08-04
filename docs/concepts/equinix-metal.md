@@ -1,13 +1,13 @@
 ---
-title: Packet
+title: Equinix Metal
 weight: 10
 ---
 
-Packet is one of the cloud platforms supported by Lokomotive. This document explains various architecture decisions specific to this platform.
+[Equinix Metal](https://metal.equinix.com/), formerly Packet, is one of the cloud platforms supported by Lokomotive. This document explains various architecture decisions specific to this platform.
 
 ## Blocked access to metadata service
 
-By default, access to Packet's [metadata service](https://www.packet.com/developers/docs/servers/key-features/metadata/) is blocked for all pods. This is to prevent possible exploitation of information provided by the metadata service such as user data, which may contain secrets.
+By default, access to Equinix Metal's [metadata service](https://metal.equinix.com/developers/docs/servers/metadata/) is blocked for all pods. This is to prevent possible exploitation of information provided by the metadata service such as user data, which may contain secrets.
 
 To allow an application to access the metadata service, you can create a NetworkPolicy selecting the application.
 
@@ -34,5 +34,5 @@ spec:
 
 ## Flatcar Linux Customization
 
-Flatcar Container Linux deployments on Packet can be customized with Container Linux Configs.
-For more information, see [Flatcar Container Linux Customization](/docs/concepts/flatcar-container-linux.md#Customization).
+Flatcar Container Linux deployments on Equinix Metal can be customized with Container Linux Configs.
+For more information, see [Flatcar Container Linux Customization](./flatcar-container-linux.md#customization).

@@ -14,7 +14,7 @@ To get the current version installed, execute:
 kubectl get pods -n openebs -o jsonpath='{.items[*].metadata.labels.openebs\.io/version}'
 ```
 
-Refer to the [Lokomotive release notes](../../../CHANGELOG) to get the version
+Refer to the [Lokomotive release notes](../../CHANGELOG.md) to get the version
 to update.
 
 Make note of the current version installed and the version to update and set
@@ -29,7 +29,7 @@ To update the OpenEBS data plane components, we need the following:
 
 * A Kubernetes cluster accessible via `kubectl`.
 
-* [OpenEBS component](../../configuration-reference/components/openebs-operator)
+* [OpenEBS component](../configuration-reference/components/openebs-operator.md)
   installed. You can check if OpenEBS is indeed in expected version:
     ```bash
     kubectl get pods -n openebs -l openebs.io/version=2.6.0
@@ -39,7 +39,7 @@ To update the OpenEBS data plane components, we need the following:
   downtime for the applications consuming the OpenEBS PV and make sure to take a
   backup of the data before starting the below update procedure in case some
   problem arises. Lokomotive provides
-  [Velero](../../configuration-reference/components/velero) component for backup
+  [Velero](../configuration-reference/components/velero.md) component for backup
   and restore.
 
 * Ensure the cluster and OpenEBS volumes are is in healthy state before proceeding.

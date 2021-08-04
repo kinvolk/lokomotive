@@ -11,7 +11,7 @@ using BPF.
 
 This component installs the in-cluster part of Inspektor Gadget. To use the
 tracing gadgets you need to install the [Inspektor Gadget kubectl
-plugin](https://github.com/kinvolk/inspektor-gadget/blob/master/Documentation/install.md#installing-kubectl-gadget).
+plugin](https://github.com/kinvolk/inspektor-gadget/blob/main/docs/install.md#installing-kubectl-gadget).
 
 The [Kinvolk Web UI](web-ui.md) has integration with the traceloop gadget. When both
 the Web UI and Inspektor Gadget components are installed in the cluster, a

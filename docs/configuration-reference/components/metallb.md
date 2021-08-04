@@ -11,7 +11,7 @@ on an infrastructure without native load balancing support.
 
 On IaaS providers such as AWS or GCP, creating a Kubernetes Service of type `LoadBalancer` triggers an
 automatic creation of a provider-specific load balancer which routes traffic to the Kubernetes service.
-However, when running Kubernetes on bare metal environments such as [Packet](https://www.packet.com/),
+However, when running Kubernetes on bare metal environments such as [Equinix Metal](https://metal.equinix.com/),
 which typically don't provide native load balancer support, creating a `LoadBalancer` Service would
 result in the service staying forever in the `Pending` state since no load balancer is created by
 the infrastructure provider. MetalLB helps solve this problem by creating a "virtual" load balancer
@@ -19,7 +19,7 @@ for each `LoadBalancer` service. It does so using standard network protocols suc
 
 ## Prerequisites
 
-* A Lokomotive cluster accessible via `kubectl` deployed on Packet.
+* A Lokomotive cluster accessible via `kubectl` deployed on Equinix Metal.
 
 * A [compatible](https://metallb.universe.tf/installation/network-addons/) cluster networking addon.
 

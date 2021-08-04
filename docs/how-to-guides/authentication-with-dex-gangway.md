@@ -50,7 +50,7 @@ To create a fully functioning OIDC authentication infrastructure, we need the fo
 
 * [MetalLB](https://metallb.universe.tf/) deployed on the cluster.
 
-  **NOTE**: Required only for the bare metal and Packet providers.
+  **NOTE**: Required only for the bare metal and Equinix Metal providers.
 
    Installation instructions for [MetalLB](../configuration-reference/components/metallb.md) component.
 
@@ -116,7 +116,7 @@ component "dex" {
       redirect_uri = "https://dex.<CLUSTER_NAME>.<DOMAIN_NAME>/callback"
 
       # Can be 'name', 'slug' or 'both'.
-      # See https://github.com/dexidp/dex/blob/master/Documentation/connectors/github.md
+      # See https://dexidp.io/docs/connectors/github
       team_name_field = "slug"
 
       # GitHub organization details.
@@ -322,7 +322,7 @@ For more information about OpenID Connect, see [OpenID Connect](https://openid.n
 website.
 
 To learn about Kubernetes authentication through Dex, visit [Dex
-documentation](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md).
+documentation](https://dexidp.io/docs/kubernetes/).
 
 For more information about OIDC authentication using Gangway, visit [How Gangway
 works](https://github.com/heptiolabs/gangway#how-it-works).
