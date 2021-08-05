@@ -20,17 +20,23 @@ import (
 	helmcontrollerapi "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8syaml "sigs.k8s.io/yaml"
 
 	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
 const (
 	// Name represents Contour component name as it should be referenced in function calls
 	// and in configuration.
 	Name = "contour"
+
+	namespace = "projectcontour"
 
 	serviceTypeNodePort     = "NodePort"
 	serviceTypeLoadBalancer = "LoadBalancer"
@@ -86,25 +92,31 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return diagnostics
 }
 
+func (c *component) generateValues() (string, error) {
+	var err error
+
+	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal operator tolerations: %w", err)
+	}
+
+	c.NodeAffinityRaw, err = util.RenderNodeAffinity(c.NodeAffinity)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal node affinity: %w", err)
+	}
+
+	return internaltemplate.Render(chartValuesTmpl, c)
+}
+
 func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
-	c.TolerationsRaw, err = util.RenderTolerations(c.Tolerations)
+	values, err := c.generateValues()
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal operator tolerations: %w", err)
-	}
-
-	c.NodeAffinityRaw, err = util.RenderNodeAffinity(c.NodeAffinity)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal node affinity: %w", err)
-	}
-
-	values, err := internaltemplate.Render(chartValuesTmpl, c)
-	if err != nil {
-		return nil, fmt.Errorf("rendering values template failed: %w", err)
+		return nil, fmt.Errorf("rendering values template: %w", err)
 	}
 
 	// Generate YAML for the Contour deployment.
@@ -120,11 +132,54 @@ func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Name: Name,
 		Namespace: k8sutil.Namespace{
-			Name: "projectcontour",
+			Name: namespace,
 		},
 	}
 }
 
 func (c *component) GenerateHelmRelease() (*helmcontrollerapi.HelmRelease, error) {
-	return nil, components.ErrNotImplemented
+	valuesYaml, err := c.generateValues()
+	if err != nil {
+		return nil, fmt.Errorf("rendering values template: %w", err)
+	}
+
+	values, err := k8syaml.YAMLToJSON([]byte(valuesYaml))
+	if err != nil {
+		return nil, fmt.Errorf("converting YAML to JSON: %w", err)
+	}
+
+	return &helmcontrollerapi.HelmRelease{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      Name,
+			Namespace: "flux-system",
+		},
+		Spec: helmcontrollerapi.HelmReleaseSpec{
+			Chart: helmcontrollerapi.HelmChartTemplate{
+				Spec: helmcontrollerapi.HelmChartTemplateSpec{
+					Chart: components.ComponentsPath + Name,
+					SourceRef: helmcontrollerapi.CrossNamespaceObjectReference{
+						Kind: "GitRepository",
+						Name: "lokomotive-" + version.Version,
+					},
+				},
+			},
+			ReleaseName: Name,
+			Install: &helmcontrollerapi.Install{
+				CRDs:            helmcontrollerapi.CreateReplace,
+				CreateNamespace: true,
+				Remediation: &helmcontrollerapi.InstallRemediation{
+					Retries: -1,
+				},
+			},
+			Upgrade: &helmcontrollerapi.Upgrade{
+				CRDs: helmcontrollerapi.CreateReplace,
+			},
+			Interval:        components.FluxInstallInterval,
+			Timeout:         &components.FluxInstallTimeout,
+			TargetNamespace: namespace,
+			Values: &apiextensionsv1.JSON{
+				Raw: values,
+			},
+		},
+	}, nil
 }
