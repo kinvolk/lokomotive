@@ -1,8 +1,12 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: projectcontour
+# XXX: Lokomotive specific change. We have a job that runs as a hook at pre-install stage. But that
+# hook cannot run because we don't have namespace `projectcontour`. And that namespace is not
+# created because it is a part of the config, and this config will be applied only after namespace
+# is created. So to remove this cyclical depenedency, we let flux create the namespace.
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: projectcontour
 ---
 apiVersion: v1
 kind: ServiceAccount
