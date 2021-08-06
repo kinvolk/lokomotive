@@ -350,8 +350,8 @@ output "lokomotive_values" {
   sensitive = true
 }
 
-output "packet-ccm_values" {
-  value     = module.equinixmetal-{{.Config.ClusterName}}.packet-ccm_values
+output "cloud-provider-equinix-metal_values" {
+  value     = module.equinixmetal-{{.Config.ClusterName}}.cloud-provider-equinix-metal_values
   sensitive = true
 }
 

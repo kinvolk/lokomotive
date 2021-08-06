@@ -161,7 +161,7 @@ func (c *config) Meta() platform.Meta {
 	})
 
 	charts = append(charts, helm.LokomotiveChart{
-		Name:      "packet-ccm",
+		Name:      "cloud-provider-equinix-metal",
 		Namespace: "kube-system",
 	})
 
@@ -175,7 +175,7 @@ func (c *config) Meta() platform.Meta {
 				Namespace: "kube-system",
 			},
 			{
-				Name:      "packet-cloud-controller-manager",
+				Name:      "cloud-provider-equinix-metal",
 				Namespace: "kube-system",
 			},
 		}...),

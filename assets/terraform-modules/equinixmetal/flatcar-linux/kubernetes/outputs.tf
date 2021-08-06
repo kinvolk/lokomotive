@@ -43,8 +43,8 @@ output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
 }
 
-output "packet-ccm_values" {
-  value = local_file.packet-ccm.content
+output "cloud-provider-equinix-metal_values" {
+  value = local_file.cloud-provider-equinix-metal.content
 }
 
 output "bootstrap-secrets_values" {

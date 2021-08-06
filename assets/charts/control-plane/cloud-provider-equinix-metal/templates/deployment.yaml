@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cloud-provider-equinix-metal.fullname" . }}
+  labels:
+    {{- include "cloud-provider-equinix-metal.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "cloud-provider-equinix-metal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      labels:
+        {{- include "cloud-provider-equinix-metal.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      dnsPolicy: Default
+      hostNetwork: true
+      serviceAccountName: {{ include "cloud-provider-equinix-metal.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      tolerations:
+        - key: node.cloudprovider.kubernetes.io/uninitialized
+          value: 'true'
+          effect: NoSchedule
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ include "cloud-provider-equinix-metal.imageTag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - ./cloud-provider-equinix-metal
+            - '--cloud-provider=equinixmetal'
+            - '--leader-elect=false'
+            - '--authentication-skip-lookup=true'
+            - '--provider-config=/etc/cloud-sa/cloud-sa.json'
+          {{- with .Values.additionalCommands }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- with .Values.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: cloud-sa-volume
+              readOnly: true
+              mountPath: /etc/cloud-sa
+          {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: cloud-sa-volume
+          secret:
+            secretName: {{ include "cloud-provider-equinix-metal.configSecretName" . }}
+      {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
