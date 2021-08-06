@@ -21,11 +21,15 @@ import (
 	helmcontrollerapi "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8syaml "sigs.k8s.io/yaml"
 
 	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
 const (
@@ -110,6 +114,29 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
+func (c *component) generateValues() (string, error) {
+	// Get the aws credentials from environment variable if not provided in the config.
+	if c.AwsConfig.AccessKeyID == "" {
+		accessKeyID, ok := os.LookupEnv("AWS_ACCESS_KEY_ID")
+		if !ok || accessKeyID == "" {
+			return "", fmt.Errorf("AWS access key ID not found")
+		}
+
+		c.AwsConfig.AccessKeyID = accessKeyID
+	}
+
+	if c.AwsConfig.SecretAccessKey == "" {
+		secretAccessKey, ok := os.LookupEnv("AWS_SECRET_ACCESS_KEY")
+		if !ok || secretAccessKey == "" {
+			return "", fmt.Errorf("AWS secret access key not found")
+		}
+
+		c.AwsConfig.SecretAccessKey = secretAccessKey
+	}
+
+	return template.Render(chartValuesTmpl, c)
+}
+
 // RenderManifests renders the helm chart templates with values provided.
 func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := components.Chart(Name)
@@ -117,26 +144,9 @@ func (c *component) RenderManifests() (map[string]string, error) {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
-	// Get the aws credentials from environment variable if not provided in the config.
-	if c.AwsConfig.AccessKeyID == "" {
-		accessKeyID, ok := os.LookupEnv("AWS_ACCESS_KEY_ID")
-		if !ok || accessKeyID == "" {
-			return nil, fmt.Errorf("AWS access key ID not found")
-		}
-		c.AwsConfig.AccessKeyID = accessKeyID
-	}
-
-	if c.AwsConfig.SecretAccessKey == "" {
-		secretAccessKey, ok := os.LookupEnv("AWS_SECRET_ACCESS_KEY")
-		if !ok || secretAccessKey == "" {
-			return nil, fmt.Errorf("AWS secret access key not found")
-		}
-		c.AwsConfig.SecretAccessKey = secretAccessKey
-	}
-
-	values, err := template.Render(chartValuesTmpl, c)
+	values, err := c.generateValues()
 	if err != nil {
-		return nil, fmt.Errorf("rendering chart values template: %w", err)
+		return nil, fmt.Errorf("rendering values template: %w", err)
 	}
 
 	renderedFiles, err := util.RenderChart(helmChart, Name, c.Namespace, values)
@@ -157,5 +167,48 @@ func (c *component) Metadata() components.Metadata {
 }
 
 func (c *component) GenerateHelmRelease() (*helmcontrollerapi.HelmRelease, error) {
-	return nil, components.ErrNotImplemented
+	valuesYaml, err := c.generateValues()
+	if err != nil {
+		return nil, fmt.Errorf("rendering values template: %w", err)
+	}
+
+	values, err := k8syaml.YAMLToJSON([]byte(valuesYaml))
+	if err != nil {
+		return nil, fmt.Errorf("converting YAML to JSON: %w", err)
+	}
+
+	return &helmcontrollerapi.HelmRelease{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      Name,
+			Namespace: "flux-system",
+		},
+		Spec: helmcontrollerapi.HelmReleaseSpec{
+			Chart: helmcontrollerapi.HelmChartTemplate{
+				Spec: helmcontrollerapi.HelmChartTemplateSpec{
+					Chart: components.ComponentsPath + Name,
+					SourceRef: helmcontrollerapi.CrossNamespaceObjectReference{
+						Kind: "GitRepository",
+						Name: "lokomotive-" + version.Version,
+					},
+				},
+			},
+			ReleaseName: Name,
+			Install: &helmcontrollerapi.Install{
+				CRDs:            helmcontrollerapi.CreateReplace,
+				CreateNamespace: true,
+				Remediation: &helmcontrollerapi.InstallRemediation{
+					Retries: -1,
+				},
+			},
+			Upgrade: &helmcontrollerapi.Upgrade{
+				CRDs: helmcontrollerapi.CreateReplace,
+			},
+			Interval:        components.FluxInstallInterval,
+			Timeout:         &components.FluxInstallTimeout,
+			TargetNamespace: c.Namespace,
+			Values: &apiextensionsv1.JSON{
+				Raw: values,
+			},
+		},
+	}, nil
 }
