@@ -2,6 +2,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-production
+  annotations:
+    "helm.sh/hook": post-install
 spec:
   acme:
     # The ACME server URL
