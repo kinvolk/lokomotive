@@ -3,13 +3,12 @@ apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   name: {{ template "kube-prometheus-stack.fullname" . }}-admission
+  labels:
+    app: {{ template "kube-prometheus-stack.name" . }}-admission
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  labels:
-    app: {{ template "kube-prometheus-stack.name" . }}-admission
 {{- if .Values.global.rbac.pspAnnotations }}
-  annotations:
 {{ toYaml .Values.global.rbac.pspAnnotations | indent 4 }}
 {{- end }}
 {{ include "kube-prometheus-stack.labels" . | indent 4 }}
