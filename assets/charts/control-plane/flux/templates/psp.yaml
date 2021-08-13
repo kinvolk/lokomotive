@@ -1,0 +1,18 @@
+---
+# TODO: Add a new PSP specific to the flux.
+# XXX: Lokomotive specific change.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: privileged-psp
+  namespace: flux-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: privileged-psp
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  # Assign the PSP to only flux related SAs.
+  name: system:serviceaccounts:flux-system

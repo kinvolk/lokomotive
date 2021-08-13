@@ -83,6 +83,10 @@ func CommonControlPlaneCharts(c ControlPlanCharts) []helm.LokomotiveChart {
 			Name:      "lokomotive",
 			Namespace: "lokomotive-system",
 		},
+		{
+			Name:      "flux",
+			Namespace: "flux-system",
+		},
 	}
 
 	if c.Kubelet {
