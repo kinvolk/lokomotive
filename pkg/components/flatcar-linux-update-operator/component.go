@@ -20,16 +20,20 @@ import (
 	helmcontrollerapi "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
+	"github.com/kinvolk/lokomotive/pkg/version"
 )
 
 const (
 	// Name represents Flatcar Linux Update Operator component name as it should be referenced in function calls
 	// and in configuration.
 	Name = "flatcar-linux-update-operator"
+
+	namespace = "reboot-coordinator"
 )
 
 // NewConfig returns new Flatcar Linux Update Operator component configuration with default values set.
@@ -62,11 +66,41 @@ func (c *component) Metadata() components.Metadata {
 	return components.Metadata{
 		Name: Name,
 		Namespace: k8sutil.Namespace{
-			Name: "reboot-coordinator",
+			Name: namespace,
 		},
 	}
 }
 
 func (c *component) GenerateHelmRelease() (*helmcontrollerapi.HelmRelease, error) {
-	return nil, components.ErrNotImplemented
+	return &helmcontrollerapi.HelmRelease{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      Name,
+			Namespace: "flux-system",
+		},
+		Spec: helmcontrollerapi.HelmReleaseSpec{
+			Chart: helmcontrollerapi.HelmChartTemplate{
+				Spec: helmcontrollerapi.HelmChartTemplateSpec{
+					Chart: components.ComponentsPath + Name,
+					SourceRef: helmcontrollerapi.CrossNamespaceObjectReference{
+						Kind: "GitRepository",
+						Name: "lokomotive-" + version.Version,
+					},
+				},
+			},
+			ReleaseName: Name,
+			Install: &helmcontrollerapi.Install{
+				CRDs:            helmcontrollerapi.CreateReplace,
+				CreateNamespace: false,
+				Remediation: &helmcontrollerapi.InstallRemediation{
+					Retries: -1,
+				},
+			},
+			Upgrade: &helmcontrollerapi.Upgrade{
+				CRDs: helmcontrollerapi.CreateReplace,
+			},
+			Interval:        components.FluxInstallInterval,
+			Timeout:         &components.FluxInstallTimeout,
+			TargetNamespace: namespace,
+		},
+	}, nil
 }
