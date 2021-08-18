@@ -3,4 +3,4 @@ name: metallb
 description: A Helm chart for MetalLB
 type: application
 version: 0.1.0
-appVersion: "v0.1.0-789-g85b7a46a"
+appVersion: "v0.9.6-5a566919"

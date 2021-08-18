@@ -25,7 +25,7 @@ spec:
       - args:
         - --port=7472
         - --config=config
-        image: quay.io/kinvolk/metallb-controller:v0.1.0-789-g85b7a46a
+        image: quay.io/kinvolk/metallb-controller:{{ .Chart.AppVersion }}
         imagePullPolicy: Always
         name: controller
         ports:
