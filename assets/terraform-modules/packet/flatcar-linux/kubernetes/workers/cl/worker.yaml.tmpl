@@ -156,6 +156,10 @@ storage:
       mount:
         device: "/dev/disk/by-label/OEM"
         format: "ext4"
+        # This label has been added to match the OEM partition. This addition is needed after the
+        # following change in ignition:
+        # https://github.com/kinvolk/ignition/commit/1c735118f7091f6b22d10945bf3b5fdf9e50dbee.
+        label: "OEM"
   files:
     # XXX: We need to manually specify the RAID0 layout because of a kernel bug.
     # We use default_layout=2 as **we assume all installations from now on are
