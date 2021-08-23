@@ -17,6 +17,9 @@ package platform_test
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/hashicorp/hcl/v2"
+
 	"github.com/kinvolk/lokomotive/pkg/platform"
 )
 
@@ -176,5 +179,68 @@ func TestNodeLocalDNSIsIncludedInCommonChartsWhenRequested(t *testing.T) {
 
 	if !nodeLocalDNSFound {
 		t.Fatalf("NodeLocalDNS should be included in charts list when requested")
+	}
+}
+
+func TestCheckCPUManagerPolicy(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		wp   map[string]string
+		want hcl.Diagnostics
+	}{
+		{
+			name: "valid_cpu_manager_policy_values",
+			wp: map[string]string{
+				"wp_a": "",
+				"wp_b": "static",
+				"wp_c": "none",
+			},
+			want: nil,
+		},
+		{
+			name: "invalid_cpu_manager_policy_value",
+			wp: map[string]string{
+				"wp_a":   "",
+				"foobar": "foobar",
+			},
+			want: hcl.Diagnostics{&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "invalid cpu_manager_policy",
+				Detail:   "Worker pool \"foobar\" has invalid cpu_manager_policy \"foobar\"",
+			}},
+		},
+		{
+			name: "all_invalid_values",
+			wp: map[string]string{
+				"foo": "foo",
+				"bar": "bar",
+			},
+			want: hcl.Diagnostics{
+				&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "invalid cpu_manager_policy",
+					Detail:   "Worker pool \"bar\" has invalid cpu_manager_policy \"bar\"",
+				},
+				&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "invalid cpu_manager_policy",
+					Detail:   "Worker pool \"foo\" has invalid cpu_manager_policy \"foo\"",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := platform.CheckCPUManagerPolicy(tt.wp)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("got unexpected diagnostics: -want +got\n%s", diff)
+			}
+		})
 	}
 }
