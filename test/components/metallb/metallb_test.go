@@ -30,14 +30,14 @@ func TestMetalLBDeployment(t *testing.T) {
 
 	t.Run("speaker daemonset", func(t *testing.T) {
 		t.Parallel()
-		daemonset := "speaker"
+		daemonset := "metallb-speaker"
 
 		testutil.WaitForDaemonSet(t, client, namespace, daemonset, testutil.RetryInterval, testutil.Timeout)
 	})
 
 	t.Run("controller deployment", func(t *testing.T) {
 		t.Parallel()
-		deployment := "controller"
+		deployment := "metallb-controller"
 
 		testutil.WaitForDeployment(t, client, namespace, deployment, testutil.RetryInterval, testutil.Timeout)
 	})
