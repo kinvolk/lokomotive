@@ -1,0 +1,17 @@
+# XXX: Lokomotive specific change.
+# Needed by ServiceMonitor
+{{- if .Values.serviceMonitor }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: metallb
+  name: metallb-metrics
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 7472
+    name: metallb-metrics
+  selector:
+    app: metallb
+{{- end }}
