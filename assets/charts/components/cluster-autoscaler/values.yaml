@@ -93,6 +93,7 @@ azureNodeResourceGroup: ""
 azureUseManagedIdentityExtension: false
 
 # Required if cloudProvider=packet
+# XXX: Lokomotive specific change.
 packetClusterName: ""
 packetAuthToken: ""
 packetCloudInit: ""
@@ -100,6 +101,9 @@ packetProjectID: ""
 packetFacility: ""
 packetOSChannel: ""
 packetNodeType: ""
+controllerNodeIdentifierLabel: ""
+installedCCM: ""
+apiServer: ""
 
 # magnumClusterName -- Cluster name or ID in Magnum.
 # Required if `cloudProvider=magnum` and not setting `autoDiscovery.clusterName`.
@@ -112,7 +116,7 @@ magnumCABundlePath: "/etc/kubernetes/ca-bundle.crt"
 cloudConfigPath: /etc/gce.conf
 
 # cloudProvider -- The cloud provider where the autoscaler runs.
-# Currently only `gce`, `aws`, `azure`, `spotinst`, `packet` and `magnum` are supported.
+# Currently only `gce`, `aws`, `azure`, `packet` and `magnum` are supported.
 # `aws` supported for AWS. `gce` for GCE. `azure` for Azure AKS.
 # `magnum` for OpenStack Magnum.
 cloudProvider: aws
@@ -134,20 +138,29 @@ dnsPolicy: ClusterFirst
 # See: https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/expander/priority/readme.md
 expanderPriorities: {}
 
+# priorityConfigMapAnnotations -- Annotations to add to `cluster-autoscaler-priority-expander` ConfigMap.
+priorityConfigMapAnnotations: {}
+  # key1: "value1"
+  # key2: "value2"
+
 # extraArgs -- Additional container arguments.
+# Refer to https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-the-parameters-to-ca for the full list of cluster autoscaler
+# parameters and their default values.
+# Everything after the first _ will be ignored allowing the use of multi-string arguments.
 extraArgs:
   logtostderr: true
   stderrthreshold: info
   v: 4
   # write-status-configmap: true
+  # status-config-map-name: cluster-autoscaler-status
   # leader-elect: true
-  # skip-nodes-with-local-storage: false
-  # expander: least-waste
+  # skip-nodes-with-local-storage: true
+  # expander: random
   # scale-down-enabled: true
   # balance-similar-node-groups: true
-  # min-replica-count: 2
+  # min-replica-count: 0
   # scale-down-utilization-threshold: 0.5
-  # scale-down-non-empty-candidates-count: 5
+  # scale-down-non-empty-candidates-count: 30
   # max-node-provision-time: 15m0s
   # scan-interval: 10s
   # scale-down-delay-after-add: 10m
@@ -155,18 +168,55 @@ extraArgs:
   # scale-down-delay-after-failure: 3m
   # scale-down-unneeded-time: 10m
   # skip-nodes-with-system-pods: true
+  # balancing-ignore-label_1: first-label-to-ignore
+  # balancing-ignore-label_2: second-label-to-ignore
 
 # extraEnv -- Additional container environment variables.
 extraEnv: {}
+
+# extraEnvConfigMaps -- Additional container environment variables from ConfigMaps.
+extraEnvConfigMaps: {}
+
+# extraEnvSecrets -- Additional container environment variables from Secrets.
+extraEnvSecrets: {}
+
+# envFromConfigMap -- ConfigMap name to use as envFrom.
+envFromConfigMap: ""
+
+# envFromSecret -- Secret name to use as envFrom.
+envFromSecret: ""
+
+# extraVolumeSecrets -- Additional volumes to mount from Secrets.
+extraVolumeSecrets: {}
+  # autoscaler-vol:
+  #   mountPath: /data/autoscaler/
+  # custom-vol:
+  #   name: custom-secret
+  #   mountPath: /data/custom/
+  #   items:
+  #     - key: subkey
+  #       path: mypath
+
+# extraVolumes -- Additional volumes.
+extraVolumes: []
+  # - name: ssl-certs
+  #   hostPath:
+  #     path: /etc/ssl/certs/ca-bundle.crt
+
+# extraVolumeMounts -- Additional volumes to mount.
+extraVolumeMounts: []
+  # - name: ssl-certs
+  #   mountPath: /etc/ssl/certs/ca-certificates.crt
+  #   readOnly: true
 
 # fullnameOverride -- String to fully override `cluster-autoscaler.fullname` template.
 fullnameOverride: ""
 
 image:
   # image.repository -- Image repository
-  repository: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler
+  repository: k8s.gcr.io/autoscaling/cluster-autoscaler
   # image.tag -- Image tag
-  tag: v1.18.1
+  tag: v1.21.0
   # image.pullPolicy -- Image pull policy
   pullPolicy: IfNotPresent
   ## Optionally specify an array of imagePullSecrets.
@@ -177,7 +227,7 @@ image:
   pullSecrets: []
   # - myRegistrKeySecretName
 
-# kubeTargetVersionOverride -- Allow overridding the `.Capabilities.KubeVersion.GitVersion` check. Useful for `helm template` commands.
+# kubeTargetVersionOverride -- Allow overriding the `.Capabilities.KubeVersion.GitVersion` check. Useful for `helm template` commands.
 kubeTargetVersionOverride: ""
 
 # nameOverride -- String to partially override `cluster-autoscaler.fullname` template (will maintain the release name)
@@ -197,6 +247,9 @@ podDisruptionBudget:
 # podLabels -- Labels to add to each pod.
 podLabels: {}
 
+# additionalLabels -- Labels to add to each object of the chart.
+additionalLabels: {}
+
 # priorityClassName -- priorityClassName
 priorityClassName: ""
 
@@ -213,6 +266,8 @@ rbac:
     create: true
     # rbac.serviceAccount.name -- The name of the ServiceAccount to use. If not set and create is `true`, a name is generated using the fullname template.
     name: ""
+    # rbac.serviceAccount.automountServiceAccountToken -- Automount API credentials for a Service Account.
+    automountServiceAccountToken: true
 
 # replicaCount -- Desired number of pods
 replicaCount: 1
@@ -251,14 +306,6 @@ service:
   # service.type -- Type of service to create.
   type: ClusterIP
 
-spotinst:
-  account: ""
-  token: ""
-  image:
-    repository: spotinst/kubernetes-cluster-autoscaler
-    tag: 0.6.0
-    pullPolicy: IfNotPresent
-
 ## Are you using Prometheus Operator?
 serviceMonitor:
   # serviceMonitor.enabled -- If true, creates a Prometheus Operator ServiceMonitor.
@@ -274,6 +321,21 @@ serviceMonitor:
     release: prometheus-operator
   # serviceMonitor.path -- The path to scrape for metrics; autoscaler exposes `/metrics` (this is standard)
   path: /metrics
+
+## Custom PrometheusRule to be defined
+## The value is evaluated as a template, so, for example, the value can depend on .Release or .Chart
+## ref: https://github.com/coreos/prometheus-operator#customresourcedefinitions
+prometheusRule:
+  # prometheusRule.enabled -- If true, creates a Prometheus Operator PrometheusRule.
+  enabled: false
+  # prometheusRule.additionalLabels -- Additional labels to be set in metadata.
+  additionalLabels: {}
+  # prometheusRule.namespace -- Namespace which Prometheus is running in.
+  namespace: monitoring
+  # prometheusRule.interval -- How often rules in the group are evaluated (falls back to `global.evaluation_interval` if not set).
+  interval: null
+  # prometheusRule.rules -- Rules spec template (see https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#rule).
+  rules: []
 
 # tolerations -- List of node taints to tolerate (requires Kubernetes >= 1.6).
 tolerations: []

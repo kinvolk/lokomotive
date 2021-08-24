@@ -37,6 +37,7 @@ const (
 	Name = "cluster-autoscaler"
 
 	chartValuesTmpl = `
+controllerNodeIdentifierLabel: "node.kubernetes.io/master"
 cloudProvider: {{ .Provider }}
 nodeSelector:
   node.kubernetes.io/controller: "true"
@@ -47,7 +48,9 @@ tolerations:
 rbac:
   create: true
 cloudConfigPath: /config
-
+image:
+  repository: quay.io/kinvolk/cluster-autoscaler
+  tag: cluster-autoscaler-1.22.0-1-g5cd43fe7a
 packetClusterName: {{ .ClusterName }}
 packetAuthToken: {{ .Packet.AuthToken }}
 packetCloudInit: {{ .Packet.UserData }}
@@ -55,6 +58,8 @@ packetProjectID: {{ .Packet.ProjectID }}
 packetFacility: {{ .Packet.Facility }}
 packetOSChannel: {{ .Packet.WorkerChannel }}
 packetNodeType: {{ .Packet.WorkerType }}
+apiServer: {{ .APIServer }}
+installedCCM: "cloud-provider-equinix-metal"
 autoscalingGroups:
 - name: {{ .WorkerPool }}
   maxSize: {{ .MaxWorkers }}
@@ -83,6 +88,7 @@ type component struct {
 	Provider    string `hcl:"provider,optional"`
 	WorkerPool  string `hcl:"worker_pool,optional"`
 	ClusterName string `hcl:"cluster_name,optional"`
+	APIServer   string `hcl:"apiserver,optional"`
 
 	// optional parameters
 	Namespace                 string `hcl:"namespace,optional"`

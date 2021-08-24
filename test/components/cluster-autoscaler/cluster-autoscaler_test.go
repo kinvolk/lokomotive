@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	name = "cluster-autoscaler-packet-cluster-autoscaler-chart"
+	name = "cluster-autoscaler-packet-cluster-autoscaler"
 )
 
 func TestClusterAutoscalerDeployments(t *testing.T) {
