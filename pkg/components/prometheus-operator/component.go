@@ -57,7 +57,11 @@ type Grafana struct {
 
 // Operator object collects sub component Prometheus operator related information.
 type Operator struct {
-	NodeSelector map[string]string `hcl:"node_selector,optional"`
+	AdmissionWebhookTolerations    []util.Toleration `hcl:"admission_webhook_tolerations,block"`
+	AdmissionWebhookTolerationsRaw string
+	NodeSelector                   map[string]string `hcl:"node_selector,optional"`
+	Tolerations                    []util.Toleration `hcl:"tolerations,block"`
+	TolerationsRaw                 string
 }
 
 // Prometheus object collects sub component Prometheus related information.
@@ -70,15 +74,19 @@ type Prometheus struct {
 	Ingress                     *types.Ingress    `hcl:"ingress,block"`
 	ExternalLabels              map[string]string `hcl:"external_labels,optional"`
 	ExternalURL                 string            `hcl:"external_url,optional"`
+	Tolerations                 []util.Toleration `hcl:"tolerations,block"`
+	TolerationsRaw              string
 }
 
 // AlertManager object collects sub component AlertManager related information.
 type AlertManager struct {
-	Config       string            `hcl:"config,optional"`
-	ExternalURL  string            `hcl:"external_url,optional"`
-	NodeSelector map[string]string `hcl:"node_selector,optional"`
-	Retention    string            `hcl:"retention,optional"`
-	StorageSize  string            `hcl:"storage_size,optional"`
+	Config         string            `hcl:"config,optional"`
+	ExternalURL    string            `hcl:"external_url,optional"`
+	NodeSelector   map[string]string `hcl:"node_selector,optional"`
+	Retention      string            `hcl:"retention,optional"`
+	StorageSize    string            `hcl:"storage_size,optional"`
+	Tolerations    []util.Toleration `hcl:"tolerations,block"`
+	TolerationsRaw string
 }
 
 type component struct {
@@ -136,7 +144,6 @@ func NewConfig() *component {
 			StorageSize: "50Gi",
 		},
 		Namespace: "monitoring",
-		Operator:  &Operator{},
 		Monitor: &Monitor{
 			Etcd:                  true,
 			KubeControllerManager: true,
@@ -211,6 +218,28 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
+	}
+
+	c.Prometheus.TolerationsRaw, err = util.RenderTolerations(c.Prometheus.Tolerations)
+	if err != nil {
+		return nil, fmt.Errorf("rendering prometheus tolerations: %w", err)
+	}
+
+	if c.Operator != nil {
+		c.Operator.TolerationsRaw, err = util.RenderTolerations(c.Operator.Tolerations)
+		if err != nil {
+			return nil, fmt.Errorf("rendering operator tolerations: %w", err)
+		}
+
+		c.Operator.AdmissionWebhookTolerationsRaw, err = util.RenderTolerations(c.Operator.AdmissionWebhookTolerations) //nolint:lll
+		if err != nil {
+			return nil, fmt.Errorf("rendering operator admission webhook tolerations: %w", err)
+		}
+	}
+
+	c.AlertManager.TolerationsRaw, err = util.RenderTolerations(c.AlertManager.Tolerations)
+	if err != nil {
+		return nil, fmt.Errorf("rendering alertmanager tolerations: %w", err)
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)
