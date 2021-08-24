@@ -22,13 +22,13 @@ global:
       seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 
 alertmanager:
-{{.AlertManagerConfig}}
+{{.AlertManager.Config}}
   alertmanagerSpec:
-    retention: {{.AlertManagerRetention}}
-    externalUrl: {{.AlertManagerExternalURL}}
-    {{ if .AlertManagerNodeSelector }}
+    retention: {{.AlertManager.Retention}}
+    externalUrl: {{.AlertManager.ExternalURL}}
+    {{ if .AlertManager.NodeSelector }}
     nodeSelector:
-      {{ range $key, $value := .AlertManagerNodeSelector }}
+      {{ range $key, $value := .AlertManager.NodeSelector }}
       {{ $key }}: {{ $value }}
       {{ end }}
     {{ end }}
@@ -45,7 +45,7 @@ alertmanager:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: "{{.AlertManagerStorageSize}}"
+              storage: "{{.AlertManager.StorageSize}}"
 
 grafana:
   plugins: "grafana-piechart-panel"
@@ -88,7 +88,7 @@ kubeEtcd:
   enabled: {{.Monitor.Etcd}}
 prometheus-node-exporter:
   service: {}
-{{ if (or .PrometheusOperatorNodeSelector .DisableWebhooks) }}
+{{ if (or .Operator.NodeSelector .DisableWebhooks) }}
 prometheusOperator:
   {{- if .DisableWebhooks }}
   tlsProxy:
@@ -96,9 +96,9 @@ prometheusOperator:
   admissionWebhooks:
     enabled: false
   {{- end }}
-  {{- if .PrometheusOperatorNodeSelector }}
+  {{- if .Operator.NodeSelector }}
   nodeSelector:
-    {{ range $key, $value := .PrometheusOperatorNodeSelector }}
+    {{ range $key, $value := .Operator.NodeSelector }}
     {{ $key }}: {{ $value }}
     {{ end }}
   {{- end }}
