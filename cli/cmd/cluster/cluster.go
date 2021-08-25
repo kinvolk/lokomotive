@@ -358,6 +358,7 @@ func (c controlplaneUpdater) ensureComponent(component, namespace string) error 
 
 	rollback.Wait = true
 	rollback.Version = history[0].Version
+	rollback.MaxHistory = 10
 
 	fmt.Printf("Ensuring controlplane component '%s' is properly configured... ", component)
 
