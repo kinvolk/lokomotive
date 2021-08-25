@@ -22,15 +22,18 @@ global:
       seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
 
 alertmanager:
-{{.AlertManagerConfig}}
+{{.AlertManager.Config}}
   alertmanagerSpec:
-    retention: {{.AlertManagerRetention}}
-    externalUrl: {{.AlertManagerExternalURL}}
-    {{ if .AlertManagerNodeSelector }}
+    retention: {{.AlertManager.Retention}}
+    externalUrl: {{.AlertManager.ExternalURL}}
+    {{ if .AlertManager.NodeSelector }}
     nodeSelector:
-      {{ range $key, $value := .AlertManagerNodeSelector }}
+      {{ range $key, $value := .AlertManager.NodeSelector }}
       {{ $key }}: {{ $value }}
       {{ end }}
+    {{ end }}
+    {{ if .AlertManager.Tolerations }}
+    tolerations: {{ .AlertManager.TolerationsRaw }}
     {{ end }}
     storage:
       volumeClaimTemplate:
@@ -45,7 +48,7 @@ alertmanager:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: "{{.AlertManagerStorageSize}}"
+              storage: "{{.AlertManager.StorageSize}}"
 
 grafana:
   plugins: "grafana-piechart-panel"
@@ -88,21 +91,24 @@ kubeEtcd:
   enabled: {{.Monitor.Etcd}}
 prometheus-node-exporter:
   service: {}
-{{ if (or .PrometheusOperatorNodeSelector .DisableWebhooks) }}
 prometheusOperator:
-  {{- if .DisableWebhooks }}
-  tlsProxy:
-    enabled: false
   admissionWebhooks:
-    enabled: false
-  {{- end }}
-  {{- if .PrometheusOperatorNodeSelector }}
+    enabled: {{ not .DisableWebhooks  }}
+  {{- with .Operator }}
+    {{- if .AdmissionWebhookTolerations }}
+    patch:
+      tolerations: {{ .AdmissionWebhookTolerationsRaw }}
+    {{- end }}
+  {{- if .NodeSelector }}
   nodeSelector:
-    {{ range $key, $value := .PrometheusOperatorNodeSelector }}
+    {{ range $key, $value := .NodeSelector }}
     {{ $key }}: {{ $value }}
     {{ end }}
   {{- end }}
-{{ end }}
+  {{- if .Tolerations }}
+  tolerations: {{ .TolerationsRaw }}
+  {{- end }}
+  {{- end }}
 prometheus:
   {{ if .Prometheus.Ingress }}
   ingress:
@@ -130,6 +136,9 @@ prometheus:
       {{ range $key, $value := .Prometheus.NodeSelector }}
       {{ $key }}: {{ $value }}
       {{ end }}
+    {{ end }}
+    {{ if .Prometheus.Tolerations }}
+    tolerations: {{ .Prometheus.TolerationsRaw }}
     {{ end }}
     {{ if .Prometheus.ExternalLabels }}
     externalLabels:

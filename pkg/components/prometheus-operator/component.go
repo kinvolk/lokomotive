@@ -55,6 +55,15 @@ type Grafana struct {
 	Ingress       *types.Ingress    `hcl:"ingress,block"`
 }
 
+// Operator object collects sub component Prometheus operator related information.
+type Operator struct {
+	AdmissionWebhookTolerations    []util.Toleration `hcl:"admission_webhook_tolerations,block"`
+	AdmissionWebhookTolerationsRaw string
+	NodeSelector                   map[string]string `hcl:"node_selector,optional"`
+	Tolerations                    []util.Toleration `hcl:"tolerations,block"`
+	TolerationsRaw                 string
+}
+
 // Prometheus object collects sub component Prometheus related information.
 type Prometheus struct {
 	MetricsRetention            string            `hcl:"metrics_retention,optional"`
@@ -65,6 +74,19 @@ type Prometheus struct {
 	Ingress                     *types.Ingress    `hcl:"ingress,block"`
 	ExternalLabels              map[string]string `hcl:"external_labels,optional"`
 	ExternalURL                 string            `hcl:"external_url,optional"`
+	Tolerations                 []util.Toleration `hcl:"tolerations,block"`
+	TolerationsRaw              string
+}
+
+// AlertManager object collects sub component AlertManager related information.
+type AlertManager struct {
+	Config         string            `hcl:"config,optional"`
+	ExternalURL    string            `hcl:"external_url,optional"`
+	NodeSelector   map[string]string `hcl:"node_selector,optional"`
+	Retention      string            `hcl:"retention,optional"`
+	StorageSize    string            `hcl:"storage_size,optional"`
+	Tolerations    []util.Toleration `hcl:"tolerations,block"`
+	TolerationsRaw string
 }
 
 type component struct {
@@ -72,15 +94,11 @@ type component struct {
 
 	Namespace string `hcl:"namespace,optional"`
 
-	PrometheusOperatorNodeSelector map[string]string `hcl:"prometheus_operator_node_selector,optional"`
+	Operator *Operator `hcl:"operator,block"`
 
 	Prometheus *Prometheus `hcl:"prometheus,block"`
 
-	AlertManagerRetention    string            `hcl:"alertmanager_retention,optional"`
-	AlertManagerExternalURL  string            `hcl:"alertmanager_external_url,optional"`
-	AlertManagerConfig       string            `hcl:"alertmanager_config,optional"`
-	AlertManagerNodeSelector map[string]string `hcl:"alertmanager_node_selector,optional"`
-	AlertManagerStorageSize  string            `hcl:"alertmanager_storage_size,optional"`
+	AlertManager *AlertManager `hcl:"alertmanager,block"`
 
 	StorageClass string `hcl:"storage_class,optional"`
 
@@ -120,10 +138,12 @@ func NewConfig() *component {
 			WatchLabeledServiceMonitors: true,
 			WatchLabeledPrometheusRules: true,
 		},
-		AlertManagerRetention:   "120h",
-		AlertManagerConfig:      defaultAlertManagerConfig,
-		AlertManagerStorageSize: "50Gi",
-		Namespace:               "monitoring",
+		AlertManager: &AlertManager{
+			Retention:   "120h",
+			Config:      defaultAlertManagerConfig,
+			StorageSize: "50Gi",
+		},
+		Namespace: "monitoring",
 		Monitor: &Monitor{
 			Etcd:                  true,
 			KubeControllerManager: true,
@@ -198,6 +218,28 @@ func (c *component) RenderManifests() (map[string]string, error) {
 	helmChart, err := components.Chart(Name)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
+	}
+
+	c.Prometheus.TolerationsRaw, err = util.RenderTolerations(c.Prometheus.Tolerations)
+	if err != nil {
+		return nil, fmt.Errorf("rendering prometheus tolerations: %w", err)
+	}
+
+	if c.Operator != nil {
+		c.Operator.TolerationsRaw, err = util.RenderTolerations(c.Operator.Tolerations)
+		if err != nil {
+			return nil, fmt.Errorf("rendering operator tolerations: %w", err)
+		}
+
+		c.Operator.AdmissionWebhookTolerationsRaw, err = util.RenderTolerations(c.Operator.AdmissionWebhookTolerations) //nolint:lll
+		if err != nil {
+			return nil, fmt.Errorf("rendering operator admission webhook tolerations: %w", err)
+		}
+	}
+
+	c.AlertManager.TolerationsRaw, err = util.RenderTolerations(c.AlertManager.Tolerations)
+	if err != nil {
+		return nil, fmt.Errorf("rendering alertmanager tolerations: %w", err)
 	}
 
 	values, err := template.Render(chartValuesTmpl, c)
