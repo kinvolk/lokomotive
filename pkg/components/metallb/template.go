@@ -18,6 +18,11 @@ package metallb
 const chartValuesTmpl = `
 controller:
   enabled: true
+  image:
+    # This image is build on top of master which is
+    # rebased on https://github.com/metallb/metallb/pull/593. Once merged, start using
+    # upstream image.
+    tag: v0.9.6-d8e5b333
   nodeSelector:
     "node.kubernetes.io/master": ""
   {{- with .ControllerNodeSelectors }}
@@ -30,6 +35,11 @@ controller:
   {{- end }}
 speaker:
   enabled: true
+  image:
+    # This image is build on top of master which is
+    # rebased on https://github.com/metallb/metallb/pull/593. Once merged, start using
+    # upstream image.
+    tag: v0.9.6-d8e5b333
   tolerateMaster: false
   {{- with .SpeakerNodeSelectors }}
   nodeSelector:
