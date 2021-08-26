@@ -4,16 +4,14 @@ go 1.15
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/containerd/cgroups v0.0.0-20200308110149-6c3dec43a103 // indirect
 	github.com/containerd/continuity v0.0.0-20200228182428-0f16d7a0959c // indirect
 	github.com/docker/cli v0.0.0-20200312141509-ef2f64abbd37 // indirect
 	github.com/docker/docker v1.13.1 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
+	github.com/elazarl/goproxy/ext v0.0.0-20210801061803-8e322dfb79c4 // indirect
 	github.com/emicklei/go-restful v2.12.0+incompatible // indirect
-	github.com/fatih/color v1.9.0 // indirect
-	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.8 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -39,7 +37,7 @@ require (
 	github.com/prometheus/client_golang v1.7.1
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
-	github.com/shirou/gopsutil v2.20.2+incompatible
+	github.com/shirou/gopsutil/v3 v3.21.7
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	github.com/sirupsen/logrus v1.7.0

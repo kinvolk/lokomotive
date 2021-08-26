@@ -31,7 +31,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/hpcloud/tail"
 	"github.com/kardianos/osext"
-	"github.com/shirou/gopsutil/process"
+	process "github.com/shirou/gopsutil/v3/process"
 	log "github.com/sirupsen/logrus"
 )
 
