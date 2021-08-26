@@ -42,8 +42,6 @@ replace github.com/docker/spdystream => github.com/moby/spdystream v0.1.0
 // Borrowed from Helm.
 replace github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
 
-//replace github.com/deislabs/oras => github.com/deislabs/oras v0.8.1
-
 // Without this, kubectl dependency does not build.
 replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.2
 
