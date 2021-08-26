@@ -142,7 +142,7 @@ func NewExecutor(conf Config) (*Executor, error) {
 
 	// Create the folder in which the executor, and its logs will be stored,
 	// if not existing.
-	os.MkdirAll(filepath.Join(ex.executionPath, logsFolderName), 0770)
+	os.MkdirAll(filepath.Join(ex.executionPath, logsFolderName), 0o770)
 
 	// Find the Terraform binary.
 	out, err := tfBinaryPath()
@@ -370,7 +370,7 @@ func (ex *Executor) executeAsync(args ...string) (int, chan struct{}, error) {
 		// Wait for the process to finish.
 		if err := cmd.Wait(); err != nil {
 			// The process did not end cleanly. Write the failure file.
-			ioutil.WriteFile(ex.failPath(cmd.Process.Pid), []byte(err.Error()), 0660)
+			ioutil.WriteFile(ex.failPath(cmd.Process.Pid), []byte(err.Error()), 0o660)
 		}
 
 		// Once the process is finished whether successfully or terminated by an
