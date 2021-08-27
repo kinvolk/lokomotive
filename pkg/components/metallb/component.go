@@ -20,7 +20,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
-	"github.com/kinvolk/lokomotive/internal/template"
+	internaltemplate "github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
 	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
@@ -55,88 +55,47 @@ func (c *component) LoadConfig(configBody *hcl.Body, evalContext *hcl.EvalContex
 	if configBody == nil {
 		return hcl.Diagnostics{}
 	}
+
 	return gohcl.DecodeBody(*configBody, evalContext, c)
 }
 
-// TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
-	// Here are `nodeSelectors` and `tolerations` that are set by upstream. To make sure that we
-	// don't miss them out we set them manually here. We cannot make these changes in the template
-	// because we have parameterized these fields.
-	if c.SpeakerNodeSelectors == nil {
-		c.SpeakerNodeSelectors = map[string]string{}
+	helmChart, err := components.Chart(Name)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
-	// MetalLB only supports Linux, so force this selector, even if it's already specified by the
-	// user.
-	c.SpeakerNodeSelectors["beta.kubernetes.io/os"] = "linux"
 
-	if c.ControllerNodeSelectors == nil {
-		c.ControllerNodeSelectors = map[string]string{}
+	t, err := util.RenderTolerations(c.SpeakerTolerations)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling speaker tolerations: %w", err)
 	}
-	c.ControllerNodeSelectors["beta.kubernetes.io/os"] = "linux"
-	c.ControllerNodeSelectors["node.kubernetes.io/master"] = ""
+
+	c.SpeakerTolerationsJSON = t
 
 	c.ControllerTolerations = append(c.ControllerTolerations, util.Toleration{
 		Effect: "NoSchedule",
 		Key:    "node-role.kubernetes.io/master",
 	})
 
-	t, err := util.RenderTolerations(c.SpeakerTolerations)
-	if err != nil {
-		return nil, fmt.Errorf("marshaling speaker tolerations: %w", err)
-	}
-	c.SpeakerTolerationsJSON = t
-
 	t, err = util.RenderTolerations(c.ControllerTolerations)
 	if err != nil {
 		return nil, fmt.Errorf("rendering controller tolerations: %w", err)
 	}
+
 	c.ControllerTolerationsJSON = t
 
-	controllerStr, err := template.Render(deploymentController, c)
+	values, err := internaltemplate.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, fmt.Errorf("rendering controller Deployment template: %w", err)
+		return nil, fmt.Errorf("rendering values template: %w", err)
 	}
 
-	speakerStr, err := template.Render(daemonsetSpeaker, c)
+	// Generate YAML for the metallb deployment.
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
 	if err != nil {
-		return nil, fmt.Errorf("rendering speaker DaemonSet template: %w", err)
+		return nil, fmt.Errorf("rendering chart: %w", err)
 	}
 
-	configMapStr, err := template.Render(configMap, c)
-	if err != nil {
-		return nil, fmt.Errorf("rendering ConfigMap template: %w", err)
-	}
-
-	rendered := map[string]string{
-		"namespace.yaml":                                    namespace,
-		"service-account-controller.yaml":                   serviceAccountController,
-		"service-account-speaker.yaml":                      serviceAccountSpeaker,
-		"clusterrole-metallb-system-controller.yaml":        clusterRoleMetallbSystemController,
-		"clusterrole-metallb-System-speaker.yaml":           clusterRoleMetallbSystemSpeaker,
-		"role-config-watcher.yaml":                          roleConfigWatcher,
-		"role-pod-lister.yaml":                              rolePodLister,
-		"clusterrolebinding-metallb-system-controller.yaml": clusterRoleBindingMetallbSystemController,
-		"clusterrolebinding-metallb-system-speaker.yaml":    clusterRoleBindingMetallbSystemSpeaker,
-		"rolebinding-config-watcher.yaml":                   roleBindingConfigWatcher,
-		"rolebinding-pod-lister.yaml":                       roleBindingPodLister,
-		"deployment-controller.yaml":                        controllerStr,
-		"daemonset-speaker.yaml":                            speakerStr,
-		"psp-metallb-controller.yaml":                       pspMetallbController,
-		"psp-metallb-speaker.yaml":                          pspMetallbSpeaker,
-		"configmap.yaml":                                    configMapStr,
-	}
-
-	// Create service and service monitor for Prometheus to scrape metrics
-	if c.ServiceMonitor {
-		rendered["service.yaml"] = service
-		rendered["service-monitor.yaml"] = serviceMonitor
-		rendered["grafana-dashboard.yaml"] = grafanaDashboard
-		rendered["grafana-alertmanager-rule.yaml"] = metallbPrometheusRule
-		rendered["grafana-alertmanager-rule-updated-prometheus.yaml"] = metallbPrometheusRuleUpdated
-	}
-
-	return rendered, nil
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {

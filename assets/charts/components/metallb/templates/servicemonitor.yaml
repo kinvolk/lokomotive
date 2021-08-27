@@ -1,0 +1,21 @@
+# XXX: Lokomotive specific change.
+# For autodiscovery by Prometheus operator
+{{- if .Values.serviceMonitor }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: metallb
+    release: prometheus-operator
+  name: metallb
+  namespace: {{ .Release.Namespace }}
+spec:
+  endpoints:
+  - port: metallb-metrics
+  namespaceSelector:
+    matchNames:
+    - metallb-system
+  selector:
+    matchLabels:
+      app: metallb
+{{- end }}
