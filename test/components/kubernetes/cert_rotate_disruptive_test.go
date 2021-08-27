@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build packet baremetal aws
+// +build packet baremetal
 // +build disruptivee2e
 
 package kubernetes_test
