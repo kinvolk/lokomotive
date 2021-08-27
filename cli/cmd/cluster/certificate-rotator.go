@@ -160,8 +160,6 @@ func (cr *certificateRotator) rotate() error {
 		return fmt.Errorf("waiting for all service account tokens to be updated: %w", err)
 	}
 
-	cr.logger.Printf("All service account tokens has been updated with new Kubernetes CA certificate")
-
 	for _, daemonSet := range cr.daemonSetsToRestart {
 		cr.logger.Printf("Restarting DaemonSet %s/%s to pick up new Kubernetes CA Certificate",
 			daemonSet.Namespace, daemonSet.Name)
