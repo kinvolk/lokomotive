@@ -23,7 +23,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
 	github.com/zclconf/go-cty v1.7.0
-	helm.sh/helm/v3 v3.5.1
+	helm.sh/helm/v3 v3.6.1
 	k8s.io/api v0.20.2
 	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v0.20.2
