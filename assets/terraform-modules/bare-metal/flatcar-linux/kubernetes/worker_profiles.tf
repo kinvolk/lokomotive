@@ -21,4 +21,5 @@ module "worker_profile" {
   wipe_additional_disks    = var.wipe_additional_disks
   pxe_commands             = var.pxe_commands
   install_pre_reboot_cmds  = var.install_pre_reboot_cmds
+  ignore_changes           = var.ignore_worker_changes
 }

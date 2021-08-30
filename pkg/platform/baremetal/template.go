@@ -123,6 +123,8 @@ EOT
 EOT
   {{- end }}
 
+  ignore_worker_changes = {{.IgnoreWorkerChanges}}
+
   download_protocol = "{{ .DownloadProtocol }}"
 
   wipe_additional_disks = "{{ .WipeAdditionalDisks }}"
