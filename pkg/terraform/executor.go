@@ -31,7 +31,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/hpcloud/tail"
 	"github.com/kardianos/osext"
-	"github.com/shirou/gopsutil/process"
+	process "github.com/shirou/gopsutil/v3/process"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -46,6 +46,9 @@ const (
 	requiredVersion = ">= 0.13, < 0.14"
 
 	noOfLinesOnError = 20
+
+	defaultDirMode  = 0o700
+	defaultFileMode = 0o600
 
 	// WithoutParallelism sets the parallelism value to 1.
 	WithoutParallelism = "-parallelism=1"
@@ -142,7 +145,10 @@ func NewExecutor(conf Config) (*Executor, error) {
 
 	// Create the folder in which the executor, and its logs will be stored,
 	// if not existing.
-	os.MkdirAll(filepath.Join(ex.executionPath, logsFolderName), 0770)
+	logPath := filepath.Join(ex.executionPath, logsFolderName)
+	if err := os.MkdirAll(logPath, defaultDirMode); err != nil {
+		return nil, fmt.Errorf("creating log directory %q: %w", logPath, err)
+	}
 
 	// Find the Terraform binary.
 	out, err := tfBinaryPath()
@@ -370,7 +376,11 @@ func (ex *Executor) executeAsync(args ...string) (int, chan struct{}, error) {
 		// Wait for the process to finish.
 		if err := cmd.Wait(); err != nil {
 			// The process did not end cleanly. Write the failure file.
-			ioutil.WriteFile(ex.failPath(cmd.Process.Pid), []byte(err.Error()), 0660)
+			failPath := ex.failPath(cmd.Process.Pid)
+			if writeErr := ioutil.WriteFile(failPath, []byte(err.Error()), defaultFileMode); writeErr != nil {
+				fmt.Printf("Failed writing process %d error (%v) to fail path %q: %v",
+					cmd.Process.Pid, err, failPath, writeErr)
+			}
 		}
 
 		// Once the process is finished whether successfully or terminated by an
