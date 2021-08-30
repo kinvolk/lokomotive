@@ -51,6 +51,7 @@ type config struct {
 	OSChannel                    string              `hcl:"os_channel,optional"`
 	OSVersion                    string              `hcl:"os_version,optional"`
 	PXECommands                  string              `hcl:"pxe_commands,optional"`
+	IgnoreWorkerChanges          bool                `hcl:"ignore_worker_changes,optional"`
 	InstallPreBootCmds           string              `hcl:"install_pre_reboot_cmds,optional"`
 	SSHPubKeys                   []string            `hcl:"ssh_pubkeys"`
 	WorkerNames                  []string            `hcl:"worker_names"`
@@ -121,6 +122,7 @@ func NewConfig() *config {
 		DownloadProtocol:             "https",
 		NetworkIPAutodetectionMethod: "first-found",
 		NodeLocalDNSIP:               platform.NodeLocalDNSIP,
+		IgnoreWorkerChanges:          true,
 	}
 }
 
@@ -246,6 +248,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		OSVersion                    string
 		PXECommands                  string
 		InstallPreBootCmds           string
+		IgnoreWorkerChanges          bool
 		SSHPublicKeys                string
 		WorkerNames                  string
 		WorkerMacs                   string
@@ -286,6 +289,7 @@ func createTerraformConfigFile(cfg *config, terraformPath string) error {
 		OSVersion:                    cfg.OSVersion,
 		PXECommands:                  cfg.PXECommands,
 		InstallPreBootCmds:           cfg.InstallPreBootCmds,
+		IgnoreWorkerChanges:          cfg.IgnoreWorkerChanges,
 		SSHPublicKeys:                string(keyListBytes),
 		WorkerNames:                  string(workerNames),
 		WorkerMacs:                   string(workerMacs),
