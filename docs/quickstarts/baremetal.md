@@ -140,7 +140,7 @@ cluster "bare-metal" {
   matchbox_http_endpoint = "http://matchbox.example.com:8080"
 
   # Domain name.
-  k8s_domain_name = "node1.example.com"
+  k8s_domain_name = "example.com"
 
   # FQDN of controller nodes.
   controller_domains = [
