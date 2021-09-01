@@ -102,6 +102,8 @@ log "Running lokoctl version $("$resource_dir"/lokoctl-bin/lokoctl version)"
 RET=0
 "$resource_dir"/lokoctl-bin/lokoctl cluster apply --verbose --skip-components || RET=$?
 
+sleep 8h
+
 if [ "${RET}" = 0 ]; then
   # Tell FLUO to pause update reboots for controller nodes
   if [ "$platform" == "packet" ] || [ "$platform" == "packet_fluo" ]; then
