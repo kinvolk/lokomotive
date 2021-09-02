@@ -263,17 +263,13 @@ data:
       protocol: bgp
     peer-autodiscovery:
       from-annotations:
-      - my-asn: metallb.lokomotive.io/my-asn
-        peer-address: metallb.lokomotive.io/peer-address
-        peer-asn: metallb.lokomotive.io/peer-asn
-      from-labels:
       - hold-time: metallb.lokomotive.io/hold-time
-        my-asn: metallb.lokomotive.io/my-asn
-        peer-address: metallb.lokomotive.io/peer-address
-        peer-asn: metallb.lokomotive.io/peer-asn
+        my-asn: metal.equinix.com/node-asn
+        peer-address: metal.equinix.com/peer-ip
+        peer-asn: metal.equinix.com/peer-asn
         peer-port: metallb.lokomotive.io/peer-port
         router-id: metallb.lokomotive.io/router-id
-        source-address: metallb.lokomotive.io/src-address
+        source-address: metal.equinix.com/src-ip
 kind: ConfigMap
 metadata:
   name: metallb

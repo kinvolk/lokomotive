@@ -22,7 +22,7 @@ controller:
     # This image is build on top of master which is
     # rebased on https://github.com/metallb/metallb/pull/593. Once merged, start using
     # upstream image.
-    tag: v0.9.6-d8e5b333
+    tag: v0.9.6-86016b74
   nodeSelector:
     "node.kubernetes.io/master": ""
   {{- with .ControllerNodeSelectors }}
@@ -36,10 +36,18 @@ controller:
 speaker:
   enabled: true
   image:
-    # This image is build on top of master which is
-    # rebased on https://github.com/metallb/metallb/pull/593. Once merged, start using
-    # upstream image.
-    tag: v0.9.6-d8e5b333
+    # This image is based on the branch https://github.com/kinvolk/metallb/tree/imran/multiple-peers-patch
+    # which in turn is based on top of https://github.com/metallb/metallb/pull/593.
+    # Commit: https://github.com/kinvolk/metallb/commit/86016b748a520f45403fb81abd380e65b0c39f27
+
+    # The reason for using this image is mentioned in the commit message above and also an issue is opened
+    # in the Cloud Provider Equinix Metal for public discussion.
+    # In any case, the direction of the public discussion would determine to either continue using this
+    # custom image or not.
+
+    # During upgrade of MetalLB or when the base PR #593 is merged, this commit must be cherry-picked to
+    # avoid regression.
+    tag: v0.9.6-86016b74
   tolerateMaster: false
   {{- with .SpeakerNodeSelectors }}
   nodeSelector:
@@ -55,18 +63,14 @@ serviceMonitor: {{ .ServiceMonitor }}
 
 configInline:
   peer-autodiscovery:
-    from-labels:
-    - my-asn: metallb.lokomotive.io/my-asn
-      peer-asn: metallb.lokomotive.io/peer-asn
-      peer-address: metallb.lokomotive.io/peer-address
+    from-annotations:
+    - my-asn: metal.equinix.com/node-asn
+      peer-address: metal.equinix.com/peer-ip
+      peer-asn: metal.equinix.com/peer-asn
+      source-address: metal.equinix.com/src-ip
       peer-port: metallb.lokomotive.io/peer-port
-      source-address: metallb.lokomotive.io/src-address
       hold-time: metallb.lokomotive.io/hold-time
       router-id: metallb.lokomotive.io/router-id
-    from-annotations:
-    - my-asn: metallb.lokomotive.io/my-asn
-      peer-address: metallb.lokomotive.io/peer-address
-      peer-asn: metallb.lokomotive.io/peer-asn
   address-pools:
   {{- range $k, $v := .AddressPools }}
   - name: {{ $k }}
