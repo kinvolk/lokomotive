@@ -5,7 +5,7 @@ module "bootkube" {
   cluster_name = var.cluster_name
   api_servers  = [format("%s.%s", var.cluster_name, var.k8s_domain_name)]
   # Each instance of controller module generates the same set of etcd_servers.
-  etcd_servers                    = module.controller[0].etcd_servers
+  etcd_servers                    = concat(var.controller_domains, module.controller[0].etcd_servers)
   etcd_endpoints                  = []
   asset_dir                       = var.asset_dir
   network_mtu                     = var.network_mtu
