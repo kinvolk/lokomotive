@@ -12,7 +12,8 @@ resource "matchbox_group" "install" {
 
 resource "matchbox_group" "node" {
   name = format(
-    "%s",
+    "%s-%s",
+    var.group_prefix,
     var.node_name
   )
   profile = matchbox_profile.node.name
