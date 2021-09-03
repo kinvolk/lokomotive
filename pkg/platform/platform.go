@@ -17,6 +17,7 @@ package platform
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 
 	"github.com/hashicorp/hcl/v2"
 	"helm.sh/helm/v3/pkg/chart"
@@ -280,4 +281,37 @@ func WorkerPoolNamesUnique(pools []WorkerPool) hcl.Diagnostics {
 	}
 
 	return d
+}
+
+// CheckCPUManagerPolicy takes a map with key as worker pool name and value as the CPU Manager
+// Policy value. This function checks if the values are valid for Kubernetes.
+func CheckCPUManagerPolicy(wpCPUMgrVals map[string]string) hcl.Diagnostics {
+	var diagnostics hcl.Diagnostics
+
+	// Gather all worker pool names.
+	wps := make([]string, len(wpCPUMgrVals))
+
+	for k := range wpCPUMgrVals {
+		wps = append(wps, k)
+	}
+
+	// Sort in ascending order to return consistent results.
+	sort.Strings(wps)
+
+	for _, name := range wps {
+		policy := wpCPUMgrVals[name]
+
+		switch policy {
+		case "", "none", "static":
+			continue
+		default:
+			diagnostics = append(diagnostics, &hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "invalid cpu_manager_policy",
+				Detail:   fmt.Sprintf("Worker pool %q has invalid cpu_manager_policy %q", name, policy),
+			})
+		}
+	}
+
+	return diagnostics
 }

@@ -198,6 +198,10 @@ module "worker-pool-{{ $index }}" {
   clc_snippets          = {{ (index $.WorkerpoolCfg $index "clc_snippets") }}
   {{- end }}
 
+  {{- if $pool.CPUManagerPolicy }}
+  cpu_manager_policy = "{{$pool.CPUManagerPolicy}}"
+  {{- end}}
+
   {{- if $pool.Tags }}
   tags                  = {{ index (index $.WorkerpoolCfg $index) "tags" }}
   {{- end }}
