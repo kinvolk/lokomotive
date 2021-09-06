@@ -13,6 +13,7 @@ module "bootkube" {
   asset_dir            = var.asset_dir
   network_mtu          = var.network_mtu
   etcd_endpoints       = packet_device.controllers.*.access_private_ipv4
+  controller_count     = var.controller_count
 
   # Select private Packet NIC by using the can-reach Calico autodetection option with the first
   # controller's private IP.

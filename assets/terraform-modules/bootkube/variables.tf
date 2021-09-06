@@ -199,3 +199,8 @@ variable "node_local_dns_ip" {
   type        = string
   default     = "169.254.1.1"
 }
+
+variable "controller_count" {
+  description = "Number of controller nodes."
+  type        = number
+}

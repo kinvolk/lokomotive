@@ -16,6 +16,7 @@ module "bootkube" {
   enable_reporting                = var.enable_reporting
   enable_aggregation              = var.enable_aggregation
   kube_apiserver_extra_flags      = var.kube_apiserver_extra_flags
+  controller_count                = length(var.controller_domains)
 
   certs_validity_period_hours = var.certs_validity_period_hours
 
