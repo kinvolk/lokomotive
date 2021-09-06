@@ -1,3 +1,341 @@
+## v0.9.0 - 2021-09-14
+
+We're happy to announce the release of Lokomotive v0.9.0 (Indian Pacific).
+
+### Changes in v0.9.0
+
+#### Kubernetes and control plane component updates
+
+- Update Kubernetes to v1.21.4 ([#1567](https://github.com/kinvolk/lokomotive/pull/1567)).
+- Update `etcd` to v3.4.16 ([#1493](https://github.com/kinvolk/lokomotive/pull/1493)).
+- Update `calico` to v3.19.1 ([#1521](https://github.com/kinvolk/lokomotive/pull/1521)).
+- Replace Packet CCM with Cloud Provider Equinix Metal ([#1545](https://github.com/kinvolk/lokomotive/pull/1545)).
+
+#### New components
+
+- Add component `azure-arc-onboarding` ([#1473](https://github.com/kinvolk/lokomotive/pull/1473)).
+- Add control plane component `node-local-dns` ([#1524](https://github.com/kinvolk/lokomotive/pull/1524)).
+
+#### Component updates
+
+- Update `external-dns` to v0.8.0 ([#1499](https://github.com/kinvolk/lokomotive/pull/1499)).
+- Update `cert-manager` to v1.4.0 ([#1501](https://github.com/kinvolk/lokomotive/pull/1501)).
+- Update `dex` to v2.28.1 ([#1503](https://github.com/kinvolk/lokomotive/pull/1503)).
+- Update `velero` to v1.6.0 ([#1505](https://github.com/kinvolk/lokomotive/pull/1505)).
+- Update `prometheus-operator` charts to v0.48.1 ([#1506](https://github.com/kinvolk/lokomotive/pull/1506)).
+- Update `openebs-operator` to v2.10.0 ([#1509](https://github.com/kinvolk/lokomotive/pull/1509)).
+- Update `node-problem-detector` to v0.8.8 ([#1507](https://github.com/kinvolk/lokomotive/pull/1507)).
+- Update `rook` to v1.6.5 ([#1495](https://github.com/kinvolk/lokomotive/pull/1495)).
+- Update `contour` to v1.16.0 ([#1508](https://github.com/kinvolk/lokomotive/pull/1508)).
+- Update `linkerd` to v2.10.2 ([#1522](https://github.com/kinvolk/lokomotive/pull/1522))
+- Update `cluster-autoscaler` to v1.21.0 ([#1512](https://github.com/kinvolk/lokomotive/pull/1512)).
+- Update `metallb` to v0.9.6 ([#1555](https://github.com/kinvolk/lokomotive/pull/1555)).
+
+#### Terraform provider updates
+
+- Update Terraform providers to their latest versions ([#1523](https://github.com/kinvolk/lokomotive/pull/1523)).
+
+#### Features
+
+- equinixmetal: Rename documentation, code and configuration from `Packet` to `Equinix Metal` ([#1545](https://github.com/kinvolk/lokomotive/pull/1545)).
+- baremetal: Users can now configure node specific labels ([#1405](https://github.com/kinvolk/lokomotive/pull/1405)).
+- rook-ceph: Add new parameter `resources` for resource requests and limits ([#1483](https://github.com/kinvolk/lokomotive/pull/1483)).
+- baremetal: Add new parameter `wipe_additional_disks` which allows to wipe any additional disks attached to
+  the machine ([#1486](https://github.com/kinvolk/lokomotive/pull/1486)).
+- baremetal: Automated (re-)provisioning of worker nodes ([#1502](https://github.com/kinvolk/lokomotive/pull/1502)).
+- Add new parameter `enable_node_local_dns` to enable node-local-dns support for clusters ([#1524](https://github.com/kinvolk/lokomotive/pull/1524)).
+- Add parameter `tolerations` for prometheus-operator and its components ([#1540](https://github.com/kinvolk/lokomotive/pull/1540)).
+- Define `MaxHistory` to clean up old Helm releases ([#1549](https://github.com/kinvolk/lokomotive/pull/1549)).
+- Add `cpu_manager_policy` flag to workers in Lokomotive clusters on Equinix Metal and AWS ([#1406](https://github.com/kinvolk/lokomotive/pull/1406)).
+- cli: Allow skipping the control plane updates, if cluster is not successfully configured using the flag
+  `--skip-control-plane-update` ([#1482](https://github.com/kinvolk/lokomotive/pull/1482)).
+
+#### Documentation
+
+- Use new label and taints syntax for `rook-ceph` ([#1474](https://github.com/kinvolk/lokomotive/pull/1474)).
+- Add information about restic parameter `require_volume_annotation` ([#1539](https://github.com/kinvolk/lokomotive/pull/1539)).
+- Rename `Packet` to `Equinix Metal` ([#1537](https://github.com/kinvolk/lokomotive/pull/1537)).
+
+#### Bug Fixes
+
+- baremetal: Fix certificate rotation ([#1478](https://github.com/kinvolk/lokomotive/pull/1478)).
+- baremetal: Configure and persist kernel args ([#1489](https://github.com/kinvolk/lokomotive/pull/1489)).
+- Equinix Metal ARM: Use HTTP for `iPXE` URL ([#1498](https://github.com/kinvolk/lokomotive/pull/1498))
+  instead of HTTPS as it's unreliable with iPXE.
+- terraform: Fix ignored `ConditionPathExists` from `[Service]` section to `[Unit]` section ([#1518](https://github.com/kinvolk/lokomotive/pull/1518)).
+- cli: Honor `--upgrade-kubelets` option ([#1516](https://github.com/kinvolk/lokomotive/pull/1516)).
+- Fix pre-update health check potentially rolling back to older release of control plane component
+  ([#1515](https://github.com/kinvolk/lokomotive/pull/1515) &
+  [#1549](https://github.com/kinvolk/lokomotive/pull/1549))
+
+#### Miscellaneous
+
+- cli: Enable upgrade kubelets by default. Starting with v0.9.0 version the default value of
+  `--upgrade-kubelets` flag is changed from `false` to `true` ([#1517](https://github.com/kinvolk/lokomotive/pull/1517)).
+- baremetal: Let `installer.service` retry on failure ([#1490](https://github.com/kinvolk/lokomotive/pull/1490)).
+- baremetal: Set hostname from `<cluster_name>-worker-<count_index>` to `controller_names<count_index>` for
+  controllers and `worker_names<count_index>` for workers when `set_standard_hostname` is true
+  ([#1488](https://github.com/kinvolk/lokomotive/pull/1488)).
+- pkg/terraform: Increase the default parallelism ([#1481](https://github.com/kinvolk/lokomotive/pull/1481)).
+- cert-rotation: Print journal on error when restarting `etcd` ([#1500](https://github.com/kinvolk/lokomotive/pull/1500)).
+- Restart containers from systemd unit only, not from Docker daemon. This fixes possible race conditions while
+  rotating certificates ([#1511](https://github.com/kinvolk/lokomotive/pull/1511)).
+- Go module updates and cleanups ([#1556](https://github.com/kinvolk/lokomotive/pull/1556)).
+
+### Configuration syntax changes
+
+#### Equinix Metal (formerly Packet)
+
+Lokomotive cluster deployed on Equinix Metal needs cluster configuration change from `packet` to `equinixmetal`:
+```hcl
+# old
+cluster "packet" {
+  ...
+  ...
+}
+
+# new
+cluster "equinixmetal" {
+  ...
+  ...
+}
+```
+
+#### Baremetal
+
+The variable `k8s_domain_name` now takes only the domain name instead of the `<cluster_name>.<k8s_domain_name>`.
+
+Example:
+```hcl
+# old
+k8s_domain_name = "mercury.k8s.localdomain"
+
+# new
+k8s_domain_name = "k8s.localdomain"
+```
+
+#### Prometheus-operator
+
+Alertmanager and operator are now configured as a block.
+
+```hcl
+# old
+alertmanager_retention    = "360h"
+alertmanager_external_url = "https://api.example.com/alertmanager"
+alertmanager_config       = file("alertmanager-config.yaml")
+alertmanager_node_selector = {
+  "kubernetes.io/hostname" = "worker3"
+}
+
+# new
+alertmanager {
+  retention    = "360h"
+  external_url = "https://api.example.com/alertmanager"
+  config       = file("alertmanager-config.yaml")
+  node_selector = {
+    "kubernetes.io/hostname" = "worker3"
+  }
+}
+```
+
+```hcl
+# old
+prometheus_operator_node_selector = {
+  "kubernetes.io/hostname" = "worker3"
+}
+
+# new
+operator {
+  node_selector = {
+    "kubernetes.io/hostname" = "worker3"
+  }
+}
+```
+
+### Baremetal features: User data changes and reprovisioning of worker nodes
+
+The baremetal platform now supports user data changes and reprovisioning of worker nodes based on user data
+changes.
+
+From Lokomotive v0.9.0 onwards, additional files are created in the cluster assests directory.
+The filename being the MAC address of the machine and the contents being the domain name.
+
+The following upgrade paths are supported:
+
+#### No user data changes to the worker nodes
+
+  In such a scenario, the only thing that needs to be done is the above mentioned change in `k8s_domain_name`.
+  By default, user data changes are ignored.
+
+#### User data changes but no PXE reprovisioning of worker nodes (reprovisioning happens via SSH):
+
+  In such a scenario, Lokomotive reboots the worker nodes and applies the user data changes. To bring about
+  such a change:
+
+  1. Make user data changes (if any).
+  2. Set `ignore_worker_changes = false`.
+
+#### User data changes and reprovisioning of worker nodes:
+
+  In such a scenario, Lokomotive forces reinstallation of worker nodes via PXE and applies the user data
+  changes. This requires a meaningful `pxe_commands` value configured for automation.
+
+  To bring about such a change:
+
+  1. Make user data changes (if any).
+  2. Remove the file with worker node MAC address from cluster assets directory.
+  3. Set `ignore_worker_changes = false` in cluster configuration.
+  4. Set `pxe_commands` to appropriate value.
+
+  **NOTE**: Reprovisioning will reinstall the operating system. If you have any stateful workloads running,
+  this step would result is data loss. Lokomotive does not taint or drain the worker nodes before
+  reprovisioning, it's recommended to be done manually before initiating reprovisioning of the worker nodes.
+
+### Updating from v0.8.0
+
+#### Cluster update steps
+
+> **NOTE:** Updating multiple Lokomotive versions at a time is not supported. If your cluster is running a
+> version older than `v0.8.0`, update to `v0.8.0` first and only then proceed with the update to `v0.9.0`.
+
+Execute the following steps in your cluster configuration directory:
+
+  Download and install the lokoctl binary by following the
+  [v0.9.0 installation guide](https://github.com/kinvolk/lokomotive/blob/v0.9.0/docs/installer/lokoctl.md)
+  and verify the version:
+
+  ```bash
+  lokoctl version
+  v0.9.0
+  ```
+
+##### Update steps for Equinix Metal (formerly Packet)
+
+1. Backup the Terraform state file:
+   ```bash
+   cd $assets_dir/terraform
+
+   terraform state pull > backup.state
+   ```
+
+2. Update Terraform provider from `packethost/packet` to `equinix/metal`:
+   ```bash
+   terraform state replace-provider packethost/packet equinix/metal
+   ```
+
+3. Pull the latest state file (required only if using S3 backend):
+   ```bash
+   terraform state pull > terraform.tfstate
+   ```
+
+4. Replace all references of `packet_` with `metal_` in the state file:
+   ```bash
+    sed -i 's/packet_/metal_/g' terraform.tfstate
+   ```
+
+5. Change the module name from `module.packet` to `module.equinixmetal` in
+   the state file:
+   ```bash
+   sed -i 's/module.packet/module.equinixmetal/g' terraform.tfstate
+   ```
+
+6. Push Terraform state (required only if using S3 backend):
+   ```bash
+   terraform state push -force terraform.tfstate
+   ```
+
+7. Replace `packet` with `equinixmetal` in the cluster configuration file. Execute this step in the cluster
+   directory:
+   ```hcl
+   # old
+   cluster "packet" {
+   ...
+   }
+
+   # new
+   cluster "equinixmetal" {
+   ...
+   }
+   ```
+
+8. Uninstall Packet CCM as we are replacing it with Cloud Provider Equinix Metal.
+   ```bash
+   helm uninstall packet-ccm --namespace kube-system
+   ```
+
+9. Upgrade to Lokomotive v0.9.0.
+   ```bash
+   lokoctl cluster apply --skip-components --skip-pre-update-health-check
+   ```
+
+   **NOTE**: Do not forget the `--skip-pre-update-health-check` flag.
+
+##### Update steps for Baremetal
+
+1. Create new files in the assets directory for each controller and worker node. The file name should be the
+   MAC address of the node and the contents of the file should be the domain name (i.e `controller_domains`
+   and `worker_domains`):
+   ```bash
+   # for each controller and worker nodes
+   echo <DOMAIN_NAME> > $assets_dir/cluster-assets/<MAC_ADDRESS>
+   ```
+
+2. Change the value of `k8s_domain_name` to only include the domain name:
+   Example:
+   ```bash
+   # old
+   k8s_domain_name = mercury.example.com
+
+   # new
+   k8s_domain_name = "example.com"
+   ```
+
+3. Add a `pxe_commands` entry which lokoctl uses to automate the PXE (re)provisioning. For existing clusters
+   you can use `pxe_commands = "true"` to have no PXE automation (`true` is the no-op bash shell command),
+   and reprovisioning through PXE won't be supported for this cluster.
+
+4. Follow the steps mentioned in [this section](#baremetal-features-user-data-changes-and-reprovisioning-of-worker-nodes)
+   as per the desired upgrade path. Make the necessary configuration changes as mentioned.
+   Finally execute:
+   ```bash
+   lokoctl cluster apply --skip-components
+   ```
+
+##### Other platforms
+
+  Execute:
+
+   ```bash
+   lokoctl cluster apply --skip-components
+   ```
+
+#### Update ETCD and hosted Kubelet
+
+On all platforms **except AKS**, do the following:
+
+1. Download the release bundle:
+
+  ```bash
+  curl -LO https://github.com/kinvolk/lokomotive/archive/v0.9.0.tar.gz
+  tar -xvzf v0.9.0.tar.gz
+  ```
+
+2. Run the update script:
+
+  ```bash
+  ./lokomotive-0.9.0/scripts/update/0.8.0-0.9.0/update.sh
+  ```
+
+#### Component update steps
+
+   Update installed Lokomotive components:
+   ```bash
+   lokoctl components apply
+   ```
+
+   **NOTE**: Updating the MetalLB and Contour components would incur some downtime. Please update
+   the components accordingly.
+
 ## v0.8.0 - 2021-05-26
 
 We're happy to announce the release of Lokomotive v0.8.0 (Hogwarts Express).
