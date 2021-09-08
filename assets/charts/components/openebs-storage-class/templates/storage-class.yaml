@@ -1,0 +1,36 @@
+{{- range .Values.storageClasses }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .name }}
+  annotations:
+    openebs.io/cas-type: cstor
+    storageclass.kubernetes.io/is-default-class: "{{ .default }}"
+    cas.openebs.io/config: |
+      - name: StoragePoolClaim
+        value: "cstor-pool-{{ .name }}"
+      - name: ReplicaCount
+        value: "{{ .replicaCount }}"
+provisioner: openebs.io/provisioner-iscsi
+reclaimPolicy: "{{ .reclaimPolicy }}"
+---
+apiVersion: openebs.io/v1alpha1
+kind: StoragePoolClaim
+metadata:
+  name: cstor-pool-{{ .name }}
+spec:
+  name: cstor-pool-{{ .name }}
+  type: disk
+  maxPools: 3
+  poolSpec:
+    poolType: striped
+  {{- if .disks }}
+  blockDevices:
+    blockDeviceList:
+    {{range .disks -}}
+    - {{.}}
+    {{end}}
+  {{- end }}
+---
+{{end}}

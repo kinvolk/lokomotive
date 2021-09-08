@@ -15,14 +15,14 @@
 package openebsstorageclass
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
+	"github.com/kinvolk/lokomotive/internal/template"
 	"github.com/kinvolk/lokomotive/pkg/components"
+	"github.com/kinvolk/lokomotive/pkg/components/util"
 	"github.com/kinvolk/lokomotive/pkg/k8sutil"
 )
 
@@ -117,39 +117,22 @@ func (c *component) validateConfig() error {
 
 // TODO: Convert to Helm chart.
 func (c *component) RenderManifests() (map[string]string, error) {
-
-	scTmpl, err := template.New(Name).Parse(storageClassTmpl)
+	helmChart, err := components.Chart(Name)
 	if err != nil {
-		return nil, fmt.Errorf("parsing storage class template: %w", err)
+		return nil, fmt.Errorf("retrieving chart from assets: %w", err)
 	}
 
-	spTmpl, err := template.New(poolName).Parse(storagePoolTmpl)
+	values, err := template.Render(chartValuesTmpl, c)
 	if err != nil {
-		return nil, fmt.Errorf("parsing storage pool template: %w", err)
+		return nil, fmt.Errorf("render chart values template: %w", err)
 	}
 
-	var manifestsMap = make(map[string]string)
-
-	for _, sc := range c.StorageClasses {
-		var scBuffer bytes.Buffer
-		var spBuffer bytes.Buffer
-
-		if err := scTmpl.Execute(&scBuffer, sc); err != nil {
-			return nil, fmt.Errorf("executing storage class %q template: %w", sc.Name, err)
-		}
-
-		filename := fmt.Sprintf("%s-%s.yml", Name, sc.Name)
-		manifestsMap[filename] = scBuffer.String()
-
-		if err := spTmpl.Execute(&spBuffer, sc); err != nil {
-			return nil, fmt.Errorf("executing storage pool %q template: %w", sc.Name, err)
-		}
-
-		filename = fmt.Sprintf("%s-%s.yml", poolName, sc.Name)
-		manifestsMap[filename] = spBuffer.String()
+	renderedFiles, err := util.RenderChart(helmChart, Name, c.Metadata().Namespace.Name, values)
+	if err != nil {
+		return nil, fmt.Errorf("render chart: %w", err)
 	}
 
-	return manifestsMap, nil
+	return renderedFiles, nil
 }
 
 func (c *component) Metadata() components.Metadata {

@@ -15,6 +15,7 @@
 package openebsstorageclass
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/hcl/v2"
@@ -146,5 +147,105 @@ func TestConversion(t *testing.T) {
 
 			testutil.MatchJSONPathStringValue(t, gotConfig, tc.jsonPath, tc.expected)
 		})
+	}
+}
+
+func TestFullConversion(t *testing.T) { //nolint:funlen
+	config := `component "openebs-storage-class" {
+	storage-class "replica1-no-disk-selected" {
+		replica_count = 1
+	}
+	storage-class "replica1" {
+		disks = ["disk1"]
+		replica_count = 1
+	}
+	storage-class "replica3" {
+		replica_count = 3
+		default = true
+		disks = ["disk2","disk3","disk4"]
+	}
+}`
+	component := NewConfig()
+	m := testutil.RenderManifests(t, component, Name, config)
+
+	testCases := []struct {
+		name string
+		fn   func(t *testing.T)
+	}{
+		{
+			name: "replica1-no-disk-selected-sc",
+			fn: func(t *testing.T) {
+				got := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+					Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "replica1-no-disk-selected",
+				})
+
+				expected := `- name: StoragePoolClaim
+  value: "cstor-pool-replica1-no-disk-selected"
+- name: ReplicaCount
+  value: "1"
+`
+				testutil.MatchJSONPathStringValue(t, got, "{.metadata.annotations.cas\\.openebs\\.io/config}", expected)
+			},
+		},
+		{
+			name: "replica1-no-disk-selected-spc",
+			fn: func(t *testing.T) {
+				got := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+					Version: "openebs.io/v1alpha1", Kind: "StoragePoolClaim", Name: "cstor-pool-replica1-no-disk-selected",
+				})
+
+				testutil.JSONPathExists(t, got, "{.spec.blockDevices}", "blockDevices is not found")
+			},
+		},
+		{
+			name: "replica1-verify-disks",
+			fn: func(t *testing.T) {
+				got := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+					Version: "openebs.io/v1alpha1", Kind: "StoragePoolClaim", Name: "cstor-pool-replica1",
+				})
+
+				expected := "disk1"
+				testutil.MatchJSONPathStringValue(t, got, "{.spec.blockDevices.blockDeviceList[0]}", expected)
+			},
+		},
+		{
+			name: "replica3-verify-disks",
+			fn: func(t *testing.T) {
+				got := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+					Version: "openebs.io/v1alpha1", Kind: "StoragePoolClaim", Name: "cstor-pool-replica3",
+				})
+
+				expected := []string{"disk2", "disk3", "disk4"}
+
+				for idx, exp := range expected {
+					jpath := fmt.Sprintf("{.spec.blockDevices.blockDeviceList[%d]}", idx)
+					testutil.MatchJSONPathStringValue(t, got, jpath, exp)
+				}
+			},
+		},
+		{
+			name: "replica3-sc",
+			fn: func(t *testing.T) {
+				got := testutil.ConfigFromMap(t, m, k8sutil.ObjectMetadata{
+					Version: "storage.k8s.io/v1", Kind: "StorageClass", Name: "replica3",
+				})
+
+				expected := "true"
+				jpath := "{.metadata.annotations.storageclass\\.kubernetes\\.io/is-default-class}"
+				testutil.MatchJSONPathStringValue(t, got, jpath, expected)
+
+				expected = `- name: StoragePoolClaim
+  value: "cstor-pool-replica3"
+- name: ReplicaCount
+  value: "3"
+`
+				testutil.MatchJSONPathStringValue(t, got, "{.metadata.annotations.cas\\.openebs\\.io/config}", expected)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, tc.fn)
 	}
 }
