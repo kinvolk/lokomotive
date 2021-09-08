@@ -1,0 +1,104 @@
+# CephCluster resource definition was taken from:
+# https://github.com/rook/rook/blob/v1.6.5/cluster/examples/kubernetes/ceph/cluster.yaml
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: {{ .Release.Namespace }}
+spec:
+  cephVersion:
+    image: ceph/ceph:v15.2.13-20210526
+    allowUnsupported: false
+  dataDirHostPath: /var/lib/rook
+  skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
+  waitTimeoutForHealthyOSDInMinutes: 10
+  mon:
+    count: {{ .Values.cephCluster.mon.count }}
+    allowMultiplePerNode: false
+  mgr:
+    count: 2
+    modules:
+    - name: pg_autoscaler
+      enabled: true
+  dashboard:
+    enabled: true
+    ssl: true
+  monitoring:
+    enabled: true
+    rulesNamespace: {{ .Release.Namespace }}
+  network:
+  crashCollector:
+    disable: false
+  cleanupPolicy:
+    confirmation: ""
+    sanitizeDisks:
+      method: quick
+      dataSource: zero
+      iteration: 1
+    allowUninstallWithVolumes: false
+  placement:
+    all:
+      {{- if .Values.nodeAffinity }}
+      nodeAffinity:
+{{ toYaml .Values.nodeAffinity | indent 8 }}
+      {{end}}
+      {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 6 }}
+      {{- end }}
+  annotations:
+  {{- if .Values.cephCluster.resources }}
+  resources:
+    mon:
+{{ toYaml .Values.cephCluster.resources.mon | indent 6 }}
+    mgr:
+{{ toYaml .Values.cephCluster.resources.mgr | indent 6 }}
+    osd:
+{{ toYaml .Values.cephCluster.resources.osd | indent 6}}
+    mds:
+{{ toYaml .Values.cephCluster.resources.mds | indent 6}}
+    prepareosd:
+{{ toYaml .Values.cephCluster.resources.prepareosd | indent 6}}
+    crashcollector:
+{{ toYaml .Values.cephCluster.resources.crashcollector | indent 6}}
+    mgr-sidecar:
+{{ toYaml .Values.cephCluster.resources.mgrSidecar | indent 6}}
+  {{- end }}
+  removeOSDsIfOutAndSafeToRemove: false
+  storage: # cluster level storage configuration and selection
+    useAllNodes: true
+    useAllDevices: true
+    config:
+      {{- if .Values.cephCluster.metadataDevice }}
+      metadataDevice: "{{ .Values.cephCluster.metadataDevice }}"
+      {{- end }}
+      storeType: bluestore
+      osdsPerDevice: "1" # this value can be overridden at the node or device level
+  disruptionManagement:
+    managePodBudgets: true
+    osdMaintenanceTimeout: 30
+    manageMachineDisruptionBudgets: false
+    machineDisruptionBudgetNamespace: openshift-machine-api
+
+  # healthChecks
+  # Valid values for daemons are 'mon', 'osd', 'status'
+  healthCheck:
+    daemonHealth:
+      mon:
+        disabled: false
+        interval: 45s
+      osd:
+        disabled: false
+        interval: 60s
+      status:
+        disabled: false
+        interval: 60s
+    # Change pod liveness probe, it works for all mon,mgr,osd daemons
+    livenessProbe:
+      mon:
+        disabled: false
+      mgr:
+        disabled: false
+      osd:
+        disabled: false
