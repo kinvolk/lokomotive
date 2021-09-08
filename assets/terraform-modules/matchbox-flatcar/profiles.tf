@@ -94,7 +94,8 @@ data "ct_config" "cached-install-ignitions" {
 
 resource "matchbox_profile" "node" {
   name = format(
-    "node-%s",
+    "%s-%s",
+    var.profile_prefix,
     var.node_name
   )
   raw_ignition = var.ignition_clc_config

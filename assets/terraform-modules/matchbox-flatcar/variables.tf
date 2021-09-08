@@ -116,3 +116,16 @@ variable "install_pre_reboot_cmds" {
   description = "shell commands to execute on the provisioned host after installation finished and before reboot, e.g., docker run --privileged --net host --rm debian sh -c 'apt update && apt install -y ipmitool && ipmitool chassis bootdev disk options=persistent'."
   default     = "true"
 }
+
+
+variable "group_prefix" {
+  type        = string
+  description = "Group prefix that is added to the name of the group."
+  default     = ""
+}
+
+variable "profile_prefix" {
+  type        = string
+  description = "Profile prefix that is added to the name of the profile."
+  default     = "node"
+}

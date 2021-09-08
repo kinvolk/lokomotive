@@ -19,6 +19,7 @@ module "bootkube" {
   enable_aggregation          = var.enable_aggregation
   kube_apiserver_extra_flags  = var.kube_apiserver_extra_flags
   certs_validity_period_hours = var.certs_validity_period_hours
+  controller_count            = var.controller_count
 
   # Disable the self hosted kubelet.
   disable_self_hosted_kubelet = var.disable_self_hosted_kubelet

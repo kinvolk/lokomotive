@@ -5,7 +5,7 @@ module "bootkube" {
   cluster_name = var.cluster_name
   api_servers  = [format("%s.%s", var.cluster_name, var.k8s_domain_name)]
   # Each instance of controller module generates the same set of etcd_servers.
-  etcd_servers                    = module.controller[0].etcd_servers
+  etcd_servers                    = concat(var.controller_domains, module.controller[0].etcd_servers)
   etcd_endpoints                  = []
   asset_dir                       = var.asset_dir
   network_mtu                     = var.network_mtu
@@ -16,6 +16,7 @@ module "bootkube" {
   enable_reporting                = var.enable_reporting
   enable_aggregation              = var.enable_aggregation
   kube_apiserver_extra_flags      = var.kube_apiserver_extra_flags
+  controller_count                = length(var.controller_domains)
 
   certs_validity_period_hours = var.certs_validity_period_hours
 

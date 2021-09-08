@@ -22,4 +22,6 @@ module "controller_profile" {
   ignore_changes           = true
   pxe_commands             = var.pxe_commands
   install_pre_reboot_cmds  = var.install_pre_reboot_cmds
+  group_prefix             = var.cluster_name
+  profile_prefix           = format("%s-controller", var.cluster_name)
 }
