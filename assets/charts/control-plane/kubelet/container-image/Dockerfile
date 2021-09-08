@@ -1,4 +1,4 @@
-FROM quay.io/poseidon/kubelet:v1.21.1
+FROM quay.io/poseidon/kubelet:v1.22.1
 
 RUN clean-install \
     sed \

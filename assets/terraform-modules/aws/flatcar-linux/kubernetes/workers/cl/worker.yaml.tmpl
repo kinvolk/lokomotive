@@ -120,7 +120,7 @@ storage:
       contents:
         inline: |
           KUBELET_IMAGE_URL=quay.io/kinvolk/kubelet
-          KUBELET_IMAGE_TAG=v1.21.1
+          KUBELET_IMAGE_TAG=v1.22.1
           NODE_LABELS="${join(",", [for k, v in node_labels : "${k}=${v}"])}"
           NODE_TAINTS="${join(",", [for k, v in taints : "${k}=${v}"])}"
     - path: /etc/sysctl.d/max-user-watches.conf
@@ -160,7 +160,7 @@ storage:
             -v /etc/kubernetes:/etc/kubernetes:ro \
             -v /var/lib/kubelet:/var/lib/kubelet:ro \
             --entrypoint=/usr/local/bin/kubectl \
-            quay.io/kinvolk/kubelet:v1.21.1 \
+            quay.io/kinvolk/kubelet:v1.22.1 \
             %{~ if enable_tls_bootstrap ~}
             --kubeconfig=/var/lib/kubelet/kubeconfig delete node $(hostname)
             %{~ else ~}

@@ -93,13 +93,13 @@ variable "container_images" {
     calico_cni              = "quay.io/kinvolk/calico-cni:v3.19.1"
     calico_controllers      = "quay.io/kinvolk/calico-kube-controllers:v3.19.1"
     flexvol_driver_image    = "quay.io/kinvolk/calico-pod2daemon-flexvol:v3.19.1"
-    kubelet_image           = "quay.io/kinvolk/kubelet:v1.21.1"
+    kubelet_image           = "quay.io/kinvolk/kubelet:v1.22.1"
     coredns                 = "quay.io/kinvolk/coredns:1.8.0"
     pod_checkpointer        = "quay.io/kinvolk/checkpoint:43ec4b414e44f202e07bf43e57d2b5ffbcfd4415"
-    kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.21.1"
-    kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.21.1"
-    kube_scheduler          = "k8s.gcr.io/kube-scheduler:v1.21.1"
-    kube_proxy              = "k8s.gcr.io/kube-proxy:v1.21.1"
+    kube_apiserver          = "k8s.gcr.io/kube-apiserver:v1.22.1"
+    kube_controller_manager = "k8s.gcr.io/kube-controller-manager:v1.22.1"
+    kube_scheduler          = "k8s.gcr.io/kube-scheduler:v1.22.1"
+    kube_proxy              = "k8s.gcr.io/kube-proxy:v1.22.1"
   }
 }
 
