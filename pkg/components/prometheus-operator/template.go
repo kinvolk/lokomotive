@@ -184,6 +184,7 @@ kubeScheduler:
       tier: control-plane
 
 kube-state-metrics:
+  enabled: true
   podSecurityPolicy:
     annotations:
       seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
