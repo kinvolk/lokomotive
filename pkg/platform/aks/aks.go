@@ -83,7 +83,7 @@ const (
 	subscriptionIDEnv = "LOKOMOTIVE_AKS_SUBSCRIPTION_ID"
 	tenantIDEnv       = "LOKOMOTIVE_AKS_TENANT_ID"
 
-	kubernetesVersion = "1.20.7"
+	kubernetesVersion = "1.21.2"
 )
 
 // NewConfig returns new AKS platform configuration with default values set.
