@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build aws aws_edge baremetal packet
+// +build aws aws_edge baremetal equinixmetal
 // +build e2e
 
 package system_test

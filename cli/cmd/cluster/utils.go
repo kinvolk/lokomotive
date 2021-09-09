@@ -31,7 +31,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform/aks"
 	"github.com/kinvolk/lokomotive/pkg/platform/aws"
 	"github.com/kinvolk/lokomotive/pkg/platform/baremetal"
-	"github.com/kinvolk/lokomotive/pkg/platform/packet"
+	"github.com/kinvolk/lokomotive/pkg/platform/equinixmetal"
 	"github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
 )
 
@@ -77,11 +77,11 @@ func getConfiguredBackend(lokoConfig *config.Config) (backend, hcl.Diagnostics) 
 
 func getPlatform(name string) (platform.Platform, error) {
 	platforms := map[string]platform.Platform{
-		aks.Name:        aks.NewConfig(),
-		aws.Name:        aws.NewConfig(),
-		packet.Name:     packet.NewConfig(),
-		baremetal.Name:  baremetal.NewConfig(),
-		tinkerbell.Name: tinkerbell.NewConfig(),
+		aks.Name:          aks.NewConfig(),
+		aws.Name:          aws.NewConfig(),
+		equinixmetal.Name: equinixmetal.NewConfig(),
+		baremetal.Name:    baremetal.NewConfig(),
+		tinkerbell.Name:   tinkerbell.NewConfig(),
 	}
 
 	if p, ok := platforms[name]; ok {

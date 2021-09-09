@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build packet aws aws_edge
+// +build equinixmetal aws aws_edge
 // +build e2e
 
 package calico_test
@@ -79,7 +79,7 @@ func TestNoMetadataAccessRandomPod(t *testing.T) { //nolint:funlen
 	platform := os.Getenv("PLATFORM")
 
 	switch platform {
-	case testutil.PlatformPacket, testutil.PlatformPacketARM:
+	case testutil.PlatformEquinixMetal, testutil.PlatformEquinixMetalARM:
 		metadataAddress = "https://metadata.packet.net/metadata"
 	case testutil.PlatformAWS, testutil.PlatformAWSEdge:
 		metadataAddress = "http://169.254.169.254/latest/meta-data"

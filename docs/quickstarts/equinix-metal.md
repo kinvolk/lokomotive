@@ -90,7 +90,7 @@ mkdir lokomotive-demo && cd lokomotive-demo
 Create a file named `cluster.lokocfg` with the following contents:
 
 ```hcl
-cluster "packet" {
+cluster "equinixmetal" {
   asset_dir    = "./assets"
   cluster_name = "lokomotive-demo"
 
@@ -257,8 +257,8 @@ You can now safely delete the directory created for this guide if you no longer 
 
 ```
 ...
-module.packet-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m30s elapsed)
-module.packet-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m40s elapsed)
+module.equinixmetal-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m30s elapsed)
+module.equinixmetal-lokomotive-demo.null_resource.copy-controller-secrets: Still creating... (8m40s elapsed)
 ...
 ```
 

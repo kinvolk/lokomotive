@@ -21,7 +21,7 @@ Example configuration file:
 
 ```tf
 # mycluster.lokocfg
-variable "packet_token" {}
+variable "equinixmetal_token" {}
 variable "asset_dir" {}
 variable "facility" {}
 variable "cluster_name" {}
@@ -32,7 +32,7 @@ variable "controller_clc_snippets" {}
 variable "workers_type" {}
 variable "dns_zone" {}
 variable "route53_zone_id" {}
-variable "packet_project_id" {}
+variable "equinixmetal_project_id" {}
 variable "ssh_public_keys" {}
 variable "management_cidrs" {}
 variable "node_private_cidrs" {}
@@ -56,8 +56,8 @@ backend "s3" {
 #   path = "path/to/local/file"
 #}
 
-cluster "packet" {
-  auth_token = var.packet_token
+cluster "equinixmetal" {
+  auth_token = var.equinixmetal_token
 
   asset_dir = var.asset_dir
 
@@ -79,7 +79,7 @@ cluster "packet" {
 
   ipxe_script_url = ""
 
-  project_id = var.packet_project_id
+  project_id = var.equinixmetal_project_id
 
   dns {
     zone     = var.dns_zone

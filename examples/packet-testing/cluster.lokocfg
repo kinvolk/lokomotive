@@ -1,6 +1,6 @@
 variable "dns_zone" {}
 variable "route53_zone_id" {}
-variable "packet_project_id" {}
+variable "equinixmetal_project_id" {}
 variable "ssh_public_keys" {}
 variable "cert_manager_email" {}
 variable "metallb_address_pool" {}
@@ -37,7 +37,7 @@ variable "node_private_cidrs" {
   default = ["10.0.0.0/8"]
 }
 
-cluster "packet" {
+cluster "equinixmetal" {
   asset_dir        = pathexpand(var.asset_dir)
   cluster_name     = var.cluster_name
   controller_count = var.controllers_count
@@ -52,7 +52,7 @@ cluster "packet" {
 
   facility = var.facility
 
-  project_id = var.packet_project_id
+  project_id = var.equinixmetal_project_id
 
   ssh_pubkeys        = var.ssh_public_keys
   management_cidrs   = var.management_cidrs

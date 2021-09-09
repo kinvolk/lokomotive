@@ -29,7 +29,7 @@ The token needs to have the following permissions:
 In your cluster configuration file, configure Cloudflare as the DNS provider:
 
 ```hcl
-cluster "packet" {
+cluster "equinixmetal" {
   cluster_name = "my-cluster"
   ...
   dns {

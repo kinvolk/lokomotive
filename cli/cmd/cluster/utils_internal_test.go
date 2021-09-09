@@ -84,7 +84,7 @@ func prepareKubeconfigSource(t *testing.T, k *kubeconfigSources) (*log.Entry, *c
 
 func TestGetKubeconfigBadConfig(t *testing.T) {
 	k := &kubeconfigSources{
-		configFile: `cluster "packet" {
+		configFile: `cluster "equinixmetal" {
   asset_dir = "/foo"
 }`,
 	}
@@ -169,7 +169,7 @@ func TestGetKubeconfigSourceFlag(t *testing.T) {
 	expectedPath := []string{"/foo"}
 
 	k := &kubeconfigSources{
-		configFile: `cluster "packet" {
+		configFile: `cluster "equinixmetal" {
   asset_dir = "/bad"
 
   cluster_name       = ""
@@ -211,7 +211,7 @@ func TestGetKubeconfigSourceConfigFile(t *testing.T) {
 	expectedPath := []string{}
 
 	k := &kubeconfigSources{
-		configFile: `cluster "packet" {
+		configFile: `cluster "equinixmetal" {
   asset_dir = "/foo"
 
   cluster_name       = ""
@@ -274,7 +274,7 @@ func TestGetKubeconfigFromAssetsDir(t *testing.T) {
 	}
 
 	k := &kubeconfigSources{
-		configFile: fmt.Sprintf(`cluster "packet" {
+		configFile: fmt.Sprintf(`cluster "equinixmetal" {
   asset_dir = "%s"
 
   cluster_name       = ""
@@ -313,7 +313,7 @@ func TestGetKubeconfigFromAssetsDir(t *testing.T) {
 
 func TestGetKubeconfigSourceBadConfigFile(t *testing.T) {
 	k := &kubeconfigSources{
-		configFile: `cluster "packet" {
+		configFile: `cluster "equinixmetal" {
 	asset_dir = "/foo"
 }`,
 	}

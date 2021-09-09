@@ -41,7 +41,7 @@ node_private_cidrs = ["10.10.10.128/25", "10.xx.xx.xx/25"]
 ```
 ### Step 3: Add worker pool with a different facility
 
-Add the following snippet to your existing `lokocfg` file, under the `cluster "packet"` section:
+Add the following snippet to your existing `lokocfg` file, under the `cluster "equinixmetal"` section:
 
 ```tf
   worker_pool "worker-new-facility" {
