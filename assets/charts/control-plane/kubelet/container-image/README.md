@@ -28,7 +28,7 @@ export IMAGE_URL=quay.io/kinvolk/kubelet
 ```bash
 export ARCH=amd64
 
-docker build -t $IMAGE_URL:$NEW_VERSION-$ARCH . && docker push $IMAGE_URL:$NEW_VERSION-$ARCH
+docker buildx build --load -t $IMAGE_URL:$NEW_VERSION-$ARCH -f Dockerfile --platform linux/$ARCH .
 ```
 
 ### ARM
@@ -36,7 +36,7 @@ docker build -t $IMAGE_URL:$NEW_VERSION-$ARCH . && docker push $IMAGE_URL:$NEW_V
 ```bash
 export ARCH=arm64
 
-docker build -t $IMAGE_URL:$NEW_VERSION-$ARCH . && docker push $IMAGE_URL:$NEW_VERSION-$ARCH
+docker buildx build --load -t $IMAGE_URL:$NEW_VERSION-$ARCH -f Dockerfile --platform linux/$ARCH .
 ```
 
 ### Combined image tag
