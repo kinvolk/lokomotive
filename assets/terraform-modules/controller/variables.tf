@@ -75,7 +75,7 @@ variable "kubelet_image_name" {
 variable "kubelet_image_tag" {
   type        = string
   description = "Tag for kubelet Docker image."
-  default     = "v1.21.1"
+  default     = "v1.21.4"
 }
 
 variable "set_standard_hostname" {
