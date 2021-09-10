@@ -30,7 +30,7 @@ fix.
 #### Step 1.1: Update the image
 
 ```bash
-kubectl -n kube-system set image ds kubelet kubelet=quay.io/kinvolk/kubelet:v1.21.1
+kubectl -n kube-system set image ds kubelet kubelet=quay.io/kinvolk/kubelet:v1.22.1
 ```
 
 #### Step 1.2: Remove the iSCSI mount
@@ -85,7 +85,7 @@ sed -i '/iscsiadm/d' /etc/systemd/system/kubelet.service
 - Run the following commands to update the kubelet version:
 
   ```bash
-  export latest_kubelet_version=v1.21.1
+  export latest_kubelet_version=v1.22.1
   sed -i "s|.*KUBELET_IMAGE_TAG.*|KUBELET_IMAGE_TAG=${latest_kubelet_version}|g" /etc/kubernetes/kubelet.env
   ```
 
