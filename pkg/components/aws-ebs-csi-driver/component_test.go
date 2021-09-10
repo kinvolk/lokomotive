@@ -171,7 +171,7 @@ func TestConversion(t *testing.T) { //nolint:funlen
 			expectedManifestName: k8sutil.ObjectMetadata{
 				Version: "apps/v1", Kind: "DaemonSet", Name: "ebs-csi-node",
 			},
-			jsonPath: "{.spec.template.spec.tolerations[2].value}",
+			jsonPath: "{.spec.template.spec.tolerations[0].value}",
 			expected: "awesome",
 		},
 		{
@@ -196,7 +196,7 @@ func TestConversion(t *testing.T) { //nolint:funlen
 			expectedManifestName: k8sutil.ObjectMetadata{
 				Version: "apps/v1", Kind: "Deployment", Name: "ebs-csi-controller",
 			},
-			jsonPath: "{.spec.template.spec.tolerations[2].key}",
+			jsonPath: "{.spec.template.spec.tolerations[0].key}",
 			expected: "lokomotive.io",
 		},
 		{
@@ -221,7 +221,7 @@ func TestConversion(t *testing.T) { //nolint:funlen
 			expectedManifestName: k8sutil.ObjectMetadata{
 				Version: "apps/v1", Kind: "StatefulSet", Name: "ebs-snapshot-controller",
 			},
-			jsonPath: "{.spec.template.spec.tolerations[2].effect}",
+			jsonPath: "{.spec.template.spec.tolerations[0].effect}",
 			expected: "NoSchedule",
 		},
 		{
