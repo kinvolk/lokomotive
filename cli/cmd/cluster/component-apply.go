@@ -29,6 +29,7 @@ type ComponentApplyOptions struct {
 	KubeconfigPath string
 	ConfigPath     string
 	ValuesPath     string
+	CreateGitRepo  bool
 }
 
 // ExperimentalComponentApply is used to apply components using flux. This function is triggered by
@@ -64,7 +65,7 @@ func ExperimentalComponentApply(
 		return fmt.Errorf("suitable kubeconfig file not found. Did you run 'lokoctl cluster apply' ?")
 	}
 
-	if err := experimentalApplyComponents(lokoConfig, kubeconfig, componentObjects); err != nil {
+	if err := experimentalApplyComponents(lokoConfig, kubeconfig, componentObjects, options.CreateGitRepo); err != nil {
 		return fmt.Errorf("applying components: %w", err)
 	}
 
@@ -136,6 +137,7 @@ func experimentalApplyComponents(
 	lokoConfig *config.Config,
 	kubeconfig []byte,
 	componentObjects []components.Component,
+	createGitRepo bool,
 ) error {
 	for _, component := range componentObjects {
 		componentName := component.Metadata().Name
@@ -149,7 +151,7 @@ func experimentalApplyComponents(
 			return diags
 		}
 
-		if err := util.ExperimentalInstallComponent(component, kubeconfig); err != nil {
+		if err := util.ExperimentalInstallComponent(component, kubeconfig, createGitRepo); err != nil {
 			return fmt.Errorf("installing component %q: %w", componentName, err)
 		}
 

@@ -38,12 +38,15 @@ When run with no arguments, all components listed in the configuration are appli
 	},
 }
 
+var createGitRepo bool
+
 //nolint:gochecknoinits
 func init() {
 	experimentalComponentsCmd.AddCommand(experimentalComponentsApplyCmd)
 	pf := experimentalComponentsApplyCmd.PersistentFlags()
 	addKubeconfigFileFlag(pf)
 	pf.BoolVarP(&debug, "debug", "", false, "Print debug messages")
+	pf.BoolVarP(&createGitRepo, "create-git-repository", "", false, "Create Gitrepository config")
 }
 
 func runExperimentalApply(cmd *cobra.Command, args []string) {
@@ -60,6 +63,7 @@ func runExperimentalApply(cmd *cobra.Command, args []string) {
 		KubeconfigPath: kubeconfigFlag,
 		ConfigPath:     viper.GetString("lokocfg"),
 		ValuesPath:     viper.GetString("lokocfg-vars"),
+		CreateGitRepo:  createGitRepo,
 	}
 
 	if err := cluster.ExperimentalComponentApply(contextLogger, args, options); err != nil {

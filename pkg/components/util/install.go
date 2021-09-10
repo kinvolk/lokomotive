@@ -55,23 +55,25 @@ func generateGitRepository() *sourceapi.GitRepository {
 
 // ExperimentalInstallComponent installs the given component on the cluster mentioned in the given
 // kubeconfig by creating HelmRelease and GitRepository.
-func ExperimentalInstallComponent(c components.Component, kubeconfig []byte) error {
+func ExperimentalInstallComponent(c components.Component, kubeconfig []byte, createGitRepo bool) error {
 	hr, err := c.GenerateHelmRelease()
 	if err != nil {
 		return fmt.Errorf("generating helm release: %w", err)
 	}
 
-	gr := generateGitRepository()
+	if createGitRepo {
+		gr := generateGitRepository()
 
-	grc, err := sourcecontroller.NewGitRepoConfig(
-		sourcecontroller.WithKubeconfig(kubeconfig),
-	)
-	if err != nil {
-		return fmt.Errorf("initializing GitRepository client: %w", err)
-	}
+		grc, err := sourcecontroller.NewGitRepoConfig(
+			sourcecontroller.WithKubeconfig(kubeconfig),
+		)
+		if err != nil {
+			return fmt.Errorf("initializing GitRepository client: %w", err)
+		}
 
-	if err := grc.CreateOrUpdate(gr); err != nil {
-		return fmt.Errorf("creating/updating GitRepository: %w", err)
+		if err := grc.CreateOrUpdate(gr); err != nil {
+			return fmt.Errorf("creating/updating GitRepository: %w", err)
+		}
 	}
 
 	hrc, err := helmrelease.NewHelmReleaseConfig(
