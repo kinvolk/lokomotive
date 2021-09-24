@@ -15,6 +15,9 @@
 package components
 
 import (
+	"fmt"
+
+	helmcontrollerapi "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 )
 
@@ -28,4 +31,12 @@ type Component interface {
 	RenderManifests() (map[string]string, error)
 	// Metadata returns component metadata.
 	Metadata() Metadata
+	// GenerateHelmRelease generates a Flux custom resource HelmRelease.
+	GenerateHelmRelease() (*helmcontrollerapi.HelmRelease, error)
 }
+
+// ErrNotImplemented is a generic error that can be used by any functionality that is not
+// implemented yet and plans on implementing it in a near future. This error is mainly used by the
+// components that have not implemented installation using Flux i.e. the components that satisfy the
+// above interface "Component" but are missing implementation.
+var ErrNotImplemented = fmt.Errorf("not implemented yet")

@@ -17,6 +17,7 @@ package rookceph
 import (
 	"fmt"
 
+	helmcontrollerapi "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 
@@ -171,4 +172,8 @@ func (c *component) Metadata() components.Metadata {
 			Name: c.Namespace,
 		},
 	}
+}
+
+func (c *component) GenerateHelmRelease() (*helmcontrollerapi.HelmRelease, error) {
+	return nil, components.ErrNotImplemented
 }
