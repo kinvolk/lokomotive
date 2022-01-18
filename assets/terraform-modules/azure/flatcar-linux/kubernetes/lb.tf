@@ -1,18 +1,3 @@
-# DNS record for the apiserver load balancer
-resource "azurerm_dns_a_record" "apiserver" {
-  resource_group_name = var.dns_zone_group
-
-  # DNS Zone name where record should be created
-  zone_name = var.dns_zone
-
-  # DNS record
-  name = var.cluster_name
-  ttl  = 300
-
-  # IPv4 address of apiserver load balancer
-  records = [azurerm_public_ip.apiserver-ipv4.ip_address]
-}
-
 # Static IPv4 address for the apiserver frontend
 resource "azurerm_public_ip" "apiserver-ipv4" {
   resource_group_name = azurerm_resource_group.cluster.name
@@ -72,6 +57,7 @@ resource "azurerm_lb_rule" "ingress-http" {
   name                           = "ingress-http"
   loadbalancer_id                = azurerm_lb.cluster.id
   frontend_ip_configuration_name = "ingress"
+  disable_outbound_snat          = true
 
   protocol                = "Tcp"
   frontend_port           = 80
@@ -86,6 +72,7 @@ resource "azurerm_lb_rule" "ingress-https" {
   name                           = "ingress-https"
   loadbalancer_id                = azurerm_lb.cluster.id
   frontend_ip_configuration_name = "ingress"
+  disable_outbound_snat          = true
 
   protocol                = "Tcp"
   frontend_port           = 443
@@ -94,12 +81,26 @@ resource "azurerm_lb_rule" "ingress-https" {
   probe_id                = azurerm_lb_probe.ingress.id
 }
 
+# Worker outbound TCP/UDP SNAT
+resource "azurerm_lb_outbound_rule" "worker-outbound" {
+  resource_group_name = azurerm_resource_group.cluster.name
+
+  name            = "worker"
+  loadbalancer_id = azurerm_lb.cluster.id
+  frontend_ip_configuration {
+    name = "ingress"
+  }
+
+  protocol                = "All"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.worker.id
+}
+
+
 # Address pool of controllers
 resource "azurerm_lb_backend_address_pool" "controller" {
   resource_group_name = azurerm_resource_group.cluster.name
-
-  name            = "controller"
-  loadbalancer_id = azurerm_lb.cluster.id
+  name                = "controller"
+  loadbalancer_id     = azurerm_lb.cluster.id
 }
 
 # Address pool of workers
