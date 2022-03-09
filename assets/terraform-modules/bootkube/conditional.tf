@@ -11,6 +11,7 @@ resource "local_file" "calico" {
     network_encapsulation           = indent(2, var.network_encapsulation == "vxlan" ? "vxlanMode: Always" : "ipipMode: Always")
     ipip_enabled                    = var.network_encapsulation == "ipip" ? true : false
     vxlan_enabled                   = var.network_encapsulation == "vxlan" ? true : false
+    network_backend                 = var.network_encapsulation == "vxlan" ? "vxlan" : "bird"
     network_ip_autodetection_method = var.network_ip_autodetection_method
     pod_cidr                        = var.pod_cidr
     enable_reporting                = var.enable_reporting

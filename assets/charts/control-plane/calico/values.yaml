@@ -16,3 +16,4 @@ calico:
   # Lokomotive specific change.
   # failsafeInboundHostPorts:
   encryptPodTraffic: false
+  networkBackend: bird

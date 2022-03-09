@@ -27,3 +27,4 @@ calico:
   failsafeInboundHostPorts: []
   %{~ endif ~}
   encryptPodTraffic: ${encrypt_pod_traffic}
+  networkBackend: ${network_backend}
