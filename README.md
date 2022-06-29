@@ -1,3 +1,16 @@
+## :warning: End of project :warning:
+
+[![development](https://img.shields.io/badge/development-halted-red.svg)](https://github.com/kinvolk/lokomotive/issues/1582#issuecomment-1170123280)
+
+This project has ended, and [**further Lokomotive development has halted**](https://github.com/kinvolk/lokomotive/issues/1582#issuecomment-1170123280).
+
+As it is free software, people are free and welcome to fork and develop the codebase on their own.
+However, to avoid any confusion, the original repository is archived and we recommend any further fork/development to proceed with an explicit rename and rebranding first.
+
+We encourage all interested parties to mirror any relevant bits as we can't actively guarantee their existence in the future.
+
+---
+
 # Lokomotive <img align="right" width=384 src="docs/images/lokomotive-logo.svg">
 
 Lokomotive is an open source Kubernetes distribution that ships pure upstream
