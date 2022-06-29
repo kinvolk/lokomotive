@@ -163,11 +163,15 @@ spec:
             - name: FELIX_IPINIPENABLED
               value: "{{ .Values.calico.ipipEnabled }}"
             # Enable IPIP
+            {{ if .Values.calico.ipipEnabled }}
             - name: CALICO_IPV4POOL_IPIP
               value: "Always"
+            {{ end }}
             # Enable or Disable VXLAN on the default IP pool.
+            {{ if .Values.calico.vxlanEnabled }}
             - name: CALICO_IPV4POOL_VXLAN
-              value: "Never"
+              value: "Always"
+            {{ end }}
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
               valueFrom:
@@ -227,7 +231,9 @@ spec:
               command:
               - /bin/calico-node
               - -felix-live
+              {{ if .Values.calico.ipipEnabled }}
               - -bird-live
+              {{ end }}
             periodSeconds: 10
             initialDelaySeconds: 10
             failureThreshold: 6
@@ -236,7 +242,9 @@ spec:
               command:
               - /bin/calico-node
               - -felix-ready
+              {{ if .Values.calico.ipipEnabled }}
               - -bird-ready
+              {{ end }}
               {{ .Values.calico.ipipReadiness }}
             periodSeconds: 10
           volumeMounts:

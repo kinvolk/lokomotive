@@ -12,22 +12,31 @@ variable "region" {
 
 variable "dns_zone" {
   type        = string
-  description = "Azure DNS Zone (e.g. azure.example.com)"
+  description = "DNS Zone (e.g. example.com)"
 }
 
-variable "dns_zone_group" {
-  type        = string
-  description = "Resource group where the Azure DNS Zone resides (e.g. global)"
-}
+# variable "dns_zone_group" {
+#   type        = string
+#   description = "Resource group where the Azure DNS Zone resides (e.g. global)"
+# }
 
-variable "custom_image_resource_group_name" {
-  type        = string
-  description = "The name of the Resource Group in which the Custom Image exists."
-}
+# variable "custom_image_resource_group_name" {
+#   type        = string
+#   description = "The name of the Resource Group in which the Custom Image exists."
+# }
 
-variable "custom_image_name" {
-  type        = string
-  description = "The name of the Custom Image to provision this Virtual Machine from."
+# variable "custom_image_name" {
+#   type        = string
+#   description = "The name of the Custom Image to provision this Virtual Machine from."
+# }
+
+variable "tags" {
+  type = map(any)
+  default = {
+    "ManagedBy" = "Lokomotive"
+    "CreatedBy" = "Unspecified"
+  }
+  description = "Optional details to tag on AWS resources"
 }
 
 # instances
@@ -52,26 +61,25 @@ variable "controller_type" {
 
 variable "worker_type" {
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_DS1_v2"
   description = "Machine type for workers (see `az vm list-skus --location centralus`)"
 }
 
 variable "os_image" {
   type        = string
-  default     = "coreos-stable"
-  description = "Channel for a CoreOS Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha)"
+  description = "Channel for a Container Linux derivative (flatcar-stable, flatcar-beta, flatcar-alpha)"
+  default     = "flatcar-stable"
+
+  validation {
+    condition     = contains(["flatcar-stable", "flatcar-beta", "flatcar-alpha"], var.os_image)
+    error_message = "The os_image must be flatcar-stable, flatcar-beta, or flatcar-alpha."
+  }
 }
 
 variable "disk_size" {
   type        = number
-  default     = 40
+  default     = 30
   description = "Size of the disk in GB"
-}
-
-variable "worker_priority" {
-  type        = string
-  default     = "Regular"
-  description = "Set worker priority to Low to use reduced cost surplus capacity, with the tradeoff that instances can be deallocated at any time."
 }
 
 variable "controller_clc_snippets" {
@@ -80,7 +88,7 @@ variable "controller_clc_snippets" {
   default     = []
 }
 
-variable "worker_clc_snippets" {
+variable "clc_snippets" {
   type        = list(string)
   description = "Worker Container Linux Config snippets"
   default     = []
@@ -139,10 +147,36 @@ variable "enable_aggregation" {
   default     = true
 }
 
-# Certificates
+variable "encrypt_pod_traffic" {
+  description = "Enable in-cluster pod traffic encryption."
+  type        = bool
+  default     = false
+}
 
+variable "disable_self_hosted_kubelet" {
+  description = "Disable the self hosted kubelet installed by default"
+  type        = bool
+}
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}
+
+variable "worker_bootstrap_tokens" {
+  description = "List of token-id and token-secret of each node."
+  type        = list(any)
+}
+
+
+# Certificates
 variable "certs_validity_period_hours" {
   description = "Validity of all the certificates in hours"
   type        = number
   default     = 8760
+}
+
+variable "conntrack_max_per_core" {
+  description = "--conntrack-max-per-core value for kube-proxy. Maximum number of NAT connections to track per CPU core (0 to leave the limit as-is and ignore the conntrack-min kube-proxy flag)."
+  type        = number
 }

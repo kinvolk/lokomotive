@@ -1,4 +1,9 @@
-variable "name" {
+variable "cluster_name" {
+  type        = string
+  description = "Unique cluster name (prepended to dns_zone)"
+}
+
+variable "pool_name" {
   type        = string
   description = "Unique name for the worker pool"
 }
@@ -30,15 +35,33 @@ variable "backend_address_pool_id" {
   description = "Must be set to the `worker_backend_address_pool_id` output by cluster"
 }
 
-variable "custom_image_resource_group_name" {
+variable "dns_zone" {
   type        = string
-  description = "The name of the Resource Group in which the Custom Image exists."
+  description = "DNS Zone (e.g. example.com)"
 }
 
-variable "custom_image_name" {
-  type        = string
-  description = "The name of the Custom Image to provision this Virtual Machine from."
+variable "labels" {
+  type        = map(string)
+  description = "Map of custom labels for worker nodes."
+  default     = {}
 }
+
+variable "taints" {
+  type        = map(string)
+  default     = {}
+  description = "Map of custom taints for worker nodes."
+}
+
+
+# variable "custom_image_resource_group_name" {
+#   type        = string
+#   description = "The name of the Resource Group in which the Custom Image exists."
+# }
+
+# variable "custom_image_name" {
+#   type        = string
+#   description = "The name of the Custom Image to provision this Virtual Machine from."
+# }
 
 # instances
 
@@ -56,8 +79,13 @@ variable "vm_type" {
 
 variable "os_image" {
   type        = string
-  default     = "coreos-stable"
-  description = "Channel for a CoreOS Container Linux derivative (coreos-stable, coreos-beta, coreos-alpha)"
+  description = "Channel for a Container Linux derivative (flatcar-stable, flatcar-beta, flatcar-alpha)"
+  default     = "flatcar-stable"
+
+  validation {
+    condition     = contains(["flatcar-stable", "flatcar-beta", "flatcar-alpha"], var.os_image)
+    error_message = "The os_image must be flatcar-stable, flatcar-beta, or flatcar-alpha."
+  }
 }
 
 variable "priority" {
@@ -77,6 +105,16 @@ variable "clc_snippets" {
 variable "kubeconfig" {
   type        = string
   description = "Must be set to `kubeconfig` output by cluster"
+}
+
+variable "ca_cert" {
+  description = "Kubernetes CA certificate needed in the kubeconfig file."
+  type        = string
+}
+
+variable "apiserver" {
+  description = "Apiserver private endpoint needed in the kubeconfig file."
+  type        = string
 }
 
 variable "ssh_keys" {
@@ -99,4 +137,27 @@ variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = string
   default     = "cluster.local"
+}
+
+variable "enable_tls_bootstrap" {
+  description = "Enable TLS Bootstrap for Kubelet."
+  type        = bool
+}
+
+variable "cpu_manager_policy" {
+  description = "CPU Manager policy to use for the worker pool. Possible values: `none`, `static`."
+  default     = "none"
+  type        = string
+}
+
+variable "kube_reserved_cpu" {
+  description = "CPU cores reserved for the Worker Kubernetes components like kubelet, etc."
+  default     = "300m"
+  type        = string
+}
+
+variable "system_reserved_cpu" {
+  description = "CPU cores reserved for the host services like Docker, sshd, kernel, etc."
+  default     = "500m"
+  type        = string
 }

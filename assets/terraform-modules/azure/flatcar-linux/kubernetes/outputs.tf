@@ -19,6 +19,10 @@ output "resource_group_name" {
   value = azurerm_resource_group.cluster.name
 }
 
+output "resource_group_id" {
+  value = azurerm_resource_group.cluster.id
+}
+
 output "subnet_id" {
   value = azurerm_subnet.worker.id
 }
@@ -29,6 +33,14 @@ output "security_group_id" {
 
 output "kubeconfig" {
   value = module.bootkube.kubeconfig-kubelet
+}
+
+output "ca_cert" {
+  value = module.bootkube.ca_cert
+}
+
+output "apiserver" {
+  value = local.api_server
 }
 
 # Outputs for custom firewalling
@@ -77,4 +89,20 @@ output "calico_values" {
 
 output "lokomotive_values" {
   value = module.bootkube.lokomotive_values
+}
+
+output "bootstrap-secrets_values" {
+  value = module.bootkube.bootstrap-secrets_values
+}
+
+output "node-local-dns_values" {
+  value = module.bootkube.node-local-dns_values
+}
+
+output "controllers_public_ipv4" {
+  value = azurerm_linux_virtual_machine.controllers.*.public_ip_address
+}
+
+output "controllers_private_ipv4" {
+  value = azurerm_linux_virtual_machine.controllers.*.private_ip_address
 }

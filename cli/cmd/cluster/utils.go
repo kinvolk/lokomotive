@@ -30,6 +30,7 @@ import (
 	"github.com/kinvolk/lokomotive/pkg/platform"
 	"github.com/kinvolk/lokomotive/pkg/platform/aks"
 	"github.com/kinvolk/lokomotive/pkg/platform/aws"
+	"github.com/kinvolk/lokomotive/pkg/platform/azure"
 	"github.com/kinvolk/lokomotive/pkg/platform/baremetal"
 	"github.com/kinvolk/lokomotive/pkg/platform/equinixmetal"
 	"github.com/kinvolk/lokomotive/pkg/platform/tinkerbell"
@@ -79,6 +80,7 @@ func getPlatform(name string) (platform.Platform, error) {
 	platforms := map[string]platform.Platform{
 		aks.Name:          aks.NewConfig(),
 		aws.Name:          aws.NewConfig(),
+		azure.Name:        azure.NewConfig(),
 		equinixmetal.Name: equinixmetal.NewConfig(),
 		baremetal.Name:    baremetal.NewConfig(),
 		tinkerbell.Name:   tinkerbell.NewConfig(),
